@@ -180,7 +180,7 @@ dojo.declare("gnr.QueryManager", null, {
         
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
         var queryAttributes= queryBag.getNode(currentQuery).attr;
-        queryAttributes['id'] = queryAttributes['pkey']
+        //queryAttributes['id'] = queryAttributes['pkey']
         if(!('extended' in queryAttributes)){
             queryAttributes.extended = true;
         }
@@ -320,8 +320,7 @@ dojo.declare("gnr.QueryManager", null, {
         toolbar._('slotButton','saveset',{iconClass:'iconbox save',action:saveAction});
         toolbar._('slotButton','delset',{iconClass:'iconbox trash',disabled:'^.currentsetAttr.id?=!#v',
                     action:function(){
-                        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id'),
-                                                                table:that.maintable},resetSet);
+                        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id')},resetSet);
                     }});
         var box = center._('div', {datapath:datapath,padding:'5px'});
         var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
@@ -516,7 +515,7 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildParsDialog:function(parslist) {
         var sourceNode = this.sourceNode;
-        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath});
+        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px'});
         var that = this;
         var confirm = function(){
             that.runQuery()

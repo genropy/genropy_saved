@@ -31,6 +31,7 @@ import shutil
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
 from mako.lookup import TemplateLookup
 from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
@@ -73,7 +74,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
-        dbstore = request_kwargs.pop('_dbstore',None) 
+        dbstore = request_kwargs.pop('_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
@@ -132,8 +133,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
-        self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
-        self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+        if not getattr(self,'skip_connection', False):
+            self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+        else:
+            self.page_item = dict(data=dict())
+            self._workdate = datetime.date.today()
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
@@ -197,6 +202,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                  request_kwargs=request_kwargs)
         elif 'rpc' in request_kwargs:
             self._call_handler_type = 'externalCall'
+            self.skip_connection  = True
             return self.getPublicMethod('rpc', request_kwargs.pop('rpc'))
         elif 'method' in request_kwargs:
             self._call_handler_type = 'pageCall'
@@ -267,7 +273,10 @@ class GnrWebPage(GnrBaseWebPage):
             storeDbEnv = self.pageStore().getItem('dbenv')
             if storeDbEnv:
                 self._db.updateEnv(**dict(storeDbEnv))
-                    
+            
+            envPageArgs = dictExtract(self.pageArgs,'env_')
+            if envPageArgs:
+                self._db.updateEnv(**envPageArgs)
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
@@ -617,19 +626,23 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['debugopt'] = self.debugopt
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-        arg_dict['startArgs'] = toJson(kwargs)
+            
+        arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
-        if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
+        #if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
+        if _nodebug is False and _clocomp is False and (self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
         elif _clocomp or self.site.config['closure_compiler']:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
-            arg_dict['genroJsImport'] = [self.jstools.compress(jsfiles)]
+            if not self.site.compressedJsPath or self.site.debug:
+                self.site.compressedJsPath = self.jstools.compress(jsfiles)
+            arg_dict['genroJsImport'] = [self.site.compressedJsPath]
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r, 'js', add_mtime=True) for r in self.js_requires]
                                    if x]
@@ -642,8 +655,8 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         gnr_static_handler = self.site.getStatic('gnr')
         fpath = gnr_static_handler.path(*args)
-        mtime = os.stat(fpath).st_mtime
         url = gnr_static_handler.url(*args)
+        mtime = os.stat(fpath).st_mtime
         url = '%s?mtime=%0.0f' % (url, mtime)
         return url
         
@@ -1275,6 +1288,8 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
+                if self.dbstore:
+                    page.data('gnr.dbstore',self.dbstore)
                 if not self.isGuest:
                     page.dataRemote('gnr.user_preference', 'getUserPreference')
                 page.dataRemote('gnr.app_preference', 'getAppPreference')
@@ -1290,7 +1305,7 @@ class GnrWebPage(GnrBaseWebPage):
                                         };""", url='^gnr.printurl')
                 page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
-                page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
+                page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
                 page.dock(id='dummyDock',display='none')
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
@@ -1303,6 +1318,9 @@ class GnrWebPage(GnrBaseWebPage):
                 
                 root.div(id='auxDragImage')
                 root.div(id='srcHighlighter')
+                pageOptions = self.pageOptions or dict()
+                if 'openMenu' in pageOptions:
+                    root.dataController("""genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",_onStart=True,openMenu=pageOptions['openMenu'])
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;

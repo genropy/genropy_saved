@@ -51,12 +51,16 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5','templateManager','*','count','5']
+            if 'adm' in self.db.packages:
+                templateManager = 'templateManager'
+            else:
+                templateManager = False
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
         elif not virtualStore:
             base_slots = ['5','vtitle','count','*','searchOn']
         else:
-            base_slots = ['5','vtitle','count']
-        base_slots = ','.join(base_slots)
+            base_slots = ['5','vtitle','count','*']
+        base_slots = ','.join([b for b in base_slots if b])
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
@@ -66,7 +70,7 @@ class TableHandlerView(BaseComponent):
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
+                               grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,**kwargs)   
         if configurable:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
@@ -87,23 +91,16 @@ class TableHandlerView(BaseComponent):
         confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        
+        if table==getattr(self,'maintable',None):
+            bar.replaceSlots('#','#,footerBar')
+            footer = bar.footerBar.slotToolbar('log_del,*')
+            footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
+                                                                                    label='!!Show logical deleted',
+                                                                                    validate_onAccept='if(userChange){FIRE .runQuery;}')
 
     @struct_method
-    def th_slotbar_optionsMenu(self,pane,**kwargs):
-        menu = pane.div(tip='!!Query options',_class='buttonIcon icnBaseAction').menu(_class='smallmenu',modifiers='*')
-        menu.menuline('!!Show logical deleted',
-                    action='SET .excludeLogicalDeleted=!GET .excludeLogicalDeleted;',
-                    checked='^.excludeLogicalDeleted?=!#v')
-        table = pane.getInheritedAttributes()['table']
-        if self.db.table(table).draftField:
-            menu.menuline('!!Show drafts',
-                            action='SET .excludeDraft=!GET .excludeDraft;',
-                            checked='^.excludeDraft?=!#v')
-        
-    @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',font_size='.9')
+        pane.div('^.title',font_size='.9',line_height='20px')
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -132,6 +129,10 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15)
+        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
+                        th_root=th_root,open="^.query.queryEditor")
+        if not 'adm' in self.db.packages:
+            return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
@@ -139,9 +140,8 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
                         objtype='list_in',table=table,cacheTime=5)
                         
-        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
-                        th_root=th_root,open="^.query.queryEditor")
-        pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
+
+        pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
 
@@ -225,10 +225,15 @@ class TableHandlerView(BaseComponent):
                 result.update(resources)
         flags = flags or 'is_%s' %res_type
         templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template',flags=flags)
-        for t in templates:
-            attr = t.attr
-            result.setItem(attr['code'],None,resource='%s_template' %res_type,template_id=attr['pkey'],**attr)
+        if templates and len(templates)>0:
+            result.update(templates)
+        result.walk(self._th_addTpl,res_type=res_type)
         return result
+    
+    def _th_addTpl(self,node,res_type=None):
+        if node.attr.get('code'):
+            node.attr['resource'] = resource='%s_template' %res_type
+            node.attr['template_id'] = node.attr['pkey']
         
     @struct_method
     def th_slotbar_templateManager(self,pane,**kwargs):
@@ -419,7 +424,14 @@ class TableHandlerView(BaseComponent):
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
-        pane.data('.excludeLogicalDeleted', options.get('excludeLogicalDeleted',True))
+        
+        pane.dataController("""SET .excludeLogicalDeleted = show?'mark':true;
+                               genro.dom.setClass(dojo.body(),'th_showLogicalDeleted',show);
+                            """,show="^.showLogicalDeleted")
+        
+        pane.dataFormula('.showLogicalDeleted', '!default_ld',
+                        default_ld=options.get('excludeLogicalDeleted',True),
+                        _onStart=True)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 
@@ -432,15 +444,17 @@ class TableHandlerView(BaseComponent):
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
+        val = querybase.get('val')
         if column:
             column_dtype = tblobj.column(column).getAttr('dtype')
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
-        result.setItem('c_0', querybase.get('val'),
+        result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
                         'op_caption': '!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
                         'not': op_not, 'not_caption': not_caption,
                         'column_dtype': column_dtype,
-                        'column_caption': self.app._relPathToCaption(table, column)})
+                        'column_caption': self.app._relPathToCaption(table, column),
+                        'value_caption':val})
         return result
 
 class THViewUtils(BaseComponent):
@@ -464,17 +478,19 @@ class THViewUtils(BaseComponent):
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
         if len(userobjects)>0:
-            for n in userobjects:
-                attrs = n.attr
-                result.addItem(attrs.get('code') or 'r_%i' %len(result), None,gridId=gridId,**attrs)
-        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath)
+            result.update(userobjects)
+        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,gridId=gridId)
         return result
     
-    def _th_checkFavoriteLine(self,node,favPath=None):
-        if node.attr.get('code') and node.attr['code'] == favPath:
-            node.attr['favorite'] = True
+    def _th_checkFavoriteLine(self,node,favPath=None,gridId=None):
+        if node.attr.get('code'):
+            if gridId:
+                node.attr['gridId'] = gridId
+            if node.attr['code'] == favPath:
+                node.attr['favorite'] = True
         else:
             node.attr['favorite'] = None
+        
     
     @public_method
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,favoriteQueryPath=None,**kwargs):
@@ -483,11 +499,9 @@ class THViewUtils(BaseComponent):
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
                                 extended=False)
             querymenu.setItem('r_1',None,caption='-')
-        savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query')            
+        savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query') if 'adm' in self.db.packages else []
         if savedquerymenu:
-            for n in savedquerymenu:
-                attr = n.attr
-                querymenu.setItem(attr.get('code') or 's_%i' % len(querymenu), None,_attributes=attr)
+            querymenu.update(savedquerymenu)
             querymenu.setItem('r_2',None,caption='-')
         if pyqueries:
             for n in pyqueries:

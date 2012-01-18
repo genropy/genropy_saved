@@ -258,7 +258,10 @@ class GnrWsgiSite(object):
             self.config = _config
         else:
             self.config = self.load_site_config()
-            
+        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
+        self.cleanup_interval = self.config['cleanup_interval'] or 300
+        self.page_max_age = self.config['page_max_age'] or 600
+        self.user_max_age = self.config['user_max_age'] or 1200
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
@@ -275,10 +278,10 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.debug = boolean(options.debug) if options else boolean(self.config['wsgi?debug'])
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
+        self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
-        
+        self.compressedJsPath = None
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
@@ -419,9 +422,7 @@ class GnrWsgiSite(object):
         
     def initializePackages(self):
         """TODO"""
-        for pkg in self.gnrapp.packages.values():
-            if hasattr(pkg, 'onSiteInited'):
-                pkg.onSiteInited()
+        self.gnrapp.pkgBroadcast('onSiteInited')
                 
     def resource_name_to_path(self, res_id, safe=True):
         """TODO
@@ -563,8 +564,8 @@ class GnrWsgiSite(object):
         request_kwargs.pop('_no_cache_', None)
         download_name = request_kwargs.pop('_download_name_', None)
         #print 'site dispatcher: ',path_list
-        if path_list and (path_list[0] in self.dbstores) and not ('_dbstore' in request_kwargs):
-            request_kwargs['_dbstore'] = path_list.pop(0)
+        if path_list and (path_list[0] in self.dbstores):
+            request_kwargs.setdefault('_dbstore',path_list.pop(0))
         if not path_list:
             path_list= self.get_path_list('')                   
         if path_list and path_list[0] == '_ping':
@@ -759,6 +760,17 @@ class GnrWsgiSite(object):
     def build_wsgiapp(self):
         """Build the wsgiapp callable wrapping self.dispatcher with WSGI middlewares"""
         wsgiapp = self.dispatcher
+        if self.profile:
+            from repoze.profile.profiler import AccumulatingProfileMiddleware
+            wsgiapp = AccumulatingProfileMiddleware(
+               wsgiapp,
+               log_filename=os.path.join(self.site_path, 'site_profiler.log'),
+               cachegrind_filename=os.path.join(self.site_path, 'cachegrind_profiler.out'),
+               discard_first_request=True,
+               flush_at_shutdown=True,
+               path='/__profile__'
+              )
+
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
         elif 'debug_email' in self.config:
@@ -787,12 +799,15 @@ class GnrWsgiSite(object):
         """TODO
         
         :param avatar: the avatar (user that logs in)"""
-        if 'adm' in self.db.packages:
-            self.db.packages['adm'].onAuthenticated(avatar)
-        for pkg in self.db.packages.values():
-            if hasattr(pkg,'onAuthenticated'):
-                pkg.onAuthenticated(avatar)
-        
+        #if 'adm' in self.db.packages:
+        #    self.db.packages['adm'].onAuthenticated(avatar)
+        #pkgbroadcast?
+        self.gnrapp.pkgBroadcast('onAuthenticated',avatar)
+       #
+       # for pkg in self.db.packages.values():
+       #     if hasattr(pkg,'onAuthenticated'):
+       #         pkg.onAuthenticated(avatar)
+       # 
     def pageLog(self, event, page_id=None):
         """TODO
         
@@ -901,7 +916,7 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        self.register.drop_page(page_id)
+        self.register.drop_page(page_id, cascade=True)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         
@@ -1040,14 +1055,19 @@ class GnrWsgiSite(object):
         #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
+
         page_item = self.register.refresh(page_id, _lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
-            
+        catalog = self.gnrapp.catalog
         self.handle_clientchanges(page_id, kwargs)
         if _children_pages_info:
             for k,v in _children_pages_info.items():
+                child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
+                if child_lastUserEventTs:
+                    child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
+                    self.register.refresh(k, child_lastUserEventTs)
         envelope = Bag(dict(result=None))
         user=page_item['user']
         datachanges = self.get_datachanges(page_id, user=user)            

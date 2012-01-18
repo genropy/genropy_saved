@@ -1274,7 +1274,7 @@ dojo.declare("gnr.stores._Collection",null,{
             that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onLockChange',function(kw){that.setLocked(kw.locked);});
+                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);});
             }
             startLocked = parentForm?parentForm.locked:startLocked;
             setTimeout(function(){that.setLocked(startLocked);},1);
@@ -1682,6 +1682,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             grid.batchUpdating(false);   
             if(toUpdate){
                 grid.updateRowCount();
+                grid.restoreSelectedRows();
             }
         });
 

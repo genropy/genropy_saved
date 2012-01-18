@@ -127,7 +127,8 @@ dojo.declare('gnr.GenroClient', null, {
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
         var mainWindow = dojo.byId('mainWindow');
-        if (mainWindow && mainWindow.clientHeight==0){
+        dojo.locale = dojo.i18n.normalizeLocale(dojo.locale);
+        if (mainWindow && mainWindow.clientHeight===0){
             genro._startDelayer = setInterval(function(){
                 if(dojo.byId('mainWindow').clientHeight>0){
                     clearInterval(genro._startDelayer);
@@ -171,7 +172,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     saveContextCookie:function() {
         var clientCtx = genro.getData('_clientCtx');
-        genro.publish('onCookieSaving');
+        //genro.publish('onCookieSaving');
         if (clientCtx) {
             dojo.cookie("genroContext", clientCtx.toXml(), { expires: 5,path:genro.getData('gnr.homeUrl')});
         }
@@ -208,6 +209,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
+    },
+    commandLink:function(href,content){
+        return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
     
     onUserEvent:function(e) {
@@ -281,6 +285,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
+        dojo.subscribe('ping',genro.ping);
+        
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
@@ -335,13 +341,13 @@ dojo.declare('gnr.GenroClient', null, {
     getChildFramePage:function(page_id){
         var result;
         var cb = function(f,r){
-            if (f.genro){ 
+            if (f.genro){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
                 return f.genro.getChildFramePage(page_id);
             }
-        }
+        };
         for (var i=0;i<window.frames.length; i++){
             result = cb(window.frames[i]);
             if(result){
@@ -350,17 +356,20 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return result;
     },
-    
+    getValueFromFrame: function(object_name, attribute_name, dtype){
+        return asTypedTxt(window[object_name][attribute_name],dtype);
+    },
     getChildrenInfo:function(result){
         var result = result ||  {};
         var cb = function(f,r){
-            if (f.genro){ 
-                r[f.genro.page_id] = objectUpdate({},f.genro._serverstore_changes);
+            if (f.genro){
+                _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
+                r[f.genro.page_id] = objectUpdate({_lastUserEventTs:_lastUserEventTs},f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
-                f.genro.getChildrenInfo(r)
+                f.genro.getChildrenInfo(r);
             }
-        }
-        dojo.forEach(window.frames,function(f){cb(f,result)});
+        };
+        dojo.forEach(window.frames,function(f){cb(f,result);});
         return objectUpdate({},result);
     },
     
@@ -535,6 +544,10 @@ dojo.declare('gnr.GenroClient', null, {
             {
                 v = stringStrip(dojo.currency.format(v, f));
             }
+        }else if(v instanceof Array){
+            if(f['joiner']){
+                v = v.join(f['joiner']);
+            }
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             var divcontent,divclass;
@@ -590,7 +603,12 @@ dojo.declare('gnr.GenroClient', null, {
 
         }
         // fine area passibile di modifiche
-
+        if(f['showlinks'] && v){
+            if (v instanceof Array){
+                v=v.join(f['joiner'] || ',')
+            }
+            v = highlightLinks(v);
+        }
         return v;
     },
     setdebug:function(topic, level) {

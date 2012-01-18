@@ -175,6 +175,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param record: the record to be deleted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'D')
         
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
@@ -186,6 +188,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
         
     def insert(self, tblobj, record, **kwargs):
@@ -195,6 +199,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param record: the record to be inserted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'I')
         
     def getResource(self, tblobj, path):
@@ -305,6 +311,10 @@ class GnrPackage(object):
             self.loadTableMixinDict(self.custom_module, self.customFolder, model_prefix='custom_')
         self.configure()
         
+    @property
+    def db(self):
+        return self.application.db
+    
     def loadPlugins(self):
         """TODO"""
         plugin_folders=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
@@ -572,6 +582,7 @@ class GnrApp(object):
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
 
         self.db.inTransactionDaemon = False
+        self.pkgBroadcast('onDbStarting')
         self.db.startup()
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
@@ -672,9 +683,14 @@ class GnrApp(object):
         
         By default, it will call the :meth:`onApplicationInited()
         <gnr.app.gnrapp.GnrPackage.onApplicationInited>` method of each package"""
+        self.pkgBroadcast('onApplicationInited')
+    
+    def pkgBroadcast(self,method,*args,**kwargs):
         for pkg in self.packages.values():
-            pkg.onApplicationInited()
-
+            handler = getattr(pkg,method,None)
+            if handler:
+                handler(*args,**kwargs)
+        
 
     def buildLocalization(self):
         """TODO"""
@@ -755,8 +771,7 @@ class GnrApp(object):
                     if not (avatar is None):
                         avatar.page = page
                         avatar.authmode = authmode
-                        for pkg in self.packages.values():
-                            pkg.onAuthentication(avatar)
+                        self.pkgBroadcast('onAuthentication',avatar)
                         return avatar
                         
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):

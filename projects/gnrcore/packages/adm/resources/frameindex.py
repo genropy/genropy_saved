@@ -6,6 +6,9 @@
 # Frameindex component
 
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.web.gnrwebstruct import struct_method
+
 class FrameIndex(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
@@ -22,25 +25,32 @@ class FrameIndex(BaseComponent):
     hideLeftPlugins = False
     preferenceTags = 'admin'
     
-    def rootWidget(self,root,**kwargs):
-        return root.framePane('standard_index',_class='hideSplitter',
+    def mainLeftContent(self,*args,**kwargs):
+        pass
+        
+    def main(self,root,**kwargs):
+        if self.root_page_id:
+            self.index_dashboard(root)
+        else:
+            root.frameIndexRoot(**kwargs)
+    
+    @struct_method
+    def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+        frame = pane.framePane('standard_index',_class='hideSplitter',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
-                                selfsubscribe_showLeft=""" this.getWidget().setRegionVisible("left",true);""",
-                                **kwargs)
-
-    def mainLeftContent(self,*args,**kwargs):
-        pass
-        
-    def main(self,frame,**kwargs):
+                                selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
+                                subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
+                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
         self.prepareLeft(frame.left)
-        self.prepareTop(frame.top)
+        self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
+        return frame
         
-    def prepareTop(self,pane):
+    def prepareTop(self,pane,onCreatingTablist=None):
         pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))
         bc = pane.borderContainer(margin_top='4px') 
         leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
@@ -55,14 +65,14 @@ class FrameIndex(BaseComponent):
         for btn in ['refresh','delete']:
             getattr(self,'btn_%s' %btn)(rightbar)
         
-        self.prepareTablist(bc.contentPane(region='center'))
+        self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
-    def prepareTablist(self,pane):     
+    def prepareTablist(self,pane,onCreatingTablist=False): 
         tabroot = pane.div(connect_onclick="""
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
-                                            """,margin_left='20px',display='inline-block')
+                                            """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
         tabroot.div()
         pane.dataController("""
                                 if(!data){
@@ -72,10 +82,11 @@ class FrameIndex(BaseComponent):
                                         SET iframes = data;
                                     }
                                 }else{
-                                    genro.framedIndexManager.createTablist(tabroot,data);
+                                    genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
                                 """,
-                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,_onStart=True)
+                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
+                            onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
@@ -93,14 +104,14 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
-        sb = pane.slotBar('5,appName,*,messageBox,*,user,logout,5',_class='framefooter',margin_top='1px',messageBox_subscribeTo='rootmessage')
+        sb = pane.slotBar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='framefooter',margin_top='1px',messageBox_subscribeTo='rootmessage')
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
-        #sb.frameurl.div().a(innerHTML=formula,_tags='_DEV_',href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame')
+        sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'});""",
@@ -112,7 +123,7 @@ class FrameIndex(BaseComponent):
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):
-        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',margin_left='-5px',
+        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 
@@ -123,26 +134,9 @@ class FrameIndex(BaseComponent):
                                                 return;
                                             }
                                             var frame = dojo.byId("iframe_"+$1);
-                                            var src = frame.src;
-                                            frame.src = '';
-                                            setTimeout(function(){
-                                                frame.src = src;
-                                            },1);
+                                            frame.sourceNode._genro.pageReload();
                                             """
-        scattr['subscribe_closeFrame'] = """var sc = this.widget;
-                                            var selected = sc.getSelectedIndex();
-                                            var node = genro._data.popNode('iframes.'+$1);
-                                            var treeItem = genro.getDataNode(node.attr.fullpath);
-                                            if(treeItem){
-                                                var itemclass = treeItem.attr.labelClass.replace('menu_existing_page','');
-                                                itemclass = itemclass.replace('menu_current_page','');
-                                                treeItem.setAttribute('labelClass',itemclass);
-                                            }
-                                            this.getValue().popNode($1);
-                                            selected = selected>=sc.getChildren().length? selected-1:selected;
-                                            PUT selectedFrame = null;
-                                            sc.setSelected(selected);
-                                         """        
+        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage($1);"        
         scattr['subscribe_destroyFrames'] = """
                         var sc = this.widget;
                         for (var k in $1){

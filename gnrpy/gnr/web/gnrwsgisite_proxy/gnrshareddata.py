@@ -161,8 +161,8 @@ class GnrSharedData_dict(GnrSharedData):
     @locked_storage
     def set(self, key, value, expiry=0, cas_id=None):
         expiry = exp_to_epoch(expiry)
-        pickled_value = pickle.dumps(value)
         if cas_id is None:
+            pickled_value = pickle.dumps(value)
             self.storage[key] = (pickled_value, expiry, self.next_cas_id)
             return True
         else:
@@ -170,6 +170,7 @@ class GnrSharedData_dict(GnrSharedData):
             if previous_cas_id != cas_id:
                 result = False
             else:
+                pickled_value = pickle.dumps(value)
                 self.storage[key] = (pickled_value, expiry, self.next_cas_id)
                 result = True
             return result

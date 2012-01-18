@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
+import shutil
 import re
 #import weakref
 import cPickle
@@ -1219,7 +1220,7 @@ class SqlSelection(object):
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
             with os.fdopen(dumpfile_handle, "w") as f:
                 cPickle.dump(self._data, f)
-            os.rename(dumpfile_path, pik_path)
+            shutil.move(dumpfile_path, pik_path)
         else:
             with open(pik_path) as f:
                 self._data = cPickle.load(f)

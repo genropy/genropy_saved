@@ -4,6 +4,7 @@
 import datetime
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrdecorator import public_method
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -100,10 +101,24 @@ class GnrDboPackage(object):
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
+    def tableBroadcast(self,evt,autocommit=False):
+        changed = False
+        db = self.application.db
+        for tname,tblobj in db.packages[self.id].tables.items():
+            handler = getattr(tblobj.dbtable,evt,None)
+            if handler:
+                result = handler()
+                changed = changed or result
+        if changed and autocommit:
+            db.commit()
+        return changed
+
+
+        
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
-                  group='zzz', group_name='!!System'):
+                  group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -121,7 +136,7 @@ class TableBase(object):
                       For more information, check the :ref:`group` section
         :param group_name: TODO"""
         if id:
-            tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
+            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
@@ -155,8 +170,10 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
-            
-    def trigger_setTSNow(self, record, fldname):
+        if multidb:
+             self.setMultidbSubscription(tbl.attributes.get('fullname'),allRecords=(multidb=='*'))
+             
+    def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
         where ``fldname`` is the name of the field inserted in the record.
@@ -173,14 +190,14 @@ class TableBase(object):
         :param fldname: the field name"""
         record[fldname] = 0
         
-    def trigger_setAuditVersionUpd(self, record, fldname):
+    def trigger_setAuditVersionUpd(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = (record.get(fldname) or 0)+ 1
         
-    def trigger_setRecordMd5(self, record, fldname):
+    def trigger_setRecordMd5(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
@@ -190,13 +207,19 @@ class TableBase(object):
     def hasRecordTags(self):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
+    
+    def isMultidbTable(self):
+        return 'multidb_allRecords' in self.attributes
 
-    def setMultidbSubscription(self,tblname):
+    def multidb_readOnly(self):
+        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
+
+    def setMultidbSubscription(self,tblfullname,allRecords=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
-        pkg,tblname = tblname.split('.')
+        pkg,tblname = tblfullname.split('.')
         model = self.db.model
         tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
@@ -207,10 +230,47 @@ class TableBase(object):
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
+            tbl.attributes.update(multidb_allRecords=allRecords)
+            tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
+                        onUpdated='multidbSyncUpdated',
+                        onDeleting='multidbSyncDeleting',
+                        onInserted='multidbSyncInserted')
+            if allRecords:
+                return 
+                
+            tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
+                    name_long='!!Subscribed by default',plugToForm=True)
+            tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
+                                                        FROM multidb.multidb_subscription AS sub
+                                                        WHERE sub.dbstore = :env_target_store 
+                                                              AND sub.tablename = '%s'
+                                                        AND sub.%s = #THIS.%s
+                                                        )""" %(tblfullname,fkey,pkey),dtype='B',
+                                                        name_long='!!Subscribed')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-                                                                                 
+           #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
+           #                                            FROM multidb.multidb_subscription AS sub
+           #                                            WHERE sub.dbstore = :env_target_store 
+           #                                                  AND sub.tablename = '%s'
+           #                                            AND sub.%s = #THIS.%s
+           #                                            ) THEN 'multidb_subscribed_row' 
+           #                                            ELSE ''
+           #                                            END
+           #                                            """ %(tblfullname,fkey,pkey),dtype='B',
+           #                                            name_long='!!Subscribed')
+    
+    def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
+     
+    def trigger_multidbSyncInserted(self, record,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
+    
+    def trigger_multidbSyncDeleting(self, record,**kwargs):        
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
+     
+                                                               
     def setTagColumn(self, tbl, name_long=None, group=None):
         """TODO
         
@@ -233,8 +293,15 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
                         name_long=name_long, dtype='TAG')
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-        
-class GnrHTable(TableBase):
+
+
+class GnrDboTable(TableBase):
+    """TODO"""
+    def use_dbstores(self):
+        """TODO"""
+        return True
+              
+class GnrHTable(GnrDboTable):
     """A hierarchical table. More information on the :ref:`classes_htable` section"""
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
@@ -258,6 +325,9 @@ class GnrHTable(TableBase):
                         validate_notnull_error='!!Required', base_view=True,
                         validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
         columns = tbl['columns'] or []
+        broadcast = [] if 'broadcast' not in tbl.attributes else tbl.attributes['broadcast'].split(',')
+        broadcast.extend(['code','parent_code','child_code'])
+        tbl.attributes['broadcast'] = ','.join(list(set(broadcast)))
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
         if not 'description' in columns:
@@ -274,7 +344,7 @@ class GnrHTable(TableBase):
         tblname = '%s.%s_%s' % (pkgname, pkgname, tbl.parentNode.label)
         tbl.formulaColumn('child_count',
                           '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' % tblname,
-                           dtype='L', base_view=True)
+                           dtype='L', always=True)
         tbl.formulaColumn('hdescription',
                            """
                            CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
@@ -288,7 +358,22 @@ class GnrHTable(TableBase):
         """TODO
         
         :param record_data: TODO"""
+        parent_code = record_data.get('parent_code')
         self.assignCode(record_data)
+        if not parent_code:
+            return
+        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+        if parent_children==0:
+            self.touchRecords(where='$code=:code',code=parent_code)
+        
+    def trigger_onDeleted(self,record,**kwargs):
+        parent_code = record.get('parent_code')
+        if not parent_code:
+            return
+        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+        if parent_children==0:
+            self.touchRecords(where='$code=:code',code=parent_code)
+        
         
     def assignCode(self, record_data):
         """TODO
@@ -297,22 +382,51 @@ class GnrHTable(TableBase):
         code_list = [k for k in (record_data.get('parent_code') or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
-        
+    
+    @public_method
+    def reorderCodes(self,pkey=None,into_pkey=None):
+        record = self.record(pkey=pkey,for_update=True).output('record')
+        oldrecord = dict(record)
+        parent_code = self.record(pkey=into_pkey).output('record')['code'] if into_pkey else None
+        code_to_test = '%s.%s' %(parent_code,record['child_code'])
+        if not self.checkDuplicate(code=code_to_test):
+            record['parent_code'] = parent_code
+            self.update(record,oldrecord)
+            self.db.commit()
+            return True
+        return False
+
     def trigger_onUpdating(self, record_data, old_record=None):
         """TODO
-        
         :param record_data: TODO
         :param old_record: TODO"""
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
-            self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
+            parent_code = record_data['code']
+            self.batchUpdate(dict(parent_code=parent_code), where='$parent_code=:old_code', old_code=old_code)
+            #if parent_code:
+            #    parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+            #    if parent_children==0:
+            #        self.touchRecords(where='$code=:code',code=parent_code)
             
-class GnrDboTable(TableBase):
-    """TODO"""
-    def use_dbstores(self):
-        """TODO"""
-        return True
+            
+class GnrHTableDynamicForm(GnrHTable):
+    def getFormDescriptor(self,pkey=None,code=None,folders=False):
+        record = self.record(where='$id=:pkey OR $code=:code',pkey=pkey,code=code,virtual_columns='$child_count').output('record')      
+        if record['child_count'] and not folders:
+            return Bag(),False
+        fieldsField = self.attributes.get('df_fields','fields')
+        f = self.query(columns='$description,$%s,$child_count' %fieldsField,
+                             where="(:code=$code) OR (:code ILIKE $code || '.%%')" ,
+                             code=record['code'],order_by='$code').fetch()
+        fields = Bag()
+        for r in f:
+            fields.update(Bag(r[fieldsField]))
+        record[fieldsField] = fields
+        return record 
+
+
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""

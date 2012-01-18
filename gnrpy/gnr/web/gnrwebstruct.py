@@ -573,12 +573,16 @@ class GnrDomSrc(GnrStructData):
         :param source: TODO"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
+    
+    def getMainFormBuilder(self):
+        return getattr(self.parentNode,'_mainformbuilder',None)
+        
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
                     lblalign=None, lblvalign='middle',
                     fldalign=None, fldvalign='middle', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
-        """In formbuilder you can put dom and widget elements; its most classic usage is to create
+        """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
         fields and their positioning
         
@@ -587,17 +591,18 @@ class GnrDomSrc(GnrStructData):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``,
-                         that actually it is the unique defined class
-        :param lblclass: set label style
+                         that actually it is the unique defined CSS class
+        :param lblclass: set CSS label style
         :param lblpos: set label position: ``L``: set label on the left side of text field
                        ``T``: set label on top of text field
         :param _class: for CSS style
-        :param fieldclass: CSS class appended to every formbuilder's child
+        :param fieldclass: the CSS class appended to every formbuilder's child
         :param lblalign: Set horizontal label alignment (It seems broken... TODO)
         :param lblvalign: set vertical label alignment
         :param fldalign: set field horizontal align
         :param fldvalign: set field vertical align
-        :param disabled: If ``True``, user can't act on the object (write, drag...)
+        :param disabled: If ``True``, user can't act on the object (write, drag...). For more information,
+                         check the :ref:`disabled` attribute
         :param rowdatapath: TODO
         :param head_rows: TODO
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
@@ -605,6 +610,10 @@ class GnrDomSrc(GnrStructData):
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
+        formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
+        if formNode:
+            if not hasattr(formNode,'_mainformbuilder'):
+                formNode._mainformbuilder = tbl
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -1050,7 +1059,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
+                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data;' % (dropCode,dropCode)
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
@@ -1059,7 +1068,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def includedview(self, *args, **kwargs):
         """The :ref:`includedview` component"""
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
-        if frameCode:
+        if frameCode and not kwargs.get('parentFrame')==False:
             kwargs['frameCode'] = frameCode
             return self.includedview_inframe(*args,**kwargs)
         else:
@@ -1248,6 +1257,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if slot!='*' and slot!='|' and not slot.isdigit():
                 if not self.getNode(slot):
                     self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
+        return self
                     
     def button(self, label=None, **kwargs):
         """The :ref:`button` is a :ref:`dojo-improved form widget <dojo_improved_widgets>`: through
@@ -1325,6 +1335,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          mark on the left side of the *menuline*
         """
         return self.child('menuline', label=label, **kwargs)
+        
+    def pluggedFields(self):
+        tblobj = self.parentfb.tblobj
+        collist = tblobj.model['columns']
+        pluggedCols = [(col,collist[col].attributes.get('_pluggedBy')) for col in collist if collist[col].attributes.get('plugToForm')]
+        for f,pluggedBy in pluggedCols:
+            kwargs = dict()
+            if pluggedBy:
+                handler = getattr(self.page.db.table(pluggedBy),'onPlugToForm',None)
+                if handler:
+                    kwargs = handler(f)
+            if kwargs is False:
+                continue
+            self.field(f,**kwargs)
         
     def field(self, field=None, **kwargs):
         """``field`` is used to view, select and modify data included in a database :ref:`table`.
@@ -1435,7 +1459,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             raise GnrDomSrcError('Not existing field %s' % fld)
         wdgattr = self.wdgAttributesFromColumn(fieldobj, **kwargs)     
         if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld != tblobj.fullRelationPath(fld)):
-            wdgattr['readOnly'] = True
+            wdgattr.setdefault('readOnly', True)
             wdgattr['_virtual_column'] = fld
            
         if wdgattr['tag']in ('div', 'span'):
@@ -1497,7 +1521,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
             if 'storefield' in joiner:
-                result['_storename'] = '=.%(storefield)s' %joiner
+                result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
             result['searchDelay'] = 300
@@ -1551,7 +1575,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return result
         
 class GnrFormBuilder(object):
-    """TODO"""
+    """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
                  lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
@@ -1993,7 +2017,7 @@ class GnrGridStruct(GnrStructData):
                   
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
-                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
+                  classes=None, cellClasses=None, headerClasses=None, zoom=False,**kwargs):
         """Return a :ref:`cell` that inherits every attribute from the :ref:`field` widget.
 
         :param field: MANDATORY - it contains the name of the field from which
@@ -2013,7 +2037,10 @@ class GnrGridStruct(GnrStructData):
             return
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
-        
+        fldattr = dict(fldobj.attributes or dict())
+        kwargs.update(dictExtract(fldattr,'cell_'))
+        kwargs.setdefault('format_pattern',fldattr.get('format'))
+        kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
@@ -2021,7 +2048,7 @@ class GnrGridStruct(GnrStructData):
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
             fkeycol=tableobj.column(fkey)
-            if fkeycol :
+            if fkeycol is not None:
                 joiner = fkeycol.relatedColumnJoiner()
                 if 'storefield' in joiner:
                     ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])

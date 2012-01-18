@@ -98,7 +98,18 @@ function arrayPushNoDup(arr, item) {
         arr.push(item);
     }
     ;
-}
+};
+
+function arrayUniquify(arr){
+    var result = [];
+    dojo.forEach(arr,function(n){
+        if(dojo.indexOf(result, n) < 0){
+            result.push(n);
+        }
+    });
+    return result;
+};
+
 
 function arrayMatch(a, matchString) {
     if (matchString.indexOf('*') >= 0) {
@@ -581,8 +592,8 @@ function quoted(astring) {
 
 
 function convertFromText(value, t, fromLocale) {
-    if (value == null) {
-        return null;
+    if (value == null || typeof(value)!='string') {
+        return value;
     }
     if (!t && value.indexOf('::') >= 0) {
         value = value.split('::');
@@ -637,7 +648,7 @@ function convertFromText(value, t, fromLocale) {
     else if (t == 'JS') {
         return genro.evaluate(value);
     }
-    else if (t = 'BAG' && !value) {
+    else if (t == 'BAG' && !value) {
         return new gnr.GnrBag();
     }
     return value;

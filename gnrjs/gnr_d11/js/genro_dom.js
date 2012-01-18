@@ -713,16 +713,17 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         var inherited = sourceNode.getInheritedAttributes();
         var supportedTypes = sourceNode.getInheritedAttributes().dropTypes;
-        var supportedTypes = supportedTypes ? splitStrip(supportedTypes) : [];
+        supportedTypes = supportedTypes ? splitStrip(supportedTypes) : [];
+
         for (var k in objectExtract(inherited, 'onDrop_*', true)) {
             supportedTypes.push(k);
         }
         var draggedTypes = genro.dom.dataTransferTypes(dataTransfer);
         var matchCb=function(supportedType) {
-                return arrayMatch(draggedTypes, supportedType).length > 0;
+            return arrayMatch(draggedTypes, supportedType).length > 0;
         };
         if (dojo.filter(supportedTypes, matchCb).length == 0) {
-                return false;
+            return false;
         }
         var dropTags = sourceNode.getInheritedAttributes().dropTags;
         if (!dropTags) {

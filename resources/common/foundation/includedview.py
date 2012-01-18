@@ -28,61 +28,6 @@ class IncludedView(BaseComponent):
     includedViewBox is the main method of this class."""
     js_requires = 'public'
     py_requires = 'gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'
-    
-    @struct_method
-    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
-        assert not callable(label), 'use the attachpoint .footer instead of'
-        searchOn = kwargs.pop('searchOn',None) or kwargs.pop('filterOn',None)
-        slots = slots.split(',') if slots else []
-        add_kw = dictExtract(kwargs,'add_',True,slice_prefix=False)
-        del_kw = dictExtract(kwargs,'del_',True,slice_prefix=False)
-        upd_kw = dictExtract(kwargs,'upd_',True,slice_prefix=False)
-        tools_kw = dictExtract(kwargs,'tools_',True,slice_prefix=False)
-        print_kw = dictExtract(kwargs,'print_',True,slice_prefix=False)
-        export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
-        slotbarKwargs = dict()
-        if label:
-            slots.append('label')
-            slotbarKwargs['label'] = label
-            slots.append('*')
-        if searchOn:
-            slots.append('searchOn')
-        for slot,kw in (('addrow',add_kw),('delrow',del_kw),('updrow',upd_kw)):
-            if kw:
-                slots.append(slot)
-                slotbarKwargs.update(kw)
-        if slots:
-            _class = 'pbl_viewBoxLabel' if not hasToolbar else None
-            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn,
-                                    childname='slotbar',namespace='iv',**slotbarKwargs)
-        return kwargs
-        
-    @extract_kwargs(frame=True)
-    @struct_method
-    def ivnew_selectionViewBox(self,pane,frameCode=None,datapath=None,selectionPars=None,reloader=None,table=None,
-                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
-                        frame_kwargs=None,**kwargs):
-        assert frameCode, 'frameCode is mandatory'
-        assert not 'footer' in kwargs, 'use the attachpoint .footer instead of'
-        assert not 'centerPaneCb' in kwargs, 'not supported'
-        assert not 'pickerPars' in kwargs, 'not supported'
-        assert not 'formPars' in kwargs, 'not supported'
-        assert not 'addOnCb' in kwargs, 'not supported. it returns the frame append controllers there'
-        assert table, 'table is mandatory'
-        
-        if pane.attributes['tag'].lower()=='bordercontainer':
-            pane.attributes['tag'] = 'ContentPane' 
-        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**frame_kwargs)
-        kwargs = frame.top.adaptSlotbar(**kwargs)
-        view = frame.includedView(**kwargs)
-        selectionPars = selectionPars or dict()
-        if reloader:
-            selectionPars['_reloader'] = reloader
-        if _onStart:
-            selectionPars['_onStart'] = _onStart
-        if selectionPars:
-            view.selectionStore(table=table,_reload='^.reload',childname='store',**selectionPars)
-        return frame
         
     def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
                         storepath=None, selectionPars=None, formPars=None, label=None, caption=None, footer=None,

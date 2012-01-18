@@ -188,14 +188,13 @@ font
 
 .pbl_root {
     margin: 8px;
-    margin-left: 0;
-    margin-right: 12px;
+    margin-left:6px;
+    margin-right: 10px;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     -moz-box-shadow: 4px 4px 4px #403b3b;
     -webkit-box-shadow: 4px 4px 4px #403b3b;
 }
-
 .pbl_root_bottom {
     height: 22px;
     line-height:22px;
@@ -613,7 +612,7 @@ font
 
 .menutree {
     margin-top: 5px;
-    margin-right: 10px; /*font-weight: bold;*/
+    margin-right: 0; /*font-weight: bold;*/
     background-position: left;
 }
 
@@ -675,7 +674,7 @@ font
     padding-top: 3px;
     padding-bottom: 3px;
     background-color: rgba(85,117,149,0.8);
-    margin-right: 10px;
+    margin-right: 8px;
     -moz-box-shadow: 2px 2px 2px #403b3b;
     -webkit-box-shadow: 2px 2px 2px #403b3b;
     margin-top: 3px;

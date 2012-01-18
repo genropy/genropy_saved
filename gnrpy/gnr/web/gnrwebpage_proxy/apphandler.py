@@ -584,9 +584,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if selection is not None:
             kwargs.pop('where_attr',None)
             tblobj = self.db.table(table)
+            wherelist = ['( $%s IN :_pkeys )' %tblobj.pkey]
             if isinstance(where,Bag):
                 where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
-            where = " ( %s ) AND ( $%s IN :_pkeys ) " % (where,tblobj.pkey)
+            if where:
+                wherelist.append(' ( %s ) ' %where)
+            where = ' AND '.join(wherelist)
             eventdict = {}
             for change in changelist:
                 eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
@@ -1057,6 +1060,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['servertime'] = int((time.time() - t) * 1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
+        if tblobj.logicalDeletionField and record[tblobj.logicalDeletionField]:
+            recInfo['_logical_deleted'] = True
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
@@ -1133,6 +1138,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         """
         if _storename:
             self.db.use_store(_storename)
+        elif _storename is False:
+            self.db.use_store()
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False

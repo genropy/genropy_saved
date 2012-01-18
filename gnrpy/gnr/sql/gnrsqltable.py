@@ -245,7 +245,13 @@ class SqlTable(GnrObject):
     def rowcaption(self):
         """Return the table's :ref:`rowcaption`"""
         return self.model.rowcaption
-        
+    
+
+    @property
+    def newrecord_caption(self):
+        """Return the table's :ref:`rowcaption`"""
+        return self.model.newrecord_caption
+             
     @property
     def columns(self):
         """Returns the columns DbColumnListObj object"""
@@ -482,12 +488,14 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
                         <batchupdate>`) or a method
-        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter"""
+        :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
+        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
+        """
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
@@ -498,7 +506,9 @@ class SqlTable(GnrObject):
             elif isinstance(updater, dict):
                 new_row.update(updater)
             self.update(new_row, row)
-    
+        if autocommit:
+            self.db.commit()
+        
     def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where
         columns = columns or '*'
@@ -821,14 +831,14 @@ class SqlTable(GnrObject):
                 self.xmlDebug(v, debugPath, k)
         return recordCluster, relatedOne, relatedMany
         
-    def _doFieldTriggers(self, triggerEvent, record):
+    def _doFieldTriggers(self, triggerEvent, record,**kwargs):
         trgFields = self.model._fieldTriggers.get(triggerEvent)
         if trgFields:
             for fldname, trgFunc in trgFields:
                 if callable(trgFunc):
                     trgFunc(record, fldname)
                 else:
-                    getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
+                    getattr(self, 'trigger_%s' % trgFunc)(record, fldname=fldname,**kwargs)
                 
     def newPkeyValue(self):
         """Get a new unique id to use as :ref:`primary key <pkey>`
@@ -1018,7 +1028,7 @@ class SqlTable(GnrObject):
                            For more information, check the :ref:`rowcaption` section
         """
         if newrecord:
-            return self.name_long
+            return self.newrecord_caption
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:
@@ -1127,6 +1137,7 @@ class SqlTable(GnrObject):
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 self.insertOrUpdate(rec)
+            self.db.deferredCommit()
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
                             excludeDraft=True, source_records=None, **querykwargs):

@@ -43,22 +43,31 @@ class HTableResolver(BagResolver):
                    'relation_path': None,
                    'rootpkey': None,
                    'extra_columns':None,
+                   'related_extra_columns':None,
+                   'related_fullrecord':None,
                    'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
     
     def loadRelated(self, pkey):
-        print 'loadRelated'
         db = self._page.db
         tblobj = db.table(self.related_table)
-        rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey).fetch()
+        columns = ['*']
+        captioncolumns = tblobj.rowcaptionDecode()[0]
+        if captioncolumns:
+            columns.extend(captioncolumns)
+        columns = ','.join(columns)
+        if self.related_extra_columns:
+            columns = '%s,%s' %(columns,self.related_extra_columns)
+        rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey,columns=columns).fetch()
         children = Bag()
+
         for row in rows:
             caption = tblobj.recordCaption(row)
             children.setItem(row['pkey'], None,
                              caption=caption,
                              pkey=row['pkey'], code=row.get('code'),
-                             node_class='tree_related')
+                             node_class='tree_related',_record=dict(row) if self.related_fullrecord else None)
         return children
         
     def load(self):
@@ -91,6 +100,8 @@ class HTableResolver(BagResolver):
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
+                                       related_extra_columns=self.related_extra_columns,
+                                       related_fullrecord=self.related_fullrecord,
                                        related_table=self.related_table,storename=self.storename,
                                        _page=self._page)
                 child_count = 1
@@ -163,13 +174,17 @@ class HTableHandlerBase(BaseComponent):
                          limit_rec_type=None,
                          rootcaption=None,
                          rootcode=None,
-                         extra_columns=None,storename=None,**kwargs):
+                         extra_columns=None,
+                         related_extra_columns=None,
+                         related_fullrecord=True,
+                         storename=None,**kwargs):
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
             columns = '%s,%s' %(columns,extra_columns) 
         result = Bag()
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
-                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,storename=storename) #if child_count else None
+                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
+                               related_extra_columns=related_extra_columns,related_fullrecord=related_fullrecord,storename=storename) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
                                                             rootcaption=rootcaption,rootcode=rootcode)
         result.setItem(rootlabel, value, checked=False,**attr)
@@ -377,27 +392,24 @@ class HTableHandler(HTableHandlerBase):
                                  FIRE .edit.load;
                              }else{
                                 SET .edit.pkey = savedPkey;
-                                var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
-                                var refreshFromNode = treestore.getNode(parentPath);
-                                if(!refreshFromNode.getValue()){
-                                    refreshFromNode = refreshFromNode.getParentNode();
-                                }
-                                refreshFromNode.refresh(true);
                                 FIRE .edit.load;
                              }
                          """,
                           _fired="^.edit.onSaved", destPkey='=.tree.pkey', parent_code='=.edit.record.parent_code',
                           savedPkey='=.edit.savedPkey', rootpath='=.tree.store?rootpath',
                           treepath='=.tree.path', treestore='=.tree.store',oldChildCode='=.edit.record.child_code?_loadedValue',
-                          treeCaption='=.edit.savedPkey?caption')
+                          treeCaption='=.edit.savedPkey?caption',_delay=1)
         bc.dataController("""
                             if (rootpath){
                                 path=code.slice(rootpath.length);
                             }else{
                                 path = code?'_root_.'+code:'_root_';
                             }
-                            SET .tree.path=path;""", code="^.edit.record.code",
-                          rootpath='=.tree.store?rootpath', _if='code')
+                            SET .tree.path=path;
+                            """, 
+                            code="^.edit.record.code",
+                          rootpath='=.tree.store?rootpath', 
+                          _if='code')
                           
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
                    _POST=True, table=table, _delStatus='^.edit.delete',
@@ -446,17 +458,19 @@ class HTableHandler(HTableHandlerBase):
             pane.slotButton(label='!!Add Sibling',  disabled=disabled,
                         iconClass='iconbox add_record',
                         action='FIRE .edit.add_sibling;', visible='==tree_caption!=null',
-                        tree_caption='^.tree.caption')
+                        tree_caption='^.edit.record.code')
                         
     def ht_edit_toolbar(self, toolbar, nodeId=None, disabled=None, editMode=None, childTypes=None):
         nav = toolbar.breadcrumb.div(nodeId='%s_nav' % nodeId)
         self._ht_add_button(toolbar.hadd, childTypes=childTypes, disabled=disabled)
         toolbar.dataController("""
-        
                             var pathlist = currpath.split('.').slice(1);
                             var rootName = this.getRelativeData('.tree.store.#0?caption');
                             var rootnode = genro.nodeById(labelNodeId)
-                            var nodeattr = this.getRelativeData('.tree.store').getNode(currpath).attr;
+                            if(store){
+                            }else{
+                            }
+                            //var nodeattr = store.getNode(currpath).attr;
                             rootnode.freeze().clearValue();
                             var label;
                             var path2set = '_root_';
@@ -477,7 +491,7 @@ class HTableHandler(HTableHandlerBase):
                             rootnode.unfreeze();
                             """,
                                labelNodeId='%s_nav' % nodeId,
-                               currpath='^.tree.path',
+                               currpath='^.tree.path',store='=.tree.store',
                                add_label='!!Add')
                                
         toolbar.dataController("""
@@ -518,7 +532,7 @@ class HTableHandler(HTableHandlerBase):
                                     disabled=disabled,
                                     hidden='^.edit.no_record',
                                     visible='^.edit.enableDelete')
-        toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.tree.child_count')
+        toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.edit.record.child_count')
         
         if editMode == 'sc':
             toolbar.button('!!Tree', action="SET .selectedPage = 'tree';")
@@ -551,15 +565,16 @@ class HTableHandler(HTableHandlerBase):
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
-                    ,
-                    rootpath=rootpath)
+                    ,rootpath=rootpath)
                     
         connect_ondblclick = None
         if editMode == 'sc':
             connect_ondblclick = 'SET .selectedPage = "edit";'
         elif editMode == 'dlg':
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
-        center.tree(storepath='.tree.store',
+        
+        dragCode = '%s_record' %table.replace('.','_')
+        tree = center.tree(storepath='.tree.store',nodeId='%s_tree' %nodeId, 
                     margin='10px', isTree=False, hideValues=True,
                     inspect='shift', labelAttribute='caption',
                     selected_pkey='.tree.pkey', selectedPath='.tree.path',
@@ -569,8 +584,52 @@ class HTableHandler(HTableHandlerBase):
                     selected_caption='.tree.caption',
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick,
-                    onChecked=onChecked)
-                    
+                    onChecked=onChecked,dragTags=dragCode,
+                    dropTags=dragCode,
+                    dropTypes='nodeattr',
+                     draggable=True,
+                     onDrop="""var into_pkey = dropInfo.treeItem.attr.pkey;
+                                var pkey = data['nodeattr'].pkey;
+                                genro.serverCall("_table.%s.reorderCodes",{pkey:pkey,into_pkey:into_pkey},
+                                                 function(result){
+                                                    if(!result){
+                                                        genro.dlg.alert("Not allowed","Warning");
+                                                    }
+                                                 });""" %table,
+                     dropTargetCb="""var dragged_record = convertFromText(dropInfo.event.dataTransfer.getData("nodeattr"))
+                                    var ondrop_record = dropInfo.treeItem.attr;
+                                    if(dragged_record.parent_code==ondrop_record.code){
+                                        return  false;
+                                    }
+                                    if(dragged_record.pkey==ondrop_record.pkey){
+                                        return false;
+                                    }
+                                    return true;
+                                    
+                                    """)
+        center.onDbChanges(action="""
+                                    var selectedNode = treeNode.widget.currentSelectedNode
+                                    var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
+                                    var refreshDict = {};
+                                    var n;
+                                    dojo.forEach(dbChanges,function(c){
+                                        refreshDict[c.parent_code || '_ROOT_NODE_'] = true;
+                                        if(c.old_parent_code != c.parent_code){
+                                            refreshDict[c.old_parent_code || '_ROOT_NODE_'] = true;
+                                        }
+                                     });
+                                     for (var k in refreshDict){
+                                        n = k!='_ROOT_NODE_'? store.getNodeByAttr('code',k): store.getNode('#0');
+                                        if(n){
+                                            n.refresh(true)
+                                        }                        
+                                     }
+                                     if(currPath){
+                                        treeNode.widget.setSelectedPath(null,{value:currPath});
+                                     }
+                                     """,table=table,store='=.tree.store',treeNode=tree)
+
+                                    
 class HTablePicker(HTableHandlerBase):
     py_requires = 'foundation/dialogs,foundation/includedview:IncludedView'
     

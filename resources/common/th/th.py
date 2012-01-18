@@ -32,7 +32,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,**kwargs):
+                            lockable=False,pbl_classes=False,configurable=True,hider=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -59,7 +59,8 @@ class TableHandler(BaseComponent):
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
-        wdg.dataController("""
+        if hider:
+            wdg.dataController("""
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
@@ -151,48 +152,79 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,**kwargs):
+                            default_kwargs=None,dbname=None,recyclablePages=None,public=True,main_call=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,default_kwargs=default_kwargs,
-                                        **kwargs)
+                                        viewResource=viewResource,default_kwargs=default_kwargs,**kwargs)
         grid = th.view.grid
         table = table or th.attributes['table']
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
-        fakeFormId ='%s_form' %th.attributes['thform_root']
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,
-                                                                default_kwargs,formResource,viewStore);
+                var th = {formResource:formResource,public:public}
+                var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
+                          th:th,viewStore:viewStore,recyclablePages:recyclablePages};
+                if (main_call){
+                    kw['url_main_call'] = main_call;
+                }
+                
+                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,kw);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
                 this._pageHandler.openPage(pkey,dbname);
             }
-        """,formUrl=formUrl,formResource=formResource or ':Form',pkey='^.editrow',_formId=fakeFormId,
-           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname or False,viewStore=th.view.store)
+        """,formUrl=formUrl,formResource=formResource or ':Form',
+             pkey='^.editrow',
+             mainpkey='^#FORM.pkey',
+           default_kwargs=default_kwargs,_fakeform=True,
+           dbname=dbname or False,viewStore=th.view.store,
+           recyclablePages=recyclablePages or False,public=public,main_call=main_call or False
+           )
         return th    
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=True,**kwargs):
+                            readOnly=True,hider=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,readOnly=readOnly,**kwargs)
+                                        viewResource=viewResource,readOnly=readOnly,hider=hider,**kwargs)
         return wdg
         
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        box = pane.div(_class='detacher',z_index=30)
+        #pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        #box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main=self.th_iframedispatcher,main_methodname=method,
+        iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+        return iframe
+    
+
+    @struct_method
+    def th_relatedIframeForm(self,pane,related_field=None,related_table=None,src=None,formResource=None,**kwargs):
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        box = pane.div(_class='detacher',z_index=30)
+        kwargs.setdefault('readOnly',True)
+        kwargs.setdefault('showfooter',False)
+        kwargs.setdefault('showtoolbar',False)
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        table = pane.getInheritedAttributes()['table']
+        if not related_table:
+            tblobj = self.db.table(table)
+            related_tblobj = tblobj.column(related_field).relatedColumn().table    
+            related_table = related_tblobj.fullname            
+        src = src or '/sys/thpage/%s' %related_table.replace('.','/')
+        iframe = box.iframe(main='main_form',main_th_pkey='=#FORM.record.%s' %related_field,
+                            src=src,main_th_formResource=formResource,**kwargs)
+        pane.dataController('iframe._genro._rootForm.load({destPkey:pkey});',
+                            pkey='^#FORM.record.%s' %related_field,iframe=iframe)
         return iframe
         
     @public_method
@@ -263,19 +295,20 @@ class ThLinker(BaseComponent):
         
     @extract_kwargs(template=True)
     @struct_method 
-    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
-        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
+        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         template = frame.templateChunk(resource=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
-        footer = frame.bottom.slotBar('*,linker_edit')
-        footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
-                                       action='linker.publish("loadrecord");',linker=linker,
-                                       visible=currpkey,margin='2px',parentForm=True)
+        if formResource or formUrl:
+            footer = frame.bottom.slotBar('*,linker_edit')
+            footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
+                                            action='linker.publish("loadrecord");',linker=linker,
+                                            visible=currpkey,parentForm=True)
         return frame
 
     @struct_method          

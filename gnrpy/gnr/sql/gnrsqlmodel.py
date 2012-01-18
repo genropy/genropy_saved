@@ -332,9 +332,11 @@ class DbModelSrc(GnrStructData):
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
             self.child('table_list', 'tables')
+        pkg=self.parentNode.label
         return self.child('table', 'tables.%s' % name, comment=comment,
                           name_short=name_short, name_long=name_long, name_full=name_full,
-                          pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=self.parentNode.label,
+                          pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=pkg,
+                          fullname='%s.%s' %(pkg,name),
                           **kwargs)
                           
     def column(self, name, dtype=None, size=None,
@@ -762,6 +764,12 @@ class DbTableObj(DbModelObj):
         return self.attributes.get('rowcaption', self.pkey)
         
     rowcaption = property(_get_rowcaption)
+    
+    @property
+    def newrecord_caption(self):
+        """property. Returns the table's rowcaption"""
+        return self.attributes.get('newrecord_caption', self.name_long)
+        
         
     def _get_queryfields(self):
         """property. Returns the table's queryfields"""
@@ -823,16 +831,19 @@ class DbTableObj(DbModelObj):
         if name.startswith('@'):
             relcol = self._relatedColumn(name)
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
-            if colalias is not None and 'virtual_column' in relcol.attributes:
+            if colalias is not None and 'virtual_column' in colalias.attributes:
                 mixedattributes = dict(relcol.attributes)
                 colalias_attributes = dict(colalias.attributes)
                 colalias_attributes.pop('tag')
                 colalias_attributes.pop('relation_path')
                 mixedattributes.update(colalias_attributes)
+                mixedattributes.pop('virtual_column', None)
                 col = relcol
                 col.attributes = mixedattributes
+
             else:
                 col = relcol
+            
             #if col == None:
         #    raise 'Missing column %s' % name
         return col
@@ -1062,7 +1073,7 @@ class DbColumnObj(DbBaseColumnObj):
         if indexed or unique:
             self.table._indexedColumn[self.name] = {'columns': self.name, 'unique': unique}
             
-        for trigType in ('onInserting', 'onUpdating', 'onDeleting'):
+        for trigType in ('onInserting', 'onUpdating', 'onDeleting','onInserted', 'onUpdated', 'onDeleted'):
             trigFunc = self.attributes.get(trigType)
             if trigFunc:
                 self.table._fieldTriggers.setdefault(trigType, []).append((self.name, trigFunc))

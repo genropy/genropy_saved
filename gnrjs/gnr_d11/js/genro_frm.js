@@ -32,6 +32,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
+        if(this.isRootForm){
+            genro._rootForm = this;
+        }
         if(this.subforms){
             this.subforms = this.subforms.split(',');
         }
@@ -74,7 +77,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'dbcombobox':null,
             'input':null,
             'textarea':null,
-            'datetextbox':null
+            'datetextbox':null,
+            'geocoderfield':null
         };
         this.msg_saved = 'Saved';
         this.msg_deleted = 'Deleted';
@@ -139,7 +143,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true};
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){
@@ -225,6 +229,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.load({destPkey:this.getCurrentPkey()});
     },
     load: function(kw) {
+        if(this.opStatus=='loading'){
+            return;
+        }
         var kw = kw || {};
         if (this.store){
             kw.destPkey = kw.destPkey || '*norecord*';
@@ -265,6 +272,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.doload_store({destPkey:'*dismiss*'});
     },
     
+    norecord:function(){
+        this.load({destPkey:'*norecord*'});
+    },
     newrecord:function(default_kw){
         this.load({destPkey:'*newrecord*', default_kw:default_kw });
     },
@@ -436,6 +446,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
+        genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
 
         this.protect_delete = this.isProtectDelete();
@@ -447,7 +458,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this._recordcaption = data.attr.caption;
             this.publish('record_caption',{'caption':data.attr.caption});
             var tablename = controllerData.getItem('table?name_long');
-            var record_title = tablename? tablename+': '+data.attr.caption:data.attr.caption;
+            var record_title = this.newRecord? data.attr.caption: tablename+': '+data.attr.caption;
             controllerData.setItem('title',record_title,null,{lazySet:true});
         }
         controllerData.setItem('protect_write',this.protect_write,null,{lazySet:true});
@@ -643,7 +654,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         return protect_write || this.readOnly;
     },
-
+    
+    isLogicalDeleted:function(){
+        var logical_deleted = this.getDataNodeAttributes()._logical_deleted;
+        return logical_deleted;
+    },
+    
     isProtectDelete:function(){
         return this.getDataNodeAttributes()._protect_delete;
     },
@@ -1338,6 +1354,26 @@ dojo.declare("gnr.formstores.Base", null, {
     delete_memory:function(){
         
     },
+    _load_prepareDefaults:function(pkey,default_kw,kw){
+        var form = this.form;
+        var loader = this.handlers.load;
+        var default_kwargs = objectPop(kw,'default_kwargs') || {}; 
+        if(default_kwargs){
+            default_kwargs = form.sourceNode.evaluateOnNode(default_kwargs);
+        }
+        if(pkey=='*newrecord*'){
+            default_kw = default_kw || {}       
+            if(loader.defaultCb){
+                default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
+            }
+            objectUpdate(default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
+        }
+        if(objectNotEmpty(default_kwargs)){
+            for(var k in default_kwargs){
+                kw['default_'+k] = default_kwargs[k]
+            }
+        }
+    },
 
     load_recordCluster:function(pkey,default_kw){
         var form=this.form;
@@ -1349,23 +1385,20 @@ dojo.declare("gnr.formstores.Base", null, {
             return result;
         };
         var kw = loader.kw || {};
+        var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
-        kw.default_kwargs = kw.default_kwargs || {}; 
-        if(kw.default_kwargs){
-            kw.default_kwargs = form.sourceNode.evaluateOnNode(kw.default_kwargs);
-        }
-        if(pkey=='*newrecord*'){
-            default_kw = default_kw || {}       
-            if(loader.defaultCb){
-                default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
-            }
-            objectUpdate(kw.default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
-        }
+        this._load_prepareDefaults(pkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
+        var virtual_columns = objectPop(kw,'virtual_columns');
+        var form_virtual_columns = form.getVirtualColumns();
+        virtual_columns = virtual_columns?virtual_columns.split(','):[]
+        form_virtual_columns = form_virtual_columns?form_virtual_columns.split(','):[]
+        virtual_columns = virtual_columns.concat(form_virtual_columns);
+        
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
-                                                  'virtual_columns':form.getVirtualColumns(),
-                                                  'table':this.table, timeout:0},kw),null,'POST',null,function(){});
+                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
         deferred.addCallback(cb);
         if(loader.callbacks){
             var thatnode = form.sourceNode;

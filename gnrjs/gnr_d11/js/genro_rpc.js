@@ -559,7 +559,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kw = kw || {reason:null};
         genro.rpc.setPollingStatus(true);
         var xhrKwargs = {'handleAs':'xml',
-            'url' :'http://' + document.location.host + genro.baseUrl + '_ping',
+            'url' :document.location.protocol+ '//' + document.location.host + genro.baseUrl + '_ping',
             'timeout': 10000,
             'load': dojo.hitch(this, function(response, ioArgs) {
                 var result = genro.rpc.resultHandler(response, ioArgs);
@@ -600,6 +600,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         resolver.onloading = function(kwargs) {
             if(storefield){
                 kwargs['_storename'] = this.getParentNode().getParentBag().getItem(storefield);
+            }else if(storefield===false){
+                kwargs['_storename'] = false;
             }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];

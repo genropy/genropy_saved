@@ -107,15 +107,16 @@ dojo.declare("gnr.LinkerManager", null, {
         if(this.form.locked){
             return;
         }
+        var default_kw = this.sourceNode.evaluateOnNode(this.default_kwargs);
         if(this.linkerform){
-            this.linkerform.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
+            this.linkerform.load({destPkey:pkey,default_kw:default_kw});
             this.thdialog.show();
         }else{
             var that = this;
             var destPkey = pkey;
-            var iframeDialogKw = {title:'',table:this.table,main:'pbl_form_main',
+            var iframeDialogKw = {title:'',table:this.table,main:'main_form',
                                  main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
-                                 onStarted:function(){that.onIframeStarted(this,destPkey)}};
+                                 onStarted:function(){that.onIframeStarted(this,destPkey,default_kw)}};
             if(this.formResource){
                 iframeDialogKw.main_th_formResource=this.formResource;
             }
@@ -129,9 +130,10 @@ dojo.declare("gnr.LinkerManager", null, {
         }
     },
     
-    onIframeStarted:function(iframe,pkey){
+    onIframeStarted:function(iframe,pkey,default_kw){
+        var default_kw = default_kw || {};
         this.linkerform = iframe._genro.formById(this.fakeFormId);
-        this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
+        this.linkerform.load({destPkey:pkey,default_kw:default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
             that.setCurrentPkey(kw.pkey);
@@ -151,61 +153,83 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore){
+    constructor:function(sourceNode,mainpkey,kw){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
-        this.default_kwargs = default_kwargs;
+        this.default_kwargs = kw.default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:true,
-                        url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
-        this.formUrl = formUrl;
-        this.fakeFormId = formId;
+        this.recyclablePages = kw.recyclablePages;
+        this.page_kw = {url_main_call:kw.main_call || 'main_form',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
+                        url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
+        this.formUrl = kw.formUrl;
         this.loadingTitle = 'loading...'
         this.indexgenro = window.parent.genro;
-        this.viewStore = viewStore.store;
-        if(formResource){
-            this.page_kw['url_th_formResource'] = formResource;
-        }
-    },
-
-    openPage:function(pkey,dbname){
-        var pageName;
-        
-        var formUrl = dbname?'/'+dbname+this.formUrl:this.formUrl;
-        for (var k in this.pages_dict){
-            if(this.pages_dict[k]==pkey){
-                pageName = k;
+        this.viewStore = kw.viewStore.store;
+        if(kw.th){
+            for(var k in kw.th){
+                this.page_kw['url_th_'+k] = kw.th[k];
             }
         }
-        if(!pageName){
+    },
+    
+    openPage:function(pkey,dbname){
+        var pageName;
+        var formUrl = dbname?'/'+dbname+this.formUrl:this.formUrl;
+        var recyclablePage = null;
+        for (var k in this.pages_dict){
+            var pagePkey = this.pages_dict[k];
+            if(pagePkey==pkey){
+                this.indexgenro.publish('selectIframePage',{pageName:k});
+                return;
+            }else if(!recyclablePage && !pagePkey){
+                recyclablePage = k;
+            }
+        }
+        if(recyclablePage){
+            var recyiclableIframe = this.indexgenro.domById('iframe_'+recyclablePage);
+            this.indexgenro.getDataNode('iframes.'+recyclablePage).updAttributes({'hiddenPage':false});
+            this.indexgenro.publish('selectIframePage',{pageName:recyclablePage});
+            recyiclableIframe.sourceNode._genro._rootForm.load({destPkey:pkey});
+
+            return;
+        }else{
             pageName = genro.page_id+'_'+genro.getCounter();
             this.pages_dict[pageName] = pkey;
         }
-        var kw = objectUpdate({file:formUrl,url_th_pkey:pkey,pageName:pageName,label:this.loadingTitle},this.page_kw);
+        var kw = objectUpdate({file:formUrl,pageName:pageName,label:this.loadingTitle},this.page_kw);
         if(pkey=='*newrecord*'){
             default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
             for (var k in default_kwargs){
-                kw['url_'+k] = default_kwargs[k];
+                kw['url_default_'+k] = default_kwargs[k];
             }
         }
         var cblist = [];
         var indexgenro = this.indexgenro;
         var that = this;
 
-        cblist.push(function(){
-            var form = this._genro.formById(that.fakeFormId);
-            this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
+        cblist.push(function(iframegenro){
+            var form = iframegenro._rootForm
+            iframegenro.dojo.subscribe('form_'+form.formId+'_onLoaded',
                                     function(kw){
                                         that.pages_dict[pageName] = kw.pkey;
-                                        indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
+                                        indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data?kw.data.attr.caption:'loading...'});
                                     });
+            iframegenro.dojo.subscribe('onDeletingIframePage',function(pageName){
+                if(that.recyclablePages){
+                    that.pages_dict[pageName] = null;
+                    form.norecord();
+                }else{
+                    objectPop(that.pages_dict,pageName);
+                }
+            });
             form.store.parentStore = that.viewStore;
             form.setLocked(that.viewStore.locked);
+            form.load({destPkey:that.pages_dict[pageName] || pkey});
         });
         kw['onStartCallbacks'] = cblist;
-        var that = this;
-        indexgenro.publish('selectIframePage',kw);
+        this.indexgenro.publish('selectIframePage',kw);
     },
+    
     checkMainPkey:function(mainpkey){
         if(mainpkey==this.mainpkey){
             return;
@@ -251,6 +275,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         var that = this;
         this.iframe = iframe;
         this.iframeForm = iframe._genro.formById(this.fakeFormId);
+        this.iframeForm.publishToParent = true;
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }

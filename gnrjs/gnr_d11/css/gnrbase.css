@@ -179,6 +179,14 @@ body.workInProgress{
     background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
 	
 }
+.dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
+    border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
+	background-color: white;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
+	
+}
+
 
 .tundra .dijitButtonHover .dijitButtonNode,
 .tundra .dijitButtonNodeHover,
@@ -263,7 +271,7 @@ body.workInProgress{
 	border-bottom-right-radius: 2px;
 }
 
-.slotbar_toolbar .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode{
+.slotbar_toolbar .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
     border:0;
     background:transparent;
     padding: 0px 0px;
@@ -487,7 +495,13 @@ label.ghostlabel span {
 
 .hideSplitter >.dijitSplitter {
     background: transparent;
+    width:4px;
 }
+.hideSplitter>.dijitSplitter:hover{
+    background:silver;
+    opacity:.5;
+}
+
 
 .hideSplitter >.dijitSplitter .dijitSplitterThumb {
     visibility: hidden;
@@ -2031,6 +2045,13 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .filteredGrid .dojoxGrid-cell{
     font-style:italic;
 }
+.logicalDeleted .dojoxGrid-cell {
+    color: #b50000;
+}
+
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell {
+    color: #b50000;
+}
 
 .tundra .dojoxGrid-cell {
 	border: 1px dotted #D5CDB5;
@@ -2174,6 +2195,18 @@ border='1px solid gray',margin='2px', rounded=10,
 	height: 40px;
 }
 
+.slotCaption {
+    -moz-border-radius:12px;
+    -webkit-border-radius:12px;
+    background:#555;
+    border:1px solid gray;
+    padding-left:1em;
+    padding-right:1em;
+    padding-top:1px;
+    overflow:hidden;
+    font-weight:bold;
+    color:white;
+}
 
 /* @end */
 .slotbar .dojoxDock{
@@ -2393,6 +2426,31 @@ border='1px solid gray',margin='2px', rounded=10,
 
 .form_protect_write{
 }
+
+.form_logical_deleted .gnrfieldlabel{
+    color:red;
+}
+.form_deleter{
+    display:none;
+}
+
+.th_showLogicalDeleted .form_deleter{
+    display:block;
+}
+
+.form_logical_deleted .form_deleter .deleter_icon{
+    background: url(icons/checkMarkOn.png) no-repeat center center;
+    height:16px;
+    width:16px;
+    cursor:pointer;
+}
+.form_deleter .deleter_icon{
+    background: url(icons/checkMarkOff.png) no-repeat center center;
+    height:16px;
+    width:16px;
+    cursor:pointer;
+}
+    
 .form_protect_delete{
     
 }

@@ -4,7 +4,7 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     
-    def test_1_dateTextbox(self, pane):
-        """dateTextbox"""
-        fb = pane.formbuilder(datapath='test1')
-        fb.dateTextbox(value='^.dateTextbox', popup=True)
+    def test_1_basic(self, pane):
+        """simple dateTextbox"""
+        fb = pane.formbuilder()
+        fb.dateTextbox(value='^.date', lbl='Date')

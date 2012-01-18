@@ -5,13 +5,18 @@ class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     
     def test_1_basic(self, pane):
-        """Mixed"""
-        fb = pane.formbuilder(datapath='test1', cols=3, fld_width='100%', width='100%')
-        fb.textBox(value='^.r0.name', lbl='Name')
-        fb.textBox(value='^.r0.surname', lbl='Surname', colspan=2)
-        fb.dateTextBox(value='^.r0.birthday', lbl='Birthday')
-        fb.dateTextBox(value='^.r0.date', popup=False, lbl='Date (no popup)')
-        fb.div('remember: date format is GG/MM/AAAA',
-               font_size='.9em', text_align='justify')
-        fb.numberTextBox(value='^.r0.age', lbl='Age')
-        fb.textBox(value='^.r0.text', width='5em', lbl='Text')
+        """Textboxes"""
+        fb = pane.formbuilder(fld_width='18em', cols=2)
+        fb.textBox(value='^.name', lbl='Name')
+        fb.div('textBox')
+        fb.textBox(value='^.surname', lbl='Surname')
+        fb.div('textBox')
+        fb.dateTextbox(value='^.birthday', lbl='Birthday')
+        fb.div('dateTextbox')
+        fb.dateTextBox(value='^.date', popup=False, lbl='Date (no popup)',
+                       tooltip='remember: date format depends on your \"locale\" browser setting')
+        fb.div('dateTextbox')
+        fb.numberTextBox(value='^.age', lbl='Age')
+        fb.div('numberTextbox')
+        fb.textBox(value='^.text', lbl='Text')
+        fb.div('textbox')

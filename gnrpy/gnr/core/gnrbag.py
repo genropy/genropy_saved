@@ -156,8 +156,7 @@ class BagNode(object):
             self.addValidator(k, v)
             
     def _get_parentbag(self):
-        if self._parentbag:
-            return self._parentbag
+        return self._parentbag
             #return self._parentbag()
             
     def _set_parentbag(self, parentbag):
@@ -166,7 +165,7 @@ class BagNode(object):
             if parentbag.backref or True:
                 #self._parentbag=weakref.ref(parentbag)
                 self._parentbag = parentbag
-                if isinstance(self._value, Bag) and parentbag.backref:
+                if hasattr(self._value,'_htraverse') and parentbag.backref:
                     self._value.setBackRef(node=self, parent=parentbag)
 
     parentbag = property(_get_parentbag, _set_parentbag)
@@ -201,8 +200,6 @@ class BagNode(object):
                 if self._resolver.expired: # check to avoid triggers if value unchanged
                     self.value = self._resolver() # this may be a deferred
                 return self._value
-            #if isinstance(self._value, weakref.ref) and not 'weak' in mode:
-        #    return self._value()
         return self._value
 
     def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):
@@ -217,7 +214,7 @@ class BagNode(object):
             _attributes = _attributes or {}
             _attributes.update(value.attr)
             value = value._value
-        if isinstance(value, Bag):
+        if hasattr(value, '_htraverse'):
             rootattributes = value.rootattributes
             if rootattributes:
                 _attributes = dict(_attributes or {})
@@ -237,7 +234,7 @@ class BagNode(object):
             for subscriber in self._node_subscribers.values():
                 subscriber(node=self, info=oldvalue, evt='upd_value')
         if self.parentbag != None and self.parentbag.backref:
-            if isinstance(value, Bag):
+            if hasattr(value,'_htraverse'):
                 value.setBackRef(node=self, parent=self.parentbag)
             if trigger:
                 self.parentbag._onNodeChanged(self, [self.label],
@@ -291,6 +288,22 @@ class BagNode(object):
                 inherited = self.parentbag.parentNode.getInheritedAttributes()
         inherited.update(self.attr)
         return inherited
+        
+    @property
+    def parentNode(self):
+        if self.parentbag:
+            return self.parentbag.parentNode
+    
+    def attributeOwnerNode(self,attrname,**kwargs):
+        curr = self;
+        if not 'attrvalue' in kwargs:
+            while curr and not (attrname in curr.attr):
+                curr = curr.parentNode
+        else:
+            attrvalue = kwargs['attrvalue']
+            while curr and curr.attr[attrname]!=attrvalue:
+                curr = curr.parentNode
+        return curr
         
     def hasAttr(self, label=None, value=None):
         """Check if a node has the given pair label-value in its attributes' dictionary"""
@@ -404,10 +417,8 @@ class Bag(GnrObject):
             self.fillFrom(source)
                     
     def _get_parent(self):
-        if self._parent:
-            return self._parent
-            #return self._parent()
-
+        return self._parent
+        
     def _set_parent(self, parent):
         if parent is None:
             self._parent = None
@@ -451,8 +462,8 @@ class Bag(GnrObject):
             self._parentNode = None
 
     def _get_parentNode(self):
-        if hasattr(self,'_parentNode'):
-            return self._parentNode
+        return getattr(self,'_parentNode', None)
+        return self._parentNode
             #return self._parentNode()
 
     parentNode = property(_get_parentNode, _set_parentNode)
@@ -574,9 +585,11 @@ class Bag(GnrObject):
         :param caption: the attribute to use for the leaf key. If not specified, it uses the original key
         :param attributes: keys to copy as attributes of the leaves. Default value
                            is ``*`` (= select all the attributes)"""
-        if isinstance(group_by, str) or isinstance(group_by, unicode):
+        #if isinstance(group_by, str) or isinstance(group_by, unicode): 
+        # just test if is instance of basestring 
+        # both str and unicode will return True
+        if isinstance(group_by, basestring):
             group_by = group_by.split(',')
-            
         result = Bag()
         for key, item in self.iteritems():
             path = []
@@ -1565,7 +1578,7 @@ class Bag(GnrObject):
         
         :param node: the parent node
         :param parent: TODO"""
-        if self.backref != True:
+        if self._backref != True:
             self._backref = True
             self.parent = parent
             self.parentNode = node
@@ -1579,7 +1592,7 @@ class Bag(GnrObject):
 
     def clearBackRef(self):
         """Clear all the :meth:`setBackRef()` assumption"""
-        if self.backref:
+        if self._backref:
             self._backref = False
             self.parent = None
             self.parentNode = None
@@ -1946,7 +1959,7 @@ class Bag(GnrObject):
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
         parent = node.parentbag
-        if parent != None and parent.backref and isinstance(node._value, Bag):
+        if parent != None and parent.backref and hasattr(node._value, '_htraverse'):
             node._value.setBackRef(node=node, parent=parent)
 
         if pathlist == None:

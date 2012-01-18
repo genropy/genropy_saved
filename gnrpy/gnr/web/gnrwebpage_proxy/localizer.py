@@ -53,7 +53,7 @@ class GnrWebLocalizer(GnrBaseProxy):
             if loctxt:
                 missingLoc = False
                 txt = loctxt
-        else:
+        elif loc is None:
             self._translateMissing(txt)
             application.localization[key] = {}
         if self.page.isLocalizer():
@@ -62,21 +62,22 @@ class GnrWebLocalizer(GnrBaseProxy):
         return txt
         
     def _translateMissing(self, txt):
-        if not self.page.packageId: return
-        missingpath = os.path.join(self.page.siteFolder, 'data', '_missingloc', self.page.packageId)
-        if isinstance(txt, unicode):
-            txtmd5 = txt.encode('utf8', 'ignore')
-        else:
-            txtmd5 = txt
-        fname = os.path.join(missingpath, '%s.xml' % hashlib.md5(txtmd5).hexdigest())
-
-        if not os.path.isfile(fname):
-            b = Bag()
-            b['txt'] = txt
-            b['pkg'] = self.page.packageId
-            old_umask = os.umask(2)
-            b.toXml(fname, autocreate=True)
-            os.umask(old_umask)
+        return
+        ### DISABLED WAITING FOR FURTHER INVESTIGATIONS ###
+        #if not self.page.packageId: return
+        #missingpath = os.path.join(self.page.siteFolder, 'data', '_missingloc', self.page.packageId)
+        #if isinstance(txt, unicode):
+        #    txtmd5 = txt.encode('utf8', 'ignore')
+        #else:
+        #    txtmd5 = txt
+        #fname = os.path.join(missingpath, '%s.xml' % hashlib.md5(txtmd5).hexdigest())
+        #if not os.path.isfile(fname):
+        #    b = Bag()
+        #    b['txt'] = txt
+        #    b['pkg'] = self.page.packageId
+        #    old_umask = os.umask(2)
+        #    b.toXml(fname, autocreate=True)
+        #    os.umask(old_umask)
 
     def _get_status(self):
         if self.missingLoc:
@@ -109,4 +110,3 @@ class GnrWebLocalizer(GnrBaseProxy):
             b['r_%i.key' % j] = k
             b['r_%i.txt' % j] = v.get(self.locale)
         return b
-        

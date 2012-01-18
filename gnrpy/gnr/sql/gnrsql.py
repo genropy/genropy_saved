@@ -77,7 +77,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None):
+                 main_schema=None, debugger=None, application=None, read_only=None):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -98,6 +98,7 @@ class GnrSqlDb(GnrObject):
         self.port = port
         self.user = user
         self.password = password
+        self.read_only = read_only
         self.typeConverter = GnrClassCatalog()
         self.debugger = debugger
         self.application = application
@@ -246,6 +247,10 @@ class GnrSqlDb(GnrObject):
             return self.dbstores[storename]['database']
         else:
             return self.dbname
+    
+    def usingRootstore(self):
+        currentStore = self.currentEnv.get('storename')
+        return  (currentStore is None) or (currentStore == self.rootstore)
             
     def _get_localizer(self):
         if self.application and self.application.site and self.application.site.currentPage:
@@ -305,6 +310,8 @@ class GnrSqlDb(GnrObject):
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
         envargs.update(sqlargs or {})
+        if storename is False:
+            storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
         if dbtable and not self.table(dbtable).use_dbstores():
@@ -366,6 +373,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
@@ -377,7 +385,7 @@ class GnrSqlDb(GnrObject):
         :param pkey: the record :ref:`primary key <pkey>`"""
         tblobj.protect_update(record, old_record=old_record)
         tblobj.protect_validate(record, old_record=old_record)
-        tblobj._doFieldTriggers('onUpdating', record)
+        tblobj._doFieldTriggers('onUpdating', record,old_record=old_record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         if tblobj.attributes.get('diagnostic'):
             errors = tblobj.diagnostic_errors(record)
@@ -388,6 +396,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
+        tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         
     def delete(self, tblobj, record, **kwargs):
@@ -400,12 +409,26 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onDeleting(record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         
     def commit(self):
         """Commit a transaction"""
         self.connection.commit()
-        self.onDbCommitted()
+        if not self.systemDbEvent():
+            self.onDbCommitted()
+    
+    def deferredCommit(self):
+        currentEnv = self.currentEnv
+        savedEnv = currentEnv.get('__savedEnv')
+        if not savedEnv:
+            return
+        dbstore = currentEnv.get('storename')
+        assert dbstore, 'deferredCommit must have a dbstore'
+        savedEnv.setdefault('_storesToCommit',set()).add(dbstore)
+    
+    def systemDbEvent(self):
+        return self.currentEnv.get('_systemDbEvent',False)
     
     def onDbCommitted(self):
         """TODO"""
@@ -592,6 +615,7 @@ class TempEnv(object):
             currentEnv = self.db.currentEnv
             self.savedEnv = dict(currentEnv)
             currentEnv.update(self.kwargs)
+            currentEnv['__savedEnv'] = self.savedEnv
         return self.db
         
     def __exit__(self, type, value, traceback):
@@ -603,7 +627,10 @@ class DbStoresHandler(object):
         
     def __init__(self, db):
         self.db = db
-        self.config_folder = os.path.join(db.application.instanceFolder, 'dbstores')
+        if db.application:
+            self.config_folder = os.path.join(db.application.instanceFolder, 'dbstores')
+        else:
+            self.config_folder = None
         self.dbstores = {}
         self.load_config()
         self.create_stores()
@@ -611,7 +638,7 @@ class DbStoresHandler(object):
     def load_config(self):
         """TODO"""
         self.config = Bag()
-        if os.path.isdir(self.config_folder):
+        if self.config_folder and os.path.isdir(self.config_folder):
             self.config = Bag(self.config_folder)['#0'] or Bag()
             
     def save_config(self):

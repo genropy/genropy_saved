@@ -27,17 +27,17 @@ class PublicBase(BaseComponent):
         return self._userRecord[path]
         
     def onMain_pbl(self):
-        self._init_pbl()
-        
-    def _init_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
+        self._init_pbl()
+        
+    def _init_pbl(self):
+        pane = self.pageSource()
         if self.root_page_id:
             return
-            
         self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
@@ -205,14 +205,10 @@ class PublicBase(BaseComponent):
                               formId='changeWorkdate', height='100px', width='200px',
                               cb_center=cb_center, loadsync=True)
         dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
-        dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
-                    _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
-                    
-    def rpc_pbl_changeServerWorkdate(self, newdate=None):
-        if newdate:
-            self.workdate = newdate
-        return self.workdate
-        
+        dlg.dataRpc('gnr.workdate', self.setWorkdate, workdate='=.data.current_date',
+                    _if='workdate', nodeId='changeWorkdate_saver', 
+                    _onResult="FIRE .saved; PUBLISH pbl_changed_workdate = {workdate:result};")
+
     def mainLeftTop(self, pane):
         if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
             pane.div(_class='icnBasePref buttonIcon', connect_onclick='PUBLISH preference_open="app";',
@@ -443,7 +439,7 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:PublicBase,th/th:TableHandler"""
+    py_requires = """public:Public,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
@@ -455,9 +451,9 @@ class TableHandlerMain(BaseComponent):
     def th_options(self):
         return dict()
         
-    def onMain_pbl(self):
+    def _init_pbl(self):
         pass
-        
+
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
     
@@ -471,8 +467,7 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        self.root_tablehandler = self._th_main(root,th_options=th_options,**kwargs)
-        return self.root_tablehandler
+        return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
@@ -497,6 +492,7 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        self.root_tablehandler = th
         th.view.store.attributes.update(startLocked=True)
         if len(extras)>0:
             viewbar = th.view.top.bar
@@ -514,20 +510,20 @@ class TableHandlerMain(BaseComponent):
         
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes
-        currCodes = gridattr.get('dropTarget_grid','').split(',')
+        currCodes = gridattr.get('dropTarget_grid')
+        currCodes = currCodes.split(',') if currCodes else []
         tcode = 'mover_%s' %self.maintable.replace('.','_')
         if not tcode in currCodes:
             currCodes.append(tcode)
             gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
         gridattr.update(dropTarget_grid=','.join(currCodes))
         
+
     def __th_title(self,th,widget,insidePublic):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
-                th.dataController("""
-                                     console.log(selectedPage,viewtitle,formtitle);
-                                     var title = (selectedPage=='view'?viewtitle:formtitle)||currTitle;
+                th.dataController("""var title = (selectedPage!='form'?viewtitle:formtitle)||currTitle;
                                      genro.setData("gnr.windowTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
                             """,
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
@@ -544,15 +540,8 @@ class TableHandlerMain(BaseComponent):
                     draggable=True,
                     onDrag="""dragValues["webpage"] = genro.page_id;
                               dragValues["dbrecords"] = genro.getDataNode("gnr.windowTitle").attr;
-                                """,**kwargs)
-    
-    @public_method                     
-    def pbl_form_main(self, root,**kwargs):
-        kwargs.update(self.getCallArgs('pkey'))
-        formCb = self.th_form if hasattr(self,'th_form') else None
-        self._th_prepareForm(root,formCb=formCb,**kwargs)
-                
-    
+                                """,**kwargs)            
+
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
@@ -571,7 +560,7 @@ class TableHandlerMain(BaseComponent):
         formkw.update(th_kwargs)
         form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
                                   formResource=formResource,
-                                  formCb=formCb,**formkw)
+                                  formCb=formCb,form_isRootForm=True,**formkw)
         form.dataController("""SET gnr.windowTitle = title;
                             """,title='=.controller.title')    
         if th_kwargs.get('showfooter',True):
@@ -580,10 +569,17 @@ class TableHandlerMain(BaseComponent):
 
     def _usePublicBottomMessage(self,form):
         form.attributes['hasBottomMessage'] = False
-        form.dataController('genro.bp(arguments); PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
+        form.dataController('PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
         
-    def rpc_view(self,root,**kwargs):
-        pass
+    @public_method                     
+    def main_form(self, root,**kwargs):
+        """ALTERNATIVE MAIN CALL"""
+        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
+        pkey = callArgs.pop('th_pkey',None)
+        kwargs.update(pkey=pkey)
+        formCb = self.th_form if hasattr(self,'th_form') else None
+        self._th_prepareForm(root,formCb=formCb,**kwargs)
+    
         
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
