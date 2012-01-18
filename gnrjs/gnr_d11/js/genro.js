@@ -531,6 +531,7 @@ dojo.declare('gnr.GenroClient', null, {
             v = dojo.date.locale.format(v, opt);
         }
         else if (typeof(v) == 'number') {
+            f.locale = f.locale || dojo.locale;
             if (!f.places && f.dtype == 'L') {
                 f.places = 0;
             }
