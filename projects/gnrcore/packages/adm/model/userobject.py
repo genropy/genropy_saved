@@ -57,6 +57,7 @@ class Table(object):
     @public_method
     def deleteUserObject(self, pkey):
         self.delete({'id': pkey})
+        self.db.commit()
 
     @public_method
     def userObjectMenu(self,table=None, objtype=None,**kwargs): #th_listUserObject

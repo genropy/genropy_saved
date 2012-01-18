@@ -610,13 +610,12 @@ class HTableHandler(HTableHandlerBase):
         center.onDbChanges(action="""
                                     var selectedNode = treeNode.widget.currentSelectedNode
                                     var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
-                                    console.log('Salvo path corrente',currPath);
                                     var refreshDict = {};
                                     var n;
                                     dojo.forEach(dbChanges,function(c){
                                         refreshDict[c.parent_code || '_ROOT_NODE_'] = true;
-                                        if(c.old_parent_code){
-                                            refreshDict[c.old_parent_code] = true;
+                                        if(c.old_parent_code != c.parent_code){
+                                            refreshDict[c.old_parent_code || '_ROOT_NODE_'] = true;
                                         }
                                      });
                                      for (var k in refreshDict){
