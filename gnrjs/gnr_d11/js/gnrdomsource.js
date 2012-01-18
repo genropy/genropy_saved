@@ -1246,11 +1246,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(remoteAttr._if){
             var condition = funcApply('return (' + remoteAttr._if + ')',remoteAttr,this);
             if(!condition){
+                if ('_else' in remoteAttr){
+                    var elseval=remoteAttr._else;
+                    if (elseval && typeof(elseval)=='string'){
+                        elseval=funcCreate(elseval).call(this)
+                    }
+                    this.replaceContent(elseval)
+                }
                 return;
             }
-            
         }
-        
         var kwargs = {};
         for (var attrname in remoteAttr) {
             var value = remoteAttr[attrname];
@@ -1411,10 +1416,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._value = currval;
             currval.setBackRef(this, this._parentbag);
         }
-        dojo.forEach(value._nodes,function(n){
-            var node = value.popNode(n.label);
-            currval.setItem(node.label,node);
-        });
+        if(value){
+                dojo.forEach(value._nodes,function(n){
+                var node = value.popNode(n.label);
+                currval.setItem(node.label,node);
+            });
+        }
+        
     },
     
     _ : function(tag, name, attributes, extrakw) {
