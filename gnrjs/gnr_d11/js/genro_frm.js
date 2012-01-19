@@ -870,6 +870,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setControllerData('valid',isValid);
         var status;
         //this.contentSourceNode.setHiderLayer(false,{});
+        var changes = this.getChangesLogger();
+        var changed = (changes.len() > 0);
+        this.changed = changed;
+        this.setControllerData('changed',changed);
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
             //this.contentSourceNode.setHiderLayer(true,{z_index:10});
@@ -881,10 +885,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             status = 'error';
         }
         else{
-            var changes = this.getChangesLogger();
-            var changed = (changes.len() > 0);
-            this.changed = changed;
-            this.setControllerData('changed',changed);
             status = this.changed ? 'changed':'ok';
         }
         if(this.status!=status){
