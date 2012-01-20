@@ -565,7 +565,8 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         } else {
             var id = request.identity;
             var parentSourceNode = this._parentSourceNode;
-            if(!('rowcaption' in parentSourceNode.attr)){
+            var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
+            if(!(('rowcaption' in parentSourceNode.attr) || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
                 recordNodePath = recordNodePath.slice(1);
                 if(recordNodePath.indexOf('.')==0){

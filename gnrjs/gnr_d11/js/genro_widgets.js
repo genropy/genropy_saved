@@ -2052,7 +2052,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             builder._table = builder._table.replace('<table ', '<table draggable="true" ');
         }
         dojo.query('.dojoxGrid-row-table', this.domNode).forEach(function(n) {
-            n.draggable = true;
+            n.draggable = draggable;
         });
     },
     mixin_setDropTarget_row:function(value) {
@@ -3887,6 +3887,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return kw._new_position;
     },
     mixin_delBagRow: function(pos, many, params) {
+        var pos = (pos == '*') ? this.absIndex(this.selection.selectedIndex) : pos;
         var storebag = this.storebag();
         var removed = [];
         if (many) {
@@ -3902,13 +3903,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.loadingContent(false);
 
         } else {
-            pos = (pos == '*') ? this.absIndex(this.selection.selectedIndex) : pos;
             removed.push(storebag.popNode('#' + pos));
         }
         removed.reverse();
         this.filterToRebuild(true);
         this.updateCounterColumn();
         this.updateRowCount('*');
+        var newpos = pos>0?pos-1:0;
+        this.selection.select(newpos);
 
         //if(params.del_register){
         //    var path = '#parent.' + storebag.getParentNode().label + '_removed.';
@@ -4210,7 +4212,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
     },
     mixin_deleteSelectedRows:function(){
+        
         this.delBagRow('*', true);
+        
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt){
