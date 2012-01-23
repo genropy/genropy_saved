@@ -1447,7 +1447,7 @@ class GnrWebPage(GnrBaseWebPage):
                                             
     def onMainCalls(self):
         """TODO"""
-        calls = [m for m in dir(self) if m.startswith('onMain_')]
+        calls = [m for m in dir(self) if m.startswith('onMain_') and not m.endswith('_')]
         for m in calls:
             getattr(self, m)()
         self.onMain()
