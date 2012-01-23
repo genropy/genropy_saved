@@ -2672,8 +2672,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 cell._customGetter = funcCreate(_customGetter);
                             }
                             if(cell.dtype=='B'){
-                                formats['trueclass']="checkboxOn";
-                                formats['falseclass']="checkboxOff";
+                                formats['trueclass']= formats['trueclass'] || "checkboxOn";
+                                formats['falseclass']= formats['falseclass'] || "checkboxOff";
                             }
                             if(cell.semaphore){
                                 formats['trueclass'] = 'greenLight';
@@ -4092,18 +4092,17 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['dtype'] = 'B';
         celldata['width'] = '20px';
         celldata['radioButton'] = radioButton;
-        celldata['format_trueclass'] = radioButton?'checkboxOn':'checkboxOn'; //mettere classi radio
+        celldata['format_trueclass'] = kw.trueclass || (radioButton?'radioOn':'checkboxOn'); //mettere classi radio
         celldata['classes'] = kw.classes || 'row_checker';
-        celldata['format_falseclass'] = radioButton?'checkboxOff':'checkboxOff'; //mettere classi radio
+        celldata['format_falseclass'] = kw.falseclass || (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
         celldata['calculated'] = true;
         celldata['checkedId'] = kw.checkedId;
         if(kw.checkedId){
             sourceNode.attr.checkedId = kw.checkedId;
             sourceNode.registerDynAttr('checkedId');
-            var grid = sourceNode.widget;
             var checkedIdPath = kw.checkedId;
             sourceNode.subscribe('onNewDatastore',function(){
-                sourceNode.setRelativeData(checkedIdPath,grid.getCheckedId(fieldname),null,null,sourceNode);
+                sourceNode.setRelativeData(checkedIdPath,sourceNode.widget.getCheckedId(fieldname),null,null,sourceNode);
             });
         }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
