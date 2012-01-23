@@ -4002,11 +4002,6 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
 
     creating: function(attributes, sourceNode) {
         var savedAttrs = this.creating_common(attributes, sourceNode);
-        var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
-        if (addCheckBoxColumn) {
-            var kw = addCheckBoxColumn == true ? null : addCheckBoxColumn;
-            this.addCheckBoxColumn(kw, sourceNode);
-        }
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
         attributes.query_columns = this.getQueryColumns(sourceNode, attributes.structBag);
@@ -4042,6 +4037,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
         var checked = storebag.getItem(valuepath);
+        var checkedRowClass = kw.checkedRowClass;
         if (currNode.attr.disabled) {
             return;
         }
@@ -4104,9 +4100,17 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             sourceNode.subscribe('onNewDatastore',function(){
                 sourceNode.setRelativeData(checkedIdPath,sourceNode.widget.getCheckedId(fieldname),null,null,sourceNode);
             });
+            if(kw.checkedOnRowClick){
+                dojo.connect(sourceNode.widget,'onRowClick',function(e){
+                    sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname)
+                });
+                
+            }
         }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
-        structbag.setItem('view_0.rows_0.cell_'+fieldname, null, celldata, {_position:position});       
+        genro.callAfter(function(){
+            structbag.setItem('view_0.rows_0.cell_'+fieldname, null, celldata, {_position:position});
+        },1)
     },
     mixin_getCheckedId:function(fieldname){
         var checkedIdList = [];
@@ -4176,6 +4180,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             widget.selection.multiSelect = false;
         }
         //widget.rpcViewColumns();
+        var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
+        if (addCheckBoxColumn) {
+            var kw = addCheckBoxColumn == true ? null : addCheckBoxColumn;
+            widget.addCheckBoxColumn(kw);
+        }
         widget.updateRowCount('*');
     },
     mixin_structbag:function() {
