@@ -1343,6 +1343,10 @@ dojo.declare('gnr.GenroClient', null, {
             newwindow.focus();
         }
     },
+    openBrowserTab:function(url,name){
+        window.open(url)
+    },
+    
 
     dynamicDataProvider:function(table, columns, where, params) {
         var method = 'app.getSelection';
