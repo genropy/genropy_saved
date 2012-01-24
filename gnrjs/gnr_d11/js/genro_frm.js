@@ -563,9 +563,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             that = this;
             if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
                 cb=function(resultDict){
-                    if(!resultDict){
-                        return;
-                    }
+                    resultDict = resultDict || {};
                     if (resultDict.error){
                         genro.dlg.alert(resultDict.error,'Error');
                         that.setOpStatus();
