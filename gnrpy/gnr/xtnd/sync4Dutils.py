@@ -108,8 +108,31 @@ def gnr4dNetBag (host4D, method, params=None):
     #xml = params.toXml(encoding='iso-8859-1')
     xml = unicode(params.toXml(encoding='iso-8859-1'), encoding='iso-8859-1')
     result = server.GNT_NetBags_Server(FourD_Arg1=xml)
+    return Bag(result)
+
+def gnr4dNetBag_ (host4D, method, params=None):
+    """Call a 4D method via 4D WebService Server and GnrNetBag
+    @param host4D: host (and port) of the 4D webserver
+    @param method: name of the method to invoke on 4D in the form 4dMethod.$1:$2
+    @param params: a Bag containing all needed params: 4D receive it as $3 (string: name of a GnrViVa BLOB)"""
+    from suds.client import Client
+
+    server = Client("http://" + host4D + "/4DWSDL/")#, namespace="http://www.4d.com/namespace/default")#,
+                       #soapaction="A_WebService#GNT_NetBags_Server",
+                       #encoding="iso-8859-1",
+                       #http_proxy="")
+
+    params = params or Bag()
+    params['NetBag.Method'] = method
+    params['NetBag.Compression'] = 'N'
+    params['NetBag.Session'] = ''
+    params['NetBag.UserID'] = ''
+
+    #xml = params.toXml(encoding='iso-8859-1')
+    xml = unicode(params.toXml(encoding='iso-8859-1'), encoding='iso-8859-1')
+    result = server.service.GNT_NetBags_Server(FourD_Arg1=xml)
 
     return Bag(result)
 
 if __name__ == '__main__':
-    print gnr4dNetBag('localhost:21021', 'CS_Com.Ping')
+    print gnr4dNetBag('192.168.1.176:8080', 'ATestPy.Ping:pippo')
