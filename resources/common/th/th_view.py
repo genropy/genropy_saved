@@ -302,6 +302,7 @@ class TableHandlerView(BaseComponent):
             chunkSize = None
             selectionName = None
         self.subscribeTable(table,True)
+        selectmethod = self._th_hook('selectmethod',dflt=None,mangler=frame)
         frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
@@ -315,7 +316,7 @@ class TableHandlerView(BaseComponent):
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
-                               timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
+                               timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
                                unlinkdict=unlinkdict,
                                _onCalling=""" 
                                %s

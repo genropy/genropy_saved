@@ -1188,7 +1188,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
-    def _addSlot(self,slot,prefix=None,frame=None,frameCode=None,namespace=None,**kwargs):
+    def _addSlot(self,slot,prefix=None,frame=None,frameCode=None,namespace=None,toolbarArgs=None):
         s=self.child('slot',childname=slot)
         s.frame = frame
         slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
@@ -1199,8 +1199,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 slothandle = getattr(s,'slotbar_%s' %slot,None)
         if slothandle:
             kw = dict()
-            kw[slot] = kwargs.pop(slot,None)
-            kw.update(dictExtract(kwargs,'%s_' %slot,True))
+            kw[slot] = toolbarArgs.pop(slot,None)
+            kw.update(dictExtract(toolbarArgs,'%s_' %slot,True))
             kw['frameCode'] = frameCode
             slothandle(**kw)
             
@@ -1225,7 +1225,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
-                tb._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
+                tb._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,toolbarArgs=toolbarArgs)
         return tb
         
         #se ritorni la toolbar hai una toolbar vuota 
@@ -1256,7 +1256,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
                 if not self.getNode(slot):
-                    self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
+                    self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,toolbarArgs=toolbarArgs)
         return self
                     
     def button(self, label=None, **kwargs):

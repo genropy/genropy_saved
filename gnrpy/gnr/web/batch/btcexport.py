@@ -59,12 +59,14 @@ class BaseResourceExport(BaseResourceBatch):
         return self.fileurl
 
     def rowFromAttr(self, data):
-        for r in data:
-            yield r.getAttr()
+        if data: # prevents eror if there is no selection added by JBE 2012-01-23
+            for r in data:
+                yield r.getAttr()
 
     def rowFromValue(self, data):
-        for r in data:
-            yield r.getValue()
+        if data: # prevents eror if there is no selection added by JBE 2012-01-23
+            for r in data:
+                yield r.getValue()
 
     def prepareFromStruct(self, struct=None):
         for view in struct.values():

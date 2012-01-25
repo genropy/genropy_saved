@@ -1238,7 +1238,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var storeType = chunkSize? 'VirtualSelection':'Selection';
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
-         kw['_delay'] = 'auto';
+         kw['_delay'] = kw['_delay'] || 'auto';
          var selectionStore = sourceNode._('dataRpc',kw);
          var cb = "this.store.onLoaded(result,_isFiredNode);";
          selectionStore._('callBack',{content:cb});

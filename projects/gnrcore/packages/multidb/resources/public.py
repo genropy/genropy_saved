@@ -87,3 +87,8 @@ class TableHandlerMain(BaseComponent):
             };
             """,table='multidb.subscription',tablename=self.maintable,dbstore=target_store,store=store)
         
+        if not self.dbstore and self.isDeveloper():
+            bar = getattr(view.bottom,'bar',view.bottom.slotBar(''))
+            bar.replaceSlots('#','#,*,resync')
+            bar.resync.button('Sync selection',action='PUBLISH table_script_run = {resource:"touch_selection",res_type:"action",selectionName:GET .store?selectionName};')
+        

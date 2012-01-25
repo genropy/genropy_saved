@@ -32,38 +32,11 @@ class PublicBase(BaseComponent):
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
-        self._init_pbl()
-        
-    def _init_pbl(self):
         pane = self.pageSource()
         if self.root_page_id:
             return
-        self._pbl_dialogs(pane)
-        #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
-        if self.db.packages['adm']:
-            pane.dataController("""var prefCode = preference_open[0];
-                                   var frameId = prefCode=='app'?app+'_frame':user+'_frame';
-                                   var frameWindow = genro.domById(frameId).contentWindow;
-                                   if('genro' in frameWindow){
-                                        frameWindow.genro.formById('preference').load();
-                                    }
-                                    if (prefCode=='app'){
-                                        FIRE #mainpreference.open;
-                                    }
-                                    else if (prefCode=='user'){
-                                        FIRE #userpreference.open;
-                                    }
-                                    """,
-                                app='mainpreference',
-                                user='userpreference',
-                                subscribe_preference_open=True)
-
-            self.iframeDialog(pane, title='!!Application Preference', dlgId='mainpreference', src='/adm/app_preference',
-                              cached=False, height='450px', width='800px', centerOn='_pageRoot',
-                              datapath='gnr.preference.application')
-            self.iframeDialog(pane, title='!!User Preference', dlgId='userpreference', src='/adm/user_preference',
-                              cached=False, height='300px', width='400px', centerOn='_pageRoot',
-                              datapath='gnr.preference.user')
+        self._pbl_dialogs(pane)        
+        
                               
     def pbl_userTable(self):
         return 'adm.user'
@@ -80,7 +53,7 @@ class PublicBase(BaseComponent):
             
         def cb_center(parentBc, **kwargs):
             parentBc.contentPane(**kwargs).div(_class='waiting')
-            
+        
         self.simpleDialog(pane, title='!!Waiting', dlgId='pbl_waiting', height='200px', width='300px',
                           cb_center=cb_center,
                           datapath='gnr.tools.waitingdialog', cb_bottom=cb_bottom)
@@ -450,9 +423,6 @@ class TableHandlerMain(BaseComponent):
     
     def th_options(self):
         return dict()
-        
-    def _init_pbl(self):
-        pass
 
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
@@ -550,7 +520,6 @@ class TableHandlerMain(BaseComponent):
         public = boolean(th_kwargs.pop('public',False))
         formId = th_kwargs.pop('formId',self.maintable.replace('.','_'))
         if  public:
-            self._init_pbl()
             root.attributes.update(_class='pbl_root')
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:

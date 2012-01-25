@@ -475,7 +475,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //    this.setLocked(true);
             //}
             this.applyDisabledStatus();
-            this.focus();
+            //this.focus()
+            setTimeout(function(){
+                this.focus();
+            },1)
         }
     },
     
@@ -563,6 +566,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             that = this;
             if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
                 cb=function(resultDict){
+                    resultDict = resultDict || {};
                     if (resultDict.error){
                         genro.dlg.alert(resultDict.error,'Error');
                         that.setOpStatus();
@@ -870,6 +874,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setControllerData('valid',isValid);
         var status;
         //this.contentSourceNode.setHiderLayer(false,{});
+        var changes = this.getChangesLogger();
+        var changed = (changes.len() > 0);
+        this.changed = changed;
+        this.setControllerData('changed',changed);
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
             //this.contentSourceNode.setHiderLayer(true,{z_index:10});
@@ -881,10 +889,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             status = 'error';
         }
         else{
-            var changes = this.getChangesLogger();
-            var changed = (changes.len() > 0);
-            this.changed = changed;
-            this.setControllerData('changed',changed);
             status = this.changed ? 'changed':'ok';
         }
         if(this.status!=status){
@@ -1385,6 +1389,7 @@ dojo.declare("gnr.formstores.Base", null, {
             return result;
         };
         var kw = loader.kw || {};
+        var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         this._load_prepareDefaults(pkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
@@ -1397,7 +1402,7 @@ dojo.declare("gnr.formstores.Base", null, {
         
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
-                                                  'table':this.table, timeout:0},kw),null,'POST',null,function(){});
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
         deferred.addCallback(cb);
         if(loader.callbacks){
             var thatnode = form.sourceNode;

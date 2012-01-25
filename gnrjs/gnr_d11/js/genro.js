@@ -531,6 +531,7 @@ dojo.declare('gnr.GenroClient', null, {
             v = dojo.date.locale.format(v, opt);
         }
         else if (typeof(v) == 'number') {
+            f.locale = f.locale || dojo.locale;
             if (!f.places && f.dtype == 'L') {
                 f.places = 0;
             }
@@ -604,6 +605,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         // fine area passibile di modifiche
         if(f['showlinks'] && v){
+            if (v instanceof Array){
+                v=v.join(f['joiner'] || ',')
+            }
             v = highlightLinks(v);
         }
         return v;
@@ -1339,6 +1343,10 @@ dojo.declare('gnr.GenroClient', null, {
             newwindow.focus();
         }
     },
+    openBrowserTab:function(url,name){
+        window.open(url)
+    },
+    
 
     dynamicDataProvider:function(table, columns, where, params) {
         var method = 'app.getSelection';
