@@ -4074,12 +4074,16 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
     },
     mixin_addCheckBoxColumn:function(kw) {
-        this.gnr.addCheckBoxColumn(kw, this.sourceNode);
+        var that = this;
+        dojo.connect(this,'onSetStructpath',this,function(structbag){
+            that.gnr.addCheckBoxColumn(kw, that.sourceNode,structbag);
+        });
+        
+        
     },
-    addCheckBoxColumn:function(kw, sourceNode) {
+    addCheckBoxColumn:function(kw, sourceNode,structbag) {
         var kw = kw || {};
         var position = kw.position || 0;
-        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         var celldata = {};
         var fieldname =  kw.field || '_checked';
         var radioButton = kw.radioButton || false;
@@ -4183,7 +4187,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var addCheckBoxColumn = sourceNode.attr.addCheckBoxColumn;
         if (addCheckBoxColumn) {
             var kw = addCheckBoxColumn == true ? null : addCheckBoxColumn;
-            widget.addCheckBoxColumn(kw);
+            widget.addCheckBoxColumn(kw)            
         }
         widget.updateRowCount('*');
     },
