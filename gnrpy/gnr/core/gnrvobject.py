@@ -57,6 +57,10 @@ import os.path
 import sys
 import vobject
 
+VALID_VCARD_TAGS = ['n','fn','nickname','photo','bday','adr','label','tel','email',
+              'mailer','tz','geo','title','role','logo','agent','org','note',
+              'rev','sound','url','uid','version','key']
+
 class vCard:
     def __init__(self, card=None,**kwargs):
         self.j=vobject.vCard()
@@ -75,11 +79,6 @@ class vCard:
             if data['prefix']: self.j.n.value.prefix=data['prefix']
             if data['suffix']: self.j.n.value.suffix=data['suffix']
 
-    def _tag_fn(self,data):
-        if data:
-            self.j.add('fn')
-            self.j.fn.value=data
-
 
     def _tag_email(self,data):
         if data:
@@ -90,7 +89,7 @@ class vCard:
 
 
     def _tag_adr(self,data):
-        if data:# 'box', 'city', 'code', 'country', 'extended', 'lines', 'one_line', 'region', 'street'
+        if data: # 'box', 'city', 'code', 'country', 'extended', 'lines', 'one_line', 'region', 'street'
             self.j.add('adr')
             if data['box']: self.j.adr.value.box=data['box']
             if data['city']: self.j.adr.value.city=data['city']
@@ -101,7 +100,7 @@ class vCard:
             if data['region']: self.j.adr.value.region=data['region']
             if data['street']: self.j.adr.value.street=data['street']
             #if data['one_line']: self.j.n.value.one_line=data['one_line']
-            
+
 
     def _serialize(self):
         self.j.serialize()
@@ -109,13 +108,10 @@ class vCard:
     def _prettyprint(self):
         self.j.prettyPrint()
 
-    # def setTag(self,tag,data):
-    #     if not tag[0]=='_':
-    #         tag = '%s%s' %('_tag_',tag)
-    #     methodToCall = getattr(self, tag)
-    #     methodToCall(data)
+
 
     def setTag(self,tag,data):
+        assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
         if tag and data:
             if type(data)==str:
                 self.j.add(tag)
