@@ -567,7 +567,7 @@ class HTableHandler(HTableHandlerBase):
         paletteCode = paletteCode or '%s_picker' %typetbl.replace('.','_')
         title = typetblobj.name_long or '!!Picker'
         if hasattr(typetblobj,'htableFields'):
-            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode).htableStore(table=typetbl)
+            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode,draggableFolders=True).htableStore(table=typetbl)
         else:
             struct = getattr(self,'%s_picker_struct' %nodeId,self._ht_picker_auto_struct)
             pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=True,title=title,grid_dragTags=paletteCode).selectionStore(table=typetbl)
