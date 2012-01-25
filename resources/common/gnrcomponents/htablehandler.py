@@ -730,11 +730,11 @@ class HTableHandler(HTableHandlerBase):
                                     return true;
                                     
                                     """)
+        bar = frame.top.slotToolbar('2,tblname,*')
+        bar.tblname.div(tblobj.name_long)
         if picker:
-            toolbar = frame.top.slotToolbar('*,picker')
-            pickerfield = tblobj.attributes.get('ht_pickerfield')
-            assert pickerfield,'put attribute ht_pickerfield in your table'
-            toolbar.picker.htableTypePicker(pickerfield)
+            bar.replaceSlots('#','#,picker')
+            bar.picker.htableTypePicker(picker)
         center.onDbChanges(action="""
                                     var selectedNode = treeNode.widget.currentSelectedNode
                                     var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
