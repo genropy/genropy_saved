@@ -227,7 +227,8 @@ class HTableHandler(HTableHandlerBase):
     
     def htableHandler(self, parent, nodeId=None, datapath=None, table=None, rootpath=None, label=None,
                       editMode='bc', childTypes=None, dialogPars=None, loadKwargs=None, parentLock=None,
-                      where=None, onChecked=None, plainView=False, childsCodes=False, noRecordClass='noRecordSelected'):
+                      where=None, onChecked=None, plainView=False, childsCodes=False, noRecordClass='noRecordSelected',
+                      picker=None):
         """TODO
         
         :param parent: the parent path
@@ -284,7 +285,7 @@ class HTableHandler(HTableHandlerBase):
                                   parentLock=parentLock, isLocked='^.edit.status.locked',
                                   _if='parentLock!=isLocked', datapath=datapath)
                                   
-        formPanePars = dict(selectedPage='^.edit.selectedPage', _class='pbl_roundedGroup')
+        formPanePars = dict(selectedPage='^.edit.selectedPage')
         
         if plainView:
             tc = parent.tabContainer(nodeId='%s_tc' % nodeId, region='center')
@@ -294,22 +295,22 @@ class HTableHandler(HTableHandlerBase):
                               rootpath=rootpath, editMode=editMode, label=label)
                               
         if editMode == 'bc':
-            bc = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px',design='sidebar')
-            treepane = bc.borderContainer(region='left', width='220px', splitter=True, _class='pbl_roundedGroup')
-            formPanePars['region'] = 'center'
-            formBC = bc.borderContainer(region='center')
-            commonTop = bc.contentPane(region='top', overflow='hidden')
+            ht = bc = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, design='sidebar',_class='hideSplitter')
+            treepane = bc.framePane(region='left', width='220px', splitter=True,rounded=6,border='1px solid silver',margin='2px',childname='treepane')
+            frame = bc.framePane(region='center',rounded=6,margin='2px',border='1px solid silver',childname='editpane')
+            formBC = frame.center
+            commonTop = frame.top
             
         elif editMode == 'sc':
-            sc = parent.stackContainer(region='center', datapath=datapath, nodeId=nodeId,
+            ht = sc = parent.stackContainer(region='center', datapath=datapath, nodeId=nodeId,
                                        selectedPage='^.selectedPage', margin='2px')
-            treepane = sc.borderContainer(pageName='tree', _class='pbl_roundedGroup')
+            treepane = sc.framePane(pageName='tree',rounded=6,border='1px solid silver')
             formPanePars['pageName'] = 'edit'
             formBC = sc.borderContainer(region='center')
             
         elif editMode == 'dlg':
             assert dialogPars, 'for editMode == "dlg" dialogPars are mandatory'
-            treepane = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px',
+            ht = treepane = parent.framePane(region='center', datapath=datapath, nodeId=nodeId, margin='2px',
                                               _class='pbl_roundedGroup')
             formBC = self.simpleDialog(treepane, dlgId='%s_dlg' % nodeId, **dialogPars)
             formPanePars['region'] = 'center'
@@ -322,10 +323,12 @@ class HTableHandler(HTableHandlerBase):
         formpane = formBC.stackContainer(pageName='edit', **formPanePars)
         
         self.ht_tree(treepane, table=table, nodeId=nodeId, disabled=disabled,
-                     rootpath=rootpath, childTypes=childTypes, editMode=editMode, label=label, onChecked=onChecked)
+                     rootpath=rootpath, childTypes=childTypes, editMode=editMode, 
+                     label=label, onChecked=onChecked,picker=picker)
         self.ht_edit(formpane, table=table, nodeId=nodeId, disabled=disabled,
                      rootpath=rootpath, editMode=editMode, loadKwargs=loadKwargs,
                      childTypes=childTypes, commonTop=commonTop, noRecordClass=noRecordClass)
+        return ht
     @public_method          
     def getChildsIds(self, code=None, field=None, table=None):
         field = field or 'code'
@@ -554,16 +557,130 @@ class HTableHandler(HTableHandlerBase):
                               selectionPars=getattr(self, '%s_selectionPars' % gridId, default_selectionPars),
                               dialogPars=dialogPars,
                               filterOn=getattr(self, '%s_filterOn' % gridId, '$code,$description'))
-                              
-    def ht_tree(self, bc, table=None, nodeId=None, rootpath=None, disabled=None,
-                childTypes=None, editMode=None, label=None, onChecked=None):
+    @struct_method
+    def ht_htableTypePicker(self,pane,field=None,paletteCode=None):
+        table = pane.getInheritedAttributes()['table']
+        nodeId = pane.getInheritedAttributes()['nodeId']
+        treeNode = self.pageSource().nodeById('%s_tree' %nodeId)
+        typetblobj = self.db.table(pane.getInheritedAttributes()['table']).column(field).relatedTable().dbtable
+        typetbl = typetblobj.fullname
+        paletteCode = paletteCode or '%s_picker' %typetbl.replace('.','_')
+        title = typetblobj.name_long or '!!Picker'
+        if hasattr(typetblobj,'htableFields'):
+            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode,draggableFolders=True).htableStore(table=typetbl)
+        else:
+            struct = getattr(self,'%s_picker_struct' %nodeId,self._ht_picker_auto_struct)
+            pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=True,title=title,grid_dragTags=paletteCode).selectionStore(table=typetbl)
+        treeattr = treeNode.attr
+        dropTags = treeattr.get('dropTags')
+        dropTags = dropTags.split(',') if dropTags else []
+        dropTags.append(paletteCode)
+        treeattr['dropTags'] = ','.join(dropTags)
+        treeattr['onDrop_%s' %paletteCode] = self.__ht_onDropInsert(field,table,typetbl)
+    
+
+    def __ht_onDropInsert(self,field=None,table=None,typetbl=None):
+        return """var types = [];
+                if(data instanceof Array){
+                    dojo.forEach(data,function(n){types.push(n._pkey)})
+                }else{
+                    types[0] = data['pkey'];
+                }
+                var that = this;
+                var onResult = function(result){
+                    that.setRelativeData('.tree.path','_root_.'+result);
+                }
+                var cb= function(count){
+                    genro.serverCall('ht_createChildren',{types:types,parent_code:dropInfo.treeItem.attr.code,
+                                    type_field:'%s',maintable:'%s',typetable:'%s',how_many:count},onResult,null,'POST');
+                }
+            if(dropInfo.modifiers=='Shift' && types.length==1){
+                var dlg = genro.dlg.quickDialog('Multiple insertion',{_showParent:true,width:'250px'});
+                var msg = 'How many copies do you want to insert?';
+   
+                dlg.center._('div',{innerHTML:_T(msg), text_align:'center',height:'20px'});
+                var that = this;
+                genro.setData('gnr._dev.addrecord.count',null);
+                var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',
+                                                    action:function(){
+                                                        console.log('fff');
+                                                        dlg.close_action();
+                                                        if(this.attr.command='confirm'){
+                                                             cb(that.getRelativeData("gnr._dev.addrecord.count"));
+                                                        }
+                                                    }});
+                slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
+                var fb = genro.dev.formbuilder(dlg.center._('div',{margin:'5px'}),1);
+                fb.addField('numberTextBox',{value:'^gnr._dev.addrecord.count',width:'5em',lbl:'Count',parentForm:false});
+                slotbar._('button','confirm',{label:'Confirm',command:'confirm'});
+                dlg.show_action();
+            }else{
+                cb();
+            }""" %(field,table,typetbl)
+        
+        
+    @public_method
+    def ht_createChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_code=None,how_many=None):
+        if not types:
+            return
+        tblobj = self.db.table(maintable)
+        typetable = self.db.table(typetable)
+        htype = hasattr(typetable,'htableFields')
+        if htype:
+            caption_cols = ['$code','$description']
+        else:
+            caption_cols,format = typetable.rowcaptionDecode(typetable.rowcaption)
+        defaultDescriptions = typetable.query(where='$pkey IN :types',types=types,columns=','.join(caption_cols)).fetchAsDict('pkey')
+        last_child = tblobj.query(where='$parent_code=:pcode' if parent_code else '$parent_code IS NULL',pcode=parent_code,order_by='child_code desc',limit=1).fetch()
+        start_n = 1
+        digits = 2
+        if last_child:
+            last_child = last_child[0]
+            if last_child['child_code'].isdigit():
+                start_n = int(last_child['child_code'])+1
+                digits = len(last_child['child_code'])
+
+        def defaultInsertRecord(parent_code=None,type_field=None,type_id=None,offset=None,last_child=None):
+            r = dict()
+            c = start_n+offset
+            r['parent_code'] = parent_code
+            r['child_code'] = str(c).zfill(digits)
+            typerec = defaultDescriptions[type_id]
+            desc = typerec['description'] or typerec['code'] if htype else typetable.recordCaption(typerec)
+            r['description'] = '%s %i' %(desc,c)
+            r[type_field] = type_id
+            tblobj.insert(r)
+            return r['code']
+            
+        insertRecord = getattr(tblobj,'ht_insertFromType',defaultInsertRecord)            
+        if how_many and len(types) == 1:
+            for i in range(how_many):
+                last_code = insertRecord(parent_code=parent_code,type_field=type_field,type_id=types[0],offset=i,last_child=last_child)
+        else:
+            for i,type_id in enumerate(types):
+                last_code= insertRecord(parent_code=parent_code,type_field=type_field,type_id=type_id,offset=i,last_child=last_child)        
+        self.db.commit()
+        return last_code
+            
+
+    def _ht_picker_auto_struct(self,struct):
+        maintable = struct.maintable
+        if struct.maintable:
+            t = self.db.table(maintable)
+            cols,format = t.rowcaptionDecode(t.rowcaption)
+            r = struct.view().rows()
+            for col in cols:
+                r.fieldcell(col.replace('$',''),width='100%')
+        
+    def ht_tree(self, frame, table=None, nodeId=None, rootpath=None, disabled=None,
+                childTypes=None, editMode=None, label=None, onChecked=None,picker=None):
         if editMode != 'bc':
-            top = bc.contentPane(region='top', _class='pbl_roundedGroupLabel')
+            top = frame.top.div(_class='pbl_roundedGroupLabel')
             top.div(label, float='left')
             self._ht_add_button(top.div(float='left'), disabled=disabled, childTypes=childTypes)
             
         tblobj = self.db.table(table)
-        center = bc.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
+        center = frame.center.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
                     ,rootpath=rootpath)
                     
@@ -588,7 +705,10 @@ class HTableHandler(HTableHandlerBase):
                     dropTags=dragCode,
                     dropTypes='nodeattr',
                      draggable=True,
-                     onDrop="""var into_pkey = dropInfo.treeItem.attr.pkey;
+                     onDrop="""if(dropInfo.dragSourceInfo.nodeId!=dropInfo.sourceNode.attr.nodeId){
+                                    return;
+                                };
+                                var into_pkey = dropInfo.treeItem.attr.pkey;
                                 var pkey = data['nodeattr'].pkey;
                                 genro.serverCall("_table.%s.reorderCodes",{pkey:pkey,into_pkey:into_pkey},
                                                  function(result){
@@ -596,7 +716,10 @@ class HTableHandler(HTableHandlerBase):
                                                         genro.dlg.alert("Not allowed","Warning");
                                                     }
                                                  });""" %table,
-                     dropTargetCb="""var dragged_record = convertFromText(dropInfo.event.dataTransfer.getData("nodeattr"))
+                     dropTargetCb="""var dragged_record = convertFromText(dropInfo.event.dataTransfer.getData("nodeattr"));
+                                    if(dropInfo.dragSourceInfo.nodeId!=dropInfo.sourceNode.attr.nodeId){
+                                        return true;
+                                    }
                                     var ondrop_record = dropInfo.treeItem.attr;
                                     if(dragged_record.parent_code==ondrop_record.code){
                                         return  false;
@@ -607,6 +730,11 @@ class HTableHandler(HTableHandlerBase):
                                     return true;
                                     
                                     """)
+        bar = frame.top.slotToolbar('2,tblname,*')
+        bar.tblname.div(tblobj.name_long)
+        if picker:
+            bar.replaceSlots('#','#,picker')
+            bar.picker.htableTypePicker(picker)
         center.onDbChanges(action="""
                                     var selectedNode = treeNode.widget.currentSelectedNode
                                     var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    

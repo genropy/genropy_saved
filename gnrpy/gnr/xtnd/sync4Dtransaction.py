@@ -86,7 +86,7 @@ class TransactionManager4D(object):
         else: # sync triggers
             prevTransactions = trtable.query(columns="$id, $error_id",
                                              where="$request_id=:request_id AND $queue_id = :queue_id",
-                                             request_id=request_id, queue_id=queue_id).fetch()
+                                             request_id=request_id, queue_id=queue_id, order_by='$request').fetch()
             if len(prevTransactions) == 0: # normal case: is a new transaction
                 trtable.insert(kwargs)
             elif len(prevTransactions) == 1: # the transaction yet exists

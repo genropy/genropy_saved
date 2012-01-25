@@ -382,10 +382,12 @@ class SiteRegister(object):
 
     def cleanup(self, max_age=30, cascade=False):
         for page_id, page in self.pages().items():
-            if page['last_rpc_age'] > max_age:
+            page_last_rpc_age = page.get('last_rpc_age')
+            if page_last_rpc_age and page_last_rpc_age > max_age:
                 self.drop_page(page_id, cascade=cascade)
         for connection_id, connection in self.connections().items():
-            if connection['last_rpc_age'] > max_age:
+            connection_last_rpc_age = connection.get('last_rpc_age')
+            if connection_last_rpc_age > max_age:
                 self.drop_connection(connection_id, cascade=cascade)
         
 
