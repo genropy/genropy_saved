@@ -475,7 +475,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //    this.setLocked(true);
             //}
             this.applyDisabledStatus();
-            this.focus();
+            //this.focus()
+            setTimeout(function(){
+                this.focus();
+            },1)
         }
     },
     
