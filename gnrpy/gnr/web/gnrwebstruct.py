@@ -1521,9 +1521,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
-            if hasattr(lnktblobj.dbtable,'htableFields'):
-                result['htable'] = True
-                                
             if 'storefield' in joiner:
                 result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
