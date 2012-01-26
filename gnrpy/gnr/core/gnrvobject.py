@@ -22,6 +22,9 @@
 """
 The gnrvObject module contains two classes for dealing with vCard and vCal objects.
 
+http://hypercontent.sourceforge.net/docs/manual/develop/vcard.html
+http://vobject.skyhouseconsulting.com/epydoc/
+
 Name    Description Semantic
 N           Name            A structured representation of the name of the person, place or thing associated with the vCard object.
 FN          Formatted Name  The formatted name string associated with the vCard object
@@ -54,6 +57,10 @@ import os.path
 import sys
 import vobject
 
+VALID_VCARD_TAGS = ['n','fn','nickname','photo','bday','adr','label','tel','email',
+              'mailer','tz','geo','title','role','logo','agent','org','note',
+              'rev','sound','url','uid','version','key']
+
 class vCard:
     def __init__(self, card=None,**kwargs):
         self.j=vobject.vCard()
@@ -62,30 +69,37 @@ class vCard:
         if card:
             self.fillFrom(card)
 
-    def _tag_n(self,data):
-        self.j.add('n')
-        self.j.n.value = vobject.vcard.Name( family=data['family'], given=data['given'],additional=data['additional'] )
 
-    def _tag_fn(self,data):
-        self.j.add('fn')
-        self.j.fn.value =data
+    def _tag_n(self,data):
+        if data:
+            self.j.add('n')
+            if data['family']: self.j.n.value.family=data['family']
+            if data['given']: self.j.n.value.given=data['given']
+            if data['additional']: self.j.n.value.additional=data['additional']
+            if data['prefix']: self.j.n.value.prefix=data['prefix']
+            if data['suffix']: self.j.n.value.suffix=data['suffix']
+
 
     def _tag_email(self,data):
-        self.j.add('email')
-        self.j.email.value = data
-        self.j.email.type_param = 'INTERNET'
+        if data:
+            self.j.add('email')
+            self.j.email.value = data
+            self.j.email.type_param = 'INTERNET'
 
-    def _tag_nickname(self,data):
-        self.j.add('nickname')
-        self.j.nickname.value = data
 
-    def _tag_bday(self,data):
-        self.j.add('bday')
-        self.j.bday.value = data
 
     def _tag_adr(self,data):
-        self.j.add('adr')
-        self.j.adr.value = data
+        if data: # 'box', 'city', 'code', 'country', 'extended', 'lines', 'one_line', 'region', 'street'
+            self.j.add('adr')
+            if data['box']: self.j.adr.value.box=data['box']
+            if data['city']: self.j.adr.value.city=data['city']
+            if data['code']: self.j.adr.value.code=data['code']
+            if data['country']: self.j.adr.value.country=data['country']
+            if data['extended']: self.j.adr.value.extended=data['extended']
+            if data['lines']: self.j.adr.value.lines=data['lines']
+            if data['region']: self.j.adr.value.region=data['region']
+            if data['street']: self.j.adr.value.street=data['street']
+            #if data['one_line']: self.j.n.value.one_line=data['one_line']
 
 
     def _serialize(self):
@@ -94,39 +108,44 @@ class vCard:
     def _prettyprint(self):
         self.j.prettyPrint()
 
-    def SetItem(self,tag,data):
-        if not tag[0]=='_':
-            tag = '%s%s' %('_tag_',tag)
-        methodToCall = getattr(self, tag)
-        methodToCall(data)
+
+
+    def setTag(self,tag,data):
+        assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
+        if tag and data:
+            if type(data)==str:
+                self.j.add(tag)
+                setattr(getattr(self.j,tag),'value',data)
+            else:
+                getattr(self, '%s%s' %('_tag_',tag))(data)
 
     def fillFrom(self,card):
-        if 'name_first' in card and 'name_last' in card and 'name_second' in card:
-            self.SetItem('n',dict(family=card['name_first'], given=card['name_last'],additional=card['name_second'] ))
-            self.SetItem('fn','%s %s' %(card['name_first'],card['name_last']))
-        elif 'name_first' in card and 'name_last' in card:
-            self.SetItem('n',dict(family=card['name_first'], given=card['name_last']))
-            self.SetItem('fn','%s %s' %(card['name_first'],card['name_last']))
-        elif 'name_last' in card:
-            self.SetItem('n',dict(given=card['name_last']))
-            self.SetItem('fn',card['name_last'])
-        elif 'name_first' in card:
-            self.SetItem('n',dict(given=card['name_first']))
-            self.SetItem('fn',card['name_first'])
 
-        if 'email' in card: self.SetItem('email',card['email'])
-        if 'name_preferred' in card: self.SetItem('nickname',card['name_preferred'])
-        if 'dob' in card: self.SetItem('bday',card['dob'])
-        # >>> card.adr.value == vobject.vcard.Address(u'5\u1234 Nowhere, Apt 1', 'Berkeley', 'CA', '94704', 'USA')
-        #self._tag_adr(data)
+        for tag,v in card.items():
+            if tag=='n':
+                self.setTag(tag,card['n'])
+                self.setTag('fn',' '.join([i for i in (card['n.given'],card['n.family']) if i]))
+            if tag=='adr':
+                self.setTag(tag,card['adr'])
+            else:
+                self.setTag(tag,v[tag])
+
+
         self._serialize()
         self.j.prettyPrint()
 
 if __name__ == '__main__':
     
-    card_rec=dict(name_first='Jeff',
-                  name_last='Edwards',
-                  name_second='B.',
-                  name_preferred='Eddie',
-                  email='jeffedwa@me.com')
-    c = vCard(card_rec)
+    x = Bag()
+    x['n.family']='Edwards'
+    x['n.given']='Jeff'
+    x['n.additional']='B.'
+    x['nickname.preferred']='Eddie'
+    x['bday.bday']='1961-10-21'
+    x['email.email']='jeffedwa@me.com'
+    x['adr.street']='32 Sunny Waters Rd'
+    x['adr.city']='Kincumber'
+    x['adr.code']='2251'
+    x['adr.country']='Australia'
+
+    c = vCard(x)
