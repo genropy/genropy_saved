@@ -14,6 +14,8 @@ class Table(object):
         tbl.column('cap_valido', size='2', name_long='!!CAP Valido')
         tbl.column('auxdata','X',name_long='!!test')
         
+        tbl.aliasColumn('regione_nome',relation_path='@regione.nome',name_long='Region nome')
+
     def baseView_cap(self):
         return "nome,cap_valido"
         

@@ -239,7 +239,7 @@ class SqlQueryCompiler(object):
         #ref = attrs['many_relation'].split('.')[-1]
         ref = attrs['many_relation'].split('.', 1)[-1] #fix 25-11-09
         newpath = path + [ref]
-        pw = tuple(newpath)
+        pw = tuple(newpath+[basealias])
         if pw in self.aliases: # if the requested join table is yet added by previous columns
             if pw in self._explodingTables:
                 self.cpl.explodingColumns.append(self._currColKey)
