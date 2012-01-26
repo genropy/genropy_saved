@@ -153,7 +153,7 @@ class HTableHandlerBase(BaseComponent):
         menupath = 'gnr.htablestores.%(dbtable)s' %attr
         attr['hasDownArrow'] = True
         pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'])
-        dbselect.menu(storepath='%s._root_' %menupath,_class='smallMenu',selected_pkey=attr['value'].replace('^',''))
+        dbselect.menu(storepath='%s._root_' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
