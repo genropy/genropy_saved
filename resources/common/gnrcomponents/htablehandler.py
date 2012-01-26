@@ -152,6 +152,8 @@ class HTableHandlerBase(BaseComponent):
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%(dbtable)s' %attr
         attr['hasDownArrow'] = True
+        curr_cond = attr.get('condition')
+        attr['condition'] = '$child_count=0' if not curr_cond else ' ( %s ) AND $child_count=0' %curr_cond
         pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'])
         dbselect.menu(storepath='%s._root_' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
