@@ -1373,7 +1373,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         newkwargs = self._fieldDecode(field, **kwargs)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
-        return self.child(tag, **newkwargs)
+        handler = getattr(self,tag)
+        return handler(**newkwargs)
         
     def placeFields(self, fieldlist=None, **kwargs):
         """TODO"""
@@ -1520,6 +1521,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
+            if hasattr(lnktblobj.dbtable,'htableFields'):
+                result['htable'] = True
+                                
             if 'storefield' in joiner:
                 result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption

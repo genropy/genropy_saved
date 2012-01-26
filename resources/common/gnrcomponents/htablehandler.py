@@ -144,7 +144,19 @@ class HTableResolver(BagResolver):
         
 class HTableHandlerBase(BaseComponent):
     """TODO"""
+    
+    
+    @struct_method
+    def ht_hdbselect(self,pane,**kwargs):
+        dbselect = pane.dbselect(**kwargs)
+        attr = dbselect.attributes
+        menupath = 'gnr.htablestores.%(dbtable)s' %attr
+        attr['hasDownArrow'] = True
+        pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'])
+        dbselect.menu(storepath='%s._root_' %menupath,_class='smallMenu',selected_pkey=attr['value'].replace('^',''))
 
+
+        
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
                         storename=None,**kwargs):
@@ -167,6 +179,8 @@ class HTableHandlerBase(BaseComponent):
         if 'storename' in kwargs:
             self.db.use_store(kwargs['storename'])
         return self.ht_treeDataStore(*args,**kwargs)
+    
+    
     
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
@@ -346,7 +360,7 @@ class HTableHandler(HTableHandlerBase):
         norecord = sc.contentPane(id='no_record_page', pageName='no_record').div('', _class=noRecordClass)
         bc = sc.borderContainer(pageName='record_selected')
         top = commonTop if editMode == 'bc' else bc.contentPane(region='top', overflow='hidden')
-        toolbar = top.slotToolbar('2,breadcrumb,*,hdelete,hadd,hsave,hrevert,hsemaphre,hlock')
+        toolbar = top.slotToolbar('2,breadcrumb,*,hdelete,hadd,hsave,hrevert,hsemaphre,hlock',height='20px')
         toolbar.dataFormula('.edit.status.locked', True, _onStart=True)
         toolbar.dataController("""
                             if(isLocked){
@@ -567,7 +581,7 @@ class HTableHandler(HTableHandlerBase):
         paletteCode = paletteCode or '%s_picker' %typetbl.replace('.','_')
         title = typetblobj.name_long or '!!Picker'
         if hasattr(typetblobj,'htableFields'):
-            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode,draggableFolders=True).htableStore(table=typetbl)
+            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode).htableStore(table=typetbl)
         else:
             struct = getattr(self,'%s_picker_struct' %nodeId,self._ht_picker_auto_struct)
             pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=True,title=title,grid_dragTags=paletteCode).selectionStore(table=typetbl)
@@ -730,7 +744,7 @@ class HTableHandler(HTableHandlerBase):
                                     return true;
                                     
                                     """)
-        bar = frame.top.slotToolbar('2,tblname,*')
+        bar = frame.top.slotToolbar('2,tblname,*',height='20px')
         bar.tblname.div(tblobj.name_long)
         if picker:
             bar.replaceSlots('#','#,picker')
