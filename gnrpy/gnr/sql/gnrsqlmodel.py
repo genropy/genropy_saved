@@ -828,8 +828,8 @@ class DbTableObj(DbModelObj):
                     return colalias
                 elif colalias.py_method:
                     return colalias
-            else:
-                raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
+                else:
+                    raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
             relcol = self._relatedColumn(name)
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
