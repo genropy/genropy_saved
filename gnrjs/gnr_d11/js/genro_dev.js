@@ -310,7 +310,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
         sb._('checkbox','pollingSwitch',{'label':'Polling',value:'^gnr.polling.polling_enabled'});
         sb._('button','clearLocal',{'label':'Clear LS',action:function(){localStorage.clear()}});
-        sb._('button','clearSession',{'label':'Clear SS',action:function(){SessionStorage.clear()}});
+        sb._('button','clearSession',{'label':'Clear SS',action:function(){sessionStorage.clear()}});
 
         sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
         sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
