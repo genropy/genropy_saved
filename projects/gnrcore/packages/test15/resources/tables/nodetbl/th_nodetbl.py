@@ -11,7 +11,8 @@ class View(BaseComponent):
         r.fieldcell('partenza')
         r.fieldcell('arrivo')
         r.fieldcell('reg_part')
-        #r.fieldcell('reg_arr')
+        r.fieldcell('@partenza.regione_nome')
+        r.fieldcell('@partenza.@regione.nome')
 
     def th_order(self):
         return 'partenza'

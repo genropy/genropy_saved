@@ -805,31 +805,8 @@ class DbTableObj(DbModelObj):
         return self['table_aliases']
         
     table_aliases = property(_get_table_aliases)
-    
-    def columnAttributes(self,name):
-        col = self.column(name)
-    
-    def column(self, name):
-        """Return a column object or None if it doesn't exists.
         
-        :param name: A column's name or a :ref:`relation_path` starting from the current table.
-                     e.g: ``@director_id.name``"""
-        col = None
-        colalias = None
-        if name.startswith('$'):
-            name = name[1:]
-        if name.startswith('@'):
-            return self._relatedColumn(name)
-        col = self['columns.%s' % name]
-        if col is None:
-            col = self['virtual_columns.%s' % name]
-            if col is not None:
-                col._targetColumn()
-        if col is None:
-            raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
-        return col
-    
-    def column_old(self, name):
+    def column(self, name):
         """Return a column object or None if it doesn't exists.
         
         :param name: A column's name or a :ref:`relation_path` starting from the current table.
@@ -840,37 +817,29 @@ class DbTableObj(DbModelObj):
             name = name[1:]
         if not name.startswith('@'):
             col = self['columns.%s' % name]
-            if col is None:
-                colalias = self['virtual_columns.%s' % name]
-                if colalias is not None:
-                    if colalias.relation_path:
-                        name = colalias.relation_path
-                    elif colalias.sql_formula:
-                        col = colalias
-                    elif colalias.py_method:
-                        col = colalias
-                    else:
-                        raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
+            if col is not None:
+                return col
+            
+            colalias = self['virtual_columns.%s' % name]
+            if colalias is not None:
+                if colalias.relation_path:
+                    name = colalias.relation_path
+                elif colalias.sql_formula:
+                    return colalias
+                elif colalias.py_method:
+                    return colalias
+            else:
+                raise GnrSqlMissingColumn('Invalid column %s in table %s' % (name, self.name_full))
         if name.startswith('@'):
             relcol = self._relatedColumn(name)
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
-            if colalias is not None and 'virtual_column' in colalias.attributes:
-                mixedattributes = dict(relcol.attributes)
-                colalias_attributes = dict(colalias.attributes)
-                colalias_attributes.pop('tag')
-                colalias_attributes.pop('relation_path')
-                mixedattributes.update(colalias_attributes)
-                mixedattributes.pop('virtual_column', None)
-                col = relcol
-                col.attributes = mixedattributes
-
-            else:
-                col = relcol
-            
-            #if col == None:
-        #    raise 'Missing column %s' % name
-        return col
-        
+            if colalias is None:
+                return relcol
+                
+            if not 'virtual_column' in colalias.attributes:
+                raise             
+            return AliasColumnWrapper(relcol,colalias.attributes)
+     
     def _relatedColumn(self, fieldpath):
         """Return a column object corresponding to the relation path
         
@@ -1149,32 +1118,6 @@ class DbVirtualColumnObj(DbBaseColumnObj):
     def relatedColumn(self):
         pass
         
-    def _targetColumn(self):
-        if not '_target' in self.__dict__:
-            if self.attributes.get('relation_path'):
-                self._target = self._get_table()._relatedColumn(self.relation_path)
-                assert self._target is not None
-                attributes = dict(self.attributes)
-                attributes.pop('tag')
-                attributes.pop('relation_path')
-                mixedattributes = dict(self._target.attributes)
-                mixedattributes.update(attributes)
-                mixedattributes.pop('virtual_column')
-                self.attributes = mixedattributes
-            else:
-                self._target = None
-        return self._target
-    
-    def __getattr__(self, name):
-        print name
-        target = self._targetColumn()
-        if name in self.__dict__:
-            return getattr(self, name)
-        elif target:
-            return getattr(target, name)
-        else:
-            raise AttributeError
-        
 class DbTableAliasObj(DbModelObj):
     sqlclass = 'table_alias'
         
@@ -1215,6 +1158,20 @@ class DbIndexObj(DbModelObj):
         return self.parent.parent
         
     table = property(_get_table)
+
+class AliasColumnWrapper(DbModelObj):
+    def __init__(self,originalColumn=None,aliasAttributes=None):
+        mixedattributes = dict(originalColumn.attributes)
+        colalias_attributes = dict(aliasAttributes)
+        colalias_attributes.pop('tag')
+        colalias_attributes.pop('relation_path')
+        mixedattributes.update(colalias_attributes)
+        mixedattributes.pop('virtual_column', None)
+        self.originalColumn = originalColumn
+        self.attributes = mixedattributes
+        
+    def __getattr__(self,name):
+        return getattr(self.originalColumn,name)
         
 class RelationTreeResolver(BagResolver):
     classKwargs = {'cacheTime': 0,
