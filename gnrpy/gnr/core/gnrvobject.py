@@ -93,10 +93,10 @@ class VCard:
 
 
     def doserialize(self):
-        self.j.serialize()
+        return self.j.serialize()
 
     def doprettyprint(self):
-        self.j.prettyPrint()
+        return self.j.prettyPrint()
 
 
 
@@ -118,7 +118,9 @@ class VCard:
                             m.isNative=False
                         attrlist = data['%s?param_list' %path]
                         if attrlist:
-                            setattr(m,'type_paramlist',attrlist)
+                            for single_attr in attrlist:
+                                setattr(m,'type_param',single_attr)
+                            #setattr(m,'type_paramlist',attrlist)
 
 
     def fillFrom(self,card):
