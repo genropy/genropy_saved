@@ -92,30 +92,33 @@ class VCard:
             if data['street']: self.j.adr.value.street=data['street']
 
 
-    def _serialize(self):
+    def doserialize(self):
         self.j.serialize()
 
-    def _prettyprint(self):
+    def doprettyprint(self):
         self.j.prettyPrint()
 
 
 
     def setTag(self,tag,data):
         if data:
+            print tag, data
             assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
             if tag in ['n','adr']:
                 getattr(self, '%s%s' %('_tag_',tag))(tag,data)
             else:
                 count = 0
                 for k2, v2 in data.items():
-                    path = '#%i' %count
-                    count=count+1
-                    m = self.j.add(tag)
-                    setattr(m,'value',data[path])
-                    attrlist = data['%s?param_list' %path]
-                    if attrlist:
-                        setattr(m,'type_paramlist',attrlist)
-            return self.j
+                    if v2:
+                        path = '#%i' %count
+                        count=count+1
+                        m = self.j.add(tag)
+                        setattr(m,'value',data[path])
+                        if tag=='org':
+                            m.isNative=False
+                        attrlist = data['%s?param_list' %path]
+                        if attrlist:
+                            setattr(m,'type_paramlist',attrlist)
 
 
     def fillFrom(self,card):
@@ -129,9 +132,6 @@ class VCard:
             else:
                 self.setTag(tag,v)
 
-        self._serialize()
-        self.j.prettyPrint()
-        
 
 if __name__ == '__main__':
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     x['fn.fn']='Jeff Smith'
     x['nickname.nickname']='Eddie'
     x['bday.bday']='1961-10-21'
-    #x['org.org']='Goodsoftware Pty Ltd'
+    x['org.org']='Goodsoftware Pty Ltd'
     x.setItem('email.email','jeffsmith@me.com', param_list=['Home','INTERNET','pref'])
     x.addItem('email.email','jeffsmith@mac.com', param_list=['Work','INTERNET'])
     x['adr.street']='32 Smith Waters Rd'
@@ -155,3 +155,6 @@ if __name__ == '__main__':
     
 
     c = VCard(x)
+    print dir(c)
+    c.doserialize()
+    c.doprettyprint()
