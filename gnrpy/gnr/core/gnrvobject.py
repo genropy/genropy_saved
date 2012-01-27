@@ -118,9 +118,10 @@ class VCard:
                             m.isNative=False
                         attrlist = data['%s?param_list' %path]
                         if attrlist:
-                            for single_attr in attrlist:
-                                setattr(m,'type_param',single_attr)
-                            #setattr(m,'type_paramlist',attrlist)
+                            #for single_attr in attrlist:
+                                #setattr(m,'%s_param' %single_attr,single_attr)
+                                #setattr(m,'type_param',single_attr)
+                            setattr(m,'type_paramlist',attrlist)
 
 
     def fillFrom(self,card):
@@ -158,5 +159,5 @@ if __name__ == '__main__':
 
     c = VCard(x)
     print dir(c)
-    c.doserialize()
-    c.doprettyprint()
+    print c.doserialize()
+    #c.doprettyprint()
