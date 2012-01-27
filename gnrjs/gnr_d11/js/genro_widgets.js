@@ -1417,7 +1417,12 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             var parentWidget = parentNode.widget;
             if (parentWidget) {
                 if (!(('dropDown' in  parentWidget) || ('popup' in parentWidget ))) {
-                    widget.bindDomNode(parentWidget.domNode);
+                    if(parentWidget.downArrowNode){
+                        parentWidget._downArrowMenu = true;
+                        widget.bindDomNode(parentWidget.downArrowNode);
+                    }else{
+                         widget.bindDomNode(parentWidget.domNode);
+                    }
                 }
             } else if (parentNode.domNode) {
                 widget.bindDomNode(parentNode.domNode);
@@ -4805,6 +4810,14 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         attributes.store = store;
         return savedAttrs;
     },
+    
+    versionpatch_11__onArrowMouseDown:function(e){
+        if(this._downArrowMenu){
+            dojo.stopEvent(e);
+        }else{
+            this._onArrowMouseDown_replaced(e);
+        }
+    },
     mixin_setDbtable:function(value) {
         this.store.rootDataNode()._resolver.kwargs.dbtable = value;
     },
@@ -4845,7 +4858,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
                 }
             });
         }
-        
         this.connectForUpdate(widget, sourceNode);
         var tag = 'cls_' + sourceNode.attr.tag;
         dojo.addClass(widget.domNode.childNodes[0], tag);
