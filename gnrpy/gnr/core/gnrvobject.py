@@ -61,7 +61,7 @@ VALID_VCARD_TAGS = ['n','fn','nickname','photo','bday','adr','label','tel','emai
               'mailer','tz','geo','title','role','logo','agent','org','note',
               'rev','sound','url','uid','version','key']
 
-class vCard:
+class VCard:
     def __init__(self, card=None,**kwargs):
         self.j=vobject.vCard()
 
@@ -70,7 +70,7 @@ class vCard:
             self.fillFrom(card)
 
 
-    def _tag_n(self,data):
+    def _tag_n(self,tag,data):
         if data:
             self.j.add('n')
             if data['family']: self.j.n.value.family=data['family']
@@ -79,16 +79,7 @@ class vCard:
             if data['prefix']: self.j.n.value.prefix=data['prefix']
             if data['suffix']: self.j.n.value.suffix=data['suffix']
 
-
-    def _tag_email(self,data):
-        if data:
-            self.j.add('email')
-            self.j.email.value = data
-            self.j.email.type_param = 'INTERNET'
-
-
-
-    def _tag_adr(self,data):
+    def _tag_adr(self,tag,data):
         if data: # 'box', 'city', 'code', 'country', 'extended', 'lines', 'one_line', 'region', 'street'
             self.j.add('adr')
             if data['box']: self.j.adr.value.box=data['box']
@@ -99,53 +90,74 @@ class vCard:
             if data['lines']: self.j.adr.value.lines=data['lines']
             if data['region']: self.j.adr.value.region=data['region']
             if data['street']: self.j.adr.value.street=data['street']
-            #if data['one_line']: self.j.n.value.one_line=data['one_line']
 
 
-    def _serialize(self):
-        self.j.serialize()
+    def doserialize(self):
+        return self.j.serialize()
 
-    def _prettyprint(self):
-        self.j.prettyPrint()
+    def doprettyprint(self):
+        return self.j.prettyPrint()
 
 
 
     def setTag(self,tag,data):
-        assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
-        if tag and data:
-            if type(data)==str:
-                self.j.add(tag)
-                setattr(getattr(self.j,tag),'value',data)
+        if data:
+            print tag, data
+            assert tag in VALID_VCARD_TAGS, 'ERROR: %s is not a valid tag' %tag
+            if tag in ['n','adr']:
+                getattr(self, '%s%s' %('_tag_',tag))(tag,data)
             else:
-                getattr(self, '%s%s' %('_tag_',tag))(data)
+                count = 0
+                for k2, v2 in data.items():
+                    if v2:
+                        path = '#%i' %count
+                        count=count+1
+                        m = self.j.add(tag)
+                        setattr(m,'value',data[path])
+                        if tag=='org':
+                            m.isNative=False
+                        attrlist = data['%s?param_list' %path]
+                        if attrlist:
+                            #for single_attr in attrlist:
+                                #setattr(m,'%s_param' %single_attr,single_attr)
+                                #setattr(m,'type_param',single_attr)
+                            setattr(m,'type_paramlist',attrlist)
+
 
     def fillFrom(self,card):
-
+        print 'card_bag'
+        print card
         for tag,v in card.items():
             if tag=='n':
-                self.setTag(tag,card['n'])
-                self.setTag('fn',' '.join([i for i in (card['n.given'],card['n.family']) if i]))
-            if tag=='adr':
-                self.setTag(tag,card['adr'])
+                self.setTag(tag,v)
+            elif tag=='adr':
+                self.setTag(tag,v)
             else:
-                self.setTag(tag,v[tag])
+                self.setTag(tag,v)
 
-
-        self._serialize()
-        self.j.prettyPrint()
 
 if __name__ == '__main__':
-    
+
     x = Bag()
-    x['n.family']='Edwards'
+    x['n.family']='Smith'
     x['n.given']='Jeff'
-    x['n.additional']='B.'
-    x['nickname.preferred']='Eddie'
+    x['n.additional']='G.'
+    x['fn.fn']='Jeff Smith'
+    x['nickname.nickname']='Eddie'
     x['bday.bday']='1961-10-21'
-    x['email.email']='jeffedwa@me.com'
-    x['adr.street']='32 Sunny Waters Rd'
+    x['org.org']='Goodsoftware Pty Ltd'
+    x.setItem('email.email','jeffsmith@me.com', param_list=['Home','INTERNET','pref'])
+    x.addItem('email.email','jeffsmith@mac.com', param_list=['Work','INTERNET'])
+    x['adr.street']='32 Smith Waters Rd'
     x['adr.city']='Kincumber'
     x['adr.code']='2251'
     x['adr.country']='Australia'
+    x.setItem('tel.tel','02 4332 0368', param_list=['Home','pref'])
+    x.addItem('tel.tel','0421 232 249', param_list=['CELL'])
+    x.setItem('url.url','02 4332 0368', param_list=['INTERNET'])
+    
 
-    c = vCard(x)
+    c = VCard(x)
+    print dir(c)
+    print c.doserialize()
+    #c.doprettyprint()
