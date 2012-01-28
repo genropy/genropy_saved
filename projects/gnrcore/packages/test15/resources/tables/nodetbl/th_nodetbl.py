@@ -8,6 +8,8 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
+        r.cell('__ins_ts',dtype='DH')
+
         r.fieldcell('partenza')
         r.fieldcell('arrivo')
         r.fieldcell('reg_part')
@@ -27,6 +29,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
+        fb.field('__ins_ts',format='short',lbl='Ins ts',tag='div')
         fb.field('partenza')
         fb.field('arrivo')
 

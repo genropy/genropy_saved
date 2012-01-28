@@ -11,8 +11,8 @@ dojo.declare("gnr.QueryManager", null, {
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
-        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldstree', "relationExplorer", {table:maintable, omit:'_'});
-        this.treefield = genro.getData('gnr.qb.'+this.tablecode+'.fieldstree');
+        
+        
         genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "relationExplorer", {table:maintable, omit:'_*'});
         genro.setDataFromRemote('gnr.qb.sqlop', "getSqlOperators");
     },
@@ -426,7 +426,7 @@ dojo.declare("gnr.QueryManager", null, {
         if (value.indexOf('?') == 0) {
             sourceNode.setRelativeData(relpath, null);
             sourceNode.setRelativeData(relpath + '?css_class', 'queryAsk');
-            sourceNode.setRelativeData(relpath + '?dtype', genro._('gnr.qb.fieldstree.' + sourceNode.attr.column + '?dtype'));
+            sourceNode.setRelativeData(relpath + '?dtype',sourceNode.getRelativeData(relpath + '?column_dtype'));
         }else{
             sourceNode.setRelativeData(relpath,value);
             sourceNode.setRelativeData(relpath + '?css_class', null);
