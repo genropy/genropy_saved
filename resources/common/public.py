@@ -440,8 +440,8 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
-        formInIframe = th_options.get('formInIframe')
-        insidePublic = th_options.get('public')
+        formInIframe = boolean(th_options.get('formInIframe'))
+        insidePublic = boolean(th_options.get('public'))
         tablecode = self.maintable.replace('.','_')
         th_options['lockable'] = th_options.get('lockable',True)
         kwargs.update(th_options)
