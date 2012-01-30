@@ -1516,7 +1516,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         zoomUrl = 'sys/thpage/%s' %lnktblobj.fullname.replace('.', '/')
                         result['lbl_zoomUrl'] = zoomUrl
                         result['lbl_pkey'] = '.%s' % fieldobj.name
-                        result['lbl_connect_onclick'] = "genro.dlg.zoomPalette(this,$1);"                    
+                        result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"                    
                 result['lbl__class'] = 'gnrzoomlabel'
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
@@ -2069,15 +2069,15 @@ class GnrGridStruct(GnrStructData):
                     ridx = relfldlst.index('@%s' % zoom)
                 zoomtbl = tableobj.column('.'.join(relfldlst[0:ridx + 1])).parent
                 relfldlst[ridx] = relfldlst[ridx][1:]
-                kwargs['zoomPkey'] = '.'.join(relfldlst[0:ridx + 1])
+                kwargs['zoom_pkey'] = '.'.join(relfldlst[0:ridx + 1])
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
-                kwargs['zoomPkey'] = field
+                kwargs['zoom_pkey'] = field
             if hasattr(zoomtbl.dbtable, 'zoomUrl'):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
-            else:
-                zoomPage = zoomtbl.fullname.replace('.', '/')
-            kwargs['zoomPage'] = zoomPage
+                kwargs['zoom_page'] = zoomPage
+            kwargs['zoom_table'] = zoomtbl.dbtable.fullname
+            
         return self.cell(field=_as or field, name=name, width=width, dtype=dtype,
                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                          

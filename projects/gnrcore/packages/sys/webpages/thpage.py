@@ -21,15 +21,6 @@ class GnrCustomWebPage(object):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')
         return '%(th_pkg)s.%(th_table)s' %callArgs
 
-    def resizeIframeContainer(self,th,th_options=None,mainKwargs=None):
-        dialog_pars = self._th_hook('dialog',mangler=th.form)()
-        
-        dialog_pars = dialog_pars or dict(height='600px',width='900px')
-        th.dataController("""
-        if(parentId!='null'){
-            genro.publish({"topic":"resize","parent":true,nodeId:parentId},dialog_pars);
-        }
-        """,_init=True,dialog_pars=dialog_pars,parentId=self.th_iframeContainerId or 'null')
     
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,**kwargs):
@@ -45,6 +36,4 @@ class GnrCustomWebPage(object):
         th_options['public'] = boolean(th_options.get('public',True))
         kwargs['th_pkey'] = pkey
         th = self._th_main(root,th_options=th_options,**kwargs)
-        if self.th_iframeContainerId:
-            self.resizeIframeContainer(th,th_options=th_options,mainKwargs=kwargs)
     

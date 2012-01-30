@@ -8,6 +8,7 @@
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
 
 
@@ -71,6 +72,8 @@ class TableHandlerForm(BaseComponent):
         return form
         
     def _th_applyOnForm(self,form,options=None,mangler=None):
+        if options.get('form_isRootForm'):
+            form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         readOnly = options.get('readOnly')

@@ -95,12 +95,12 @@ gnr.columnsFromStruct = function(struct, columns) {
                 fld = '$' + fld;
             }
             arrayPushNoDup(columns, fld);
-            if (node.attr.zoomPkey) {
-                var zoomPkey = node.attr.zoomPkey;
-                if ((!stringStartsWith(zoomPkey, '$')) && (!stringStartsWith(zoomPkey, '@'))) {
-                    zoomPkey = '$' + zoomPkey;
+            if (node.attr.zoom_pkey) {
+                var zoom_pkey = node.attr.zoom_pkey;
+                if ((!stringStartsWith(zoom_pkey, '$')) && (!stringStartsWith(zoom_pkey, '@'))) {
+                    zoom_pkey = '$' + zoom_pkey;
                 }
-                arrayPushNoDup(columns, zoomPkey);
+                arrayPushNoDup(columns, zoom_pkey);
             }
         }
 
@@ -1190,6 +1190,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     mixin_restoreRect:function(){
         if(this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+            if(this.sourceNode.attr.fixedPosition){
+                return;
+            }
             var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
             if(rect && rect.w && rect.h){
                 this.resize(rect);
@@ -2582,15 +2585,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 if (opt['js']) {
                     v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
                 }
-                ;
-                if (zoomPage) {
-                    var zoomPkey = opt['zoomPkey'];
-                    if (zoomPkey) {
-                        zoomPkey = zoomPkey.replace(/\W/g, '_');
-                    }
-                    var key = this.grid.currRenderedRow[zoomPkey ? zoomPkey : this.grid._identifier];
-                    // changed to support ctrl+click on non mac platforms v = "<a onclick='var ev = arguments[0]; if(!ev.metaKey){dojo.stopEvent(ev);}' class='gnrzoomcell' href='/"+zoomPage+"?pkey="+key+"&autoLinkFrom="+genro.page_id+"'>"+v+"</a>";
-                    v = "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='/" + zoomPage + "?pkey=" + key + "&autoLinkFrom=" + genro.page_id + "'>" + v + "</a>";
+                var zoomAttr = objectExtract(opt,'zoom_*',true);
+                if (objectNotEmpty(zoomAttr)) {
+                    v = "<a onclick='dojo.stopEvent(event);genro.dlg.zoomFromCell(event);' class='gnrzoomcell' href='#'>" + v + "</a>";
                 }
                 var draggable = this.draggable ? ' draggable=true ' : '';
                 return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
@@ -2642,7 +2639,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                                             genro.dom.getStyleDict(cell, [ 'width'])));
                             formats = objectExtract(cell, 'format_*');
                             format = objectExtract(cell, 'format');
-                            var zoomPage = objectPop(cell, 'zoomPage');
+                            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
+
                             var template = objectPop(cell, 'template');
                             var js = objectPop(cell, 'js');
                             if (template) {
@@ -2652,9 +2650,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             if (js) {
                                 formats['js'] = genro.evaluate(js);
                             }
-                            if (zoomPage)
-                                formats['zoomPage'] = zoomPage;
-                            formats['zoomPkey'] = objectPop(cell, 'zoomPkey');
+                            if (objectNotEmpty(zoomAttr)){
+                                objectUpdate(formats,zoomAttr);
+                            }
                             if (format) {
                                 formats['format'] = format;
                             }
