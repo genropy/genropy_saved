@@ -159,7 +159,7 @@ class HTableHandlerBase(BaseComponent):
         
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
-                        storename=None,**kwargs):
+                        storename=None,rootcaption=None,**kwargs):
         if '@' in table:
             pkg, related_table, relation_path = table.split('.')
             related_table = '%s.%s' % (pkg, related_table)
@@ -169,7 +169,7 @@ class HTableHandlerBase(BaseComponent):
         data = self.ht_treeDataStore(table=table,
                                      related_table=related_table,
                                      relation_path=relation_path,
-                                     rootcaption=tblobj.name_plural, 
+                                     rootcaption=rootcaption or tblobj.name_plural, 
                                      storename=storename,**kwargs)
         pane.data(storepath, data)
         
@@ -547,8 +547,9 @@ class HTableHandler(HTableHandlerBase):
                        disabled=disabled)
         toolbar.hdelete.slotButton('!!Delete', action="FIRE .edit.delete;", iconClass='iconbox delete_record',
                                     disabled=disabled,
-                                    hidden='^.edit.no_record',
-                                    visible='^.edit.enableDelete')
+                                    hidden='^.edit.no_record'
+                                    #visible='^.edit.enableDelete'
+                                    )
         toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.edit.record.child_count')
         
         if editMode == 'sc':

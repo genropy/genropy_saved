@@ -324,12 +324,13 @@ class GnrHTable(GnrDboTable):
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                         validate_notnull_error='!!Required', base_view=True,
                         validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
+                        
         columns = tbl['columns'] or []
         broadcast = [] if 'broadcast' not in tbl.attributes else tbl.attributes['broadcast'].split(',')
         broadcast.extend(['code','parent_code','child_code'])
         tbl.attributes['broadcast'] = ','.join(list(set(broadcast)))
         if not 'code' in columns:
-            tbl.column('code', name_long='!!Code', base_view=True)
+            tbl.column('code', name_long='!!Code', base_view=True,unique=True)
         if not 'description' in columns:
             tbl.column('description', name_long='!!Description', base_view=True)
         if not 'child_code' in columns:
@@ -338,7 +339,7 @@ class GnrHTable(GnrDboTable):
                         validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed'
                         #,unmodifiable=True
                         )
-        tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label)
+        tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label,onDelete='cascade')
         tbl.column('level', name_long='!!Level')
         pkgname = tbl.getAttr()['pkg']
         tblname = '%s.%s_%s' % (pkgname, pkgname, tbl.parentNode.label)
@@ -354,11 +355,18 @@ class GnrHTable(GnrDboTable):
         if not 'rec_type'  in columns:
             tbl.column('rec_type', name_long='!!Type')
             
+    
+    def htableAutoCode(self,record=None,old_record=None,evt='I'):
+        autocode = self.attributes.get('autocode')
+        if not autocode:
+            return
+        
     def trigger_onInserting(self, record_data):
         """TODO
         
         :param record_data: TODO"""
         parent_code = record_data.get('parent_code')
+        self.htableAutoCode(record=record_data,evt='I')
         self.assignCode(record_data)
         if not parent_code:
             return
@@ -368,12 +376,14 @@ class GnrHTable(GnrDboTable):
         
     def trigger_onDeleted(self,record,**kwargs):
         parent_code = record.get('parent_code')
+        self.htableAutoCode(record=record,evt='I')
         if not parent_code:
             return
-        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
-        if parent_children==0:
-            self.touchRecords(where='$code=:code',code=parent_code)
         
+       # children = self.query(where='$parent_code=:p',p=record['code'],for_update=True).fetch()
+       # if children:
+       #     for c in children:
+       #         self.delete(c)
         
     def assignCode(self, record_data):
         """TODO
@@ -388,7 +398,7 @@ class GnrHTable(GnrDboTable):
         record = self.record(pkey=pkey,for_update=True).output('record')
         oldrecord = dict(record)
         parent_code = self.record(pkey=into_pkey).output('record')['code'] if into_pkey else None
-        code_to_test = '%s.%s' %(parent_code,record['child_code'])
+        code_to_test = '%s.%s' %(parent_code,record['child_code']) if parent_code else record['child_code']
         if not self.checkDuplicate(code=code_to_test):
             record['parent_code'] = parent_code
             self.update(record,oldrecord)

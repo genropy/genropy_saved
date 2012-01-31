@@ -675,6 +675,7 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary representing the record that must be inserted"""
         self.db.insert(self, record, **kwargs)
+            
         
     def delete(self, record, **kwargs):
         """Delete a single record from this table.

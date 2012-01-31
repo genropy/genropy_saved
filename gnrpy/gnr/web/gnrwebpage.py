@@ -332,9 +332,10 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             try:
                 result = self.rpc(method=method, _auth=auth, **parameters)
-            except GnrException, e:
+            except Exception,e:
                 self.rpc.error = str(e)
                 result = None
+                
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         
         return_result = result_handler(result)
