@@ -124,7 +124,7 @@ class TemplateEditor(TemplateEditorBase):
         self._te_frameInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=maintable)
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=maintable)
-        self._te_frameHelp(sc.framePane(title='!!Help',pageName='help',childname='help'))
+        #self._te_frameHelp(sc.framePane(title='!!Help',pageName='help',childname='help'))
         
         return sc
     
@@ -267,10 +267,10 @@ class TemplateEditor(TemplateEditorBase):
                    compiled='=.data.compiled')
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
 
-    def _te_frameHelp(self,frame):
-        frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bc = frame.center.borderContainer(design='sidebar')
-        bc.div('Help')
+    # def _te_frameHelp(self,frame):
+    #     frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
+    #     bc = frame.center.borderContainer(design='sidebar')
+    #     bc.div('Help')
         
     def _te_parameters_struct(self,struct):
         r = struct.view().rows()
