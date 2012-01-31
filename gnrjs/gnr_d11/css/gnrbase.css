@@ -2919,3 +2919,10 @@ p {
 	text-decoration: underline;
 }
 /* @end */
+.chunkeditor_placeholder{
+    border-radius:6px;
+    margin:2px;
+    height:100%;
+    border:1px solid silver;
+    cursor:pointer;
+}

@@ -41,11 +41,10 @@ class GnrCustomWebPage(object):
         pane.div(template=self.tableTemplate('glbl.provincia','short'),datasource='^.record')
     
     def test_5_templateChunk(self,pane):
-        pane.dbSelect(dbtable='glbl.regione',value='^.pkey',_class='gnrfield')
-        rpc = pane.dataRecord('.record','glbl.regione',pkey='^.pkey')
-        pane.templateChunk(resource='custom',table='glbl.regione',datasource='^.record',
-                    min_height='20px',min_width='40px',border='1px solid gray',rounded=6,margin='5px',
-                    dataProvider=rpc)
+        pane.dbSelect(dbtable='glbl.nazione',value='^.pkey',_class='gnrfield')
+        rpc = pane.dataRecord('.record','glbl.nazione',pkey='^.pkey')
+        pane.templateChunk(resource='custom',table='glbl.nazione',datasource='^.record',
+                    height='100px',dataProvider=rpc)
 
     def test_z_formulasyntax(self,pane):
         fb = pane.formbuilder(cols=1)
