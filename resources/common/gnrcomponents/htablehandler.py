@@ -200,13 +200,13 @@ class HTableHandlerBase(BaseComponent):
                                related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
                                related_extra_columns=related_extra_columns,related_fullrecord=related_fullrecord,storename=storename) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
-                                                            rootcaption=rootcaption,rootcode=rootcode)
+                                                            rootcaption=rootcaption,rootcode=rootcode,storename=storename)
         result.setItem(rootlabel, value, checked=False,**attr)
         return result
     
     
         
-    def _ht_rootNodeAttributes(self,table=None,rootpath=None,columns=None,rootcaption=None,rootcode=None):
+    def _ht_rootNodeAttributes(self,table=None,rootpath=None,columns=None,rootcaption=None,rootcode=None,storename=None):
         tblobj = self.db.table(table)
         if rootpath:
             row = tblobj.query(columns=columns, where='$code=:code', code=rootpath).fetch()[0]
@@ -215,7 +215,8 @@ class HTableHandlerBase(BaseComponent):
                 get_tree_row_caption = _getTreeRowCaption
             else:
                 get_tree_row_caption = _getTreeRowCaption2
-            caption = tblobj.recordCaption(row, rowcaption=get_tree_row_caption(tblobj))
+            with self.db.tempEnv(storename=storename):
+                caption = tblobj.recordCaption(row, rowcaption=get_tree_row_caption(tblobj))
             rootlabel = row['child_code']
             pkey = row['pkey']
             rootpath = row['code']
@@ -230,7 +231,8 @@ class HTableHandlerBase(BaseComponent):
             rootpath = None
             rec_type = None
             row = dict()
-            child_count = tblobj.query().count()
+            with self.db.tempEnv(storename=storename):
+                child_count = tblobj.query().count()
         return rootlabel,dict(_record=dict(row),caption=caption,pkey=pkey,code=code,child_count=child_count)
         
         
