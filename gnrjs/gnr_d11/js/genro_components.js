@@ -670,7 +670,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             this._templateHandler.cb = function(){
                 this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource});
                 if(typeof(this.result) == 'string'){
-                    return this.result;
+                    return this.result || '<div class="chunkeditor_placeholder">Double Click + cmd </div>';;
                 }
                 var datasourcePath = that.absDatapath(that.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
