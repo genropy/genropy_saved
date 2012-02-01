@@ -664,7 +664,7 @@ class HTableHandler(HTableHandlerBase):
             r['child_code'] = str(c).zfill(digits)
             typerec = defaultDescriptions[type_id]
             desc = typerec['description'] or typerec['code'] if htype else typetable.recordCaption(typerec)
-            r['description'] = '%s %i' %(desc,c)
+            r['description'] = desc
             r[type_field] = type_id
             tblobj.insert(r)
             return r['code']
