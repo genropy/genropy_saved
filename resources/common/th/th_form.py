@@ -40,6 +40,7 @@ class TableHandlerForm(BaseComponent):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
+            
         pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,defaultCb=self.th_defaultPluggedFieldHandler) 
         pluggedFieldHandler(form)
         return form
