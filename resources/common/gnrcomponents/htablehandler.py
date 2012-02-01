@@ -649,6 +649,11 @@ class HTableHandler(HTableHandlerBase):
             caption_cols,format = typetable.rowcaptionDecode(typetable.rowcaption)
         defaultDescriptions = typetable.query(where='$pkey IN :types',types=types,columns=','.join(caption_cols)).fetchAsDict('pkey')
         last_child = tblobj.query(where='$parent_code=:pcode' if parent_code else '$parent_code IS NULL',pcode=parent_code,order_by='child_code desc',limit=1).fetch()
+        start_t =0
+        if how_many:
+            start_t = tblobj.query(where='$parent_code=:pcode AND $%s=:t' %type_field if parent_code else '$parent_code IS NULL AND $%s=:t' %type_field,
+                                    pcode=parent_code, t=types[0],order_by='child_code desc',limit=1).count() +1
+        
         start_n = 1
         digits = 2
         if last_child:
@@ -660,17 +665,20 @@ class HTableHandler(HTableHandlerBase):
         def defaultInsertRecord(parent_code=None,type_field=None,type_id=None,offset=None,last_child=None):
             r = dict()
             c = start_n+offset
+            d = start_t+offset
             r['parent_code'] = parent_code
             r['child_code'] = str(c).zfill(digits)
             typerec = defaultDescriptions[type_id]
             desc = typerec['description'] or typerec['code'] if htype else typetable.recordCaption(typerec)
-            r['description'] = desc
+            r['description'] = '%s %i' %(desc,d) if how_many else desc
             r[type_field] = type_id
             tblobj.insert(r)
             return r['code']
             
         insertRecord = getattr(tblobj,'ht_insertFromType',defaultInsertRecord)            
         if how_many and len(types) == 1:
+
+            
             for i in range(how_many):
                 last_code = insertRecord(parent_code=parent_code,type_field=type_field,type_id=types[0],offset=i,last_child=last_child)
         else:
