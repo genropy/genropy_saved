@@ -697,6 +697,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     :param exclude: TODO. If not *methods* then all methods are added"""
     if isinstance(methods, basestring):
         methods = methods.split(',')
+    if isinstance(exclude, basestring):
+        exclude = exclude.split(',')
     if isinstance(source_class, basestring):
         if ':' in source_class:
             modulename, clsname = source_class.split(':')
@@ -724,11 +726,13 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
                        only_callables=only_callables, exclude=exclude, **kwargs)
     exclude_list = dir(type) + ['__weakref__', '__onmixin__', '__on_class_mixin__', '__py_requires__','proxy']
     if exclude:
-        exclude_list.extend(exclude.split(','))
+        exclude_list.extend(exclude)
     mlist = [k for k in dir(source_class) if
              ((only_callables and callable(getattr(source_class, k))) or not only_callables) and not k in exclude_list]
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
+    if exclude:
+        mlist = filter(lambda item: item not in FilterList(exclude), mlist)
     proxy = getattr(source_class, 'proxy', None)
     if proxy:
         if proxy==True:
@@ -772,7 +776,7 @@ def base_visitor(cls):
 @extract_kwargs(mangling=True)       
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires',
-                  prefix=None, mangling_kwargs=None,_mixined=None,**kwargs):
+                  prefix=None, suffix=None, mangling_kwargs=None,_mixined=None,**kwargs):
     """Add to the instance obj methods from 'source'
     
     ``instanceMixin()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>` decorator
@@ -789,6 +793,9 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         _mixined=[]
     if isinstance(methods, basestring):
         methods = methods.split(',')
+    if isinstance(exclude, basestring):
+        exclude = exclude.split(',')
+    exclude = exclude or ''
     if isinstance(source, basestring):
         if ':' in source:
             modulename, clsname = source.split(':')
@@ -804,7 +811,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         for clsname in classes:
             source = getattr(m, clsname, None)
             instanceMixin(obj, source, methods=methods, only_callables=only_callables, exclude=exclude, 
-                         prefix=prefix,_mixined=_mixined, **kwargs)
+                         prefix=prefix, suffix=suffix,_mixined=_mixined, **kwargs)
         return _mixined
     if source is None:
         return
@@ -814,6 +821,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     instmethod = type(obj.__init__)
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
+    if exclude:
+        mlist = filter(lambda item: item not in FilterList(exclude), mlist)
     __mixin_pkg = getattr(source, '__mixin_pkg', None)
     __mixin_path = getattr(source, '__mixin_path', None)
     for name in mlist:
@@ -831,13 +840,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
                 name=splitted_name[1]
         if curr_prefix:
             name_as = '%s_%s' % (curr_prefix, name)
+        if suffix:
+            name_as = '%s_%s' % (name_as, suffix)
         if hasattr(obj, name_as):
             original = getattr(obj, name_as)
             setattr(obj, name_as + '_', original)
         setattr(obj, name_as, k)
         _mixined.append(name_as)
     if not only_callables:
-        exclude = (exclude or '').split(',')
         attributes = [k for k in dir(source) if
                       not callable(getattr(source, k)) and not k.startswith('_') and not k in exclude]
     if attributes:

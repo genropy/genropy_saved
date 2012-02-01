@@ -305,7 +305,6 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        currEnv = self.currentEnv
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
@@ -364,6 +363,7 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
+        tblobj._doExternalPkgTriggers('onInserting', record)
         if tblobj.attributes.get('diagnostic'):
             errors = tblobj.diagnostic_errors(record)
             warnings = tblobj.diagnostic_warnings(record)
@@ -375,6 +375,7 @@ class GnrSqlDb(GnrObject):
         self.adapter.insert(tblobj, record,**kwargs)
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
+        tblobj._doExternalPkgTriggers('onInserted', record)
         
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
@@ -387,6 +388,7 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record,old_record=old_record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
+        tblobj._doExternalPkgTriggers('onUpdating', record, old_record=old_record)
         if tblobj.attributes.get('diagnostic'):
             errors = tblobj.diagnostic_errors(record)
             warnings = tblobj.diagnostic_warnings(record)
@@ -398,7 +400,9 @@ class GnrSqlDb(GnrObject):
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
-        
+        tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
+
+
     def delete(self, tblobj, record, **kwargs):
         """Delete a record from the :ref:`table`
         
@@ -407,10 +411,13 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
+        tblobj._doExternalPkgTriggers('onDeleting', record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
+        tblobj._doExternalPkgTriggers('onDeleted', record)
+
         
     def commit(self):
         """Commit a transaction"""
@@ -727,4 +734,3 @@ class DbStoresHandler(object):
             
 if __name__ == '__main__':
     pass
-        

@@ -841,6 +841,13 @@ class SqlTable(GnrObject):
                 else:
                     getattr(self, 'trigger_%s' % trgFunc)(record, fldname=fldname,**kwargs)
                 
+    def _doExternalPkgTriggers(self, triggerEvent, record,**kwargs):
+        for pkg_id in self.db.application.packages.keys():
+            trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
+            if callable(trgFunc):
+                trgFunc(record, **kwargs)
+
+
     def newPkeyValue(self):
         """Get a new unique id to use as :ref:`primary key <pkey>`
         on the current :ref:`database table <table>`"""
