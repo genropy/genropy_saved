@@ -424,8 +424,8 @@ class GnrHTable(GnrDboTable):
 class GnrHTableDynamicForm(GnrHTable):
     def getFormDescriptor(self,pkey=None,code=None,folders=False):
         record = self.record(where='$id=:pkey OR $code=:code',pkey=pkey,code=code,virtual_columns='$child_count').output('record')      
-        if record['child_count'] and not folders:
-            return Bag(),False
+       #if record['child_count'] and not folders:
+       #    return Bag(),False
         fieldsField = self.attributes.get('df_fields','fields')
         f = self.query(columns='$description,$%s,$child_count' %fieldsField,
                              where="(:code=$code) OR (:code ILIKE $code || '.%%')" ,
