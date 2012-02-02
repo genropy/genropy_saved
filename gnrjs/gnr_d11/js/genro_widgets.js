@@ -4067,7 +4067,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         if(kw.checkedId){
             var sourceNode = this.sourceNode;
-            var checkedKeys = this.getCheckedId(fieldname);
+            var checkedKeys = this.getCheckedId(fieldname) || '';
             setTimeout(function(){
                 sourceNode.setRelativeData(kw.checkedId,checkedKeys,null,null,sourceNode);
             },1)
@@ -4101,8 +4101,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             sourceNode.registerDynAttr('checkedId');
             var checkedIdPath = kw.checkedId;
             sourceNode.subscribe('onNewDatastore',function(){
-                sourceNode.setRelativeData(checkedIdPath,sourceNode.widget.getCheckedId(fieldname),null,null,sourceNode);
+                var checkedInStore = sourceNode.widget.getCheckedId(fieldname);
+                if(typeof(getCheckedId)=='string'){
+                    sourceNode.setRelativeData(checkedIdPath,checkedInStore,null,null,sourceNode);
+                }
+                
             });
+
             if(kw.checkedOnRowClick){
                 dojo.connect(sourceNode.widget,'onRowClick',function(e){
                     sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname)
@@ -4119,13 +4124,18 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var checkedIdList = [];
         var that = this;
         var row;
+        var hasCheckedField = false;
+        
         this.storebag().forEach(function(n){
             row = that.rowFromBagNode(n);
+            if(fieldname in row){
+                hasCheckedField = true;
+            }
             if(row[fieldname]){
                 checkedIdList.push( that.rowIdentity(row))
             }
         },'static');
-        return checkedIdList.join(',');
+        return hasCheckedField?checkedIdList.join(','):false;
         
     },
     mixin_setCheckedId:function(path,kw){
