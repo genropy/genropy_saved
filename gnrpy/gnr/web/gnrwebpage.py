@@ -139,6 +139,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
+            self.page_id = page_id
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
