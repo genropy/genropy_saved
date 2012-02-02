@@ -162,6 +162,8 @@ class GnrSqlAppDb(GnrSqlDb):
         """TODO
         
         :param tblobj: the :ref:`database table <table>` object"""
+        if self.currentEnv.get('forced_transaction'):
+            return
         if not hasattr(tblobj, '_usesTransaction'):
             tblobj._usesTransaction = boolean(
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
