@@ -670,7 +670,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             this._templateHandler.cb = function(){
                 this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource});
                 if(typeof(this.result) == 'string'){
-                    return this.result;
+                    return this.result || '<div class="chunkeditor_placeholder">Double Click + cmd </div>';;
                 }
                 var datasourcePath = that.absDatapath(that.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
@@ -686,9 +686,13 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     var curr_vc = datasourceNode.attr._virtual_columns;
                     var vc = getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
                     if(vc){
-                        datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
-                        datasourceNode._resolver.lastUpdate = null;                    
-                        that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                        if(datasourceNode._resolver){
+                            datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
+                            datasourceNode._resolver.lastUpdate = null;                    
+                            that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                        }else{
+                            that.attr._virtual_column =  vc.join(',');
+                        }
                     }
                 }
                 

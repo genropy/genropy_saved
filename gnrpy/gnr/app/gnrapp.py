@@ -304,13 +304,19 @@ class GnrPackage(object):
         instanceMixin(self, self.pkgMixin)
         self.attributes.update(pkgattrs)
         
+    def initTableMixinDict(self):
         self.tableMixinDict = {}
-        self.loadTableMixinDict(self.main_module, self.packageFolder)
-
+        modelFolder = os.path.join(self.packageFolder, 'model')
+        self.loadTableMixinDict(self.main_module, modelFolder)
+        for pkgid, apppkg in self.application.packages.items():
+            externalPkgModelFolder = os.path.join(apppkg.packageFolder,'model','_packages',self.id)
+            self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=self.id)
         for plugin in self.getPlugins():
-            self.loadTableMixinDict(self.main_module, plugin.path, pluginId=plugin.id)
+            pluginModelFolder = os.path.join(plugin.path, 'model')
+            self.loadTableMixinDict(self.main_module, pluginModelFolder, pluginId=plugin.id)
         if os.path.isdir(self.customFolder):
-            self.loadTableMixinDict(self.custom_module, self.customFolder, model_prefix='custom_')
+            customModelFolder = os.path.join(self.customFolder, 'model')
+            self.loadTableMixinDict(self.custom_module, customModelFolder, model_prefix='custom_')
         self.configure()
         
     @property
@@ -328,16 +334,16 @@ class GnrPackage(object):
         """TODO"""
         return self.plugins.values()
     
-    def loadTableMixinDict(self, module, folder, model_prefix='', pluginId=None):
+    def loadTableMixinDict(self, module, modelfolder, model_prefix='', pluginId=None, fromPkg=None):
         """TODO
         
         :param module: TODO
-        :param folder: TODO
+        :param modelfolder: TODO
         :param model_prefix: TODO"""
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
-        modelfolder=os.path.join(folder,'model')
+        #modelfolder=os.path.join(folder,'model')
         
         if os.path.isdir(modelfolder):
             tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
@@ -348,12 +354,21 @@ class GnrPackage(object):
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinCls)
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinClsCustom)
             if not cls:
+                module_name = '%smodel_of_%s_%s' % (model_prefix, self.id, tbl)
+                if fromPkg:
+                    module_name = '%s_from_%s'%(module_name, fromPkg)
                 tbl_module = gnrImport(os.path.join(modelfolder, '%s.py' % tbl),
-                                       '%smodel_of_%s_%s' % (model_prefix, self.id, tbl))
-                instanceMixin(self.tableMixinDict[tbl], getattr(tbl_module, 'Table', None))
+                                       module_name)
+                tbl_cls = getattr(tbl_module, 'Table', None)
+                if not fromPkg:
+                    instanceMixin(self.tableMixinDict[tbl], tbl_cls)
+                else:
+                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, methods='config_db,trigger_*', suffix='%s'%fromPkg)
+                    instanceMixin(self.tableMixinDict[tbl], tbl_cls, exclude='config_db,trigger_*')
                 self.tableMixinDict[tbl]._plugins = dict()
-                for cname in dir(tbl_module):
-                    member = getattr(tbl_module, cname, None)
+                # mbertoldi commented out the following two lines as they are useless
+                #for cname in dir(tbl_module):
+                #    member = getattr(tbl_module, cname, None)
             else:
                 instanceMixin(self.tableMixinDict[tbl], cls)
             if pluginId:
@@ -570,6 +585,10 @@ class GnrApp(object):
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
+            self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
+            self.packages[pkgid] = apppkg
+        for pkgid, apppkg in self.packages.items():
+            apppkg.initTableMixinDict()
             if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
                 #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
                 if len(apppkg.pkgMenu) == 1:
@@ -577,8 +596,6 @@ class GnrApp(object):
                 else:
                     self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
                                         {'label': apppkg.config_attributes().get('name_long', pkgid)})
-            self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
-            self.packages[pkgid] = apppkg
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)

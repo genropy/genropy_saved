@@ -189,6 +189,7 @@ function dataTemplate(str, data, path, showAlways) {
     var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
     var result;
     var is_empty = true;
+    var has_field = false;
     if (!data && !showAlways) {
         return '';
     }
@@ -205,6 +206,7 @@ function dataTemplate(str, data, path, showAlways) {
         }
         result = str.replace(regexpr,
                             function(path) {
+                                has_field=true;
                                 var path=path.slice(1);
                                 var subtpl=null;
                                 if(path.indexOf('^')>0){
@@ -241,8 +243,9 @@ function dataTemplate(str, data, path, showAlways) {
                             });
     } else {
         data = data || {};
-        return str.replace(regexpr,
+        result = str.replace(regexpr,
                           function(path) {
+                              has_field=true;
                               var value = data[path.slice(1)];
                               if (value != null) {
                                   is_empty = false;
@@ -255,7 +258,7 @@ function dataTemplate(str, data, path, showAlways) {
                               }
                           });
     }
-    if (is_empty) {
+    if (has_field && is_empty) {
         return '';
     } else {
         return result;
