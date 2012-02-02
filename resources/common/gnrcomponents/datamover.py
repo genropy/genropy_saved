@@ -123,7 +123,7 @@ class MoverPlugin(BaseComponent):
                                             selectedLabel='.currLabel')        
         center = bc.contentPane(region='center',margin_top='5px')
         gridrecords= center.includedview(datapath='.recordsgrid',storepath='.data',
-                                    draggable_row=True,
+                                    draggable_row=True,dragTags='mover',
                                     onDrag="""if(dragInfo.dragmode == 'row') {
                                                 var rowset = dragValues.gridrow.rowset;
                                                 var table = rowset[0].table;

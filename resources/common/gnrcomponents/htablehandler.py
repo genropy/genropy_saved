@@ -716,6 +716,8 @@ class HTableHandler(HTableHandlerBase):
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
         
         dragCode = '%s_record' %table.replace('.','_')
+        moverCode = 'mover_%s' %table.replace('.','_')
+
         tree = center.tree(storepath='.tree.store',nodeId='%s_tree' %nodeId, 
                     margin='10px', isTree=False, hideValues=True,
                     inspect='shift', labelAttribute='caption',
@@ -727,7 +729,7 @@ class HTableHandler(HTableHandlerBase):
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick,
                     onChecked=onChecked,dragTags=dragCode,
-                    dropTags=dragCode,
+                    dropTags='%s,mover' %dragCode,
                     dropTypes='nodeattr',
                      draggable=True,
                      onDrag="""dragValues['dbrecords'] = {table:'%s',code:treeItem.attr['code']||'*',objtype:'record'}; """ %table,
@@ -754,8 +756,14 @@ class HTableHandler(HTableHandlerBase):
                                         return false;
                                     }
                                     return true;
-                                    
                                     """)
+                                    
+        treeattr = tree.attributes
+        treeattr['onDrop_%s' %moverCode] = """console.log('aaa',data)
+                                               genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"""
+        
+        
+        
         bar = frame.top.slotToolbar('2,tblname,*',height='20px')
         bar.tblname.div(tblobj.name_long)
         if picker:
