@@ -370,7 +370,8 @@ class GnrPackage(object):
                 #for cname in dir(tbl_module):
                 #    member = getattr(tbl_module, cname, None)
             else:
-                instanceMixin(self.tableMixinDict[tbl], cls)
+                if not fromPkg:
+                    instanceMixin(self.tableMixinDict[tbl], cls)
             if pluginId:
                 setattr(self.tableMixinDict[tbl],'_pluginId',pluginId)
                 
