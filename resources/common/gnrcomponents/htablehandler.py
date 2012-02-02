@@ -730,6 +730,7 @@ class HTableHandler(HTableHandlerBase):
                     dropTags=dragCode,
                     dropTypes='nodeattr',
                      draggable=True,
+                     onDrag="""dragValues['dbrecords'] = {table:'%s',code:treeItem.attr['code']||'*',objtype:'record'}; """ %table,
                      onDrop="""if(dropInfo.dragSourceInfo.nodeId!=dropInfo.sourceNode.attr.nodeId){
                                     return;
                                 };

@@ -79,6 +79,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         kwargs[
         'connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         self._lock.acquire()
+        if 'port' in kwargs:
+            kwargs['port'] = int(kwargs['port'])
         try:
             conn = psycopg2.connect(**kwargs)
         finally:

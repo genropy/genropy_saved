@@ -29,7 +29,7 @@ from gnr.web.gnrwebstruct import struct_method
 import re
 
 class DynamicForm(BaseComponent):
-    py_requires='gnrcomponents/framegrid:FrameGrid'
+    py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/htablehandler:HTableHandlerBase'
     
     @struct_method
     def df_fieldsGrid(self,pane,storepath=None,standard_range=False,title=None,**kwargs):   
@@ -93,15 +93,18 @@ class DynamicForm(BaseComponent):
             self._df_handleFieldSource(attr,dbstore_kwargs=dbstore_kwargs)
             self._df_handleFieldFormula(attr,fb=fb,fields=fields)
             self._df_handleFieldValidation(attr,fb,fields=fields)
+            if field_type=='TL':
+                attr['lbl_vertical_align'] = 'top'
             fb.child(value='^.%s' %attr.pop('code'), lbl='%s' %attr.pop('description',''),**attr)
                     
-    def _df_handleFieldSource(self,attr,dbstore_kwargs=None):
+    def _df_handleFieldSource(self,attr,dbstore_kwargs=None): #dbstore_name='@pratica_id.@condominio_id.dbstore' ,dbstore_pkg='cond'
         field_source = attr.pop('field_source',None)
         if not field_source:
             return
         if '.' in field_source:
             tag = 'dbSelect'
             attr['dbtable'] = field_source
+            htbl = hasattr(self.db.table(field_source),'htableFields')
             pkg,tblname = field_source.split('.')
             attr['hasDownArrow'] =True
             if pkg in dbstore_kwargs.get('pkg','').split(','):

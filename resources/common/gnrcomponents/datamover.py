@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import public_method
 
 class MoverPlugin(BaseComponent):
     def __moverdialog(self,pane):
@@ -37,6 +38,13 @@ class MoverPlugin(BaseComponent):
         r.cell('db_caption',name='!!Db',width='50%')
         r.cell('xml_caption',name='!!Mover',width='50%')
         
+    @public_method
+    def mover_getHPkeys(self,table=None,code=None):
+        where = "$code ILIKE :code || '%%'"
+        if code=='*':
+            where = None
+        return self.db.table(table).query(where=where,code=code).selection().output('pkeylist')
+        
     def mainLeft_datamover(self, pane):
         """!!Mover"""
         frame = pane.framePane(datapath='gnr.datamover')
@@ -63,15 +71,21 @@ class MoverPlugin(BaseComponent):
                             dragValues['mover_'+table.replace('.','_')] =  {table:table,pkeys:rowset[0].pkeys,objtype:rowset[0].objtype};
                         };""",
                         drop_ext='gnrz',
-                        dropTarget_grid='dbrecords,dbselection,Files',dropTarget=True,dropTypes='dbrecords,Files',
+                        dropTarget_grid='dbrecords,nodeattr,dbselection,Files',dropTarget=True,dropTypes='dbrecords,nodeattr,Files',
                         autoSelect=True,
-                        onDrop="""var f = files[0];
+                        onDrop="""  if(!($2 instanceof Array)){
+                                        return;
+                                    }
+                                    var f = files[0];
                                     var movername = f.name;
+                                    setTimeout(function(){
                                     genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:'site:temp',filename:f.name,
                                                                         onResult:function(){
                                                                             genro.publish('gnrdatamover_loadCurrent');
                                                                         },
                                                                         uploaderId:'datamover'});
+                                    },1)
+                                    
                         """,
                         onDrop_dbrecords="""
                                             var table = data.table;
@@ -96,10 +110,17 @@ class MoverPlugin(BaseComponent):
                                                                 function(result){
                                                                     finalize(result);
                                                                 });
-                                            }else if(data.pkeys){
+                                            }else if(data.code){
+                                                genro.serverCall("mover_getHPkeys",{code:data.code,table:table},
+                                                    function(result){
+                                                        finalize(result);
+                                                    });
+                                            }
+                                            else if(data.pkeys){
                                                 finalize(data.pkeys);
                                             }         
-                                            """,selectedLabel='.currLabel')        
+                                            """,
+                                            selectedLabel='.currLabel')        
         center = bc.contentPane(region='center',margin_top='5px')
         gridrecords= center.includedview(datapath='.recordsgrid',storepath='.data',
                                     draggable_row=True,

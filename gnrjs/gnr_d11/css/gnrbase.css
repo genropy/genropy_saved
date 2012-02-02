@@ -2852,7 +2852,7 @@ p {
 
 /* @group multibutton */
 .multibutton_container{
-    padding-top:2px;
+    padding-top:1px;
     padding-bottom:1px;
     line-height:3ex;
     font-size: 9pt;
