@@ -302,7 +302,7 @@ class TableHandlerView(BaseComponent):
             chunkSize = None
             selectionName = None
         self.subscribeTable(table,True)
-        selectmethod = self._th_hook('selectmethod',dflt=None,mangler=frame)
+        selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',

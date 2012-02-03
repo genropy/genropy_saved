@@ -81,7 +81,10 @@ class TableHandlerCommon(BaseComponent):
             return getattr(self,method)          
         def emptyCb(*args,**kwargs):
             return dflt
-        return getattr(self,'%s_%s' %(mangler.replace('.','_'),method),defaultCb or emptyCb) 
+        handler = getattr(self,'%s_%s' %(mangler.replace('.','_'),method),None) 
+        if handler is None and defaultCb is False:
+            return None
+        return handler or defaultCb or emptyCb
         
 
 
