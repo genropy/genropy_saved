@@ -6,7 +6,7 @@ class Table(object):
         tbl = pkg.table('provincia', pkey='sigla', name_long='Provincia',
                          rowcaption='$nome,$sigla:%s (%s)')
         tbl.column('sigla', size='2', group='_', readOnly=True, name_long='!!Sigla', indexed=True)
-        tbl.column('regione', size='3', name_long='!!Regione').relation('glbl.regione.sigla',relation_name='province')
+        tbl.column('regione', size='3', name_long='!!Regione').relation('glbl.regione.sigla',relation_name='province',eager_one=True)
         tbl.column('nome', size=':30', name_long='!!Nome', indexed=True)
         tbl.column('codice_istat', size='3', name_long='!!Codice Istat')
         tbl.column('ordine', 'L', name_long='!!Ordine Gnr')

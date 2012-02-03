@@ -2037,18 +2037,17 @@ class SqlRecord(object):
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
         info['_relation_value'] = sqlresult['t0_%s' %ofld]
-        if resolver_many is True:
-            value = SqlRelatedSelectionResolver(
-                    columns='*', db=self.db, cacheTime=-1,
-                    target_fld=info['_target_fld'],
-                    relation_value=info['_relation_value'],
-                    mode='grid', joinConditions=self.joinConditions,
-                    sqlContextName=self.sqlContextName
-                    )
-        else:
-            value = None
-            info['_sqlContextName'] = self.sqlContextName
-            info['_resolver_name'] = resolver_many
+        #if True or resolver_many is True:
+        value = SqlRelatedSelectionResolver(
+                columns='*', db=self.db, cacheTime=-1,
+                target_fld=info['_target_fld'],
+                relation_value=info['_relation_value'],
+                mode='grid', joinConditions=self.joinConditions,
+                sqlContextName=self.sqlContextName
+                )
+        #else:
+        info['_sqlContextName'] = self.sqlContextName
+        info['_resolver_name'] = resolver_many
         return value,info
 
     def _loadRecord_DynItemOneOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
@@ -2057,20 +2056,19 @@ class SqlRecord(object):
         info['_target_fld'] = joiner['many_relation']
         info['one_one'] = joiner['one_one']
         relation_value = sqlresult['t0_%s' %ofld]
-        if resolver_one is True:
-            value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
-                                             target_fld=info['_target_fld'],
-                                             relation_value=relation_value,
-                                             mode='bag',
-                                             bagFields=True,
-                                             ignoreMissing=True,
-                                             joinConditions=self.joinConditions,
-                                             sqlContextName=self.sqlContextName)
-        else:
-            value = None
-            info['_resolver_name'] = resolver_one
-            info['_sqlContextName'] = self.sqlContextName
-            info['_relation_value'] = relation_value
+        #if True or resolver_one is True:
+        value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
+                                         target_fld=info['_target_fld'],
+                                         relation_value=relation_value,
+                                         mode='bag',
+                                         bagFields=True,
+                                         ignoreMissing=True,
+                                         joinConditions=self.joinConditions,
+                                         sqlContextName=self.sqlContextName)
+        #else:
+        info['_resolver_name'] = resolver_one
+        info['_sqlContextName'] = self.sqlContextName
+        info['_relation_value'] = relation_value
         return value,info
                          
 
@@ -2085,8 +2083,10 @@ class SqlRecord(object):
         if self.virtual_columns:
             rel_vc = ','.join(
                     [vc.split('.', 1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(fieldname)])
-        if resolver_one is True:
-            value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
+                    
+                    
+        #if True or resolver_one is True:
+        value=SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                              target_fld=info['_target_fld'],
                                              relation_value=relation_value,
                                              mode='bag', virtual_columns=rel_vc,
@@ -2095,16 +2095,21 @@ class SqlRecord(object):
                                              joinConditions=self.joinConditions,
                                              sqlContextName=self.sqlContextName
                                              )
-        else:
-            value = None
-            if 'storefield' in joiner:
-                info['_storefield'] = joiner['storefield']
-            info['_resolver_name'] = resolver_one
-            info['_sqlContextName'] = self.sqlContextName
-            info['_auto_relation_value'] = mfld
-            info['_virtual_columns'] = rel_vc
-            info['_storename'] = self.storename
+        #else:
+        if 'storefield' in joiner:
+            info['_storefield'] = joiner['storefield']
+        info['_resolver_name'] = resolver_one
+        info['_sqlContextName'] = self.sqlContextName
+        info['_auto_relation_value'] = mfld
+        info['_virtual_columns'] = rel_vc
+        info['_storename'] = self.storename
         return value,info
+        
+    def _onChangedValueCb(self,node=None,evt=None,info=None,**kwargs):
+        if evt=='upd_value':
+            rnode = node.parentbag.getNode('@%s' %node.label)
+            if rnode and rnode.resolver:
+                rnode.resolver(relation_value=node.value)
 
     def _loadRecord(self, result, sqlresult,fields, resolver_one=None, resolver_many=None):
         for fieldname, args in fields.digest('#k,#a'):
@@ -2116,7 +2121,9 @@ class SqlRecord(object):
                 info['mode'] = joiner['mode']
                 if (relmode=='DynItemMany' and resolver_many) or (resolver_one and relmode in ('DynItemOneOne','DynItemOne')):
                     value, info = getattr(self,'_loadRecord_%s' %relmode)(fieldname,joiner,info,sqlresult,resolver_one,resolver_many)
-                    result.setItem(fieldname, value, info)                    
+                    result.setItem(fieldname, value, info)               
+                    if resolver_one and relmode =='DynItemOne':
+                        result.getNode(fieldname[1:]).subscribe('resolverChanged',self._onChangedValueCb)
             else:
                 if dtype == 'X' and not self.bagFields:
                     continue

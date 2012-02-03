@@ -244,7 +244,8 @@ class BagToXml(object):
         if '__forbidden__' in nodeattr:
             return ''
         if self.unresolved and node.resolver is not None and not getattr(node.resolver,'_xmlEager',None):
-            nodeattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
+            if not nodeattr.get('_resolver_name'):
+                nodeattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
             value = ''
             if isinstance(node._value, Bag):
                 value = self.bagToXmlBlock(node._value)

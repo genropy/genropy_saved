@@ -1091,8 +1091,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         for k, v in defaults.items():
             if k in record:
                 record[k] = v
-                #pass
-    
+                
     @public_method
     def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,

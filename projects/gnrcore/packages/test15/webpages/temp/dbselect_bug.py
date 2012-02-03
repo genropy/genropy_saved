@@ -28,3 +28,11 @@ class GnrCustomWebPage(object):
         fb.div('^.user',lbl='User')
         fb.div('^.username',lbl='Username')
         
+    def test_2_firsttest(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(dbtable='glbl.provincia',value='^.sigla',lbl='Sigla',width='25em')
+        fb.dataRecord('.provincia','glbl.provincia',pkey='^.sigla',applymethod='testhotutto')
+    
+    def rpc_testhotutto(self,record,**kwargs):
+        print record['@localita']
+        

@@ -9,7 +9,7 @@ class Table(object):
         tbl.column('id', size='22', group='_', readOnly=True, name_long='!!Id',unique=True)
         tbl.column('nome', size=':52', name_long='Nome', indexed=True)
         tbl.column('provincia', size='2', name_long='Provincia').relation('glbl.provincia.sigla', mode='foreignkey',
-                                                                           onUpdate_sql='cascade', onDelete='raise')
+                                                                           onUpdate_sql='cascade', onDelete='raise',relation_name='localita')
         tbl.column('codice_istat', size='6', name_long='Codice Istat')
         tbl.column('codice_comune', size='4', name_long='Codice Comune')
         tbl.column('prefisso_tel', size='4', name_long='Prefisso Tel')

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 
-class Table(object):
+class XXTable(object):
     def config_db(self, pkg):
         tbl = pkg.table('localita')
         tbl.column('is_lovely', dtype='B', name_long='Is Lovely')
