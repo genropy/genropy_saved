@@ -2362,7 +2362,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_rowByIndex: function(idx) {
         return this.model.getRow(idx);
     },
-    
     mixin_rowIdentity: function(row) {
         if (row) {
             return row[this.rowIdentifier()];
@@ -2370,17 +2369,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             return null;
         }
     },
-  // mixin_rowIdentifier: function(row) {
-  //     return this.model.store._identifier;
-  // },
-
-    //mixin_rowItemByIndex: function(idx) {
-    //    identifier = this.rowIdentity(this.rowByIndex(idx));
-    //    return this.model.store.fetchItemByIdentity({identity:identifier});
-    //},
-    //mixin_rowItemByIdentity: function(identifier) {
-    //    return this.model.store.fetchItemByIdentity({identity:identifier});
-    //},
+    mixin_rowIdentifier: function(row) {
+        return this.model.store._identifier;
+    },
+    mixin_rowItemByIndex: function(idx) {
+        identifier = this.rowIdentity(this.rowByIndex(idx));
+        return this.model.store.fetchItemByIdentity({identity:identifier});
+    },
+    mixin_rowItemByIdentity: function(identifier) {
+        return this.model.store.fetchItemByIdentity({identity:identifier});
+    },
 
     mixin__gnrUpdateSelect: function(idx) {
         if (this.sourceNode.attr.selectedDataPath) {
@@ -3097,10 +3095,6 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         }
         return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx].attr : null;
     },
-    
-  //mixin_rowItemByIdentity: function(identifier) {
-  //    return this.model.store.fetchItemByIdentity({identity:identifier});
-  //},
 
     mixin_rowIdentity: function(row) {
         if (row) {
@@ -3661,10 +3655,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             return {};
         }
     },
-    mixin_rowByIdentity:function(identity){
-        var identifier = this.rowIdentifier();
-        return this.rowByIndex(this.indexByRowAttr(identifier,identity))
-    },
     mixin_dataNodeByIndex:function(inRowIndex) {
         inRowIndex = this.absIndex(inRowIndex);
         var storebag = this.storebag();
@@ -3728,7 +3718,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             ;
         }
-        result._bagNode = node
         return result;
     },
     nodemixin_updateGridCellAttr: function(kw) { // update node attributes (for cell display) from new field values
