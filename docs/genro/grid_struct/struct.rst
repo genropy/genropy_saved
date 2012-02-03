@@ -9,14 +9,16 @@ struct
     TODO
     
     * :ref:`struct_intro`
-    * :ref:`struct_section_index`
     
 .. _struct_intro:
 
 introduction
 ============
 
-    TODO
+    The struct is a :ref:`bag` that handles the creation of the :ref:`grids <grid>`.
+    
+    The class tat handles the construction of the struct is the TODO class.
+    
     
     CLIPBOARD::
     
@@ -71,10 +73,3 @@ introduction
     
         r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
         r.child('cell',field='procedure',width='9em',name='Procedure')
-
-.. _struct_section_index:
-
-section index
-=============
-
-    TODO

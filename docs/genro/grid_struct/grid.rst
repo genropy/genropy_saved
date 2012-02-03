@@ -9,7 +9,6 @@ grid
     TODO
     
     * :ref:`grid_intro`
-    * :ref:`grid_section_index`
     
 .. _grid_intro:
     
@@ -18,16 +17,7 @@ introduction
 
     The grid is the visual model of a :ref:`struct`.
     
-    TODO image!
+    You can build a grid in two ways:
     
-.. _grid_section_index:
-
-section index
-=============
-    
-.. toctree::
-    :maxdepth: 1
-    :numbered:
-    
-    palettegrid
-    includedgrid
+    * Through the :ref:`iv` javascript widget (standard way to build a grid)
+    * Through the :ref:`framegrid` component (it has a built-in :ref:`framepane`)    

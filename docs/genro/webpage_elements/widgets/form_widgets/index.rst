@@ -46,3 +46,5 @@ section index
     slider
     db/index
     textboxes: textbox, currencyTextBox, dateTextbox, numberTextbox and timeTextbox <textboxes/index>
+    tree
+    

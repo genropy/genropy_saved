@@ -50,5 +50,6 @@ section index
     cells/index
     palette/index
     toolbars/index
+    iv
     iframe
-    tree
+    

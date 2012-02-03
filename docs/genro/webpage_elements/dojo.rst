@@ -15,6 +15,6 @@ Dojo
 Dojo supported version
 ======================
 
-    The compatible Dojo versions are listed here:
+    The Dojo versions compatible with Genro are listed here:
     
     * Dojo 1.1

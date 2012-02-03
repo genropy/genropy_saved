@@ -7,7 +7,6 @@
 """Grid"""
 from gnr.core.gnrbag import Bag
 
-
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     dojo_theme = 'claro'

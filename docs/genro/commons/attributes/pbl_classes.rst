@@ -8,7 +8,6 @@ pbl_classes
     
     .. note:: **validity** - the *pbl_classes* attribute is supported by:
               
-              * :ref:`includedgrid`
               * Every :ref:`TableHandler component <th_types>`: :ref:`th_border`, :ref:`th_dialog`,
                 :ref:`th_page`, :ref:`th_palette`, :ref:`th_plain`, :ref:`th_stack`, :ref:`th_formhandler`,
                 :ref:`th_thiframe`, :ref:`th_iframedialog`, :ref:`th_iframedispatcher`,

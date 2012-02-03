@@ -11,7 +11,7 @@ widgets categories
 Genro widgets
 =============
 
-    The **Genro widgets** are the widgets that belong properly to the Genro framework
+    The **Genro widgets** are the Python widgets that belong properly to the Genro framework
     
 .. _dojo_improved_widgets:
 

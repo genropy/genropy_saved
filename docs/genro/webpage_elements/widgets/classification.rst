@@ -93,6 +93,8 @@ widgets classification
             +------------------------------------------+---------------------------------------------------------+
             | :ref:`slider`                            |  :ref:`Dojo widget <dojo_widgets>`                      |
             +------------------------------------------+---------------------------------------------------------+
+            | :ref:`tree`                              |  :ref:`Dojo widget <dojo_widgets>`                      |
+            +------------------------------------------+---------------------------------------------------------+
             
     * :ref:`toolbars`
     
@@ -113,5 +115,6 @@ widgets classification
     There are other webpage elements:
     
     * :ref:`iframe`
+    * :ref:`iv`
     * :ref:`cells`
-    * :ref:`tree`
+    

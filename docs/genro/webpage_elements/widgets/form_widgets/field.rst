@@ -17,6 +17,7 @@ field
         * :ref:`the maintable <field_maintable>`
         * :ref:`field_dbtable_field`
     
+    * :ref:`field_conversion`
     * :ref:`field_attr`:
     
         * :ref:`field_attr_field`
@@ -37,6 +38,47 @@ definition
                 fb = root.formbuilder(datapath='myPathForData')
                 fb.field(...) # The field's content will be explained below...
                 
+.. _field_conversion:
+
+field conversion
+================
+
+    CLIPBOARD::
+    
+        elif dtype in ('A', 'T') and fieldobj.attributes.get('values', False):
+            result['tag'] = 'filteringselect'
+            result['values'] = fieldobj.attributes.get('values', [])
+        elif dtype == 'A':
+            result['maxLength'] = size
+            result['tag'] = 'textBox'
+            result['_type'] = 'text'
+            result['_guess_width'] = '%iem' % (int(size * .7) + 2)
+        elif dtype == 'B':
+            result['tag'] = 'checkBox'
+            if 'autospan' in kwargs:
+                kwargs['colspan'] = kwargs['autospan']
+                del kwargs['autospan']
+        elif dtype == 'T':
+            result['tag'] = 'textBox'
+            result['_guess_width'] = '%iem' % int(size * .5)
+        elif dtype == 'R':
+            result['tag'] = 'numberTextBox'
+            result['width'] = '7em'
+        elif dtype == 'N':
+            result['tag'] = 'numberTextBox'
+            result['_guess_width'] = '7em'
+        elif dtype == 'L' or dtype == 'I':
+            result['tag'] = 'numberTextBox'
+            result['_guess_width'] = '7em'
+        elif dtype == 'D':
+            result['tag'] = 'dateTextBox'
+            result['_guess_width'] = '9em'
+        elif dtype == 'H':
+            result['tag'] = 'timeTextBox'
+            result['_guess_width'] = '7em'
+        else:
+            result['tag'] = 'textBox'
+            
 .. _field_attr:
 
 Attribute explanation

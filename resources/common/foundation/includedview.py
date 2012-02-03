@@ -633,7 +633,7 @@ class IncludedView(BaseComponent):
         or the modify of records is handled inside the grid
         
         :param parentBC: the root parent :ref:`bordercontainer`
-        :param nodeId: the includedGrid's :ref:`nodeid`
+        :param nodeId: the includedGrid's :ref:`nodeid`. You have to define it OR the *frameCode* attribute
         :param frameCode: it is the includedGrid's :ref:`nodeid`. You have to define it OR the *nodeId* attribute
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
