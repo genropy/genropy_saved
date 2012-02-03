@@ -3097,10 +3097,6 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         }
         return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx].attr : null;
     },
-    mixin_rowByIdentity:function(identity){
-        var identifier = this.rowIdentifier();
-        return this.rowByIndex(this.indexByRowAttr(identifier,identity))
-    },
     
   //mixin_rowItemByIdentity: function(identifier) {
   //    return this.model.store.fetchItemByIdentity({identity:identifier});
@@ -3664,6 +3660,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         } else {
             return {};
         }
+    },
+    mixin_rowByIdentity:function(identity){
+        var identifier = this.rowIdentifier();
+        return this.rowByIndex(this.indexByRowAttr(identifier,identity))
     },
     mixin_dataNodeByIndex:function(inRowIndex) {
         inRowIndex = this.absIndex(inRowIndex);
