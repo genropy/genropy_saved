@@ -68,7 +68,7 @@ class DynamicForm(BaseComponent):
         return frame 
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
-        pane.remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
                     df_folders=df_folders,
                     **kwargs)
 
