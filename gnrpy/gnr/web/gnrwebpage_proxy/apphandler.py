@@ -1070,6 +1070,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         for n in record.nodes:
             _eager_one = n.attr.get('_eager_one')
             if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
+                n._resolver = None
                 attr=n.attr
                 target_fld=str(attr['_target_fld'])
                 kwargs={}

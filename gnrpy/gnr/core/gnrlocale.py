@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import datetime
 
 from decimal import Decimal
@@ -55,6 +57,15 @@ def localize_date(obj, locale, format=None, **kwargs):
     format = format or 'short'
     return dates.format_date(obj, format=format, locale=locale)
     
+def localize_boolean(obj, locale='en', format='tf', **kwargs):
+    format = getBoolKeywords(format,locale=locale)    
+    format = format.split(';')
+    if obj is None and len(format)>2:
+        return format[2]
+    if obj:
+        return format[0]
+    return format[1]
+
 def localize_datetime(obj, locale, format=None, **kwargs):
     """TODO
     
@@ -196,16 +207,27 @@ def getQuarterNames(locale=None):
     d = dict([(v.lower(), k) for k, v in dates.get_quarter_names(width='wide', locale=locale).items()])
     d.update([(v.lower(), k) for k, v in dates.get_quarter_names(width='abbreviated', locale=locale).items()])
     return d
+
+def _localeKey(self,locale):
+    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    
     
 def getDateKeywords(keyword, locale=None):
+    return getKeywords(DATEKEYWORDS,keyword,locale=locale)
+
+def getBoolKeywords(keyword, locale=None):
+    return getKeywords(BOOLKEYWORDS,keyword,locale=locale)
+      
+    
+def getKeywords(sourcedict,keyword, locale=None):
     """TODO
     
     :param keyword: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
-    keydict = DATEKEYWORDS.get(locale, {})
+    keydict = sourcedict.get(locale, {})
     if not keydict and len(locale) > 2: # like en_us
-        keydict = DATEKEYWORDS.get(locale[:2], {})
+        keydict = sourcedict.get(locale[:2], {})
         
     if isinstance(keyword, basestring):
         keyword = [keyword]
@@ -223,7 +245,8 @@ TYPES_LOCALIZERS_DICT = {int: localize_number,
                          float: localize_number,
                          datetime.date: localize_date,
                          datetime.datetime: localize_datetime,
-                         datetime.time: localize_time
+                         datetime.time: localize_time,
+                         bool:localize_boolean
 }
 
 TYPES_LOCALPARSERS_DICT = {int: parselocal_number,
@@ -246,6 +269,9 @@ DATEKEYWORDS = {
            'today': 'oggi', 'yesterday': 'ieri', 'tomorrow': 'domani',
            'from': ('da', 'dal', 'dalla'), 'to': ('a', 'al', 'alla', 'e'), 'no period': ('senza periodo', 'sempre')}
 }
+
+BOOLKEYWORDS = { 'en':{'tf':'True;False','tfu':'True;False;Undefined','yn':'Yes;No','ynu':'Yes;No;Unknown'},
+                 'it':{'tf':'Vero;Falso','tfu':'Vero;Falso;Ignoto','yn':u'Sì;No','ynu':u'Sì;No;N.A'}}
     
 try: # python2.5 only
     TYPES_LOCALIZERS_DICT[Decimal] = localize_number
