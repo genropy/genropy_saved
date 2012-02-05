@@ -186,9 +186,6 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dlg.message(msg);
     },
     childUserEvent:function(childgenro,e){
-        if(!e){
-            console.log('aaaaa')
-        }
         genro._lastUserEventTs = new Date();
         genro.onUserEvent(e);
     },
@@ -222,9 +219,19 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
     },
-    
+    login: function(data,kw) {
+            genro.serverCall('doLogin',objectUpdate({'login':data},kw),function(result){
+                result=result.getValue()
+                var message=result.getItem('message')
+                if (message){
+                    genro.publish('invalid_login',{'message':message})
+                }else{
+                    window.location.reload();
+                }
+            })
+    },
     start: function() {
-        /*
+                /*
          Here starts the application on page loading.
          It calls the remoteCall to receive the page contained in the bag called 'main'.
          */
@@ -232,17 +239,11 @@ dojo.declare('gnr.GenroClient', null, {
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
         this._data = new gnr.GnrBag();
-        //this.setData('_dev.widgets',this.catalog);
         this._dataroot.setItem('main', this._data);
-
         this.widget = {};
         this._counter = 0;
-
         this.dlg.createStandardMsg(document.body);
-        //this.dev.srcInspector(document.body);
         this.contextIndex = {};
-
-        
         //genro.timeIt('** getting main **');
         this.mainGenroWindow = window;
         this.root_page_id = null;
@@ -250,6 +251,25 @@ dojo.declare('gnr.GenroClient', null, {
             this.mainGenroWindow = window.parent.genro.mainGenroWindow;
             this.root_page_id = this.mainGenroWindow.genro.page_id;
         }
+        var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+        if (mainBagPage && mainBagPage.attr.redirect) {
+            var pageUrl = this.absoluteUrl()
+            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
+            {
+                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
+            }
+            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
+            console.log('not logged',mainBagPage.attr.redirect, {'fromPage':pageUrl},url)
+            genro.currentUrl=mainBagPage.attr.redirect
+            var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+            this.dostart(mainBagPage)
+          //  this.gotoURL(url);
+        }else{
+            this.dostart(mainBagPage)
+        }
+    },
+    dostart___: function() {
+
         var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
         if (mainBagPage && mainBagPage.attr.redirect) {
@@ -261,6 +281,9 @@ dojo.declare('gnr.GenroClient', null, {
             var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
             this.gotoURL(url);
         }
+    },
+        
+    dostart: function(mainBagPage) {
         //this.loadPersistentData()
         this.loadContext();
         //genro.timeIt('** starting builder **');

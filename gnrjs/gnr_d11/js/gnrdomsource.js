@@ -280,7 +280,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 objectPop(kwargs, 'nodeId');
                 var _onCalling = objectPop(kwargs, '_onCalling');
                 var origKwargs = objectUpdate({}, kwargs);
-                objectExtract(kwargs, '_*');
+                
                 if('_dbstore' in origKwargs){
                     kwargs['_dbstore'] = origKwargs['_dbstore'];
                 }
@@ -320,6 +320,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (_lockScreen) {
                     genro.lockScreen(true, domsource_id);
                 }
+                objectExtract(kwargs, '_*');
                 if (doCall != false) {
                     if (!this._deferredRegister){
                         this._deferredRegister ={};
