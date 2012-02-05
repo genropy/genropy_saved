@@ -454,7 +454,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     pageIndexUrl:function() {
-        return document.location.pathname;
+        return genro.currentUrl || document.location.pathname;
     },
 
 
