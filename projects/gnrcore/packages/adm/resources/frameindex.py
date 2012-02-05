@@ -24,11 +24,16 @@ class FrameIndex(BaseComponent):
     indexTab = False
     hideLeftPlugins = False
     preferenceTags = 'admin'
+    authTags=''
+    
+    def pageAuthTags(self, method=None, **kwargs):
+        print method,kwargs
     
     def mainLeftContent(self,*args,**kwargs):
         pass
         
     def main(self,root,**kwargs):
+        root.dataController("""if(!curravatar){genro.loginDialog(loginUrl)}""",_onStart=True,curravatar='=gnr.avatar',loginUrl= self.application.loginUrl())
         if self.root_page_id:
             self.index_dashboard(root)
         else:
@@ -101,6 +106,8 @@ class FrameIndex(BaseComponent):
                                     }
                                     """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
+    
+
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
@@ -151,7 +158,18 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
+                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',
+                                onLoad="""
+                                        dojo.addOnLoad(function(){
+                                            window.addEventListener('DOMMouseScroll',
+                                            function(e){
+                                            console.log(e);
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                            });
+                                        })
+                                        
+                                """)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
                                

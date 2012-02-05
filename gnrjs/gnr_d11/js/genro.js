@@ -206,6 +206,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
+        genro.dom.preventGestureBackForward();
     },
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
@@ -219,16 +220,26 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
     },
+    
+    loginDialog:function(loginUrl){
+        genro.src.getNode()._('div', '_loginDialog_');
+        var node = genro.src.getNode('_loginDialog_').clearValue();
+        
+        var dlg = node._('dialog',{'_class':'lightboxDialog'});
+        dlg._('iframe',{'height':'500px',width:'600px',border:0,src:loginUrl,background:'transparent'});
+        dlg.getParentNode().widget.show();
+    },
+    
     login: function(data,kw) {
-            genro.serverCall('doLogin',objectUpdate({'login':data},kw),function(result){
-                result=result.getValue()
-                var message=result.getItem('message')
-                if (message){
-                    genro.publish('invalid_login',{'message':message})
-                }else{
-                    window.location.reload();
-                }
-            })
+        genro.serverCall('doLogin',objectUpdate({'login':data},kw),function(result){
+            result=result.getValue()
+            var message=result.getItem('message')
+            if (message){
+                genro.publish('invalid_login',{'message':message})
+            }else{
+                genro.mainGenroWindow.location.reload();
+            }
+        })
     },
     start: function() {
                 /*
@@ -260,26 +271,12 @@ dojo.declare('gnr.GenroClient', null, {
             }
             var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
             console.log('not logged',mainBagPage.attr.redirect, {'fromPage':pageUrl},url)
-            genro.currentUrl=mainBagPage.attr.redirect
-            var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-            this.dostart(mainBagPage)
-          //  this.gotoURL(url);
+           // genro.currentUrl=mainBagPage.attr.redirect
+            //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+            //this.dostart(mainBagPage)
+           this.gotoURL(url);
         }else{
             this.dostart(mainBagPage)
-        }
-    },
-    dostart___: function() {
-
-        var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-        //genro.timeIt('**  main received  **');
-        if (mainBagPage && mainBagPage.attr.redirect) {
-            var pageUrl = this.absoluteUrl()
-            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
-            {
-                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
-            }
-            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
-            this.gotoURL(url);
         }
     },
         
@@ -322,6 +319,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         this._registerUserEvents();
+        genro.dom.preventGestureBackForward();
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
         }
