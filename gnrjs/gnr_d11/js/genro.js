@@ -206,7 +206,6 @@ dojo.declare('gnr.GenroClient', null, {
         }
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
-        genro.dom.preventGestureBackForward();
     },
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
@@ -319,7 +318,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         this._registerUserEvents();
-        genro.dom.preventGestureBackForward();
+        //genro.dom.preventGestureBackForward();
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
         }
