@@ -1293,6 +1293,41 @@ dojo.declare("gnr.GnrDomHandler", null, {
         });
         console.log(maxHeight,maxWidth); 
         widget.resize({h:maxHeight+27,w:maxWidth+3});
+    },
+    preventGestureBackForward:function(pane){
+        var pane = pane || window;
+        var filterEvent=function(e,delta_x){
+             if(delta_x){
+                if(e.target.scrollLeft==0 && delta_x<0){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                else if(e.target.scrollRight==0 && delta_x>0){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+            return true;
+        }
+        pane.addEventListener('DOMMouseScroll',function(e){
+            if (e.axis==e.HORIZONTAL_AXIS){
+                return filterEvent(e,e.detail);
+            }
+        });
+
+       //pane.addEventListener('mousewheel',function(e){    
+       //    e.preventDefault();
+       //    e.stopPropagation();
+       //    return false;
+       //
+       //    console.log(e)      
+       //    if(e.wheelDeltaX){
+       //        var result =  filterEvent(e,-e.wheelDeltaX);
+       //        return result;
+       //    }
+       //},false);
     }
 
 });
