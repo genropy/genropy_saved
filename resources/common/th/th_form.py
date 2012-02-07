@@ -73,7 +73,7 @@ class TableHandlerForm(BaseComponent):
         return form
         
     def _th_applyOnForm(self,form,options=None,mangler=None):
-        if options.get('form_isRootForm'):
+        if form.attributes.get('form_isRootForm'):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
