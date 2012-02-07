@@ -620,7 +620,6 @@ class HTableHandler(HTableHandlerBase):
                 genro.setData('gnr._dev.addrecord.count',null);
                 var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',
                                                     action:function(){
-                                                        console.log('fff');
                                                         dlg.close_action();
                                                         if(this.attr.command='confirm'){
                                                              cb(that.getRelativeData("gnr._dev.addrecord.count"));
@@ -744,7 +743,7 @@ class HTableHandler(HTableHandlerBase):
                                                         genro.dlg.alert("Not allowed","Warning");
                                                     }
                                                  });""" %table,
-                     dropTargetCb="""var dragged_record = convertFromText(dropInfo.event.dataTransfer.getData("nodeattr"));
+                     dropTargetCb="""var dragged_record = genro.dom.getFromDataTransfer(dropInfo.event.dataTransfer,'nodeattr');
                                     if(dropInfo.dragSourceInfo.nodeId!=dropInfo.sourceNode.attr.nodeId){
                                         return true;
                                     }
@@ -759,8 +758,7 @@ class HTableHandler(HTableHandlerBase):
                                     """)
                                     
         treeattr = tree.attributes
-        treeattr['onDrop_%s' %moverCode] = """console.log('aaa',data)
-                                               genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"""
+        treeattr['onDrop_%s' %moverCode] = """genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"""
         
         
         

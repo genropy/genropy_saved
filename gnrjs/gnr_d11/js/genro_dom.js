@@ -708,6 +708,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     canBeDropped:function(dataTransfer, sourceNode) {
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
+        if(objectNotEmpty)
         if (dragSourceInfo.detachable) {
             return 'detach';
         }
@@ -892,7 +893,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             'left':dropInfo.event.pageX + 'px',resizable:true,
             dockable:true,closable:false,dockTo:detached_id});
 
-        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeholder',id:detached_id});
+        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeher',id:detached_id});
         floating = floating.getParentNode().widget;
         var placeholder = floating.containerNode.firstElementChild;
         var currentParent = domnode.parentNode;
@@ -963,7 +964,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var values = {};
         for (var i = 0; i < dataTransferTypes.length; i++) {
             var datatype = dataTransferTypes[i];
-            if (datatype.indexOf('sourceNode_') == 0) {
+            if (datatype.indexOf('dragsourceinfo') == 0) {
                 continue;
             }
             var datatype_code = datatype.replace(/\W/g, '_');
@@ -987,6 +988,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
             funcApply(onDropAction, params, sourceNode);
         }
     },
+    
+    _datatransfer:function(){
+        var _transferObj = genro.mainGenroWindow.genro._transferObj;
+        if (!_transferObj){
+            _transferObj = {};
+            genro.mainGenroWindow.genro._transferObj = _transferObj;
+        }
+        return _transferObj;
+    },
+    
     onDragStart:function(event) {
        //if(event.target && event.target.tagName.toLowerCase()=='img'){
        //    var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:')
@@ -1021,7 +1032,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         var domnode = dragInfo.target;
         var widget = dragInfo.widget;
-        genro.dom._transferObj = {};
+        objectPopAll(genro.dom._datatransfer());        
         var dataTransfer = event.dataTransfer;
         if (!dragInfo.dragImageNode) {
             var dragClass = inherited['dragClass'] || 'draggedItem';
@@ -1048,57 +1059,54 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var v = convertToText(v);
         v = ((k.indexOf('text/') == 0) || (v[0] == '') || (v[0] == 'T')) ? v[1] : v[1] + '::' + v[0];
         dataTransfer.setData(k, v);
-        if (genro.dom.dragDropPatch()) {
-            genro.dom._transferObj[k] = v;
-        }
+        genro.dom._datatransfer()[k] = v;
     },
+
     setDragSourceInfo:function(dragInfo, dragValues, dragTags) {
+        var result = {};
         if (dragInfo.nodeId) {
-            dragValues['sourceNode_nodeId:' + dragInfo.nodeId] = null;
+            result['nodeId'] = dragInfo.nodeId;
         }
         if (dragInfo.sourceNode) {
-            dragValues['sourceNode__id:' + dragInfo.sourceNode._id] = null;
+            result['_id'] = dragInfo._id;
+
             if (dragInfo.sourceNode.getAttributeFromDatasource('detachable')) {
-                dragValues['sourceNode_detachable:true'] = null;
+                result['detachable'] = true;
             }
 
         }
         if (dragInfo.dragmode) {
-            dragValues['sourceNode_dragmode:' + dragInfo.dragmode] = null;
+            result['dragmode'] = dragInfo.dragmode;
         }
-        dragValues['sourceNode_page_id:' + genro.page_id] = null;
+        result['page_id'] =  genro.page_id;
         if (dragTags) {
-            dragValues['sourceNode_dragTags:' + dragTags] = null;
+            result['dragTags' ] = dragTags;
         }
+        dragValues['dragsourceinfo'] = result;
     },
+    
+
     getDragSourceInfo:function(dataTransfer) {
-        var draggedTypes = genro.dom.dataTransferTypes(dataTransfer);
-        var dt;
-        var result = {};
-        for (var i = 0; i < draggedTypes.length; i++) {
-            if (draggedTypes[i].indexOf('sourceNode_') == 0) {
-                dt = draggedTypes[i].slice(11).split(':');
-                result[dt[0]] = dt[1];
-            }
-        }
-        ;
-        return result;
+        return genro.dom.getFromDataTransfer(dataTransfer,'dragsourceinfo',true);
     },
+    
     getFromDataTransfer:function(dataTransfer, k) {
-        var value = genro.dom.dragDropPatch() ? (genro.dom._transferObj ? genro.dom._transferObj[k] : null) : dataTransfer.getData(k);
+        var canUseDataTransfer = dataTransfer.getData('dragsourceinfo');
+        var value = canUseDataTransfer ? dataTransfer.getData(k):genro.dom._datatransfer()[k];
         return convertFromText(value);
     },
+    
     dataTransferTypes:function(dataTransfer) {
-        if (genro.dom.dragDropPatch()) {
+        var canUseDataTransfer = dataTransfer.getData('dragsourceinfo');
+        if (!canUseDataTransfer) {
+            var transferobj = this._datatransfer();
             var dt = [];
-            if (genro.dom._transferObj) {
-                for (var k in genro.dom._transferObj) {
-                    dt.push(k);
-                }
+            for (var k in transferobj) {
+                dt.push(k);
             }
-            for (var i = 0; i < dataTransfer.types.length; i++) {
+            /*for (var i = 0; i < dataTransfer.types.length; i++) {
                 dt.push(dataTransfer.types[i]);
-            };
+            };*/
             return dt;
         }
         return dataTransfer.types;
@@ -1121,9 +1129,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
             m.push('Meta');
         }
         return m.join();
-    },
-    dragDropPatch:function() {
-        return (genro.isChrome);
     },
     startTouchDevice:function() {
         document.body.ontouchmove = function(e) {

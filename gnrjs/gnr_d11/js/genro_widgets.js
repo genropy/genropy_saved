@@ -5286,14 +5286,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     onDragStart:function(dragInfo) {
         var item = dragInfo.treenode.item;
+        var caption = dragInfo.treenode.label;
         var result = {};
-        if (item instanceof gnr.GnrBagNode) {
-            var v = item.getValue('static');
-            result['text/plain'] = v;
-            result['text/xml'] = v;
-        } else {
-            result['text/plain'] = item.label;
-        }
+        
+        result['text/plain'] = dragInfo.treenode.label;
+        result['text/xml'] = dragInfo.treenode.label;
+
         result['nodeattr'] = item.attr;
         result['treenode'] = {'fullpath':item.getFullpath(),'relpath':item.getFullpath(null, dragInfo.treenode.tree.model.store.rootData())};
         return result;

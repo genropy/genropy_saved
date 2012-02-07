@@ -158,18 +158,7 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',
-                                onLoad="""
-                                        dojo.addOnLoad(function(){
-                                            window.addEventListener('DOMMouseScroll',
-                                            function(e){
-                                            console.log(e);
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                            });
-                                        })
-                                        
-                                """)         
+                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
                                

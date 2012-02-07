@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
     def test_2_disk(self, pane):
         """Disk Directory Drag"""
         root = pane.div(height='200px', overflow='auto')
-        root.data('.disk', Bag(dict(root=DirectoryResolver('/'))))
+        root.data('.disk', Bag(dict(root=DirectoryResolver('/Users/fporcari/Desktop'))))
         root.tree(storepath='.disk', hideValues=True, inspect='shift', draggable=True, dragClass='draggedItem')
 
     def test_3_data(self, pane):
