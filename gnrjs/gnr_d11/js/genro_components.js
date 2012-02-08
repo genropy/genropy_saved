@@ -1854,7 +1854,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
 
     getDataChunk:function(pageIdx){
-        console.log('getDataChunk',pageIdx)
         if (pageIdx in this.pendingPages){
             return;
         }else{

@@ -18,15 +18,7 @@ class Table(object):
         tbl.column('sent','B',name_long='!!Sent')
         tbl.column('user_id',size='22',name_long='!!User id').relation('adm.user.id', mode='foreignkey', relation_name='messages')
         tbl.column('account_id',size='22',name_long='!!Account id').relation('email.account.id', mode='foreignkey', relation_name='messages')
-        
-    def trigger_onInserting(self, record):
-        for relation in self.relations_one.values():
-            pkg,table,field = relation.split('.')
-            tblobj = self.db.table('%s.%s'%(pkg,table))
-            trigger = getattr(tblobj,'trigger_onInserting_email_message', None)
-            if trigger:
-                trigger(record)
-        
+  
     def sendmail(self, datasource=None, to_address=None, cc_address=None, bcc_address=None, subject=None,
                               from_address=None, body=None, attachments=None, account=None,
                               html=False, charset='utf-8', **kwargs):

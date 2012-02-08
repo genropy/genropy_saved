@@ -171,7 +171,7 @@ class TableBase(object):
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
-             self.setMultidbSubscription(tbl.attributes.get('fullname'),allRecords=(multidb=='*'))
+             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
              
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
@@ -214,19 +214,19 @@ class TableBase(object):
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
-    def setMultidbSubscription(self,tblfullname,allRecords=False):
+    def setMultidbSubscription(self,tbl,allRecords=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
-        pkg,tblname = tblfullname.split('.')
+        pkg = tbl.attributes['pkg']
+        tblname = tbl.parentNode.label
+        tblfullname = '%s.%s' %(pkg,tblname)
         model = self.db.model
-        tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
         pkey = tbl.parentNode.getAttr('pkey')
         pkeycolAttrs = tbl.column(pkey).getAttr()
         tblname = tbl.parentNode.label
-        pkgName = tbl.parent.parentNode.label
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
@@ -250,16 +250,6 @@ class TableBase(object):
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-           #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
-           #                                            FROM multidb.multidb_subscription AS sub
-           #                                            WHERE sub.dbstore = :env_target_store 
-           #                                                  AND sub.tablename = '%s'
-           #                                            AND sub.%s = #THIS.%s
-           #                                            ) THEN 'multidb_subscribed_row' 
-           #                                            ELSE ''
-           #                                            END
-           #                                            """ %(tblfullname,fkey,pkey),dtype='B',
-           #                                            name_long='!!Subscribed')
     
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
