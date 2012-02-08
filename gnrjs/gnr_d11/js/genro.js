@@ -74,7 +74,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.sounds = {};
         this._serverstore_paths = {};
         this._serverstore_changes = null;
-        this.pendingFireAfter = {};
+        this.pendingCallAfter = {};
         var plugins = objectExtract(window, 'genro_plugin_*');
         objectUpdate(genro, plugins);
         this.compareDict = { '==' : function(a, b) {return (a == b);},
@@ -489,19 +489,28 @@ dojo.declare('gnr.GenroClient', null, {
 
         //setTimeout(dojo.hitch(genro.wdgById('pbl_root'), 'resize'), 100);
     },
-    callAfter: function(cb, timeout, scope) {
+    callAfter: function(cb, timeout, scope,reason) {
         scope = scope || genro;
         cb = funcCreate(cb);
-        setTimeout(dojo.hitch(scope, cb), timeout);
+        if (reason){
+            if (this.pendingCallAfter[reason]){
+                clearTimeout(this.pendingCallAfter[reason]);
+            }
+             this.pendingCallAfter[reason] = setTimeout(dojo.hitch(scope, cb), timeout);
+        }
+        else{
+            setTimeout(dojo.hitch(scope, cb), timeout);
+        }
     },
+    
     fireAfter: function(path, msg, timeout) {
         var timeout = timeout || 1;
         var _path = path;
         var _msg = msg;
-        if (this.pendingFireAfter[path]) {
-            clearTimeout(this.pendingFireAfter[path]);
+        if (this.pendingCallAfter[path]) {
+            clearTimeout(this.pendingCallAfter[path]);
         }
-        this.pendingFireAfter[path] = setTimeout(function() {
+        this.pendingCallAfter[path] = setTimeout(function() {
             genro.fireEvent(_path, _msg);
         }, timeout);
     },
