@@ -2043,14 +2043,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
         this.onSetStructpath(this.structBag);
     },
-    mixin_setDraggable_column:function(draggable) {
-        if (draggable === undefined) {
-            var draggable = this.sourceNode.getAttributeFromDatasource('draggable_column');
-        }
-        dojo.query('[role="wairole:columnheader"]', this.domNode).forEach(function(n) {
-            n.draggable = true;
-        });
-    },
+
     mixin_setDraggable_row:function(draggable, view) {
         var view = view || this.views.views[0];
         var draggable = draggable == false ? false : true;
@@ -2221,10 +2214,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 var draggable_row = sourceNode.getAttributeFromDatasource('draggable_row');
                 widget.setDraggable_row(draggable_row, widget.views.views[0]);
             }
-        }
-
-        if ('draggable_column' in sourceNode.attr) {
-            dojo.connect(widget, 'postrender', dojo.hitch(widget, 'setDraggable_column'));
         }
         if (sourceNode.attr.openFormEvent) {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
@@ -2630,6 +2619,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         cell = objectUpdate(cell, cellsnodes[j].attr);
                         dtype = cell.dtype;
                         cell.original_field = cell.field;
+                        if(sourceNode.attr.draggable_column){
+                            cell.name = '<div draggable="true">'+cell.name+'</div>'
+                        }
                         if (cell.field) {
                             cell.field = cell.field.replace(/\W/g, '_');
                             if (dtype) {
