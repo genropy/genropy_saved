@@ -2037,17 +2037,18 @@ class SqlRecord(object):
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
         info['_relation_value'] = sqlresult['t0_%s' %ofld]
-        #if True or resolver_many is True:
-        value = SqlRelatedSelectionResolver(
+        if resolver_many is True:
+            value = SqlRelatedSelectionResolver(
                 columns='*', db=self.db, cacheTime=-1,
                 target_fld=info['_target_fld'],
                 relation_value=info['_relation_value'],
                 mode='grid', joinConditions=self.joinConditions,
                 sqlContextName=self.sqlContextName
                 )
-        #else:
-        info['_sqlContextName'] = self.sqlContextName
-        info['_resolver_name'] = resolver_many
+        else:
+            info['_sqlContextName'] = self.sqlContextName
+            info['_resolver_name'] = resolver_many
+            value = None
         return value,info
 
     def _loadRecord_DynItemOneOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
@@ -2056,8 +2057,8 @@ class SqlRecord(object):
         info['_target_fld'] = joiner['many_relation']
         info['one_one'] = joiner['one_one']
         relation_value = sqlresult['t0_%s' %ofld]
-        #if True or resolver_one is True:
-        value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
+        if resolver_one is True:
+            value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                          target_fld=info['_target_fld'],
                                          relation_value=relation_value,
                                          mode='bag',
@@ -2065,10 +2066,11 @@ class SqlRecord(object):
                                          ignoreMissing=True,
                                          joinConditions=self.joinConditions,
                                          sqlContextName=self.sqlContextName)
-        #else:
-        info['_resolver_name'] = resolver_one
-        info['_sqlContextName'] = self.sqlContextName
-        info['_relation_value'] = relation_value
+        else:
+            info['_resolver_name'] = resolver_one
+            info['_sqlContextName'] = self.sqlContextName
+            info['_relation_value'] = relation_value
+            value = None
         return value,info
                          
 
