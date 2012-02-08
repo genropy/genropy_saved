@@ -1068,7 +1068,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             result['nodeId'] = dragInfo.nodeId;
         }
         if (dragInfo.sourceNode) {
-            result['_id'] = dragInfo._id;
+            result['_id'] = dragInfo.sourceNode._id;
 
             if (dragInfo.sourceNode.getAttributeFromDatasource('detachable')) {
                 result['detachable'] = true;

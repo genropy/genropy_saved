@@ -42,14 +42,17 @@ class TableHandlerMain(BaseComponent):
             palette.iframe(src='/%s' %'/'.join(urlist),height='100%',width='100%',border=0,
                           main_th_public=False,main_env_target_store=self.dbstore,nodeId='subscriber_palette')
             gridattr = view.grid.attributes
-            gridattr.update(dropTags=dragCode,dropTypes='dbrecords',
-                                        onDrop_dbrecords="""function(dropInfo,data){
+            gridattr.update(dropTypes='dbrecords',
+                                onDrop_dbrecords="""function(dropInfo,data){
+                                            if(data.table!='%s'){
+                                                return false;
+                                            }
                                             genro.serverCall('_table.multidb.subscription.addRowsSubscription',
                                                             {table:data['table'],pkeys:data.pkeys,dbstore:'%s',_dbstore:false},
                                                             function(){
                                                                 genro.publish({topic:'ping',iframe:'subscriber_palette'});
                                                             });
-                                        }""" %self.dbstore)
+                                        }""" %(self.maintable,self.dbstore))
             currCodes = gridattr.get('dropTarget_grid')
             currCodes = currCodes.split(',') if currCodes else []
             if not 'dbrecords' in currCodes:
