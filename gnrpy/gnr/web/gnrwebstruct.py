@@ -1967,7 +1967,7 @@ class GnrGridStruct(GnrStructData):
                           
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
-                     calculated=False, radioButton=False,threestate=False, **kwargs):
+                     calculated=False, radioButton=False,threestate=None, **kwargs):
         """Return a :ref:`checkboxcell`
         
         :param field: TODO
@@ -1988,22 +1988,29 @@ class GnrGridStruct(GnrStructData):
             calculated = True
         falseclass = falseclass or ('checkboxOff' if not radioButton else falseclass or 'radioOff')
         trueclass = trueclass or ('checkboxOn' if not radioButton else trueclass or 'radioOn')
-        if threestate:
+        
+        threestate = threestate or False
+        if threestate is True:
             nullclass = nullclass or ('checkboxOnOff' if not radioButton else nullclass or 'radioOnOff')
+        elif threestate == 'disabled':
+            nullclass = 'dimmed checkboxOnOff'
+        elif threestate == 'hidden':
+            nullclass = 'hidden'
 
         self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
                   classes=classes, calculated=calculated, format_onclick="""
-                                                                    var threestate =('%(threestate)s' == 'True');
+                                                                    var threestate ='%(threestate)s';
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();
                                                                     var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
-                                                                    if (blocked){
+                                                                
+                                                                    var checked = storebag.getItem(valuepath);
+                                                                    if (blocked || ((checked===null) && (threestate=='disabled'))){
                                                                         return;
                                                                     }
-                                                                    var checked = storebag.getItem(valuepath);
-                                                                    if(threestate){
+                                                                    if(threestate=='True'){
                                                                         checked = checked===false?true:checked===true?null:false;
                                                                     }else{
                                                                         checked = !checked;
