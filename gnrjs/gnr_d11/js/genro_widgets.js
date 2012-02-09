@@ -5186,6 +5186,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         return savedAttrs;
 
     },
+    
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.tooltipAttrs) {
 
@@ -5269,6 +5270,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         dragInfo.treeItem = dragInfo.treenode.item;
 
     },
+    
     fillDropInfo:function(dropInfo) {
         dropInfo.treenode = dropInfo.widget;
         dropInfo.widget = dropInfo.widget.tree;
@@ -5354,7 +5356,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
         
     },
-    
+
     mixin_clickOnCheckbox:function(bagnode, e) {
         var checked = bagnode.attr.checked ? false : true;
         var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
@@ -5454,7 +5456,27 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     mixin_getItemById: function(id) {
         return this.model.store.rootData().findNodeById(id);
     },
+    mixin_saveExpanded:function(){
+        var that = this;
+        this._savedExpandedStatus = dojo.query('.dijitTreeContentExpanded',that.domNode).map(function(n){
+                                            return that.model.store.getIdentity(dijit.getEnclosingWidget(n).item)});
+    },
+    
+    mixin_restoreExpanded:function(){
+        if (this._savedExpandedStatus){
+            var that = this;
+            dojo.forEach(this._savedExpandedStatus,function(n){
+                if(n){
+                    var tn = that._itemNodeMap[n];
+                    if(tn){
+                        that._expandNode(tn);
+                    }
+                }
+            })
+        }
+    },
     attributes_mixin__saveState: function() {
+        return;
         //summary: create and save a cookie with the currently expanded nodes identifiers
         if (!this.persist) {
             return;
@@ -5469,14 +5491,14 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         dojo.cookie(this.cookieName, ary.join(","), cookiepars);
     },
-    mixin_loadState:function(val, kw) {
-        var cookie = dojo.cookie(this.cookieName);
+    attributes_mixin_loadState:function(val, kw) {
+        //var cookie = dojo.cookie(this.cookieName);
         this._openedItemIds = {};
-        if (cookie) {
+        /*if (cookie) {
             dojo.forEach(cookie.split(','), function(item) {
                 this._openedItemIds[item] = true;
             }, this);
-        }
+        }*/
     },
     mixin_setStorepath:function(val, kw) {
         //genro.debug('trigger_store:'+kw.evt+' at '+kw.pathlist.join('.'));
