@@ -319,7 +319,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             var that = this;
             if(command=='save'){
-                this.do_save(kw.destPkey);
+                this.save({destPkey:kw.destPkey});
             }
             else if(command=='discard'){
                 this.doload_store(kw);
@@ -334,7 +334,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             if(command=='save'){
                 this.setCurrentPkey(kw.destPkey);
-                this.do_save();
+                this.save();
             }
             else if(command=='discard'){
                 this.doload_loader(kw);
