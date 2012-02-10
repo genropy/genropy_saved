@@ -5520,6 +5520,16 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             //this.model.store._triggerDel(kw);
         }
     },
+    
+    patch__onItemChildrenChange:function(n,nodes){
+        var that = this;
+        var identifier;
+        dojo.forEach(nodes,function(n){
+            identifier = that.model.store.getIdentity(n);
+            objectPop(that._itemNodeMap,identifier);
+        });
+        this._onItemChildrenChange_replaced(n,nodes);
+    },
 
     mixin_setSelectedPath:function(path, kw) {
         if (kw.reason == this) {
@@ -5541,7 +5551,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if(!currNode){
                 return;
             }
-            treeNode = this._itemNodeMap[currNode._id];
+            var identity = this.model.store.getIdentity(currNode);
+            treeNode = this._itemNodeMap[identity];
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
@@ -5563,7 +5574,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if (!currNode){
                 return;
             }
-            var treeNode = this._itemNodeMap[currNode._id];
+            var identity = this.model.store.getIdentity(currNode);
+            var treeNode = this._itemNodeMap[identity];
             curr = currNode.getValue('static');
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
