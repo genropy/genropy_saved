@@ -23,6 +23,8 @@ from gnr.core.gnrbag import Bag, BagResolver
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
 
+ROOTCODE = '__ROOT__'
+
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj, 'treeRowCaption'):
         return tblobj.treeRowCaption()
@@ -516,10 +518,10 @@ class HTableHandler(HTableHandlerBase):
                                add_label='!!Add')
                                
         toolbar.dataController("""
-                                SET .edit.defaults.parent_code = tree_code;
+                                SET .edit.defaults.parent_code = parent_code==ROOTCODE?null:parent_code;
                                 SET .tree.pkey ='*newrecord*';                                         
-                                """, tree_code='=.tree.code',
-                               modifier="^.edit.add_child")
+                                """, parent_code='=.tree.code',
+                               modifier="^.edit.add_child",ROOTCODE=ROOTCODE)
                                
         toolbar.dataController("""
                                 SET .edit.defaults.parent_code = GET .edit.record.parent_code;
@@ -700,8 +702,8 @@ class HTableHandler(HTableHandlerBase):
         
     def ht_tree(self, frame, table=None, nodeId=None, rootpath=None, disabled=None,
                 childTypes=None, editMode=None, label=None, onChecked=None,picker=None):
-        rootcode='__ROOT__'
-        rootpkey='__ROOT__'
+        rootcode=ROOTCODE
+        rootpkey=ROOTCODE
         if editMode != 'bc':
             top = frame.top.div(_class='pbl_roundedGroupLabel')
             top.div(label, float='left')
@@ -753,8 +755,11 @@ class HTableHandler(HTableHandlerBase):
                                         return true;
                                     }
                                     var ondrop_record = dropInfo.treeItem.attr;
-                                    if(dragged_record.parent_code==ondrop_record.code){
+                                    if(ondrop_record.code.indexOf(dragged_record.code+'.')==0){
                                         return  false;
+                                    }
+                                    if(dragged_record.parent_code==ondrop_record.code){
+                                        return false;
                                     }
                                     if(dragged_record.pkey==ondrop_record.pkey){
                                         return false;
@@ -779,12 +784,12 @@ class HTableHandler(HTableHandlerBase):
                                     var n,child_count,content;
                                     treeNode.widget.saveExpanded()
                                     dojo.forEach(dbChanges,function(c){
-                                        refreshDict[c.parent_code || '__ROOT__'] = true;
+                                        refreshDict[c.parent_code || ROOTCODE] = true;
                                         if(c.pkey==selectedPkey){
                                             selectedCode = c.code;
                                         }
                                         if(c.old_parent_code != c.parent_code){
-                                            refreshDict[c.old_parent_code || '__ROOT__'] = true;
+                                            refreshDict[c.old_parent_code || ROOTCODE] = true;
                                         }
                                      });
                                      var refreshed = {};
@@ -816,7 +821,7 @@ class HTableHandler(HTableHandlerBase):
                                             treeNode.widget.setSelectedPath(null,{value:'_root_.'+selectedCode});
                                          }
                                      }
-                                     """,table=table,store='=.tree.store',treeNode=tree)
+                                     """,table=table,store='=.tree.store',treeNode=tree,ROOTCODE=ROOTCODE)
 
                                     
 class HTablePicker(HTableHandlerBase):

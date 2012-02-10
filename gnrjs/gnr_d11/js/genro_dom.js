@@ -808,6 +808,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             info.drag = true;
         } else {
             info.drop = true;
+            info.isTarget = true;
             var sourceNode = info.sourceNode;
             var attr = sourceNode.attr;
             var dropTarget = sourceNode.dropTarget || attr.selfDragRows || attr.selfDragColumns;
@@ -828,7 +829,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 };
                 var continueDrop = ! (info.handler.fillDropInfo(info) === false);
                 if (!continueDrop || ( dropTargetCb && (! dropTargetCb(info)))) {
-                    info = null;
+                    //info = null;
+                    info.isTarget=false
                 }
             }
             else {
@@ -859,7 +861,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         dataTransfer.effectAllowed = canBeDropped ? 'move' : 'none';
         dataTransfer.dropEffect = canBeDropped ? 'move' : 'none';
         if (canBeDropped != 'detach') {
-            genro.dom.outlineShape(dropInfo.outline, canBeDropped, event);
+            genro.dom.outlineShape(dropInfo.outline, canBeDropped&&dropInfo.isTarget, event);
         }
     },
     outlineShape:function(shape, canBeDropped) {
@@ -916,7 +918,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         event.stopPropagation();
         event.preventDefault();
         var dropInfo = this.getDragDropInfo(event);
-        if (!dropInfo) {
+        if (!dropInfo || !dropInfo.isTarget) {
             return;
         }
         var domnode = dropInfo.domnode;
