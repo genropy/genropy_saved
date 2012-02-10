@@ -698,6 +698,7 @@ class HTableHandler(HTableHandlerBase):
         
     def ht_tree(self, frame, table=None, nodeId=None, rootpath=None, disabled=None,
                 childTypes=None, editMode=None, label=None, onChecked=None,picker=None):
+        rootcode='__ROOT__'
         if editMode != 'bc':
             top = frame.top.div(_class='pbl_roundedGroupLabel')
             top.div(label, float='left')
@@ -706,7 +707,7 @@ class HTableHandler(HTableHandlerBase):
         tblobj = self.db.table(table)
         center = frame.center.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
-                    ,rootpath=rootpath)
+                    ,rootpath=rootpath,rootcode=rootcode)
                     
         connect_ondblclick = None
         if editMode == 'sc':
@@ -726,6 +727,7 @@ class HTableHandler(HTableHandlerBase):
                     selected_code='.tree.code',
                     selected_caption='.tree.caption',
                     selected_child_count='.tree.child_count',
+                    identifier='code',
                     connect_ondblclick=connect_ondblclick,
                     onChecked=onChecked,dragTags=dragCode,
                     dropTags='%s,mover' %dragCode,
@@ -772,21 +774,36 @@ class HTableHandler(HTableHandlerBase):
                                     var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
                                     var refreshDict = {};
                                     var n;
+                                    treeNode.widget.saveExpanded()
                                     dojo.forEach(dbChanges,function(c){
-                                        refreshDict[c.parent_code || '_ROOT_NODE_'] = true;
+                                        console.log('change ',c)
+                                        refreshDict[c.parent_code ] = true;
+                                        console.log('parent_code ',c.parent_code)
                                         if(c.old_parent_code != c.parent_code){
-                                            refreshDict[c.old_parent_code || '_ROOT_NODE_'] = true;
+                                            console.log('old parent_code ',c.old_parent_code)
+                                            refreshDict[c.old_parent_code] = true;
                                         }
                                      });
+                                     console.log(refreshDict)
                                      for (var k in refreshDict){
-                                        n = k!='_ROOT_NODE_'? store.getNodeByAttr('code',k): store.getNode('#0');
+                                        n = store.getNodeByAttr('code',k);
                                         if(n){
-                                            n.refresh(true)
-                                        }                        
+                                            if(n.getResolver()){
+                                                console.log('refreshing ',n)
+                                                n.refresh(true)
+                                            }else{
+                                                console.log('no resolver ',n)
+                                            }
+                                          
+                                        } else{
+                                                console.log('no nodo ',c)
+                                     }                       
                                      }
+                                     //treeNode.rebuild()
+                                     //treeNode.widget.restoreExpanded()
                                      if(currPath){
-                                        treeNode.widget.setSelectedPath(null,{value:currPath});
-                                     }
+                                       treeNode.widget.setSelectedPath(null,{value:currPath});
+                                    }
                                      """,table=table,store='=.tree.store',treeNode=tree)
 
                                     
