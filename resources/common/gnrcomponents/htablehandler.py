@@ -188,6 +188,7 @@ class HTableHandlerBase(BaseComponent):
                          limit_rec_type=None,
                          rootcaption=None,
                          rootcode=None,
+                         rootpkey=None,
                          extra_columns=None,
                          related_extra_columns=None,
                          related_fullrecord=True,
@@ -200,13 +201,14 @@ class HTableHandlerBase(BaseComponent):
                                related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
                                related_extra_columns=related_extra_columns,related_fullrecord=related_fullrecord,storename=storename) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
-                                                            rootcaption=rootcaption,rootcode=rootcode,storename=storename)
+                                                            rootcaption=rootcaption,rootcode=rootcode,
+                                                            rootpkey=None,storename=storename)
         result.setItem(rootlabel, value, checked=False,**attr)
         return result
     
     
         
-    def _ht_rootNodeAttributes(self,table=None,rootpath=None,columns=None,rootcaption=None,rootcode=None,storename=None):
+    def _ht_rootNodeAttributes(self,table=None,rootpath=None,columns=None,rootcaption=None,rootcode=None,rootpkey=None,storename=None):
         tblobj = self.db.table(table)
         if rootpath:
             row = tblobj.query(columns=columns, where='$code=:code', code=rootpath).fetch()[0]
@@ -226,7 +228,7 @@ class HTableHandlerBase(BaseComponent):
         else:
             caption = rootcaption or tblobj.name_plural
             rootlabel = '_root_'
-            pkey = None
+            pkey = rootpkey
             code = rootcode
             rootpath = None
             rec_type = None
@@ -699,6 +701,7 @@ class HTableHandler(HTableHandlerBase):
     def ht_tree(self, frame, table=None, nodeId=None, rootpath=None, disabled=None,
                 childTypes=None, editMode=None, label=None, onChecked=None,picker=None):
         rootcode='__ROOT__'
+        rootpkey='__ROOT__'
         if editMode != 'bc':
             top = frame.top.div(_class='pbl_roundedGroupLabel')
             top.div(label, float='left')
@@ -706,7 +709,7 @@ class HTableHandler(HTableHandlerBase):
             
         tblobj = self.db.table(table)
         center = frame.center.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
-        center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural,rootcode=rootcode)
+        center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural,rootcode=rootcode,rootpkey=rootpkey)
                     ,rootpath=rootpath)
                     
         connect_ondblclick = None
@@ -727,7 +730,7 @@ class HTableHandler(HTableHandlerBase):
                     selected_code='.tree.code',
                     selected_caption='.tree.caption',
                     selected_child_count='.tree.child_count',
-                    identifier='code',
+                    identifier='pkey',
                     connect_ondblclick=connect_ondblclick,
                     onChecked=onChecked,dragTags=dragCode,
                     dropTags='%s,mover' %dragCode,
@@ -770,36 +773,48 @@ class HTableHandler(HTableHandlerBase):
             bar.replaceSlots('#','#,picker')
             bar.picker.htableTypePicker(picker)
         center.onDbChanges(action="""var selectedNode = treeNode.widget.currentSelectedNode
-                                    var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
+                                    var selectedPkey = selectedNode? selectedNode.item.attr.pkey:'';       
+                                    var selectedCode =null;                             
                                     var refreshDict = {};
                                     var n,child_count,content;
                                     treeNode.widget.saveExpanded()
                                     dojo.forEach(dbChanges,function(c){
                                         refreshDict[c.parent_code || '__ROOT__'] = true;
+                                        if(c.pkey==selectedPkey){
+                                            selectedCode = c.code;
+                                        }
                                         if(c.old_parent_code != c.parent_code){
                                             refreshDict[c.old_parent_code || '__ROOT__'] = true;
                                         }
                                      });
+                                     var refreshed = {};
                                      for (var k in refreshDict){
                                         n = store.getNodeByAttr('code',k);
-                                        if(n){
+                                        if(n && !(n.attr.code in refreshed)){
                                             if(n.getResolver()){
                                                 n.refresh(true)
+                                                refreshed[n.attr.code] = true;
                                                 content = n.getValue();
                                                 child_count = (content instanceof gnr.GnrBag)?content.len():0;
                                                 n.updAttributes({'child_count':child_count});
                                             }else{
-                                                console.log('no resolver ',k,n)
+                                                n = n.getParentNode();
+                                                if(n && n.getResolver() && !(n.attr.code in refreshed)){
+                                                    n.refresh(true);
+                                                    refreshed[n.attr.code] = true;
+                                                }
                                             }
-                                          
-                                        } else{
-                                            console.log('no nodo ',n,k)
-                                        }                       
+                                        }                     
                                      }
                                      treeNode.widget.restoreExpanded()
-                                     if(currPath){
-                                         console.log('currPath',currPath);
-                                         treeNode.widget.setSelectedPath(null,{value:currPath});
+                                     if(selectedPkey){
+                                         n = store.getNodeByAttr('pkey',selectedPkey);
+                                         if(n){
+                                            var p = n.getFullpath(null, treeNode.widget.model.store.rootData());
+                                            treeNode.widget.setSelectedPath(null,{value:p});
+                                         }else{
+                                            treeNode.widget.setSelectedPath(null,{value:'_root_.'+selectedCode});
+                                         }
                                      }
                                      """,table=table,store='=.tree.store',treeNode=tree)
 
