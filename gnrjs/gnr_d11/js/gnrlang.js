@@ -172,11 +172,11 @@ function dataTemplate(str, data, path, showAlways) {
         return '';
     }
     if (typeof(str)=='object' && str.cb){
-        var template = str.result;
-        if (!template){
-            template = str.cb.call(str);
+        var templateHandler = str;
+        if (!templateHandler.template){
+            templateHandler.cb.call(templateHandler);
         }
-        str = template;
+        str = templateHandler.template;
     }
 
     var templates=null;

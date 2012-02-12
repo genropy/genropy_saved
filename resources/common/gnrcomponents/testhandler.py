@@ -8,6 +8,9 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TestHandler(BaseComponent):
     testOnly=False
+    dojo_source=True
+    def isDeveloper(self):
+        return True
         
     def testHandler(self, pane):
         self.testHandler_headers(pane)

@@ -64,7 +64,7 @@ class DynamicForm(BaseComponent):
             ge.textbox(gridcell='standard_range')
         ge.textbox(gridcell='formula')
         ge.textbox(gridcell='condition')
-        frame.top.slotToolbar('3,gridtitle,*,delrow,addrow,2',gridtitle=title or '!!Fields',delrow_parentForm=True,addrow_parentForm=True)
+        frame.top.slotToolbar('3,vtitle,*,delrow,addrow,2',vtitle=title or '!!Fields',delrow_parentForm=True,addrow_parentForm=True)
         return frame 
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):

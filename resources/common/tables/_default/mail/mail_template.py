@@ -17,6 +17,11 @@ class Main(BaseResourceMail):
     batch_title = None
     templates = ''
 
+    def get_template(self,template_address):
+        if not ':' in template_address:
+            template_address = 'adm.userobject.data:%s' %template_address
+        return self.page.loadTemplate(template_address)
+        
     def do(self):
         self.sendmail_selection()
         
@@ -42,12 +47,12 @@ class Main(BaseResourceMail):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
         self.maintable = extra_parameters['table']
         pkg,table = self.maintable.split('.')
-        data,meta = self.db.table('adm.userobject').loadUserObject(pkey=extra_parameters['template_id'])
+        data = self.get_template(extra_parameters['template_id'])
         self.compiledTemplate = Bag(data['compiled'])
         self.mail_pars = Bag(data['metadata.email_compiled'])
         self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
         self.batch_parameters.setdefault('as_pdf',False)
-        self.batch_title = meta['description'] or meta['code']
+        self.batch_title = data['summary'] or 'Mail'
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.mail_preference['html'] = not self.batch_parameters['as_pdf']

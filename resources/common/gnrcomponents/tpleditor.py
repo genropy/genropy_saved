@@ -129,7 +129,7 @@ class TemplateEditor(TemplateEditorBase):
         return sc
     
     def _te_mainstack(self,pane,table=None):
-        sc = pane.stackContainer(selectedPage='^.status',_fakeform=True)
+        sc = pane.stackContainer(selectedPage='^.status',_anchor=True)
         sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',parametersbag='=.data.parameters',
                     datacontent='=.data.content',table=table,_if='_status=="preview"&&datacontent&&varsbag',
                     _status='^.status',record_id='=.preview.selected_id',templates='=.preview.html_template_name',
@@ -162,7 +162,7 @@ class TemplateEditor(TemplateEditorBase):
                              if(is_mail){result.push('is_mail');}
                              if(is_print){result.push('is_print');}
                              if(flags){result.push(flags);}
-                             SET #FORM.userobject_meta.flags = result.join(',');""",
+                             SET #ANCHOR.userobject_meta.flags = result.join(',');""",
                         is_mail="^.is_mail",is_print='^.is_print',flags='^.flags')
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
                     lbl='!!Letterhead',hasDownArrow=True)
@@ -172,7 +172,7 @@ class TemplateEditor(TemplateEditorBase):
         
     def _te_info_vars(self,bc,table=None,**kwargs):
         frame = bc.frameGrid(datapath='.varsgrid',
-                                storepath='#FORM.data.varsbag',
+                                storepath='#ANCHOR.data.varsbag',
                                 struct=self._te_varsgrid_struct,
                                 datamode='bag',splitter=True,**kwargs)
         frame.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,fieldsTree_dragCode='fieldvars',
@@ -191,7 +191,7 @@ class TemplateEditor(TemplateEditorBase):
     
     def _te_info_parameters(self,bc,**kwargs):
         frame = bc.frameGrid(datamode='bag',datapath='.parametersgrid',
-                                storepath='#FORM.data.parameters', 
+                                storepath='#ANCHOR.data.parameters', 
                                 struct=self._te_parameters_struct,
                                 selfDragRows=True,**kwargs)
         frame.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
@@ -380,7 +380,7 @@ class PaletteTemplateEditor(TemplateEditor):
         return record
         
 class ChunkEditor(PaletteTemplateEditor):
-    def onMain_te_chunkEditor(self):
+    def ____onMain_te_chunkEditor(self):
         if not 'chunkpalette_opener' in self._register_nodeId and self.isDeveloper():
             page = self.pageSource()
             palette = page.palettePane(paletteCode='chunkeditor',
@@ -388,44 +388,56 @@ class ChunkEditor(PaletteTemplateEditor):
                                         dockTo='dummyDock',
                                         width='750px',height='500px')
             page.dataController("""
-                                   palette.setRelativeData('.table',table);
-                                   palette.setRelativeData('.resource',resource);
-                                   var wdg = palette.getParentNode().widget;
-                                   wdg.show();
-                                   wdg.bringToTop();
-                                   genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
-                                        var respath = result.attr?result.attr.respath:'';
-                                        result = result._value || new gnr.GnrBag();
-                                        palette.setRelativeData('.data',result.deepCopy());
-                                        if(respath.indexOf('_custom')>=0){
-                                            palette.setRelativeData('.data.metadata.custom',true);
-                                        }
-                                   },null,'POST');
-                                   palette.onSavedTemplate = function(){
-                                        updater();
-                                   }
-                                   """,subscribe_open_chunkpalette=True,nodeId='chunkpalette_opener',
-                                   palette=palette,_fakeForm=True)
+            palette.setRelativeData('.table',table);
+            var wdg = palette.getParentNode().widget;
+            wdg.show();
+            wdg.bringToTop();
+            var finalize = function(tpldata){
+                palette.setRelativeData('.data',(tpldata || new gnr.GnrBag()).deepCopy());
+            };
+            if(template==null || template instanceof gnr.GnrBag){
+               finalize(template);
+            }else{
+                palette.setRelativeData('.resource',template);
+                genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
+                    var respath = result.attr?result.attr.respath:'';
+                    finalize(result._value);
+                    if(respath.indexOf('_custom')>=0){
+                        palette.setRelativeData('.data.metadata.custom',true);
+                    }
+                },null,'POST');                
+            }                            
+           palette.onSavedTemplate = function(data){
+                callerNode.publish('changed_template',data);
+           }
+           
+           
+            """,subscribe_open_chunkpalette=True,nodeId='chunkpalette_opener',
+                                   palette=palette,_anchor=True)
             page.dataController("""
             var table = palette.getRelativeData('.table');
             var filename = palette.getRelativeData('.resource');
             var data = palette.getRelativeData('.data');
-            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){
-                palette.onSavedTemplate();
-            },null,'POST');
+            palette.onSavedTemplate(data);
+            
+            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){},null,'POST');
             """,subscribe_save_chunkpalette=True,palette=palette)
             palette.remote(self.te_chunkEditorPane)
     
     @public_method
-    def te_chunkEditorPane(self,pane,**kwargs):
-        sc = self._te_mainstack(pane,table='=#FORM.table')
-        self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table='=#FORM.table')
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,**kwargs):
+        sc = self._te_mainstack(pane,table=table)
+        self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table)
         infobar = sc.info.top.bar
         infobar.replaceSlots('#','#,customres,savetpl,5')
-        infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
-        infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',iconClass='iconbox save')
+        if resource_mode:
+            infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
+        else:
+            infobar.customres.div()
+        infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',
+                                    iconClass='iconbox save',)
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
-        self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table='=#FORM.table')
+        self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=table)
         
     def _te_frameChunkInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')

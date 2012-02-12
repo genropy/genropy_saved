@@ -17,14 +17,19 @@ class Main(BaseResourcePrint):
     batch_title = None
     print_mode = 'pdf'
     
+    def get_template(self,template_address):
+        if not ':' in template_address:
+            template_address = 'adm.userobject.data:%s' %template_address
+        return self.page.loadTemplate(template_address)
+
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
         self.maintable = extra_parameters['table']
         pkg,table = self.maintable.split('.')
-        data,meta = self.db.table('adm.userobject').loadUserObject(pkey=extra_parameters['template_id'])
+        data = self.get_template(extra_parameters['template_id'])
         self.compiledTemplate = Bag(data['compiled'])
-        self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
-        self.batch_title = meta['description'] or meta['code']
+        self.batch_parameters.setdefault('letterhead_id',data['metadata.default_letterhead'])
+        self.batch_title = data['summary'] or 'Print'
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)

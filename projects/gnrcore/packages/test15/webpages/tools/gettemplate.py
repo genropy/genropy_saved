@@ -41,11 +41,24 @@ class GnrCustomWebPage(object):
         pane.div(template=self.tableTemplate('glbl.provincia','short'),datasource='^.record')
     
     def test_5_templateChunk(self,pane):
-        pane.dbSelect(dbtable='glbl.nazione',value='^.pkey',_class='gnrfield')
-        rpc = pane.dataRecord('.record','glbl.nazione',pkey='^.pkey')
-        pane.templateChunk(resource='custom',table='glbl.nazione',datasource='^.record',
-                    height='100px',dataProvider=rpc)
+        pane.dbSelect(dbtable='glbl.regione',value='^.pkey',_class='gnrfield')
+        rpc = pane.dataRecord('.record','glbl.regione',pkey='^.pkey')
+        pane.templateChunk(template='custom',table='glbl.regione',datasource='^.record',
+                    height='100px',dataProvider=rpc,editable=True)
+                    
+    def test_6_templateChunkNoResource(self,pane):
+        pane.dataRecord('.tipo_protocollo','studio.pt_tipo',pkey='PiWA-zDGMhSbDKS5AYRR5g',_onStart=True)
+        
+        pane.dbSelect(dbtable='studio.pt_protocollo',value='^.protocollo_esempio.pkey')
+        rpc = pane.dataRecord('.protocollo_esempio.record','studio.pt_protocollo',pkey='^.protocollo_esempio.pkey')
+        
+        pane.templateChunk(template='^.tipo_protocollo.template_associato',
+                            table='studio.pt_protocollo',editable=True,dataProvider=rpc,
+                            datasource='^#FORM.protocollo_esempio.record', height='100px')
 
+    
+
+                    
     def test_z_formulasyntax(self,pane):
         fb = pane.formbuilder(cols=1)
         fb.numberTextbox(value='^.width')

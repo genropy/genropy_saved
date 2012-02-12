@@ -642,67 +642,139 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         return curr_vc;
     },
     
+    openTemplatePalette:function(sourceNode){
+        var paletteCode = 'template_editor_'+sourceNode._id;
+        var tplpars = sourceNode.attr._tplpars;
+        var templateHandler = sourceNode._templateHandler;
+        
+        var kw = {'paletteCode':paletteCode,'dockTo':false,
+                    title:'Template Editor',width:'750px',
+                    height:'500px',remote:'te_chunkEditorPane',
+                    remote_table:tplpars.table,
+                    remote_resource_mode:(templateHandler.dataInfo.respath!=null)};
+                                            
+        var palette = sourceNode._('palettePane',kw);  
+        palette.getParentNode().setRelativeData('.data',templateHandler.data.deepCopy());     
+                
+    },
+    
+
+    updateVirtualColumns:function(sourceNode,datasourceNode,dataProvider,mainNode){
+        var vc,curr_vc;
+        if(dataProvider){
+            curr_vc = dataProvider.attr.virtual_columns
+            vc = this.getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
+            if(vc){
+                dataProvider.attr.virtual_columns = vc.join(',');
+                dataProvider.fireNode();
+            }
+        }else{
+            curr_vc = datasourceNode.attr._virtual_columns;
+            vc = this.getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
+            if(vc){
+                if(datasourceNode._resolver){
+                    datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
+                    datasourceNode._resolver.lastUpdate = null;                    
+                    sourceNode.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                }else{
+                    sourceNode.attr._virtual_column =  vc.join(',');
+                }
+            }
+        }
+    },
+    
+    loadTemplate:function(sourceNode,kw){
+        kw.template = kw.template || new gnr.GnrBag();
+        if(kw.template instanceof gnr.GnrBag){
+            var data = kw.template;
+            return {data:data,dataInfo:{},template:data.getItem('compiled')};
+        }
+        var template_address = kw.table+':'+kw.template;
+        var result = genro.serverCall("loadTemplate",{template_address:template_address,asSource:kw.asSource});
+        if(kw.asSource){
+            var data = result.getValue();
+            return {data:data,dataInfo:result.attr,template:data.getItem('compiled')};
+        }
+        return {template:result};
+
+        
+        
+       //function(result){
+       //            var respath = result.attr?result.attr.respath:'';
+       //            finalize(result._value);
+       //            if(respath.indexOf('_custom')>=0){
+       //                palette.setRelativeData('.data.metadata.custom',true);
+       //            }
+       //        },null,'POST'); 
+       //
+        //palette.setRelativeData('.resource',template);
+        //       genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
+        //           var respath = result.attr?result.attr.respath:'';
+        //           finalize(result._value);
+        //           if(respath.indexOf('_custom')>=0){
+        //               palette.setRelativeData('.data.metadata.custom',true);
+        //           }
+        //       },null,'POST'); 
+        //          
+        
+    },
+    saveTemplate:function(){
+            var table = palette.getRelativeData('.table');
+            var filename = palette.getRelativeData('.resource');
+            var data = palette.getRelativeData('.data');
+            palette.onSavedTemplate(data);
+            
+            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){},null,'POST');
+    },
+    
+    
     createContent:function(sourceNode, kw,children) {
         var resource = objectPop(kw,'resource');
-        var table = objectPop(kw,'table');
-        kw._table = table;
-        kw._resource = resource;
+        genro.assert(!resource,'use "template" instead of "resource"');
+        var tplpars = objectExtract(kw,'table,template,editable');
+        kw._tplpars = tplpars;
+        kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
+        kw._tplpars.asSource =  kw._tplpars.editable!=null;
+
         var dataProvider = objectPop(kw,'dataProvider');
-        var getVirtualColumns = this.getVirtualColumns;
         if(dataProvider){
             dataProvider = sourceNode.currentFromDatasource(dataProvider);
         }
         
         genro.assert(kw.datasource,'datasource is mandatory in templatechunk');
-        kw.connect_ondblclick = function(evt){
-            if (evt.metaKey){
-                var that = this;
-                genro.publish('open_chunkpalette',{table:table,resource:resource,updater:function(){
-                    that.updateTemplate();
-                }});
-            }else if(evt.shiftKey){
-                this.updateTemplate();
-            }
-        };
-        kw.onCreated = function(){
-            this._templateHandler = {};
-            var that = this;
-            this._templateHandler.cb = function(){
-                this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource});
-                if(typeof(this.result) == 'string'){
-                    return this.result || '<div class="chunkeditor_placeholder">Double Click + cmd </div>';;
+        var handler = this;
+        if(tplpars.editable){
+            kw.connect_ondblclick = function(evt){
+                if(tplpars.editable==true || evt.metaKey){
+                    handler.openTemplatePalette(this);
                 }
-                var datasourcePath = that.absDatapath(that.attr.datasource);
+           };
+        }
+        
+        kw.onCreated = function(domnode,attributes){
+            var sourceNode = this;
+            sourceNode._templateHandler = {};
+            sourceNode._templateHandler.cb = function(){
+                tplpars = sourceNode.evaluateOnNode(tplpars);
+                var result = handler.loadTemplate(sourceNode,tplpars);
+                this.data = result.data;
+                this.dataInfo = result.dataInfo;
+                this.template = result.template;
+                if(typeof(this.template) == 'string'){
+                    return this.template || '<div class="chunkeditor_placeholder"> Empty </div>';
+                }
+                var datasourcePath = sourceNode.absDatapath(sourceNode.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
-                var mainNode = this.result.getNode('main');
-                if(dataProvider){
-                    var curr_vc = dataProvider.attr.virtual_columns;
-                    var vc = getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
-                    if(vc){
-                        dataProvider.attr.virtual_columns = vc.join(',');
-                        dataProvider.fireNode();
-                    }
-                }else{
-                    var curr_vc = datasourceNode.attr._virtual_columns;
-                    var vc = getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
-                    if(vc){
-                        if(datasourceNode._resolver){
-                            datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
-                            datasourceNode._resolver.lastUpdate = null;                    
-                            that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
-                        }else{
-                            that.attr._virtual_column =  vc.join(',');
-                        }
-                    }
-                }
-                
-                return this.result;
+                var mainNode = this.template.getNode('main');
+ 
+                handler.updateVirtualColumns(sourceNode,datasourceNode,dataProvider,mainNode)                
             };
-            this.updateTemplate = function(){
+            
+            sourceNode.updateTemplate = function(){
                 this._templateHandler.result = null;
                 this.domNode.innerHTML = dataTemplate(this._templateHandler, this, this.attr.datasource);
             }
-            this.attr.template = this._templateHandler;
+            sourceNode.attr.template = this._templateHandler;
         }
         return sourceNode._('div','templateChunk',kw)
     }

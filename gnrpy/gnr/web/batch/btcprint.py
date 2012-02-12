@@ -9,6 +9,8 @@
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import slugify
+from gnr.core.gnrstring import templateReplace
+from gnr.web.gnrbaseclasses import TableScriptToHtml
 
 
 class BaseResourcePrint(BaseResourceBatch):
@@ -210,3 +212,4 @@ class BaseResourcePrint(BaseResourceBatch):
             bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
             bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
             bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
+

@@ -1170,7 +1170,9 @@ dojo.declare('gnr.GenroClient', null, {
                 if (!nodeId){
                     node=scope.attributeOwnerNode('_fakeform') || scope.getParentNode();
                 }
-            }            
+            }else if(nodeId.indexOf('ANCHOR')==0){
+                node=scope.attributeOwnerNode('_anchor') || scope.getParentNode();
+            }
         }
         var node =node || genro.src._index[nodeId];
         if (!node && genro.src.building) {

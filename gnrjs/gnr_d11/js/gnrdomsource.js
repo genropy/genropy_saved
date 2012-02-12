@@ -307,6 +307,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if (dataNode) {
                             oldValue = dataNode.getValue();
                             dataNode.setValue(result);
+                            dataNode._rpcNode = this;
                         }
                         if (_onResult) {
                             _onResult(result, origKwargs, oldValue);

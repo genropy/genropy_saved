@@ -360,8 +360,27 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
     
+    
+
     @public_method
     def tableTemplate(self, table=None, tplname=None, asSource=False):
+        """TODO
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param tplname: the template name
+        :param ext: TODO
+        :param asSource: boolean. TODO"""
+        result,attr = self.templateFromResource(table=table,tplname=tplname)
+        if asSource:
+            return result,attr
+        if 'html' in attr:
+            return result['content']
+        return result['compiled']
+
+    @public_method
+    def templateFromResource(self, table=None, tplname=None):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -375,18 +394,38 @@ class GnrWebPage(GnrBaseWebPage):
             return ''
         r_path,r_ext = os.path.splitext(path)
         if r_ext=='.html':
-            if not asSource:
-                return result
             result = Bag(content=result)
             path = '%s.xml' %r_path
-            return result,{'respath':path}
+            return result,{'respath':path,html:True}
         else:
             result=Bag(result)
-            if asSource:
-                return result,{'respath':path}
-            result = result['compiled']
-        return result
+            return result,{'respath':path}
         
+    @public_method
+    def loadTemplate(self,template_address,asSource=False,**kwargs):
+        #se template_address non ha : ---> risorsa
+        #template_address = 'field:pkey'
+        segments,pkey = template_address.split(':')
+        dataInfo = dict()
+        segments = segments.split('.')
+        if len(segments)==2:
+            resource_table = '.'.join(segments)
+            resource_name = pkey
+            data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
+        else:
+            pkg,table,field = segments
+            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
+        if asSource:
+            return data,dataInfo
+        return data['compiled']
+        
+    @public_method
+    def saveTemplate(self,template_address,value):
+        #pkg.table.field:pkey
+        #pkg.table:resource_module
+        #pkg.table:resource_module,custom
+        pass       
+
     @property
     def isGuest(self):
         """TODO"""
