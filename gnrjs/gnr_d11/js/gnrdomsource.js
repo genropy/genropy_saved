@@ -307,7 +307,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if (dataNode) {
                             oldValue = dataNode.getValue();
                             dataNode.setValue(result);
-                            dataNode._rpcNode = this;
+                            dataNode._rpcNode_id = this._id;
                         }
                         if (_onResult) {
                             _onResult(result, origKwargs, oldValue);
@@ -914,7 +914,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
     },
-    subscribe:function(command,handler){
+    subscribe:function(command,handler,subscriberNode){
         var that=this;
         var h = handler;
         var handler = function(){
@@ -928,7 +928,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             funcApply(h, that.currentAttributes(),that,argNames,argValues);
         };
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
-        this.registerSubscription(topic,this,handler);
+        subscriberNode = subscriberNode || this;
+        subscriberNode.registerSubscription(topic,this,handler);
     },
     lazyBuildFinalize:function(widget){
         var lazyBuild = objectPop(this.attr,'_lazyBuild');

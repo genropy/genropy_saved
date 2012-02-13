@@ -566,7 +566,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
-            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field'});
+            'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field',_userChanges:true});
         var searchlbl = searchbox._('td');
         searchlbl._('div', {'innerHTML':'^.caption',_class:'buttonIcon'});
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
@@ -644,18 +644,49 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     
     openTemplatePalette:function(sourceNode){
         var paletteCode = 'template_editor_'+sourceNode._id;
+        genro._data.popNode('gnr.palettes.'+paletteCode);
         var tplpars = sourceNode.attr._tplpars;
         var templateHandler = sourceNode._templateHandler;
-        
-        var kw = {'paletteCode':paletteCode,'dockTo':false,
+        var handler = this;
+        var paletteId = paletteCode+'_floating';
+        if(sourceNode._connectedPalette && false){
+            var paletteNode = sourceNode._connectedPalette;
+            paletteNode.getWidget().show();
+        }else{
+            var kw = {'paletteCode':paletteCode,'dockTo':false,
                     title:'Template Editor',width:'750px',
-                    height:'500px',remote:'te_chunkEditorPane',
+                    height:'500px',
+                    remote:'te_chunkEditorPane',
                     remote_table:tplpars.table,
-                    remote_resource_mode:(templateHandler.dataInfo.respath!=null)};
-                                            
-        var palette = sourceNode._('palettePane',kw);  
-        palette.getParentNode().setRelativeData('.data',templateHandler.data.deepCopy());     
-                
+                    remote_paletteId:paletteId,
+                    remote_resource_mode:(templateHandler.dataInfo.respath!=null)
+                    };
+                    
+            kw.palette_selfsubscribe_savechunk = function(){
+                tplpars = sourceNode.evaluateOnNode(tplpars);
+                var template = tplpars.template || new gnr.GnrBag();
+                var data = this.getRelativeData('.data').deepCopy();
+                var custom = data.pop('metadata.custom');
+                if(typeof(template)=='string'){
+                    var respath = handler.saveTemplate(sourceNode,data,tplpars,custom);
+                    templateHandler.dataInfo.respath = respath;
+                }else{
+                    var tplpath = sourceNode.attr._tplpars.template;
+                    var currdata = sourceNode.getRelativeData(tplpath,data);
+                    currdata.clear();
+                    data.forEach(function(n){currdata.setItem(n.label,n._value,n.attr)});
+                }
+                templateHandler.setNewData({data:data,template: data.getItem('compiled'),dataInfo:templateHandler.dataInfo});           
+            }
+            var palette = sourceNode._('palettePane',kw);
+            var paletteNode = palette.getParentNode();  
+            //sourceNode._connectedPalette = paletteNode; 
+        }
+        paletteNode.setRelativeData('.data',templateHandler.data.deepCopy()); 
+        var respath = templateHandler.dataInfo.respath;
+        if(respath && respath.indexOf('_custom')>=0){
+            paletteNode.setRelativeData('.data.metadata.custom',true);
+        }
     },
     
 
@@ -696,35 +727,16 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             return {data:data,dataInfo:result.attr,template:data.getItem('compiled')};
         }
         return {template:result};
-
-        
-        
-       //function(result){
-       //            var respath = result.attr?result.attr.respath:'';
-       //            finalize(result._value);
-       //            if(respath.indexOf('_custom')>=0){
-       //                palette.setRelativeData('.data.metadata.custom',true);
-       //            }
-       //        },null,'POST'); 
-       //
-        //palette.setRelativeData('.resource',template);
-        //       genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
-        //           var respath = result.attr?result.attr.respath:'';
-        //           finalize(result._value);
-        //           if(respath.indexOf('_custom')>=0){
-        //               palette.setRelativeData('.data.metadata.custom',true);
-        //           }
-        //       },null,'POST'); 
-        //          
-        
     },
-    saveTemplate:function(){
-            var table = palette.getRelativeData('.table');
-            var filename = palette.getRelativeData('.resource');
-            var data = palette.getRelativeData('.data');
-            palette.onSavedTemplate(data);
-            
-            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){},null,'POST');
+    
+    saveTemplate:function(sourceNode,data,kw,custom){
+        var template_address = kw.table+':'+kw.template;
+        var templateHandler = sourceNode._templateHandler;
+        if(custom){
+            template_address+',custom'
+        }
+       //this.updateTemplate(data); TODO
+        genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
     },
     
     
@@ -734,6 +746,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var tplpars = objectExtract(kw,'table,template,editable');
         kw._tplpars = tplpars;
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
+        kw._tplpars.showAlways = kw._tplpars.editable===true;
         kw._tplpars.asSource =  kw._tplpars.editable!=null;
 
         var dataProvider = objectPop(kw,'dataProvider');
@@ -754,9 +767,14 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         kw.onCreated = function(domnode,attributes){
             var sourceNode = this;
             sourceNode._templateHandler = {};
-            sourceNode._templateHandler.cb = function(){
+            var templateHandler=sourceNode._templateHandler
+            templateHandler.showAlways = tplpars.showAlways;
+            templateHandler.cb = function(){
                 tplpars = sourceNode.evaluateOnNode(tplpars);
                 var result = handler.loadTemplate(sourceNode,tplpars);
+                this.setNewData(result);               
+            };
+            templateHandler.setNewData= function(result){
                 this.data = result.data;
                 this.dataInfo = result.dataInfo;
                 this.template = result.template;
@@ -766,10 +784,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                 var datasourcePath = sourceNode.absDatapath(sourceNode.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
                 var mainNode = this.template.getNode('main');
- 
-                handler.updateVirtualColumns(sourceNode,datasourceNode,dataProvider,mainNode)                
+                handler.updateVirtualColumns(sourceNode,datasourceNode,dataProvider,mainNode)  
+                 
             };
-            
             sourceNode.updateTemplate = function(){
                 this._templateHandler.result = null;
                 this.domNode.innerHTML = dataTemplate(this._templateHandler, this, this.attr.datasource);
@@ -1350,7 +1367,7 @@ dojo.declare("gnr.stores._Collection",null,{
             that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);});
+                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);},null,that.storeNode);
             }
             startLocked = parentForm?parentForm.locked:startLocked;
             setTimeout(function(){that.setLocked(startLocked);},1);

@@ -425,7 +425,7 @@ class ChunkEditor(PaletteTemplateEditor):
             palette.remote(self.te_chunkEditorPane)
     
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,**kwargs):
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,**kwargs):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table)
         infobar = sc.info.top.bar
@@ -434,8 +434,12 @@ class ChunkEditor(PaletteTemplateEditor):
             infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
         else:
             infobar.customres.div()
-        infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',
-                                    iconClass='iconbox save',)
+        infobar.savetpl.slotButton('!!Save',action="""
+                                                    var result = genro.serverCall('te_compileTemplate',{table:table,datacontent:dc,varsbag:vb,parametersbag:pb},null,null,'POST');
+                                                    data.setItem('compiled',result.getItem('compiled'));
+                                                    genro.nodeById(paletteId).publish("savechunk");""",
+                                    iconClass='iconbox save',paletteId=paletteId,table=table,dc='=.data.content',
+                                    vb='=.data.varsbag',pb='=.data.parametersbag',data='=.data')
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=table)
         
@@ -445,13 +449,6 @@ class ChunkEditor(PaletteTemplateEditor):
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
         
-    @public_method
-    def te_saveResourceTemplate(self, table=None,data=None,filename=None):        
-        custom =  data.pop('metadata.custom')
-        respath = self._tableResourcePath(table,filepath='tpl/%s.xml' %filename,custom=custom)
-        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-        data.toXml(respath,autocreate=True)
-        return 'ok'
         
         
         

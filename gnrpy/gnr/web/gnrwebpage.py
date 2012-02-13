@@ -420,11 +420,31 @@ class GnrWebPage(GnrBaseWebPage):
         return data['compiled']
         
     @public_method
-    def saveTemplate(self,template_address,value):
+    def saveTemplate(self,template_address,data):
         #pkg.table.field:pkey
         #pkg.table:resource_module
         #pkg.table:resource_module,custom
-        pass       
+        segments,pkey = template_address.split(':')
+        segments = segments.split('.')
+        if len(segments)==2:
+            custom = False
+            resource_table = '.'.join(segments)
+            resource_name = pkey
+            if ',' in resource_name:
+                resource_name = resource_name.split(',')[0]
+                custom = True
+                respath = self._tableResourcePath(table,filepath='tpl/%s.xml' %filename,custom=custom)
+                data.toXml(respath,autocreate=True)
+                return respath
+        else:
+            pkg,table,field = segments
+            tblobj = self.db.table('.'.join([pkg,table]))
+            record = tblobj.rec(pkey=pkey,for_update=True).output('record')
+            record[field] = data
+            tblobj.update(record)
+            self.db.commit()
+        
+        
 
     @property
     def isGuest(self):

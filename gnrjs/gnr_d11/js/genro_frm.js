@@ -125,12 +125,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(parentStore){
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
                     that.setLocked(kw.locked);
-                });
+                },this.sourceNode);
                 this.locked = parentStore.locked;
             }else if (parentForm){
                 parentForm.subscribe('onLockChange',function(kw){
                     that.setLocked(kw.locked);
-                });
+                },null,this.sourceNode);
                 this.locked = parentForm.locked;
             }
             genro.src.afterBuildCalls.push(function(){
@@ -146,7 +146,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
         genro.publish(topic,kw);
     },
-    subscribe: function(command,cb,scope){
+    subscribe: function(command,cb,scope,subscriberNode){
         if(command.indexOf(',')>=0){
             var that = this;
             dojo.forEach(command.split(','),function(command){
@@ -157,7 +157,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var topic = 'form_'+this.formId+'_'+command;
         var scope = scope || this;
         var cb = cb || this[command];
-        this.sourceNode.registerSubscription(topic,scope,cb);
+        subscriberNode = subscriberNode || this.sourceNode;
+        subscriberNode.registerSubscription(topic,scope,cb);
     },
     applyDisabledStatus:function(){
         var disabled = this.isDisabled();

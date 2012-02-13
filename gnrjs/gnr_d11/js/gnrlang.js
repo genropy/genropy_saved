@@ -177,6 +177,7 @@ function dataTemplate(str, data, path, showAlways) {
             templateHandler.cb.call(templateHandler);
         }
         str = templateHandler.template;
+        showAlways = templateHandler.showAlways;
     }
 
     var templates=null;
