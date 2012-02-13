@@ -302,7 +302,7 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        template = frame.templateChunk(resource=template,table=linker.attributes['table'],
+        template = frame.templateChunk(template=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,visible=currpkey,margin='4px',
                                       **template_kwargs)
         if formResource or formUrl:
