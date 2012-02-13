@@ -514,7 +514,7 @@ class TableHandlerMain(BaseComponent):
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
-        pkey = pkey or th_kwargs.pop('pkey','*norecord*')
+        pkey = pkey or th_kwargs.pop('pkey',None)
         formResource = th_kwargs.pop('formResource',None)
         root.attributes.update(overflow='hidden')
         public = boolean(th_kwargs.pop('public',False))
