@@ -545,7 +545,7 @@ class TableHandlerMain(BaseComponent):
         """ALTERNATIVE MAIN CALL"""
         callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
         pkey = callArgs.pop('th_pkey',None)
-        kwargs.update(pkey=pkey)
+        kwargs.setdefault('pkey',pkey)
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,**kwargs)
     
