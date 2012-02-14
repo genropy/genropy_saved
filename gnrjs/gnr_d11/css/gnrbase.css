@@ -2941,10 +2941,18 @@ p {
 	text-decoration: underline;
 }
 /* @end */
-.chunkeditor_placeholder{
+.chunkeditor_emptytemplate{
     border-radius:6px;
-    margin:2px;
-    height:100%;
+    margin:10px;
+    padding:5px;
     border:1px solid silver;
     cursor:pointer;
+    background:white;
+    text-align:center;
+    box-shadow:2px 2px 6px #555;
+    color:#666;
+}
+.chunkeditor_varplaceholder{
+    background:#555;
+    color:white;
 }

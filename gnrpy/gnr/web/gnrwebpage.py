@@ -396,7 +396,7 @@ class GnrWebPage(GnrBaseWebPage):
         if r_ext=='.html':
             result = Bag(content=result)
             path = '%s.xml' %r_path
-            return result,{'respath':path,html:True}
+            return result,{'respath':path,'html':True}
         else:
             result=Bag(result)
             return result,{'respath':path}
@@ -433,9 +433,9 @@ class GnrWebPage(GnrBaseWebPage):
             if ',' in resource_name:
                 resource_name = resource_name.split(',')[0]
                 custom = True
-                respath = self._tableResourcePath(table,filepath='tpl/%s.xml' %filename,custom=custom)
-                data.toXml(respath,autocreate=True)
-                return respath
+            respath = self._tableResourcePath(resource_table,filepath='tpl/%s.xml' %resource_name,custom=custom)
+            data.toXml(respath,autocreate=True)
+            return respath
         else:
             pkg,table,field = segments
             tblobj = self.db.table('.'.join([pkg,table]))
@@ -1081,12 +1081,11 @@ class GnrWebPage(GnrBaseWebPage):
     def _tableResourcePath(self,table,filepath,custom=False):
         page_pkg = self.package.name 
         table_pkg,tblname = table.split('.')
-        if page_pkg != table_pkg:
-            respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)
-        else:
-            respath = 'tables/%s/%s' %(tblname,filepath)
+        respath = 'tables/%s/%s' %(tblname,filepath)
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
+        elif page_pkg != table_pkg:
+            respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
         else:
             packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
             return os.path.join(packageFolder,'resources',respath)

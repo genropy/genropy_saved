@@ -168,7 +168,7 @@ function stringCapitalize(str) {
 ;
 
 function dataTemplate(str, data, path, showAlways) {
-    console.log('renderizzo template')
+    var defaults = {};
     if (!str) {
         return '';
     }
@@ -178,7 +178,9 @@ function dataTemplate(str, data, path, showAlways) {
             templateHandler.cb.call(templateHandler);
         }
         str = templateHandler.template;
-        showAlways = templateHandler.showAlways;
+        defaults = templateHandler.defaults || defaults;
+        showAlways = showAlways || templateHandler.showAlways;
+        
     }
 
     var templates=null;
@@ -239,7 +241,10 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = dojo.date.locale.format(value, {selector:dtype=='H'?'time':'date', format:'short'});
                                     }
                                     return value;
-                                } else {
+                                } else if(showAlways){
+                                    is_empty =false;
+                                    return defaults[path];
+                                }else{
                                     return '';
                                 }
                             });
@@ -260,7 +265,7 @@ function dataTemplate(str, data, path, showAlways) {
                               }
                           });
     }
-    if (has_field && is_empty) {
+    if (has_field && is_empty && !showAlways) {
         return '';
     } else {
         return result;

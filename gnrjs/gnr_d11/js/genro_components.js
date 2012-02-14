@@ -644,20 +644,21 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     
     openTemplatePalette:function(sourceNode){
         var paletteCode = 'template_editor_'+sourceNode._id;
-        genro._data.popNode('gnr.palettes.'+paletteCode);
+        //genro._data.popNode('gnr.palettes.'+paletteCode);
         var tplpars = sourceNode.attr._tplpars;
         var templateHandler = sourceNode._templateHandler;
         var handler = this;
         var paletteId = paletteCode+'_floating';
-        if(sourceNode._connectedPalette && false){
+        if(sourceNode._connectedPalette){
             var paletteNode = sourceNode._connectedPalette;
             paletteNode.getWidget().show();
         }else{
-            var kw = {'paletteCode':paletteCode,'dockTo':false,
-                    title:'Template Editor',width:'750px',
+            var table = tplpars.table;
+            var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
+                    title:'Template Edit '+table.split('.')[1],width:'750px',
                     height:'500px',
                     remote:'te_chunkEditorPane',
-                    remote_table:tplpars.table,
+                    remote_table:table,
                     remote_paletteId:paletteId,
                     remote_resource_mode:(templateHandler.dataInfo.respath!=null)
                     };
@@ -677,10 +678,12 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     data.forEach(function(n){currdata.setItem(n.label,n._value,n.attr)});
                 }
                 templateHandler.setNewData({data:data,template: data.getItem('compiled'),dataInfo:templateHandler.dataInfo});           
+                sourceNode.updateTemplate();
+                this.widget.hide();
             }
             var palette = sourceNode._('palettePane',kw);
             var paletteNode = palette.getParentNode();  
-            //sourceNode._connectedPalette = paletteNode; 
+            sourceNode._connectedPalette = paletteNode; 
         }
         paletteNode.setRelativeData('.data',templateHandler.data.deepCopy()); 
         var respath = templateHandler.dataInfo.respath;
@@ -722,6 +725,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }
         var template_address = kw.table+':'+kw.template;
         var result = genro.serverCall("loadTemplate",{template_address:template_address,asSource:kw.asSource});
+        if(result.attr.html){
+            var content = result.getValue().getItem('content');
+             return {template:content,dataInfo:result.attr,data:new gnr.GnrBag({'content':content})};
+        }
         if(kw.asSource){
             var data = result.getValue();
             return {data:data,dataInfo:result.attr,template:data.getItem('compiled')};
@@ -733,10 +740,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var template_address = kw.table+':'+kw.template;
         var templateHandler = sourceNode._templateHandler;
         if(custom){
-            template_address+',custom'
+            template_address = template_address+',custom'
         }
-       //this.updateTemplate(data); TODO
-        genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
+        return genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
     },
     
     
@@ -744,6 +750,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var resource = objectPop(kw,'resource');
         genro.assert(!resource,'use "template" instead of "resource"');
         var tplpars = objectExtract(kw,'table,template,editable');
+        var showAlways = tplpars.editable;
         kw._tplpars = tplpars;
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
         kw._tplpars.showAlways = kw._tplpars.editable===true;
@@ -768,23 +775,32 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var sourceNode = this;
             sourceNode._templateHandler = {};
             var templateHandler=sourceNode._templateHandler
-            templateHandler.showAlways = tplpars.showAlways;
+            templateHandler.showAlways = showAlways;
             templateHandler.cb = function(){
-                console.log('ggg')
-                this.setNewData(handler.loadTemplate(sourceNode,sourceNode.evaluateOnNode(tplpars)));               
+                this.setNewData(handler.loadTemplate(sourceNode,sourceNode.evaluateOnNode(tplpars))); 
             };
             templateHandler.setNewData= function(result){
                 this.data = result.data;
                 this.dataInfo = result.dataInfo;
                 this.template = result.template;
-                if(typeof(this.template) == 'string'){
-                    return this.template || '<div class="chunkeditor_placeholder"> Empty </div>';
-                }
+                this.defaults = {};
+               
                 var datasourcePath = sourceNode.absDatapath(sourceNode.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
-                var mainNode = this.template.getNode('main');
-                handler.updateVirtualColumns(sourceNode,datasourceNode,dataProvider,mainNode)  
-                 
+                if(this.template instanceof gnr.GnrBag){
+                     var varsbag = this.data.getItem('varsbag');
+                     var defaults = this.defaults;
+                     if(varsbag){
+                         varsbag.forEach(function(n){
+                             var v = n.getValue();
+                             defaults[v.getItem('fieldpath')] = '<span class="chunkeditor_varplaceholder">'+(v.getItem('fieldname')||'')+'</span>';
+                             },'static');
+                    }
+                    var mainNode = this.template.getNode('main');
+                    handler.updateVirtualColumns(sourceNode,datasourceNode,dataProvider,mainNode)  
+                }else{
+                    this.template = this.template || '<div class="chunkeditor_emptytemplate">Template not yet created</div>';
+                }
             };
             sourceNode.updateTemplate = function(){
                 this._templateHandler.template = null;
