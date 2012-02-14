@@ -168,6 +168,7 @@ function stringCapitalize(str) {
 ;
 
 function dataTemplate(str, data, path, showAlways) {
+    console.log('renderizzo template')
     if (!str) {
         return '';
     }
