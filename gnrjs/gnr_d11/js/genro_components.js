@@ -748,9 +748,12 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     
     createContent:function(sourceNode, kw,children) {
         var resource = objectPop(kw,'resource');
-        genro.assert(!resource,'use "template" instead of "resource"');
+        if(resource){
+            console.warn('templateChunk warning: use "template" param instead of "resource" param');
+        }
         var tplpars = objectExtract(kw,'table,template,editable');
         var showAlways = tplpars.editable;
+        tplpars.template = tplpars.template || resource;
         kw._tplpars = tplpars;
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
         kw._tplpars.showAlways = kw._tplpars.editable===true;
