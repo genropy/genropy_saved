@@ -514,7 +514,7 @@ class TableHandlerMain(BaseComponent):
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
-        pkey = pkey or th_kwargs.pop('pkey','*norecord*')
+        pkey = pkey or th_kwargs.pop('pkey',None)
         formResource = th_kwargs.pop('formResource',None)
         root.attributes.update(overflow='hidden')
         public = boolean(th_kwargs.pop('public',False))
@@ -545,9 +545,8 @@ class TableHandlerMain(BaseComponent):
         """ALTERNATIVE MAIN CALL"""
         callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
         pkey = callArgs.pop('th_pkey',None)
-        kwargs.update(pkey=pkey)
         formCb = self.th_form if hasattr(self,'th_form') else None
-        self._th_prepareForm(root,formCb=formCb,**kwargs)
+        self._th_prepareForm(root,formCb=formCb,pkey=pkey,**kwargs)
     
         
 #OLD STUFF TO REMOVE
