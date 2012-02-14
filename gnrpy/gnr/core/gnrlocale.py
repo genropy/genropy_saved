@@ -57,8 +57,9 @@ def localize_date(obj, locale, format=None, **kwargs):
     format = format or 'short'
     return dates.format_date(obj, format=format, locale=locale)
     
-def localize_boolean(obj, locale='en', format='tf', **kwargs):
-    format = getBoolKeywords(format,locale=locale)    
+def localize_boolean(obj, locale='en', format=None, **kwargs):
+    format = format or 'tf'
+    format = getBoolKeywords(format,locale=locale)[0]  
     format = format.split(';')
     if obj is None and len(format)>2:
         return format[2]
