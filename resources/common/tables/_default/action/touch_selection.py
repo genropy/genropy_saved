@@ -7,7 +7,7 @@
 from gnr.web.batch.btcaction import BaseResourceAction
 
 caption = '!!Touch Selection'
-tags = '__DEV__'
+tags = '_DEV_'
 description = '!!Touch Selection'
 
 class Main(BaseResourceAction):
