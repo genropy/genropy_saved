@@ -4843,7 +4843,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         return;
     },
     onDataChanged:function(widget){
-        widget.focusNode.blur()
+       // widget.focusNode.blur()
     },
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.auxColumns) {
