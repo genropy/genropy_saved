@@ -1093,7 +1093,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     getFromDataTransfer:function(dataTransfer, k) {
-        return genro.dom._datatransfer()[k];;
+        return convertFromText(genro.dom._datatransfer()[k]);
+        
     },
     
     dataTransferTypes:function(dataTransfer) {
