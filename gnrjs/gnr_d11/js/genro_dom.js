@@ -1093,25 +1093,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     getFromDataTransfer:function(dataTransfer, k) {
-        var canUseDataTransfer = dataTransfer.getData('dragsourceinfo');
-        var value = canUseDataTransfer ? dataTransfer.getData(k):genro.dom._datatransfer()[k];
-        return convertFromText(value);
+        return genro.dom._datatransfer()[k];;
     },
     
     dataTransferTypes:function(dataTransfer) {
-        var canUseDataTransfer = dataTransfer.getData('dragsourceinfo');
-        if (!canUseDataTransfer) {
-            var transferobj = this._datatransfer();
-            var dt = [];
-            for (var k in transferobj) {
-                dt.push(k);
-            }
-            for (var i = 0; i < dataTransfer.types.length; i++) {
-                dt.push(dataTransfer.types[i]);
-            };
-            return dt;
+        var transferobj = this._datatransfer();
+        var dt = [];
+        for (var k in transferobj) {
+            dt.push(k);
         }
-        return dataTransfer.types;
+        for (var i = 0; i < dataTransfer.types.length; i++) {
+            dt.push(dataTransfer.types[i]);
+        };
+        return dt;
     },
     onDragEnd:function(event) {
         genro.dom.outlineShape(null);
