@@ -1089,7 +1089,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     
 
     getDragSourceInfo:function(dataTransfer) {
-        return genro.dom.getFromDataTransfer(dataTransfer,'dragsourceinfo',true);
+        return genro.dom.getFromDataTransfer(dataTransfer,'dragsourceinfo',true) || {};
     },
     
     getFromDataTransfer:function(dataTransfer, k) {
@@ -1106,9 +1106,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             for (var k in transferobj) {
                 dt.push(k);
             }
-            /*for (var i = 0; i < dataTransfer.types.length; i++) {
+            for (var i = 0; i < dataTransfer.types.length; i++) {
                 dt.push(dataTransfer.types[i]);
-            };*/
+            };
             return dt;
         }
         return dataTransfer.types;

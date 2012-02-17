@@ -99,10 +99,10 @@ class DropUploaderBase(BaseComponent):
         sc = pane.stackContainer(selectedPage='^.selpreview',
                                 datapath='#%s_grid' %uploaderId,margin='2px',_class='pbl_roundedGroup')
         sc.dataController("""
-                            if(dojo.isSafari){
-                                console.log("no filereader, use Firefox")
-                                return;
-                            }
+                           //if(dojo.isSafari){
+                           //    console.log("no filereader, use Firefox")
+                           //    return;
+                           //}
                             var selectedType = filebag.getItem(selectedLabel+'._type');
                              var selectedFile = filebag.getItem(selectedLabel+'._file');
                              console.log(selectedFile);
@@ -119,10 +119,11 @@ class DropUploaderBase(BaseComponent):
                              }
                              var fileReader = new FileReader();
                              var that = this;
-                             fileReader.addEventListener("loadend", function(){
-                                 that.fireEvent('.reader_result',fileReader.result);
-                             }, false);
+                             fileReader.onloadend = function(evt) {
+                                that.fireEvent('.reader_result',evt.target.result);
+                             };
                              fileReader[readFunc](selectedFile);
+
                         """, selectedLabel="^.selectedLabel", filebag='=.uploading_data',
                           _if='selectedLabel', _else='SET .selpreview  = "no_prev";')
         sc.dataController("""if(selpreview=='image'){
