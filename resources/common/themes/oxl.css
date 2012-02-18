@@ -36,18 +36,14 @@ font
 }
 
 ._common_d11 .dojoxFloatingPane {
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    -moz-box-shadow: 4px 4px 6px #403b3b;
-    -webkit-box-shadow: 4px 4px 6px #403b3b;
+    border-radius: 4px;
+    box-shadow: 4px 4px 6px #403b3b;
     border: 0px
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-
-    background: #4D5962 none repeat scroll 0 0;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(57, 82, 112, 0.99)), to(rgba(101, 135, 142, 0.9)));
-    background-image: -moz-linear-gradient(-90deg, rgba(57, 82, 112, 0.99), rgba(101, 135, 142, 0.9));
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(gray));
+    background-image: linear-gradient(-90deg, silver, gray);
     vertical-align: middle;
     text-align: center;
     color: #F5F5F5;
@@ -214,11 +210,11 @@ font
     height: 20px;
     line-height: 20px;
     padding-bottom: 0;
-    padding-left: 10px;    
+    padding-left: 4px; 
+    padding-right: 4px;    
     background-color: #49637c;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
-    padding-left: 10px;
     font-size: 0.9em;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
     background-image: linear-gradient(-90deg, #C8D1DC, #B4BECB);
@@ -227,6 +223,8 @@ font
 
 .pbl_roundedGroupLabel.slotbar_horizontal.slotbar_toolbar{
     line-height: 14px;
+    padding-left:0;
+    padding-right:0;
 }
 
 .pbl_roundedGroupBottom {
@@ -302,6 +300,7 @@ font
     text-align: center;
     font-weight:normal;
     border-bottom:1px solid #ccc;
+    font-size: .9em;
 }
 
 /*._common_d11 .dijitDialogCloseIcon {
