@@ -41,10 +41,9 @@ class FrameIndex(BaseComponent):
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
-        frame = pane.framePane('standard_index',_class='hideSplitter',
+        frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
-                                gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
@@ -131,6 +130,7 @@ class FrameIndex(BaseComponent):
                             
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
+                                border_left='1px solid silver',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 

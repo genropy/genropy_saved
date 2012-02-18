@@ -2799,17 +2799,23 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 var storeAttr = widget.collectionStore().storeNode.attr;
                 value['dbrecords'] = {table:storeAttr['table'],pkeys:pkeys,objtype:'record'};
             }
-            if (sel.length > 1) {
+            if (sel.length > 0) {
                 //console.log(rowNodes)
                 var auxDragImage = dragInfo.dragImageNode = dojo.byId('auxDragImage');
                 dragInfo.dragImageNode = document.createElement('div');
-                dragInfo.dragImageNode.innerHTML = innerHtml.join('');
-                dojo.addClass(dragInfo.dragImageNode, 'draggedItem rowsetdragging');
+                var auxnode = document.createElement('div');
+                dojo.addClass(auxnode,'rowsetdragging')
+                dragInfo.dragImageNode.appendChild(auxnode);
+                auxnode.innerHTML = innerHtml.join('');
+                
+                dojo.addClass(dragInfo.dragImageNode, 'rowsetdragging_background');
                 auxDragImage.appendChild(dragInfo.dragImageNode);
                 dragInfo.event.dataTransfer.setDragImage(auxDragImage, 0, 0);
                 setTimeout(function() {
                     auxDragImage.removeChild(dragInfo.dragImageNode);
                 }, 1);
+                console.log(auxDragImage.innerHTML);
+
             }
         } else if (dragmode == 'cell') {
             var celldata = widget.rowByIndex(dragInfo.row)[event.cell.field];

@@ -126,7 +126,7 @@ class MenuLink(MenuBase):
                   persist='site',
                   inspect='shift',
                   identifier='#p',
-                  getIconClass='return node.attr.iconClass || "treeNoIcon"',
+                  getIconClass='return node.attr.iconClass',
                   getLabelClass='return node.attr.labelClass',
                   openOnClick=True,
                   autoCollapse=True,
@@ -168,6 +168,7 @@ class MenuResolver(BagResolver):
                 value = node.getStaticValue()
                 attributes = {}
                 attributes.update(node.getAttr())
+                labelClass = 'menu_level_%i' % level
                 if isinstance(value, Bag):
                     newpath = node.label
                     if self.path:
@@ -175,10 +176,10 @@ class MenuResolver(BagResolver):
                     else:
                         newpath = node.label
                     value = MenuResolver(path=newpath, pagepath=self.pagepath)
-                    labelClass = 'menu_level_%i' % level
+                   # labelClass = 'menu_level_%i' % level
                 else:
                     value = None
-                    labelClass = 'menu_page'
+                    labelClass = '%s menu_page' %labelClass
                     if 'file' in attributes and  attributes['file'].endswith(self.pagepath.replace('.py', '')):
                         labelClass = 'menu_page menu_current_page'
                     if 'workInProgress' in attributes:

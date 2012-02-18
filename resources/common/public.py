@@ -470,7 +470,6 @@ class TableHandlerMain(BaseComponent):
         if insidePublic and hasattr(self,'customizePublicFrame'):
             self.customizePublicFrame(root)
 
-        th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic)
         self.__th_moverdrop(th)

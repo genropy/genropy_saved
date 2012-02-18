@@ -71,7 +71,10 @@
     font-size: 9pt;
     font-variant:small-caps;
 }
-
+.frameindexroot{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d0d0d0), to(#ffffff));
+    background-image: -moz-linear-gradient(-90deg, #d0d0d0, #ffffff);
+}
 .iframesubtab.iframetab{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#A6CAEE), to(#467399));
     background-image: -moz-linear-gradient(-90deg, #A6CAEE, #467399);

@@ -2515,6 +2515,7 @@ border='1px solid gray',margin='2px', rounded=10,
 /* @end */
 
 /* @group drag drop */
+
 .canBeDropped {
     background-color: #8fff9d !important;
 }
@@ -2536,15 +2537,30 @@ border='1px solid gray',margin='2px', rounded=10,
 }
 
 .rowsetdragging {
-    position: absolute;
-    top: 0px;
-    font-size: 0.8em;
+    /*font-size: 0.8em;*/
+    border:1px solid silver;
+    border-radius: 6px;
+    box-shadow:3px 3px 6px #333;
+    background-color:white;
+    padding:5px;
+
+    /**/
 }
 
 
+.rowsetdragging .dojoxGrid-cell{
+    border-right:1px solid silver !important;
+    border-bottom:1px solid silver !important;
+}
+
+.rowsetdragging_background{
+    -webkit-transform: scale(.75,.75);
+    -webkit-transform-origin:0px 0px;
+}
+
 
 .draggedItem {
-    background-color: rgba(252, 252, 169, 0.63) !important;
+    /*background-color: rgba(252, 252, 169, 0.63) !important;*/
     background-image: none !important;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
