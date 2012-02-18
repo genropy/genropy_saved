@@ -307,7 +307,7 @@ class ThLinker(BaseComponent):
                                       **template_kwargs)
         if formResource or formUrl:
             footer = frame.bottom.slotBar('*,linker_edit')
-            footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
+            footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
                                             visible=currpkey,parentForm=True)
         return frame
