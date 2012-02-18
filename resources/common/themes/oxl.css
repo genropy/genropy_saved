@@ -734,9 +734,34 @@ font
 ._common_d11 .dojoxGrid-cell {
     border-left: 0px !important;
     border-top: 0 !important;
-    border-right: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #dee;
+    border-bottom: 0px solid #dee;
     height: 21px;
     padding: 0 6px 0 3px;
+}
+
+._common_d11 .dojoxGrid-row .dojoxGrid-cell {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#f6f6f6));
+    background-image: linear-gradient(-90deg, white, #ddd);
+}
+
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#f6f6f6));
+    background-image: linear-gradient(-90deg, white, #ddd);
+
+}
+
+
+
+._common_d11 .dojoxGrid-row-selected {
+
+}
+
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
+
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#c2d3e7));
+    background-image: linear-gradient(-90deg, white, #c2d3e7);
+    border-bottom: 0px solid #dee !important;
+    border-right: 1px solid #dee;
 }
 
