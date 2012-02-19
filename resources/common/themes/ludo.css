@@ -764,4 +764,7 @@ font
     border-bottom: 0px solid #dee !important;
     border-right: 1px solid #dee;
 }
-
+._common_d11 .dojoxGrid-scrollbox {
+    overflow: auto;
+    background-color: white ;
+}
