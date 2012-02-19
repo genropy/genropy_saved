@@ -1082,13 +1082,13 @@ class GnrWebPage(GnrBaseWebPage):
         page_pkg = self.package.name 
         table_pkg,tblname = table.split('.')
         respath = 'tables/%s/%s' %(tblname,filepath)
+
         if custom:
             return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
-        elif page_pkg != table_pkg:
+        packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
+        if page_pkg != table_pkg:
             respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)        
-        else:
-            packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
-            return os.path.join(packageFolder,'resources',respath)
+        return os.path.join(packageFolder,'resources',respath)
             
     def getResource(self, path, ext=None, pkg=None):
         """TODO
