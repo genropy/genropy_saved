@@ -391,7 +391,7 @@ font
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
     background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
     margin-right: 2px;
-    color: #f5f7fe;
+    color: #444;
     font-weight: plain;
     /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
   background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/

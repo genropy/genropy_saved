@@ -2806,7 +2806,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 value['dbrecords'] = {table:storeAttr['table'],pkeys:pkeys,objtype:'record'};
             }
             if (sel.length > 0) {
-                //console.log(rowNodes)
                 var auxDragImage = dragInfo.dragImageNode = dojo.byId('auxDragImage');
                 dragInfo.dragImageNode = document.createElement('div');
                 var auxnode = document.createElement('div');
@@ -2820,8 +2819,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 setTimeout(function() {
                     auxDragImage.removeChild(dragInfo.dragImageNode);
                 }, 1);
-                console.log(auxDragImage.innerHTML);
-
             }
         } else if (dragmode == 'cell') {
             var celldata = widget.rowByIndex(dragInfo.row)[event.cell.field];
