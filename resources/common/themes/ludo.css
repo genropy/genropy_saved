@@ -218,8 +218,13 @@ font
     background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
     color: #555;
 }
+.pbl_roundedGroupLabel .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
+    border:0;
+    background:transparent;
+    padding: 0px 0px;
+}
 
-.pbl_roundedGroupLabel.slotbar_horizontal.slotbar_toolbar{
+.pbl_roundedGroupLabel.slotbar_horizontal{
     line-height: 14px;
     padding-left:0;
     padding-right:0;
