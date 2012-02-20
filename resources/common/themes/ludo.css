@@ -97,8 +97,8 @@ font
     vertical-align: middle;
     color: white;
     background:#6c727d;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#bdc7d6), to(#6c727d));
-    background-image: -moz-linear-gradient(-90deg, #bdc7d6, #6c727d);
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#bdc7d6), to(#6c727d));
+    background-image: -moz-linear-gradient(-90deg, #bdc7d6, #6c727d);*/
 }
 
 /*background-color: #59514f;
