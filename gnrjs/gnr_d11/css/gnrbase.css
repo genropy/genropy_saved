@@ -2543,6 +2543,8 @@ border='1px solid gray',margin='2px', rounded=10,
     box-shadow:3px 3px 6px #333;
     background-color:white;
     padding:5px;
+    display:inline-block;
+
 
     /**/
 }
@@ -2556,6 +2558,7 @@ border='1px solid gray',margin='2px', rounded=10,
 .rowsetdragging_background{
     -webkit-transform: scale(.75,.75);
     -webkit-transform-origin:0px 0px;
+    display:inline-block;
 }
 
 
@@ -2571,7 +2574,7 @@ border='1px solid gray',margin='2px', rounded=10,
     padding-right: 5px !important;
     padding-top: 2px !important;
     padding-bottom: 2px !important;
-
+    display:inline-block;
 }
 
 .draggedItem .dojoxGrid {
