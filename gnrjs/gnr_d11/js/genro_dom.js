@@ -1103,8 +1103,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         for (var k in transferobj) {
             dt.push(k);
         }
+        var t;
         for (var i = 0; i < dataTransfer.types.length; i++) {
-            dt.push(dataTransfer.types[i]);
+            t = dataTransfer.types[i];
+            if(dojo.indexOf(dt,t)<0){
+                dt.push(t);
+            }
         };
         return dt;
     },
