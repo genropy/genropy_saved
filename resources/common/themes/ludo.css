@@ -151,7 +151,6 @@ font
 }
 .pbl_root_bottom {
     height: 20px;
-    line-height:20px;
     vertical-align: middle;
     background:#6c727d;
    /* background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#6c727d), to(#bdc7d6));
@@ -206,7 +205,6 @@ font
 
 .pbl_roundedGroupLabel {    
     height: 20px;
-    line-height: 20px;
     padding-bottom: 0;
     padding-left: 4px; 
     padding-right: 4px;    
@@ -225,9 +223,15 @@ font
 }
 
 .pbl_roundedGroupLabel.slotbar_horizontal{
-    line-height: 14px;
     padding-left:0;
     padding-right:0;
+    vertical-align: middle;
+}
+.pbl_roundedGroupLabel.slotbar_horizontal .slotbar_cell{
+    height:20px;
+}
+
+.pbl_roundedGroupLabel .dijitButton{
 }
 
 .pbl_roundedGroupBottom {
