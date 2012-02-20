@@ -147,6 +147,7 @@ font
 /* @end */
 
 .pbl_root {
+    background:;
 }
 .pbl_root_bottom {
     height: 20px;
@@ -155,10 +156,6 @@ font
     background:#6c727d;
    /* background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#6c727d), to(#bdc7d6));
     background-image: linear-gradient(-90deg, #6c727d, #bdc7d6);*/
-}
-
-.pbl_root_center {
-    background-color: #F5F5F5;
 }
 
 /* @end */
@@ -521,15 +518,15 @@ font
 }
 
 .menutree .menu_level_0 {
-    font-size: 1.0em;
+    font-size: 1.1em;
 }
 
 .menutree .menu_level_1 {
-    font-size: 1.0em;
+    font-size: 1.1em;
 }
 
 .menutree .menu_level_2 {
-    font-size: .9em;
+    font-size: 1em;
 }
 
 .menutree .menu_level_3 {
@@ -537,7 +534,7 @@ font
 }
 
 .menutree .menu_level_4 {
-    font-size: .8em;
+    font-size: .9em;
 }
 .menutree .menu_level_5 {
     font-size: .8em;
@@ -766,5 +763,5 @@ font
 }
 ._common_d11 .dojoxGrid-scrollbox {
     overflow: auto;
-    background-color: white ;
+    /*background-color: white ; */
 }
