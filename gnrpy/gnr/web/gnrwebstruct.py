@@ -1965,6 +1965,10 @@ class GnrGridStruct(GnrStructData):
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
+    
+    def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,**kwargs):
+        self.cell(field=field,checkBoxColumn=dict(checkedId=checkedId,radioButton=radioButton),calculated=calculated,**kwargs)
+        
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
                      calculated=False, radioButton=False,threestate=None, **kwargs):
@@ -1996,14 +2000,14 @@ class GnrGridStruct(GnrStructData):
             nullclass = 'dimmed checkboxOnOff'
         elif threestate == 'hidden':
             nullclass = 'hidden'
-
         self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
                   classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate ='%(threestate)s';
+
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
-                                                                    var storebag = this.widget.storebag();
+                                                                    var storebag = this.widget.storebag();                                                                    
                                                                     var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
                                                                 
                                                                     var checked = storebag.getItem(valuepath);

@@ -2623,6 +2623,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             cell.name = '<div draggable="true">'+cell.name+'</div>'
                         }
                         if (cell.field) {
+                            var checkboxPars = objectPop(cell,'checkBoxColumn');
+                            if(checkboxPars){
+                                cell = this.getCheckBoxKw(checkboxPars,sourceNode);
+                                this.setCheckedIdSubscription(sourceNode,cell);
+                                dtype ='B';
+                            }
                             cell.field = cell.field.replace(/\W/g, '_');
                             if (dtype) {
                                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
@@ -4026,7 +4032,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     mixin_onCheckedColumn:function(idx,fieldname) {
         var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
-        var kw = structbag.getNode('view_0.rows_0.cell_'+fieldname).attr;       
+        var kw = this.cellmap[fieldname];   
         if(kw===true){
             kw = {};
         }
@@ -4075,12 +4081,43 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
     },
     mixin_addCheckBoxColumn:function(kw) {
+        kw = this.gnr.getCheckBoxKw(kw, this.sourceNode);
         this.gnr.addCheckBoxColumn(kw, this.sourceNode);
+        this.gnr.setCheckedIdSubscription(this.sourceNode,kw);
     },
     addCheckBoxColumn:function(kw, sourceNode) {
-        var kw = kw || {};
-        var position = kw.position || 0;
+        var celldata = this.getCheckBoxKw(kw, sourceNode);
         var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        var position = objectPop(kw,'position') || 0;
+        genro.callAfter(function(){
+            structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
+        },1)
+    },
+    setCheckedIdSubscription:function(sourceNode,kw){
+        if(kw.checkedId && !sourceNode.attr.checkedId){
+            sourceNode.attr.checkedId = kw.checkedId;
+            sourceNode.registerDynAttr('checkedId');
+            var checkedIdPath = kw.checkedId;
+            var fieldname = kw.field;
+            sourceNode.subscribe('onNewDatastore',function(){
+                var checkedInStore = sourceNode.widget.getCheckedId(fieldname);
+                if(typeof(getCheckedId)=='string'){
+                    sourceNode.setRelativeData(checkedIdPath,checkedInStore,null,null,sourceNode);
+                }else{
+                    genro.callAfter(function(){
+                        sourceNode.widget.setCheckedId(checkedIdPath,kw);
+                    },1)
+                }
+            });
+            if(kw.checkedOnRowClick){
+                dojo.connect(sourceNode.widget,'onRowClick',function(e){
+                    sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname)
+                });
+            }
+        }
+    },
+    getCheckBoxKw:function(kw, sourceNode) {
+        var kw = kw || {};
         var celldata = {};
         var fieldname =  kw.field || '_checked';
         var radioButton = kw.radioButton || false;
@@ -4094,29 +4131,8 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['format_falseclass'] = kw.falseclass || (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
         celldata['calculated'] = true;
         celldata['checkedId'] = kw.checkedId;
-        if(kw.checkedId){
-            sourceNode.attr.checkedId = kw.checkedId;
-            sourceNode.registerDynAttr('checkedId');
-            var checkedIdPath = kw.checkedId;
-            sourceNode.subscribe('onNewDatastore',function(){
-                var checkedInStore = sourceNode.widget.getCheckedId(fieldname);
-                if(typeof(getCheckedId)=='string'){
-                    sourceNode.setRelativeData(checkedIdPath,checkedInStore,null,null,sourceNode);
-                }
-                
-            });
-
-            if(kw.checkedOnRowClick){
-                dojo.connect(sourceNode.widget,'onRowClick',function(e){
-                    sourceNode.widget.onCheckedColumn(e.rowIndex,fieldname)
-                });
-                
-            }
-        }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
-        genro.callAfter(function(){
-            structbag.setItem('view_0.rows_0.cell_'+fieldname, null, celldata, {_position:position});
-        },1)
+        return celldata;
     },
     mixin_getCheckedId:function(fieldname){
         var checkedIdList = [];
@@ -4136,8 +4152,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         return hasCheckedField?checkedIdList.join(','):false;
         
     },
-    mixin_setCheckedId:function(path,kw){
+    mixin_setCheckedId:function(path,kw,trigger_reason){
         var value = this.sourceNode.getRelativeData(path);
+        if(typeof(value)!='string'){
+            return;
+        }
         var pkeys= value?value.split(','):[];
         var datamodeBag = this.datamode=='bag';
         var fieldname = kw.field || '_checked';
@@ -4155,6 +4174,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 n.updAttributes(newattr);
             }
         },'static');
+        
         
     },
     mixin_serverAction:function(kw){
