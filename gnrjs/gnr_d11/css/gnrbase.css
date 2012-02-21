@@ -2574,7 +2574,6 @@ border='1px solid gray',margin='2px', rounded=10,
     padding-right: 5px !important;
     padding-top: 2px !important;
     padding-bottom: 2px !important;
-    display:inline-block;
 }
 
 .draggedItem .dojoxGrid {
