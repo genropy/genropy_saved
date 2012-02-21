@@ -58,9 +58,9 @@ border: 2px groove #E0DFE3;
 display: block;
 }
 span.cke_skin_kama {
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
-border-radius: 5px;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+border-radius: 3px;
 border: 1px solid #D3D3D3;
 padding: 5px;
 }
@@ -338,7 +338,7 @@ background-image: url(images/sprites.png);
 _background-image: url(images/sprites_ie6.png);
 background-position: 4px -1387px;
 background-repeat: no-repeat;
-margin: 2px 4px;
+margin: 0px 3px;
 }
 .cke_skin_kama .cke_rtl a.cke_toolbox_collapser_min,.cke_skin_kama .cke_rtl a:hover.cke_toolbox_collapser_min {
 background-position: 4px -1408px;
@@ -367,6 +367,7 @@ border-radius: 3px;
 float: left;
 margin: 1px;
 padding: 0px;
+height:21px;
 background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(whitesmoke));
 background-image: -moz-linear-gradient(-90deg, silver,whitesmoke );
 border:1px solid silver;
@@ -379,18 +380,20 @@ margin-right: 0;
 margin-left: 6px;
 }
 .cke_skin_kama .cke_button a,.cke_skin_kama .cke_button a:hover,.cke_skin_kama .cke_button a:focus,.cke_skin_kama .cke_button a:active,.cke_skin_kama .cke_button a.cke_off {
-border-radius: 3px;
+border-radius: 2px;
+margin:1px;
 outline: none;
-padding: 2px 4px;
+padding: 0px 3px;
 height: 18px;
 display: inline-block;
+
 cursor: default;
 }
 .cke_skin_kama .cke_button a,.cke_skin_kama .cke_button a.cke_off {
 filter: alpha(opacity=70);
 opacity: .70;
--moz-border-radius: 3px;
--webkit-border-radius: 3px;
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
 }
 .cke_skin_kama .cke_hc .cke_button a,.cke_skin_kama .cke_hc .cke_button a.cke_off {
 opacity: 1.0;
@@ -401,7 +404,8 @@ border: 1px solid white;
 background-color: whitesmoke;
 filter: alpha(opacity=100);
 opacity: 1;
-padding: 2px 4px;
+padding: 0px 3px;
+box-shadow: 1px 1px 1px #666666 inset;
 }
 .cke_skin_kama .cke_hc .cke_button a.cke_on {
 padding: 0 2px!important;
@@ -427,7 +431,7 @@ opacity: .6;
 .cke_skin_kama .cke_button a:hover.cke_on,.cke_skin_kama .cke_button a:focus.cke_on,.cke_skin_kama .cke_button a:active.cke_on,.cke_skin_kama .cke_button a:hover.cke_off,.cke_skin_kama .cke_button a:focus.cke_off,.cke_skin_kama .cke_button a:active.cke_off {
 filter: alpha(opacity=100);
 opacity: 1;
-padding: 2px 4px;
+padding: 0px 3px;
 }
 .cke_skin_kama .cke_button a:hover,.cke_skin_kama .cke_button a:focus,.cke_skin_kama .cke_button a:active {
 background-color: #dff1ff;
