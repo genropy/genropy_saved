@@ -4041,6 +4041,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
         var checked = storebag.getItem(valuepath);
+        var checkedField = kw.checkedField;
         var checkedRowClass = kw.checkedRowClass;
         if (currNode.attr.disabled) {
             return;
@@ -4068,7 +4069,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         if(kw.checkedId){
             var sourceNode = this.sourceNode;
-            var checkedKeys = this.getCheckedId(fieldname) || '';
+            var checkedKeys = this.getCheckedId(fieldname,checkedField) || '';
             setTimeout(function(){
                 sourceNode.setRelativeData(kw.checkedId,checkedKeys,null,null,sourceNode);
             },1)
@@ -4096,8 +4097,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             sourceNode.registerDynAttr('checkedId');
             var checkedIdPath = kw.checkedId;
             var fieldname = kw.field;
+            var checkedField = kw.checkedField;
             sourceNode.subscribe('onNewDatastore',function(){
-                var checkedInStore = sourceNode.widget.getCheckedId(fieldname);
+                var checkedInStore = sourceNode.widget.getCheckedId(fieldname,checkedField);
                 if(typeof(getCheckedId)=='string'){
                     sourceNode.setRelativeData(checkedIdPath,checkedInStore,null,null,sourceNode);
                 }else{
@@ -4128,25 +4130,27 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['format_falseclass'] = kw.falseclass || (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
         celldata['calculated'] = true;
         celldata['checkedId'] = kw.checkedId;
+        celldata['checkedField'] = kw.checkedField;
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
         return celldata;
     },
-    mixin_getCheckedId:function(fieldname){
+    mixin_getCheckedId:function(fieldname,checkedField){
+        checkedField = checkedField || this.rowIdentifier();
         var checkedIdList = [];
         var that = this;
         var row;
-        var hasCheckedField = false;
+        var instore = false;
         
         this.storebag().forEach(function(n){
             row = that.rowFromBagNode(n);
             if(fieldname in row){
-                hasCheckedField = true;
+                instore = true;
             }
             if(row[fieldname]){
-                checkedIdList.push( that.rowIdentity(row))
+                checkedIdList.push(row[checkedField])
             }
         },'static');
-        return hasCheckedField?checkedIdList.join(','):false;
+        return instore?checkedIdList.join(','):false;
         
     },
     mixin_setCheckedId:function(path,kw,trigger_reason){
@@ -4156,12 +4160,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         var pkeys= value?value.split(','):[];
         var datamodeBag = this.datamode=='bag';
+        var checkedField = kw.checkedField || this.rowIdentifier();
         var fieldname = kw.field || '_checked';
         var grid = this;
         var v;
         this.storebag().forEach(function(n){
             var row = grid.rowFromBagNode(n);
-            var pkey = grid.rowIdentity(row);
+            var pkey = row[checkedField];
             v = dojo.indexOf(pkeys,pkey)>=0? true:false;
             if(datamodeBag){
                 n.getValue('static').setItem(fieldname,v);
