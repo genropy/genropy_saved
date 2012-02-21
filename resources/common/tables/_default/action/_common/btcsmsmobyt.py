@@ -9,7 +9,7 @@ from gnr.core.gnrstring import templateReplace
 
 caption = 'Sms base deliver'
 description = 'Sms base template'
-tags = 'admin'
+tags = 'nobody'
 class Main(BaseResourceBatch):
     dialog_height = '450px'
     dialog_width = '650px'

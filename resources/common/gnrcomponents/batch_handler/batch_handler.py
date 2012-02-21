@@ -31,7 +31,7 @@ class BatchMonitor(BaseComponent):
 
     def bm_monitor_pane(self, pane):
         pane.dataController("batch_monitor.on_datachange(_triggerpars.kw);", _fired="^gnr.batch")
-        #dovrei modificare il clieant in modo che mi prenda l elemento di classe bm_rootnode visibile
+        #dovrei modificare il client in modo che mi prenda l elemento di classe bm_rootnode visibile
         # e gli appiccichi i termometri senza usare il node id
         pane.div(nodeId='bm_rootnode', _class='bm_rootnode')
         pane.dataRpc('dummy', self.setStoreSubscription, subscribe_batch_monitor_on=True,
@@ -165,9 +165,13 @@ class TableScriptHandler(BaseComponent):
         pkg = tblobj.pkg.name
         tblname = tblobj.name
         result = Bag()
-        resources = self.site.resource_loader.resourcesAtPath(pkg, 'tables/%s/%s' % (tblname, res_type), 'py')
-        resources_custom = self.site.resource_loader.resourcesAtPath(self.package.name, 'tables/_packages/%s/%s/%s' % (pkg,tblname, res_type), 'py')
+        resources = self.site.resource_loader.resourcesAtPath(page=self,pkg=None,path='tables/_default/%s' % res_type)
+        resources_pkg = self.site.resource_loader.resourcesAtPath(page=self,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
+        resources_custom = self.site.resource_loader.resourcesAtPath(page=self,pkg=self.package.name, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
+        resources.update(resources_pkg)
         resources.update(resources_custom)
+        
+        
         forbiddenNodes = []
         def cb(node, _pathlist=None):
             has_parameters = False
@@ -190,7 +194,13 @@ class TableScriptHandler(BaseComponent):
                     has_parameters = hasattr(mainclass, 'parameters_pane')
                     result.setItem('.'.join(_pathlist + [node.label]), None, caption=caption, description=description,
                                    resource=node.attr['rel_path'][:-3], has_parameters=has_parameters)
-        resources.walk(cb, _pathlist=[])
+        pl=[]     
+        resources.walk(cb,_pathlist=pl)
+        if '_common' in result:
+            n = result.popNode('_common')
+            if len(result):
+                result.setItem('r_zz',None,caption='-')
+            result.setItem(n.label,n.value,n.attr)
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
         return result

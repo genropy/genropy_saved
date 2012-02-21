@@ -252,7 +252,7 @@ class TableHandlerView(BaseComponent):
                             th_view_batch_caller(kw);
                             """,
                     batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
-                    batch_sourcepage_id=self.page_id)
+                    batch_sourcepage_id=self.page_id,_class='smallmenu')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
         
     @struct_method

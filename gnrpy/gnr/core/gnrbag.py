@@ -2088,9 +2088,10 @@ class Bag(GnrObject):
             if result is None:
                 value = node.getValue(mode=_mode)
                 if isinstance(value, Bag):
+                    kw=dict(kwargs)
                     if '_pathlist' in kwargs:
-                        kwargs['_pathlist'] = kwargs['_pathlist'] + [node.label]
-                    result = value.walk(callback, _mode=_mode, **kwargs)
+                        kw['_pathlist'] = kw['_pathlist'] + [node.label]
+                    result = value.walk(callback, _mode=_mode, **kw)
             if result:
                 return result
 
