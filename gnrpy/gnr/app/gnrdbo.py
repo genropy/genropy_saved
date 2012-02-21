@@ -168,7 +168,7 @@ class TableBase(object):
             tbl.column('__errors',name_long='!!Errors',group=group)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
-            tbl.attributes['draftField'] =draftField
+            tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
              self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))

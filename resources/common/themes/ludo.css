@@ -205,6 +205,7 @@ font
 
 .pbl_roundedGroupLabel {    
     height: 20px;
+    line-height:20px;
     padding-bottom: 0;
     padding-left: 4px; 
     padding-right: 4px;    
@@ -229,7 +230,9 @@ font
 }
 .pbl_roundedGroupLabel.slotbar_horizontal .slotbar_cell{
     height:20px;
+    line-height:14px;
 }
+
 
 .pbl_roundedGroupLabel .dijitButton{
 }
