@@ -571,7 +571,7 @@ class GnrBaseWebPage(GnrObject):
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
-                                for_update=True,addPkeyColumn=False).fetch()
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
             for r in rows:
                 if unlinkfield:
                     record = dict(r)
