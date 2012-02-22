@@ -612,6 +612,13 @@ label.ghostlabel span {
     background: white;
 }
 
+.hiderMessage{
+    text-align:center;
+    font-size:24pt;
+    color:rgba(80, 80, 80, 0.2);
+    display:inline-block;
+}
+
 /* @end */
 
 /* @end */

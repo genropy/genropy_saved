@@ -1258,17 +1258,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var kw = objectUpdate(default_kw, kw);
         var hider = rootNode._('div','hiderNode', kw).getParentNode();
         if(message){
-            messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {position:'relative',
-                                            text_align:'center',
-                                            font_size:'24pt',top:'50%',
-                                          color:'rgba(80, 80, 80, 0.2)'};
+            messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {_class:'hiderMessage'};
             var button = objectPop(kw,'button');
             if(button){
                 messageArgs['connect_onclick'] = button;
                 messageArgs['cursor'] = 'pointer';
             }
             messageArgs.innerHTML = message;
-            var messagePane = hider._('div',messageArgs);
+            var t = hider._('table',{'height':'100%',width:'100%',border:0})._('tbody');
+            t._('tr',{'height':'100%'})._('td',{'height':'100%',width:'100%',text_align:'center'})._('div',messageArgs);
         }
         return hider;
     },
