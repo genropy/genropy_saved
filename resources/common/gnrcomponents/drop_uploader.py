@@ -125,7 +125,7 @@ class DropUploaderBase(BaseComponent):
                              fileReader[readFunc](selectedFile);
 
                         """, selectedLabel="^.selectedLabel", filebag='=.uploading_data',
-                          _if='selectedLabel', _else='SET .selpreview  = "no_prev";')
+                          _if='selectedLabel', _else='SET .selpreview  = "no_prev";',_delay=1)
         sc.dataController("""if(selpreview=='image'){
                                 SET .preview_img = reader_result;
                                 SET .preview_txt=null;
