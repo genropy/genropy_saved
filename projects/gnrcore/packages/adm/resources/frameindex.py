@@ -131,7 +131,7 @@ class FrameIndex(BaseComponent):
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 border_left='1px solid silver',margin_left='-4px',
-                                onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
+                                onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);',_class='frameindexcenter')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 
         scattr = sc.attributes
