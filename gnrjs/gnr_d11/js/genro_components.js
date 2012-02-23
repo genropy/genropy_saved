@@ -572,7 +572,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '10em'});
+        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '6em'});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -731,7 +731,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }
         if(kw.asSource){
             var data = result.getValue();
-            return {data:data,dataInfo:result.attr,template:data.getItem('compiled')};
+            return {data:data,dataInfo:result.attr,template:data instanceof gnr.GnrBag?data.getItem('compiled'):''};
         }
         return {template:result};
     },

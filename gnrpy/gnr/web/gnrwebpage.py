@@ -391,7 +391,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param asSource: boolean. TODO"""
         result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
         if not path:
-            return ''
+            return '',{'respath':''}
         r_path,r_ext = os.path.splitext(path)
         if r_ext=='.html':
             result = Bag(content=result)

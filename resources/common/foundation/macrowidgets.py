@@ -107,7 +107,7 @@ class PeriodCombo(BaseComponent):
         dates = ','.join(dates)
         return dates
 
-    def periodCombo(self, fb, period_store=None, value=None, lbl=None, dflt=None,**kwargs):
+    def periodCombo(self, fb, period_store=None, value=None, lbl='!!Period', dflt='12em',width=None,**kwargs):
         value = value or '^.period_input'
         period_store = period_store or '.period'
         fb.dataRpc(period_store, self.decodeDatePeriod, datestr=value,
@@ -120,7 +120,7 @@ class PeriodCombo(BaseComponent):
                                     result.setItem('period_string','Invalid period');
                                  }""",_onBuilt=True,_dflt=dflt or False,
                     _onCalling='if(_triggerpars.kw&&_triggerpars.kw.reason=="puttingdefault"){return false;};kwargs["datestr"]= kwargs["datestr"] || _dflt || "";')
-        fb.combobox(lbl=lbl or '!!Period', value=value, width='16em', tip='^%s.period_string' % period_store,
+        fb.combobox(lbl=lbl,value=value, width=width, tip='^%s.period_string' % period_store,
                     values=self._pc_datesHints(), margin_right='5px', padding_top='1px', **kwargs)
 
 class SelectionBrowser(BaseComponent):
