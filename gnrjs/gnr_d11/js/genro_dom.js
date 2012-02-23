@@ -1001,12 +1001,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     onDragStart:function(event) {
-       //if(event.target && event.target.tagName.toLowerCase()=='img'){
-       //    var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:')
-       //    event.dataTransfer.setData('text/html','<img src="'+imgurl+'"/>')
-       //    console.log(event.dataTransfer);
-       //    return;
-       //}
+       if(event.target && event.target.tagName.toLowerCase()=='img' ){
+           if(dojo.isFF){
+               //var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:','http://localhost:')
+               //var html = event.dataTransfer.getData('text/html');
+               //console.log(imgurl,html,'trasporto immagini')
+               event.dataTransfer.setData('text/html',null)
+           }
+           return;
+       }
         event.stopPropagation();
         if (event.target.draggable === false) {
             event.preventDefault();

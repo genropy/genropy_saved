@@ -44,7 +44,9 @@ class ThumbsView(BaseComponent):
 class ImagesView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.cell('title',width='5em')
+        r.cell('title',width='5em',hidden=True)
+        r.cell('description',width='5em',hidden=True)
+
         r.cell("image_drag", width='100%', name='!!Thumb', calculated=True)  
         r.cell('description',hidden=True)
         r.cell('url',hidden=True)
@@ -63,7 +65,9 @@ class ImagesView(BaseComponent):
             or self.getResourceUri('filetype_icons/_blank.png')
             url = row['url'] or ext_img
             url = self.externalUrl(url)
-            return dict(image_drag="""<img border=0 draggable="true" src="%s" height="60px" />""" %url)
+            title = row['title']
+            description = row['description']
+            return dict(image_drag="""<div><div>%s</div><img border=0 draggable="true" title="%s" src="%s" height="60px"/></div>""" %(title,description,url))
         selection.apply(apply_thumb)
         
     def th_top_custom(self,top):
@@ -89,7 +93,6 @@ class LoadedFilesView(ThumbsView):
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        return
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',
                               margin_top='1em')
         fb.field('title', lbl='!!Title')

@@ -79,7 +79,7 @@ class FlibPicker(FlibBase):
         
     @struct_method
     def flib_flibPicker(self, pane, paletteCode=None, title=None, rootpath=None,
-                   limit_rec_type=None, **kwargs):
+                   limit_rec_type=None, viewResource=None,**kwargs):
         pane = pane.palettePane(paletteCode or 'flibPicker',
                                 title=title or "!!File picker",
                                 height='400px', width='600px',**kwargs)
@@ -87,7 +87,7 @@ class FlibPicker(FlibBase):
         pane.flibPickerPane(limit_rec_type=limit_rec_type,rootpath=rootpath,
                             gridpane_region='center', gridpane_margin='2px',
                             treepane_region='left',treepane_margin='2px',treepane_splitter=True,
-                            treepane__class='pbl_roundedGroup',treepane_width='150px')
+                            treepane__class='pbl_roundedGroup',treepane_width='150px',viewResource=viewResource)
     
     @extract_kwargs(treepane=True,gridpane=True)
     @struct_method

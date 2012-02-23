@@ -21,6 +21,7 @@ class View(BaseComponent):
         return dict(column='name',op='contains', val='%')
 
 class Form(BaseComponent):
+    py_requires='flib:FlibPicker'
     def th_form(self, form):
         bc = form.center.borderContainer()
         bc.css('.printRegion', 'margin:.5mm;border:.3mm dotted silver;cursor:pointer;')
@@ -78,9 +79,10 @@ class Form(BaseComponent):
         mainBc = bc.borderContainer(region='top', margin='5px', _class='pbl_roundedGroup', height='200px',splitter=True )
         topleft = mainBc.borderContainer(region='left', width='20em')
         self.htmltemplate_tplInfo(topleft.contentPane(region='top'))
-        bottom = mainBc.contentPane(region='bottom', margin='5px', margin_top='0',
-                                    _class='pbl_roundedGroupBottom')
-        bottom.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
+        bottom = mainBc.contentPane(region='bottom')
+        bar = bottom.slotBar('picker,*,zoomfactor',_class='pbl_roundedGroupBottom')
+        bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
+        bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
         self.htmltemplate_basePageParams(topleft.contentPane(region='center', datapath='.data.main.page'))
         topTC = mainBc.tabContainer(region='center', selectedPage='^.data.main.design')
