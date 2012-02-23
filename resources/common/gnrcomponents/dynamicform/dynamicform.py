@@ -69,14 +69,13 @@ class DynamicForm(BaseComponent):
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
-                    df_folders=df_folders,
-                    **kwargs)
+                    df_folders=df_folders,**kwargs)
 
     
     @public_method
     def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,datapath=None,**kwargs):
         if not df_pkey:
-            pane.div('!!No Form descriptor')
+            pane.div()
             return
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         pane.attributes.update(kwargs)

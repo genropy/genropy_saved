@@ -507,7 +507,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                                 throw "Unresolved relative path in dynamicParameters: " + path;
                             }
                         }
-                        val = genro._data.getItem(path, '');
+                        val = genro._data.getItem(path);
                     }
                 } else if (typeof(val) == 'function') {
                     val = val();

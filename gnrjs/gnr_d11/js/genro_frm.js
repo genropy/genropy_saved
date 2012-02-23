@@ -439,13 +439,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onDeleted');
     },
     loaded: function(data) {
+        var controllerData = this.getControllerData();
+        controllerData.setItem('temp',null);
         if(data){
             this.setFormData(data);
         }
         this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
         this._hideHider();
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
-        var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
