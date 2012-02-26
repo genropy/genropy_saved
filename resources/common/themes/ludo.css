@@ -771,8 +771,27 @@
     opacity:.8;
 }
 
-._common_d11 .dojoxGrid-row-selected {
+._common_d11.tundra .noheader .dojoxGrid-header {
+    display:none;
+}
 
+
+
+._common_d11.tundra .dojoxGrid-header{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d8d8d8), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #d8d8d8, #f6f6f6);
+    border-color:#666 !important;
+}
+
+._common_d11.tundra .dojoxGrid-header .dojoxGrid-cell:last-child{
+    border-right:0px !important;
+}
+._common_d11.tundra .dojoxGrid-header .dojoxGrid-cell{
+    background:none !important;
+    height:14px;
+    padding-top:2px;
+    color:#555 !important;
+    border-color:silver !important;
 }
 
 ._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
