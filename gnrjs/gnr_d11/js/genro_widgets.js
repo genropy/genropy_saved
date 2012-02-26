@@ -81,7 +81,7 @@ gnr.columnsFromStruct = function(struct, columns) {
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         var fld = node.attr.field;
-        if (node.attr['calculated'] || fld.indexOf(':')>=0) {
+        if (node.attr['calculated'] || (fld && fld.indexOf(':')>=0)) {
             continue;
         }
         if (fld) {
