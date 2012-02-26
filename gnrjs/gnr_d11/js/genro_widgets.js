@@ -80,10 +80,10 @@ gnr.columnsFromStruct = function(struct, columns) {
     var nodes = struct.getNodes();
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
-        if (node.attr['calculated']) {
+        var fld = node.attr.field;
+        if (node.attr['calculated'] || fld.indexOf(':')>=0) {
             continue;
         }
-        var fld = node.attr.field;
         if (fld) {
             if(node.attr['_storename']){
                 //_extname considerare
@@ -91,7 +91,10 @@ gnr.columnsFromStruct = function(struct, columns) {
                 arrayPushNoDup(columns,node.attr['_external_fkey']);
                 arrayPushNoDup(columns,node.attr['_storename']+' AS _external_store');
             }
-            if ((!stringStartsWith(fld, '$')) && (!stringStartsWith(fld, '@'))) {
+            if(node.attr._subtable){
+                fld = '*'+fld;
+            }
+            if ((!stringStartsWith(fld, '$')) && (!stringStartsWith(fld, '@')) &&  (!stringStartsWith(fld, '*'))) {
                 fld = '$' + fld;
             }
             arrayPushNoDup(columns, fld);
@@ -2628,6 +2631,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 cell = this.getCheckBoxKw(checkboxPars,sourceNode);
                                 this.setCheckedIdSubscription(sourceNode,cell);
                                 dtype ='B';
+                            }
+                            if(cell.field.indexOf(':')>=0 && !cell._customGetter){
+                                console.log('get in subtable')
                             }
                             cell.field = cell.field.replace(/\W/g, '_');
                             if (dtype) {

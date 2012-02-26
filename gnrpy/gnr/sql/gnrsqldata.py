@@ -75,6 +75,7 @@ class SqlCompiledQuery(object):
         self.offset = None
         self.for_update = None
         self.explodingColumns = []
+        self.aggregateDict = {}
         
     def get_sqltext(self, db):
         """Compile the sql query string based on current query parameters and the specific db
@@ -345,8 +346,13 @@ class SqlQueryCompiler(object):
             
         :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
                           ``*@relname.filter``."""
+        subfield_name = None
+        if flt in self.tblobj.virtual_columns:
+            subfield_name = flt
+            vc = self.tblobj.virtual_columns[flt]
+            flt = vc.sql_formula
         if flt.startswith('@'):
-            path = flt.split('.')
+            path = gnrstring.split(flt)
             if path[-1].startswith('@'):
                 flt = ''
             else:
@@ -354,7 +360,22 @@ class SqlQueryCompiler(object):
             flt = flt.strip('*')
             path = '.'.join(path)
             relflds = self.relations[path]
-            return ['%s.%s' % (path, k) for k in relflds.keys() if k.startswith(flt) and not k.startswith('@')]
+            rowkey = None
+            if flt.startswith('('):
+                flt = flt[1:-1]
+                flt = flt.split(',')
+                rowkey = flt[0].replace('.','_').replace('@','_')
+                r = []
+                flatten_path = path.replace('.','_').replace('@','_')
+                for f in flt:
+                    fldpath = '%s.%s' % (path, f)
+                    r.append(fldpath)
+                    flatten_fldpath=fldpath.replace('.','_').replace('@','_')
+                    subfield_name = subfield_name or flatten_path
+                    self.cpl.aggregateDict[flatten_fldpath] = [subfield_name,f, '%s_%s' %(flatten_path,rowkey)]
+                return r
+            else:
+                return ['%s.%s' % (path, k) for k in relflds.keys() if k.startswith(flt) and not k.startswith('@')]
         else:
             return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
                     k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
@@ -958,7 +979,8 @@ class SqlQuery(object):
                             key=key,
                             sortedBy=sortedBy,
                             explodingColumns=self.compiled.explodingColumns,
-                            _aggregateRows=_aggregateRows
+                            _aggregateRows=_aggregateRows,
+                            _aggregateDict = self.compiled.aggregateDict
                             )
                             
     def _prepColAttrs(self, index):
@@ -1037,15 +1059,16 @@ class SqlSelection(object):
     can :meth:`freeze()` it into a file. You can also use the :meth:`sort()` and the :meth:`filter()` methods
     on a SqlSelection."""
     def __init__(self, dbtable, data, index=None, colAttrs=None, key=None, sortedBy=None,
-                 joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False):
+                 joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False,_aggregateDict=None):
         self._frz_data = None
         self._frz_filtered_data = None
         self.dbtable = dbtable
         self.tablename = dbtable.fullname
         self.colAttrs = colAttrs or {}
         self.explodingColumns = explodingColumns
+        self.aggregateDict = _aggregateDict
         if _aggregateRows == True:
-            data = self._aggregateRows(data, index, explodingColumns)
+            data = self._aggregateRows(data, index, explodingColumns,aggregateDict=_aggregateDict)
         self._data = data
         if key:
             self.setKey(key)
@@ -1068,15 +1091,21 @@ class SqlSelection(object):
         self.joinConditions = joinConditions
         self.sqlContextName = sqlContextName
         
-    def _aggregateRows(self, data, index, explodingColumns):
+    def _aggregateRows(self, data, index, explodingColumns,aggregateDict=None):
         if self.explodingColumns:
             newdata = []
             datadict = {}
-            mixColumns = [c for c in explodingColumns if c in index and not self.colAttrs[c].get('one_one')]
+            mixColumns = [c for c in explodingColumns if c in index and not self.colAttrs[c].get('one_one') and not( aggregateDict and (c in aggregateDict))]
             for d in data:
                 if not d['pkey'] in datadict:
                     for col in mixColumns:
                         d[col] = [d[col]]
+                    if aggregateDict:
+                        for k,v in aggregateDict.items():
+                            subfld = v[0]
+                            d[subfld] = d.get(subfld) or {}
+                            sr = d[subfld].setdefault(d[v[2]],{})
+                            sr[v[1]] = d[k]
                     newdata.append(d)
                     datadict[d['pkey']] = d
                 else:
@@ -1084,6 +1113,11 @@ class SqlSelection(object):
                     for col in mixColumns:
                         if d[col] not in masterRow[col]:
                             masterRow[col].append(d[col])
+                    if aggregateDict:
+                        for k,v in aggregateDict.items():
+                            subfld = v[0]
+                            sr = masterRow[subfld].setdefault(d[v[2]],{})
+                            sr[v[1]] = d[k]
             data = newdata
         return data
         
@@ -1149,8 +1183,11 @@ class SqlSelection(object):
             columns = 'pkey'
         if isinstance(columns, basestring):
             columns = gnrstring.splitAndStrip(columns, ',')
-            
-        self.columns = columns or self.allColumns
+        if not columns:
+            columns = self.allColumns
+            if self.aggregateDict:
+                columns = [c for c in columns if c not in self.aggregateDict]
+        self.columns = columns
         if mode == 'data':
             columns = ['**rawdata**']
             

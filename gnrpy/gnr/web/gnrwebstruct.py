@@ -2049,10 +2049,13 @@ class GnrGridStruct(GnrStructData):
             return
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
+            
         fldattr = dict(fldobj.attributes or dict())
         kwargs.update(dictExtract(fldattr,'cell_'))
         kwargs.setdefault('format_pattern',fldattr.get('format'))
         kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
+        if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+            kwargs['_subtable'] = True
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
