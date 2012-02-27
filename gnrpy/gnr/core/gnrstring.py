@@ -130,8 +130,12 @@ try:
             
     class JsonEncoderJS(json.JSONEncoder):
         def default(self, obj):
-            if isinstance(obj, datetime.date):
-                return "new Date(%i, %i, %i)" % (obj.year, obj.month - 1, obj.day)
+            if isinstance(obj, datetime.time):
+                return '%s::H' %str(obj)
+            elif isinstance(obj, datetime.datetime):
+                return '%s::DH' %str(obj)
+            elif isinstance(obj, datetime.date):
+                return '%s::D' %str(obj)
             return json.JSONEncoder.default(self, obj)
 except:
     pass

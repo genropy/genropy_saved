@@ -146,8 +146,8 @@ class GnrClassCatalog(object):
         :returns: TODO
         """
         return self.classes[name]
-
-    def asText(self, o, quoted=False, translate_cb=None):
+    
+    def asText(self, o, quoted=False, translate_cb=None,jsmode=False):
         """Add???
             
         :param o: TODO
@@ -161,7 +161,11 @@ class GnrClassCatalog(object):
                     '!!'): # a translation is needed, if no locale leave all as is including "!!"
                 result = translate_cb(result[2:])
         else:
-            f = self.serializers['asText'].get(type(o))
+            objtype=type(o)
+            if jsmode and objtype in(list,dict,tuple):
+                f= self.toJsonJS
+            else:
+                f = self.serializers['asText'].get(objtype)
             if not f:
                 result = str(o)
             else:
@@ -219,7 +223,7 @@ class GnrClassCatalog(object):
         else:
             return self.fromText(result[0], result[1])
             
-    def asTypedText(self, o, quoted=False, translate_cb=None):
+    def asTypedText(self, o, quoted=False, translate_cb=None,jsmode=False):
         """Add???
             
         :param o: TODO
@@ -229,9 +233,9 @@ class GnrClassCatalog(object):
         """
         t = self.names.get(type(o), 'T')
         if t == 'T':
-            result = self.asText(o, translate_cb=translate_cb)
+            result = self.asText(o, translate_cb=translate_cb,jsmode=jsmode)
         else:
-            result = "%s::%s" % (self.asText(o, translate_cb=translate_cb), self.names[type(o)])
+            result = "%s::%s" % (self.asText(o, translate_cb=translate_cb,jsmode=jsmode), self.names[type(o)])
         if quoted:
             result = self.quoted(result)
         return result
@@ -363,6 +367,14 @@ class GnrClassCatalog(object):
         :returns: TODO
         """
         return gnrstring.toJson(data)
+        
+    def toJsonJS(self, data):
+        """Add???
+            
+        :param data: TODO
+        :returns: TODO
+        """
+        return gnrstring.toJsonJS(data)
         
     def fromJson(self, data):
         """Add???

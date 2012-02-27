@@ -402,7 +402,7 @@ class BagToXml(object):
                 attributes = dict([(k, v) for k, v in attributes.items()])
             if self.typeattrs:
                 attributes = ' '.join(['%s=%s' % (
-                lbl, saxutils.quoteattr(self.catalog.asTypedText(val, translate_cb=self.translate_cb))) for lbl, val in
+                lbl, saxutils.quoteattr(self.catalog.asTypedText(val, translate_cb=self.translate_cb,jsmode=True))) for lbl, val in
                                        attributes.items()])
             else:
                 attributes = ' '.join(

@@ -1725,7 +1725,8 @@ dojo.declare("gnr.GnrBag", null, {
                     else {
                         if (attrvalue.indexOf('::') >= 0) {
                             aux = attrvalue.split('::');
-                            attrvalue = convertFromText(aux[0], aux[1]);
+                            var dt = aux.pop();
+                            attrvalue = convertFromText(aux.join('::'), dt);
                         }
                         attributes[attrname] = attrvalue;
                     }
