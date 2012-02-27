@@ -2544,48 +2544,60 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return result;
     },
+    structFromBag_cellFormatter :function(sourceNode, struct, cellmap,formatOptions, cellClassCB) {
+        var opt = objectUpdate({}, formatOptions);
+        var cellClassFunc;
+        if (cellClassCB) {
+            cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
+        }
+        return function(v, inRowIndex) {
+
+            if (cellClassFunc) {
+                cellClassFunc(this, v, inRowIndex,this.grid.currRenderedRow[cell.field]);
+            }
+            opt['cellPars'] = {rowIndex:inRowIndex};
+            var zoomPage = opt['zoomPage'];
+            if (typeof(v) == 'number' && v < 0) {
+                this.customClasses.push('negative_number');
+            }
+            if (this.grid.gridEditor && this.grid.gridEditor.invalidCell(this, inRowIndex)) {
+                this.customClasses.push('invalidCell');
+            }
+            v = genro.format(v, opt);
+            if (v == null) {
+                return  '&nbsp;';
+            }
+            var template = opt['template'];
+            if (template) {
+                v = template.replace(/#/g, v);
+            }
+            if (opt['js']) {
+                v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
+            }
+            var zoomAttr = objectExtract(opt,'zoom_*',true);
+            if (objectNotEmpty(zoomAttr)) {
+                v = "<a onclick='dojo.stopEvent(event);genro.dlg.zoomFromCell(event);' class='gnrzoomcell' href='#'>" + v + "</a>";
+            }
+            var draggable = this.draggable ? ' draggable=true ' : '';
+            return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
+
+        };
+    },
+    subtableGetter:function(row,idx){
+        //the scope is the cell
+        var cellattr = this.grid.cellmap[this.field];        
+        var data = row[cellattr._subtable];
+        if (cellattr.key){
+            data = data[this.grid.sourceNode.currentFromDatasource(cellattr.key)];
+        }
+        if (data){
+            return data[cellattr._subfield];
+        }
+    },
+    
     structFromBag: function(sourceNode, struct, cellmap) {
         var cellmap = cellmap || {};
         var result = [];
-        var _cellFormatter = function(formatOptions, cellClassCB) {
-            var opt = objectUpdate({}, formatOptions);
-            var cellClassFunc;
-            if (cellClassCB) {
-                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
-            }
-            return function(v, inRowIndex) {
-
-                if (cellClassFunc) {
-                    cellClassFunc(this, v, inRowIndex,this.grid.currRenderedRow[cell.field]);
-                }
-                opt['cellPars'] = {rowIndex:inRowIndex};
-                var zoomPage = opt['zoomPage'];
-                if (typeof(v) == 'number' && v < 0) {
-                    this.customClasses.push('negative_number');
-                }
-                if (this.grid.gridEditor && this.grid.gridEditor.invalidCell(this, inRowIndex)) {
-                    this.customClasses.push('invalidCell');
-                }
-                v = genro.format(v, opt);
-                if (v == null) {
-                    return  '&nbsp;';
-                }
-                var template = opt['template'];
-                if (template) {
-                    v = template.replace(/#/g, v);
-                }
-                if (opt['js']) {
-                    v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
-                }
-                var zoomAttr = objectExtract(opt,'zoom_*',true);
-                if (objectNotEmpty(zoomAttr)) {
-                    v = "<a onclick='dojo.stopEvent(event);genro.dlg.zoomFromCell(event);' class='gnrzoomcell' href='#'>" + v + "</a>";
-                }
-                var draggable = this.draggable ? ' draggable=true ' : '';
-                return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
-
-            };
-        };
         if (struct) {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
@@ -2633,7 +2645,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 dtype ='B';
                             }
                             if(cell.field.indexOf(':')>=0 && !cell._customGetter){
+                                var f = cell.field.split(':')
                                 console.log('get in subtable')
+                                cell._customGetter = this.subtableGetter;
+                                cell._subtable = f[0];
+                                cell._subfield = f[1];
                             }
                             cell.field = cell.field.replace(/\W/g, '_');
                             if (dtype) {
@@ -2686,7 +2702,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 formats['trueclass'] = 'greenLight';
                                 formats['falseclass'] = 'redLight';
                             }
-                            cell.formatter = _cellFormatter(formats, cellClassCB);
+                            cell.formatter = this.structFromBag_cellFormatter(sourceNode, struct, cellmap,formats, cellClassCB);
                             delete cell.tag;
                             row.push(cell);
                             cellmap[cell.field] = cell;
