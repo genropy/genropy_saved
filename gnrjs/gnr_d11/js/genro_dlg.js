@@ -298,7 +298,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         };
         dlg.show_action = function() {
             node.unfreeze();
-            dlg.getParentNode().widget.show();
+            var wdg = dlg.getParentNode().widget;
+            genro.callAfter(function(){
+                wdg.show();
+            },1);
         };
         return dlg;
     },

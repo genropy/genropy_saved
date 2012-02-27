@@ -695,13 +695,16 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             dojo.connect(widget, "show", widget,
                         function() {
                             if (this != genro.dialogStacks[dlgtype].slice(-1)[0]) {
+                                var sm = genro.dialogStacks['modal'];
+                                var snm = genro.dialogStacks['nomodal'];
+                                var parentDialog = sm.length>0?sm[sm.length-1]:(snm.length>0?snm[snm.length-1]:null);
                                 var ds=genro.dialogStacks[dlgtype];
                                 ds.push(this);
                                 var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
                                 dojo.style(this._underlay.domNode, 'zIndex', zIndex);
                                 dojo.style(this.domNode, 'zIndex', zIndex + 1);
-                                 if (genro.dialogStacks[dlgtype].length > 1) {
-                                    var parentDialog = genro.dialogStacks[dlgtype].slice(-2)[0];
+                                 if (parentDialog) {
+                            
                                     dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
                                     if (sourceNode.attr.stacked){
@@ -709,7 +712,6 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                         dojo.style(this.domNode,'top',(parseInt(parentNodeStyle.top)+16)+'px');
                                         dojo.style(this.domNode,'left',(parseInt(parentNodeStyle.left)+16)+'px');
                                     }
-                                    
                                    // genro.dialogStacks[dlgtype].slice(-2)[0].hide();
                                 }
                             }
@@ -718,9 +720,12 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             dojo.connect(widget, "hide", widget,
                         function() {
                             if (this == genro.dialogStacks[dlgtype].slice(-1)[0]) {
-                                genro.dialogStacks[dlgtype].pop();   
-                                if (genro.dialogStacks[dlgtype].length > 0) {
-                                     var parentDialog = genro.dialogStacks[dlgtype].slice(-1)[0];
+                                genro.dialogStacks[dlgtype].pop(); 
+                                var sm = genro.dialogStacks['modal'];
+                                var snm = genro.dialogStacks['nomodal'];
+                                var parentDialog = sm.length>0?sm[sm.length-1]:(snm.length>0?snm[snm.length-1]:null);
+                                
+                                if (parentDialog) {
                                      parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
                                    // genro.dialogStacks[dlgtype].slice(-1)[0].show();
