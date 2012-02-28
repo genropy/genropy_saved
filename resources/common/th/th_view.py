@@ -103,6 +103,63 @@ class TableHandlerView(BaseComponent):
         pane.div('^.title',font_size='.9',line_height='20px')
 
     @struct_method
+    def th_slotbar_thpicker(self,pane,one=None,many=None,viewResource=None,frameCode=None,paletteCode=None,autoInsert=True,searchOn=True,**kwargs):
+        table = pane.getInheritedAttributes()['table']
+        view = pane.parent.parent.parent    
+        grid = view.grid    
+        typetblobj = self.db.table(pane.getInheritedAttributes()['table']).column(many).relatedTable().dbtable
+        typetbl = typetblobj.fullname
+        paletteCode = paletteCode or '%s_picker' %typetbl.replace('.','_')
+        title = typetblobj.name_long or '!!Picker'
+        htable = False
+        if hasattr(typetblobj,'htableFields'):
+            htable = True
+            self.mixinComponent('gnrcomponents/gnrcomponents:HTableHandlerBase')
+            pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode,searchOn=searchOn).htableStore(table=typetbl)
+        else:
+            resource = self._th_getResClass(table=typetbl,resourceName=viewResource,defaultClass='ViewPicker')()
+            pane.paletteGrid(paletteCode=paletteCode,struct=resource.th_struct,dockButton=True,
+                            title=title,searchOn=searchOn,grid_filteringGrid=grid,
+                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=typetbl)
+        grid.dragAndDrop(paletteCode)
+        if autoInsert:
+            if htable:
+                method = getattr(typetblobj,'insertPicker',self._th_insertPickerTree)
+            else:
+                method = getattr(typetblobj,'insertPicker',self._th_insertPickerGrid)
+            
+            grid.dataController("""
+                var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
+                if(htable){
+                    kw.dragPkey = data['pkey'];
+                }else{
+                    var pkeys = [];
+                    dojo.forEach(data,function(n){pkeys.push(n['_pkey'])});
+                    kw.dragPkeys = pkeys;
+                }
+                genro.serverCall(rpcmethod,kw,function(){},null,'POST');
+
+            """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',_if='mainpkey',
+                    rpcmethod=method,htable=htable,tbl=table,one=one,many=many)
+        
+    @public_method
+    def _th_insertPickerGrid(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,**kwargs):
+        tblobj = self.db.table(tbl)
+        commit = False
+        records = tblobj.query(where='$%s=:p' %one,p=dropPkey).fetchAsDict(many)
+        for fkey in dragPkeys:
+            if not fkey in records:
+                commit = True
+                tblobj.insert({one:dropPkey,many:fkey})
+        if commit:
+            self.db.commit()
+        
+    @public_method
+    def _th_insertPickerTree(self,dragPkey=None,dropPkey=None,tbl=None,one=None,many=None,**kwargs):
+        pass
+        
+
+    @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
@@ -232,7 +289,7 @@ class TableHandlerView(BaseComponent):
     
     def _th_addTpl(self,node,res_type=None):
         if node.attr.get('code'):
-            node.attr['resource'] = resource='%s_template' %res_type
+            node.attr['resource'] ='%s_template' %res_type
             node.attr['template_id'] = node.attr['pkey']
         
     @struct_method
