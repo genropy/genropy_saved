@@ -156,8 +156,10 @@ class TableHandlerView(BaseComponent):
         
     @public_method
     def _th_insertPickerTree(self,dragPkey=None,dropPkey=None,tbl=None,one=None,many=None,**kwargs):
-        pass
-        
+        tblobj = self.db.table(tbl)
+        if not tblobj.checkDuplicate(**{one:dropPkey,many:dropPkey}):
+            tblobj.insert({one:dropPkey,many:dragPkey})
+            self.db.commit()
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
