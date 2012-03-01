@@ -9,6 +9,7 @@ from gnr.web.gnrbaseclasses import TableScriptToHtml
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
+tags='system'
 class Main(BaseResourcePrint):
     batch_prefix = 'pr_tpl'
     batch_cancellable = True

@@ -9,6 +9,8 @@ from gnr.web.gnrbaseclasses import TableScriptToHtml
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrbag import Bag
 
+tags='system'
+
 class Main(BaseResourceMail):
     batch_prefix = 'mail_tpl'
     batch_cancellable = True
