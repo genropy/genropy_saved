@@ -2596,7 +2596,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             data = data[this.grid.sourceNode.currentFromDatasource(cellattr.key)];
         }
         if (data){
-            return convertFromText(data[cellattr._subfield]);
+            return data[cellattr._subfield];
         }
     },
     
