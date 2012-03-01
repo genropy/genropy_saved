@@ -70,7 +70,7 @@ dojo.declare('gnr.GenroClient', null, {
     genroInit:function() {
         this.startTime = new Date();
         this.lastTime = this.startTime;
-        this.dialogStacks = {};
+        this.dialogStack = [];
         this.sounds = {};
         this._serverstore_paths = {};
         this._serverstore_changes = null;
