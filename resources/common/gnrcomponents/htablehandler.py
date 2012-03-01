@@ -358,11 +358,11 @@ class HTableHandler(HTableHandlerBase):
                    _POST=True, table=table, _delStatus='^.edit.delete',
                    _if='_delStatus=="confirm"', _else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' % nodeId,
                    title='!!Deleting record', msg='!!You cannot undo this operation. Do you want to proceed?',
-                   _onResult="""var path = $2.currpath.split('.');
+                   _onResult="""var path = $2._currpath.split('.');
                                  path.pop();
                                  var path = path.join('.');
-                                 $2.treestore.getNode(path).refresh(true)
-                                 SET .tree.path = path;""", currpath='=.tree.path', treestore='=.tree.store')
+                                 $2._treestore.getNode(path).refresh(true)
+                                 SET .tree.path = path;""", _currpath='=.tree.path', _treestore='=.tree.store')
         
         center = bc.contentPane(region='center',formId=formId,datapath='.edit', 
                                controllerPath='#%s.edit.form' % nodeId,formDatapath='.record',
