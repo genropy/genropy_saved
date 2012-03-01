@@ -691,6 +691,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                 var dlgtype = 'nomodal';
                 var zindex = 500;
             }
+            //genro.mainGenroWindow.genro
             genro.dialogStacks[dlgtype] = genro.dialogStacks[dlgtype] || [];
             dojo.connect(widget, "show", widget,
                         function() {
@@ -2639,6 +2640,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         cell = objectUpdate(cell, cellsnodes[j].attr);
                         dtype = cell.dtype;
                         cell.original_field = cell.field;
+                        cell.original_name = cell.name;
                         if(sourceNode.attr.draggable_column){
                             cell.name = '<div draggable="true">'+cell.name+'</div>'
                         }
