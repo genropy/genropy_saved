@@ -2545,7 +2545,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return result;
     },
-    structFromBag_cellFormatter :function(sourceNode, struct, cellmap,formatOptions, cellClassCB) {
+    structFromBag_cellFormatter :function(sourceNode, struct, cell,cellmap,formatOptions, cellClassCB) {
         var opt = objectUpdate({}, formatOptions);
         var cellClassFunc;
         if (cellClassCB) {
@@ -2704,7 +2704,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 formats['trueclass'] = 'greenLight';
                                 formats['falseclass'] = 'redLight';
                             }
-                            cell.formatter = this.structFromBag_cellFormatter(sourceNode, struct, cellmap,formats, cellClassCB);
+                            cell.formatter = this.structFromBag_cellFormatter(sourceNode, struct,cell, cellmap,formats, cellClassCB);
                             delete cell.tag;
                             row.push(cell);
                             cellmap[cell.field] = cell;
