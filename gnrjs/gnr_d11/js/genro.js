@@ -401,26 +401,22 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
     },
     
-    setActiveForm:function(destform){
-        if(destform!=genro.activeForm){
-            if(genro.activeForm){
-                genro.activeForm.onBlurForm();
-            }
-            if(destform){
-                destform.onFocusForm();
-            }
-            genro.activeForm = destform;
-        }
-    },
-    
     setCurrentFocused:function(wdg){
         var sourceNode = wdg.sourceNode;
         var destform = sourceNode.form;
-        this.setActiveForm(sourceNode.form);
+        var changedForm = destform!=genro.activeForm;
+         if(changedForm){
+            if(genro.activeForm){
+                genro.activeForm.onBlurForm();
+            }
+            genro.activeForm = destform;
+        }
         if(genro.activeForm){
             genro.activeForm.onFocusElement(wdg);
+            if(changedForm){
+                destform.onFocusForm();
+            }
         }
-        //genro.currentFocusedElement = wdg;
     },
 
     standardEventConnection:function(pane){

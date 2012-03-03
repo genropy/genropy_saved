@@ -17,6 +17,19 @@ class Form(BaseComponent):
     def th_dialog(self):
         return dict(height='300px',width='500px')
 
+
+
+class FormBug(BaseComponent):
+    def th_form(self,form,**kwargs):
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
+        fb.field('nome', width='20em')
+        fb.field('sigla',width='3em')
+        fb.field('codice_istat',width='7em')
+        fb.field('zona')
+        th = bc.contentPane(region='center').borderTableHandler(relation='@province')
+        th.view.attributes.update(region='left',width='400px',height=None)
+    
 class View(BaseComponent):
     
     

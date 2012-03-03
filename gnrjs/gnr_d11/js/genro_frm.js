@@ -96,14 +96,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
             var that = this;
-           //dojo.connect(genro,'onWindowUnload',function(){
-           //    that.setCurrentPkey(null);
-           //});
             this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
-                if(genro.activeForm!=that){
-                    that.focusCurrentField();
+                var wdg = dijit.getEnclosingWidget(e.target);
+                if(!wdg.isFocusable() && (wdg.sourceNode.form != genro.activeForm)){
+                   wdg.sourceNode.form.focusCurrentField();
                 }
             });
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
@@ -504,9 +502,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         genro.dom.addClass(this.sourceNode,'form_activeForm');
         this.focusCurrentField();
     },
+    
     onBlurForm:function(){
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
+    
     isRegisteredWidget:function(wdg){
         return (wdg.sourceNode._id in this._register);
     },

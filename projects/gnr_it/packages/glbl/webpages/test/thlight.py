@@ -57,3 +57,9 @@ class GnrCustomWebPage(object):
         pane.dialogTableHandler(region='center',dialog_height='300px',dialog_width='500px',dialog_title='provincia',
                                 table='glbl.provincia',virtualStore=True,formInIframe=True)
         
+    def test_7_complexLayout(self,pane):
+        bc = pane.borderContainer(height='400px')
+
+        th = bc.dialogTableHandler(region='center',table='glbl.regione',formResource=':FormBug',dialog_height='500px',dialog_width='800px')
+        th.view.store.attributes.update(_onStart=True)
+    
