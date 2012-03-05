@@ -421,26 +421,16 @@ dojo.declare('gnr.GenroClient', null, {
 
     standardEventConnection:function(pane){
         var pane = pane || genro.domById('mainWindow');
-        dojo.connect(pane,'onclick',function(e){
-            var wdg = dijit.getEnclosingWidget(e.target);
-            if(wdg){
-                if(wdg.isFocusable()){
-                    return ;
+        if(this.isDeveloper){
+            dojo.connect(dojo.body(),'onmouseover',function(e){
+                if(e.shiftKey && e.altKey){
+                    var sn = genro.getSourceNode(e);
+                    if(sn){
+                        console.log(sn.absDatapath());
+                    }
                 }
-                var sourceNode = wdg.sourceNode;
-                if(sourceNode){
-                    genro.setActiveForm(sourceNode.form);
-                }else{
-                    //|| (wdg.tree? wdg.tree.sourceNode: wdg.grid?wdg.grid.sourceNode:null);
-                    console.log(wdg);
-                }
-
-            }else{
-               // console.log('not widget:')
-                //console.log(e.target)
-            }
-            
-        });
+            });
+        }
     },
     
     playSound:function(name, path, ext) {
