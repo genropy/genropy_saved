@@ -78,19 +78,21 @@ class TableHandlerForm(BaseComponent):
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         readOnly = options.get('readOnly')
-        form.dataController("""genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),titledialog);""",
+        modal = options.get('modal',False)
+        form.dataController(""" if(reason=='nochange' && modal){return;}
+                                genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),titledialog);""",
                             reason="^.controller.save_failed",_if='reason',
                             titledialog='!!Save failed',
                             msg='!!You cannot save',
                             invalid='!!Invalid record',
-                            nochange='!!No change to save')
+                            nochange='!!No change to save',modal=modal)
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
         if readOnly:
             slots = '*'
             form.attributes.update(form_readOnly=True)
-        if options.get('modal'):
+        if modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
