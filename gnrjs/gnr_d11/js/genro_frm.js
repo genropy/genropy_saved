@@ -538,7 +538,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.fireControllerData('save_failed','invalid');
                 return 'invalid:' + invalid;
             }
-            if (this.changed || always) {
+            if (this.changed || always || this.isNewRecord()) {
                 return this.do_save(kw.destPkey);
             } else {
                 this.fireControllerData('save_failed','nochange');
