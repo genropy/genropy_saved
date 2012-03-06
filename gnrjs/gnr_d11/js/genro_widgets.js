@@ -4069,6 +4069,8 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var checkedRowClass = kw.checkedRowClass;
         var action = kw.action;
         var action_delay = kw.action_delay;
+        var sourceNode = this.sourceNode;
+
         if (currNode.attr.disabled) {
             return;
         }
@@ -4094,7 +4096,6 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             storebag.setItem(valuepath, !checked);
         }
         if(kw.checkedId){
-            var sourceNode = this.sourceNode;
             var checkedKeys = this.getCheckedId(fieldname,checkedField) || '';
             setTimeout(function(){
                 sourceNode.setRelativeData(kw.checkedId,checkedKeys,null,null,sourceNode);
