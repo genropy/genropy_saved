@@ -114,7 +114,7 @@ class TableHandlerView(BaseComponent):
         htable = False
         if hasattr(typetblobj,'htableFields'):
             htable = True
-            self.mixinComponent('gnrcomponents/gnrcomponents:HTableHandlerBase')
+            self.mixinComponent('gnrcomponents/htablehandler:HTableHandlerBase')
             pane.paletteTree(paletteCode=paletteCode,dockButton=True,title=title,tree_dragTags=paletteCode,searchOn=searchOn).htableStore(table=typetbl)
         else:
             resource = self._th_getResClass(table=typetbl,resourceName=viewResource,defaultClass='ViewPicker')()
