@@ -4188,9 +4188,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['action'] = kw.action ? funcCreate(kw.action,'changes',sourceNode):null;
         celldata['action_delay'] = kw.action_delay;
         if (kw.remoteUpdate && sourceNode.attr.table){
-            celldata.action = function(changes){
+            celldata.action = dojo.hitch(function(changes){
                 genro.serverCall("app.updateCheckboxPkeys",{table:sourceNode.attr.table,field:fieldname,changesDict:changes});
-            }
+            },sourceNode);
             celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:500;
         }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
