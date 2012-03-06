@@ -2642,6 +2642,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         if (cell.field) {
                             var checkboxPars = objectPop(cell,'checkBoxColumn');
                             if(checkboxPars){
+                                checkboxPars['field'] = cell.field; 
+                                checkboxPars['calculated'] = cell.calculated;
                                 cell = this.getCheckBoxKw(checkboxPars,sourceNode);
                                 this.setCheckedIdSubscription(sourceNode,cell);
                                 dtype ='B';
@@ -4183,7 +4185,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['format_trueclass'] = kw.trueclass || (radioButton?'radioOn':'checkboxOn'); //mettere classi radio
         celldata['classes'] = kw.classes || 'row_checker';
         celldata['format_falseclass'] = kw.falseclass || (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
-        celldata['calculated'] = true;
+        celldata['calculated'] = kw.calculated;
         celldata['checkedId'] = kw.checkedId;
         celldata['checkedField'] = kw.checkedField;
         celldata['action'] = kw.action ? funcCreate(kw.action,'changes',sourceNode):null;
