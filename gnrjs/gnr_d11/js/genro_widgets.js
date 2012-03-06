@@ -2642,8 +2642,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         if (cell.field) {
                             var checkboxPars = objectPop(cell,'checkBoxColumn');
                             if(checkboxPars){
-                                checkboxPars['field'] = cell.field; 
-                                checkboxPars['calculated'] = cell.calculated;
+                                objectUpdate(checkboxPars,cell);
                                 cell = this.getCheckBoxKw(checkboxPars,sourceNode);
                                 this.setCheckedIdSubscription(sourceNode,cell);
                                 dtype ='B';
