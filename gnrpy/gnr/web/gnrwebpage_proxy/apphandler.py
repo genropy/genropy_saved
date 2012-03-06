@@ -1295,7 +1295,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = getSelection(where, **whereargs)
 
         return result
-
+        
+    @public_method
+    def updateCheckboxPkeys(self,table=None,field=None,changesDict=None):
+        if not changesDict:
+            return
+        tblobj = self.db.table(table)
+        def cb(row):
+            row[field] = changesDict[row['%s'] %tblobj.pkey]
+        tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
+        self.db.commit()
+        
     def _relPathToCaption(self, table, relpath):
         if not relpath: return ''
         tbltree = self.db.relationExplorer(table, dosort=False, pyresolver=True)

@@ -4065,8 +4065,10 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
         var checked = storebag.getItem(valuepath);
-        var checkedField = kw.checkedField;
+        var checkedField = kw.checkedField || this.rowIdentifier();
         var checkedRowClass = kw.checkedRowClass;
+        var action = kw.action;
+        var action_delay = kw.action_delay;
         if (currNode.attr.disabled) {
             return;
         }
@@ -4100,6 +4102,34 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         if (gridId) {
             genro.publish(gridId + '_row_checked', currNode.label, newval, currNode.attr);
+        }
+        if (action){
+            var changedRow = this.rowByIndex(idx);
+            var changedKey = changedRow[checkedField];
+            var changedValue = changedRow[fieldname];
+            var actionKw = {};
+            actionKw[changedKey] = changedValue;
+            if (!action_delay){
+                action.call(this.sourceNode,actionKw);
+            }else{
+                if(sourceNode._pendingCheck){
+                    clearTimeout(sourceNode._pendingCheck);
+                    var changes = sourceNode._pendingChanges;
+                    if(changedKey in changes){
+                        objectPop(changes,changedKey);
+                    }else{
+                        changes[changedKey] = changedValue;
+                    }
+                }else{
+                    sourceNode._pendingChanges = actionKw;
+                }
+                sourceNode._pendingCheck = setTimeout(function(){
+                    sourceNode._pendingCheck = null;
+                    if(objectNotEmpty(sourceNode._pendingChanges)){
+                        action.call(sourceNode,sourceNode._pendingChanges);
+                    }
+                }, action_delay);    
+            }
         }
     },
     mixin_addCheckBoxColumn:function(kw) {
@@ -4155,6 +4185,14 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         celldata['calculated'] = true;
         celldata['checkedId'] = kw.checkedId;
         celldata['checkedField'] = kw.checkedField;
+        celldata['action'] = kw.action ? funcCreate(kw.action,'changes',sourceNode):null;
+        celldata['action_delay'] = kw.action_delay;
+        if (kw.remoteUpdate && sourceNode.attr.table){
+            celldata.action = function(changes){
+                genro.serverCall("app.updateCheckboxPkeys",{table:sourceNode.attr.table,field:fieldname,changesDict:changes});
+            }
+            celldata['action_delay'] = typeof(celldata['action_delay'])=='number'?kw.remoteUpdate:500;
+        }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
         return celldata;
     },
