@@ -1302,7 +1302,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         tblobj = self.db.table(table)
         def cb(row):
-            row[field] = changesDict[row['%s'] %tblobj.pkey]
+            row[field] = changesDict[row[tblobj.pkey]]
         tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
         self.db.commit()
         
