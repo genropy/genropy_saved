@@ -51,6 +51,7 @@ class FrameGrid(BaseComponent):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
+        grid_kwargs.setdefault('sortedBy','^.sorted')
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
@@ -59,7 +60,7 @@ class FrameGrid(BaseComponent):
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           datapath='.grid',selectedId='.selectedId',
-                          struct=struct,sortedBy='^.sorted',table=table,
+                          struct=struct,table=table,
                           **grid_kwargs)
         return frame
         
