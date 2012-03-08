@@ -2642,8 +2642,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         if (cell.field) {
                             var checkboxPars = objectPop(cell,'checkBoxColumn');
                             if(checkboxPars){
-                                objectUpdate(checkboxPars,cell);
-                                cell = this.getCheckBoxKw(checkboxPars,sourceNode);
+                                cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
                                 this.setCheckedIdSubscription(sourceNode,cell);
                                 dtype ='B';
                             }
@@ -4171,15 +4170,15 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
         }
     },
-    getCheckBoxKw:function(kw, sourceNode) {
+    getCheckBoxKw:function(kw, sourceNode,celldata) {
         var kw = kw || {};
-        var celldata = {};
-        var fieldname =  kw.field || '_checked';
+        var celldata = celldata || {};
+        var fieldname =  kw.field || celldata['field'] || '_checked';
         var radioButton = kw.radioButton || false;
         celldata['field'] = fieldname;
-        celldata['name'] = kw.name || ' ';
+        celldata['name'] =  kw.name ||  celldata.name ||  ' ';
         celldata['dtype'] = 'B';
-        celldata['width'] = '20px';
+        celldata['width'] = celldata.width || '20px';
         celldata['radioButton'] = radioButton;
         celldata['format_trueclass'] = kw.trueclass || (radioButton?'radioOn':'checkboxOn'); //mettere classi radio
         celldata['classes'] = kw.classes || 'row_checker';

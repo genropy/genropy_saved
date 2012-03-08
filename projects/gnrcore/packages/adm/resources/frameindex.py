@@ -143,7 +143,7 @@ class FrameIndex(BaseComponent):
                                             var frame = dojo.byId("iframe_"+$1);
                                             frame.sourceNode._genro.pageReload();
                                             """
-        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage($1);"        
+        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"        
         scattr['subscribe_destroyFrames'] = """
                         var sc = this.widget;
                         for (var k in $1){
@@ -214,5 +214,5 @@ class FrameIndex(BaseComponent):
 
     def btn_delete(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
-                                                      connect_onclick='PUBLISH closeFrame= GET selectedFrame;')
+                                                      connect_onclick='PUBLISH closeFrame;')
                                                       

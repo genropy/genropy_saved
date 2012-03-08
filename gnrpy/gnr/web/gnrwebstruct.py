@@ -1966,11 +1966,11 @@ class GnrGridStruct(GnrStructData):
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     
-    def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,
+    def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
                         checkedField=None,action=None,action_delay=None,remoteUpdate=False,**kwargs):
         calculated = not remoteUpdate
         self.cell(field=field,checkBoxColumn=dict(checkedId=checkedId,radioButton=radioButton,checkedField=checkedField,action=action,
-                                                  action_delay=action_delay,remoteUpdate=remoteUpdate),calculated=calculated,
+                                                  action_delay=action_delay,remoteUpdate=remoteUpdate),calculated=calculated,name=name,
                                                   **kwargs)
         
     def checkboxcell(self, field=None, falseclass=None,
