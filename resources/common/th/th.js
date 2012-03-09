@@ -21,7 +21,7 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){
         var table = objectPop(kw,'table');
         var url = objectPop(kw,'url') || '/sys/thpage/'+table.replace('.','/');
-        var urlPars = {'th_public':false};
+        var urlPars = {'th_public':false,'th_from_package':genro.getData('gnr.package')};
         url = genro.addParamsToUrl(url,urlPars);
         var pkey = objectPop(kw,'pkey');
         if (pkey){

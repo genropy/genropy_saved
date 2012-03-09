@@ -1344,6 +1344,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
                 page.data('gnr.page_id',self.page_id)
+                page.data('gnr.package',self.package.name)
                 page.data('gnr.root_page_id',self.root_page_id)
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)

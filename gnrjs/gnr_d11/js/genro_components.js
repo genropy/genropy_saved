@@ -888,15 +888,18 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         stackNode._stackButtonsNodes = stackNode._stackButtonsNodes || [];
         stackNode._stackButtonsNodes.push(tabButtonsNode.getParentNode());
         dojo.connect(stackNode,'onNodeBuilt',function(widget){
-            dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
-            dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
-            dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
+            genro.src.afterBuildCalls.push(function(){
+                dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
+                dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
+                dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
+            });
             setTimeout(function(){
                 that.initButtons(stackNode);
                 that.onShowHideChild(stackNode.widget,stackNode.widget.getSelected(),true);
                 stackNode.getParentNode().getWidget().resize();
             },1);   
         });
+
         return tabButtonsNode;
     },
     onAddChild:function(widget,child){

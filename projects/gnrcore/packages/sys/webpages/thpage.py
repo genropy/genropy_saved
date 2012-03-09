@@ -12,7 +12,9 @@ class GnrCustomWebPage(object):
     
     @property
     def package(self):
-        pkgId,tbl = self.maintable.split('.')
+        pkgId = self._call_kwargs.get('th_from_package')
+        if not pkgId:
+            pkgId,tbl = self.maintable.split('.')
         if pkgId:
             return self.db.package(pkgId)
     
