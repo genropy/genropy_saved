@@ -902,10 +902,15 @@ class GnrWebAppHandler(GnrBaseProxy):
                 row_key = 'r_%i' % j
             else:
                 row_key = toText(pkey).replace('.', '_')
-            result.setItem(row_key, None, _pkey=pkey or row_key,
-                           _target_fld='%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
-                           _relation_value=pkey, _resolver_name='relOneResolver',
-                           _attributes=row, _removeNullAttributes=False, _customClasses=' '.join(_customClasses))
+            kw = dict(_pkey=pkey or row_key,
+                           _attributes=row,
+                            _removeNullAttributes=False, 
+                            _customClasses=' '.join(_customClasses))
+            if recordResolver:
+                kw.update(_target_fld='%s.%s' % (selection.dbtable.fullname, selection.dbtable.pkey),
+                           _relation_value=pkey, 
+                           _resolver_name='relOneResolver')
+            result.setItem(row_key, None, **kw)
         return result
         
     def gridSelectionStruct(self, selection):
