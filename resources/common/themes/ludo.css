@@ -803,3 +803,34 @@
     overflow: auto;
     /*background-color: white ; */
 }
+
+
+
+
+
+/*TEXTBOX*/
+
+
+
+.tundra .dijitError {
+   /* background-color: #fff2f5;
+    background-image: none;*/
+    border-color: silver;
+    background: white url(icons/invalid_small.png) no-repeat top left;
+
+}
+
+.tundra .dijitTextBoxErrorDisabled {
+    background: transparent;
+    border-color: silver;
+}
+
+.dijitComboBox.dijitError, .dijitSpinner.dijitError{
+	border-color: silver;
+    background: white url(icons/invalid_small.png) no-repeat top left;
+}
+
+.tundra .dijitComboBoxErrorDisabled {
+	border-color: silver;
+	background: transparent;
+}
