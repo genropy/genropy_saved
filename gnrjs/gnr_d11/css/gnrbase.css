@@ -330,7 +330,7 @@ body.workInProgress{
 }
 
 .tundra .dijitTextBox, .tundra .dijitComboBox, .tundra .dijitSpinner, .tundra .dijitInlineEditor input ,.tundra .dijitTextArea{
-    background-color: white;
+    background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
     line-height: normal;
@@ -341,7 +341,7 @@ body.workInProgress{
 }
 
 .fakeTextBox,.smallFakeTextBox {
-	background-color: white;
+	background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
     line-height: normal;
@@ -353,7 +353,7 @@ body.workInProgress{
 }
 
 .fakeNumberTextBox {
-	background-color: white;
+	background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
     line-height: normal;
