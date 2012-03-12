@@ -2208,7 +2208,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
-                widget.gridEditor = new gnr.GridEditor(widget, sourceNode, gridEditorNode);
+                widget.gridEditor = new gnr.GridEditor(widget);
             };
         }
         ;
@@ -2633,6 +2633,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     for (j = 0; j < cellsnodes.length; j++) {
                         cell = objectUpdate({}, rowattrs);
                         cell = objectUpdate(cell, cellsnodes[j].attr);
+                        cell = sourceNode.evaluateOnNode(cell);
                         dtype = cell.dtype;
                         cell.original_field = cell.field;
                         cell.original_name = cell.name;
@@ -3638,20 +3639,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
 
     mixin_onSetStructpath: function(structBag) {
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
-       //if (this.rpcViewColumns) {
-       //    this.rpcViewColumns.call();
-       //}
-
-        //var columns = gnr.columnsFromStruct(structure);
-        //   if(this.sourceNode.hiddencolumns){
-        //       columns = columns+','+this.sourceNode.hiddencolumns;
-        //   }
-        //   this.query_columns= columns;
-        //
-        //  if (this.rpcViewColumns){
-        //      this.rpcViewColumns.call();
-        //  }
-        //  //this.reload(); test
+        if(this.sourceNode._useStore){
+            this.setEditableColumns();
+        }
     },
 
     mixin_absIndex: function(inRowIndex) {
@@ -4039,6 +4029,20 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     mixin_absStorepath:function(){
         return this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
+    },
+    
+    mixin_setEditableColumns:function(){
+        var cellmap = this.cellmap;
+        for(var k in cellmap){
+            if(cellmap[k].edit){
+                if(!this.gridEditor){
+                    this.gridEditor = new gnr.GridEditor(this);
+                }
+                this.gridEditor.addEditColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+            }else if(this.gridEditor){
+                this.gridEditor.delEditColumn(cellmap[k].field);
+            }
+        }
     },
 
     getQueryColumns:function(sourceNode, structure) {
