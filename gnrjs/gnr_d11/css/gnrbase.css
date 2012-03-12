@@ -164,27 +164,20 @@ body.workInProgress{
 	padding-right:4px;
 }
 
-.tundra .dijitTextBoxReadOnly,
-.tundra .dijitTextBoxReadOnly .dijitButtonNode,
-.tundra .dijitButtonDisabled .dijitButtonNode,
-.tundra .dijitToggleButtonDisabled .dijitButtonNode,
-.tundra .dijitDropDownButtonDisabled .dijitButtonNode,
-.tundra .dijitComboButtonDisabled .dijitButtonNode,
-.tundra .dijitTextBoxDisabled,
-.tundra .dijitTextBoxDisabled .dijitButtonNode {
-	/* disabled state - inner */
-	border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
-	background-color: white;
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
-    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
-	
-}
+.tundra .dijitDisabled.dijitTextBoxReadOnly,
+.tundra .dijitDisabled.dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitDisabled.dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitTextBoxDisabled,
+.tundra .dijitDisabled.dijitComboBoxDisabled,
+.tundra .dijitDisabled.dijitTextBoxDisabled .dijitButtonNode ,
 .dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
-    border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
-	background-color: white;
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
-    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
-	
+	/* disabled state - inner */
+    border-color: #dedede;
+	/*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
 }
 
 
@@ -199,6 +192,10 @@ body.workInProgress{
 	border-color: silver;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+
+.tundra .dijitDisabled.dijitComboBoxDisabled .dijitArrowButton{
+    display:none;
 }
 
 .tundra .dijitComboBox .dijitButtonNode{
@@ -365,27 +362,24 @@ body.workInProgress{
     text-align: right;
 }
 
+
 .tundra .dijitError {
-   /* background-color: #fff2f5;
-    background-image: none;*/
     border-color: silver;
-    background: white url(icons/base12/invalid.png) no-repeat right 2px;
+    background: white url(icons/invalid_small.png) no-repeat top left;
 
 }
 
 .tundra .dijitTextBoxErrorDisabled {
-    background: transparent;
-    border-color: silver;
+    border-color: transparent;
 }
 
 .dijitComboBox.dijitError, .dijitSpinner.dijitError{
 	border-color: silver;
-    background: white url(icons/base12/invalidcombo.png) no-repeat right 2px;
+    background: white url(icons/invalid_small.png) no-repeat top left;
 }
 
 .tundra .dijitComboBoxErrorDisabled {
-	border-color: silver;
-	background: transparent;
+    border-color: transparent;
 }
 
 label.ghostlabel span {
@@ -1702,7 +1696,7 @@ div.dojoxDock {
 /* @end */
 
 .gnrfield .dijitButtonDisabled .dijitButtonNode, .tundra .dijitToggleButtonDisabled .dijitButtonNode, .tundra .dijitDropDownButtonDisabled .dijitButtonNode, .tundra .dijitComboButtonDisabled .dijitButtonNode, .tundra .dijitComboBoxDisabled, .tundra .dijitSpinnerDisabled, .tundra .dijitSpinnerDisabled .dijitButtonNode {
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .warningForm .saving_btn .dijitButtonNode {
@@ -2613,6 +2607,10 @@ table.draggedItem {
 .dojoxGrid td.cell_L {
     text-align: right;
 }
+
+._common_d11 .invalidCell.dojoxGrid-cell {
+}
+
 
 .dojoxGrid-cell.hiddenColumn {
     display: none;
