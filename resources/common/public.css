@@ -529,6 +529,12 @@ element.style {
     line-height: 100%;
 }
 
+/*._common_d11 .invalidCell .cellContent {
+    border: 1px solid red;
+    margin-bottom: 1px;
+    padding: 1px;
+}*/
+
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell {
     background-color: whitesmoke;
 }
@@ -549,9 +555,9 @@ element.style {
     background-color: #8fff9d !important;
 }
 
-._common_d11 .cannotBeDropped .dojoxGrid-cell {
+/*._common_d11 .cannotBeDropped .dojoxGrid-cell {
     background-color: #ffa997 !important;
-}
+}*/
 
 ._common_d11 .dojoxGrid-row-selected {
     background-color: transparent;
