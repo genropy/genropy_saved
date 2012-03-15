@@ -838,6 +838,11 @@ table.formbuilder {
 
 /* @end */
 
+.rowEditorStatus_noedit{
+    display: none;
+}
+
+
 .icnWarning {
     background: url(icons/iconWarning.gif) no-repeat;
     width: 20px;
@@ -851,6 +856,8 @@ table.formbuilder {
 }
 
 /* @group base14 */
+
+
 .vieselectorIcn {
     background: url(icons/viewselector.png) no-repeat center center;
     height: 16px;
@@ -879,6 +886,11 @@ table.formbuilder {
     background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
     width: 14px;
     height: 14px;
+}
+.waiting16{
+    background: url(icons/wait16trans.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
 }
 
 /* @end */
@@ -2079,10 +2091,33 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .dojoxGrid-cell {
 	border: 1px dotted #D5CDB5;
 	border-top: 0px;
-	padding: 3px 3px 3px 3px;
+	padding: 1px;
 	text-align: left;
 	overflow: hidden;
 }
+
+div.cellContent{
+    border-radius:4px;
+    padding:2px;
+    -moz-transition-duration:0;
+    -webkit-transition-duration:0;
+    transition-duration:0;
+}
+
+.externalChangedCell .cellContent{
+    background-color:#C7FFB4;
+}
+
+.onExternalChanged .externalChangedCell .cellContent{
+    -moz-transition-property:background-color;
+    -webkit-transition-property:background-color;
+    -moz-transition-duration:5s;
+    -webkit-transition-duration:5s;
+    transition-duration:5s;
+    transition-property:background-color;
+    background-color:transparent;
+}
+
 .dj_ie6 .tundra .dojoxGrid-cell {
 	border: 1px solid white;
 	border-right: 1px solid #D5CDB5;
@@ -2536,6 +2571,7 @@ border='1px solid gray',margin='2px', rounded=10,
     background:#F9FFBC !important;
     color:black;
 }
+
 
 .rowsetdragging {
     /*font-size: 0.8em;*/

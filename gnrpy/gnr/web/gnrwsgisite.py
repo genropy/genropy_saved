@@ -943,7 +943,7 @@ class GnrWsgiSite(object):
                 if page and subscribers:
                     for page_id in subscribers.keys():
                         page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
-                                            attributes=dict(pkeycol=tblobj.pkey), 
+                                            attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
                                             page_id=page_id,public=True)
         
         self.db.updateEnv(env_transaction_id= None,dbevents=None)

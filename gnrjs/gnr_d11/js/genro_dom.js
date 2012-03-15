@@ -154,6 +154,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
     
     style:function(where, attr, value) {
         var domnode = this.getDomNode(where);
+        if (typeof (attr) == 'string' && attr.indexOf(':')>=0) {
+            attr = objectFromStyle(attr);
+        }
         if (domnode) {
             if (typeof (attr) == 'string') {
                 dojo.style(domnode, genro.dom.dojoStyleAttrName(attr), value);

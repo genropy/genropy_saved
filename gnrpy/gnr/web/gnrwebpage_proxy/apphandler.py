@@ -959,7 +959,33 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
-            
+    
+    @public_method
+    def saveEditedRows(self,table=None,changeset=None):
+        if not changeset:
+            return
+        tblobj = self.db.table(table)
+        pkeyfield = tblobj.pkey
+        pkeys = [k for k in changeset.digest('#a._pkey') if k]
+        wrongUpdates = dict()
+        def cb(row):
+            key = row[pkeyfield]
+            c = changeset.popNode(key)
+            if c:
+                for n in c.value:
+                    _loadedValue = n.attr['_loadedValue']
+                    if row[n.label] != _loadedValue:
+                        wrongUpdates[key] = row
+                        return
+                    row[n.label] = n.value
+        if pkeys:
+            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
+        if changeset:
+            for r in changeset.values():
+                tblobj.insert(r)
+        self.db.commit()
+        return wrongUpdates
+        
     @public_method
     @extract_kwargs(default=True)
     def getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,

@@ -961,7 +961,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     getFormHandler:function(){
-        if (this.form){
+        if ('form' in this){
             return this.form;
         }        
         else if (this.attr.parentForm){
@@ -1094,6 +1094,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 genro.dom.removeClass(domnode, old_class);
             }
             genro.dom.addClass(domnode, value);
+        }
+        else if (attr=='style'){
+            genro.dom.style(this,value);
         }
         else if (attr=='placeholder'){
             (this.widget? this.widget.focusNode:this.domNode).setAttribute('placeholder',value);

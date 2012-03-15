@@ -2156,13 +2156,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (!sourceNode.dropTarget && objectNotEmpty(sourceNode.dropModes)) {
             sourceNode.dropTarget = true;
         }
-        var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,';
-        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid';
+        var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
+        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
-        this.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
+        sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
         return savedAttrs;
     },
 
@@ -2552,17 +2552,21 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
         }
         return function(v, inRowIndex) {
-
+            var renderedRow = this.grid.currRenderedRow;
             if (cellClassFunc) {
-                cellClassFunc(this, v, inRowIndex,this.grid.currRenderedRow[cell.field]);
+                cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
+            }
+            var cellCustomClass = renderedRow['_customClass_'+cell.field];
+            if(cellCustomClass){
+                this.customClasses.push(cellCustomClass);
             }
             opt['cellPars'] = {rowIndex:inRowIndex};
             var zoomPage = opt['zoomPage'];
             if (typeof(v) == 'number' && v < 0) {
                 this.customClasses.push('negative_number');
             }
-            if (this.grid.gridEditor && this.grid.gridEditor.invalidCell(this, inRowIndex)) {
-                this.customClasses.push('invalidCell');
+            if (this.grid.gridEditor) {
+                this.grid.gridEditor.onFormatCell(this,inRowIndex);
             }
             v = genro.format(v, opt);
             if (v == null) {
@@ -2626,6 +2630,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             'width':'30px','calculated':true,
                             'field':'_edit_record','name':' '};
                         rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false});
+                    }
+                    if(dojo.some(rowBag.getNodes(),function(n){return n.attr.edit})){
+                        if(!rowBag.getNode('_rowEditorStatus')){
+                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'3em',
+                                                                field:'_rowEditorStatus',
+                                                                cellClasses:'rowEditorStatus',
+                                                                name:' ',calculated:true,
+                                                                hidden:'=.struct?disabledEditor',
+                                                                _customGetter:function(rowdata,rowIdx){
+                                                                    return this.grid.gridEditor.statusColGetter(rowdata,rowIdx);
+                                                                }});
+                        }
                     }
 
                     cellsnodes = rowBag.getNodes();
@@ -3716,10 +3732,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
 
     mixin_rowFromBagNode:function(node,externalChangedKeys) {
         var result = objectUpdate({}, node.attr);
-        if(externalChangedKeys){
+        if(externalChangedKeys && false){
             var pkey = result[this._identifier];
             var change = externalChangedKeys[pkey];
-            if(change && this.highlightExternalChanges){
+            if(change && this.sourceNode.highlightExternalChanges){
                 result._customClasses= result._customClasses? result._customClasses+' selectionLocalChange':'selectionLocalChange';
             }
         }
@@ -3782,7 +3798,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
     mixin_newBagRow: function(defaultArgs) {
-        var defaultArgs = defaultArgs || {};
+        var defaultArgs = defaultArgs || this.gridEditor.getNewRowDefaults() || {};
         var newRowDefaults = this.sourceNode.attr.newRowDefaults;
         if (newRowDefaults) {
             if (typeof(newRowDefaults) == 'string') {

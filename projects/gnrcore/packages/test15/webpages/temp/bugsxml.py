@@ -12,8 +12,14 @@ class GnrCustomWebPage(object):
          
     def test_0_dataxml(self,pane):
         """First test description"""
-        pane.dataRpc('prova',self.recordInAttribute,_onStart=True)
+        pane.dataController("""
+        	var b = new gnr.GnrBag();
+        	var c = new gnr.GnrBag();
+        	c.setItem('zzz','aaa',{_pippo:null,paperino:3,papa:null})
+        	b.setItem('ttt',c,{_pippo:null,paperion:22,papa:null})
+        	genro.serverCall('bugkwargs',{data:b});
+        """,_onStart=True)
     
     @public_method
-    def recordInAttribute(self):
-        return 'zzz',dict(_record=dict(self.db.table('polimed.medico').record(pkey='qYIlia6_NxmnnR0JwcIuTA').output('dict')))
+    def bugkwargs(self,data=None):
+    	print x

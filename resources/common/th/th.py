@@ -192,6 +192,20 @@ class TableHandler(BaseComponent):
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,**kwargs)
         return wdg
+
+    @extract_kwargs(default=True,page=True)     
+    @struct_method
+    def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
+                            readOnly=False,hider=True,saveMethod=None,default_kwargs=None,**kwargs):
+        kwargs['tag'] = 'ContentPane'
+        saveMethod = saveMethod or 'app.saveEditedRows'
+        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,readOnly=readOnly,hider=hider,
+                                        default_kwargs=default_kwargs,**kwargs)
+        wdg.view.store.attributes.update(recordResolver=False)
+        wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs))
+        return wdg
+        
         
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
