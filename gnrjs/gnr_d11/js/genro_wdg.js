@@ -652,6 +652,9 @@ dojo.declare("gnr.GridEditor", null, {
                 }
                 colattr['hiddenColumns'] = hiddencol.join(',');
                 colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+                    if(!this.widget.item){
+                        return;
+                    }
                     var selectRow = this.widget.item.attr;
                     var rowNode = grid.dataNodeByIndex(rowIndex);
                     var newAttr = objectUpdate({},rowNode.attr);

@@ -40,10 +40,9 @@ class FormConProvince(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('zona')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                                viewResource=':EditableView',statusColumn=True)
+                                                                viewResource=':EditableView',autoSave=False)
         bar = th.view.top.bar
-        bar.replaceSlots('addrow','addrow,savegrid')
-        bar.savegrid.slotButton('Save',action='grid.widget.gridEditor.saveChangedRows();',grid=th.view.grid)
+        bar.replaceSlots('addrow','addrow,saveRows')
         #th = bc.contentPane(region='center').dialogTableHandler(relation='@province',dialog_height='300px',
         #                                                        dialog_width='500px',default_)
     

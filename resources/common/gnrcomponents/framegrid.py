@@ -39,7 +39,11 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_gridReload(self,pane,_class='icnFrameRefresh box16',frameCode=None,**kwargs):
         return pane.slotButton(label='!!Reload',publish='reload',iconClass=_class,**kwargs)
-        
+    
+    @struct_method
+    def fgr_slotbar_saveRows(self,pane,_class='iconbox editor_semaphore',**kwargs):
+        return pane.slotButton(label='!!Save',publish='saveEditedRows',command='export',
+                                iconClass=_class,font_size='.9em',**kwargs)
                                 
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'

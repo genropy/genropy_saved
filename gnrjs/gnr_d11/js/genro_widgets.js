@@ -769,6 +769,11 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             cancel:closeAttrs['cancel']}, {confirm:closeAction, cancel:''});
     },
     attributes_mixin_onCancelPublish:function(event) {
+        if(genro.activeForm && genro.activeForm.currentFocused){
+            genro.activeForm.currentFocused.focusNode.blur();
+            genro.activeForm.currentFocused = null;
+            return;
+        }
         this.sourceNode.publish('close',{modifiers:genro.dom.getEventModifiers(event)});
     },
     
