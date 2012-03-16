@@ -530,23 +530,19 @@ dojo.declare("gnr.RowEditor", null, {
             if(this.data.len()==0){
                 this.deleteRowEditor();
             }
-            return;
         }
+        this.gridEditor.lastEditTs = new Date();
         this.currentCol = null;
-        //this.gridEditor.onRowEditorEndEditCell();
-
     },
     startEditCell:function(colname){
         this.currentCol = colname;
+        this.gridEditor.lastEditTs = null;
     },
     deleteRowEditor:function(){
         objectPop(this.gridEditor.rowEditors,this.rowId);
         var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
         genro.assert(rowIndex>=0,'not found '+this.rowId);
         this.grid.updateRow(rowIndex);
-    },
-    onExternalChange:function(){
-        console.log('xxx')
     }
 });
 
@@ -558,6 +554,10 @@ dojo.declare("gnr.GridEditor", null, {
         this.viewId = sourceNode.attr.nodeId;
         this.table= sourceNode.attr.table;
         this.editorPars = sourceNode.attr.gridEditor;
+        this.autoSave = this.editorPars? this.editorPars.autoSave:false;
+        if(this.autoSave===true){
+            this.autoSave = 3000;
+        }
         this.formId = sourceNode.getInheritedAttributes()['formId'];
         this.rowEditors = {};
         this.pendingEditedRows = new gnr.GnrBag();
@@ -587,6 +587,21 @@ dojo.declare("gnr.GridEditor", null, {
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(this.editorPars){
             this.widgetRootNode.attr['_fakeForm'] = true;
+            if(this.autoSave){
+                var that = this;
+                var autoSave = this.autoSave;
+                this.widgetRootNode.watch('autoSave',function(){
+                    if(that.lastEditTs){
+                        if((new Date()-that.lastEditTs)>autoSave){
+                            that.lastEditTs = null;
+                            that.saveChangedRows();
+                        }
+                    }
+                    return false;
+                },function(){
+                   
+                },500);
+            }
         }
 
 
@@ -700,7 +715,13 @@ dojo.declare("gnr.GridEditor", null, {
         }
         //that.grid.updateRowCount();
         if(changeset.len()>0){
-            genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},function(){onResultCb(changeset)});
+            that.grid.updateRowCount();
+            if(false){
+                console.log('changeset',changeset.keys(),changeset);
+                setTimeout(function(){onResultCb(changeset)},3000)
+            }else{
+                genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},function(){onResultCb(changeset)});
+            }
         }
     },
 
