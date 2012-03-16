@@ -42,7 +42,7 @@ class FrameGridSlots(BaseComponent):
     
     @struct_method
     def fgr_slotbar_saveRows(self,pane,_class='editGrid_semaphore',**kwargs):
-        return pane.slotButton(label='!!Save',publish='saveEditedRows',command='export',
+        return pane.slotButton(label='!!Save',publish='saveChangedRows',command='export',
                                 iconClass=_class,font_size='.9em',showLabel=True,
                                 _class='editGrid_saveRows',disabled='==status!="changed"',status='^.grid.editor.status',**kwargs)
                                 

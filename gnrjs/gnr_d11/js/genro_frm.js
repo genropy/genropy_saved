@@ -40,7 +40,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.formId = formId;
         this.changed = false;
-        this.editableGrids = {};
+        this.gridEditors = {};
         this.opStatus = null;
         this.locked = this.locked || false;
         this.current_field = null;
@@ -188,8 +188,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
     },
-    registerEditableGrid:function(nodeId,grid){
-        this.editableGrids[nodeId] = grid;
+    registerGridEditor:function(nodeId,gridEditor){
+        this.gridEditors[nodeId] = gridEditor;
     },
     
     unregisterChild:function(sourceNode){
@@ -678,7 +678,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return this.getControllerData('changed'); 
     },
     getFormChanges: function() {
-        return this._getRecordCluster(this.getFormData(), true);
+        var data = this._getRecordCluster(this.getFormData(), true);
+        for(var k in this.gridEditors){
+            var changeset = this.gridEditors[k].getChangeset();
+            if(changeset.len()>0){
+                data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
+            }
+        }
+        return data;
     },
     getFormCluster: function() {
         return this._getRecordCluster(this.getFormData(), false);
@@ -877,8 +884,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     registeredGridsStatus:function(){
         var status = null;
-        for(var k in this.editableGrids){
-            var gridstatus=this.editableGrids[k].gridEditor.status;
+        for(var k in this.gridEditors){
+            var gridstatus=this.gridEditors[k].status;
             if(gridstatus=='error'){
                 return 'error';
             }else if(gridstatus=='changed'){
@@ -1472,7 +1479,8 @@ dojo.declare("gnr.formstores.Base", null, {
             return resultDict;
         };
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
-        var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw);
+        var data = form.getFormChanges();
+        var rpckw = objectUpdate({'data':data,'table':this.table},kw);
         if(onSaving){
             onSaving = funcCreate(onSaving,this);
             var dosave = onSaving.call(this,rpckw);
