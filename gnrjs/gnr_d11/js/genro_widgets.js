@@ -2611,6 +2611,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
             var localTypes = {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}};
+            var gridEditor = sourceNode.widget?sourceNode.widget.gridEditor:false;
             for (i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
@@ -2634,11 +2635,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             'field':'_edit_record','name':' '};
                         rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false});
                     }
-                    if(dojo.some(rowBag.getNodes(),function(n){return n.attr.edit})){
+                    if(gridEditor && gridEditor.editorPars && gridEditor.editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit})){
                         if(!rowBag.getNode('_rowEditorStatus')){
                             rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'3em',
                                                                 field:'_rowEditorStatus',
                                                                 cellClasses:'rowEditorStatus',
+                                                                headerClasses:'rowEditorStatus',
                                                                 name:' ',calculated:true,
                                                                 hidden:'=.struct?disabledEditor',
                                                                 _customGetter:function(rowdata,rowIdx){

@@ -841,6 +841,10 @@ table.formbuilder {
 .rowEditorStatus_noedit{
     display: none;
 }
+._common_d11 .rowEditorStatus.dojoxGrid-cell{
+    border-right:0px !important;
+}
+
 
 
 .icnWarning {

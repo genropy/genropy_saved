@@ -967,7 +967,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj = self.db.table(table)
         pkeyfield = tblobj.pkey
         pkeys = [k for k in changeset.digest('#a._pkey') if k]
-        wrongUpdates = dict()
+        result = Bag()
+        wrongUpdates = Bag()
+        insertedRecords = Bag()
         def cb(row):
             key = row[pkeyfield]
             c = changeset.popNode(key)
@@ -981,10 +983,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkeys:
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
         if changeset:
-            for r in changeset.values():
+            for k,r in changeset.items():
                 tblobj.insert(r)
+                insertedRecords[k] = r[pkeyfield]
         self.db.commit()
-        return wrongUpdates
+        result['wrongUpdates'] = wrongUpdates
+        result['insertedRecords'] = insertedRecords
+        return result
         
     @public_method
     @extract_kwargs(default=True)
@@ -1326,6 +1331,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = getSelection(where, **whereargs)
 
         return result
+
+    @public_method
+    def getMultiFetch(self,queries=None):
+        result = Bag()
+        for query in queries:
+            columns = query.attr.pop('columns','*')
+            table = query.attr.pop('table')
+            tblobj = self.db.table(table)
+            columns = ','.join(tblobj.columnsFromString(columns))
+            result[query.label] = tblobj.query(columns=columns,**query.attr).fetchAsBag('pkey')
+        return result
         
     @public_method
     def updateCheckboxPkeys(self,table=None,field=None,changesDict=None):
@@ -1527,6 +1543,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
         return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx)
+
 
 class BatchExecutor(object):
     def __init__(self, page):

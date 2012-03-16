@@ -697,12 +697,19 @@ dojo.declare("gnr.GridEditor", null, {
     },
     saveChangedRows:function(){
         var that = this;
-        var onResultCb = function(changeset){
+        var onResultCb = function(changeset,result){
             changeset.forEach(function(n){
                 if(that.rowEditors){
                     that.rowEditors[n.label].deleteRowEditor();
                 }
             });
+            var insertedRows = result.getItem('insertedRecords');
+            if(insertedRows){
+                insertedRows.forEach(function(n){
+                    var r = that.grid.storebag().getNode(n.label);
+                    r.attr._pkey = n.getValue();
+                });
+            }            
             //that.grid.updateRowCount();
         };
         var changeset = new gnr.GnrBag();
@@ -720,7 +727,10 @@ dojo.declare("gnr.GridEditor", null, {
                 console.log('changeset',changeset.keys(),changeset);
                 setTimeout(function(){onResultCb(changeset)},3000)
             }else{
-                genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},function(){onResultCb(changeset)});
+                genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},
+                    function(result){
+                        onResultCb(changeset,result);
+                    });
             }
         }
     },
@@ -773,6 +783,29 @@ dojo.declare("gnr.GridEditor", null, {
         else{
             var default_kwargs = this.editorPars.default_kwargs || {};
             var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
+            var cellmap = this.grid.cellmap;
+            var queries = new gnr.GnrBag();
+            var rcol,hcols;
+            for(var k in cellmap){
+                if(cellmap[k].related_table){
+                    rcol = cellmap[k].relating_column;
+                    if(result[rcol]){
+                        hcols = [];
+                        for(var j in cellmap){
+                            if(cellmap[j].relating_column==rcol){}
+                            hcols.push(cellmap[j].related_column);
+                        }
+                        queries.setItem(rcol,null,{table:cellmap[k].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                    }
+                }
+            }
+            var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
+            for(var k in cellmap){
+                rcol = cellmap[k].relating_column;
+                if (rcol){
+                    result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+                }
+            }
             result['_newrecord'] = true;
             return result;
         }
