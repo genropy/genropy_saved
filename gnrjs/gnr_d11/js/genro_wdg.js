@@ -646,6 +646,7 @@ dojo.declare("gnr.GridEditor", null, {
             genro.dom.setClass(viewNode,'editGrid_'+st,st==status);
         });
         this.grid.sourceNode.setRelativeData('.editor.status',status);
+        this.grid.sourceNode.form.updateStatus();
     },
 
     addEditColumn:function(colname,colattr){

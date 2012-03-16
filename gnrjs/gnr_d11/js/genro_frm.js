@@ -873,10 +873,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.updateStatus();
     },
     isValid:function(){
-        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0));
+        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
-    getChangedGrids:function(){
-        this.editableGrids
+    registeredGridsStatus:function(){
+        var status = null;
+        for(var k in this.editableGrids){
+            var gridstatus=this.editableGrids[k].gridEditor.status;
+            if(gridstatus=='error'){
+                return 'error';
+            }else if(gridstatus=='changed'){
+                status = gridstatus;
+            }
+        }
+        return status;
     },
     updateStatus:function(){
         var isValid = this.isValid();
@@ -884,8 +893,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var status;
         //this.contentSourceNode.setHiderLayer(false,{});
         var changes = this.getChangesLogger();
-        var changedGrids = this.getChangedGrids();
-        var changed = (changes.len() > 0);
+        var changed = (changes.len() > 0 || this.registeredGridsStatus()=='changed');
         this.changed = changed;
         this.setControllerData('changed',changed);
         if(this.pkeyPath && !this.getCurrentPkey()){
