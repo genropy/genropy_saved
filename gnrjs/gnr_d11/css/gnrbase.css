@@ -841,6 +841,21 @@ table.formbuilder {
 .rowEditorStatus_noedit{
     display: none;
 }
+
+.editGrid_semaphore{
+    height:16px;
+    width:16px;
+    background: url(icons/base16/semaphore_gray.png) no-repeat center center;
+}
+
+.editGrid_error .editGrid_semaphore{
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
+}
+
+.editGrid_changed .editGrid_semaphore{
+    background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
+}
+
 ._common_d11 .rowEditorStatus.dojoxGrid-cell{
     border-right:0px !important;
 }

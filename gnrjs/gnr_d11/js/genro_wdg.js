@@ -531,6 +531,7 @@ dojo.declare("gnr.RowEditor", null, {
                 this.deleteRowEditor();
             }
         }
+        this.gridEditor.updateStatus();
         this.gridEditor.lastEditTs = new Date();
         this.currentCol = null;
     },
@@ -560,7 +561,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.formId = sourceNode.getInheritedAttributes()['formId'];
         this.rowEditors = {};
-        this.pendingEditedRows = new gnr.GnrBag();
+        this._status_list = ['error','changed'];
         this.grid.rows.isOver = function(inRowIndex) {
             return ((this.overRow == inRowIndex) && !grid.gnrediting);
         };
@@ -571,10 +572,10 @@ dojo.declare("gnr.GridEditor", null, {
         this.columns = {};
         var sourceNodeContent = sourceNode.getValue();
         var gridEditorNode = sourceNodeContent.getNodeByAttr('tag', 'grideditor',true);
+        var that = this;
+
         if(gridEditorNode){
             var gridEditorColumns = gridEditorNode.getValue();
-            //this.widgetRootNode = gridEditorNode;
-            var that = this;
             var attr;
             gridEditorColumns.forEach(function(node) {
                 attr = objectUpdate({},node.attr);
@@ -586,9 +587,13 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(this.editorPars){
+            console.log('costruisco il gridEditor');
             this.widgetRootNode.attr['_fakeForm'] = true;
+            sourceNode.form.registerEditableGrid(sourceNode.attr.nodeId,grid);
+            sourceNode.subscribe('onNewDatastore',function(){
+                that.onNewGridDataStore()
+            });
             if(this.autoSave){
-                var that = this;
                 var autoSave = this.autoSave;
                 this.widgetRootNode.watch('autoSave',function(){
                     if(that.lastEditTs){
@@ -603,10 +608,6 @@ dojo.declare("gnr.GridEditor", null, {
                 },500);
             }
         }
-
-
-        // dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
-        
         this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
         var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
         editOn = stringSplit(editOn, ',', 2);
@@ -619,13 +620,34 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             }
         });
+        this.updateStatus
     },
     onFormatCell:function(cell, inRowIndex){
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
     },
-    
+    onNewGridDataStore:function(){
+        this.rowEditors = {};
+        this.updateStatus();
+    },
+    updateStatus:function(){
+        var status = null;
+        for(var k in this.rowEditors){
+            status = 'changed';
+            if(this.rowEditors[k].errors){
+                status = 'error';
+                break;
+            }
+        }
+        this.status = status;
+        var viewNode = genro.getFrameNode(this.grid.sourceNode.attr.frameCode);
+        dojo.forEach(this._status_list,function(st){
+            genro.dom.setClass(viewNode,'editGrid_'+st,st==status);
+        });
+        this.grid.sourceNode.setRelativeData('.editor.status',status);
+    },
+
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
         var edit = objectPop(colattr,'edit');
@@ -738,46 +760,6 @@ dojo.declare("gnr.GridEditor", null, {
         }
     },
 
-    onRowEditorEndEditCell:function(){
-        if(this.editedRowsTimeout){
-            clearTimeout(this.editedRowsTimeout);
-        }
-        var that = this;
-        var onResultCb = function(changeset){
-            changeset.forEach(function(n){
-                if(that.rowEditors){
-                    that.rowEditors[n.label].deleteRowEditor();
-                }
-            });
-            //that.grid.updateRowCount();
-        };
-        this.editedRowsTimeout = setTimeout(function(){
-            var changeset = new gnr.GnrBag();
-            var pendingEdit = false;
-            for(var k in that.rowEditors){
-                var rowEditor = that.rowEditors[k];
-                pendingEdit = pendingEdit || rowEditor.currentCol !=null;
-                if(!rowEditor.errors && !rowEditor.currentCol){
-                    changeset.setItem(rowEditor.rowId,rowEditor.data.deepCopy(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
-                    rowEditor.sendingStatus = true;
-                }
-            }
-            //that.grid.updateRowCount();
-            if(changeset.len()>0){
-                if(false){
-                    console.log('changeset',changeset.keys(),changeset);
-                    setTimeout(function(){onResultCb(changeset)},10000)
-                }else{
-                    genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},function(){onResultCb(changeset)});
-                }
-            }
-            if(pendingEdit){
-                that.onRowEditorEndEditCell();
-            }
-        },3000);
-        
-
-    },
 
     getNewRowDefaults:function(){
         if(!this.editorPars){

@@ -40,6 +40,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.formId = formId;
         this.changed = false;
+        this.editableGrids = {};
         this.opStatus = null;
         this.locked = this.locked || false;
         this.current_field = null;
@@ -186,6 +187,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this._register[sourceNode._id] = sourceNode;
             return;
         }
+    },
+    registerEditableGrid:function(nodeId,grid){
+        this.editableGrids[nodeId] = grid;
     },
     
     unregisterChild:function(sourceNode){
@@ -871,12 +875,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isValid:function(){
         return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0));
     },
+    getChangedGrids:function(){
+        this.editableGrids
+    },
     updateStatus:function(){
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
         var status;
         //this.contentSourceNode.setHiderLayer(false,{});
         var changes = this.getChangesLogger();
+        var changedGrids = this.getChangedGrids();
         var changed = (changes.len() > 0);
         this.changed = changed;
         this.setControllerData('changed',changed);
