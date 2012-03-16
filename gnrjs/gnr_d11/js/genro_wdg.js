@@ -632,7 +632,7 @@ dojo.declare("gnr.GridEditor", null, {
                 for(var k in cellmap){
                     if(cellmap[k].relating_column == colname){
                         hiddencol.push(cellmap[k].related_column);
-                        related_setter[cellmap[k].related_column] = k;
+                        related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
                     }
                 }
                 colattr['hiddenColumns'] = hiddencol.join(',');
