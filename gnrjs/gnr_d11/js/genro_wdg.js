@@ -613,14 +613,39 @@ dojo.declare("gnr.GridEditor", null, {
     
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
-        var edit = objectPop(colattr,'edit')
+        var edit = objectPop(colattr,'edit');
         if(edit!==true){
             colattr = objectUpdate(colattr,edit);
         }
-        if('tag' in colattr){
+        if(!('tag' in colattr)){
             var dt = colattr['dtype'];
             var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'};
             colattr['tag'] = widgets[dt] || 'Textbox';
+            if('related_table' in colattr){
+                colattr['tag'] = 'dbselect';
+                colattr['dbtable'] = colattr['related_table'];
+                var cellmap = this.grid.cellmap;
+                var related_setter = {};
+                var grid = this.grid;
+                //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
+                var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
+                for(var k in cellmap){
+                    if(cellmap[k].relating_column == colname){
+                        hiddencol.push(cellmap[k].related_column);
+                        related_setter[cellmap[k].related_column] = k;
+                    }
+                }
+                colattr['hiddenColumns'] = hiddencol.join(',');
+                colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+                    var selectRow = this.widget.item.attr;
+                    var rowNode = grid.dataNodeByIndex(rowIndex);
+                    var newAttr = objectUpdate({},rowNode.attr);
+                    for (var k in related_setter){
+                        newAttr[related_setter[k]] = selectRow[k];
+                    }
+                    rowNode.updAttributes(newAttr,true);
+                }
+            }
         }
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
     },
@@ -799,6 +824,7 @@ dojo.declare("gnr.GridEditor", null, {
         attr.width = (cellNode.clientWidth-10)+'px';
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr) {
+            console.log('value in attr',attr);
             if (attr.tag.toLowerCase() == 'dbselect') {
                 attr.selectedCaption = '.' + gridcell;
             }

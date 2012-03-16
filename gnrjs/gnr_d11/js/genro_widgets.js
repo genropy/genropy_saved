@@ -85,6 +85,9 @@ gnr.columnsFromStruct = function(struct, columns) {
             continue;
         }
         if (fld) {
+            if(node.attr.caption_field){
+                arrayPushNoDup(columns,node.attr.caption_field);
+            }
             if(node.attr['_storename']){
                 //_extname considerare
                 arrayPushNoDup(columns,node.attr['_external_name']);
@@ -2671,6 +2674,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 cell._subfield = f[1];
                             }
                             cell.field = cell.field.replace(/\W/g, '_');
+                            cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
                             if (dtype) {
                                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
                             }                            
@@ -3196,7 +3200,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(!rowdata){
             console.log('no rowdata:',rowdata);
         }
-        return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : rowdata[this.field];
+        return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : rowdata[this.field_getter];
     },
 
     mixin_rowCached:function(inRowIndex) {
