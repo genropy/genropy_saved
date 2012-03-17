@@ -742,7 +742,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
     saveChangedRows:function(){
         var that = this;
-        var changeset = this.getChangeset();
+        var changeset = this.getChangeset(true);
         if(changeset.len()>0){
             that.grid.updateRowCount();
             genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},
@@ -750,13 +750,13 @@ dojo.declare("gnr.GridEditor", null, {
         }
     },
 
-    getChangeset:function(){
+    getChangeset:function(sendingStatus){
         var changeset = new gnr.GnrBag();
         for(var k in this.rowEditors){
             var rowEditor = this.rowEditors[k];
             if(!rowEditor.errors && !rowEditor.currentCol){
                 changeset.setItem(rowEditor.rowId,rowEditor.data.deepCopy(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
-                rowEditor.sendingStatus = true;
+                rowEditor.sendingStatus = sendingStatus;
             }
         }
         return changeset;

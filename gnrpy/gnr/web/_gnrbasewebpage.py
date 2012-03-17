@@ -473,6 +473,7 @@ class GnrBaseWebPage(GnrObject):
         """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
+        gridsChanges = data.pop('grids')
         onSavingMethod = 'onSaving'
         onSavedMethod = 'onSaved'
         maintable = getattr(self, 'maintable')
@@ -496,6 +497,16 @@ class GnrBaseWebPage(GnrObject):
         record = tblobj.writeRecordCluster(recordCluster, recordClusterAttr)
         if onSavedHandler:
             onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
+        if gridsChanges:
+            fkey = record[tblobj.pkey]
+            for gridchange in gridsChanges:
+                grid_changeset = gridchange.value
+                if recordClusterAttr.get('_newrecord'):
+                    for row in grid_changeset.values():
+                        for k,v in row.items():
+                            if v == '*newrecord*':
+                                row[k] = fkey
+                self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
         if not _nocommit:
             self.db.commit()
         if not 'caption' in resultAttr:

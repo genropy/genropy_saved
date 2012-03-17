@@ -961,7 +961,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             recInfo['locking_%s' % f] = aux[f]
     
     @public_method
-    def saveEditedRows(self,table=None,changeset=None):
+    def saveEditedRows(self,table=None,changeset=None,commit=True):
         if not changeset:
             return
         tblobj = self.db.table(table)
@@ -986,7 +986,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             for k,r in changeset.items():
                 tblobj.insert(r)
                 insertedRecords[k] = r[pkeyfield]
-        self.db.commit()
+        if commit:
+            self.db.commit()
         result['wrongUpdates'] = wrongUpdates
         result['insertedRecords'] = insertedRecords
         return result

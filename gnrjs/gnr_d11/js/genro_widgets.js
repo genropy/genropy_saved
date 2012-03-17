@@ -3334,10 +3334,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             storebag.sort(sortedBy);
         }
-
+        this.sourceNode.publish('onNewDatastore');
         this.updateRowCount();
         this.restoreSelectedRows();
-        this.sourceNode.publish('onNewDatastore');
     },
     mixin_restoreSelectedRows:function(){
         this.selection.unselectAll();

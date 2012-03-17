@@ -196,9 +196,10 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)     
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=False,hider=True,saveMethod=None,autoSave=True,statusColumn=True,default_kwargs=None,**kwargs):
+                            readOnly=False,hider=None,saveMethod=None,autoSave=True,statusColumn=True,default_kwargs=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
+        hider = autoSave if hider is None else hider
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,
                                         default_kwargs=default_kwargs,**kwargs)
