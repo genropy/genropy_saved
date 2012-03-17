@@ -509,22 +509,49 @@ dojo.declare("gnr.RowEditor", null, {
         this.original_values = objectUpdate({},rowNode.attr);
         this.newrecord = rowNode.attr._newrecord;
         objectPop(this.original_values,'_newrecord');
-        this.data = new gnr.GnrBag(this.newrecord?this.original_values:null);
+        objectPop(this.original_values,'_pkey');
+        if(this.newrecord){
+            this.data = new gnr.GnrBag(this.original_values);
+            var cellmap = this.grid.cellmap;
+            for(var k in cellmap){
+                if (cellmap[k].validate_notnull && !this.original_values[k]){
+                    var _validationError = cellmap[k].validate_notnull_error || 'not null';
+                    this.data.setItem(k,null,{_validationError:_validationError});
+                }
+            }
+        }else{
+             this.data = new gnr.GnrBag();
+        }
         rowNode.setValue(this.data);
+        
     },
+    getErrors:function(){
+        var errors = {};
+        this.data.forEach(function(n){
+            if(n.attr._validationError){
+                errors[n.label] = n.attr._validationError;
+            }
+        });
+        if(objectNotEmpty(errors)){
+            return errors;
+        }
+        return null;
+    },
+   //setError:function(colname,value){
+   //    if(value){
+   //        if(!this.errors){
+   //            this.errors = {};
+   //        }
+   //        this.errors[colname] = value;
+   //    }else if(this.errors){
+   //        objectPop(this.errors,this.currentCol);
+   //        if(!objectNotEmpty(this.errors)){
+   //            this.errors = null;
+   //        }
+   //    }
+   //},
     endEditCell:function(editingInfo){
         var n = this.data.getNode(this.currentCol);
-        if(n.attr._validationError){
-            if(!this.errors){
-                this.errors = {};
-            }
-            this.errors[this.currentCol] = n.attr._validationError;
-        }else{
-            objectPop(this.errors,this.currentCol);
-            if(!objectNotEmpty(this.errors)){
-                this.errors = null;
-            }
-        }
         if(n.attr._loadedValue===n.getValue()){
             this.data.popNode(n.label);
             if(this.data.len()==0){
@@ -538,6 +565,7 @@ dojo.declare("gnr.RowEditor", null, {
     startEditCell:function(colname){
         this.currentCol = colname;
         this.gridEditor.lastEditTs = null;
+        this.gridEditor.updateStatus();
     },
     deleteRowEditor:function(){
         objectPop(this.gridEditor.rowEditors,this.rowId);
@@ -637,7 +665,7 @@ dojo.declare("gnr.GridEditor", null, {
         var status = null;
         for(var k in this.rowEditors){
             status = 'changed';
-            if(this.rowEditors[k].errors){
+            if(this.rowEditors[k].getErrors()){
                 status = 'error';
                 break;
             }
@@ -754,7 +782,7 @@ dojo.declare("gnr.GridEditor", null, {
         var changeset = new gnr.GnrBag();
         for(var k in this.rowEditors){
             var rowEditor = this.rowEditors[k];
-            if(!rowEditor.errors && !rowEditor.currentCol){
+            if(!rowEditor.getErrors() && !rowEditor.currentCol){
                 changeset.setItem(rowEditor.rowId,rowEditor.data.deepCopy(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
                 rowEditor.sendingStatus = sendingStatus;
             }
@@ -772,30 +800,33 @@ dojo.declare("gnr.GridEditor", null, {
             var queries = new gnr.GnrBag();
             var rcol,hcols;
             for(var k in cellmap){
-                if(cellmap[k].related_table){
-                    rcol = cellmap[k].relating_column;
+                var cmap = cellmap[k];
+                if(cmap.related_table){
+                    rcol = cmap.relating_column;
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
                             if(cellmap[j].relating_column==rcol){}
                             hcols.push(cellmap[j].related_column);
                         }
-                        queries.setItem(rcol,null,{table:cellmap[k].related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                        queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
                     }
                 }
             }
-            var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
-            for(var k in cellmap){
-                rcol = cellmap[k].relating_column;
-                if (rcol){
-                    result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+            if(queries.len()>0){
+                var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
+                for(var k in cellmap){
+                    rcol = cellmap[k].relating_column;
+                    if (rcol){
+                        result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+                    }
                 }
             }
             result['_newrecord'] = true;
             return result;
         }
     },
-    startEditRemote:function(n,colname){
+    startEditRemote:function(n,colname,rowIndex){
         var rowData = n.getValue();
         var rowId = this.grid.rowIdentity(n.attr);
         if(!rowId && n.attr._newrecord){
@@ -806,6 +837,9 @@ dojo.declare("gnr.GridEditor", null, {
         if(!rowEditor){
             var rowEditor = new gnr.RowEditor(this,n);
             this.rowEditors[rowId] = rowEditor;
+            if(rowEditor.newrecord){
+                this.grid.updateRow(rowIndex);
+            }
         }
         if(rowEditor.sendingStatus){
             return;
@@ -831,7 +865,7 @@ dojo.declare("gnr.GridEditor", null, {
             datachanged = true;
         }
         if(this.editorPars){
-          editedRowId= this.startEditRemote(rowDataNode,colname);
+          editedRowId= this.startEditRemote(rowDataNode,colname,row);
           if(!editedRowId){
             return;
           }
@@ -986,7 +1020,7 @@ dojo.declare("gnr.GridEditor", null, {
             rowEditor = null;
         }
         if(rowEditor){
-            statusClass = rowEditor.sendingStatus?'waiting16':(rowEditor.errors?'redLight':'yellowLight');
+            statusClass = rowEditor.sendingStatus?'waiting16':(rowEditor.getErrors()?'redLight':'yellowLight');
 
         }
         return '<div class="'+statusClass+'"></div>'

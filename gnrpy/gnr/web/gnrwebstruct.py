@@ -2067,7 +2067,7 @@ class GnrGridStruct(GnrStructData):
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
         columnjoiner = fldobj.relatedColumnJoiner()
-   
+        kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
         if columnjoiner:
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname

@@ -4357,10 +4357,16 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt){
+        var r = this.selection.selectedIndex;
+        if(r>=0){
+            r = r+1;
+        }else{
+            r = this.storebag().len();
+        }
         for(var i=0;i<counter;i++){
             this.addBagRow('#id', '*', this.newBagRow(),evt);
         }
-        this.editBagRow();
+        this.editBagRow(r);
         this.sourceNode.publish('onAddedRows');
     },
 
