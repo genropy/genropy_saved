@@ -287,8 +287,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     deleteConfirmDlg:function(kw){
-         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
-         dlg.center._('div',{innerHTML:this.msg_confirm_delete, text_align:'center',height:'50px'});
+         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
+         dlg.center._('div',{innerHTML:this.msg_confirm_delete, text_align:'center',_class:'alertBodyMessage'});
          var form = this;
          var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
@@ -350,8 +350,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     openPendingChangesDlg:function(kw){
-         var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'250px'});
-         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'50px'});
+         var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'280px'});
+         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
          var form = this;
          var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
                                                 action:function(){
@@ -359,7 +359,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                                     kw.command = this.attr.command;
                                                     form.publish('pendingChangesAnswer',kw);
                                                 }});
-         slotbar._('button','discard',{label:'Discard',command:'discard'});
+         slotbar._('button','discard',{label:'Discard changes',command:'discard'});
          slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
          slotbar._('button','save',{label:'Save',command:'save'});
          dlg.show_action();

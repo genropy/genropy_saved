@@ -964,15 +964,17 @@ class GnrWebAppHandler(GnrBaseProxy):
     def saveEditedRows(self,table=None,changeset=None,commit=True):
         if not changeset:
             return
+        inserted = changeset.pop('inserted')
+        updated =  changeset.pop('updated')
+        deletedNode = changeset.popNode('deleted')
         tblobj = self.db.table(table)
         pkeyfield = tblobj.pkey
-        pkeys = [k for k in changeset.digest('#a._pkey') if k]
         result = Bag()
         wrongUpdates = Bag()
         insertedRecords = Bag()
         def cb(row):
             key = row[pkeyfield]
-            c = changeset.popNode(key)
+            c = updated.getNode(key)
             if c:
                 for n in c.value:
                     _loadedValue = n.attr['_loadedValue']
@@ -980,17 +982,51 @@ class GnrWebAppHandler(GnrBaseProxy):
                         wrongUpdates[key] = row
                         return
                     row[n.label] = n.value
-        if pkeys:
+        if updated:
+            pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
-        if changeset:
-            for k,r in changeset.items():
+        if inserted:
+            for k,r in inserted.items():
                 tblobj.insert(r)
                 insertedRecords[k] = r[pkeyfield]
+        if deletedNode:
+            deleted = deletedNode.value
+            unlinkfield = deletedNode.attr.get('unlinkfield')
+            pkeys = [pkey for pkey in deleted.digest('#a._pkey') if pkey]
+            self.deleteDbRows(table,pkeys=pkeys,unlinkfield=unlinkfield,commit=False)
         if commit:
             self.db.commit()
         result['wrongUpdates'] = wrongUpdates
         result['insertedRecords'] = insertedRecords
         return result
+
+    @public_method    
+    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,**kwargs):
+        """Method for deleting many records from a given table.
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkeys: TODO
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            for r in rows:
+                if unlinkfield:
+                    record = dict(r)
+                    record[unlinkfield] = None
+                    tblobj.update(record,r)
+                else:
+                    tblobj.delete(r)
+            if commit:
+                self.db.commit()
+            
+        except GnrSqlDeleteException, e:
+            return ('delete_error', {'msg': e.message})
+            
         
     @public_method
     @extract_kwargs(default=True)

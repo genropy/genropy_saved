@@ -843,8 +843,8 @@ table.formbuilder {
 }
 
 .editGrid_semaphore{
-    height:16px;
-    width:16px;
+    height: 16px;
+    width: 16px;
     background: url(icons/base16/semaphore_gray.png) no-repeat center center;
 }
 
@@ -2667,6 +2667,9 @@ table.draggedItem {
     background-image:url(icons/invalid_small.png);
     background-repeat:no-repeat;
     background-position:0px 0px;
+}
+.newRowCell.dojoxGrid-cell{
+    font-style:italic;
 }
 
 .dojoxGrid-cell.hiddenColumn {

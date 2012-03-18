@@ -568,32 +568,6 @@ class GnrBaseWebPage(GnrObject):
             return pkey, deleteAttr
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-    
-    @public_method    
-    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,**kwargs):
-        """Method for deleting many records from a given table.
-        
-        :param table: the :ref:`database table <table>` name on which the query will be executed,
-                      in the form ``packageName.tableName`` (packageName is the name of the
-                      :ref:`package <packages>` to which the table belongs to)
-        :param pkeys: TODO
-        :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception"""
-        try:
-            tblobj = self.db.table(table)
-            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
-                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
-            for r in rows:
-                if unlinkfield:
-                    record = dict(r)
-                    record[unlinkfield] = None
-                    tblobj.update(record,r)
-                else:
-                    tblobj.delete(r)
-            self.db.commit()
-            
-        except GnrSqlDeleteException, e:
-            return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
         """

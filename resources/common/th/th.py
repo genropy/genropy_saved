@@ -196,15 +196,27 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)     
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=False,hider=None,saveMethod=None,autoSave=True,statusColumn=True,default_kwargs=None,**kwargs):
+                            readOnly=False,hider=False,saveMethod=None,autoSave=True,statusColumn=None,
+                            default_kwargs=None,semaphore=None,saveButton=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
-        hider = autoSave if hider is None else hider
+        if autoSave:
+            semaphore = False if semaphore is None else semaphore
+            saveButton = False if saveButton is None else saveButton
+            statusColumn = True if statusColumn is None else statusColumn
+        else:
+            semaphore = True if semaphore is None else semaphore
+            saveButton = False if saveButton is None else saveButton
+            statusColumn = False if statusColumn is None else statusColumn
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,
                                         default_kwargs=default_kwargs,**kwargs)
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs,autoSave=autoSave,statusColumn=statusColumn))
+        if saveButton:
+            wdg.view.top.bar.replaceSlots('#','#,gridsave')
+        if semaphore:
+            wdg.view.top.bar.replaceSlots('#','#,gridsemaphore')
         return wdg
         
         
