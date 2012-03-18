@@ -40,7 +40,7 @@ class FormConProvince(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('zona')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                                viewResource=':EditableView',autoSave=True)
+                                                                viewResource=':EditableView',autoSave=500)
         #th = bc.contentPane(region='center').dialogTableHandler(relation='@province',dialog_height='300px',
         #                                                        dialog_width='500px',default_)
     

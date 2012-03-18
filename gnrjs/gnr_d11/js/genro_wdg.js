@@ -785,7 +785,9 @@ dojo.declare("gnr.GridEditor", null, {
             insertedRows.forEach(function(n){
                 var r = that.grid.storebag().getNode(n.label);
                 r.attr._pkey = n.getValue();
-                delete n.attr._newrecord;
+                r._value = null;
+                r.label = n.label;
+                delete r.attr._newrecord;
             });
         }
         this.updateStatus();         
@@ -841,7 +843,8 @@ dojo.declare("gnr.GridEditor", null, {
         });
         if(existingPkeys.length>0){
             if(this.autoSave){
-                this.grid.collectionStore().deleteAsk(existingPkeys,this.markDeleted)
+                
+                this.grid.collectionStore().deleteAsk(existingPkeys,function(pkeys){that.markDeleted(pkeys)})
             }else{
                 this.markDeleted(existingPkeys);
             }
@@ -860,6 +863,10 @@ dojo.declare("gnr.GridEditor", null, {
                 that.rowEditors[pkey].deleteRowEditor();
             }
         });
+        if(this.autoSave && pkeys&&pkeys.length>0){
+            this.lastEditTs = new Date();
+        }
+        this.updateStatus();
     },
 
 
