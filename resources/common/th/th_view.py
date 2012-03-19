@@ -342,7 +342,7 @@ class TableHandlerView(BaseComponent):
         rowsPerPage = self._th_hook('rowsPerPage',dflt=25,mangler=frame)()
         gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
-                        draggable=True, draggable_row=True,
+                        draggable_row=True,
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         onDrop=""" for (var k in data){

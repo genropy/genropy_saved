@@ -499,13 +499,101 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     }
 });
 
+
+dojo.declare("gnr.RowEditor", null, {
+    constructor:function(gridEditor,rowNode){
+        this.gridEditor = gridEditor;
+        this.grid = this.gridEditor.grid;
+        this.rowId = this.grid.rowIdentity(rowNode.attr);
+        this._pkey = rowNode.attr._pkey;
+        this.original_values = objectUpdate({},rowNode.attr);
+        this.newrecord = rowNode.attr._newrecord;
+        this.rowLabel = rowNode.label;
+        objectPop(this.original_values,'_newrecord');
+        objectPop(this.original_values,'_pkey');
+        if(this.newrecord){
+            this.data = new gnr.GnrBag(this.original_values);
+            var cellmap = this.grid.cellmap;
+            for(var k in cellmap){
+                if (cellmap[k].validate_notnull && !this.original_values[k]){
+                    var _validationError = cellmap[k].validate_notnull_error || 'not null';
+                    this.data.setItem(k,null,{_validationError:_validationError});
+                }
+            }
+        }else{
+             this.data = new gnr.GnrBag();
+        }
+        rowNode.setValue(this.data);
+        
+    },
+    getErrors:function(){
+        var errors = {};
+        this.data.forEach(function(n){
+            if(n.attr._validationError){
+                errors[n.label] = n.attr._validationError;
+            }
+        });
+        if(objectNotEmpty(errors)){
+            return errors;
+        }
+        return null;
+    },
+    endEditCell:function(editingInfo){
+        var n = this.data.getNode(this.currentCol);
+        if(n.attr._loadedValue===n.getValue()){
+            this.data.popNode(n.label);
+            if(this.data.len()==0){
+                this.deleteRowEditor();
+            }
+        }
+        this.gridEditor.updateStatus();
+        this.gridEditor.lastEditTs = new Date();
+        this.currentCol = null;
+    },
+    startEditCell:function(colname){
+        this.currentCol = colname;
+        this.gridEditor.lastEditTs = null;
+        this.gridEditor.updateStatus();
+    },
+    deleteRowEditor:function(){
+        objectPop(this.gridEditor.rowEditors,this.rowId);
+        var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
+        genro.assert(rowIndex>=0,'not found '+this.rowId);
+        this.grid.updateRow(rowIndex);
+    },
+    checkRowEditor:function(){
+        var toDelete = true;
+        var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
+
+        this.data.forEach(function(n){
+            if(n.attr._loadedValue!=n.getValue()){
+                toDelete = false;
+            }
+        });
+        if(toDelete){
+            this.deleteRowEditor();
+        }else{
+            this.grid.updateRow(rowIndex);
+        }
+    }
+});
+
 dojo.declare("gnr.GridEditor", null, {
     constructor:function(grid) {
         this.grid = grid;
 
         var sourceNode = grid.sourceNode;
         this.viewId = sourceNode.attr.nodeId;
+        this.table= sourceNode.attr.table;
+        this.editorPars = sourceNode.attr.gridEditor;
+        this.autoSave = this.editorPars? this.editorPars.autoSave:false;
+        if(this.autoSave===true){
+            this.autoSave = 3000;
+        }
         this.formId = sourceNode.getInheritedAttributes()['formId'];
+        this.rowEditors = {};
+        this.deletedRows = new gnr.GnrBag()
+        this._status_list = ['error','changed'];
         this.grid.rows.isOver = function(inRowIndex) {
             return ((this.overRow == inRowIndex) && !grid.gnrediting);
         };
@@ -516,25 +604,47 @@ dojo.declare("gnr.GridEditor", null, {
         this.columns = {};
         var sourceNodeContent = sourceNode.getValue();
         var gridEditorNode = sourceNodeContent.getNodeByAttr('tag', 'grideditor',true);
+        var that = this;
+
         if(gridEditorNode){
             var gridEditorColumns = gridEditorNode.getValue();
-            //this.widgetRootNode = gridEditorNode;
-            var that = this;
             var attr;
             gridEditorColumns.forEach(function(node) {
                 attr = objectUpdate({},node.attr);
                 genro.assert(attr.gridcell,"Missing gridcell parameter");
-                that.addEditColumn(attr.gridcell,attr)
+                that.addEditColumn(attr.gridcell,attr);
             });
             gridEditorNode.setValue(null,false);
             gridEditorNode.attr.tag=null;
         }
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
-        
-
-
-        // dojo.connect(widget,'onCellMouseOver',this,'onCellMouseOver')
-        
+        if(this.editorPars){
+            this.widgetRootNode.attr['_fakeForm'] = true;            
+            sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
+            sourceNode.subscribe('onNewDatastore',function(){
+                that.onNewGridDataStore()
+            });
+            sourceNode.subscribe('saveChangedRows',function(){
+                that.saveChangedRows();
+            });
+            if(this.autoSave){
+                var autoSave = this.autoSave;
+                this.widgetRootNode.watch('autoSave',function(){
+                    if (that.grid.sourceNode.form && that.grid.sourceNode.form.isNewRecord()){
+                        return false;
+                    }
+                    if(that.lastEditTs){
+                        if((new Date()-that.lastEditTs)>autoSave){
+                            that.lastEditTs = null;
+                            that.saveChangedRows();
+                        }
+                    }
+                    return false;
+                },function(){
+                   
+                },500);
+            }
+        }
         this.widgetRootNode.attr.datapath = sourceNode.absDatapath(sourceNode.attr.storepath);
         var editOn = this.widgetRootNode.attr.editOn || 'onCellDblClick';
         editOn = stringSplit(editOn, ',', 2);
@@ -547,14 +657,82 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             }
         });
+        this.updateStatus
     },
-    
+    onFormatCell:function(cell, inRowIndex,renderedRow){
+        if (this.invalidCell(cell, inRowIndex)) {
+            cell.customClasses.push('invalidCell');
+        }
+        if(renderedRow._newrecord){
+            cell.customClasses.push('newRowCell');
+        }
+    },
+    onNewGridDataStore:function(){
+        this.rowEditors = {};
+        this.deletedRows = new gnr.GnrBag();
+        this.updateStatus();
+    },
+    updateStatus:function(){
+        var status = this.deletedRows.len()>0?'changed':null;
+        for(var k in this.rowEditors){
+            status = 'changed';
+            if(this.rowEditors[k].getErrors()){
+                status = 'error';
+                break;
+            }
+        }
+        this.status = status;
+        var viewNode = genro.getFrameNode(this.grid.sourceNode.attr.frameCode);
+        dojo.forEach(this._status_list,function(st){
+            genro.dom.setClass(viewNode,'editGrid_'+st,st==status);
+        });
+        this.grid.sourceNode.setRelativeData('.editor.status',status);
+        this.grid.sourceNode.form.updateStatus();
+    },
+
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
+        var edit = objectPop(colattr,'edit');
+        if(edit!==true){
+            colattr = objectUpdate(colattr,edit);
+        }
+        if(!('tag' in colattr)){
+            var dt = colattr['dtype'];
+            var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'};
+            colattr['tag'] = widgets[dt] || 'Textbox';
+            if('related_table' in colattr){
+                colattr['tag'] = 'dbselect';
+                colattr['dbtable'] = colattr['related_table'];
+                var cellmap = this.grid.cellmap;
+                var related_setter = {};
+                var grid = this.grid;
+                //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
+                var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
+                for(var k in cellmap){
+                    if(cellmap[k].relating_column == colname){
+                        hiddencol.push(cellmap[k].related_column);
+                        related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
+                    }
+                }
+                colattr['hiddenColumns'] = hiddencol.join(',');
+                colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+                    if(!this.widget.item){
+                        return;
+                    }
+                    var selectRow = this.widget.item.attr;
+                    var rowNode = grid.dataNodeByIndex(rowIndex);
+                    var newAttr = objectUpdate({},rowNode.attr);
+                    for (var k in related_setter){
+                        newAttr[related_setter[k]] = selectRow[k];
+                    }
+                    rowNode.updAttributes(newAttr,true);
+                }
+            }
+        }
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
     },
     delEditColumn:function(colname){
-        objectPop(this.columns,colname.replace(/\W/g, '_'))
+        objectPop(this.columns,colname.replace(/\W/g, '_'));
     },
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
@@ -584,18 +762,178 @@ dojo.declare("gnr.GridEditor", null, {
             return datanode ? datanode.attr._validationError : false;
         }
     },
-    
-    startEditRemote:function(n,colname){
-        console.log('startEditRemote');
-        var rowData = n.getValue();
-        if(!rowData){
-            rowData = new gnr.GnrBag();
-            n.setValue(rowData);
+
+    onSavedChangedRows :function(changeset,result){
+        var that = this;
+        var updated = changeset.getItem('updated');
+        var inserted = changeset.getItem('inserted');
+        if(updated){
+            updated.forEach(function(n){
+                if(that.rowEditors && that.rowEditors[n.label]){
+                    that.rowEditors[n.label].deleteRowEditor();
+                }
+            });
         }
-        if(rowData.index(colname)<0){
-            rowData.setItem(colname,n.attr[colname]);
+        if(inserted){
+            inserted.forEach(function(n){
+                if(that.rowEditors && that.rowEditors[n.label]){
+                    that.rowEditors[n.label].deleteRowEditor();
+                }
+            });
         }
         
+        var insertedRows = result.getItem('insertedRecords');
+        if(insertedRows){
+            insertedRows.forEach(function(n){
+                var r = that.grid.storebag().getNode(n.label);
+                r.attr._pkey = n.getValue();
+                r._value = null;
+                r.label = n.label;
+                delete r.attr._newrecord;
+            });
+        }
+        this.updateStatus();         
+    },
+    saveChangedRows:function(){
+        var that = this;
+        var changeset = this.getChangeset(true);
+        if(changeset.len()>0){
+            that.grid.updateRowCount();
+            genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},
+                            function(result){that.onSavedChangedRows(changeset,result);});
+        }
+    },
+
+    getChangeset:function(sendingStatus){
+        var changeset = new gnr.GnrBag();
+        var collectionStore = this.grid.collectionStore();
+
+        for(var k in this.rowEditors){
+            var rowEditor = this.rowEditors[k];
+            if(!rowEditor.getErrors() && !rowEditor.currentCol){
+                var prefix = rowEditor.newrecord?'inserted.':'updated.';
+                changeset.setItem(prefix+rowEditor.rowId,rowEditor.data.deepCopy(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
+                rowEditor.sendingStatus = sendingStatus;
+            }
+        }
+        var deletedRows = new gnr.GnrBag();
+        this.deletedRows.forEach(function(n){
+            deletedRows.setItem(n.attr._pkey,null,{_pkey:n.attr._pkey});
+        });
+        if(deletedRows.len()>0){
+            var unlinkfield = collectionStore.unlinkdict?collectionStore.unlinkdict.field:null;
+            changeset.setItem('deleted',deletedRows,{unlinkfield:unlinkfield});
+        }
+        this.deletedRows = new gnr.GnrBag();
+        return changeset;
+    },
+
+    deleteSelectedRows:function(pkeys){
+        var selectedIdx = this.grid.selection.getSelected()
+        console.log('pippero',selectedIdx,pkeys);
+        var existingPkeys = [];
+        var that = this;
+        var storebag = this.grid.storebag();
+        dojo.forEach(pkeys,function(n){
+            if(that.rowEditors[n] && that.rowEditors[n].newrecord){
+                var rowLabel = that.rowEditors[n].rowLabel;
+                that.rowEditors[n].deleteRowEditor();
+                storebag.popNode(rowLabel);
+            }else{
+                existingPkeys.push(n);
+            }
+        });
+        if(existingPkeys.length>0){
+            if(this.autoSave){
+                
+                this.grid.collectionStore().deleteAsk(existingPkeys,function(pkeys){that.markDeleted(pkeys)})
+            }else{
+                this.markDeleted(existingPkeys);
+            }
+        }
+        this.updateStatus();
+    },
+
+    markDeleted:function(pkeys){
+        var that = this;
+        var storebag = this.grid.storebag();
+        dojo.forEach(pkeys,function(pkey){
+            var node = storebag.getNodeByAttr('_pkey',pkey);
+            node = storebag.popNode(node.label);
+            that.deletedRows.setItem(node.label,node);
+            if(that.rowEditors[pkey]){
+                that.rowEditors[pkey].deleteRowEditor();
+            }
+        });
+        if(this.autoSave && pkeys&&pkeys.length>0){
+            this.lastEditTs = new Date();
+        }
+        this.updateStatus();
+    },
+
+
+    getNewRowDefaults:function(){
+        if(!this.editorPars){
+            return {};
+        }
+        else{
+            var default_kwargs = this.editorPars.default_kwargs || {};
+            var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
+            var cellmap = this.grid.cellmap;
+            var queries = new gnr.GnrBag();
+            var rcol,hcols;
+            for(var k in cellmap){
+                var cmap = cellmap[k];
+                if(cmap.related_table){
+                    rcol = cmap.relating_column;
+                    if(result[rcol]){
+                        hcols = [];
+                        for(var j in cellmap){
+                            if(cellmap[j].relating_column==rcol){}
+                            hcols.push(cellmap[j].related_column);
+                        }
+                        queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                    }
+                }
+            }
+            if(queries.len()>0){
+                var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
+                for(var k in cellmap){
+                    rcol = cellmap[k].relating_column;
+                    if (rcol){
+                        result[cellmap[k].field_getter] = remoteDefaults.getItem(rcol+'.#0?'+cellmap[k].related_column.replace(/\W/g, '_'));
+                    }
+                }
+            }
+            result['_newrecord'] = true;
+            return result;
+        }
+    },
+    startEditRemote:function(n,colname,rowIndex){
+        var rowData = n.getValue();
+        var rowId = this.grid.rowIdentity(n.attr);
+        if(!rowId && n.attr._newrecord){
+            rowId = n.attr._pkey = n.label;
+
+        }
+        var rowEditor = this.rowEditors[rowId];
+        if(!rowEditor){
+            var rowEditor = new gnr.RowEditor(this,n);
+            this.rowEditors[rowId] = rowEditor;
+            if(rowEditor.newrecord){
+                this.grid.updateRow(rowIndex);
+            }
+        }
+        if(rowEditor.sendingStatus){
+            return;
+        }
+        var rowData = rowEditor.data;
+        if(rowData.index(colname)<0){
+            rowData.setItem(colname,n.attr[colname],{_loadedValue:n.attr[colname]});
+        }
+
+        rowEditor.startEditCell(colname);
+        return rowId;
     },
     startEdit:function(row, col) {
         var grid = this.grid;
@@ -603,14 +941,18 @@ dojo.declare("gnr.GridEditor", null, {
         var colname = cell.field;
         var fldDict = this.columns[colname];
         var gridcell = fldDict.attr.gridcell || colname;
-        var gridSelectionStore = grid.sourceNode._useStore;
         var rowDataNode = grid.dataNodeByIndex(row);
         var datachanged = false;
+        var editedRowId=null;
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
             datachanged = true;
         }
-        if(gridSelectionStore){
-           this.startEditRemote(rowDataNode,colname);
+        if(this.editorPars){
+          editedRowId= this.startEditRemote(rowDataNode,colname,row);
+          if(!editedRowId){
+            return;
+          }
+          this.widgetRootNode.form = null;
         }
         var rowData = rowDataNode.getValue();
   
@@ -635,8 +977,10 @@ dojo.declare("gnr.GridEditor", null, {
 
         var attr = objectUpdate({}, fldDict.attr);
         attr.datapath = '.' + rowLabel;
+        attr.width = (cellNode.clientWidth-10)+'px';
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr) {
+            console.log('value in attr',attr);
             if (attr.tag.toLowerCase() == 'dbselect') {
                 attr.selectedCaption = '.' + gridcell;
             }
@@ -657,7 +1001,7 @@ dojo.declare("gnr.GridEditor", null, {
 
 
         var editingInfo = {'cellNode':cellNode,'contentText':cellNode.innerHTML,
-            'row':row,'col':col};
+            'row':row,'col':col,'editedRowId':editedRowId};
         cellNode.innerHTML = null;
         var cbKeys = function(e) {
             var keyCode = e.keyCode;
@@ -732,6 +1076,12 @@ dojo.declare("gnr.GridEditor", null, {
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);
+        if(editingInfo.editedRowId){
+            if(this.rowEditors[editingInfo.editedRowId]){
+                this.rowEditors[editingInfo.editedRowId].endEditCell(editingInfo);
+                this.grid.updateRow(editingInfo.row);
+            }
+        }
         if (delta) {
             var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
             if (rc) {
@@ -742,6 +1092,28 @@ dojo.declare("gnr.GridEditor", null, {
     },
     editableCell:function(col) {
         return (this.grid.getCell(col).field in this.columns);
+    },
+    onExternalChange:function(pkey){
+        if(pkey in this.rowEditors){
+            this.rowEditors[pkey].checkRowEditor();
+        }
+        this.updateStatus();
+    },
+    
+    statusColGetter:function(rowdata,idx){
+        var statusClass = 'rowEditorStatus_noedit';
+        var rowId = this.grid.rowIdentity(rowdata);
+        var rowEditor = this.rowEditors[rowId];
+        if(rowEditor && rowEditor.data.len()==0){
+            //rowEditor.deleteRowEditor();
+            genro.assert(!rowEditor,'xxx')
+            rowEditor = null;
+        }
+        if(rowEditor){
+            statusClass = rowEditor.sendingStatus?'waiting16':(rowEditor.getErrors()?'redLight':'yellowLight');
+
+        }
+        return '<div class="'+statusClass+'"></div>'
     },
     findNextEditableCell: function(rc, delta) {
         var row = rc.row;
@@ -769,3 +1141,4 @@ dojo.declare("gnr.GridEditor", null, {
     }
 
 });
+

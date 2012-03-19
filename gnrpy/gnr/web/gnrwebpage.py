@@ -1338,7 +1338,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                 c[k] = convertFromText(c[k]);
                                             }
                                         })
-                                        genro.publish('dbevent_'+_node.label,{'changelist':changelist,'pkeycol':_node.attr.pkeycol});""",
+                                        genro.publish('dbevent_'+_node.label,{'changelist':changelist,'pkeycol':_node.attr.pkeycol,'changeattr':_node.attr});""",
                                         changes="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))

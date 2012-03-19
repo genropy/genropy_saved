@@ -8,7 +8,6 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class Form(BaseComponent):
 
     def th_form(self,form,**kwargs):
-        
         pane = form.record
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
         fb.field('nome', width='20em')
@@ -34,11 +33,16 @@ class View(BaseComponent):
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
+        
 
-class EditableView(View):
+class EditableView(View):    
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome', width='20em',edit=True)
-        r.fieldcell('sigla',width='3em')
-        r.fieldcell('codice_istat',width='7em',sortable=False)
-        r.fieldcell('regione',width='100%')
+        r.fieldcell('sigla',width='3em',edit=True)
+        r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
+        #r.fieldcell('regione',width='8em',name='Regione',edit=True)
+        #r.fieldcell('@regione.zona',width='5em',name='Zona')
+        #r.fieldcell('regione_nome',width='8em')
+        
+

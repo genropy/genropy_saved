@@ -270,7 +270,7 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     helper_in:function(rowNode){
-        var dlg = genro.dlg.quickDialog(_T('Helper in'));
+        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px'});
         var center = dlg.center;
         var relpath = rowNode.attr.relpath;
         var val = rowNode.getRelativeData(relpath);

@@ -164,27 +164,20 @@ body.workInProgress{
 	padding-right:4px;
 }
 
-.tundra .dijitTextBoxReadOnly,
-.tundra .dijitTextBoxReadOnly .dijitButtonNode,
-.tundra .dijitButtonDisabled .dijitButtonNode,
-.tundra .dijitToggleButtonDisabled .dijitButtonNode,
-.tundra .dijitDropDownButtonDisabled .dijitButtonNode,
-.tundra .dijitComboButtonDisabled .dijitButtonNode,
-.tundra .dijitTextBoxDisabled,
-.tundra .dijitTextBoxDisabled .dijitButtonNode {
-	/* disabled state - inner */
-	border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
-	background-color: white;
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
-    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
-	
-}
+.tundra .dijitDisabled.dijitTextBoxReadOnly,
+.tundra .dijitDisabled.dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitDisabled.dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitDisabled.dijitTextBoxDisabled,
+.tundra .dijitDisabled.dijitComboBoxDisabled,
+.tundra .dijitDisabled.dijitTextBoxDisabled .dijitButtonNode ,
 .dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
-    border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
-	background-color: white;
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
-    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
-	
+	/* disabled state - inner */
+    border-color: #dedede;
+	/*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);*/
 }
 
 
@@ -199,6 +192,10 @@ body.workInProgress{
 	border-color: silver;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+
+.tundra .dijitDisabled.dijitComboBoxDisabled .dijitArrowButton{
+    display:none;
 }
 
 .tundra .dijitComboBox .dijitButtonNode{
@@ -365,27 +362,24 @@ body.workInProgress{
     text-align: right;
 }
 
+
 .tundra .dijitError {
-   /* background-color: #fff2f5;
-    background-image: none;*/
     border-color: silver;
-    background: white url(icons/base12/invalid.png) no-repeat right 2px;
+    background: white url(icons/invalid_small.png) no-repeat top left;
 
 }
 
 .tundra .dijitTextBoxErrorDisabled {
-    background: transparent;
-    border-color: silver;
+    border-color: transparent;
 }
 
 .dijitComboBox.dijitError, .dijitSpinner.dijitError{
 	border-color: silver;
-    background: white url(icons/base12/invalidcombo.png) no-repeat right 2px;
+    background: white url(icons/invalid_small.png) no-repeat top left;
 }
 
 .tundra .dijitComboBoxErrorDisabled {
-	border-color: silver;
-	background: transparent;
+    border-color: transparent;
 }
 
 label.ghostlabel span {
@@ -844,6 +838,30 @@ table.formbuilder {
 
 /* @end */
 
+.rowEditorStatus_noedit{
+    display: none;
+}
+
+.editGrid_semaphore{
+    height: 16px;
+    width: 16px;
+    background: url(icons/base16/semaphore_gray.png) no-repeat center center;
+}
+
+.editGrid_error .editGrid_semaphore{
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
+}
+
+.editGrid_changed .editGrid_semaphore{
+    background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
+}
+
+._common_d11 .rowEditorStatus.dojoxGrid-cell{
+    border-right:0px !important;
+}
+
+
+
 .icnWarning {
     background: url(icons/iconWarning.gif) no-repeat;
     width: 20px;
@@ -857,6 +875,8 @@ table.formbuilder {
 }
 
 /* @group base14 */
+
+
 .vieselectorIcn {
     background: url(icons/viewselector.png) no-repeat center center;
     height: 16px;
@@ -885,6 +905,11 @@ table.formbuilder {
     background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
     width: 14px;
     height: 14px;
+}
+.waiting16{
+    background: url(icons/wait16trans.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
 }
 
 /* @end */
@@ -1702,7 +1727,7 @@ div.dojoxDock {
 /* @end */
 
 .gnrfield .dijitButtonDisabled .dijitButtonNode, .tundra .dijitToggleButtonDisabled .dijitButtonNode, .tundra .dijitDropDownButtonDisabled .dijitButtonNode, .tundra .dijitComboButtonDisabled .dijitButtonNode, .tundra .dijitComboBoxDisabled, .tundra .dijitSpinnerDisabled, .tundra .dijitSpinnerDisabled .dijitButtonNode {
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .warningForm .saving_btn .dijitButtonNode {
@@ -2085,10 +2110,33 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .dojoxGrid-cell {
 	border: 1px dotted #D5CDB5;
 	border-top: 0px;
-	padding: 3px 3px 3px 3px;
+	padding: 1px;
 	text-align: left;
 	overflow: hidden;
 }
+
+div.cellContent{
+    border-radius:4px;
+    padding:2px;
+    -moz-transition-duration:0;
+    -webkit-transition-duration:0;
+    transition-duration:0;
+}
+
+.externalChangedCell .cellContent{
+    background-color:#C7FFB4;
+}
+
+.onExternalChanged .externalChangedCell .cellContent{
+    -moz-transition-property:background-color;
+    -webkit-transition-property:background-color;
+    -moz-transition-duration:5s;
+    -webkit-transition-duration:5s;
+    transition-duration:5s;
+    transition-property:background-color;
+    background-color:transparent;
+}
+
 .dj_ie6 .tundra .dojoxGrid-cell {
 	border: 1px solid white;
 	border-right: 1px solid #D5CDB5;
@@ -2543,6 +2591,7 @@ border='1px solid gray',margin='2px', rounded=10,
     color:black;
 }
 
+
 .rowsetdragging {
     /*font-size: 0.8em;*/
     border:1px solid silver;
@@ -2612,6 +2661,15 @@ table.draggedItem {
 .dojoxGrid td.cell_N,
 .dojoxGrid td.cell_L {
     text-align: right;
+}
+
+._common_d11 td.invalidCell.dojoxGrid-cell{
+    background-image:url(icons/invalid_small.png);
+    background-repeat:no-repeat;
+    background-position:0px 0px;
+}
+.newRowCell.dojoxGrid-cell{
+    font-style:italic;
 }
 
 .dojoxGrid-cell.hiddenColumn {

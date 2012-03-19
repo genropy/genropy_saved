@@ -1369,10 +1369,10 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
-        delete_one : "You are going to delete the selected record. You can't undo this operation",
-        delete_many : "You are going to delete $count records. You can't undo this operation. Digit how many record you want delete",
-        unlink_one:"You are going remove the selected record from current $master",
-        unlink_many:"You are going discard the selected $count records from current $master"
+        delete_one : "You are about to delete the selected record.<br/>You can't undo this",
+        delete_many : "You are about to delete $count records.<br/>You can't undo this",
+        unlink_one:"You are about to remove the selected record from current $master",
+        unlink_many:"You are about to discard the selected $count records from current $master"
     },
     
     constructor:function(node,kw){
@@ -1410,6 +1410,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var parentProtect = parentForm?parentForm.isProtectWrite():false;
         this.storeNode.setRelativeData('.locked',value);
         this.storeNode.setRelativeData('.disabledButton',value || parentProtect);
+        this.storeNode.setRelativeData('.grid.struct?disabledEditor',value || parentProtect);
         this.storeNode.publish('onLockChange',{'locked':this.locked});
     },
     
@@ -1423,12 +1424,13 @@ dojo.declare("gnr.stores._Collection",null,{
         return;
     },
 
-    deleteAsk:function(pkeys){        
+    deleteAsk:function(pkeys,deleteCb){        
         var count = pkeys.length;
+        var deleteCb = deleteCb || this.deleteRows; 
         if(count==0){
             return;
         }
-        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
+        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
         var msg = count==1?'one':'many';
         var del_type,master;
         if(this.unlinkdict){
@@ -1438,23 +1440,26 @@ dojo.declare("gnr.stores._Collection",null,{
             del_type = 'delete';
             master ='';
         }
-        dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), text_align:'center',height:'50px'});
+        dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), 
+                            text_align:'center',_class:'alertBodyMessage'});
         var that = this;
         var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='deleteRows'){
-                                                        that.deleteRows(pkeys);
+                                                        deleteCb.call(that,pkeys);
                                                     }
                                                 }});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
         var btnattr = {label:'Delete',command:'deleteRows'};
         if(count>1){
-            var fb = genro.dev.formbuilder(dlg.center,1);
-            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count',parentForm:false});
+            var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl_text_align:'right',
+                                        lbl:'Records to delete',lbl_color:'#444',parentForm:false});
             btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
-            genro.setData('gnr._dev.deleteask.count',null);
+            fb._('data',{path:'gnr._dev.deleteask.count',content:null});
+            //genro.setData('gnr._dev.deleteask.count',null);
             btnattr['_count'] = '^gnr._dev.deleteask.count';
         }
         
@@ -1649,7 +1654,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         var that = this;
         if(this.storeNode.attr.externalChanges){
             var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
-                that.onExternalChange(kw.changelist,kw.pkeycol);          
+                that.onExternalChange(kw.changelist,kw.pkeycol,kw.changeattr);          
                 });};
                 genro.src.afterBuildCalls.push(cb);
         }
@@ -1661,7 +1666,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         return result;
     },
     
-    onExternalChange:function(changelist,pkeycol){
+    onExternalChange:function(changelist,pkeycol,changeattr){
         var eventdict = {};
         var dbevt,pkeys,wasInSelection,willBeInSelection;
         var insOrUpdKeys = [];
@@ -1698,11 +1703,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                                             result.getValue().forEach(function(n){
                                                 willBeInSelection[n.attr['_pkey']] = n;
                                             },'static');
-                                            that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection);
+                                            that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection,changeattr);
                                             return result;
                                     });
         }else if (delKeys.length>0) {
-            this.checkExternalChange(delKeys,[],[]);
+            this.checkExternalChange(delKeys,[],[],changeattr);
         }
 
     },
@@ -1727,12 +1732,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     },
     
     
-    checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection){
+    checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection,changeattr){
         var linkedGrids = this.linkedGrids();
         var selectedPkeysDict = {};
         var selectedIndex,selectedPkey;
+        var isExternalChange = changeattr.from_page_id!=genro.page_id;
         dojo.forEach(linkedGrids,function(grid){
-            grid.batchUpdating(true);
+            //grid.batchUpdating(true);
+            genro.dom.removeClass(grid.sourceNode,'onExternalChanged');
             selectedIndex = grid.selection.selectedIndex;
             if(selectedIndex!=null&&selectedIndex>=0){
                 selectedPkey = grid.rowIdByIndex(selectedIndex);
@@ -1741,7 +1748,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             }
             
         });
-        
+        var changedRows = {};
         var wasInSelection;
         var changed = false;
         var data = this.getData();
@@ -1774,7 +1781,31 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         toUpdate=true;
                         if (willBeInSelectionNode) {
                             that.externalChangedKeys[pkey] = true;
-                            data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey).updAttributes(willBeInSelectionNode.attr,true);
+                            var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
+                            var rowValue = rowNode.getValue('static');
+                            var newattr = objectUpdate({},willBeInSelectionNode.attr);
+                            if(isExternalChange){
+                                for(var attrname in willBeInSelectionNode.attr){
+                                    changedRows[rowNode.attr._pkey] = rowNode;
+                                    if(rowNode.attr[attrname]!=willBeInSelectionNode.attr[attrname]){
+                                        if(rowValue instanceof gnr.GnrBag){
+                                            var editedNode = rowValue.getNode(attrname);
+                                            if(editedNode){
+                                                editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                            }
+                                        }
+                                        if(attrname in newattr){
+                                            newattr['_customClass_'+attrname] = 'externalChangedCell';
+                                        }
+                                     }else if(rowValue instanceof gnr.GnrBag){
+                                         var editedNode = rowValue.getNode(attrname);
+                                         if(editedNode){
+                                            editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                         }
+                                     }
+                                }
+                            }
+                            rowNode.updAttributes(newattr,true);
                             if(selectedPkeysDict[pkey]){
                                 dojo.forEach(selectedPkeysDict[pkey],function(grid){
                                     grid.sourceNode.publish('updatedSelectedRow');
@@ -1794,11 +1825,21 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             this.sort();
         } 
         dojo.forEach(linkedGrids,function(grid){
-            grid.batchUpdating(false);   
+            //grid.batchUpdating(false);   
             if(toUpdate){
-                grid.updateRowCount();
+                //grid.updateRowCount();
                 grid.restoreSelectedRows();
             }
+            for (var k in changedRows){
+                var n = changedRows[k];
+                objectExtract(n.attr,'_customClass_*');
+                if(grid.gridEditor){
+                    grid.gridEditor.onExternalChange(k);
+                }
+            }
+            genro.userInfoCb.push(function(){
+                genro.dom.addClass(grid.sourceNode,'onExternalChanged');
+            });
         });
 
     },
@@ -1829,7 +1870,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     deleteRows:function(pkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
+        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
             that.onDeletedRows(result);
         });
     },

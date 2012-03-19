@@ -2055,8 +2055,10 @@ class GnrGridStruct(GnrStructData):
         fldobj = tableobj.column(field)
             
         fldattr = dict(fldobj.attributes or dict())
+
         kwargs.update(dictExtract(fldattr,'cell_'))
-        kwargs.setdefault('format_pattern',fldattr.get('format'))
+        kwargs.setdefault
+        ('format_pattern',fldattr.get('format'))
         kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
         if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
             kwargs['_subtable'] = True
@@ -2064,8 +2066,23 @@ class GnrGridStruct(GnrStructData):
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
+        kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
+
+        if hasattr(fldobj,'relatedColumnJoiner'):
+            columnjoiner = fldobj.relatedColumnJoiner()
+            if columnjoiner:
+                relatedTable = fldobj.relatedColumn().table
+                kwargs['related_table'] = relatedTable.fullname
+
+                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+                if caption_field:
+                    kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
+                    kwargs['relating_column'] = field
+                    kwargs['related_column'] = caption_field
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
+            kwargs['relating_column'] = fkey
+            kwargs['related_column'] = '.'.join(relfldlst[1:])
             fkeycol=tableobj.column(fkey)
             if fkeycol is not None:
                 joiner = fkeycol.relatedColumnJoiner()

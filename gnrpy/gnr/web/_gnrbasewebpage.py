@@ -473,6 +473,7 @@ class GnrBaseWebPage(GnrObject):
         """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
+        gridsChanges = data.pop('grids')
         onSavingMethod = 'onSaving'
         onSavedMethod = 'onSaved'
         maintable = getattr(self, 'maintable')
@@ -496,6 +497,16 @@ class GnrBaseWebPage(GnrObject):
         record = tblobj.writeRecordCluster(recordCluster, recordClusterAttr)
         if onSavedHandler:
             onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
+        if gridsChanges:
+            fkey = record[tblobj.pkey]
+            for gridchange in gridsChanges:
+                grid_changeset = gridchange.value
+                if recordClusterAttr.get('_newrecord'):
+                    for row in grid_changeset.values():
+                        for k,v in row.items():
+                            if v == '*newrecord*':
+                                row[k] = fkey
+                self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
         if not _nocommit:
             self.db.commit()
         if not 'caption' in resultAttr:
@@ -555,32 +566,6 @@ class GnrBaseWebPage(GnrObject):
             self.onDeleted(record)
             self.db.commit()
             return pkey, deleteAttr
-        except GnrSqlDeleteException, e:
-            return ('delete_error', {'msg': e.message})
-    
-    @public_method    
-    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,**kwargs):
-        """Method for deleting many records from a given table.
-        
-        :param table: the :ref:`database table <table>` name on which the query will be executed,
-                      in the form ``packageName.tableName`` (packageName is the name of the
-                      :ref:`package <packages>` to which the table belongs to)
-        :param pkeys: TODO
-        :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception"""
-        try:
-            tblobj = self.db.table(table)
-            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
-                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
-            for r in rows:
-                if unlinkfield:
-                    record = dict(r)
-                    record[unlinkfield] = None
-                    tblobj.update(record,r)
-                else:
-                    tblobj.delete(r)
-            self.db.commit()
-            
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
             

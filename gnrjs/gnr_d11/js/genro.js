@@ -65,6 +65,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.theme = {};
         this.dojo = dojo;
         this.ext={};
+        this.userInfoCb = [];
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {
@@ -210,10 +211,14 @@ dojo.declare('gnr.GenroClient', null, {
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
-    
+
     onUserEvent:function(e) {
         if (genro.user_polling > 0) {
             genro._lastUserEventTs = new Date();
+            if(genro.userInfoCb.length>0){
+                dojo.forEach(genro.userInfoCb,function(cb){cb()});
+                genro.userInfoCb = [];
+            }
             if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':e?'user':'auto'});
             }

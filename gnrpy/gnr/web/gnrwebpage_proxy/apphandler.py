@@ -959,7 +959,75 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
+    
+    @public_method
+    def saveEditedRows(self,table=None,changeset=None,commit=True):
+        if not changeset:
+            return
+        inserted = changeset.pop('inserted')
+        updated =  changeset.pop('updated')
+        deletedNode = changeset.popNode('deleted')
+        tblobj = self.db.table(table)
+        pkeyfield = tblobj.pkey
+        result = Bag()
+        wrongUpdates = Bag()
+        insertedRecords = Bag()
+        def cb(row):
+            key = row[pkeyfield]
+            c = updated.getNode(key)
+            if c:
+                for n in c.value:
+                    _loadedValue = n.attr['_loadedValue']
+                    if row[n.label] != _loadedValue:
+                        wrongUpdates[key] = row
+                        return
+                    row[n.label] = n.value
+        if updated:
+            pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
+            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
+        if inserted:
+            for k,r in inserted.items():
+                tblobj.insert(r)
+                insertedRecords[k] = r[pkeyfield]
+        if deletedNode:
+            deleted = deletedNode.value
+            unlinkfield = deletedNode.attr.get('unlinkfield')
+            pkeys = [pkey for pkey in deleted.digest('#a._pkey') if pkey]
+            self.deleteDbRows(table,pkeys=pkeys,unlinkfield=unlinkfield,commit=False)
+        if commit:
+            self.db.commit()
+        result['wrongUpdates'] = wrongUpdates
+        result['insertedRecords'] = insertedRecords
+        return result
+
+    @public_method    
+    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,**kwargs):
+        """Method for deleting many records from a given table.
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkeys: TODO
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            for r in rows:
+                if unlinkfield:
+                    record = dict(r)
+                    record[unlinkfield] = None
+                    tblobj.update(record,r)
+                else:
+                    tblobj.delete(r)
+            if commit:
+                self.db.commit()
             
+        except GnrSqlDeleteException, e:
+            return ('delete_error', {'msg': e.message})
+            
+        
     @public_method
     @extract_kwargs(default=True)
     def getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
@@ -1300,6 +1368,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = getSelection(where, **whereargs)
 
         return result
+
+    @public_method
+    def getMultiFetch(self,queries=None):
+        result = Bag()
+        for query in queries:
+            columns = query.attr.pop('columns','*')
+            table = query.attr.pop('table')
+            tblobj = self.db.table(table)
+            columns = ','.join(tblobj.columnsFromString(columns))
+            result[query.label] = tblobj.query(columns=columns,**query.attr).fetchAsBag('pkey')
+        return result
         
     @public_method
     def updateCheckboxPkeys(self,table=None,field=None,changesDict=None):
@@ -1501,6 +1580,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
         return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx)
+
 
 class BatchExecutor(object):
     def __init__(self, page):
