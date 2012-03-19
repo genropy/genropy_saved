@@ -2320,10 +2320,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         values.push(null);
         var cellsbag = widget.structbag().getItem('#0.#0');
         var caption,cellattr,cell_cap,cell_field,fltList,colList,col;
+        var cellmap = widget.cellmap;
         cellsbag.forEach(function(n){
             cellattr = n.attr;
             cell_cap = cellattr.name || cellattr.field;
-            cell_field = cellattr.field;
+            //cell_field = n.attr.field;
+            cell_field = cellmap[n.attr.field.replace(/\W/g, '_')].field_getter;
             if (!dtypes || (dtypes.indexOf(cellattr.dtype) >=0)){
                 values.push(cell_cap+':'+cell_field);
                 auto.push(cell_field);
@@ -3246,7 +3248,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
         var colType;
         if (this.filterColumn){
-            var colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+            var col = this.cellmap[this.filterColumn];
+            var colType = 'A';
+            if(col){
+                colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+            }
             }
         this.createFiltered(this.currentFilterValue,this.filterColumn,colType);
         if (!rendering) {
