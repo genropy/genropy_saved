@@ -1833,16 +1833,13 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             for (var k in changedRows){
                 var n = changedRows[k];
                 objectExtract(n.attr,'_customClass_*');
-                //n.updAttributes(attr,true);
                 if(grid.gridEditor){
                     grid.gridEditor.onExternalChange(k);
                 }
             }
-            genro.dom.addClass(grid.sourceNode,'onExternalChanged');
-
-            setTimeout(function(){
-                dojo.query('.externalChangedCell',grid.domNode).removeClass('externalChangedCell');
-            },1);
+            genro.userInfoCb.push(function(){
+                genro.dom.addClass(grid.sourceNode,'onExternalChanged');
+            });
         });
 
     },
