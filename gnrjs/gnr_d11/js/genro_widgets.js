@@ -2576,7 +2576,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.customClasses.push('negative_number');
             }
             if (this.grid.gridEditor) {
-                this.grid.gridEditor.onFormatCell(this,inRowIndex);
+                this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
             }
             v = genro.format(v, opt);
             if (v == null) {
@@ -4489,8 +4489,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
     mixin_deleteSelectedRows:function(){
-        pkeys = this.getSelectedPkeys();
-        this.collectionStore().deleteAsk(pkeys);
+        var pkeys = this.getSelectedPkeys();
+        if(this.gridEditor){
+            this.gridEditor.deleteSelectedRows(pkeys);
+        }else{
+            this.collectionStore().deleteAsk(pkeys);
+        }
         this.sourceNode.publish('onDeletedRows');
     },
     

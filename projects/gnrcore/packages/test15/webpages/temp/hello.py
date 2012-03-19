@@ -8,9 +8,10 @@
 
 class GnrCustomWebPage(object):
     def main_root(self, root, **kwargs):
-        tc = root.tabContainer(connect_startup="genro.dom.autoSize(this.widget);")
-        self.page1(tc.contentPane(title='page1').div(display='inline-block',padding='30px',position='relative'))
-        self.page2(tc.contentPane(title='page2').div(display='inline-block',padding='30px',position='relative'))
+        root.data('prova',12)
+       #tc = root.tabContainer(connect_startup="genro.dom.autoSize(this.widget);")
+       #self.page1(tc.contentPane(title='page1').div(display='inline-block',padding='30px',position='relative'))
+       #self.page2(tc.contentPane(title='page2').div(display='inline-block',padding='30px',position='relative'))
         
     def page1(self,pane):
         fb = pane.formBuilder(background='red',cols=3)

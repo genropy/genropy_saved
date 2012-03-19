@@ -2066,17 +2066,19 @@ class GnrGridStruct(GnrStructData):
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
-        columnjoiner = fldobj.relatedColumnJoiner()
         kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
-        if columnjoiner:
-            relatedTable = fldobj.relatedColumn().table
-            kwargs['related_table'] = relatedTable.fullname
 
-            caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
-            if caption_field:
-                kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
-                kwargs['relating_column'] = field
-                kwargs['related_column'] = caption_field
+        if hasattr(fldobj,'relatedColumnJoiner'):
+            columnjoiner = fldobj.relatedColumnJoiner()
+            if columnjoiner:
+                relatedTable = fldobj.relatedColumn().table
+                kwargs['related_table'] = relatedTable.fullname
+
+                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+                if caption_field:
+                    kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
+                    kwargs['relating_column'] = field
+                    kwargs['related_column'] = caption_field
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
             kwargs['relating_column'] = fkey

@@ -1369,10 +1369,10 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
-        delete_one : "You are going to delete the selected record. You can't undo this operation",
-        delete_many : "You are going to delete $count records. You can't undo this operation. Digit how many record you want delete",
-        unlink_one:"You are going remove the selected record from current $master",
-        unlink_many:"You are going discard the selected $count records from current $master"
+        delete_one : "You are about to delete the selected record.<br/>You can't undo this",
+        delete_many : "You are about to delete $count records.<br/>You can't undo this",
+        unlink_one:"You are about to remove the selected record from current $master",
+        unlink_many:"You are about to discard the selected $count records from current $master"
     },
     
     constructor:function(node,kw){
@@ -1424,12 +1424,13 @@ dojo.declare("gnr.stores._Collection",null,{
         return;
     },
 
-    deleteAsk:function(pkeys){        
+    deleteAsk:function(pkeys,deleteCb){        
         var count = pkeys.length;
+        var deleteCb = deleteCb || this.deleteRows; 
         if(count==0){
             return;
         }
-        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
+        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
         var msg = count==1?'one':'many';
         var del_type,master;
         if(this.unlinkdict){
@@ -1439,23 +1440,26 @@ dojo.declare("gnr.stores._Collection",null,{
             del_type = 'delete';
             master ='';
         }
-        dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), text_align:'center',height:'50px'});
+        dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), 
+                            text_align:'center',_class:'alertBodyMessage'});
         var that = this;
         var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='deleteRows'){
-                                                        that.deleteRows(pkeys);
+                                                        deleteCb.call(that,pkeys);
                                                     }
                                                 }});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
         var btnattr = {label:'Delete',command:'deleteRows'};
         if(count>1){
-            var fb = genro.dev.formbuilder(dlg.center,1);
-            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count',parentForm:false});
+            var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl_text_align:'right',
+                                        lbl:'Records to delete',lbl_color:'#444',parentForm:false});
             btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
-            genro.setData('gnr._dev.deleteask.count',null);
+            fb._('data',{path:'gnr._dev.deleteask.count',content:null});
+            //genro.setData('gnr._dev.deleteask.count',null);
             btnattr['_count'] = '^gnr._dev.deleteask.count';
         }
         
@@ -1817,8 +1821,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             }
             dojo.forEach(changedRows,function(n){
                 objectExtract(n.attr,'_customClass_*');
-                if(grid.gridEditor && n.attr._pkey in grid.gridEditor.rowEditors){
-                    grid.gridEditor.rowEditors[n.attr._pkey].onExternalChange();
+                if(grid.gridEditor){
+                    grid.gridEditor.onExternalChange(n.attr._pkey);
                 }
             });
             genro.dom.addClass(grid.sourceNode,'onExternalChanged');
@@ -1856,7 +1860,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     deleteRows:function(pkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
+        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
             that.onDeletedRows(result);
         });
     },
