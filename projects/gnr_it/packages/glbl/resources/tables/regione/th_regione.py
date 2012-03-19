@@ -40,7 +40,7 @@ class FormConProvince(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('zona')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                                viewResource=':EditableView',autoSave=500)
+                                                                viewResource=':EditableView',autoSave=False,statusColumn=True,semaphore=False)
         #th = bc.contentPane(region='center').dialogTableHandler(relation='@province',dialog_height='300px',
         #                                                        dialog_width='500px',default_)
     
@@ -54,6 +54,10 @@ class View(BaseComponent):
         r.fieldcell('sigla',width='3em')
         r.fieldcell('codice_istat',width='7em',sortable=False)
         r.fieldcell('zona',width='100%')
+
+
+
+    
 
     def th_order(self):
         return 'nome'

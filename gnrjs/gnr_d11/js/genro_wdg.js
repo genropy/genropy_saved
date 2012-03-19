@@ -538,19 +538,6 @@ dojo.declare("gnr.RowEditor", null, {
         }
         return null;
     },
-   //setError:function(colname,value){
-   //    if(value){
-   //        if(!this.errors){
-   //            this.errors = {};
-   //        }
-   //        this.errors[colname] = value;
-   //    }else if(this.errors){
-   //        objectPop(this.errors,this.currentCol);
-   //        if(!objectNotEmpty(this.errors)){
-   //            this.errors = null;
-   //        }
-   //    }
-   //},
     endEditCell:function(editingInfo){
         var n = this.data.getNode(this.currentCol);
         if(n.attr._loadedValue===n.getValue()){
@@ -573,6 +560,21 @@ dojo.declare("gnr.RowEditor", null, {
         var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
         genro.assert(rowIndex>=0,'not found '+this.rowId);
         this.grid.updateRow(rowIndex);
+    },
+    checkRowEditor:function(){
+        var toDelete = true;
+        var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
+
+        this.data.forEach(function(n){
+            if(n.attr._loadedValue!=n.getValue()){
+                toDelete = false;
+            }
+        });
+        if(toDelete){
+            this.deleteRowEditor();
+        }else{
+            this.grid.updateRow(rowIndex);
+        }
     }
 });
 
@@ -1093,7 +1095,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
     onExternalChange:function(pkey){
         if(pkey in this.rowEditors){
-            this.rowEditors[pkey].deleteRowEditor();
+            this.rowEditors[pkey].checkRowEditor();
         }
         this.updateStatus();
     },

@@ -1748,7 +1748,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             }
             
         });
-        var changedRows = [];
+        var changedRows = {};
         var wasInSelection;
         var changed = false;
         var data = this.getData();
@@ -1783,18 +1783,29 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                             that.externalChangedKeys[pkey] = true;
                             var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
                             var rowValue = rowNode.getValue('static');
+                            var newattr = objectUpdate({},willBeInSelectionNode.attr);
                             if(isExternalChange){
                                 for(var attrname in willBeInSelectionNode.attr){
+                                    changedRows[rowNode.attr._pkey] = rowNode;
                                     if(rowNode.attr[attrname]!=willBeInSelectionNode.attr[attrname]){
-                                        willBeInSelectionNode.attr['_customClass_'+attrname] = 'externalChangedCell';
-                                        changedRows.push(willBeInSelectionNode);
                                         if(rowValue instanceof gnr.GnrBag){
-                                            rowValue.popNode(attrname);
+                                            var editedNode = rowValue.getNode(attrname);
+                                            if(editedNode){
+                                                editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                            }
                                         }
+                                        if(attrname in newattr){
+                                            newattr['_customClass_'+attrname] = 'externalChangedCell';
+                                        }
+                                     }else if(rowValue instanceof gnr.GnrBag){
+                                         var editedNode = rowValue.getNode(attrname);
+                                         if(editedNode){
+                                            editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                         }
                                      }
                                 }
                             }
-                            rowNode.updAttributes(willBeInSelectionNode.attr,true);
+                            rowNode.updAttributes(newattr,true);
                             if(selectedPkeysDict[pkey]){
                                 dojo.forEach(selectedPkeysDict[pkey],function(grid){
                                     grid.sourceNode.publish('updatedSelectedRow');
@@ -1819,12 +1830,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                 //grid.updateRowCount();
                 grid.restoreSelectedRows();
             }
-            dojo.forEach(changedRows,function(n){
+            for (var k in changedRows){
+                var n = changedRows[k];
                 objectExtract(n.attr,'_customClass_*');
+                //n.updAttributes(attr,true);
                 if(grid.gridEditor){
-                    grid.gridEditor.onExternalChange(n.attr._pkey);
+                    grid.gridEditor.onExternalChange(k);
                 }
-            });
+            }
             genro.dom.addClass(grid.sourceNode,'onExternalChanged');
 
             setTimeout(function(){
