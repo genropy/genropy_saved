@@ -502,10 +502,11 @@ class GnrBaseWebPage(GnrObject):
             for gridchange in gridsChanges:
                 grid_changeset = gridchange.value
                 if recordClusterAttr.get('_newrecord'):
-                    for row in grid_changeset.values():
-                        for k,v in row.items():
-                            if v == '*newrecord*':
-                                row[k] = fkey
+                    if grid_changeset['inserted']:
+                        for row in grid_changeset['inserted'].values():
+                            for k,v in row.items():
+                                if v == '*newrecord*':
+                                    row[k] = fkey
                 self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
         if not _nocommit:
             self.db.commit()

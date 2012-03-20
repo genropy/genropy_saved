@@ -726,18 +726,6 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                     rowNode.updAttributes(newAttr,true);
                 }
-               //colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
-               //    if(!this.widget.item){
-               //        return;
-               //    }
-               //    var selectRow = this.widget.item.attr;
-               //    var rowNode = grid.dataNodeByIndex(rowIndex);
-               //    var newAttr = objectUpdate({},rowNode.attr);
-               //    for (var k in related_setter){
-               //        newAttr[related_setter[k]] = selectRow[k];
-               //    }
-               //    rowNode.updAttributes(newAttr,true);
-               //}
             }
         }
         if(colattr['tag'].toLowerCase()=='simpletextarea'){
@@ -890,12 +878,16 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
 
-    getNewRowDefaults:function(default_kwargs){
+    getNewRowDefaults:function(externalDefaults){
         if(!this.editorPars){
             return default_kwargs;
         }
         else{
-            var default_kwargs = default_kwargs || this.editorPars.default_kwargs || {};
+            
+            var default_kwargs = objectUpdate({},(this.editorPars.default_kwargs || {}));
+            if(externalDefaults){
+                default_kwargs = objectUpdate(default_kwargs,externalDefaults);
+            }
             var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
             var cellmap = this.grid.cellmap;
             var queries = new gnr.GnrBag();
