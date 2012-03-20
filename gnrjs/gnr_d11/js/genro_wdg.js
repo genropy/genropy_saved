@@ -699,7 +699,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         if(!('tag' in colattr)){
             var dt = colattr['dtype'];
-            var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'};
+            var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
             colattr['tag'] = widgets[dt] || 'Textbox';
             if('related_table' in colattr){
                 colattr['tag'] = 'dbselect';
@@ -734,6 +734,8 @@ dojo.declare("gnr.GridEditor", null, {
             colattr['z_index']= 1;
             colattr['position'] = 'fixed';
             colattr['height'] = colattr['height'] || '100px';
+        }else if(colattr['tag'].toLowerCase()=='checkbox'){
+            colattr['margin'] = 'auto'
         }
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
     },
@@ -984,6 +986,10 @@ dojo.declare("gnr.GridEditor", null, {
         var attr = objectUpdate({}, fldDict.attr);
         attr.datapath = '.' + rowLabel;
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
+        if(attr.tag.toLowerCase()=='checkbox'){
+            attr.margin_left = ( (cellNode.clientWidth-10-16)/2)+'px';
+            attr.margin_top ='1px';
+        }
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr) {
             console.log('value in attr',attr);

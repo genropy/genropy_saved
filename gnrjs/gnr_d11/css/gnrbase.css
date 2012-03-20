@@ -2117,11 +2117,11 @@ border='1px solid gray',margin='2px', rounded=10,
 
 div.cellContent{
     border-radius:4px;
-    padding:2px;
+    padding:1px;
     -moz-transition-duration:0;
     -webkit-transition-duration:0;
     transition-duration:0;
-    line-height:12px;
+    line-height:15px;
 }
 
 .externalChangedCell .cellContent{
