@@ -200,13 +200,19 @@ dojo.declare('gnr.GenroClient', null, {
             cb = function(e){
                 rootgenro.childUserEvent(that,e);
             }
-            
         }else{
             genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
             cb = genro.onUserEvent;
         }
-        dojo.connect(window, 'onmousemove', cb);
-        dojo.connect(window, 'onkeypress', cb);
+        var commoncb = function(e){
+            if(genro.userInfoCb.length>0){
+                dojo.forEach(genro.userInfoCb,function(cb){cb()});
+                genro.userInfoCb = [];
+            }
+            cb(e);
+        }
+        dojo.connect(window, 'onmousemove', commoncb);
+        dojo.connect(window, 'onkeypress', commoncb);
     },
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
@@ -215,10 +221,6 @@ dojo.declare('gnr.GenroClient', null, {
     onUserEvent:function(e) {
         if (genro.user_polling > 0) {
             genro._lastUserEventTs = new Date();
-            if(genro.userInfoCb.length>0){
-                dojo.forEach(genro.userInfoCb,function(cb){cb()});
-                genro.userInfoCb = [];
-            }
             if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':e?'user':'auto'});
             }
