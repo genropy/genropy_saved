@@ -2580,7 +2580,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             v = genro.format(v, opt);
             if (v == null) {
-                return  '&nbsp;';
+                v = '&nbsp;';
             }
             var template = opt['template'];
             if (template) {

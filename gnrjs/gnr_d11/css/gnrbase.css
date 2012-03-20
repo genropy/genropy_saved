@@ -2121,7 +2121,7 @@ div.cellContent{
     -moz-transition-duration:0;
     -webkit-transition-duration:0;
     transition-duration:0;
-    min-height:11px;
+    line-height:12px;
 }
 
 .externalChangedCell .cellContent{
