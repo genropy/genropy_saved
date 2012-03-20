@@ -524,7 +524,7 @@ dojo.declare("gnr.RowEditor", null, {
              this.data = new gnr.GnrBag();
         }
         rowNode.setValue(this.data);
-        
+        this.gridEditor.rowEditors[this.rowId] = this;
     },
     getErrors:function(){
         var errors = {};
@@ -581,7 +581,6 @@ dojo.declare("gnr.RowEditor", null, {
 dojo.declare("gnr.GridEditor", null, {
     constructor:function(grid) {
         this.grid = grid;
-
         var sourceNode = grid.sourceNode;
         this.viewId = sourceNode.attr.nodeId;
         this.table= sourceNode.attr.table;
@@ -657,7 +656,6 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             }
         });
-        this.updateStatus
     },
     onFormatCell:function(cell, inRowIndex,renderedRow){
         if (this.invalidCell(cell, inRowIndex)) {
@@ -716,7 +714,7 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                 }
                 colattr['hiddenColumns'] = hiddencol.join(',');
-                colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+                colattr._onEndEditCell = function(rowIndex){
                     if(!this.widget.item){
                         return;
                     }
@@ -728,6 +726,18 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                     rowNode.updAttributes(newAttr,true);
                 }
+               //colattr.validate_onAccept = function(value,result,validations,rowIndex,userChange){
+               //    if(!this.widget.item){
+               //        return;
+               //    }
+               //    var selectRow = this.widget.item.attr;
+               //    var rowNode = grid.dataNodeByIndex(rowIndex);
+               //    var newAttr = objectUpdate({},rowNode.attr);
+               //    for (var k in related_setter){
+               //        newAttr[related_setter[k]] = selectRow[k];
+               //    }
+               //    rowNode.updAttributes(newAttr,true);
+               //}
             }
         }
         if(colattr['tag'].toLowerCase()=='simpletextarea'){
@@ -880,12 +890,12 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
 
-    getNewRowDefaults:function(){
+    getNewRowDefaults:function(default_kwargs){
         if(!this.editorPars){
-            return {};
+            return default_kwargs;
         }
         else{
-            var default_kwargs = this.editorPars.default_kwargs || {};
+            var default_kwargs = default_kwargs || this.editorPars.default_kwargs || {};
             var result =  this.widgetRootNode.evaluateOnNode(default_kwargs);
             var cellmap = this.grid.cellmap;
             var queries = new gnr.GnrBag();
@@ -897,10 +907,13 @@ dojo.declare("gnr.GridEditor", null, {
                     if(result[rcol]){
                         hcols = [];
                         for(var j in cellmap){
-                            if(cellmap[j].relating_column==rcol){}
-                            hcols.push(cellmap[j].related_column);
+                            if(cellmap[j].relating_column==rcol && !result[cellmap[j].field_getter]){
+                                hcols.push(cellmap[j].related_column);
+                            }
                         }
-                        queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                        if(hcols.length>0){
+                            queries.setItem(rcol,null,{table:cmap.related_table,columns:hcols.join(','),pkey:result[rcol],where:'$pkey =:pkey'});
+                        }
                     }
                 }
             }
@@ -926,8 +939,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         var rowEditor = this.rowEditors[rowId];
         if(!rowEditor){
-            var rowEditor = new gnr.RowEditor(this,n);
-            this.rowEditors[rowId] = rowEditor;
+            rowEditor = this.newRowEditor(n);
             if(rowEditor.newrecord){
                 this.grid.updateRow(rowIndex);
             }
@@ -943,6 +955,10 @@ dojo.declare("gnr.GridEditor", null, {
         rowEditor.startEditCell(colname);
         return rowId;
     },
+    newRowEditor:function(rowNode){
+        return new gnr.RowEditor(this,rowNode);
+    },
+    
     startEdit:function(row, col) {
         var grid = this.grid;
         var cell = grid.getCell(col);
@@ -1085,6 +1101,9 @@ dojo.declare("gnr.GridEditor", null, {
     endEdit:function(editWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
+        if(editWidget.sourceNode.attr._onEndEditCell){
+            editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
+        }
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);
