@@ -1094,7 +1094,10 @@ dojo.declare("gnr.GridEditor", null, {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         if(editWidget.sourceNode.attr._onEndEditCell){
-            editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
+            setTimeout(function(){
+                editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
+            },1);
+            
         }
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
