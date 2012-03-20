@@ -4414,12 +4414,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var cell = this.layout.cells[sortInfo - 1];
         var sortedBy;
         if(this._virtual){
-            sortedBy = cell.field + ':' + order;
+            sortedBy = cell.field_getter + ':' + order;
         }else{
             if (this.datamode == 'bag') {
-                sortedBy = cell.field + ':' + order;
+                sortedBy = cell.field_getter + ':' + order;
             } else {
-                sortedBy = '#a.' + cell.field + ':' + order;
+                sortedBy = '#a.' + cell.field_getter + ':' + order;
             }
         }
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
