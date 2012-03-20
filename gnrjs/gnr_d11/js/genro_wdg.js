@@ -693,6 +693,7 @@ dojo.declare("gnr.GridEditor", null, {
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
         var edit = objectPop(colattr,'edit');
+        objectPop(colattr,'width');
         if(edit!==true){
             colattr = objectUpdate(colattr,edit);
         }
@@ -728,6 +729,11 @@ dojo.declare("gnr.GridEditor", null, {
                     rowNode.updAttributes(newAttr,true);
                 }
             }
+        }
+        if(colattr['tag'].toLowerCase()=='simpletextarea'){
+            colattr['z_index']= 1;
+            colattr['position'] = 'fixed';
+            colattr['height'] = colattr['height'] || '100px';
         }
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
     },
@@ -977,7 +983,7 @@ dojo.declare("gnr.GridEditor", null, {
 
         var attr = objectUpdate({}, fldDict.attr);
         attr.datapath = '.' + rowLabel;
-        attr.width = (cellNode.clientWidth-10)+'px';
+        attr.width = attr.width || (cellNode.clientWidth-10)+'px';
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr) {
             console.log('value in attr',attr);
