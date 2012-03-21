@@ -512,10 +512,12 @@ dojo.declare("gnr.RowEditor", null, {
         objectPop(this.original_values,'_newrecord');
         objectPop(this.original_values,'_pkey');
         if(this.newrecord){
-            this.data = new gnr.GnrBag();
+            this.data = new gnr.GnrBag(this.original_values);
             var cellmap = this.grid.cellmap;
             for(var k in cellmap){
-                this.data.setItem(k,this.original_values[k]);
+               if (! (k in this.original_values)){
+                   this.data.setItem(k,null);
+               }
                 if (cellmap[k].validate_notnull && !this.original_values[k]){
                     var _validationError = cellmap[k].validate_notnull_error || 'not null';
                     this.data.setItem(k,null,{_validationError:_validationError});
@@ -622,7 +624,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.widgetRootNode.attr['_fakeform'] = true;            
             sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
             sourceNode.subscribe('onNewDatastore',function(){
-                that.onNewGridDataStore()
+                that.resetEditor();
             });
             sourceNode.subscribe('saveChangedRows',function(){
                 that.saveChangedRows();
@@ -666,7 +668,7 @@ dojo.declare("gnr.GridEditor", null, {
             cell.customClasses.push('newRowCell');
         }
     },
-    onNewGridDataStore:function(){
+    resetEditor:function(){
         this.rowEditors = {};
         this.deletedRows = new gnr.GnrBag();
         this.updateStatus();
