@@ -512,9 +512,10 @@ dojo.declare("gnr.RowEditor", null, {
         objectPop(this.original_values,'_newrecord');
         objectPop(this.original_values,'_pkey');
         if(this.newrecord){
-            this.data = new gnr.GnrBag(this.original_values);
+            this.data = new gnr.GnrBag();
             var cellmap = this.grid.cellmap;
             for(var k in cellmap){
+                this.data.setItem(k,this.original_values[k]);
                 if (cellmap[k].validate_notnull && !this.original_values[k]){
                     var _validationError = cellmap[k].validate_notnull_error || 'not null';
                     this.data.setItem(k,null,{_validationError:_validationError});
@@ -1094,10 +1095,7 @@ dojo.declare("gnr.GridEditor", null, {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         if(editWidget.sourceNode.attr._onEndEditCell){
-            setTimeout(function(){
-                editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
-            },1);
-            
+            editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
         }
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;

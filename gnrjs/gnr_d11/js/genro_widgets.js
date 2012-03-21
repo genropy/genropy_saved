@@ -4903,7 +4903,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         var selectedColumns = objectExtract(attributes, 'selected_*');
         if (objectNotEmpty(selectedColumns)) {
             var hiddenColumns;
-            if (hiddenColumns in resolverAttrs) {
+            if ('hiddenColumns' in resolverAttrs) {
                 hiddenColumns = resolverAttrs['hiddenColumns'].split(',');
                 for (var i = 0; i < hiddenColumns.length; i++) {
                     selectedColumns[hiddenColumns[i]] = null;
