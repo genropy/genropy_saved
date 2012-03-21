@@ -1787,7 +1787,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                             if(isExternalChange){
                                 for(var attrname in willBeInSelectionNode.attr){
                                     changedRows[rowNode.attr._pkey] = rowNode;
-                                    if(rowNode.attr[attrname]!=willBeInSelectionNode.attr[attrname]){
+                                    if(!isEqual(rowNode.attr[attrname],willBeInSelectionNode.attr[attrname])){
                                         if(rowValue instanceof gnr.GnrBag){
                                             var editedNode = rowValue.getNode(attrname);
                                             if(editedNode){

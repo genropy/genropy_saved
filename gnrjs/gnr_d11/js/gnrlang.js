@@ -325,6 +325,9 @@ function objectKeyByIdx(obj, idx) {
         k++;
     }
 }
+function isEqual(a,b){
+    return (a==b)||((a+'')==(b+''));
+};
 
 function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){

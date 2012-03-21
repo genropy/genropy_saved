@@ -46,7 +46,7 @@ class TableHandler(BaseComponent):
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
-                        nodeId=nodeId,
+                        nodeId=th_root,
                         table=table,
                         **kwargs)               
         top_slots = '#,delrow,addrow'

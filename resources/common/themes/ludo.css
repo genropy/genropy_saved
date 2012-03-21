@@ -766,6 +766,10 @@
     -webkit-border-radius: 2px;
     box-shadow: 1px 1px 1px #555 inset;
 }
+._common_d11 .cell_B .widgetInCell {
+    width: 16px;
+    margin: auto;
+}
 
 .tundra._common_d11 .dojoxGrid-row{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));

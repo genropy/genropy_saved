@@ -2580,7 +2580,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             v = genro.format(v, opt);
             if (v == null) {
-                return  '&nbsp;';
+                v = '&nbsp;';
             }
             var template = opt['template'];
             if (template) {
@@ -3814,7 +3814,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
     },
     mixin_newBagRow: function(defaultArgs) {
-        var defaultArgs = defaultArgs || this.gridEditor.getNewRowDefaults() || {};
+        var defaultArgs = (this.gridEditor?this.gridEditor.getNewRowDefaults(defaultArgs) : defaultArgs) || {};
         var newRowDefaults = this.sourceNode.attr.newRowDefaults;
         if (newRowDefaults) {
             if (typeof(newRowDefaults) == 'string') {
@@ -3924,8 +3924,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
         }
         var kw = {'_position':pos};
-
-        storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
+        
+        newnode = storebag.setItem(label, newnode, null, kw); //questa provoca la chiamata della setStorePath che ha trigger di ins.
         // ATTENZIONE: Commentato questo perchè il trigger di insert già ridisegna ed aggiorna l'indice, ma non fa apply filter.
         // Cambiare l'indice di selezione corrente nelle includedview con form significa cambiare datapath a tutti i widget. PROCESSO LENTO.
 
@@ -3935,7 +3935,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         //alert('ex apply filter')
         //}
         this.updateCounterColumn();
-        return kw._new_position;
+        return newnode;
     },
     mixin_delBagRow: function(pos, many, params) {
         var pos = (pos == '*') ? this.absIndex(this.selection.selectedIndex) : pos;
@@ -4414,12 +4414,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var cell = this.layout.cells[sortInfo - 1];
         var sortedBy;
         if(this._virtual){
-            sortedBy = cell.field + ':' + order;
+            sortedBy = cell.field_getter + ':' + order;
         }else{
             if (this.datamode == 'bag') {
-                sortedBy = cell.field + ':' + order;
+                sortedBy = cell.field_getter + ':' + order;
             } else {
-                sortedBy = '#a.' + cell.field + ':' + order;
+                sortedBy = '#a.' + cell.field_getter + ':' + order;
             }
         }
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
