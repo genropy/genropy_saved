@@ -1445,7 +1445,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.getParentBag().delItem(this.label);
     },
     getChild:function(childpath){
-        return this._value.getChild(childpath);
+        var v = this._value;
+        if(!v){
+             var clist = childpath.split('/')
+             if(clist[0]=='parent'){
+                 var node = this.getParentNode().getParentNode();
+                 v = node.getValue();
+             }
+        }
+        return v.getChild(childpath);
     }
 
 });

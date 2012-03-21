@@ -241,7 +241,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
-        this.sourceNode.attr._fakeForm=true;
+        this.sourceNode.attr._fakeform=true;
         //this.form = this.sourceNode.form;
         this.formUrl = sourceNode.attr._formUrl;
         this.table = sourceNode.attr._table;

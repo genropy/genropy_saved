@@ -1159,10 +1159,7 @@ dojo.declare('gnr.GenroClient', null, {
                 childpath = childpath.slice(1).join('/');
             }
             if(nodeId.indexOf('FORM')==0){
-                nodeId = scope.getInheritedAttributes().formId;
-                if (!nodeId){
-                    node=scope.attributeOwnerNode('_fakeform') || scope.getParentNode();
-                }
+                node=scope.attributeOwnerNode('formId,_fakeform') || scope.getParentNode();
             }else if(nodeId.indexOf('ANCHOR')==0){
                 node=scope.attributeOwnerNode('_anchor') || scope.getParentNode();
             }
@@ -1171,7 +1168,8 @@ dojo.declare('gnr.GenroClient', null, {
         if (!node && genro.src.building) {
             node = genro.src._main.getNodeByAttr('nodeId', nodeId);
         }
-        return childpath?node._value.getChild(childpath):node;
+        
+        return childpath?node.getChild(childpath):node;
     },
     
     domById:function(nodeId,scope) {
