@@ -215,7 +215,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
             };
         }
-        if (sourceNode && formId && formId!='*') {
+        if (sourceNode && formId) {
             if (sourceNode.attr.nodeId && (sourceNode.attr.nodeId != formId)) {
                 alert('formId ' + formId + ' will replace nodeId ' + sourceNode.attr.nodeId);
             }
