@@ -717,17 +717,19 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                 }
                 colattr['hiddenColumns'] = hiddencol.join(',');
-                colattr._onEndEditCell = function(rowIndex){
-                    if(!this.widget.item){
+                colattr.selectedCb = function(item){
+                    if(!item){
                         return;
                     }
-                    var selectRow = this.widget.item.attr;
-                    var rowNode = grid.dataNodeByIndex(rowIndex);
+                    var selectRow = objectUpdate({},item.attr);
+                    var rowNode = this.getRelativeData().getParentNode();
                     var newAttr = objectUpdate({},rowNode.attr);
                     for (var k in related_setter){
                         newAttr[related_setter[k]] = selectRow[k];
                     }
+                    //setTimeout(function(){
                     rowNode.updAttributes(newAttr,true);
+                    //},1)
                 }
             }
         }
@@ -1081,7 +1083,7 @@ dojo.declare("gnr.GridEditor", null, {
             var dt = convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
-        var editWidgetNode = this.widgetRootNode._(wdgtag, attr).getParentNode();
+        var editWidgetNode = this.widgetRootNode._(wdgtag,rowDataNode.attr._pkey, attr).getParentNode();
         editWidgetNode.editedRowIndex = row;
         this.onEditCell(true);
         if (cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings) {
@@ -1096,9 +1098,6 @@ dojo.declare("gnr.GridEditor", null, {
     endEdit:function(editWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
-        if(editWidget.sourceNode.attr._onEndEditCell){
-            editWidget.sourceNode.attr._onEndEditCell.call(editWidget.sourceNode,editingInfo.row);
-        }
         editWidget.sourceNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);

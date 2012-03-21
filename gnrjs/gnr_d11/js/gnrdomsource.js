@@ -1442,7 +1442,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return child;
     },
     _destroy: function() {
-        this.getParentBag().delItem(this.label);
+        this.getParentBag().popNode(this.label);
     },
     getChild:function(childpath){
         var v = this._value;

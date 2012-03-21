@@ -4629,6 +4629,9 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
             val = row[sel];
             this.sourceNode.setRelativeData(path, val, null, false, 'selected_');
         }
+        if(this.sourceNode._selectedCb){
+            this.sourceNode._selectedCb(item);
+        }
     },
     connectForUpdate: function(widget, sourceNode) {
         var selattr = objectExtract(widget.sourceNode.attr, 'selected_*', true);
@@ -4901,6 +4904,10 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             resolverAttrs._storename = sourceNode.attr._storename;
         }
         var selectedColumns = objectExtract(attributes, 'selected_*');
+        var selectedCb = objectPop(attributes,'selectedCb');
+        if(selectedCb){
+            sourceNode._selectedCb = funcCreate(selectedCb,'item',sourceNode);
+        }
         if (objectNotEmpty(selectedColumns)) {
             var hiddenColumns;
             if ('hiddenColumns' in resolverAttrs) {
