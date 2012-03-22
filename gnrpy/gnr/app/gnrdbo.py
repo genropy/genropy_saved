@@ -342,6 +342,10 @@ class GnrHTable(GnrDboTable):
                            ELSE ((SELECT description FROM %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
                            END
                            """ % tblname)
+        
+        tbl.formulaColumn('caption_field',"""CASE WHEN $description IS NULL OR $description='' THEN $child_code 
+                                             ELSE $child_code ||'-'||$description END""")
+        tbl.attributes.setdefault('caption_field','caption_field')
         if not 'rec_type'  in columns:
             tbl.column('rec_type', name_long='!!Type')
             

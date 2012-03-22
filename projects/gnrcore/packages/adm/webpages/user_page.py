@@ -45,22 +45,8 @@ class GnrCustomWebPage(object):
 
     
     def userAuth(self,pane):
-        th = pane.plainTableHandler(relation='@tags',viewResource=':ViewFromUser',hider=True)
-        bar = th.view.top.bar        
-        bar.replaceSlots('#','#,delrow,addtags')
-        bar.addtags.paletteTree('htags', title='Tags',tree_persist=True,
-                                dockButton_iconClass='icnOpenPalette',height='250px',width='180px'
-                                ).htableStore('adm.htag')
-        grid = th.view.grid
-        grid.dragAndDrop(dropCodes='htags')
-        grid.dataRpc('dummy','addTags',data='^.dropped_htags',user_id='=#FORM.pkey')
-    
-    def rpc_addTags(self,data=None,user_id=None,**kwargs):
-        usertagtbl = self.db.table('adm.user_tag')
-        tag_id = data['pkey']
-        if usertagtbl.query(where='$user_id=:user_id AND $tag_id=:tag_id',tag_id=tag_id,user_id=user_id).count()==0:
-            usertagtbl.insert(dict(user_id=user_id,tag_id=tag_id))
-            self.db.commit()
+        pane.inlineTableHandler(relation='@tags',viewResource=':ViewFromUser',autoSave=False,semaphore=False)
+
         
 
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
