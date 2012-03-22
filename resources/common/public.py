@@ -421,6 +421,25 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
+    #DA RIVEDERE
+    @struct_method
+    def th_slotbar_mainFilter(self,pane,**kwargs):
+        pane.slotButton(tip='!!Set Filter', iconClass='iconbox th_filterButton',
+                        action='SET .query.activeFilter = !GET .query.activeFilter')
+        pane.dataController(""" var filter;
+                                if (activeFilter==true){
+                                    filter = query.deepCopy();
+                                    console.log(filter);
+                                }else if(activeFilter==false){
+                                    filter = null;
+                                }
+                                 SET .query.currentFilter = filter;
+                            """, currentFilter='=.query.currentFilter',
+                            query='=.query.where',
+                            pagename=self.pagename,activeFilter="^.query.activeFilter")
+        pane.dataController("genro.dom.setClass(pane,'th_filterActive',activeFilter)",
+                activeFilter='^.query.activeFilter', _onStart=True,pane=pane.parent.parent.parent)
+                
     def th_options(self):
         return dict()
 
@@ -437,7 +456,10 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        return self._th_main(root,th_options=th_options,**kwargs)
+        th = self._th_main(root,th_options=th_options,**kwargs)
+        if th_options.get('filterSlot'):
+            th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
+        return th
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = boolean(th_options.get('formInIframe'))

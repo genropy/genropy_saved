@@ -231,7 +231,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             
     def rpc_getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
-                           relationDict=None, sqlparams=None, condition=None,
+                           relationDict=None, sqlparams=None,condition=None,
                            **kwargs):
         """TODO
         
@@ -848,13 +848,12 @@ class GnrWebAppHandler(GnrBaseProxy):
 
  
     def _decodeWhereBag(self, tblobj, where, kwargs):
-        if hasattr(self.page, 'getSelection_filters'):
-            selection_filters = self.page.getSelection_filters()
-            if selection_filters:
-                new_where = Bag()
-                new_where.setItem('filter', selection_filters)
-                new_where.setItem('where', where, jc='and')
-                where = new_where
+        currentFilter = kwargs.pop('currentFilter',None)
+        if currentFilter:
+            new_where = Bag()
+            new_where.setItem('filter', currentFilter)
+            new_where.setItem('where', where, jc='and')
+            where = new_where
         page = self.page
         customOpCbDict = dict([(x[12:], getattr(page, x)) for x in dir(page) if x.startswith('customSqlOp_')])
         return tblobj.sqlWhereFromBag(where, kwargs, customOpCbDict=customOpCbDict)

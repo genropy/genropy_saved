@@ -1128,6 +1128,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
         this._layoutChildren(region);
         this.layout();
+        return show;
     },
     mixin_isRegionVisible:function(region){
         return this['_'+region].style.display!='none';
