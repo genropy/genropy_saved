@@ -529,8 +529,9 @@ class TableHandlerMain(BaseComponent):
         form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
                                   formResource=formResource,
                                   formCb=formCb,form_isRootForm=True,**formkw)
-        form.dataController("""SET gnr.windowTitle = title;
-                            """,title='^.controller.title')    
+        form.dataController("""
+                            SET gnr.windowTitle = title;
+                            """,title='^#FORM.controller.title')    
         if th_kwargs.get('showfooter',True):
             self._usePublicBottomMessage(form)
         return form
