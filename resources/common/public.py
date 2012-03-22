@@ -457,6 +457,8 @@ class TableHandlerMain(BaseComponent):
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
         th = self._th_main(root,th_options=th_options,**kwargs)
+        view_option = self._th_hook('options',mangler=th.view)() or dict()
+        th_options.update(view_option)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
         return th
