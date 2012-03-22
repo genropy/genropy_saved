@@ -341,8 +341,15 @@ dojo.declare("gnr.GnrBagNode", null, {
         var curr = this;
         var currattr = curr.attr || {};
         if(arguments.length==1){
-            while(curr && !(attrname in curr.attr)){
-                curr = curr.getParentNode();
+            if(attrname.indexOf(',')<0){
+                while(curr && !(attrname in curr.attr)){
+                    curr = curr.getParentNode();
+                }
+            }else{
+                attrname = attrname.split(',');
+                while(curr && !dojo.some(attrname,function(n){return (n in curr.attr)})){
+                    curr = curr.getParentNode();
+                }
             }
         }else{
             while(curr && curr.attr[attrname]!=attrvalue){

@@ -396,9 +396,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     doload_store: function(kw) {
         if(kw.destPkey=='*dismiss*'){
+            for(var k in this.gridEditors){
+                this.gridEditors[k].resetEditor();
+            }
             this.reset();
             this.setCurrentPkey(null);
             this.publish('onDismissed');
+
             return;
         }
         var kw = kw || {};

@@ -2117,10 +2117,11 @@ border='1px solid gray',margin='2px', rounded=10,
 
 div.cellContent{
     border-radius:4px;
-    padding:2px;
+    padding:1px;
     -moz-transition-duration:0;
     -webkit-transition-duration:0;
     transition-duration:0;
+    line-height:15px;
 }
 
 .externalChangedCell .cellContent{
@@ -2158,7 +2159,7 @@ div.cellContent{
 	border-top:0px;
 	border-left:0px;
 }
-.tundra .dijitTextBoxFocused {
+.tundra .dijitTextBoxFocused, .tundra .dijitTextAreaFocused {
     background: #FFFFAD;
     outline:none;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#FFFFAD));

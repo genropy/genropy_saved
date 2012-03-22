@@ -9,12 +9,11 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class ViewFromUser(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('tag_code',name='Tag',width='10em')
-        r.fieldcell('tag_description',name='Description',width='20em')
-        r.fieldcell('tag_note',name='Notes',width='100%')
+        r.fieldcell('tag_id',name='Tag',width='20em',edit=True)
+        r.fieldcell('@tag_id.note',name='Notes',width='100%')
         
     def th_order(self):
-        return 'tag_code'
+        return 'tag_id'
         
    # def th_query(self):
    #     return dict(column='tag_code',op='contains', val='%')

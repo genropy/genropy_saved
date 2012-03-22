@@ -2075,7 +2075,7 @@ class GnrGridStruct(GnrStructData):
                 kwargs['related_table'] = relatedTable.fullname
 
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
-                if caption_field:
+                if caption_field and not kwargs.get('hidden') and len(relfldlst) == 1:
                     kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
                     kwargs['relating_column'] = field
                     kwargs['related_column'] = caption_field

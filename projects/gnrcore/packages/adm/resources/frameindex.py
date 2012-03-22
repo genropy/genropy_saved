@@ -118,12 +118,12 @@ class FrameIndex(BaseComponent):
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
-        appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
+        appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'});""",
                             subscribe_app_preference=True,
                             _tags=self.preferenceTags,pane=appPref,preftitle='!!Application preference')
-        userPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',right:'10px',title:preftitle,
+        userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',right:'10px',title:preftitle,
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'});""",
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')

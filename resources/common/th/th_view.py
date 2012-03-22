@@ -161,6 +161,7 @@ class TableHandlerView(BaseComponent):
             tblobj.insert({one:dropPkey,many:dragPkey})
             self.db.commit()
 
+
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -376,6 +377,7 @@ class TableHandlerView(BaseComponent):
                                excludeDraft='=.excludeDraft',
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
+                               currentFilter = '=.query.currentFilter',
                                unlinkdict=unlinkdict,
                                _onCalling=""" 
                                %s

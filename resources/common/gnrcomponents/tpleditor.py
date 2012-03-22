@@ -252,7 +252,7 @@ class TemplateEditor(TemplateEditorBase):
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
         self.RichTextEditor(bc.contentPane(region='center'), value='^.data.content',
-                            toolbar='simple')
+                            toolbar='standard')
                             
     def _te_framePreview(self,frame,table=None):
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   

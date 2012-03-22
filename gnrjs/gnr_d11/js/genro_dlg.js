@@ -380,7 +380,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;
-        var paletteCode='zoom_'+table.replace('.','_')+pkey;
+        var paletteCode= kw.paletteCode || 'zoom_'+table.replace('.','_')+pkey;
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
             wdg.show();

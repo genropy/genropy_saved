@@ -204,11 +204,11 @@ class FilterBox(BaseComponent):
     def _prepareFilterMenu(self, filterOn):
         colsMenu = Bag()
         fltList = splitAndStrip(filterOn, ',')
-        for col in fltList:
+        for i,col in enumerate(fltList):
             caption = col
             if ':' in col:
                 caption, col = col.split(':')
-            colsMenu.setItem('r', None,col=col, caption=caption, childcontent='')
+            colsMenu.setItem('r%i'%i, None,col=col, caption=caption, childcontent='')
         return colsMenu
 
 

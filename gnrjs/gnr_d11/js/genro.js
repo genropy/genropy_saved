@@ -200,13 +200,19 @@ dojo.declare('gnr.GenroClient', null, {
             cb = function(e){
                 rootgenro.childUserEvent(that,e);
             }
-            
         }else{
             genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
             cb = genro.onUserEvent;
         }
-        dojo.connect(window, 'onmousemove', cb);
-        dojo.connect(window, 'onkeypress', cb);
+        var commoncb = function(e){
+            if(genro.userInfoCb.length>0){
+                dojo.forEach(genro.userInfoCb,function(cb){cb()});
+                genro.userInfoCb = [];
+            }
+            cb(e);
+        }
+        dojo.connect(window, 'onmousemove', commoncb);
+        dojo.connect(window, 'onkeypress', commoncb);
     },
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
@@ -215,10 +221,6 @@ dojo.declare('gnr.GenroClient', null, {
     onUserEvent:function(e) {
         if (genro.user_polling > 0) {
             genro._lastUserEventTs = new Date();
-            if(genro.userInfoCb.length>0){
-                dojo.forEach(genro.userInfoCb,function(cb){cb()});
-                genro.userInfoCb = [];
-            }
             if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':e?'user':'auto'});
             }
@@ -1157,10 +1159,7 @@ dojo.declare('gnr.GenroClient', null, {
                 childpath = childpath.slice(1).join('/');
             }
             if(nodeId.indexOf('FORM')==0){
-                nodeId = scope.getInheritedAttributes().formId;
-                if (!nodeId){
-                    node=scope.attributeOwnerNode('_fakeform') || scope.getParentNode();
-                }
+                node=scope.attributeOwnerNode('formId,_fakeform') || scope.getParentNode();
             }else if(nodeId.indexOf('ANCHOR')==0){
                 node=scope.attributeOwnerNode('_anchor') || scope.getParentNode();
             }
@@ -1169,7 +1168,8 @@ dojo.declare('gnr.GenroClient', null, {
         if (!node && genro.src.building) {
             node = genro.src._main.getNodeByAttr('nodeId', nodeId);
         }
-        return childpath?node._value.getChild(childpath):node;
+        
+        return childpath?node.getChild(childpath):node;
     },
     
     domById:function(nodeId,scope) {

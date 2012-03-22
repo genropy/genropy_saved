@@ -109,7 +109,6 @@ class TableScriptHandler(BaseComponent):
             self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0),**batch_dict)    
             dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
             dlgoptions.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgoptions.js_widget)  
-
         pane.dataController("""
                             dlgpars.hide();
                             dlgoptions.hide();
@@ -125,7 +124,7 @@ class TableScriptHandler(BaseComponent):
                             FIRE .run;
                             """,
                            _fired="^.confirm", pars='=.data',
-                           immediate=batch_dict.get('immediate',False),
+                           immediate=batch_dict.get('immediate') or extra_parameters.getItem('batch_immediate') or False,
                            dlgpars=dlgpars.js_widget,dlgoptions=dlgoptions.js_widget) 
         pane.dataController(
         """if(hasParameters){
