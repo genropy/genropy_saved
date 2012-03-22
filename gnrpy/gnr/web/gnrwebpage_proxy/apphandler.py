@@ -1575,7 +1575,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             page.response.content_type = mimetypes.guess_type(downloadAs)[0]
             page.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
         if not respath:
-            respath = 'action/%s' % action
+            respath = 'action/_common/%s' % action
         res_obj = self.page.site.loadTableScript(page=self.page, table=table,respath=respath, class_name='Main')
         if selectionName:
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
