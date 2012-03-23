@@ -456,12 +456,7 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        th = self._th_main(root,th_options=th_options,**kwargs)
-        view_option = self._th_hook('options',mangler=th.view)() or dict()
-        th_options.update(view_option)
-        if th_options.get('filterSlot'):
-            th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
-        return th
+        return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = boolean(th_options.get('formInIframe'))
@@ -499,6 +494,10 @@ class TableHandlerMain(BaseComponent):
         self.__th_moverdrop(th)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
+        view_option = self._th_hook('options',mangler=th.view)() or dict()
+        th_options.update(view_option)
+        if th_options.get('filterSlot'):
+            th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
         return th
         
     def __th_moverdrop(self,th):
