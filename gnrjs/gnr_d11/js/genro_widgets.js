@@ -4382,7 +4382,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     mixin_setEditorEnabled: function(enabled) {
         this.editorEnabled = enabled;
-    },
+    }
 
    //mixin_rpcViewColumns: function() {
    //    if ((this.relation_path) && (this.relation_path.indexOf('@') == 0)) {

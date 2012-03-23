@@ -937,7 +937,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._avatar = avatar
         
     def _get_avatar(self):
-        if self.isGuest:
+        if self.isGuest or getattr(self, 'skip_connection', False):
             return
         if not hasattr(self, '_avatar'):
             connection = self.connection
