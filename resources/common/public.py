@@ -421,6 +421,9 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
+    def mainLeftContent(self,pane,**kwargs):
+        return
+    
     #DA RIVEDERE
     @struct_method
     def th_slotbar_mainFilter(self,pane,**kwargs):
