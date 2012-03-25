@@ -2080,6 +2080,7 @@ class GnrGridStruct(GnrStructData):
                     kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
                     kwargs['relating_column'] = field
                     kwargs['related_column'] = caption_field
+                    kwargs['rowcaption'] = caption_field
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
             kwargs['relating_column'] = fkey
