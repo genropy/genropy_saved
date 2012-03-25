@@ -162,6 +162,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     applyDisabledStatus:function(){
         var disabled = this.isDisabled();
         this.publish('onDisabledChange',{disabled:disabled})
+        genro.dom.setClass(this.sourceNode,'lockedContainer',disabled)
         var node,localdisabled;
         for (var k in this._register){
             node = this._register[k];
@@ -1231,6 +1232,7 @@ dojo.declare("gnr.GnrValidator", null, {
     validate_call: function(param, value, sourceNode, parameters) {
         return funcApply(param, objectUpdate({'value':value}, parameters), sourceNode);
     },
+    
     validate_remote: function(param, value, sourceNode, parameters) {
         var rpcresult = genro.rpc.remoteCall(param, objectUpdate({'value':value}, parameters), null, 'POST');
         if (rpcresult instanceof gnr.GnrBag) {
@@ -1245,6 +1247,7 @@ dojo.declare("gnr.GnrValidator", null, {
             return rpcresult;
         }
     },
+    
     validate_email: function(param, value) {
         if (value) {
             var r = new RegExp("^" + dojox.regexp.emailAddress() + "$", "i");

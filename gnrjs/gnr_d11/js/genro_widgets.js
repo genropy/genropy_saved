@@ -2213,7 +2213,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             
             //genro.grid_configurator.onGridCreated(sourceNode);
         }
-        
+        if(sourceNode._useStore){
+            widget.setEditableColumns();
+        }
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
@@ -2650,7 +2652,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                                                 cellClasses:'rowEditorStatus',
                                                                 headerClasses:'rowEditorStatus',
                                                                 name:' ',calculated:true,
-                                                                hidden:'=.struct?disabledEditor',
                                                                 _customGetter:function(rowdata,rowIdx){
                                                                     return this.grid.gridEditor.statusColGetter(rowdata,rowIdx);
                                                                 }});
