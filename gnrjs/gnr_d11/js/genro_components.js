@@ -1410,7 +1410,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var parentProtect = parentForm?parentForm.isProtectWrite():false;
         this.storeNode.setRelativeData('.locked',value);
         this.storeNode.setRelativeData('.disabledButton',value || parentProtect);
-        this.storeNode.setRelativeData('.grid.struct?disabledEditor',value || parentProtect);
+        /*this.storeNode.setRelativeData('.grid.struct?disabledEditor',value || parentProtect);*/
         this.storeNode.publish('onLockChange',{'locked':this.locked});
     },
     

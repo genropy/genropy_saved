@@ -41,7 +41,13 @@ class FormConProvince(BaseComponent):
         fb.field('zona')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
                                                                 viewResource=':EditableView',autoSave=False,statusColumn=True,semaphore=False)
-        #th = bc.contentPane(region='center').dialogTableHandler(relation='@province',dialog_height='300px',
+        #th.view.grid.attributes.update(selectedLabel='.selectedLabel')
+        #th.view.dataController('SET path_mio = this.absDatapath()+".store."+selectedLabel;',selectedLabel='^.grid.selectedLabel',_if='selectedLabel')
+        #form.data('path_mio','test')
+        #form.dataController("""sigla+"-"+codice_istat""",sigla='^.?sigla',
+        #                    codice_istat='^.?codice_istat',datapath='^path_mio')
+        # 
+        # # # #th = bc.contentPane(region='center').dialogTableHandler(relation='@province',dialog_height='300px',
         #                                                        dialog_width='500px',default_)
     
     
