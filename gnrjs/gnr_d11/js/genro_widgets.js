@@ -5116,7 +5116,8 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                         this.setValue(null, true);
                         this.setDisplayedValue(displayedValue);
                         
-                    }else if(value!=lastValueReported){
+                    }else //if(value!=lastValueReported){
+                        {
                         this.setValue(value, true);
                     }
                 }
