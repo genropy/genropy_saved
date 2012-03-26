@@ -2161,11 +2161,19 @@ div.cellContent{
 	border-top:0px;
 	border-left:0px;
 }
-.tundra .dijitTextBoxFocused, .tundra .dijitTextAreaFocused {
-    background: #FFFFAD;
-    outline:none;
+body *{
+    outline:none !important;
+
+}
+.tundra .dijitTextBoxFocused, .tundra .dijitTextAreaFocused,.tundra .dijitComboBoxFocused {
+    box-shadow: 0px 0px 5px #488fd7;
+}
+.tundra .dijitTextBoxFocused .cls_DbSelect, .tundra .dijitComboBoxFocused .cls_DbSelect{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#FFFFAD));
-    background-image: -moz-linear-gradient(-90deg, white, #FFFFAD);}
+    background-image: -moz-linear-gradient(-90deg, white, #FFFFAD);
+}
+.tundra .slotbar_toolbar .dijitTextAreaFocused,.tundra .slotbar_toolbar .dijitTextBoxFocused,.tundra .slotbar_toolbar .dijitComboBoxFocused{
+    box-shadow: 0px 0px 1px #488fd7;
 }
 
 /* @end */
@@ -2173,8 +2181,6 @@ div.cellContent{
 .tundra .dojoxDockNode {
 	border: 1px solid #adadad;
 	border-radius: 2px;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 3px;
 	cursor:pointer; 
 	list-style: none;
 	padding: 2px;
@@ -2326,6 +2332,7 @@ div.cellContent{
 	padding-top: 1px;
 	padding-bottom: 1px;
 }
+
 /*.slotbar_toolbar .dijitButtonNode {
 	background: none;
 	margin: 0px !important;
@@ -2624,8 +2631,6 @@ div.cellContent{
 .draggedItem {
     /*background-color: rgba(252, 252, 169, 0.63) !important;*/
     background-image: none !important;
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
     border-radius: 8px;
     display: block;
     border: 3px solid yellow !important;
@@ -2728,9 +2733,7 @@ table.draggedItem {
 
 .index_file {
     background-color: #ff866a;
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid #c36652;
 }
 
@@ -2771,10 +2774,6 @@ table.draggedItem {
     border: 2px solid #999;
     background-color: #666;
     background-color: rgba(128, 128, 128, 0.75);
-    -moz-border-radius: 16px;
-    -webkit-border-radius: 16px;
-    -opera-border-radius: 16px;
-    -khtml-border-radius: 16px;
     border-radius: 16px;
     font-size: 1.1em;
     color: #fff;
@@ -2794,8 +2793,7 @@ table.draggedItem {
     left: 3.5%;
     top: 0px;
     height: 50%;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
+    border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.25);
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255, 255, 255, 0.75)), to(rgba(255, 255, 255, 0)));
     background-image: -moz-linear-gradient(top, bottom, from(rgba(255, 255, 255, 0.75)), to(rgba(255, 255, 255, 0)));
