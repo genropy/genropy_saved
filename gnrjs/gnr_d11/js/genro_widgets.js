@@ -2218,6 +2218,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if(sourceNode._useStore){
             widget.setEditableColumns();
+            widget.setFormulaColumns();
         }
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
@@ -3380,7 +3381,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         // a single child changed, not the whole selection
                         var rowIdx = this.sourceNode.updateGridCellAttr(kw, true);
                         //var rowIdx = this.getRowIdxFromNode(kw.node);
-                        this.updateRow(rowIdx);
+                        if((!this.gnrediting) || (rowIdx!=kw.reason.editedRowIndex)){
+                            this.updateRow(rowIdx);
+                        }
+                        
                         // dojo.publish('upd_grid_cell', [this.sourceNode, rowLabel, rowIdx]);
                     } else {
                         // upd of the parent Bag
@@ -3679,6 +3683,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(this.sourceNode._useStore){
             this.setEditableColumns();
         }
+        this.setFormulaColumns();
     },
 
     mixin_absIndex: function(inRowIndex) {
@@ -3781,7 +3786,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (fldName) {
             var chNode = storebag.getNode(rowLabel);
             var cellAttr, value, gridfield;
-            var currAttr = chNode.attr;
+            var currAttr = objectUpdate({},chNode.attr);
             var fld;
             var cells = grid.cellmap;
             for (fld in cells) {
@@ -3793,7 +3798,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 }
             }
             ;
+            chNode.updAttributes(currAttr);
         }
+        
         var idx = storebag.index(rowLabel);
         if(grid._filtered){
             idx = dojo.indexOf(grid._filtered,idx);
@@ -4081,6 +4088,21 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
         }
     },
+    mixin_setFormulaColumns:function(){
+        var cellmap = this.cellmap;
+        var formulaColumns = {};
+        for(var k in cellmap){
+            if(cellmap[k].formula){
+                if(!this.changeManager){
+                    this.changeManager = new gnr.GridChangeManager(this)
+                }
+                this.changeManager.addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+            }else if (this.changeManager){
+                this.changeManager.delFormulaColumn(cellmap[k].field);
+            }
+        }
+    },
+
 
     getQueryColumns:function(sourceNode, structure) {
         var columns = gnr.columnsFromStruct(structure);
@@ -4981,17 +5003,16 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
-        if (this.sourceNode.attr.gridcell) {
+        if (this.sourceNode.editedRowIndex!=null && priorityChange) {
             this._updateSelect(item);
             if (priorityChange) {
                 this.cellNext = 'RIGHT';
-                this.onBlur();
+                //this.onBlur();
             }
         }
         else {
-            if (this._hasBeenBlurred) {
+            if (priorityChange) {
                 this._updateSelect(item);
-                this._hasBeenBlurred = false;
             }
         }
     },

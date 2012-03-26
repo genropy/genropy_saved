@@ -24,6 +24,8 @@ class View(BaseComponent):
         r.fieldcell('sigla',width='3em')
         r.fieldcell('codice_istat',width='7em')
         r.fieldcell('regione',width='15em')
+        r.cell('pippo',calculated=True,formula='regione+"-"+sigla')
+    
 
     def th_order(self):
         return 'nome'

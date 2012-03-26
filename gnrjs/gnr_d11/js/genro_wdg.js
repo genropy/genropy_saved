@@ -1096,6 +1096,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     endEdit:function(editWidget, delta, editingInfo) {
+        console.log('endEdit')
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         editWidget.sourceNode._destroy();
@@ -1165,5 +1166,100 @@ dojo.declare("gnr.GridEditor", null, {
         return rc;
     }
 
+});
+
+dojo.declare("gnr.GridChangeManager", null, {
+    constructor:function(grid){
+        this.grid = grid;
+        this.formulaColumns = {};
+        this.triggeredColumns = {};
+        this.sourceNode = grid.sourceNode;
+        var that = this;
+        this.sourceNode.subscribe('onNewDatastore',function(){
+                that.data = that.grid.storebag();
+                that.data.subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
+                                                   'ins':dojo.hitch(that, "triggerINS"),
+                                                   'del':dojo.hitch(that, "triggerDEL")})
+                });
+        this.pa
+
+    },
+    addFormulaColumn:function(field,kw){
+        var cellmap = this.grid.cellmap;
+        var formula = kw.formula;
+        var re,par,dependencies;
+        if(field in this.formulaColumns){
+            this.delFormulaColumn(field);
+        }
+        for(var k in cellmap){
+            par = cellmap[k].field;
+            re= new RegExp('\\b'+par+'\\b');
+            if(formula.match(re)){
+                dependencies = this.triggeredColumns[par];
+                if(!dependencies){
+                    dependencies={}
+                    this.triggeredColumns[par]=dependencies;
+                }
+                dependencies[field] = true;
+            }
+        }
+        this.formulaColumns[field] = formula;
+    },
+    
+    delFormulaColumn:function(field){
+        for (var p in this.triggeredColumns){
+            delete this.triggeredColumns[p][field];
+        }
+        delete this.formulaColumns[field];
+    },
+    calculateFormula:function(formulaKey,rowNode){
+        var formula = this.formulaColumns[formulaKey];
+        var result = funcApply('return '+formula,rowNode.attr);
+        console.log(formula,rowNode.attr,result);
+        rowNode.setAttribute(formulaKey,result,true);
+      
+    },
+    
+    triggerUPD:function(kw){
+        var changedPars = {};
+        var k;
+        var rowNode;
+        if(kw.updvalue){
+            /*
+            if(kw.node.label in this.triggeredColumns){
+                changedPars[kw.node.label] = true;
+            }
+            rowNode = kw.node.getParentBag().getParentNode();*/
+            return;
+        }
+        if(kw.updattr){
+            console.log('upd',kw);
+            rowNode = kw.node;
+            var newattr = kw.node.attr;
+            var oldattr = kw.oldattr;
+            for (k in newattr){
+                if( (k in this.triggeredColumns) && (newattr[k]!=oldattr[k]) ){
+                    changedPars[k] = true;
+                }
+            }
+        }
+        if(objectNotEmpty(changedPars)){
+            var toRecalculate = {};
+            for (k in changedPars){
+                for (var f in this.triggeredColumns[k]){
+                    toRecalculate[f] = true;
+                }
+            }
+            for (k in toRecalculate){
+                this.calculateFormula(k,rowNode);
+            }
+        }
+    },
+    triggerINS:function(kw){
+        console.log('ins',kw);
+    },
+    triggerDEL:function(kw){
+        console.log('del',kw)
+    }
 });
 

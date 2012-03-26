@@ -35,8 +35,8 @@ class GnrCustomWebPage(object):
     
     def test_3_condition(self,pane):
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.dbSelect(dbtable='glbl.regione',value='^.regione',lbl='Regione',width='25em')
-
+        fb.dbSelect(dbtable='glbl.regione',value='^.regione',lbl='Regione',width='25em',selected_nome='pippo')
+        fb.div('^pippo')
         fb.dbSelect(dbtable='glbl.provincia',value='^.sigla',condition='$regione=:regione',condition_regione='^.regione',
                         lbl='Sigla',width='25em',xvalidate_notnull=True,xvalidate_notnull_error='Manca il valore')
     

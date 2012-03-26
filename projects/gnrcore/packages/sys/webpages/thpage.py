@@ -9,7 +9,7 @@ from gnr.core.gnrstring import boolean
 
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
-    
+    dojo_source = True
     @property
     def package(self):
         pkgId = self._call_kwargs.get('th_from_package')
