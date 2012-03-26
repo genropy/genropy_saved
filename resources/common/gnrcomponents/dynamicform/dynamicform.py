@@ -86,7 +86,7 @@ class DynamicForm(BaseComponent):
         fb = pane.div(margin_right='10px').formbuilder(cols=1,datapath=datapath)
         for fnode in fields:
             attr = dict(fnode.attr)
-            field_type = attr.pop('field_type')
+            field_type = attr.pop('field_type','T')
             attr['tag'] = fielddict[field_type]
             #attr['colspan'] = col_max if field_type == 'TL' else 1
             self._df_handleFieldSource(attr,dbstore_kwargs=dbstore_kwargs)

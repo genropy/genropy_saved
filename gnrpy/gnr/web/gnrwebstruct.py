@@ -2067,7 +2067,8 @@ class GnrGridStruct(GnrStructData):
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
         kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
-
+        if 'values' in fldobj.attributes:
+            kwargs['values']=fldobj.attributes['values']
         if hasattr(fldobj,'relatedColumnJoiner'):
             columnjoiner = fldobj.relatedColumnJoiner()
             if columnjoiner:
@@ -2079,6 +2080,7 @@ class GnrGridStruct(GnrStructData):
                     kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
                     kwargs['relating_column'] = field
                     kwargs['related_column'] = caption_field
+                    kwargs['rowcaption'] = caption_field
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
             kwargs['relating_column'] = fkey

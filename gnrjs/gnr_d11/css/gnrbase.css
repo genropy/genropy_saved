@@ -838,9 +838,10 @@ table.formbuilder {
 
 /* @end */
 
-.rowEditorStatus_noedit{
+.lockedContainer .rowEditorStatus{
     display: none;
 }
+
 
 .editGrid_semaphore{
     height: 16px;
@@ -859,6 +860,7 @@ table.formbuilder {
 ._common_d11 .rowEditorStatus.dojoxGrid-cell{
     border-right:0px !important;
 }
+
 
 
 

@@ -885,7 +885,7 @@ dojo.declare("gnr.GridEditor", null, {
 
     getNewRowDefaults:function(externalDefaults){
         if(!this.editorPars){
-            return default_kwargs;
+            return externalDefaults;
         }
         else{
             
