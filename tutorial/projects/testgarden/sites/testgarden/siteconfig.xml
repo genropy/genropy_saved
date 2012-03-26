@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-    <wsgi homepage='showcase/index' mainpackage='showcase' port='8086' debug='true'/>
+    <wsgi homepage='showcase/index' mainpackage='showcase' profile='false' port='8086' debug='true'/>
     <!-- <memcache>
         <local host='localhost' port='11211' />
     </memcache>-->

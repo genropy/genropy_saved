@@ -117,7 +117,7 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """TODO"""
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
                   group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -166,6 +166,10 @@ class TableBase(object):
         if diagnostic:
             tbl.column('__warnings',name_long='!!Warnings',group=group)
             tbl.column('__errors',name_long='!!Errors',group=group)
+        if user_ins:
+            tbl.column('__ins_user', name_long='!!User Insert', onInserting='setCurrentUser', group=group)
+        if user_upd:
+            tbl.column('__mod_user', name_long='!!User Modify', onUpdating='setCurrentUser', onInserting='setCurrentUser', group=group)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
@@ -182,7 +186,17 @@ class TableBase(object):
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
-            
+    
+    def trigger_setCurrentUser(self, record, fldname,**kwargs):
+        """This method is triggered during the insertion (or a change) of a record. It returns
+        the current user as a value of the dict with the key equal to ``record[fldname]``,
+        where ``fldname`` is the name of the field inserted in the record.
+        
+        :param record: the record
+        :param fldname: the field name"""
+        if not getattr(record, '_notUserChange', None):
+            record[fldname] = self.db.currentEnv.get('user')
+
     def trigger_setAuditVersionIns(self, record, fldname):
         """TODO
         
