@@ -1236,10 +1236,14 @@ class GnrWebAppHandler(GnrBaseProxy):
                 where = '$%s = :id' % alternatePkey
             else:
                 where = '$%s = :id' % identifier
+            if condition:
+                where =  '( %s ) AND ( %s ) ' % (where, condition)
+            whereargs = {}
+            whereargs.update(kwargs)
             selection = tblobj.query(columns=','.join(resultcolumns),
                                      where=where, excludeLogicalDeleted=False,
                                      excludeDraft=excludeDraft,
-                                     limit=1, id=_id).selection()
+                                     limit=1, id=_id,**kwargs).selection()
         elif querystring:
             querystring = querystring.strip('*')
             if querystring.isdigit():

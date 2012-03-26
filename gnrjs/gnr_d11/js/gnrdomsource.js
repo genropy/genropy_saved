@@ -1126,6 +1126,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     this.updateValidationStatus();
                     this.setAttributeInDatasource('value', newval);
                 }
+            }else if (attr.indexOf('condition_')==0){
+                if('setCondition' in this.widget){
+                    this.widget.setCondition(value,kw);
+                }
             }
             else {
                 var setter = 'set' + stringCapitalize(attr);

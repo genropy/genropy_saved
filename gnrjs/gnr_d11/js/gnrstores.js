@@ -564,6 +564,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             dojo.hitch(scope, request.onItem)(result);
         } else {
             var id = request.identity;
+    
             var parentSourceNode = this._parentSourceNode;
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || objectNotEmpty(selectedAttrs))){
@@ -595,9 +596,12 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                     result = null;
                 }
 
-                if (result) {
+                //if (result) {
+                    if(!result){
+                        console.log('no result',request);
+                    }
                     dojo.hitch(scope, request.onItem)(result);
-                }
+                //}
             });
             var result = this.rootDataNode().getValue('', {_id:id});
             if (result instanceof dojo.Deferred) {

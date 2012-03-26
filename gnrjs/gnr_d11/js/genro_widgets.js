@@ -379,6 +379,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if(newobj.validate){
             newobj.validate_replaced = newobj.validate;
             newobj.validate = function(isFocused){
+                if(this._isvalid==false && this.value){
+                    this.sourceNode._validations.error = 'Invalid';
+                }
                 var isValid = this.validate_replaced(isFocused);
                 var sourceNode = this.sourceNode;
                 var gridwidget = sourceNode.attr.gridcell;
@@ -4967,6 +4970,13 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     mixin_setDbtable:function(value) {
         this.store.rootDataNode()._resolver.kwargs.dbtable = value;
     },
+    mixin_setCondition:function(value,kw){
+        var vpath = this.sourceNode.attr.value;
+        var currvalue = this.sourceNode.getRelativeData(vpath);
+        this.sourceNode.setRelativeData(vpath,null,null,null,false);
+        this.sourceNode.setRelativeData(vpath,currvalue);
+    },
+    
     mixin_onSetValueFromItem: function(item, priorityChange) {
         if (!item.attr.caption) {
             return;
@@ -5106,7 +5116,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                         this.setValue(null, true);
                         this.setDisplayedValue(displayedValue);
                         
-                    }else{
+                    }else if(value!=lastValueReported){
                         this.setValue(value, true);
                     }
                 }
