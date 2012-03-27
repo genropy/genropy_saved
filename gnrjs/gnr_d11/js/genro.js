@@ -1276,13 +1276,14 @@ dojo.declare('gnr.GenroClient', null, {
         var dataNode = genro.getDataNode(obj.sourceNode);
         dataNode.setAttr({'selectedValue':value});
     },
-    evaluate:function(expr) {
+    evaluate:function(expr,showError) {
         try {
             var toEval = 'genro.auxresult=(' + expr + ')';
             dojo.eval(toEval);
             return genro.auxresult;
         } catch(e) {
-            if (console != undefined) {
+            var showError = showError===false?false:true;
+            if ((console != undefined) && showError) {
                 console.log('genro.evaluate() failed:');
                 console.log(expr);
                 console.log(e);

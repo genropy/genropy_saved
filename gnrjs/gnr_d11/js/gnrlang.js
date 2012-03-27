@@ -966,7 +966,7 @@ function serialize(_obj) {
     }
 }
 
-function funcCreate(fnc, pars, scope) {
+function funcCreate(fnc, pars, scope,showError) {
     if (fnc) {
         var pars = pars || '';
         if (typeof(fnc) == 'string') {
@@ -984,7 +984,7 @@ function funcCreate(fnc, pars, scope) {
             if (!stringStartsWith(fnc, 'function')) {
                 fnc = 'function(' + pars + '){' + fnc + '\n}';
             }
-            fnc = genro.evaluate(fnc);
+            fnc = genro.evaluate(fnc,showError);
             if (scope) {
                 fnc = dojo.hitch(scope, fnc);
             }
@@ -1005,14 +1005,14 @@ function highlightLinks(text) {
     return text;
 
 }
-function funcApply(fnc, parsobj, scope,argNames,argValues) {
+function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     var argNames = argNames || [];
     var argValues = argValues || [];
     for (var attr in parsobj) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);
     }
-    var func = funcCreate(fnc, argNames.join(','));
+    var func = funcCreate(fnc, argNames.join(','),scope,showError);
     var result = func.apply(scope, argValues);
     return result;
 }

@@ -2319,6 +2319,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             countBoxNode.setRelativeData('.total', total);
         }
     },
+    
     _getFilterAutoValues: function(widget,dtypes){
         //console.log(widget);
         var structbag = widget.structbag();
@@ -2620,13 +2621,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     structFromBag: function(sourceNode, struct, cellmap) {
         var cellmap = cellmap || {};
         var result = [];
+        if(sourceNode._cellpars){
+            sourceNode.unregisterSubscription('cellpars');
+            sourceNode._cellpars = null;
+        }
         if (struct) {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
             var localTypes = {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}};
             var gridEditor = sourceNode.widget?sourceNode.widget.gridEditor:false;
-            for (i = 0; i < bagnodes.length; i++) {
+            var cellpars = {};
+            for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
                 delete view.tag;
@@ -2664,10 +2670,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     cellsnodes = rowBag.getNodes();
                     row = [];
+                    
                     for (j = 0; j < cellsnodes.length; j++) {
                         cell = objectUpdate({}, rowattrs);
                         cell = objectUpdate(cell, cellsnodes[j].attr);
-                        cell = sourceNode.evaluateOnNode(cell);
+                        //cell = sourceNode.evaluateOnNode(cell);
                         dtype = cell.dtype;
                         cell.original_field = cell.field;
                         cell.original_name = cell.name;
@@ -2690,6 +2697,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             }
                             cell.field = cell.field.replace(/\W/g, '_');
                             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
+                            for(var p in cell){
+                                if(typeof(cell[p])=='string' && cell[p].indexOf('^') == 0){
+                                    var parpath = cell[p].slice(1);
+                                    var dependences = cellpars[parpath];
+                                    if(!dependences){
+                                        dependences = {};
+                                        cellpars[parpath] = dependences;
+                                    }
+                                    dependences[cell.field] =true;
+                                }
+                            }
+                            
                             if (dtype) {
                                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
                             }                            
@@ -2753,7 +2772,28 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 view.rows = rows;
                 result.push(view);
             }
+           // for (var p in cellpars){
+            if(objectNotEmpty(cellpars)){
+                sourceNode._cellpars = cellpars;
+                sourceNode.registerSubscription('_trigger_data',sourceNode,function(kw){
+                    var dpath = kw.pathlist.slice(1).join('.');
+                    for(var p in this._cellpars){
+                        var abspath = this.absDatapath(p);
+                        if(dpath==abspath){
+                            if(this.widget.changeManager){
+                                for(var f in this._cellpars[p]){
+                                    if(f in this.widget.changeManager.formulaColumns){
+                                        this.widget.changeManager.recalculateOneFormula(f);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },'cellpars');
+            }
         }
+        
+
         return result;
     },
     groupByFromStruct:function(struct, grouppable) {

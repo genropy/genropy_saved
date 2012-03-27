@@ -41,9 +41,9 @@ class EditableView(View):
         r.fieldcell('nome', width='20em',edit=True)
         r.fieldcell('sigla',width='3em',edit=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
-       # r.cell('pippo',calculated=True,formula='nome+"-"+sigla')
-        r.fieldcell('regione',width='8em',name='Regione',edit=True)
-        r.fieldcell('@regione.zona',width='5em',name='Zona')
+        r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',formula_zona='^#FORM.record.zona')
+        #r.fieldcell('regione',width='8em',name='Regione',edit=True)
+        #r.fieldcell('@regione.zona',width='5em',name='Zona')
         #r.fieldcell('regione_nome',width='8em')
         
 

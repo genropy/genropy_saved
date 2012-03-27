@@ -1179,10 +1179,24 @@ dojo.declare("gnr.GridChangeManager", null, {
                 that.data = that.grid.storebag();
                 that.data.subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
                                                    'ins':dojo.hitch(that, "triggerINS"),
-                                                   'del':dojo.hitch(that, "triggerDEL")})
+                                                   'del':dojo.hitch(that, "triggerDEL")});
+                that.resolveCalculatedColumns();
+                
                 });
-        this.pa
-
+    },
+    resolveCalculatedColumns:function(){
+        var cellmap = this.grid.cellmap;
+        for(var k in this.formulaColumns){
+            if(cellmap[k].calculated){
+                this.recalculateOneFormula(k);
+            }
+        }
+    },
+    recalculateOneFormula:function(key){
+        var that = this;
+        this.grid.storebag().forEach(function(n){
+            that.calculateFormula(key,n);
+        });
     },
     addFormulaColumn:function(field,kw){
         var cellmap = this.grid.cellmap;
@@ -1214,8 +1228,17 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
     calculateFormula:function(formulaKey,rowNode){
         var formula = this.formulaColumns[formulaKey];
-        var result = funcApply('return '+formula,rowNode.attr);
-        console.log(formula,rowNode.attr,result);
+        var result;
+        var pars = objectUpdate({},rowNode.attr);
+        var cellmap = this.grid.cellmap;
+        var dynPars = objectExtract(cellmap[formulaKey],'formula_*',true);
+        dynPars = this.sourceNode.evaluateOnNode(dynPars);
+        objectUpdate(pars,dynPars);
+        try{
+            result = funcApply('return '+formula,pars,this.sourceNode);
+        }catch(e){
+            result = null;
+        }
         rowNode.setAttribute(formulaKey,result,true);
       
     },

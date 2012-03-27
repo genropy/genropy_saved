@@ -856,22 +856,34 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             delete genro.src._subscribedNodes[stringId];
         }
     },
-    registerSubscription:function(topic,scope,handler){
+    registerSubscription:function(topic,scope,handler,reason){
         var stringId = this.getStringId();
+        var reason = reason || topic;
         var subDict=genro.src._subscribedNodes[stringId];
         if(!subDict){
             subDict = {};
             genro.src._subscribedNodes[stringId] = subDict;
         }
         if(!(topic in subDict)){
-            subDict[topic] = [];
+            subDict[reason] = [];
         }
-        subDict[topic].push(dojo.subscribe(topic, scope, handler));
+        subDict[reason].push(dojo.subscribe(topic, scope, handler));
     },
+    unregisterSubscription:function(reason){
+        var stringId = this.getStringId();
+        var subDict=genro.src._subscribedNodes[stringId];
+        if(reason in subDict){
+            var l = objectPop(subDict,reason);
+            if(l){
+                dojo.forEach(l,function(s){dojo.unsubscribe(s)});
+            }
+        }
+    },
+    
     _setDynAttributes : function() {
         var stringId = this.getStringId();
         if (this._dynattr) {
-            var nodeSubscribers = {};
+            var nodeSubscribers = genro.src._subscribedNodes[stringId] || {};
             var path,fn,prop;
             for (var attr in this._dynattr) {
                 nodeSubscribers[attr] = [this._subscriptionHandle(attr)];
