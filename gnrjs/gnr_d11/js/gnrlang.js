@@ -328,6 +328,10 @@ function objectKeyByIdx(obj, idx) {
 function isEqual(a,b){
     return (a==b)||((a+'')==(b+''));
 };
+function localType(dtype){
+    return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}}[dtype];
+};
+    
 
 function objectExtract(obj, keys, dontpop,dontslice) {
     if(!obj){

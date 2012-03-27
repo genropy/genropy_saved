@@ -44,7 +44,8 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs (top=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
-                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,unlinkdict=None,**kwargs):
+                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
+                       unlinkdict=None,searchOn=True,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -57,7 +58,9 @@ class TableHandlerView(BaseComponent):
                 templateManager = False
             base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
         elif not virtualStore:
-            base_slots = ['5','vtitle','count','*','searchOn']
+            base_slots = ['5','vtitle','count','*']
+            if searchOn:
+                base_slots.append('searchOn')
         else:
             base_slots = ['5','vtitle','count','*']
         base_slots = ','.join([b for b in base_slots if b])

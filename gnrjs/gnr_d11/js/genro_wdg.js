@@ -621,7 +621,6 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(this.editorPars){
-            this.widgetRootNode.attr['_fakeform'] = true;            
             sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
             sourceNode.subscribe('onNewDatastore',function(){
                 that.resetEditor();
@@ -1173,6 +1172,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         this.grid = grid;
         this.formulaColumns = {};
         this.triggeredColumns = {};
+        this.cellpars = {};
         this.sourceNode = grid.sourceNode;
         var that = this;
         this.sourceNode.subscribe('onNewDatastore',function(){
@@ -1198,6 +1198,7 @@ dojo.declare("gnr.GridChangeManager", null, {
             that.calculateFormula(key,n);
         });
     },
+
     addFormulaColumn:function(field,kw){
         var cellmap = this.grid.cellmap;
         var formula = kw.formula;
@@ -1231,7 +1232,14 @@ dojo.declare("gnr.GridChangeManager", null, {
         var result;
         var pars = objectUpdate({},rowNode.attr);
         var cellmap = this.grid.cellmap;
-        var dynPars = objectExtract(cellmap[formulaKey],'formula_*',true);
+        var struct = this.grid.structBag.getItem('#0.#0');
+        var bagcellattr = struct.getNode(cellmap[formulaKey]._nodelabel).attr;
+        var dynPars = objectExtract(bagcellattr,'formula_*',true);        
+       // for(var p in dynPars){
+       //     if(dynPars[p][0] == '.'){
+       //         dynPars[p] = rowNode.attr[p];
+       //     }
+       // }
         dynPars = this.sourceNode.evaluateOnNode(dynPars);
         objectUpdate(pars,dynPars);
         try{
@@ -1242,7 +1250,54 @@ dojo.declare("gnr.GridChangeManager", null, {
         rowNode.setAttribute(formulaKey,result,true);
       
     },
+    resetCellpars:function(){
+        this.sourceNode.unregisterSubscription('cellpars');
+        this.cellpars = {};
+    },
+    registerParameters:function(){
+        if(objectNotEmpty(this.cellpars)){
+            this.sourceNode.registerSubscription('_trigger_data',this,this.onDataChange,'cellpars');
+        }
+    },
     
+    onDataChange:function(kw){
+        var dpath = kw.pathlist.slice(1).join('.');
+        var struct = this.grid.structBag.getItem('#0.#0');
+        var cellmap = this.grid.cellmap;
+        var rebuildStructure = false;
+        for(var p in this.cellpars){
+            var abspath = this.sourceNode.absDatapath(p);
+            if(dpath==abspath){
+                for(var f in this.cellpars[p]){
+                    var reasons = this.cellpars[p][f];
+                    for(var reason in reasons){
+                        if(reason.indexOf('formula_')==0){
+                            if(f in this.formulaColumns){
+                                this.recalculateOneFormula(f);
+                            }
+                        }else if(reason.indexOf('condition_')==0){
+                            console.log('condition');
+                        }else{
+                            rebuildStructure = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(rebuildStructure){
+            this.grid.setStructpath();
+        }
+    },
+    
+    addDynamicCellPar:function(cell,parname,parpath){
+        var dependences = this.cellpars[parpath];
+        if(!dependences){
+            dependences = {};
+            this.cellpars[parpath] = dependences;
+        }
+        dependences[cell.field] = dependences[cell.field] || {};
+        dependences[cell.field][parname] = true;
+    },
     triggerUPD:function(kw){
         var changedPars = {};
         var k;

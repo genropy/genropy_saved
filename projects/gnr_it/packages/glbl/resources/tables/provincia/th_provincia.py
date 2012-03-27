@@ -38,11 +38,18 @@ class View(BaseComponent):
 class EditableView(View):    
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('nome', width='20em',edit=True)
+        r.fieldcell('nome', width='20em',edit=True,name='^testnome')
         r.fieldcell('sigla',width='3em',edit=True)
+        r.cell('miazonaregione',edit=True,width='5em',calculated=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
-        r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',formula_zona='^#FORM.record.zona')
-        #r.fieldcell('regione',width='8em',name='Regione',edit=True)
+       #r.cell('lunghezzapippo',calculated=True,formula='pippo.length')
+       #
+       #r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
+       #        formula_zona='^#FORM.record.zona',hidden='^piero')
+       #
+        r.fieldcell('regione',width='8em',name='Regione',edit=dict(condition='$zona=:miazona',hasDownArrow=True,
+                                                                    condition_miazona='^.miazonaregione'))
+        #r.cell('provaattr',calculated=True,formula='v',formula_v='^.sigla')
         #r.fieldcell('@regione.zona',width='5em',name='Zona')
         #r.fieldcell('regione_nome',width='8em')
         

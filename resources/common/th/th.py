@@ -32,7 +32,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,hider=True,**kwargs):
+                            lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -57,7 +57,7 @@ class TableHandler(BaseComponent):
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
                                 configurable=configurable,
-                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict) 
+                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
             wdg.dataController("""
@@ -214,7 +214,8 @@ class TableHandler(BaseComponent):
             statusColumn = False if statusColumn is None else statusColumn
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,
-                                        default_kwargs=default_kwargs,configurable=configurable,**kwargs)
+                                        default_kwargs=default_kwargs,configurable=configurable,
+                                        foreignKeyGetter='=#FORM.pkey',**kwargs)
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs,autoSave=autoSave,statusColumn=statusColumn))
         if saveButton:

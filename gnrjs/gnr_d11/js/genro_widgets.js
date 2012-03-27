@@ -2218,7 +2218,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if(sourceNode._useStore){
             widget.setEditableColumns();
-            widget.setFormulaColumns();
+            widget.setChangeManager();
         }
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
@@ -2563,7 +2563,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return result;
     },
-    structFromBag_cellFormatter :function(sourceNode, struct, cell,cellmap,formatOptions, cellClassCB) {
+    structFromBag_cellFormatter :function(sourceNode, cell,formatOptions, cellClassCB) {
         var opt = objectUpdate({}, formatOptions);
         var cellClassFunc;
         if (cellClassCB) {
@@ -2586,7 +2586,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (this.grid.gridEditor) {
                 this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
             }
-            v = genro.format(v, opt);
+            var v = genro.format(v, opt);
             if (v == null) {
                 v = '&nbsp;';
             }
@@ -2603,7 +2603,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var draggable = this.draggable ? ' draggable=true ' : '';
             return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
-
         };
     },
     subtableGetter:function(row,idx){
@@ -2618,20 +2617,100 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
     },
     
+    structFromBag_cell:function(sourceNode,cellNode){
+        var rowattrs = objectUpdate({}, cellNode.getParentNode().attr);
+        rowattrs = objectExtract(rowattrs, 'classes,headerClasses,cellClasses');
+        var cell = objectUpdate({}, rowattrs);
+        cell = objectUpdate(cell, cellNode.attr);
+        var dtype = cell.dtype;
+        cell.original_field = cell.field;
+        cell.original_name = cell.name;
+        cell._nodelabel = cellNode.label;
+
+        cell = sourceNode.evaluateOnNode(cell);
+
+        if(sourceNode.attr.draggable_column){
+            cell.name = '<div draggable="true">'+cell.name+'</div>'
+        }
+        if (cell.field) {
+            var checkboxPars = objectPop(cell,'checkBoxColumn');
+            if(checkboxPars){
+                cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
+                this.setCheckedIdSubscription(sourceNode,cell);
+                dtype ='B';
+            }
+            if(cell.field.indexOf(':')>=0 && !cell._customGetter){
+                var f = cell.field.split(':')
+                console.log('get in subtable')
+                cell._customGetter = this.subtableGetter;
+                cell._subtable = f[0];
+                cell._subfield = f[1];
+            }
+            cell.field = cell.field.replace(/\W/g, '_');
+            cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
+            if (dtype) {
+                cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
+            }                            
+            cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
+                                            genro.dom.getStyleDict(cell, [ 'width'])));
+            var formats = objectExtract(cell, 'format_*');
+            var format = objectExtract(cell, 'format');
+            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
+
+            var template = objectPop(cell, 'template');
+            var js = objectPop(cell, 'js');
+            if (template) {
+                formats['template'] = template;
+            }
+            formats['dtype'] = dtype;
+            if (js) {
+                formats['js'] = genro.evaluate(js);
+            }
+            if (objectNotEmpty(zoomAttr)){
+                objectUpdate(formats,zoomAttr);
+            }
+            if (format) {
+                formats['format'] = format;
+            }
+            if (cell.counter) {
+                sourceNode.attr.counterField = cell.field;
+                dtype = 'L';
+            }
+            if (cell.hidden) {
+                cell.classes = (cell.classes || '') + ' hiddenColumn';
+            }
+            if (dtype) {
+                if (!formats.pattern){
+                    formats = objectUpdate(objectUpdate({}, localType(dtype)), formats);
+                }
+            }
+            //formats = objectUpdate(formats, localType(dtype);
+            var cellClassCB = objectPop(cell, 'cellClassCB');
+            var _customGetter = objectPop(cell,'_customGetter');
+            if(_customGetter){
+                cell._customGetter = funcCreate(_customGetter);
+            }
+            if(cell.dtype=='B'){
+                formats['trueclass']= formats['trueclass'] || "checkboxOn";
+                formats['falseclass']= formats['falseclass'] || "checkboxOff";
+            }
+            if(cell.semaphore){
+                formats['trueclass'] = 'greenLight';
+                formats['falseclass'] = 'redLight';
+            }
+            cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
+            delete cell.tag;
+            return cell;
+        }
+    },
     structFromBag: function(sourceNode, struct, cellmap) {
         var cellmap = cellmap || {};
         var result = [];
-        if(sourceNode._cellpars){
-            sourceNode.unregisterSubscription('cellpars');
-            sourceNode._cellpars = null;
-        }
         if (struct) {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
-            var localTypes = {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}};
             var gridEditor = sourceNode.widget?sourceNode.widget.gridEditor:false;
-            var cellpars = {};
             for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
@@ -2639,8 +2718,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 rows = [];
                 rowsnodes = viewnode.getValue().getNodes();
                 for (k = 0; k < rowsnodes.length; k++) {
-                    rowattrs = objectUpdate({}, rowsnodes[k].attr);
-                    rowattrs = objectExtract(rowattrs, 'classes,headerClasses,cellClasses');
+
                     rowBag = rowsnodes[k].getValue();
 
                     if (!(rowBag instanceof gnr.GnrBag)) {
@@ -2668,128 +2746,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         }
                     }
 
-                    cellsnodes = rowBag.getNodes();
+                    //cellsnodes = rowBag.getNodes();
                     row = [];
-                    
-                    for (j = 0; j < cellsnodes.length; j++) {
-                        cell = objectUpdate({}, rowattrs);
-                        cell = objectUpdate(cell, cellsnodes[j].attr);
-                        //cell = sourceNode.evaluateOnNode(cell);
-                        dtype = cell.dtype;
-                        cell.original_field = cell.field;
-                        cell.original_name = cell.name;
-                        if(sourceNode.attr.draggable_column){
-                            cell.name = '<div draggable="true">'+cell.name+'</div>'
-                        }
-                        if (cell.field) {
-                            var checkboxPars = objectPop(cell,'checkBoxColumn');
-                            if(checkboxPars){
-                                cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
-                                this.setCheckedIdSubscription(sourceNode,cell);
-                                dtype ='B';
-                            }
-                            if(cell.field.indexOf(':')>=0 && !cell._customGetter){
-                                var f = cell.field.split(':')
-                                console.log('get in subtable')
-                                cell._customGetter = this.subtableGetter;
-                                cell._subtable = f[0];
-                                cell._subfield = f[1];
-                            }
-                            cell.field = cell.field.replace(/\W/g, '_');
-                            cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
-                            for(var p in cell){
-                                if(typeof(cell[p])=='string' && cell[p].indexOf('^') == 0){
-                                    var parpath = cell[p].slice(1);
-                                    var dependences = cellpars[parpath];
-                                    if(!dependences){
-                                        dependences = {};
-                                        cellpars[parpath] = dependences;
-                                    }
-                                    dependences[cell.field] =true;
-                                }
-                            }
-                            
-                            if (dtype) {
-                                cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
-                            }                            
-                            cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
-                                                            genro.dom.getStyleDict(cell, [ 'width'])));
-                            formats = objectExtract(cell, 'format_*');
-                            format = objectExtract(cell, 'format');
-                            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
-
-                            var template = objectPop(cell, 'template');
-                            var js = objectPop(cell, 'js');
-                            if (template) {
-                                formats['template'] = template;
-                            }
-                            formats['dtype'] = dtype;
-                            if (js) {
-                                formats['js'] = genro.evaluate(js);
-                            }
-                            if (objectNotEmpty(zoomAttr)){
-                                objectUpdate(formats,zoomAttr);
-                            }
-                            if (format) {
-                                formats['format'] = format;
-                            }
-                            if (cell.counter) {
-                                sourceNode.attr.counterField = cell.field;
-                                dtype = 'L';
-                            }
-                            if (cell.hidden) {
-                                cell.classes = (cell.classes || '') + ' hiddenColumn';
-                            }
-                            if (dtype) {
-                                if (!formats.pattern){
-                                    formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
-                                }
-                            }
-                            //formats = objectUpdate(formats, localTypes[dtype]);
-                            var cellClassCB = objectPop(cell, 'cellClassCB');
-                            var _customGetter = objectPop(cell,'_customGetter');
-                            if(_customGetter){
-                                cell._customGetter = funcCreate(_customGetter);
-                            }
-                            if(cell.dtype=='B'){
-                                formats['trueclass']= formats['trueclass'] || "checkboxOn";
-                                formats['falseclass']= formats['falseclass'] || "checkboxOff";
-                            }
-                            if(cell.semaphore){
-                                formats['trueclass'] = 'greenLight';
-                                formats['falseclass'] = 'redLight';
-                            }
-                            cell.formatter = this.structFromBag_cellFormatter(sourceNode, struct,cell, cellmap,formats, cellClassCB);
-                            delete cell.tag;
-                            row.push(cell);
-                            cellmap[cell.field] = cell;
-                        }
-                    }
-
+                    var that = this;
+                    rowBag.forEach(function(n){
+                        cell = that.structFromBag_cell(sourceNode,n);
+                        row.push(cell);
+                        cellmap[cell.field] = cell;
+                    },'static');
                     rows.push(row);
                 }
 
                 view.rows = rows;
                 result.push(view);
-            }
-           // for (var p in cellpars){
-            if(objectNotEmpty(cellpars)){
-                sourceNode._cellpars = cellpars;
-                sourceNode.registerSubscription('_trigger_data',sourceNode,function(kw){
-                    var dpath = kw.pathlist.slice(1).join('.');
-                    for(var p in this._cellpars){
-                        var abspath = this.absDatapath(p);
-                        if(dpath==abspath){
-                            if(this.widget.changeManager){
-                                for(var f in this._cellpars[p]){
-                                    if(f in this.widget.changeManager.formulaColumns){
-                                        this.widget.changeManager.recalculateOneFormula(f);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },'cellpars');
             }
         }
         
@@ -3723,7 +3692,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(this.sourceNode._useStore){
             this.setEditableColumns();
         }
-        this.setFormulaColumns();
+        this.setChangeManager();
     },
 
     mixin_absIndex: function(inRowIndex) {
@@ -4128,18 +4097,39 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
         }
     },
-    mixin_setFormulaColumns:function(){
+    
+    
+    mixin_setChangeManager:function(){
+        var that = this;
+        var getChangeManager = function(){
+            if(!that.changeManager){
+                that.changeManager = new gnr.GridChangeManager(that);
+            }
+            return that.changeManager;
+        }
+        var struct = this.structBag.getItem('#0.#0');
         var cellmap = this.cellmap;
         var formulaColumns = {};
+        var cm = this.changeManager;
+        if(cm){
+            cm.resetCellpars();
+        }
         for(var k in cellmap){
-            if(cellmap[k].formula){
-                if(!this.changeManager){
-                    this.changeManager = new gnr.GridChangeManager(this)
+            var cell = cellmap[k];
+            var bagcellattr = struct.getNode(cell._nodelabel).attr;
+            for(var p in bagcellattr){
+                if(typeof(bagcellattr[p])=='string' && bagcellattr[p].indexOf('^') == 0){
+                    getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
                 }
-                this.changeManager.addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+            }
+            if(cell.formula){
+                getChangeManager().addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
             }else if (this.changeManager){
                 this.changeManager.delFormulaColumn(cellmap[k].field);
-            }
+            }            
+        }
+        if(this.changeManager){
+            this.changeManager.registerParameters();
         }
     },
 

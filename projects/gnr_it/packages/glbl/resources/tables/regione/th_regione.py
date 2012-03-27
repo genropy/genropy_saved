@@ -39,6 +39,9 @@ class FormConProvince(BaseComponent):
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('zona')
+        fb.checkbox(value='^piero')
+        fb.textbox(value='^testnome')
+        fb.data('testnome','Nome Provincia')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
                                                                 viewResource=':EditableView',autoSave=False,
                                                                 statusColumn=True,semaphore=False)
