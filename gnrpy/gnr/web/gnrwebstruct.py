@@ -1570,7 +1570,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if kwargs:
             if kwargs.get('autospan', False):
                 kwargs['colspan'] = kwargs.pop('autospan')
-                kwargs['width'] = '100%'
+                kwargs['width'] = '99%'
             result.update(kwargs)
                 
         return result
