@@ -976,8 +976,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             c = updated.getNode(key)
             if c:
                 for n in c.value:
-                    _loadedValue = n.attr['_loadedValue']
-                    if row[n.label] != _loadedValue:
+                    if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
                         wrongUpdates[key] = row
                         return
                     row[n.label] = n.value

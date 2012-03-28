@@ -85,7 +85,9 @@ class Table(object):
         if not taskObj:
             return
         try:
-            tmp_result = taskObj.do(parameters = task['parameters']) or ''
+            if task['parameters']:
+                taskObj.batch_parameters = dict(task['parameters'])
+            tmp_result = taskObj.run() or ''
             log_result = task['log_result']
             if isinstance(tmp_result, Bag):
                 result = tmp_result
