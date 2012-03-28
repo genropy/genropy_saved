@@ -976,11 +976,11 @@ class GnrWebAppHandler(GnrBaseProxy):
             c = updated.getNode(key)
             if c:
                 for n in c.value:
-                    _loadedValue = n.attr['_loadedValue'] or n.value
+                    _loadedValue = n.attr['_loadedValue']
                     if row[n.label] != _loadedValue:
                         wrongUpdates[key] = row
                         return
-                    row[n.label] = n.value or n.label
+                    row[n.label] = n.value
         if updated:
             pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
