@@ -209,7 +209,7 @@ class TableHandler(BaseComponent):
             saveButton = False if saveButton is None else saveButton
             statusColumn = True if statusColumn is None else statusColumn
         else:
-            semaphore = True if semaphore is None else semaphore
+            semaphore = False if semaphore is None else semaphore
             saveButton = False if saveButton is None else saveButton
             statusColumn = False if statusColumn is None else statusColumn
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,

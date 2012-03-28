@@ -51,12 +51,10 @@ class Form(BaseComponent):
         fb.field('password')
         fb.field('last_uid')
         fb.button('check email', action='PUBLISH check_email')
-        fb.dataRpc('dummy', self.check_imap, subscribe_check_email=True, account_id='=.id')
+        fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
         th = bottom.dialogTableHandler(relation='@messages',
                                    dialog_height='600px',
                                    dialog_width='800px',
                                    dialog_title='Message')
 
-    @public_method
-    def check_imap(self, account_id=None):
-        self.db.table('email.account').check_imap(self, account=account_id)
+

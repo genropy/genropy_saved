@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import email, imaplib
+import email, imaplib,datetime
 from gnr.core.gnrlang import getUuid
 import chardet
 detach_dir = '.'
 wait = 600
 
-class ImapChecker(object):
+class ImapReceiver(object):
     def __init__(self, db=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.host = account['host']
         self.port = account['port']
@@ -27,7 +27,7 @@ class ImapChecker(object):
         self.imap = imap_class(self.host, str(self.port))
         
         
-    def check(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
+    def receive(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.imap.login(self.username,self.password)
         self.imap.select(remote_mailbox)
         if self.last_uid:
@@ -50,7 +50,8 @@ class ImapChecker(object):
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
         new_mail['subject'] = mail['Subject']
-        new_mail['send_date'] = mail['Date']
+        datetuple = email.Utils.parsedate(mail['Date'])
+        new_mail['send_date'] = datetime.date(datetuple[0],datetuple[1],datetuple[2])
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
@@ -72,38 +73,44 @@ class ImapChecker(object):
             counter += 1
         att_data = part.get_payload(decode=True)
         new_attachment['filename'] = filename
-        attachment_path=self.db.application.site.getStaticPath('site:mail', self.account_id, new_mail['uid'], filename,
-                                                       autocreate=-1)
+        attachment_path =  self.getAttachmentPath(new_mail['send_date'],filename)
         new_attachment['path'] = attachment_path
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
+    
+    def getAttachmentPath(self,date,filename):
+        year = str(date.year)
+        month = '%02i' %date.month
+        return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
+                                                       autocreate=-1)
+        
         
     def parseEmail(self, emailid):
-            new_mail = dict(account_id=self.account_id)
-            new_mail['id'] = getUuid()
-            new_mail['uid'] = emailid
-            resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
-            email_body = data[0][1]
-            mail = email.message_from_string(email_body)
-            self.fillHeaders(mail, new_mail)
-            if mail.get_content_maintype() != 'multipart':
-                content = mail.get_payload(decode=True)
-                encoding = chardet.detect(content)['encoding']
-                new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
-                new_mail['body_plain'] = new_mail['body']
-            else:
-                for part in mail.walk():
-                    part_content_type = part.get_content_type()
-                    if part_content_type.startswith('multipart'):
-                        continue
-                    if part.get('Content-Disposition') is None: 
-                        self.parseBody(part, new_mail, part_content_type=part_content_type)
-                    else:
-                        self.parseAttachment(part, new_mail, part_content_type=part_content_type)
-            if not new_mail.get('body'):
-                new_mail['body'] = new_mail['body_plain']
-            self.messages_table.insert(new_mail)
+        new_mail = dict(account_id=self.account_id)
+        new_mail['id'] = getUuid()
+        new_mail['uid'] = emailid
+        resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
+        email_body = data[0][1]
+        mail = email.message_from_string(email_body)
+        self.fillHeaders(mail, new_mail)
+        if mail.get_content_maintype() != 'multipart':
+            content = mail.get_payload(decode=True)
+            encoding = chardet.detect(content)['encoding']
+            new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
+            new_mail['body_plain'] = new_mail['body']
+        else:
+            for part in mail.walk():
+                part_content_type = part.get_content_type()
+                if part_content_type.startswith('multipart'):
+                    continue
+                if part.get('Content-Disposition') is None: 
+                    self.parseBody(part, new_mail, part_content_type=part_content_type)
+                else:
+                    self.parseAttachment(part, new_mail, part_content_type=part_content_type)
+        if not new_mail.get('body'):
+            new_mail['body'] = new_mail['body_plain']
+        self.messages_table.insert(new_mail)
 
             
 if __name__=='__main__':
