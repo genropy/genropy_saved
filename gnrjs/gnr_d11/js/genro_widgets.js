@@ -699,7 +699,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                 var dlgtype = 'nomodal';
                 var zindex = 500;
             }
-            var ds = genro.mainGenroWindow.genro.dialogStack;
+            var ds = genro.dialogStack;
             
             dojo.connect(widget, "show", widget,
                         function() {
