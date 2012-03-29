@@ -2706,10 +2706,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     structFromBag: function(sourceNode, struct, cellmap) {
         var cellmap = cellmap || {};
         var result = [];
-        if(!struct){
-            console.log('manca struct')
-            return [];
-        }
         if (struct) {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
