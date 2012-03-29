@@ -2633,12 +2633,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cell.name = '<div draggable="true">'+cell.name+'</div>'
         }
         if (cell.field) {
-            var checkboxPars = objectPop(cell,'checkBoxColumn');
-            if(checkboxPars){
-                cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
-                this.setCheckedIdSubscription(sourceNode,cell);
-                dtype ='B';
-            }
             if(cell.field.indexOf(':')>=0 && !cell._customGetter){
                 var f = cell.field.split(':')
                 console.log('get in subtable')
@@ -2648,6 +2642,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
+            var checkboxPars = objectPop(cell,'checkBoxColumn');
+            if(checkboxPars){
+                cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
+                this.setCheckedIdSubscription(sourceNode,cell);
+                dtype ='B';
+            }
             if (dtype) {
                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
             }                            
