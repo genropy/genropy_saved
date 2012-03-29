@@ -2706,6 +2706,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     structFromBag: function(sourceNode, struct, cellmap) {
         var cellmap = cellmap || {};
         var result = [];
+        if(!struct){
+            console.log('manca struct')
+            return [];
+        }
         if (struct) {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
@@ -4101,6 +4105,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     
     mixin_setChangeManager:function(){
         var that = this;
+        if(!this.structBag){
+            return;
+        }
         var getChangeManager = function(){
             if(!that.changeManager){
                 that.changeManager = new gnr.GridChangeManager(that);
