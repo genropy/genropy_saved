@@ -65,7 +65,7 @@ class FlibPicker(FlibBase):
                   self.ht_treeDataStore(table='flib.category', rootpath=rootpath, rootcaption='!!Categories',
                                         rootcode='%'),
                   rootpath=rootpath)
-        left.div(position='absolute',top='1px',left='1px',bottom='1px',right='1px',overflow='auto').tree(storepath='.tree.store',
+        left.tree(storepath='.tree.store',
                   margin='10px', isTree=False, hideValues=True,
                   labelAttribute='caption',
                   selected_pkey='.tree.pkey', selectedPath='.tree.path',
@@ -99,7 +99,7 @@ class FlibPicker(FlibBase):
                                         rootcode='%'),
                   rootpath=rootpath)
         pickerTreeId = 'flibPickerTree_%s' %id(left)
-        left.tree(storepath='.tree.store',
+        left.div(position='absolute',top='1px',left='1px',bottom='1px',right='1px',overflow='auto').tree(storepath='.tree.store',
                   nodeId=pickerTreeId,
                   margin='10px', isTree=False, hideValues=True,
                   labelAttribute='caption',
