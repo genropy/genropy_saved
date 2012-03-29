@@ -56,6 +56,21 @@ class GnrHtmlPage(GnrWebPage):
             self.theme = kwargs.pop('dojo_theme')
         if 'pagetemplate' in kwargs:
             self.theme = kwargs.pop('pagetemplate')
+        js_requires = getattr(self, 'js_requires', [])
+        for js_require in js_requires:
+             urls =self.getResourceExternalUriList(js_require,'js') or []
+             for url in urls:
+                self.body.script(src=url)
+        css_import_statements_list=[]
+        css_requires = getattr(self, 'css_requires', [])
+        for css_require in css_requires:
+             urls =self.getResourceExternalUriList(css_require,'css') or []
+             for url in urls:
+                css_import_statements_list.append('@import url("%s")' %url)
+        if css_import_statements_list:
+            import_statements = ';\n    '.join(css_import_statements_list)
+            self.builder.head.style(import_statements + ';\n', type="text/css")
+        
         self.main(self.body, *args, **kwargs)
         return self.builder.toHtml()
         
