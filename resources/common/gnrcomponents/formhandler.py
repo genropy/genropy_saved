@@ -57,25 +57,31 @@ class FormHandler(BaseComponent):
         attachTo = attachTo or pane
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
+        handlerType = pane.getInheritedAttributes().get('handlerType')
+        if not handlerType:
+            if dialog_kwargs:
+                handlerType = 'dialog'
+            elif palette_kwargs:
+                handlerType = 'palette'
         if formRoot:
             if form_kwargs.get('pageName'):
                 formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
                 formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
-        elif dialog_kwargs:
+        elif handlerType=='dialog':
             if datapath:
                 dialog_kwargs['datapath'] = datapath
             dialog_kwargs['noModal'] = dialog_kwargs.get('noModal',True)
             if 'height' in dialog_kwargs:
-                form_kwargs['height'] = dialog_kwargs.pop('height')
+                form_kwargs['height'] = dialog_kwargs.pop('height','400px')
             if 'width' in dialog_kwargs:
-                form_kwargs['width'] = dialog_kwargs.pop('width')
+                form_kwargs['width'] = dialog_kwargs.pop('width','600px')
             dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
             dialog_kwargs['title'] = dialog_kwargs.get('title','^.form.controller.title')
             dialog_kwargs[loadSubscriber] = "this.widget.show();"
             dialog_kwargs[closeSubscriber] = "this.widget.hide();"
             dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
             formRoot = attachTo.dialog(**dialog_kwargs)
-        elif palette_kwargs:
+        elif handlerType=='palette':
             if datapath:
                 palette_kwargs['datapath'] = datapath
             palette_kwargs[loadSubscriber] = "this.widget.show();"
