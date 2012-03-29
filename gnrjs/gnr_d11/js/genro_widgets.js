@@ -4157,7 +4157,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var rowpath = '#' + rowIndex;
         var datamodeBag = this.datamode=='bag';
         var sep = datamodeBag? '.':'?';
-        var valuepath = rowpath+sep+fieldname;
+        var valuepath = rowpath+sep+kw.original_field;
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
         var checked = storebag.getItem(valuepath);
