@@ -92,13 +92,18 @@ class TableHandlerForm(BaseComponent):
         if readOnly:
             slots = '*'
             form.attributes.update(form_readOnly=True)
+        if options.get('saveOnChange'):
+            form.attributes.update(form_saveOnChange=True)
+            showtoolbar = False
+            
         if modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.abort();')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')  
+          
         elif showtoolbar:
             default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if navigation:

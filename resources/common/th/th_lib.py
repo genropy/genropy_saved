@@ -51,13 +51,18 @@ class TableHandlerCommon(BaseComponent):
     def _th_mixinResource(self,rootCode=None,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')
         defaultModule = 'th_%s' %tablename
-        resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
+        resourcePath = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         try:
-            self.mixinComponent('tables','_packages',pkg,tablename,resourceName,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
+            self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
         except GnrMixinError:
             tableObj = self.db.table(table)
             pluginId = getattr(tableObj, '_pluginId', None)
-            self.mixinComponent('tables',tablename,resourceName,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True)
+            try:
+                self.mixinComponent('tables',tablename,resourcePath,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True)
+            except GnrMixinError:
+                componentBasepath = tableObj.attributes.get('_componentBasepath')
+                resourcePath = self._th_getResourceName(resourceName,defaultModule=componentBasepath)
+                self.mixinComponent(resourcePath,mangling_th=rootCode)
         return resourceName
             
     

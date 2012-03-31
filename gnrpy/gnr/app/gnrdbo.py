@@ -175,8 +175,9 @@ class TableBase(object):
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
-             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
-             
+            tbl.attributes.update(multidb=multidb)
+            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
+    
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
@@ -227,6 +228,10 @@ class TableBase(object):
 
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
+
+    def df_getFieldsRows(self,pkey=None,**kwargs):
+        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        return fieldstable.query(where="maintable_id",pkey=pkey,order_by='$_row_count').fetch()
 
     def setMultidbSubscription(self,tbl,allRecords=False):
         """TODO
@@ -304,6 +309,60 @@ class GnrDboTable(TableBase):
     def use_dbstores(self):
         """TODO"""
         return True
+
+class DynamicFieldsTable(TableBase):
+    """CustomFieldsTable"""
+    def config_db(self,pkg):
+        tblname = self._tblname
+        tbl = pkg.table(tblname,pkey='id')
+        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_df',''))
+        self.df_dynamicFormFields(tbl,mastertbl)
+
+    def df_dynamicFormFields(self,tbl,mastertbl):
+        pkgname,mastertblname = mastertbl.split('.')
+        tblname = '%s_df' %mastertblname
+        assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
+        model = self.db.model
+        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
+        mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
+        mastertbl_name_long = mastertbl.attributes.get('name_long')
+        mastertbl_multidb = mastertbl.attributes.get('multidb')
+        tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
+        tbl.attributes.setdefault('caption_field','description')
+        tbl.attributes.setdefault('rowcaption','$description')
+        tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)
+        tbl.attributes.setdefault('name_plural','%s dyn fields' %mastertbl_name_long)
+
+        self.sysFields(tbl,id=True, ins=False, upd=False,multidb=mastertbl_multidb)
+        tbl.column('id',size='22',group='_',name_long='Id')
+        tbl.column('_row_count','L',name_long='!!Order')
+        tbl.column('code',name_long='!!Code')
+        tbl.column('description',name_long='!!Description')
+        tbl.column('field_type',name_long='!!Field type')
+        tbl.column('data_type',name_long='!!Data Type')
+        tbl.column('source_values',name_long='!!Source Values')
+        tbl.column('source_table',name_long='!!Source Table')
+        
+        tbl.column('source_multivalues',name_long='!!Multiple Values')
+        
+        tbl.column('field_style',name_long='!!Field Style')
+
+        tbl.column('caps',size='1',values='!!U:Uppercase,L:Lowercase,C:Capitalize',name_long='!!Caps')
+        tbl.column('range','N',name_long='!!Range')
+        
+        tbl.column('standard_range','N',name_long='!!')
+        tbl.column('formula',name_long='!!Formula')
+        tbl.column('condition',name_long='!!Condition')
+        tbl.column('do_summary','B',name_long='!!Do summary')
+        tbl.column('mandatory','B',name_long='!!Mandatory')
+        tbl.column('hidden','B',name_long='!!Hidden')
+        tbl.column('tip',name_long='!!Tip')
+
+        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+                    mode='foreignkey', onDelete='raise', relation_name='dynamicfields',
+                    one_group='_',many_group='_')
+
+        
               
 class GnrHTable(GnrDboTable):
     """A hierarchical table. More information on the :ref:`classes_htable` section"""
@@ -429,20 +488,11 @@ class GnrHTable(GnrDboTable):
             #        self.touchRecords(where='$code=:code',code=parent_code)
             
             
-class GnrHTableDynamicForm(GnrHTable):
-    def getFormDescriptor(self,pkey=None,code=None,folders=False):
-        record = self.record(where='$id=:pkey OR $code=:code',pkey=pkey,code=code,virtual_columns='$child_count').output('record')      
-       #if record['child_count'] and not folders:
-       #    return Bag(),False
-        fieldsField = self.attributes.get('df_fields','fields')
-        f = self.query(columns='$description,$%s,$child_count' %fieldsField,
-                             where="(:code=$code) OR (:code ILIKE $code || '.%%')" ,
-                             code=record['code'],order_by='$code').fetch()
-        fields = Bag()
-        for r in f:
-            fields.update(Bag(r[fieldsField]))
-        record[fieldsField] = fields
-        return record 
+    def df_getFieldsRows(self,pkey=None,code=None):
+        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        code = self.readColumns(pkey=pkey,columns='code')
+        return fieldstable.query(where="(:code=@maintable_id.code) OR (:code ILIKE @maintable_id.code || '.%%')",
+                                    code=code,order_by='$_row_count').fetch()
 
 
         

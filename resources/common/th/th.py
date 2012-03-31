@@ -111,14 +111,16 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
                             formInIframe=False,widget_kwargs=None,default_kwargs=None,loadEvent='onSelected',
-                            readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs):
+                            readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,
+                            saveOnChange=False,**kwargs):
         kwargs['tag'] = 'BorderContainer'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,handlerType='border',
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
-                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly,navigation=False,linker=True)
+                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly,navigation=False,linker=True,
+                        saveOnChange=saveOnChange)
         formtop = wdg.form.top  
         if formtop and formtop.bar:
             formtop.bar.replaceSlots('|,dismiss','') 

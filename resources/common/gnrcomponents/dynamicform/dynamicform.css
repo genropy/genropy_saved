@@ -1,0 +1,15 @@
+.df_row{
+    display:none;
+}
+
+.dffb_T .T_R.df_row, 
+.dffb_TL .TL_R.df_row,
+.dffb_F .F_R.df_row, 
+.dffb_DB .DB_R.df_row,
+.dffb_L .L_R.df_row,
+.dffb_N .N_R.df_row,
+.dffb_D .D_R.df_row,
+.dffb_H .H_R.df_row,
+.dffb_B .B_R.df_row{
+    display:table-row;
+}

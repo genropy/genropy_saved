@@ -347,8 +347,10 @@ class GnrPackage(object):
         
         if os.path.isdir(modelfolder):
             tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
-            
-        for tbl, cls in tbldict.items():
+        tblkeys = tbldict.keys()
+        tblkeys.sort()
+        for tbl in tblkeys:
+            cls = tbldict[tbl]
             if not tbl in self.tableMixinDict:
                 self.tableMixinDict[tbl] = GnrMixinObj()
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinCls)
@@ -365,7 +367,9 @@ class GnrPackage(object):
                 else:
                     instanceMixin(self.tableMixinDict[tbl], tbl_cls, methods='config_db,trigger_*', suffix='%s'%fromPkg)
                     instanceMixin(self.tableMixinDict[tbl], tbl_cls, exclude='config_db,trigger_*')
+                
                 self.tableMixinDict[tbl]._plugins = dict()
+                #self.tableMixinDict[tbl]._filename = tbl
                 # mbertoldi commented out the following two lines as they are useless
                 #for cname in dir(tbl_module):
                 #    member = getattr(tbl_module, cname, None)

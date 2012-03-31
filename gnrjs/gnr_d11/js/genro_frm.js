@@ -262,8 +262,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
         if (this.changed && kw.destPkey &&(kw.destPkey != currentPkey)) {
-            if(kw.modifiers=='Shift'){
-                this.do_save(kw.destPkey);
+            if(kw.modifiers=='Shift' || this.saveOnChange===true){
+                this.save(kw);
             }else{
                 this.openPendingChangesDlg(kw);
             }
@@ -545,19 +545,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var invalid = !this.isValid();
             if (invalid) {
                 this.fireControllerData('save_failed','invalid');
-                return 'invalid:' + invalid;
+                return 'invalid:'+invalid;
             }
             if (this.changed || always || this.isNewRecord()) {
                 return this.do_save(kw.destPkey);
             } else {
                 this.fireControllerData('save_failed','nochange');
                 if(kw.destPkey){
+                    console.log('To check')
                     this.load({destPkey:kw.destPkey});
                 }
             }
         }
         else {
             genro.playSound('Basso');
+            return false;
         }
     },
     do_save:function(destPkey){        
@@ -589,6 +591,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.store.loaded(destPkey,resultDict.loadedRecordNode);
                     }else{
                         that.setCurrentPkey(destPkey);
+                        console.log('fff',destPkey)
                         that.load({'destPkey':destPkey});
                     }
                 };

@@ -75,8 +75,9 @@ class DbModel(object):
         if 'tbl' in self.mixins:
             for pkg in self.mixins['tbl'].keys():
                 pkgsrc = self.src['packages.%s' % pkg]
-                for tblmix in self.mixins['tbl.%s' % pkg].values():
+                for tblname,tblmix in self.mixins['tbl.%s' % pkg].items():
                     tblmix.db = self.db
+                    tblmix._tblname = tblname
                     _doObjMixinConfig(tblmix, pkgsrc)
                     
         if 'pkg' in self.mixins:

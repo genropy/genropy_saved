@@ -28,44 +28,74 @@ from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
 import re
 
+class Form(BaseComponent):
+    css_requires='gnrcomponents/dynamicform/dynamicform'
+    def th_form(self,form):
+        
+        pane = form.center.contentPane(datapath='.record')
+        box = pane.div(_class='^#FORM.boxClass',margin_top='10px')
+        fb = box.formbuilder(cols=2, border_spacing='4px',tdl_width='7em')
+        
+        fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em')
+        fb.field('data_type',values='!!T:Text,TL:Long Text,DB:Db link,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,F:Formula',
+                 validate_notnull=True,validate_notnull_error='!!Required',width='8em',tag='filteringSelect')
+                 
+        fb.dataController("""SET #FORM.boxClass = data_type? 'dffb_'+data_type:'';""",
+                        box=box,data_type='^.data_type')
+        
+        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2)
+
+        fb.field('source_values',colspan=2,row_class='df_row T_R',
+                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px')
+                
+        fb.field('caps',row_class='df_row T_R',row_hidden='^.source_values',colspan=2,width='100%')
+        
+        fb.field('source_multivalues',row_class='df_row TL_R',
+                colspan=2,tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
+                lbl='Multiple values',
+                ghost="""!!A string separated by comma set of words. For every words there will be created a single checkbox""")
+                
+        fb.field('field_style',colspan=2,width='100%',lbl_vertical_align='top',height='60px',tag='simpleTextArea',
+                row_class='df_row TL_R')
+                
+        fb.field('source_table',colspan=2,width='100%',row_class='df_row DB_R')
+        
+        fb.field('range',ghost='min:max',row_class='df_row N_R L_R',width='8em')
+        fb.field('standard_range',ghost='min:max',width='8em')
+        
+        fb.field('formula',colspan=2,width='100%',row_class='df_row F_R')
+        
+        fb.field('condition',width='100%',colspan=2,lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+        fb.field('mandatory',lbl='',label='!!Mandatory')
+        fb.field('do_summary',lbl='',label='!!Do summary')
+
+    
+    def th_options(self):
+        return dict(dialog_height='340px',dialog_width='480px')
+
+
+class View(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('_row_count',hidden=True,counter=True)
+        r.fieldcell('code', name='!!Code', width='5em')
+        r.fieldcell('description', name='!!Description', width='15em')
+        r.fieldcell('data_type', name='!!Type', width='10em')
+        r.fieldcell('do_summary', name='!!Summary',width='6em')       
+        r.fieldcell('mandatory', name='!!Mandatory',width='7em') 
+
 class DynamicForm(BaseComponent):
-    py_requires='gnrcomponents/framegrid:FrameGrid,gnrcomponents/htablehandler:HTableHandlerBase'
+    py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
     
     @struct_method
-    def df_fieldsGrid(self,pane,storepath=None,standard_range=False,title=None,**kwargs):   
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('_row_count',hidden=True,counter=True)
-            r.cell('code', name='!!Code', width='5em')
-            r.cell('description', name='!!Description', width='15em')
-            r.cell('field_type', name='!!Type', width='10em')
-        
-            r.cell('field_source', name='!!Source', width='10em')
-            r.cell('range', name='!!Min:Max',width='5em')
-            #r.cell('max', name='!!Max',dtype='N', width='5em')
-            if standard_range:
-                r.cell('standard_range', name='Std.Range', width='10em')
-            r.cell('formula', name='!!Formula', width='15em') 
-            r.cell('condition', name='!!Condition',width='10em')  
- 
-            r.checkboxcell('do_summary', name='!!Summary',width='6em')       
-            r.checkboxcell('mandatory', name='!!Mandatory',width='7em')  
+    def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
+        th = pane.dialogTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
+                                        grid_selfDragRows=True,configurable=False,default_data_type='T',
+                                        searchOn=searchOn,**kwargs)
+        if title:
+            th.view.data('.title',title)
+        return th
 
-            
-        frame = pane.frameGrid(storepath=storepath,struct=struct,datamode='bag',datapath='#FORM.fieldsGrid_%i' %id(pane),
-                              grid_selfDragRows=True,**kwargs)
-        ge = frame.grid.gridEditor()
-        ge.textbox(gridcell='code')
-        ge.textbox(gridcell='description')
-        ge.filteringSelect(gridcell='field_type',values='!!T:Text,TL:Long Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time')
-        ge.textbox(gridcell='field_source')
-        ge.textbox(gridcell='range')
-        if standard_range:      
-            ge.textbox(gridcell='standard_range')
-        ge.textbox(gridcell='formula')
-        ge.textbox(gridcell='condition')
-        frame.top.slotToolbar('3,vtitle,*,delrow,addrow,2',vtitle=title or '!!Fields',delrow_parentForm=True,addrow_parentForm=True)
-        return frame 
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
@@ -80,19 +110,23 @@ class DynamicForm(BaseComponent):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
-        formDescriptor = df_tblobj.getFormDescriptor(pkey=df_pkey,folders=df_folders)
-        fields = formDescriptor[df_tblobj.attributes.get('df_fields','fields')]
+        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
+        if not fields:
+            return
         fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
         fb = pane.div(margin_right='10px').formbuilder(cols=1,datapath=datapath)
-        for fnode in fields:
-            attr = dict(fnode.attr)
-            field_type = attr.pop('field_type','T')
-            attr['tag'] = fielddict[field_type]
-            #attr['colspan'] = col_max if field_type == 'TL' else 1
+        for r in fields:
+            attr = dict(r)
+            attr.pop('id')
+            attr.pop('pkey')
+            attr.pop('maintable_id')
+            data_type = attr.pop('data_type','T')
+            attr['tag'] = fielddict[data_type]
+            #attr['colspan'] = col_max if data_type == 'TL' else 1
             self._df_handleFieldSource(attr,dbstore_kwargs=dbstore_kwargs)
             self._df_handleFieldFormula(attr,fb=fb,fields=fields)
             self._df_handleFieldValidation(attr,fb,fields=fields)
-            if field_type=='TL':
+            if data_type=='TL':
                 attr['lbl_vertical_align'] = 'top'
             fb.child(value='^.%s' %attr.pop('code'), lbl='%s' %attr.pop('description',''),**attr)
                     
@@ -125,7 +159,7 @@ class DynamicForm(BaseComponent):
         attr['readOnly'] =True 
     
     def _df_handleFieldValidation(self,attr,fb,fields):
-        if 'range' in attr:
+        if attr.get('range'):
             r = attr.pop('range')
             min_v,max_v = r.split(':')
             if min_v or max_v:

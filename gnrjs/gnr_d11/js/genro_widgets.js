@@ -4610,8 +4610,9 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         var values = objectPop(attributes, 'values');
         var val,xval;
         if (values) {
+            var ch = values.indexOf('\n')>=0?'\n':',';
             var localStore = new gnr.GnrBag();
-            values = values.split(',');
+            values = values.split(ch);
             for (var i = 0; i < values.length; i++) {
                 val = values[i];
                 xval = {};

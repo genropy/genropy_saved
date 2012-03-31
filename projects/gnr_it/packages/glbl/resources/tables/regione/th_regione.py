@@ -28,7 +28,7 @@ class FormBug(BaseComponent):
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('zona')
-        th = bc.contentPane(region='center').borderTableHandler(relation='@province')
+        th = bc.contentPane(region='center').borderTableHandler(relation='@province',saveOnChange=True)
         th.view.attributes.update(region='left',width='400px',height=None)
 
 class FormConProvince(BaseComponent):
