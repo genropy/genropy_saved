@@ -30,15 +30,65 @@ import re
 
 class Form(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
+    js_requires='gnrcomponents/dynamicform/dynamicform'
+
     def th_form(self,form):
         
-        pane = form.center.contentPane(datapath='.record')
-        box = pane.div(_class='^#FORM.boxClass',margin_top='10px')
-        fb = box.formbuilder(cols=2, border_spacing='4px',tdl_width='7em')
+        bc = form.center.borderContainer(datapath='.record')
+        bottom = bc.contentPane(region='bottom',border_top='1px solid silver')
+        pane = bc.contentPane(region='center')
+        box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
+        fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         
-        fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em')
-        fb.field('data_type',values='!!T:Text,TL:Long Text,DB:Db link,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,F:Formula',
-                 validate_notnull=True,validate_notnull_error='!!Required',width='8em',tag='filteringSelect')
+        fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
+                validate_regex='!\.', 
+                validate_regex_error='!!Invalid code: "." char is not allowed',validate_case='l')
+        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2)
+
+        fb.field('data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',tag='FilteringSelect')
+        fb.field('calculated',lbl='',label='!!Calculated')
+        fb.br()
+        
+        fb.field('formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+        
+        fb.field('wdg_tag',values='^#FORM.allowedWidget',tag='filteringSelect',row_class='df_row field_enterable')
+        fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
+        fb.br()
+        
+        fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
+                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
+                ghost='!!c1:description1\n c2:description2')
+        fb.field('source_combobox',colspan=3,row_class='df_row field_combobox',
+                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
+                 ghost='!!description1\n description2')
+        fb.field('source_checkboxtext',colspan=3,row_class='df_row field_checkboxtext',
+                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
+                ghost='!!description1\n description2')
+        fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
+        
+        
+        #fb.field('caps')
+              
+        fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
+        
+        fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type);",data_type="^.data_type")
+        
+        
+        
+        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',lbl_width='4em',width='100%',fld_width='18em')
+        
+        footer.field('field_format',values='^#FORM.allowedFormat',tag='Combobox')
+        footer.br()
+        footer.field('field_visible',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+        footer.field('field_style',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+        footer.field('field_tip',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+        footer.field('field_mask',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
+
+        
+    def xxx(self,fb):
+        
+       #fb.field('field_type',values='!!T:Text,TL:Long Text,DB:Db link,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,F:Formula',
+       #         validate_notnull=True,validate_notnull_error='!!Required',width='8em',tag='filteringSelect')
                  
         fb.dataController("""SET #FORM.boxClass = data_type? 'dffb_'+data_type:'';""",
                         box=box,data_type='^.data_type')
@@ -67,39 +117,51 @@ class Form(BaseComponent):
         
         fb.field('condition',width='100%',colspan=2,lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         fb.field('mandatory',lbl='',label='!!Mandatory')
-        fb.field('do_summary',lbl='',label='!!Do summary')
 
     
     def th_options(self):
-        return dict(dialog_height='340px',dialog_width='480px')
+        return dict(dialog_height='450px',dialog_width='600px')
 
 
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('_row_count',hidden=True,counter=True)
+        r.fieldcell('_row_count',counter=True)
         r.fieldcell('code', name='!!Code', width='5em')
         r.fieldcell('description', name='!!Description', width='15em')
         r.fieldcell('data_type', name='!!Type', width='10em')
-        r.fieldcell('do_summary', name='!!Summary',width='6em')       
         r.fieldcell('mandatory', name='!!Mandatory',width='7em') 
+    
+    def th_order(self):
+        return '_row_count'
 
 class DynamicForm(BaseComponent):
     py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
     
     @struct_method
-    def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
-        th = pane.dialogTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
+    def df_fieldsGrid(self,pane,title=None,searchOn=False,testForm=False,**kwargs):
+        bc = pane.borderContainer()
+        if testForm:
+            mastertable = pane.getInheritedAttributes()['table']
+            bc.contentPane(region='bottom',height='50%',splitter=True,margin_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='^#FORM.pkey',
+                                                    _fired='^#FORM.dynamicFormTester._refresh_fields',
+                                                    datapath='#FORM.dynamicFormTester.data')
+        
+        th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
+                                        grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields;',
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)
+
         return th
 
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
                     df_folders=df_folders,**kwargs)
+                    
+
 
     
     @public_method
@@ -113,7 +175,6 @@ class DynamicForm(BaseComponent):
         fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         if not fields:
             return
-        fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
         fb = pane.div(margin_right='10px').formbuilder(cols=1,datapath=datapath)
         for r in fields:
             attr = dict(r)
@@ -121,34 +182,47 @@ class DynamicForm(BaseComponent):
             attr.pop('pkey')
             attr.pop('maintable_id')
             data_type = attr.pop('data_type','T')
-            attr['tag'] = fielddict[data_type]
+            tag =  attr.pop('wdg_tag','textbox')
+            attr['tag'] =tag
+            if tag.endswith('_nopopup'):
+                tag = tag.replace('_nopopup','')
+                attr['_popup'] = False
             #attr['colspan'] = col_max if data_type == 'TL' else 1
-            self._df_handleFieldSource(attr,dbstore_kwargs=dbstore_kwargs)
-            self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-            self._df_handleFieldValidation(attr,fb,fields=fields)
-            if data_type=='TL':
-                attr['lbl_vertical_align'] = 'top'
-            fb.child(value='^.%s' %attr.pop('code'), lbl='%s' %attr.pop('description',''),**attr)
-                    
-    def _df_handleFieldSource(self,attr,dbstore_kwargs=None): #dbstore_name='@pratica_id.@condominio_id.dbstore' ,dbstore_pkg='cond'
-        field_source = attr.pop('field_source',None)
-        if not field_source:
-            return
-        if '.' in field_source:
-            tag = 'dbSelect'
-            attr['dbtable'] = field_source
-            htbl = hasattr(self.db.table(field_source),'htableFields')
-            pkg,tblname = field_source.split('.')
-            attr['hasDownArrow'] =True
-            if pkg in dbstore_kwargs.get('pkg','').split(','):
-                attr['_storename'] = '=%(name)s' %dbstore_kwargs
-        else:
-            if ':' in field_source:
-                tag = 'FilteringSelect'
+            
+            attr['value']='^.%s' %attr.pop('code')
+            attr['lbl'] = '%s' %attr.pop('description',''),
+            customizer = getattr(self,'df_%(tag)s' %attr,None)
+            if customizer:
+                customizer(attr,dbstore_kwargs=dbstore_kwargs)
+            dictExtract(attr,'source_',pop=True)
+            if tag == 'checkboxtext':
+                attr.pop('tag')
+                fb.checkboxtext(**attr)
             else:
-                tag = 'ComboBox'
-            attr['values'] = field_source
-        attr['tag'] = tag
+                fb.child(**attr)
+            
+           #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+           #self._df_handleFieldValidation(attr,fb,fields=fields)
+
+        
+    def df_filteringselect(self,attr,**kwargs):
+        attr['values'] = attr.get('source_filteringselect')
+        
+    def df_combobox(self,attr,**kwargs):
+        attr['values'] = attr.get('source_combobox')
+                    
+    def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
+        tbl = attr.get('source_dbselect')
+        attr['dbtable'] = tbl
+        htbl = hasattr(self.db.table(tbl),'htableFields')
+        pkg,tblname = tbl.split('.')
+        attr['hasDownArrow'] =True
+        if pkg in dbstore_kwargs:
+            attr['_storename'] = '=%s' %dbstore_kwargs[pkg]
+
+    def df_checkboxtext(self,attr,**kwargs):
+        attr['labels'] = attr.get('source_checkboxtext')    
+            
         
     def _df_handleFieldFormula(self,attr,fb,fields=None):
         formula = attr.pop('formula',None)

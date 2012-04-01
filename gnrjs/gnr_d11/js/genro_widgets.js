@@ -4610,24 +4610,8 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         var values = objectPop(attributes, 'values');
         var val,xval;
         if (values) {
-            var ch = values.indexOf('\n')>=0?'\n':',';
-            var localStore = new gnr.GnrBag();
-            values = values.split(ch);
-            for (var i = 0; i < values.length; i++) {
-                val = values[i];
-                xval = {};
-                if (val.indexOf(':') > 0) {
-                    val = val.split(':');
-                    xval['id'] = val[0];
-                    xval['caption'] = val[1];
-                } else {
-                    xval['caption'] = val;
-                }
-                localStore.setItem('root.r_' + i, null, xval);
-            }
-            var store = new gnr.GnrStoreBag({mainbag:localStore});
+            var store = this.storeFromValues(values);
             attributes.searchAttr = 'caption';
-            store._identifier = 'id';
         } else {
             var storeAttrs = objectExtract(attributes, 'storepath,storeid,storecaption');
             var savedAttrs = {};
@@ -4650,6 +4634,31 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
             }
         }
     },
+    
+    storeFromValues:function(values){
+        var ch = values.indexOf('\n')>=0?'\n':',';
+        var localStore = new gnr.GnrBag();
+        values = values.split(ch);
+        for (var i = 0; i < values.length; i++) {
+            val = values[i];
+            xval = {};
+            if (val.indexOf(':') > 0) {
+                val = val.split(':');
+                xval['id'] = val[0];
+                xval['caption'] = val[1];
+            } else {
+                xval['caption'] = val;
+            }
+            localStore.setItem('root.r_' + i, null, xval);
+        }
+        var newstore = new gnr.GnrStoreBag({mainbag:localStore});
+        newstore._identifier = 'id';
+        return newstore;
+    },
+    mixin_setValues:function(values){
+        this.store =  this.gnr.storeFromValues(values);
+    },
+    
   // patch__onBlur: function(){
   //     this._hideResultList();
   //     this._arrowIdle();

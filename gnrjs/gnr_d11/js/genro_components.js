@@ -1838,6 +1838,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             genro.userInfoCb.push(function(){
                 genro.dom.addClass(grid.sourceNode,'onExternalChanged');
             });
+            grid.sourceNode.publish('onExternalChanged');
         });
 
     },

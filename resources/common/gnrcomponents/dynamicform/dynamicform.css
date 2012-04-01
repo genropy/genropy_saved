@@ -2,14 +2,19 @@
     display:none;
 }
 
-.dffb_T .T_R.df_row, 
-.dffb_TL .TL_R.df_row,
-.dffb_F .F_R.df_row, 
-.dffb_DB .DB_R.df_row,
-.dffb_L .L_R.df_row,
-.dffb_N .N_R.df_row,
-.dffb_D .D_R.df_row,
-.dffb_H .H_R.df_row,
-.dffb_B .B_R.df_row{
+/*'TextBox:TextBox,simpleTextArea:TextArea,FilteringSelect:Filtering Select,Combobox:Combobox,DbSelect:DbSelect,checkboxtext:Multi checkbox'*/
+
+.dffb_calculated .field_calculated.df_row,
+.dffb_enterable .field_enterable.df_row{
+    display:table-row;
+}
+
+
+.dffb_enterable.dffb_textbox .field_textbox.df_row,
+.dffb_enterable.dffb_simpletextarea .field_simpletextarea.df_row,
+.dffb_enterable.dffb_filteringselect .field_filteringselect.df_row, 
+.dffb_enterable.dffb_combobox .field_combobox.df_row, 
+.dffb_enterable.dffb_dbselect .field_dbselect.df_row, 
+.dffb_enterable.dffb_checkboxtext .field_checkboxtext.df_row{
     display:table-row;
 }

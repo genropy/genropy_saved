@@ -118,6 +118,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
+                  counter=False,
                   group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -158,6 +159,9 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group='_')
+        if counter:
+            tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
+            _counter_fkey=counter,group=group)
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
@@ -178,6 +182,12 @@ class TableBase(object):
             tbl.attributes.update(multidb=multidb)
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
     
+    def trigger_setCounter(self,record,fldname,**kwargs):
+        fkeyfield = self.column('_row_count').attributes.get('_counter_fkey')
+        last_counter = self.readColumns(columns='$%s' %fldname,where='$%s=:fkey' %fkeyfield,
+                                        fkey=record[fkeyfield],order_by='$%s desc' %fldname,limit=1)
+        record[fldname] = (last_counter or 0)+1
+        
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
@@ -333,30 +343,37 @@ class DynamicFieldsTable(TableBase):
         tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)
         tbl.attributes.setdefault('name_plural','%s dyn fields' %mastertbl_name_long)
 
-        self.sysFields(tbl,id=True, ins=False, upd=False,multidb=mastertbl_multidb)
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
         tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('_row_count','L',name_long='!!Order')
         tbl.column('code',name_long='!!Code')
         tbl.column('description',name_long='!!Description')
-        tbl.column('field_type',name_long='!!Field type')
         tbl.column('data_type',name_long='!!Data Type')
-        tbl.column('source_values',name_long='!!Source Values')
-        tbl.column('source_table',name_long='!!Source Table')
-        
-        tbl.column('source_multivalues',name_long='!!Multiple Values')
-        
-        tbl.column('field_style',name_long='!!Field Style')
+        tbl.column('calculated','B',name_long='!!Enterable')
 
-        tbl.column('caps',size='1',values='!!U:Uppercase,L:Lowercase,C:Capitalize',name_long='!!Caps')
+        tbl.column('wdg_tag',name_long='!!Wdg type')
+        
+        tbl.column('source_combobox',name_long='!!Suggested Values')
+        tbl.column('source_dbselect',name_long='!!Db Table')
+        tbl.column('source_filteringselect',name_long='!!Allowed Values')
+        tbl.column('source_checkboxtext',name_long='!!Checkbox Values')
+
+        #tbl.column('source_multivalues',name_long='!!Multiple Values')
+        
+        tbl.column('field_style',name_long='!!Style')
+        tbl.column('field_visible',name_long='!!Visible if')
+        tbl.column('field_format',name_long='!!Format')
+        tbl.column('field_mask',name_long='!!Mask')
+        tbl.column('field_tip',name_long='!!Tip')
+
+
+
+        tbl.column('caps',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Caps')
         tbl.column('range','N',name_long='!!Range')
         
         tbl.column('standard_range','N',name_long='!!')
         tbl.column('formula',name_long='!!Formula')
-        tbl.column('condition',name_long='!!Condition')
-        tbl.column('do_summary','B',name_long='!!Do summary')
+        #tbl.column('do_summary','B',name_long='!!Do summary')
         tbl.column('mandatory','B',name_long='!!Mandatory')
-        tbl.column('hidden','B',name_long='!!Hidden')
-        tbl.column('tip',name_long='!!Tip')
 
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete='raise', relation_name='dynamicfields',
