@@ -579,8 +579,8 @@ class GnrDomSrc(GnrStructData):
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
-                    lblalign=None, lblvalign='middle',
-                    fldalign=None, fldvalign='middle', disabled=False,
+                    lblalign=None, lblvalign='top',
+                    fldalign=None, fldvalign='top', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
         """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
@@ -1579,7 +1579,7 @@ class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
-                 lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
+                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
         self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]

@@ -228,8 +228,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getattr(m, clsName)
         else:
             raise Exception('Cannot import component %s' % modName)
-            
-    def rpc_getRecordCount(self, field=None, value=None,
+    
+    @public_method    
+    def getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None,condition=None,
                            **kwargs):

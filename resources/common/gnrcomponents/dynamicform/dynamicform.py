@@ -33,26 +33,36 @@ class Form(BaseComponent):
     js_requires='gnrcomponents/dynamicform/dynamicform'
 
     def th_form(self,form):
-        
         bc = form.center.borderContainer(datapath='.record')
         bottom = bc.contentPane(region='bottom',border_top='1px solid silver')
         pane = bc.contentPane(region='center')
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
-        
+        tbl = pane.getInheritedAttributes()['table']
         fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
                 validate_regex='!\.', 
-                validate_regex_error='!!Invalid code: "." char is not allowed',validate_case='l')
-        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2)
+                validate_regex_error='!!Invalid code: "." char is not allowed',validate_case='l',
+                validate_nodup=True,validate_nodup_error='!!Already existing code',
+                validate_nodup_condition='$maintable_id=:fkey',validate_nodup_fkey='=#FORM.record.maintable_id',
+                ghost='!!Field code')
+        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
+                    ghost='!!Field description')
 
         fb.field('data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',tag='FilteringSelect')
+        fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
+
         fb.field('calculated',lbl='',label='!!Calculated')
+        fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
+
         fb.br()
         
         fb.field('formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         
-        fb.field('wdg_tag',values='^#FORM.allowedWidget',tag='filteringSelect',row_class='df_row field_enterable')
+        fb.field('wdg_tag',values='^#FORM.allowedWidget',tag='filteringSelect',
+                    row_class='df_row field_enterable')
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
+
+        fb.field('wdg_colspan',width='4em')
         fb.br()
         
         fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
@@ -67,69 +77,37 @@ class Form(BaseComponent):
         fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
         
         
-        #fb.field('caps')
+        fb.field('validate_case',width='8em',row_class='df_row field_textbox')
+        fb.br()
+        
+        fb.field('validate_range',width='6em',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox')
+        fb.br()
               
-        fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
         
-        fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type);",data_type="^.data_type")
+    
         
+        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
         
-        
-        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',lbl_width='4em',width='100%',fld_width='18em')
-        
-        footer.field('field_format',values='^#FORM.allowedFormat',tag='Combobox')
-        footer.br()
+        footer.field('field_format',values='^#FORM.allowedFormat',tag='Combobox',lbl_width='4em')
+        footer.field('field_placeholder',lbl_width='6em')
         footer.field('field_visible',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         footer.field('field_style',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         footer.field('field_tip',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         footer.field('field_mask',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-
-        
-    def xxx(self,fb):
-        
-       #fb.field('field_type',values='!!T:Text,TL:Long Text,DB:Db link,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,F:Formula',
-       #         validate_notnull=True,validate_notnull_error='!!Required',width='8em',tag='filteringSelect')
-                 
-        fb.dataController("""SET #FORM.boxClass = data_type? 'dffb_'+data_type:'';""",
-                        box=box,data_type='^.data_type')
-        
-        fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2)
-
-        fb.field('source_values',colspan=2,row_class='df_row T_R',
-                tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px')
-                
-        fb.field('caps',row_class='df_row T_R',row_hidden='^.source_values',colspan=2,width='100%')
-        
-        fb.field('source_multivalues',row_class='df_row TL_R',
-                colspan=2,tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
-                lbl='Multiple values',
-                ghost="""!!A string separated by comma set of words. For every words there will be created a single checkbox""")
-                
-        fb.field('field_style',colspan=2,width='100%',lbl_vertical_align='top',height='60px',tag='simpleTextArea',
-                row_class='df_row TL_R')
-                
-        fb.field('source_table',colspan=2,width='100%',row_class='df_row DB_R')
-        
-        fb.field('range',ghost='min:max',row_class='df_row N_R L_R',width='8em')
-        fb.field('standard_range',ghost='min:max',width='8em')
-        
-        fb.field('formula',colspan=2,width='100%',row_class='df_row F_R')
-        
-        fb.field('condition',width='100%',colspan=2,lbl_vertical_align='top',height='60px',tag='simpleTextArea')
-        fb.field('mandatory',lbl='',label='!!Mandatory')
-
     
+
     def th_options(self):
-        return dict(dialog_height='450px',dialog_width='600px')
+        return dict(palette_height='450px',palette_width='600px')
 
 
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('_row_count',counter=True)
+        r.fieldcell('_row_count',counter=True,hidden=True)
         r.fieldcell('code', name='!!Code', width='5em')
         r.fieldcell('description', name='!!Description', width='15em')
         r.fieldcell('data_type', name='!!Type', width='10em')
+        r.fieldcell('wdg_tag',name='!!Widget',width='10em')
         r.fieldcell('mandatory', name='!!Mandatory',width='7em') 
     
     def th_order(self):
@@ -143,9 +121,10 @@ class DynamicForm(BaseComponent):
         bc = pane.borderContainer()
         if testForm:
             mastertable = pane.getInheritedAttributes()['table']
-            bc.contentPane(region='bottom',height='50%',splitter=True,margin_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='^#FORM.pkey',
-                                                    _fired='^#FORM.dynamicFormTester._refresh_fields',
+            bc.contentPane(region='bottom',height='50%',splitter=True,margin_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
+                                                    _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data')
+                
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
@@ -153,7 +132,9 @@ class DynamicForm(BaseComponent):
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)
-
+        bar = th.view.top.bar.replaceSlots('count,*','*,fbfields')
+        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
+        fb.numberSpinner(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th
 
     @struct_method
@@ -173,32 +154,52 @@ class DynamicForm(BaseComponent):
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
         fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
+        ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
+        autowdg = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
         if not fields:
             return
-        fb = pane.div(margin_right='10px').formbuilder(cols=1,datapath=datapath)
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath)
         for r in fields:
             attr = dict(r)
             attr.pop('id')
             attr.pop('pkey')
             attr.pop('maintable_id')
             data_type = attr.pop('data_type','T')
-            tag =  attr.pop('wdg_tag','textbox')
-            attr['tag'] =tag
+            tag =  attr.pop('wdg_tag') or autowdg[data_type]
             if tag.endswith('_nopopup'):
                 tag = tag.replace('_nopopup','')
-                attr['_popup'] = False
+                attr['popup'] = False
+            attr['tag'] =tag
+
             #attr['colspan'] = col_max if data_type == 'TL' else 1
             
-            attr['value']='^.%s' %attr.pop('code')
-            attr['lbl'] = '%s' %attr.pop('description',''),
+            attr['value']='^.%s' %attr.get('code')
+            attr['lbl'] = '%s' %attr.pop('description','')
+            attr['ghost'] = attr.pop('field_placeholder',None)
+            attr['tip'] = attr.pop('field_tip',None)
+            attr['style'] = attr.pop('field_style',None)
+          #  attr['format'] = attr.pop('field_format',None)
+            attr['colspan'] = attr.pop('wdg_colspan') or 1
+            
+            mask = attr.pop('field_mask',None)
+
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
             dictExtract(attr,'source_',pop=True)
             if tag == 'checkboxtext':
                 attr.pop('tag')
-                fb.checkboxtext(**attr)
+                value = attr.pop('value')
+                labels= attr.pop('labels')
+                b = fb.div(lbl_vertical_align='top',width='100%',height='60px',lbl=attr.pop('lbl'),border='1px solid silver',rounded=4,**attr)
+                subfb = b.tooltipPane().formbuilder(cols=1, border_spacing='2px')
+                subfb.checkboxtext(labels=labels,value=value)
+                b.div(value)
+ 
             else:
+                self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+                self._df_handleFieldValidation(attr,fields=fields)
+                attr.pop('code')
                 fb.child(**attr)
             
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
@@ -228,21 +229,23 @@ class DynamicForm(BaseComponent):
         formula = attr.pop('formula',None)
         if not formula:
             return
-        formulaArgs = dict([(str(x),'^.%s' %x) for x in fields.digest('#a.code') if x in formula])
+        formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
         fb.dataFormula(".%s" %attr['code'], formula,**formulaArgs)
         attr['readOnly'] =True 
     
-    def _df_handleFieldValidation(self,attr,fb,fields):
-        if attr.get('range'):
-            r = attr.pop('range')
+    def _df_handleFieldValidation(self,attr,fields):
+        if attr.get('validate_range'):
+            r = attr.pop('validate_range')
             min_v,max_v = r.split(':')
             if min_v or max_v:
                 attr['validate_min'] = min_v or None
                 attr['validate_max'] = max_v or None
                 attr['validate_min_error'] = '!!Under min value %s' %min_v
                 attr['validate_max_error'] = '!!Over max value %s' %max_v
-        if attr.get('condition'):
-            condition = attr.pop('condition')
+        if attr.get('validate_case'):
+            attr['validate_case'] = attr.pop('validate_case')
+        if attr.get('field_visible'):
+            condition = attr.pop('field_visible')
             attr['row_hidden'] = """==function(sourceNode){
                                         if(%s){
                                             return false;
@@ -251,8 +254,7 @@ class DynamicForm(BaseComponent):
                                             return true;
                                         }
                                     }(this);""" %(condition,attr['code'])
-            conditionArgs = dict([('row_%s' %str(x),'^.%s' %x) for x in fields.digest('#a.code') if x in condition])
+            conditionArgs = dict([('row_%s' %str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
-            #fb.dataFormula('.%(code)s' %attr,'v',_if=condition,_else='return null',v='=.%(code)s' %attr,**conditionArgs)
             
     

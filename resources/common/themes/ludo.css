@@ -495,11 +495,14 @@
 /* @group tootlipDialog */
 
 ._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
-    border-radius: 6px;
+    border-radius: 4px;
     padding: 0px;
-    border: 0;
-    background: #68858E;
+    border: 1px solid silver;
     font-size: inherit;
+    -webkit-box-shadow:3px 3px 5px #adadad !important;
+    -webkit-box-shadow:3px 3px 5px #adadad !important;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
 }
 
 /* @end */

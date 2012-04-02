@@ -1,5 +1,5 @@
 var dynamicFormHandler = {
-    onDataTypeChange:function(sourceNode,data_type){
+    onDataTypeChange:function(sourceNode,data_type,reason,newrecord){
         var allowedWidget,allowedFormat,defaults;
         if(data_type=='T'){
             allowedWidget = 'textbox:TextBox,simpletextarea:TextArea,filteringselect:Filtering Select,combobox:ComboBox,dbselect:DbSelect,checkboxtext:Multi checkbox';
@@ -19,7 +19,7 @@ var dynamicFormHandler = {
             defaults = {wdg_tag:'datetextbox',format:'short'};
 
         }else if(data_type=='H'){
-            allowedWidget = 'timetextbox:Popup,timetextbox_nopopup:Plain';
+            allowedWidget = 'timetextbox:Calendar Popup,timetextbox_nopopup:Date field';
             allowedFormat = 'short,medium,long';
             defaults = {wdg_tag:'timetextbox',format:'short'};
         }else if(data_type=='B'){
@@ -32,14 +32,18 @@ var dynamicFormHandler = {
         }
         sourceNode.setRelativeData('#FORM.allowedWidget',allowedWidget);
         sourceNode.setRelativeData('#FORM.allowedFormat',allowedFormat);
-        for (var k in defaults){
-            sourceNode.setRelativeData('#FORM.record.'+k,defaults[k]);
+        if(reason!='container' || newrecord){
+            for (var k in defaults){
+                sourceNode.setRelativeData('#FORM.record.'+k,defaults[k]);
+            }
         }
-
     },
     onSetWdgTag:function(sourceNode,wdg_tag){
-        if(wdg_tag!='div'){
+        var calculated = sourceNode.getRelativeData('.calculated');
+        if(!calculated){
             sourceNode.setRelativeData('#FORM.boxClass','dffb_enterable dffb_'+wdg_tag);
+        }else{
+            sourceNode.setRelativeData('#FORM.boxClass','dffb_calculated');
         }
     },
     
@@ -49,10 +53,10 @@ var dynamicFormHandler = {
         if(calculated){
             wdg_tag = 'div';
             boxClass = 'dffb_calculated';
+            sourceNode.setRelativeData('.wdg_tag',null);
         }else{
                 //formclass = 'dffb_'+data_type;
         }
-        sourceNode.setRelativeData('.wdg_tag',wdg_tag);
         sourceNode.setRelativeData('#FORM.boxClass',boxClass);
     }
 };

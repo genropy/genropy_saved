@@ -337,6 +337,7 @@ class DynamicFieldsTable(TableBase):
         mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')
         mastertbl_multidb = mastertbl.attributes.get('multidb')
+        mastertbl.column('df_fbcolumns','L',group='_')
         tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
@@ -351,24 +352,28 @@ class DynamicFieldsTable(TableBase):
         tbl.column('calculated','B',name_long='!!Enterable')
 
         tbl.column('wdg_tag',name_long='!!Wdg type')
-        
+        tbl.column('wdg_colspan','L',name_long='!!Colspan')
+
         tbl.column('source_combobox',name_long='!!Suggested Values')
         tbl.column('source_dbselect',name_long='!!Db Table')
         tbl.column('source_filteringselect',name_long='!!Allowed Values')
         tbl.column('source_checkboxtext',name_long='!!Checkbox Values')
+        tbl.column('checkboxtext_cols','L',name_long='!!Checkbox cols')
 
         #tbl.column('source_multivalues',name_long='!!Multiple Values')
         
         tbl.column('field_style',name_long='!!Style')
         tbl.column('field_visible',name_long='!!Visible if')
         tbl.column('field_format',name_long='!!Format')
+        tbl.column('field_placeholder',name_long='!!Placeholder')
+
         tbl.column('field_mask',name_long='!!Mask')
         tbl.column('field_tip',name_long='!!Tip')
 
 
 
-        tbl.column('caps',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Caps')
-        tbl.column('range','N',name_long='!!Range')
+        tbl.column('validate_case',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Case')
+        tbl.column('validate_range',name_long='!!Range')
         
         tbl.column('standard_range','N',name_long='!!')
         tbl.column('formula',name_long='!!Formula')

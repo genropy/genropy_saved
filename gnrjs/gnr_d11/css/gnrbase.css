@@ -236,9 +236,6 @@ body.workInProgress{
     border-color: transparent;
 }
 
-.dijitReset {
-    color: black;
-}
 
 
 
@@ -555,9 +552,9 @@ label.ghostlabel span {
 }
 
 .gnrfieldlabel {
-    vertical-align: middle;
-    padding-bottom: .5px;
+    /*vertical-align: middle;*/
     color: #1c004e;
+    margin-top:2px;
 }
 
 .floatRight {

@@ -380,16 +380,8 @@ element.style {
 }
 
 ._common_d11 .dijitTooltip .dijitTooltipContainer {
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    background: #fff4a1;
-    border: 1px solid #676767;
-    font-size: .8em;
-    padding: 2px 4px;
-    border-width: 1px;
-    margin-top: 40px;
-    margin-bottom: -2px;
-    margin-left: -10px;
+    color:#555;
+    font-size:.9em;
 }
 
 /* @end */
@@ -399,19 +391,21 @@ element.style {
 /* they are common for tooltip and tooltipdialog */
 
 ._common_d11  .dijitTooltipLeft .dijitTooltipConnector {
-    display: none;
+    background-color:transparent;
 }
 
 ._common_d11 .dijitTooltipRight .dijitTooltipConnector {
-    display: none;
+    background-color:transparent;
 }
 
 ._common_d11  .dijitTooltipUp .dijitTooltipConnector {
-    display: none;
+    background-color:transparent;
+
 }
 
 ._common_d11  .dijitTooltipBelow .dijitTooltipConnector {
-    display: none;
+    background-color:transparent;
+
 }
 
 /* @end */

@@ -126,7 +126,7 @@ class TableHandlerForm(BaseComponent):
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():
-                hook(getattr(form,side))
+                hook(getattr(form,side))    
         form.store.handler('load',onLoadingHandler=self._th_hook('onLoading',mangler=mangler))
         form.store.handler('save',onSavingHandler=self._th_hook('onSaving',mangler=mangler),
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))

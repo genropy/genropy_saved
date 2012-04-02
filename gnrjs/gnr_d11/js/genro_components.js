@@ -66,7 +66,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         });
         
         var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,
-                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
+                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);genro.bp();"});
 
         kw['connect_onOpen'] = function(){
             this.widget.resize();
