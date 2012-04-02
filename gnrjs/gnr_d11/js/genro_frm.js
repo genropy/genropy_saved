@@ -1269,10 +1269,11 @@ dojo.declare("gnr.GnrValidator", null, {
             }
         }
     },
-    validate_nodup: function(param, value, sourceNode) {
+    validate_nodup: function(param, value, sourceNode,kwargs) {
+        var nodupkwargs = objectExtract(kwargs,'nodup_*');
         var dbfield = ((typeof(param) == 'string') && param) ? param : sourceNode.getAttributeFromDatasource('dbfield');
         if (value) {
-            var n = genro.rpc.getRecordCount(dbfield, value);
+            var n = genro.rpc.getRecordCount(dbfield, value,null,nodupkwargs);
             if (n != 0) {
                 return false;
             }
