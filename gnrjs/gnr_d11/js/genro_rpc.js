@@ -448,8 +448,11 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     },
 
-    getRecordCount:function(field, value, cb) {
-        var result = genro.rpc.remoteCall('app.getRecordCount', {'field':field, 'value':value}, null, 'GET', null, cb);
+    getRecordCount:function(field, value, cb,kw) {
+        var rpckw = {'field':field, 'value':value};
+        var kw = kw || {};
+        objectUpdate(rpckw,kw);
+        var result = genro.rpc.remoteCall('app.getRecordCount', rpckw, null, 'GET', null, cb);
         return result;
     },
 
