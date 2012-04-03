@@ -943,6 +943,7 @@ class DbTableObj(DbModelObj):
         return result
         
     relations_one = property(_get_relations_one)
+    
         
     def _get_relations_many(self):
         """This method returns a bag containing all the OneToMany relations that starts from to the current table"""
@@ -980,6 +981,25 @@ class DbTableObj(DbModelObj):
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         return dict(mode=joiner['mode'], mpkg=mpkg, mtbl=mtbl, mfld=mfld, opkg=opkg, otbl=otbl, ofld=ofld)
+    
+    def getJoiner(self,related_table):
+        reltableobj = self.db.table(related_table)
+        related_field = reltableobj.column(reltableobj.pkey).fullname
+        for n in self.relations:
+            joiner = n.attr.get('joiner')
+            if joiner:
+                if joiner.get('one_relation')==related_field:
+                    return joiner
+        relating_field = self.column(self.pkey).fullname
+        for n in reltableobj.relations:
+            joiner = n.attr.get('joiner')
+            if joiner:
+                if joiner.get('one_relation')==relating_field:
+                    return joiner
+                
+                
+            
+        
         
 class DbBaseColumnObj(DbModelObj):
     def _get_dtype(self):

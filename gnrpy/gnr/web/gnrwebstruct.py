@@ -2085,6 +2085,9 @@ class GnrGridStruct(GnrStructData):
                   classes=None, cellClasses=None, headerClasses=None,
                    zoom=False,**kwargs):
         tableobj = self.tblobj
+        if not tableobj:
+            self.root._missing_table = True
+            return
         fldobj = tableobj.column(field)
         cellpars = cellFromField(field,tableobj)
         cellpars.update(kwargs)
