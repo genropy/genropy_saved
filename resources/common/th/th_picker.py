@@ -36,10 +36,21 @@ class THPicker(BaseComponent):
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn).htableStore(table=table)
         else:
-            resource = self._th_getResClass(table=table,resourceName=viewResource,defaultClass='ViewPicker')()
-            palette = pane.paletteGrid(paletteCode=paletteCode,struct=resource.th_struct,dockButton=dockButton,
+            try:
+                resource = self._th_getResClass(table=table,resourceName=viewResource,defaultClass='ViewPicker')()
+                struct=resource.th_struct
+                sortedBy = getattr(resource,'th_order')
+                if sortedBy:
+                    sortedBy = sortedBy()
+            except:
+                if tblobj.attributes.get('caption_field'):
+                    def struct(struct):
+                        r = struct.view().rows()
+                        r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
+                    sortedBy = tblobj.attributes.get('caption_field')
+            palette = pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=dockButton,
                             title=title,searchOn=searchOn,grid_filteringGrid=grid,
-                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=table)
+                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=table,sortedBy=sortedBy or 'pkey')
         if grid:
             grid.dragAndDrop(paletteCode)
             if autoInsert:
