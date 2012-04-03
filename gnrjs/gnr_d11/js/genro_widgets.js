@@ -5058,7 +5058,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         if (this.sourceNode.editedRowIndex!=null && priorityChange) {
             this._updateSelect(item);
             if (priorityChange) {
-                this.cellNext = 'RIGHT';
+                //this.cellNext = 'RIGHT';
                 //this.onBlur();
             }
         }

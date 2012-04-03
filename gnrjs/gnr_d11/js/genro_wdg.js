@@ -542,11 +542,13 @@ dojo.declare("gnr.RowEditor", null, {
         return null;
     },
     endEditCell:function(editingInfo){
-        var n = this.data.getNode(this.currentCol);
-        if(n.attr._loadedValue===n.getValue()){
-            this.data.popNode(n.label);
-            if(this.data.len()==0){
-                this.deleteRowEditor();
+        if(!this.newrecord){
+            var n = this.data.getNode(this.currentCol);
+            if(n.attr._loadedValue===n.getValue()){
+                this.data.popNode(n.label);
+                if(this.data.len()==0){
+                    this.deleteRowEditor();
+                }
             }
         }
         this.gridEditor.updateStatus();
@@ -727,7 +729,7 @@ dojo.declare("gnr.GridEditor", null, {
                         newAttr[related_setter[k]] = selectRow[k];
                     }
                     //setTimeout(function(){
-                    rowNode.updAttributes(newAttr,true);
+                    rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
                     //},1)
                 }
             }if('values' in colattr){
@@ -957,7 +959,21 @@ dojo.declare("gnr.GridEditor", null, {
         return new gnr.RowEditor(this,rowNode);
     },
     
+    addNewRows:function(rows){
+        var that = this;
+        dojo.forEach(rows,function(n){
+            that.addNewRows_one(n);
+        });
+        this.updateStatus();
+    },
+    addNewRows_one:function(row){
+        var grid = this.grid;
+        var newnode = grid.addBagRow('#id', '*', grid.newBagRow(row));
+        this.newRowEditor(newnode);
+    },
+    
     startEdit:function(row, col) {
+        console.log('startEdit')
         var grid = this.grid;
         var cell = grid.getCell(col);
         var colname = cell.field;
@@ -1097,6 +1113,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     endEdit:function(editWidget, delta, editingInfo) {
+        console.log('endEdit',editWidget,delta,editingInfo);
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         editWidget.sourceNode._destroy();
@@ -1109,8 +1126,10 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         if (delta) {
+            console.log('findingNextCell',delta)
             var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
             if (rc) {
+                console.log('runStartEdit',rc)
                 this.startEdit(rc.row, rc.col);
             }
         }
