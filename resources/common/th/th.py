@@ -32,7 +32,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,**kwargs):
+                            lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,picker=None,addrow=True,delrow=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -48,16 +48,29 @@ class TableHandler(BaseComponent):
                         thform_root=formCode,
                         nodeId=th_root,
                         table=table,
-                        **kwargs)               
-        top_slots = '#,delrow,addrow'
-        if lockable:
-            top_slots = '#,delrow,addrow,10,viewlocker'
+                        **kwargs) 
+        top_slots = ['#']     
+        top_thpicker_relation_field = picker       
         if readOnly:
-            top_slots = '#'
+            delrow = False
+            addrow =False
+            lockable = False  
+            picker = False
+        if delrow:
+            top_slots.append('delrow')
+        if addrow:
+            top_slots.append('addrow')
+        if picker:
+            top_slots.append('thpicker')
+        top_slots = ','.join(top_slots)
+            
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
+                                virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
+                                top_thpicker_relation_field=top_thpicker_relation_field,
+                                lockable=lockable,
                                 configurable=configurable,
-                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn) 
+                                condition=condition,condition_kwargs=condition_kwargs,
+                                grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
             wdg.dataController("""
@@ -189,10 +202,15 @@ class TableHandler(BaseComponent):
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=True,hider=False,**kwargs):
+                            hider=False,picker=None,addrow=None,delrow=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
+        if picker:
+            hider=True
+            delrow = True if delrow is None else delrow
+            addrow = False if addrow is None else addrow
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
-                                        viewResource=viewResource,readOnly=readOnly,hider=hider,**kwargs)
+                                        viewResource=viewResource,hider=hider,
+                                        picker=picker,addrow=addrow,delrow=delrow,**kwargs)
         return wdg
 
     @extract_kwargs(default=True,page=True)     

@@ -60,9 +60,6 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
-        if top_kwargs:
-            top_kwargs['slotbar_view'] = frame
-            frame.top.slotToolbar(**top_kwargs)
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         frame.includedView(autoWidth=False,
@@ -70,5 +67,8 @@ class FrameGrid(BaseComponent):
                           datapath='.grid',selectedId='.selectedId',
                           struct=struct,table=table,
                           **grid_kwargs)
+        if top_kwargs:
+            top_kwargs['slotbar_view'] = frame
+            frame.top.slotToolbar(**top_kwargs)
         return frame
         

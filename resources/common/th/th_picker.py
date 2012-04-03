@@ -65,10 +65,10 @@ class THPicker(BaseComponent):
         return palette
 
     @struct_method
-    def th_slotbar_thpicker(self,pane,**kwargs):
+    def th_slotbar_thpicker(self,pane,relation_field=None,**kwargs):
         view = pane.parent.parent.parent    
         grid = view.grid    
-        return pane.palettePicker(grid,**kwargs)
+        return pane.palettePicker(grid,relation_field=relation_field,**kwargs)
 
     @public_method
     def _th_insertPickerGrid(self,dragPkeys=None,dropPkey=None,tbl=None,one=None,many=None,**kwargs):
