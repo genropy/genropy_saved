@@ -2055,10 +2055,10 @@ class GnrGridStruct(GnrStructData):
         fldobj = tableobj.column(field)
             
         fldattr = dict(fldobj.attributes or dict())
-
+        if 'values' in fldattr:
+            kwargs['values'] = fldattr['values']
         kwargs.update(dictExtract(fldattr,'cell_'))
-        kwargs.setdefault
-        ('format_pattern',fldattr.get('format'))
+        kwargs.setdefault('format_pattern',fldattr.get('format'))
         kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
         if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
             kwargs['_subtable'] = True

@@ -541,7 +541,23 @@ function objectFromStyle(style) {
         }
     }
     return result;
-}
+};
+
+function objectFromString(values,sep){
+    var ch = sep || values.indexOf('\n')>=0?'\n':',';
+    var values = values.split(ch);
+    var result = {};
+    for (var i = 0; i < values.length; i++) {
+        val = values[i];
+        if (val.indexOf(':') > 0) {
+            val = val.split(':');
+            result[val[0]] = val[1];
+        } else {
+            result['caption_'+i] = val;
+        }
+    }
+    return result;
+};
 
 
 //funzione di utilità che elimina i blank attorno ad una stringa.

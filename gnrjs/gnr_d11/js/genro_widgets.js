@@ -2640,6 +2640,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell._subtable = f[0];
                 cell._subfield = f[1];
             }
+            if(typeof(cell.values)=='string' && cell.values.indexOf(':')>=0){
+                var valuesdict = objectFromString(cell.values);
+                cell._customGetter = function(rowdata,idx){
+                    return valuesdict[rowdata[this.field_getter]];
+                };
+            }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
             var checkboxPars = objectPop(cell,'checkBoxColumn');
