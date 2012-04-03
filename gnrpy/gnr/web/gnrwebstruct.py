@@ -33,6 +33,54 @@ from gnr.core.gnrdecorator import extract_kwargs,deprecated
 from time import time
 from copy import copy
 
+def cellFromField(field,tableobj):
+    kwargs = dict()
+    fldobj = tableobj.column(field)
+    fldattr = dict(fldobj.attributes or dict())
+    if 'values' in fldattr:
+        kwargs['values'] = fldattr['values']
+    kwargs.update(dictExtract(fldattr,'cell_'))
+    kwargs.setdefault('format_pattern',fldattr.get('format'))
+    kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
+    if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+        kwargs['_subtable'] = True
+    kwargs['name'] =  fldobj.name_long
+    kwargs['dtype'] =  fldobj.dtype
+    kwargs['width'] = '%iem' % fldobj.print_width if fldobj.print_width else None
+    relfldlst = tableobj.fullRelationPath(field).split('.')
+    kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
+    #if 'values' in fldobj.attributes:
+    #    kwargs['values']=fldobj.attributes['values']
+    if hasattr(fldobj,'relatedColumnJoiner'):
+        columnjoiner = fldobj.relatedColumnJoiner()
+        if columnjoiner:
+            relatedTable = fldobj.relatedColumn().table
+            kwargs['related_table'] = relatedTable.fullname
+
+            caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+            if caption_field and not kwargs.get('hidden') and len(relfldlst) == 1:
+                kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
+                kwargs['relating_column'] = field
+                kwargs['related_column'] = caption_field
+                kwargs['rowcaption'] = caption_field
+    if len(relfldlst) > 1:
+        fkey = relfldlst[0][1:]
+        kwargs['relating_column'] = fkey
+        kwargs['related_column'] = '.'.join(relfldlst[1:])
+        fkeycol=tableobj.column(fkey)
+        if fkeycol is not None:
+            joiner = fkeycol.relatedColumnJoiner()
+            if 'storefield' in joiner:
+                ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
+                kwargs['_storename'] = joiner['storefield']
+                kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+                ext_fldname = '.'.join(relfldlst[1:])
+                if not ext_fldname.startswith('@'):
+                    ext_fldname = '$%s' %ext_fldname
+                kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
+    return kwargs
+    
+    
 class StructMethodError(Exception):
     pass
     
@@ -2032,70 +2080,17 @@ class GnrGridStruct(GnrStructData):
                   , dtype='B', **kwargs)
                   
 
-    def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
-                  classes=None, cellClasses=None, headerClasses=None, zoom=False,**kwargs):
-        """Return a :ref:`cell` that inherits every attribute from the :ref:`field` widget.
-
-        :param field: MANDATORY - it contains the name of the field from which
-                      the fieldcell inherits
-        :param _as: TODO
-        :param name: with *name* you can override the :ref:`name_long` of the
-                     :ref:`field` form widget
-        :param width: the fieldcell width
-        :param dtype: the :ref:`datatype`. You can override the *dtype* of the :ref:`field` form widget.
-        :param classes: TODO
-        :param cellClasses: TODO
-        :param headerClasses: TODO
-        :param zoom: a link to the object to which the fieldcell refers to.
-                     For more information, check the :ref:`zoom` documentation page."""
-        if not self.tblobj:
-            self.root._missing_table = True
-            return
+    def fieldcell(self, field, 
+                _as=None, name=None, width=None, dtype=None,
+                  classes=None, cellClasses=None, headerClasses=None,
+                   zoom=False,**kwargs):
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
-            
-        fldattr = dict(fldobj.attributes or dict())
-        if 'values' in fldattr:
-            kwargs['values'] = fldattr['values']
-        kwargs.update(dictExtract(fldattr,'cell_'))
-        kwargs.setdefault('format_pattern',fldattr.get('format'))
-        kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
-        if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
-            kwargs['_subtable'] = True
-        name = name or fldobj.name_long
-        dtype = dtype or fldobj.dtype
-        width = width or '%iem' % fldobj.print_width
-        relfldlst = tableobj.fullRelationPath(field).split('.')
-        kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
-        if 'values' in fldobj.attributes:
-            kwargs['values']=fldobj.attributes['values']
-        if hasattr(fldobj,'relatedColumnJoiner'):
-            columnjoiner = fldobj.relatedColumnJoiner()
-            if columnjoiner:
-                relatedTable = fldobj.relatedColumn().table
-                kwargs['related_table'] = relatedTable.fullname
-
-                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
-                if caption_field and not kwargs.get('hidden') and len(relfldlst) == 1:
-                    kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
-                    kwargs['relating_column'] = field
-                    kwargs['related_column'] = caption_field
-                    kwargs['rowcaption'] = caption_field
-        if len(relfldlst) > 1:
-            fkey = relfldlst[0][1:]
-            kwargs['relating_column'] = fkey
-            kwargs['related_column'] = '.'.join(relfldlst[1:])
-            fkeycol=tableobj.column(fkey)
-            if fkeycol is not None:
-                joiner = fkeycol.relatedColumnJoiner()
-                if 'storefield' in joiner:
-                    ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
-                    kwargs['_storename'] = joiner['storefield']
-                    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
-                    ext_fldname = '.'.join(relfldlst[1:])
-                    if not ext_fldname.startswith('@'):
-                        ext_fldname = '$%s' %ext_fldname
-                    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
+        cellpars = cellFromField(field,tableobj)
+        cellpars.update(kwargs)
+        loc = locals()
+        for attr in ('name','width','dtype','classes','cellClasses','headerClasses'):
+            cellpars[attr] = loc[attr] or cellpars.get(attr)
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')
@@ -2106,18 +2101,16 @@ class GnrGridStruct(GnrStructData):
                     ridx = relfldlst.index('@%s' % zoom)
                 zoomtbl = tableobj.column('.'.join(relfldlst[0:ridx + 1])).parent
                 relfldlst[ridx] = relfldlst[ridx][1:]
-                kwargs['zoom_pkey'] = '.'.join(relfldlst[0:ridx + 1])
+                cellpars['zoom_pkey'] = '.'.join(relfldlst[0:ridx + 1])
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
-                kwargs['zoom_pkey'] = field
+                cellpars['zoom_pkey'] = field
             if hasattr(zoomtbl.dbtable, 'zoomUrl'):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
-                kwargs['zoom_page'] = zoomPage
-            kwargs['zoom_table'] = zoomtbl.dbtable.fullname
-            
-        return self.cell(field=_as or field, name=name, width=width, dtype=dtype,
-                         classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
-                         
+                cellpars['zoom_page'] = zoomPage
+            cellpars['zoom_table'] = zoomtbl.dbtable.fullname
+        return self.cell(field=field,**cellpars)
+
     def fields(self, columns, unit='em', totalWidth=None):
         """TODO
         

@@ -64,9 +64,16 @@ var genro_plugin_grid_configurator = {
         }
         if(table){
             var tablecode = table.replace('.', '_');
+            var fieldcellattr;
             sourceNode.attr['onDrop_gnrdbfld_' + tablecode] = function(dropInfo, data) {
                 var grid = this.widget;
-                grid.addColumn(data, dropInfo.column);
+                if(dropInfo.event.shiftKey){
+                    fieldcellattr = genro.serverCall('app.getFieldcellPars',{field:data.fieldpath,table:data.maintable});
+                    if(fieldcellattr){
+                        fieldcellattr = fieldcellattr.asDict();
+                    }
+                }
+                grid.addColumn(data, dropInfo.column,fieldcellattr);
                 if (grid.rowCount > 0) {
                     setTimeout(function() {
                         grid.reload();

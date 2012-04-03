@@ -2810,15 +2810,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
 
     },
-    mixin_addColumn:function(col, toPos) {
+    mixin_addColumn:function(col, toPos,kw) {
         //if(!('column' in drop_event.dragDropInfo)){ return }
         var colsBag = this.structBag.getItem('#0.#0');
-        var kw = {'width':'8em','name':col.fullcaption,
+        if(!kw){
+            var kw = {'width':'8em','name':col.fullcaption,
             'dtype':col.dtype, 'field':col.fieldpath,
             'tag':'cell'};
-        objectUpdate(kw,objectExtract(col,'cell_*'));
-        kw['format_pattern'] = col['format']
-        objectUpdate(kw,objectExtract(col,'format_*',null,true));
+            objectUpdate(kw,objectExtract(col,'cell_*'));
+            kw['format_pattern'] = col['format']
+            objectUpdate(kw,objectExtract(col,'format_*',null,true));
+        }
+        
         colsBag.setItem('cellx_' + genro.getCounter(), null, kw, {'_position':toPos + 1});
     },
     onDragStart:function(dragInfo) {

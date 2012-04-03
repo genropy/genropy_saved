@@ -42,6 +42,7 @@ from gnr.core.gnrlang import uniquify
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+from gnr.web.gnrwebstruct import cellFromField
 
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
@@ -912,6 +913,13 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _resolver_name='relOneResolver')
             result.setItem(row_key, None, **kw)
         return result
+    
+    @public_method
+    def getFieldcellPars(self,field=None,table=None):
+        tableobj = self.db.table(table)
+        cellpars = cellFromField(field,tableobj)
+        cellpars['field'] = field
+        return Bag(cellpars)
         
     def gridSelectionStruct(self, selection):
         """TODO

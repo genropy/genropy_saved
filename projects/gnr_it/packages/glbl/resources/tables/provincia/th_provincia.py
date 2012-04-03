@@ -40,7 +40,7 @@ class EditableView(View):
         r = struct.view().rows()
         r.fieldcell('nome', width='20em',edit=True,name='^testnome')
         r.fieldcell('sigla',width='3em',edit=True)
-        r.fieldcell('dimensione',width='10em',edit=True)
+        #r.fieldcell('dimensione',width='10em',edit=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
        #r.cell('lunghezzapippo',calculated=True,formula='pippo.length')
        #

@@ -18,7 +18,7 @@ class Table(object):
         tbl.column('auxdata','X',name_long='!!test')
         
         
-        tbl.column('dimensione',name_long='!!Test',values='P:Piccola,M:Media,G:Grande')
+        tbl.column('dimensione',name_long='!!Dimensione',values='P:Piccola,M:Media,G:Grande')
         
         tbl.aliasColumn('regione_nome',relation_path='@regione.nome',name_long='Region nome')
 

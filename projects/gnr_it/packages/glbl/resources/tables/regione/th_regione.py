@@ -44,7 +44,7 @@ class FormConProvince(BaseComponent):
         fb.data('testnome','Nome Provincia')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
                                                                 viewResource=':EditableView',autoSave=False,
-                                                                statusColumn=True,semaphore=False)
+                                                                statusColumn=True,semaphore=False,configurable=True)
                                                                 
 class View(BaseComponent):
     
