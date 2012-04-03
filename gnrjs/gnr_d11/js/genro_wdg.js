@@ -1095,7 +1095,6 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     endEdit:function(editWidget, delta, editingInfo) {
-        console.log('endEdit')
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         editWidget.sourceNode._destroy();

@@ -350,7 +350,6 @@ class GnrPackage(object):
         tblkeys = tbldict.keys()
         tblkeys.sort()
         for tbl in tblkeys:
-            print 'configuring table',tbl
             cls = tbldict[tbl]
             if not tbl in self.tableMixinDict:
                 self.tableMixinDict[tbl] = GnrMixinObj()

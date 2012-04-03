@@ -3390,7 +3390,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         // a single child changed, not the whole selection
                         var rowIdx = this.sourceNode.updateGridCellAttr(kw, true);
                         //var rowIdx = this.getRowIdxFromNode(kw.node);
-                        if((!this.gnrediting) || (rowIdx!=kw.reason.editedRowIndex)){
+                        if((!(this.gnrediting && this.gridEditor.editorPars)) || (rowIdx!=kw.reason.editedRowIndex)){
                             this.updateRow(rowIdx);
                         }
                         
