@@ -966,7 +966,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
         
-    def tableAnalyzeStore(self, table=None, where=None, group_by=None, storepath='.store', **kwargs):
+    def tableAnalyzeStore(self, table=None, where=None, group_by=None, storepath='.store.root',caption='Store',**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -978,19 +978,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          :ref:`sql_group_by` section
         :param storepath: TODO
         """
-        t0 = time()
-        page = self.page
-        tblobj = page.db.table(table)
-        columns = [x for x in group_by if not callable(x)]
-        selection = tblobj.query(where=where, columns=','.join(columns), **kwargs).selection()
-        explorer_id = page.getUuid()
-        freeze_path = page.site.getStaticPath('page:explorers', explorer_id)
-        t1 = time()
-        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
-        t2 = time()
-        store = page.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
-        t3 = time()
-        self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
+        self.data('.store',Bag(),caption=caption)
+        self.dataRpc(storepath,'app.tableAnalyzeStore',table=table,where=where,group_by=group_by,**kwargs)
+
         
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
         """Create a :ref:`datarecord` and returns it. dataRecord allows... TODO

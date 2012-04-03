@@ -1308,7 +1308,22 @@ class GnrWebAppHandler(GnrBaseProxy):
         querystring = querystring or ''
         querystring = querystring.strip('*')
         return self.dbSelect_default(tblobj, querycolumns, querystring, resultcolumns, **kwargs)
-
+        
+    @public_method
+    def tableAnalyzeStore(self, table=None, where=None, group_by=None, **kwargs):
+        t0 = time.time()
+        page = self.page
+        tblobj = page.db.table(table)
+        columns = [x for x in group_by if not callable(x)]
+        selection = tblobj.query(where=where, columns=','.join(columns), **kwargs).selection()
+        explorer_id = page.getUuid()
+        freeze_path = page.site.getStaticPath('page:explorers', explorer_id)
+        t1 = time.time()
+        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
+        t2 = time.time()
+        store = page.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
+        t3 = time.time()
+        return store,dict(query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
 
     def dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
                              condition=None, exclude=None, limit=None, order_by=None,
