@@ -241,7 +241,7 @@ class TableBase(object):
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
-        return fieldstable.query(where="maintable_id",pkey=pkey,order_by='$_row_count').fetch()
+        return fieldstable.query(where="$maintable_id=:pkey",pkey=pkey,order_by='$_row_count').fetch()
 
     def setMultidbSubscription(self,tbl,allRecords=False):
         """TODO
