@@ -333,8 +333,6 @@ class DynamicFieldsTable(TableBase):
         tblname = '%s_df' %mastertblname
         assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
         model = self.db.model
-        print'  in df 337',pkgname,mastertblname
-        print '\n'.join(model.src['packages.%s.tables' %pkgname].keys())
         mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
         mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')
