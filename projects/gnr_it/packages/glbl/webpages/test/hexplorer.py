@@ -27,7 +27,8 @@ class GnrCustomWebPage(object):
                         
     def test_2_analyze(self,pane):
         """Test hexplorer"""
-        pane.paletteTree('localita',title='!!Localita Geo',searchOn=True,dockTo=False).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
+        pane.paletteTree('localita',title='!!Localita Geo',searchOn=True,
+                            dockTo=False).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
                         group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
                         order_by='@provincia.@regione.ordine,$nome')
          
