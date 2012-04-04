@@ -63,6 +63,8 @@ class TableHandler(BaseComponent):
             top_slots.append('addrow')
         if picker:
             top_slots.append('thpicker')
+        if lockable:
+            top_slots.append('viewlocker')
         top_slots = ','.join(top_slots)
             
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
