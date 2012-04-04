@@ -591,7 +591,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.store.loaded(destPkey,resultDict.loadedRecordNode);
                     }else{
                         that.setCurrentPkey(destPkey);
-                        console.log('fff',destPkey)
                         that.load({'destPkey':destPkey});
                     }
                 };

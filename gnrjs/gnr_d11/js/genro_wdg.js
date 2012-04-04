@@ -504,6 +504,7 @@ dojo.declare("gnr.RowEditor", null, {
     constructor:function(gridEditor,rowNode){
         this.gridEditor = gridEditor;
         this.grid = this.gridEditor.grid;
+        rowNode.attr._pkey = rowNode.attr._pkey || rowNode.label;
         this.rowId = this.grid.rowIdentity(rowNode.attr);
         this._pkey = rowNode.attr._pkey;
         this.original_values = objectUpdate({},rowNode.attr);
@@ -973,7 +974,6 @@ dojo.declare("gnr.GridEditor", null, {
     },
     
     startEdit:function(row, col) {
-        console.log('startEdit')
         var grid = this.grid;
         var cell = grid.getCell(col);
         var colname = cell.field;
