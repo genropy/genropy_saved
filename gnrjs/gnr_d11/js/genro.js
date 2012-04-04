@@ -588,7 +588,7 @@ dojo.declare('gnr.GenroClient', null, {
                 divclass = v ? trueclass:falseclass;
             }
             
-            divclass = divclass ? 'class="' + divclass + '"' : '';
+            divclass = (divclass&&!divcontent) ? 'class="' + divclass + '"' : '';
             var event_attrs = '';
             var events = objectExtract(f, 'on*', true);
             if (events) {

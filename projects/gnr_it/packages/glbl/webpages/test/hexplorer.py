@@ -29,8 +29,8 @@ class GnrCustomWebPage(object):
         """Test hexplorer"""
         pane.paletteTree('localita',title='!!Localita Geo',searchOn=True,
                             dockTo=False).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
-                        group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
-                        order_by='@provincia.@regione.ordine,$nome')
+                        group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome','$nome'],
+                        order_by='@provincia.@regione.ordine,$nome',_onStart=True)
          
     def iniziale(self,value):
         return value['nome'][0]

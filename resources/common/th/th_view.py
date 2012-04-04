@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -80,7 +80,7 @@ class TableHandlerView(BaseComponent):
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
         return frame
         
     @struct_method
@@ -262,7 +262,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None):
+                        virtualStore=None,condition=None,unlinkdict=None,title=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -276,7 +276,11 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=th_root)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.dataFormula('.title','view_title || name_plural || name_long',name_plural='=.table?name_plural',name_long='=.table?name_long',view_title='=.title',_init=True)
+        frame.dataFormula('.title','custom_title || view_title || name_plural || name_long',
+                        custom_title=title or False,
+                        name_plural='=.table?name_plural',
+                        name_long='=.table?name_long',
+                        view_title='=.title',_init=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
