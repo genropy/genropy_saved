@@ -107,6 +107,15 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
         return this;
     },
+    isChildOf:function(bagOrNode){
+        var node = bagOrNode instanceof gnr.GnrBagNode? bagOrNode:bagOrNode.getParentNode();
+        var curr = this;
+        do{
+            var parentNode = curr.getParentNode();
+            curr=parentNode;
+        }while(parentNode  && parentNode !== node)
+        return parentNode!=null;
+    },
 
     /**
      * @id setParentBag

@@ -858,11 +858,22 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         return changekey.replace(/[\.\?]/g, '_');
     },
-    updateInvalidField:function(sourceNode, changekey) {
+    isNodeInFormData:function(datanode){
+        if(!datanode){
+            return false;
+        }
+        var res =  datanode.isChildOf(this.getFormData());
+        return res;
+    },
+    updateInvalidField:function(sourceNode, changepath) {
+        var changeDataNode = genro.getDataNode(changepath);
+        if(!this.isNodeInFormData(changeDataNode)){
+            return;
+        }
         if (sourceNode == true) {
             return;
         }
-        changekey = this.getChangeKey(changekey);
+        var changekey = this.getChangeKey(changepath);
         if (changekey.indexOf('emptypath') >= 0) {
             return; // PROVVISORIO per includedview con form
         }

@@ -132,7 +132,7 @@ class DynamicForm(BaseComponent):
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)
-        bar = th.view.top.bar.replaceSlots('count,*','*,fbfields')
+        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,*,delrow')
         fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
         fb.numberSpinner(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th

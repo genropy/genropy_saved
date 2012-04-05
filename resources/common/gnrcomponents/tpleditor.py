@@ -289,7 +289,7 @@ class PaletteTemplateEditor(TemplateEditor):
                                     width='750px',height='500px',**kwargs)
         sc = palette.templateEditor(maintable=maintable)
         infobar = sc.info.top.bar
-        infobar.replaceSlots('#','#,menutemplates,savetpl,deltpl,5')
+        infobar.replaceSlots('#','#,menutemplates,deltpl,savetpl,5')
         infobar.deltpl.slotButton('!!Delete current',iconClass='iconbox trash',
                                 action='FIRE .deleteCurrent',disabled='^.currentTemplate.pkey?=!#v')
         infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onStart=True)
@@ -300,6 +300,18 @@ class PaletteTemplateEditor(TemplateEditor):
                           SET .currentTemplate.path = $1.fullpath;""",_class='smallmenu')
         infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
                                 disabled='^.data.content?=!#v')
+        
+        editbar = sc.edit.top.bar
+        editbar.replaceSlots('#','#,savetpl,5')
+        editbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+                                disabled='^.data.content?=!#v')
+        
+        previewbar = sc.preview.top.bar
+        previewbar.replaceSlots('#','#,savetpl,5')
+        previewbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+                                disabled='^.data.content?=!#v')
+        
+        
         infobar.dataController("""
             var editorbag = this.getRelativeData();
             if(tplpath=='__newtpl__'){
@@ -380,68 +392,27 @@ class PaletteTemplateEditor(TemplateEditor):
         return record
         
 class ChunkEditor(PaletteTemplateEditor):
-    def ____onMain_te_chunkEditor(self):
-        if not 'chunkpalette_opener' in self._register_nodeId and self.isDeveloper():
-            page = self.pageSource()
-            palette = page.palettePane(paletteCode='chunkeditor',
-                                        title='^.chunkeditor.caption',
-                                        dockTo='dummyDock',
-                                        width='750px',height='500px')
-            page.dataController("""
-            palette.setRelativeData('.table',table);
-            var wdg = palette.getParentNode().widget;
-            wdg.show();
-            wdg.bringToTop();
-            var finalize = function(tpldata){
-                palette.setRelativeData('.data',(tpldata || new gnr.GnrBag()).deepCopy());
-            };
-            if(template==null || template instanceof gnr.GnrBag){
-               finalize(template);
-            }else{
-                palette.setRelativeData('.resource',template);
-                genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
-                    var respath = result.attr?result.attr.respath:'';
-                    finalize(result._value);
-                    if(respath.indexOf('_custom')>=0){
-                        palette.setRelativeData('.data.metadata.custom',true);
-                    }
-                },null,'POST');                
-            }                            
-           palette.onSavedTemplate = function(data){
-                callerNode.publish('changed_template',data);
-           }
-           
-           
-            """,subscribe_open_chunkpalette=True,nodeId='chunkpalette_opener',
-                                   palette=palette,_anchor=True)
-            page.dataController("""
-            var table = palette.getRelativeData('.table');
-            var filename = palette.getRelativeData('.resource');
-            var data = palette.getRelativeData('.data');
-            palette.onSavedTemplate(data);
-            
-            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){},null,'POST');
-            """,subscribe_save_chunkpalette=True,palette=palette)
-            palette.remote(self.te_chunkEditorPane)
-    
     @public_method
     def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,**kwargs):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table)
-        infobar = sc.info.top.bar
-        infobar.replaceSlots('#','#,customres,savetpl,5')
+        bar = sc.info.top.bar
+        bar.replaceSlots('#','#,customres,savetpl,5')
         if resource_mode:
-            infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
+            bar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
         else:
-            infobar.customres.div()
-        infobar.savetpl.slotButton('!!Save',action="""
-                                                    var result = genro.serverCall('te_compileTemplate',{table:table,datacontent:dc,varsbag:vb,parametersbag:pb},null,null,'POST');
-                                                    data.setItem('compiled',result.getItem('compiled'));
-                                                    genro.nodeById(paletteId).publish("savechunk");""",
-                                    iconClass='iconbox save',paletteId=paletteId,table=table,dc='=.data.content',
-                                    vb='=.data.varsbag',pb='=.data.parametersbag',data='=.data')
-        self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
-        self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=table)
+            bar.customres.div()
+        self._te_saveButton(bar.savetpl,table,paletteId)
+        frameEdit = sc.framePane(title='!!Edit',pageName='edit',childname='edit')
+        self._te_frameEdit(frameEdit)
+        bar = frameEdit.top.bar
+        bar.replaceSlots('#','#,savetpl,5')
+        self._te_saveButton(bar.savetpl,table,paletteId)
+        framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
+        self._te_framePreview(framePreview,table=table)
+        bar = framePreview.top.bar
+        bar.replaceSlots('#','#,savetpl,5')
+        self._te_saveButton(bar.savetpl,table,paletteId)
         
     def _te_frameChunkInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
@@ -449,7 +420,12 @@ class ChunkEditor(PaletteTemplateEditor):
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
         
+    def _te_saveButton(self,pane,table,paletteId):
+        pane.slotButton('!!Save',action="""var result = genro.serverCall('te_compileTemplate',{table:table,datacontent:dc,varsbag:vb,parametersbag:pb},null,null,'POST');
+                                    data.setItem('compiled',result.getItem('compiled'));
+                                    genro.nodeById(paletteId).publish("savechunk");""",
+                            iconClass='iconbox save',paletteId=paletteId,table=table,dc='=.data.content',
+                            vb='=.data.varsbag',pb='=.data.parametersbag',data='=.data')
         
-        
-        
+    
         

@@ -337,7 +337,7 @@ class DynamicFieldsTable(TableBase):
         mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')
         mastertbl_multidb = mastertbl.attributes.get('multidb')
-        mastertbl.column('df_fbcolumns','L',group='_')
+        mastertbl.column('df_fbcolumns','L',group='_',default=1)
         tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
