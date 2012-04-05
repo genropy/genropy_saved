@@ -193,8 +193,10 @@ class DynamicForm(BaseComponent):
                 labels= attr.pop('labels')
                 b = fb.div(lbl_vertical_align='top',width='100%',height='60px',lbl=attr.pop('lbl'),border='1px solid silver',rounded=4,**attr)
                 subfb = b.tooltipPane().formbuilder(cols=1, border_spacing='2px')
-                subfb.checkboxtext(labels=labels,value=value)
-                b.div(value)
+                if '\n' in labels:
+                    separator = '\n'
+                subfb.checkboxtext(labels=labels,value=value,separator=separator)
+                b.div(innerHTML=value)
  
             else:
                 self._df_handleFieldFormula(attr,fb=fb,fields=fields)

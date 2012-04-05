@@ -11,7 +11,14 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
-    def test_0_firsttest(self,pane):
+    def test_0_mode_values(self,pane):
         """First test description"""
-        pane.checkBoxText('foo,bar,span',value='^.pluto',separator=' -     ')
+        pane.checkBoxText('Foo,Bar,Span',value='^.pluto',separator=' -     ')
         pane.textbox(value='^.pluto')
+    
+    def test_1_mode_codes(self,pane):
+        """First test description"""
+        pane.checkBoxText('foo:Foo,bar:Bar,span:Span',value='^.pluto',separator=' -     ')
+        pane.textbox(value='^.pluto')
+        pane.textbox(value='^.pluto?value_caption')
+

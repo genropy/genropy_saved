@@ -1433,7 +1433,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkboxtext(self, labels, value=None, separator=',', **kwargs):
+    def checkboxtext(self, values, value=None, separator=',',codeSeparator=None,**kwargs):
         """A group of checkboxes that allow to compose a string with checkbox labels.
                 
         :param labels: a string separated by comma set of words. For every words there will be
@@ -1441,25 +1441,41 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param value: the path of the checkboxtext value
         :param separator: the characters that separate the checkbox text
         """
-        labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
+        
+        if ':' in values:
+            codeSeparator = ':'
+        values = gnrstring.splitAndStrip(values.replace('\n',','),',')
+        
+        
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
-                    var separator = actionNode.attr._separator;
-                    var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
+                    var i = 0;
+                    var labels = [];
+                    var codes = [];
+                    var rows = actionNode.getValue().getItem('#0');
+                    var has_codes = false;
+                    rows.forEach(function(n){
+                        var cbNode = n.getValue().getNode('#1.#0');
+                        if(cbNode.attr._code){
+                            has_codes=true;
+                        }
+                        if(cbNode.widget.checked){
+                            if(cbNode.attr._code){
+                                codes.push(cbNode.attr._code);
+                            }
+                            labels.push(cbNode.attr.label)
+                        }
+                    });
+
                     var textvaluepath = actionNode.attr._textvalue;
-                    var values = textvalue?textvalue.split(separator):[];
-                    var k = dojo.indexOf(values,$1.label);
-                    var v;
-                    if(k<0){
-                        values.push($1.label);
-                        v = true;
+                    var separator = actionNode.attr._separator;
+                    if(has_codes){
+                        actionNode.setRelativeData(textvaluepath,codes.join(','),{value_caption:labels.join(separator)},null,'cbgroup');
                     }else{
-                        values.splice(k,1);
-                        v=false;
+                        actionNode.setRelativeData(textvaluepath,labels.join(separator),null,null,'cbgroup');
                     }
-                    this.setAttribute('checked',v);
-                    actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
                 """
-        fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
+        fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,
+                            _separator=separator,**kwargs)
         self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
                                 var values = textvalue? textvalue.split(separator):[];
                                 var that = this;
@@ -1476,8 +1492,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                     }
                                 });
                             """,textvalue=value,separator=separator,fb=fb)
-        for label in labels:
-            fb.checkbox(label,_cbgroup=True)
+        for label in values:
+            code =None
+            if codeSeparator:
+                code,label = label.split(codeSeparator)
+            fb.checkbox(label,_cbgroup=True,_code=code)
                 
     def _fieldDecode(self, fld, **kwargs):
         parentfb = self.parentfb
