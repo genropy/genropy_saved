@@ -115,6 +115,30 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
         return newFunc
     return decore
 
+
+def customizable(oncalling=False,oncalled=True):
+    """if methods==='foo':
+            search: foo_oncalling_xyz
+                     foo_oncalled_xyz"""
+    def customize(page,name,*args,**kwargs):
+        for k in dir(page):
+            if k.startswith(name):
+                getattr(page,k)(*args,**kwargs)
+
+    def decore(func):
+        def newFunc(page,*args,**kwargs):
+            if oncalling:
+                _oncalling = '%s_oncalling_' %func.__name__ if oncalling is True else oncalling
+                customize(page,_oncalling,*args,**kwargs)
+            result = func(page,*args,**kwargs)
+            if oncalled:
+                _oncalled = '%s_oncalled_' %func.__name__ if oncalled is True else oncalled
+                kwargs['_original_result'] = result
+                customize(page,_oncalled,*args,**kwargs)
+            return result
+        return newFunc
+    return decore
+
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted

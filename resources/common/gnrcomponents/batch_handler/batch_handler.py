@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,customizable
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 
@@ -61,6 +61,13 @@ class TableScriptHandler(BaseComponent):
                 if url:
                     pane.dataController('genro.dom.loadJs(url)', url=url,_onBuilt=True)
             
+    def table_script_plan(self,bar,plan_tag='admin',**kwargs):
+        if self.application.checkResourcePermission(plan_tag,self.userTags):
+            bar.replaceSlots('#','planbtn,#')
+            bar.planbtn.slotButton('Plan')
+            #if hasattr(self,'zumZum'):
+            #    print bazinga
+    
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, 
                             extra_parameters=None,selectedRowidx=None,selectionName=None,
@@ -80,8 +87,13 @@ class TableScriptHandler(BaseComponent):
         self.current_batch = res_obj
         self.mixin(res_obj, methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj, 'batch_')
+        batch_dict['record_count'] = count
         batch_dict['resource_name'] = resource
         batch_dict['res_type'] = res_type
+        self.table_script_dialogs(pane,batch_dict=batch_dict,extra_parameters=extra_parameters)
+        
+    @customizable()
+    def table_script_dialogs(self,pane,batch_dict=None,extra_parameters=None):
         pane.data('.batch', batch_dict)
         pane.data('#table_script_runner.data',Bag())
         pane.data('#table_script_runner.dialog_pars',Bag())
@@ -89,24 +101,25 @@ class TableScriptHandler(BaseComponent):
 
         hasParameters = hasattr(self, 'table_script_parameters_pane')
         hasOptions = hasattr(self, 'table_script_option_pane')
-        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative')
-        dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options',position='relative')
+        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative',childname='parametersDialog')
+        dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options',position='relative',childname='optionsDialog')
         pane = pane.div(datapath='#table_script_runner')
         if hasParameters:
             parsbox = dlgpars.div(datapath='#table_script_runner.data',
-                            min_width='300px',min_height='150px')
+                            min_width='300px',min_height='150px',childname='contentNode')
             if batch_dict.get('title'):
-                dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],count),_onBuilt=True)
-            self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,record_count=count,**batch_dict)
-            self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0),**batch_dict)    
+                dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],batch_dict.get('record_count')),_onBuilt=True)
+            self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,**batch_dict)
+            footer = self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict)    
             dlgpars.dataController("dlgoptions.show();",confirm="^.confirm",dlg=dlgpars.js_widget,
                                     dlgoptions=dlgoptions.js_widget,
                                     hasOptions=hasOptions,_if='hasOptions&&confirm==true',
                                     _else='FIRE #table_script_runner.confirm;')  
             dlgpars.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgpars.js_widget)  
         if hasOptions:
-            self.table_script_option_pane(dlgoptions.div(datapath='#table_script_runner.data.batch_options'), resource=resource,**batch_dict)
-            self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0),**batch_dict)    
+            self.table_script_option_pane(dlgoptions.div(datapath='#table_script_runner.data.batch_options',childname='contentNode'),**batch_dict)
+            footer = self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict) 
+            
             dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
             dlgoptions.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgoptions.js_widget)  
         pane.dataController("""

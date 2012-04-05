@@ -195,7 +195,8 @@ class BaseResourcePrint(BaseResourceBatch):
         bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
         bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Print', action='FIRE .confirm;')
-    
+        return bar
+
     def table_script_parameters_footer(self,pane, immediate=None,**kwargs):
         if immediate:
             bar = pane.slotBar('*,cancelbtn,3,downloadbtn,3,printbtn,3',_class='slotbar_dialog_footer')
@@ -212,4 +213,4 @@ class BaseResourcePrint(BaseResourceBatch):
             bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
             bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
             bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
-
+        return bar

@@ -210,9 +210,11 @@ class BaseResourceBatch(object):
         bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
         bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
-
+        return bar
+        
     def table_script_option_footer(self,pane,**kwargs):
         bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
         bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
+        return bar
         
