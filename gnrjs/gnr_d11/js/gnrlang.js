@@ -164,8 +164,7 @@ function stringCapitalize(str) {
         return a.charAt(0).toUpperCase() + a.substr(1);
 
     });
-}
-;
+};
 
 function dataTemplate(str, data, path, showAlways) {
     var defaults = {};
@@ -291,6 +290,15 @@ function argumentsReplace(s) {
         return "arguments[" + (parseInt(n) - 1) + "]";
     });
 }
+
+function keyName(keyCode){
+    var dk = dojo.keys;
+    for(var keyName in dk){
+        if(dk[keyName]==keyCode){
+            return keyName;
+        }
+    }
+};
 
 function bagPathJoin(path1, path2) {
     var path1 = path1.split('.');

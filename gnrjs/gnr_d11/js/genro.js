@@ -159,9 +159,15 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     bp:function(aux) {
-        console.log('bp ' + aux);
+        console.log('bp ',arguments);
         if (aux===true){
             debugger;
+        }
+    },
+    
+    debugEvent:function(e,sourceNode,evt_type) {
+        if(!evt_type||(evt_type==e.type)){
+            console.log('debugEvent ',e.keyCode,keyName(e.keyCode),e.type);
         }
     },
     onWindowUnload:function(e) {
