@@ -805,7 +805,7 @@ class GnrWebPage(GnrBaseWebPage):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param subscribe: boolean. TODO"""
-        with self.pageStore() as store:
+        with self.pageStore(page_id=self.page_id) as store:
             subscribed_tables = store.register_item['subscribed_tables']
             if subscribe:
                 if not table in subscribed_tables:
