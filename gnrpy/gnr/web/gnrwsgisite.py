@@ -942,6 +942,7 @@ class GnrWsgiSite(object):
                 subscribers = self.register.pages(index_name=table)
                 if page and subscribers:
                     for page_id in subscribers.keys():
+                        print table,page_id
                         page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
                                             attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
                                             page_id=page_id,public=True)

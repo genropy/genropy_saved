@@ -22,3 +22,8 @@ class GnrCustomWebPage(object):
         pane.textbox(value='^.pluto')
         pane.textbox(value='^.pluto?value_caption')
 
+    def test_2_mode_numbcode(self,pane):
+        """First test description"""
+        pane.checkBoxText('0:Foo,1:Bar,2:Span',value='^.pluto',separator=' -     ')
+        pane.textbox(value='^.pluto')
+        pane.textbox(value='^.pluto?value_caption')

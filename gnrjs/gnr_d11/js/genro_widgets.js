@@ -2666,7 +2666,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(typeof(cell.values)=='string' && cell.values.indexOf(':')>=0){
                 var valuesdict = objectFromString(cell.values);
                 cell._customGetter = function(rowdata,idx){
-                    return valuesdict[rowdata[this.field_getter]];
+                    var currvalue = rowdata[this.field_getter];
+                    if(currvalue){
+                        var valuetoset = [];
+                        currvalue = currvalue.split(',');
+                        dojo.forEach(currvalue,function(n){
+                            valuetoset.push(valuesdict[n]);
+                        });
+                        return valuetoset.join(',');
+                    }
+                    return currvalue;  
                 };
             }
             cell.field = cell.field.replace(/\W/g, '_');

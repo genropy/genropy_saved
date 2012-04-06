@@ -746,6 +746,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     __mixin_path = getattr(source_class, '__mixin_path', None)
     for name in mlist:
         original = target_class.__dict__.get(name)
+        
         base_generator = base_visitor(source_class)
         new = None
         found = False
@@ -758,9 +759,13 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             new.proxy_name = proxy
             new.__mixin_pkg = __mixin_pkg
             new.__mixin_path = __mixin_path
-        setattr(target_class, name, new)
-        if original:
-            setattr(target_class, '%s_' % name, original)
+        if getattr(new,'mixin_as',None):
+            mixin_as = new.mixin_as.replace('#',str(id(source_class)))
+            setattr(target_class, new.mixin_as, new)
+        else:
+            setattr(target_class, name, new)
+            if original:
+                setattr(target_class, '%s_' % name, original)
     if hasattr(source_class, '__on_class_mixin__'):
         source_class.__on_class_mixin__(target_class, **kwargs)
         

@@ -75,7 +75,8 @@ class TableScriptHandler(BaseComponent):
         if not resource:
             return
         resource = resource.replace('.py', '')
-        res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
+        resource_path = '%s/%s' % (res_type, resource)
+        res_obj = self.site.loadTableScript(self, table, resource_path, class_name='Main')
         self._table_script_imports(pane,res_obj)
         if selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
@@ -89,10 +90,12 @@ class TableScriptHandler(BaseComponent):
         batch_dict = objectExtract(res_obj, 'batch_')
         batch_dict['record_count'] = count
         batch_dict['resource_name'] = resource
+        batch_dict['resource_path'] = resource_path
         batch_dict['res_type'] = res_type
+        batch_dict['table'] = table
         self.table_script_dialogs(pane,batch_dict=batch_dict,extra_parameters=extra_parameters)
         
-    @customizable()
+    @customizable
     def table_script_dialogs(self,pane,batch_dict=None,extra_parameters=None):
         pane.data('.batch', batch_dict)
         pane.data('#table_script_runner.data',Bag())
@@ -151,7 +154,6 @@ class TableScriptHandler(BaseComponent):
             dlgpars=dlgpars.js_widget,
             dlgoptions=dlgoptions.js_widget,
             hasParameters=hasParameters,hasOptions=hasOptions)
-
 
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,

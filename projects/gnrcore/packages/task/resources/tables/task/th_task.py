@@ -10,16 +10,15 @@ from gnr.core.gnrdecorator import public_method
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('task_name',width='6em') # char(4)
-        r.fieldcell('table_name',width='6em')
-        r.fieldcell('command',width='6em')
-        r.fieldcell('month',width='4em')
-        r.fieldcell('day',width='4em')
-        r.fieldcell('weekday',width='4em')
-        r.fieldcell('hour',width='4em')
-        r.fieldcell('minute',width='4em')
-        r.fieldcell('parameters',width='4em') # date
-        r.fieldcell('last_execution',width='4em')
+        r.fieldcell('task_name',width='10em') # char(4)
+        r.fieldcell('table_name',width='10em')
+        r.fieldcell('command',width='15em')
+        r.fieldcell('month',width='20em')
+        r.fieldcell('day',width='15em')
+        r.fieldcell('weekday',width='20em')
+        r.fieldcell('hour',width='12em')
+        r.fieldcell('minute',width='12em')
+        r.fieldcell('last_execution',width='14em')
 
     def th_order(self):
         return 'task_name'
@@ -28,21 +27,41 @@ class View(BaseComponent):
         return dict(column='task_name',op='contains', val='%',runOnStart=True)
 
     def th_options(self):
-        return dict(widget='dialog',dialog_height='360px',dialog_width='600px',dialog_title='Task')
+        return dict(widget='dialog')
 
-        
 class Form(BaseComponent):
-    
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2,border_spacing='4px',margin_top='10px')
+        bc = form.center.borderContainer(datapath='.record')
+        top = bc.contentPane(region='top')
+        fb = top.div(margin_right='10px').formbuilder(cols=2,border_spacing='4px',margin_top='3px',fld_width='100%',width='100%',lbl_width='5em')
         fb.field('task_name')
         fb.field('table_name')
-        fb.field('command')
-        fb.field('month')
-        fb.field('day')
-        fb.field('weekday')
-        fb.field('hour')
-        fb.field('minute')
+        fb.field('command',colspan='2')
+        fb.field('date_start')
+        fb.field('date_end')
+        rpane = fb.div(lbl='!!Rules',colspan=2,_class='pbl_roundedGroup',padding='3px',padding_top='0')
+        self.task_params(rpane)
+    
+    def task_params(self,pane):
+        fb = pane.formbuilder(cols=1, border_spacing='3px',lblpos='T',lblalign='left',
+                            fldalign='left',lbl_font_size='.9em',lbl_font_weight='bold')
+        fb.div(rounded=4,background='white',padding='3px',
+            shadow='1px 1px 2px #666 inset',lbl='!!Month').field('month',tag='checkboxtext',cols=6,border_spacing='2px')
+        fb.div(rounded=4,background='white',padding='3px',
+            shadow='1px 1px 2px #666 inset',lbl='!!Day').field('day',tag='checkboxtext',cols=10,border_spacing='2px')
+        fb.div(rounded=4,background='white',padding='3px',
+            shadow='1px 1px 2px #666 inset',lbl='!!Weekday').field('weekday',tag='checkboxtext',cols=7,border_spacing='2px')
+        fb.div(rounded=4,background='white',padding='3px',
+            shadow='1px 1px 2px #666 inset',lbl='!!Hour').field('hour',tag='checkboxtext',cols=12,border_spacing='2px')
+        fb.div(rounded=4,background='white',padding='3px',
+            shadow='1px 1px 2px #666 inset',lbl='!!Minute').field('minute',tag='checkboxtext',cols=10,border_spacing='2px')
         
+    def th_options(self):
+        return dict(dialog_height='510px',dialog_width='600px',modal=True)
+        
+        
+class FormFromTableScript(Form):
+    def th_form(self,form):
+        pass
+
         

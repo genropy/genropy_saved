@@ -1444,22 +1444,24 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         if ':' in values:
             codeSeparator = ':'
-        values = gnrstring.splitAndStrip(values.replace('\n',','),',')
-        
-        
+        values = gnrstring.splitAndStrip(values.replace('\n',','),',')        
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var i = 0;
                     var labels = [];
                     var codes = [];
                     var rows = actionNode.getValue().getItem('#0');
+                    var sourceNodes = dojo.query('.dijitCheckBoxInput',actionNode.domNode).map(function(n){
+                        return dijit.getEnclosingWidget(n).sourceNode
+                    });
+                    
                     var has_codes = false;
-                    rows.forEach(function(n){
-                        var cbNode = n.getValue().getNode('#1.#0');
-                        if(cbNode.attr._code){
+                    genro.bp();
+                    dojo.forEach(sourceNodes,function(cbNode){
+                        if(cbNode.attr._code!=null){
                             has_codes=true;
                         }
                         if(cbNode.widget.checked){
-                            if(cbNode.attr._code){
+                            if(cbNode.attr._code!=null){
                                 codes.push(cbNode.attr._code);
                             }
                             labels.push(cbNode.attr.label)
@@ -1477,21 +1479,38 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,
                             _separator=separator,**kwargs)
         self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
-                                var values = textvalue? textvalue.split(separator):[];
+                                var values = [];
+                                var labels = [];
+                                if(textvalue){
+                                    if(codeSeparator){
+                                        values = textvalue.split(',');
+                                    }else{
+                                        values = textvalue.split(separator);
+                                    }
+                                }
                                 var that = this;
                                 var label;
                                 var srcbag = fb._value;
                                 srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setAttribute('checked',false)}});
                                 var node;
                                 dojo.forEach(values,function(n){
-                                    node = srcbag.getNodeByAttr('label',n)
+                                    if(codeSeparator){
+                                        node = srcbag.getNodeByAttr('_code',n);
+                                        labels.push(node.attr.label);
+                                    }else{
+                                        node = srcbag.getNodeByAttr('label',n);
+                                    }
+                                    console.log(node);
                                     if(node){
                                         node.widget.setAttribute('checked',true);
                                     }else{
                                         console.log('removed value  >'+n+'< from options');
                                     }
                                 });
-                            """,textvalue=value,separator=separator,fb=fb)
+                                if(codeSeparator){
+                                    _node.updAttributes({value_caption:labels.join(separator)},'cbgroup')
+                                }
+                            """,textvalue=value,separator=separator,codeSeparator=codeSeparator or False,fb=fb)
         for label in values:
             code =None
             if codeSeparator:
