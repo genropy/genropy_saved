@@ -161,20 +161,24 @@ class HTableHandlerBase(BaseComponent):
         
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
-                        storename=None,rootcaption=None,**kwargs):
+                        storename=None,rootcaption=None,rootcode=None,rootpkey=None,rootpath=None,**kwargs):
+        rootcode = rootcode or ROOTCODE
+        rootpkey = rootpkey or ROOTCODE
         if '@' in table:
             pkg, related_table, relation_path = table.split('.')
             related_table = '%s.%s' % (pkg, related_table)
             related_table_obj = self.db.table(related_table)
             table = related_table_obj.column(relation_path).parent.fullname
         tblobj = self.db.table(table)            
+        
         data = self.ht_treeDataStore(table=table,
                                      related_table=related_table,
                                      relation_path=relation_path,
                                      rootcaption=rootcaption or tblobj.name_plural, 
-                                     storename=storename,**kwargs)
-        pane.data(storepath, data)
-        
+                                     storename=storename,
+                                     rootcode=rootcode,rootpkey=rootpkey,
+                                     **kwargs)
+        pane.data(storepath, data,rootpath=rootpath)
     
     @public_method
     def ht_remoteTreeData(self, *args,**kwargs):
@@ -306,7 +310,7 @@ class HTableHandler(HTableHandlerBase):
                                   _if='parentLock!=isLocked', datapath=datapath)
                                   
         formPanePars = dict(selectedPage='^.edit.selectedPage')
-        
+        commonTop=None
         if plainView:
             tc = parent.tabContainer(nodeId='%s_tc' % nodeId, region='center')
             parent = tc.contentPane(title='!!Hierarchical')
@@ -334,6 +338,7 @@ class HTableHandler(HTableHandlerBase):
                                               _class='pbl_roundedGroup')
             formBC = self.simpleDialog(treepane, dlgId='%s_dlg' % nodeId, **dialogPars)
             formPanePars['region'] = 'center'
+            
             
             #recordlabel = formBC.contentPane(region='top',_class='pbl_roundedGroupLabel')
             #recordlabel.div('^.edit.record?caption')
@@ -719,11 +724,23 @@ class HTableHandler(HTableHandlerBase):
             connect_ondblclick = 'SET .selectedPage = "edit";'
         elif editMode == 'dlg':
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
-        
-        dragCode = '%s_record' %table.replace('.','_')
+        tree = center.hTableTree(storepath='.tree.store',nodeId='%s_tree' %nodeId,table=table,onChecked=onChecked,
+                                connect_ondblclick=connect_ondblclick)
+        treeattr = tree.attributes
         moverCode = 'mover_%s' %table.replace('.','_')
-
-        tree = center.tree(storepath='.tree.store',nodeId='%s_tree' %nodeId, 
+        treeattr['onDrop_%s' %moverCode] = """genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"""   
+        bar = frame.top.slotToolbar('2,tblname,*',height='20px')
+        bar.tblname.div(tblobj.name_long)
+        if picker:
+            bar.replaceSlots('#','#,picker')
+            bar.picker.htableTypePicker(picker)
+        
+    @struct_method
+    def ht_hTableTree(self,pane,nodeId=None,storepath=None,table=None,dragCode=None,**kwargs):
+        tablecode = table.replace('.','_')
+        nodeId = nodeId or '%s_tree' %tablecode
+        dragCode = dragCode or '%s_record' %tablecode
+        tree = pane.tree(nodeId=nodeId,storepath=storepath,
                     margin='10px', isTree=False, hideValues=True,
                     inspect='shift', labelAttribute='caption',
                     selected_pkey='.tree.pkey', selectedPath='.tree.path',
@@ -733,11 +750,9 @@ class HTableHandler(HTableHandlerBase):
                     selected_caption='.tree.caption',
                     selected_child_count='.tree.child_count',
                     identifier='pkey',
-                    connect_ondblclick=connect_ondblclick,
-                    onChecked=onChecked,dragTags=dragCode,
+                    dragTags=dragCode,
                     dropTags='%s,mover' %dragCode,
-                    dropTypes='nodeattr',
-                     draggable=True,
+                    dropTypes='nodeattr',draggable=True,
                      onDrag="""dragValues['dbrecords'] = {table:'%s',code:treeItem.attr['code']||'*',objtype:'record'}; """ %table,
                      onDrop="""if(dropInfo.dragSourceInfo.nodeId!=dropInfo.sourceNode.attr.nodeId){
                                     return;
@@ -765,19 +780,9 @@ class HTableHandler(HTableHandlerBase):
                                         return false;
                                     }
                                     return true;
-                                    """)
-                                    
-        treeattr = tree.attributes
-        treeattr['onDrop_%s' %moverCode] = """genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"""
-        
-        
-        
-        bar = frame.top.slotToolbar('2,tblname,*',height='20px')
-        bar.tblname.div(tblobj.name_long)
-        if picker:
-            bar.replaceSlots('#','#,picker')
-            bar.picker.htableTypePicker(picker)
-        center.onDbChanges(action="""var selectedNode = treeNode.widget.currentSelectedNode
+                                    """,**kwargs)     
+        pane.onDbChanges(action="""var selectedNode = treeNode.widget.currentSelectedNode;
+                                   genro.bp();
                                     var selectedPkey = selectedNode? selectedNode.item.attr.pkey:'';       
                                     var selectedCode =null;                             
                                     var refreshDict = {};
@@ -821,7 +826,8 @@ class HTableHandler(HTableHandlerBase):
                                             treeNode.widget.setSelectedPath(null,{value:'_root_.'+selectedCode});
                                          }
                                      }
-                                     """,table=table,store='=.tree.store',treeNode=tree,ROOTCODE=ROOTCODE)
+                                     """,table=table,store='=%s' %storepath,treeNode=tree,ROOTCODE=ROOTCODE)
+        return tree
 
                                     
 class HTablePicker(HTableHandlerBase):

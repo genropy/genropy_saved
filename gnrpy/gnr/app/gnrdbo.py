@@ -118,7 +118,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
-                  counter=False,
+                  counter=False,hierarchical=False,
                   group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -159,6 +159,14 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group='_')
+        if hierarchical:
+            assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
+            counter = 'parent_id'
+            tblname = tbl.parentNode.label
+            tbl.column('parent_id',size='22',name_long='!!Parent id').relation('%s.id' %tblname,
+                                                                                mode='foreignkey', onDelete='raise',
+                                                                                relation_name='_children')
+            tbl.formulaColumn('_is_root','$parent_id IS NULL','B',name_long='!!Is a root',group=group)
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
             _counter_fkey=counter,group=group)
