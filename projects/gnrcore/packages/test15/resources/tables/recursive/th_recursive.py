@@ -22,7 +22,6 @@ class View(BaseComponent):
         
 class Form(BaseComponent):
     def th_form(self,form):
-        form.store.handler('load',default__parent_h_description='=#FORM/parent/#FORM.record._h_description')
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2)

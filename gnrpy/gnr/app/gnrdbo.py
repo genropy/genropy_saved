@@ -162,14 +162,15 @@ class TableBase(object):
         if hierarchical:
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
             tblname = tbl.parentNode.label
-            tbl.column('parent_id',size='22',name_long='!!Parent id',onUpdating='hierarchical',
-                                                                                onInserting='hierarchical').relation('%s.id' %tblname,
-                                                                                mode='foreignkey', onDelete='c',
-                                                                                relation_name='_children')
+            tbl.column('parent_id',size='22',name_long='!!Parent id',
+                                             onUpdating='hierarchical_before',
+                                             onUpdated='hierarchical_after',
+                                             onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', onDelete='c',relation_name='_children')
             for fld in hierarchical.split(','):
                 fld_caption=tbl.column(fld).attributes.get('name_long','path')
                 tbl.column('_h_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
-                tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption).relation('%s._h_%s' %(tblname,fld),onUpdate='c')
+                tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
+                #.relation('%s._h_%s' %(tblname,fld),onUpdate='c')
                 
             tbl.attributes['hierarchical'] = hierarchical                                 
            # tbl.formulaColumn('_is_root','$parent_id IS NULL','B',name_long='!!Is a root',group=group)
@@ -197,12 +198,31 @@ class TableBase(object):
             tbl.attributes.update(multidb=multidb)
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
             
-    def trigger_hierarchical(self,record,fldname,**kwargs):
+    def trigger_hierarchical_before(self,record,fldname,**kwargs):
+        parent_id=record.get('parent_id')
+        parent_record=None
         for fld in self.attributes.get('hierarchical').split(','):
             v=record.get(fld) 
-            parent_v=record.get('_parent_h_%s'%fld)
-            record['_h_%s'%fld] = v if parent_v is None else '%s.%s'%( parent_v, v)
+            parent_h_fld='_parent_h_%s'%fld
+            h_fld='_h_%s'%fld
+            parent_v=record.get(parent_h_fld)
+            if parent_id and not parent_v:
+                if not parent_record:
+                    parent_record = self.query(where='$id=:pid',pid=parent_id).fetch()[0]
+                record[parent_h_fld]=parent_v=parent_record[h_fld]
+            record[h_fld] = v if parent_v is None else '%s.%s'%( parent_v, v)
             
+    def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
+        hfields=self.attributes.get('hierarchical').split(',')
+        changed_hfields=[fld for fld in hfields if record.get('_h_%s'%fld) != old_record.get('_h_%s'%fld)]
+        if changed_hfields:
+            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record['id']).fetch()
+            for row in fetch:
+                new_row = dict(row)
+                for fld in changed_hfields:
+                    new_row['_parent_h_%s'%fld]=record['_h_%s'%fld]
+                self.update(new_row, row)
+
     def trigger_setCounter(self,record,fldname,**kwargs):
         fkeyfield = self.column('_row_count').attributes.get('_counter_fkey')
         last_counter = self.readColumns(columns='$%s' %fldname,where='$%s=:fkey' %fkeyfield,
