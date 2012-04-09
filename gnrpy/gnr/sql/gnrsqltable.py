@@ -684,7 +684,29 @@ class SqlTable(GnrObject):
         if isinstance(record, basestring):
             record = self.recordAs(record, 'dict')
         self.db.delete(self, record, **kwargs)
-        
+    
+    def updateRelated(self, record,old_record=None):
+
+        for rel in self.relations_many:
+            onUpdate = rel.getAttr('onUpdate', '').lower()
+            if onUpdate and not (onUpdate in ('i', 'ignore')):
+                mpkg, mtbl, mfld = rel.attr['many_relation'].split('.')
+                opkg, otbl, ofld = rel.attr['one_relation'].split('.')
+                if record.get(ofld) == old_record.get(ofld):
+                    return
+                relatedTable = self.db.table(mtbl, pkg=mpkg)
+                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
+                                         pid=old_record[ofld], for_update=True).fetch()
+                if sel:
+                    if onUpdate in ('r', 'raise'):
+                        raise self.exception('update', record=record, msg='!!Record referenced in table %(reltable)s',
+                                             reltable=relatedTable.fullname)
+                    if onUpdate in ('c', 'cascade'):
+                        for row in sel:
+                            rel_rec = dict(row)
+                            rel_rec[mfld] = record[ofld]
+                            relatedTable.update(rel_rec,old_record=dict(row))    
+                                        
     def deleteRelated(self, record):
         """TODO
         

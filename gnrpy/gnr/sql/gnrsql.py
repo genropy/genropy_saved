@@ -397,7 +397,9 @@ class GnrSqlDb(GnrObject):
         if tblobj.draftField:
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
+        
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
+        tblobj.updateRelated(record,old_record=old_record)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)

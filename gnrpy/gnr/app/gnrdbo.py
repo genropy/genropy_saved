@@ -161,12 +161,19 @@ class TableBase(object):
                        group='_')
         if hierarchical:
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
-            counter = 'parent_id'
             tblname = tbl.parentNode.label
-            tbl.column('parent_id',size='22',name_long='!!Parent id').relation('%s.id' %tblname,
-                                                                                mode='foreignkey', onDelete='raise',
+            tbl.column('parent_id',size='22',name_long='!!Parent id',onUpdating='hierarchical',
+                                                                                onInserting='hierarchical').relation('%s.id' %tblname,
+                                                                                mode='foreignkey', onDelete='c',
                                                                                 relation_name='_children')
-            tbl.formulaColumn('_is_root','$parent_id IS NULL','B',name_long='!!Is a root',group=group)
+            for fld in hierarchical.split(','):
+                fld_caption=tbl.column(fld).attributes.get('name_long','path')
+                tbl.column('_h_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
+                tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption).relation('%s._h_%s' %(tblname,fld),onUpdate='c')
+                
+            tbl.attributes['hierarchical'] = hierarchical                                 
+           # tbl.formulaColumn('_is_root','$parent_id IS NULL','B',name_long='!!Is a root',group=group)
+            
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
             _counter_fkey=counter,group=group)
@@ -189,7 +196,13 @@ class TableBase(object):
         if multidb:
             tbl.attributes.update(multidb=multidb)
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
-    
+            
+    def trigger_hierarchical(self,record,fldname,**kwargs):
+        for fld in self.attributes.get('hierarchical').split(','):
+            v=record.get(fld) 
+            parent_v=record.get('_parent_h_%s'%fld)
+            record['_h_%s'%fld] = v if parent_v is None else '%s.%s'%( parent_v, v)
+            
     def trigger_setCounter(self,record,fldname,**kwargs):
         fkeyfield = self.column('_row_count').attributes.get('_counter_fkey')
         last_counter = self.readColumns(columns='$%s' %fldname,where='$%s=:fkey' %fkeyfield,

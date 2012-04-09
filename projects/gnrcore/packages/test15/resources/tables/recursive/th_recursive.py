@@ -10,17 +10,19 @@ from gnr.web.gnrwebpage import public_method
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('_row_count',hidden=True,counter=True)
-        r.fieldcell('description',name='Description',width='100%')
+        r.fieldcell('description',name='Description',width='15em')
+        r.cell('_parent_h_description',width='30%')
+        r.cell('_h_description',width='100%')
 
     def th_query(self):
-        return dict(column='_is_root',op='istrue',val='',runOnStart=True)
+        return dict(column='description',op='contains',val='',runOnStart=True)
     
     def th_order(self):
-        return '_row_count'
+        return '_h_description'
         
 class Form(BaseComponent):
     def th_form(self,form):
+        form.store.handler('load',default__parent_h_description='=#FORM/parent/#FORM.record._h_description')
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2)
@@ -30,6 +32,6 @@ class Form(BaseComponent):
     @public_method
     def childrenTH(self,pane,parent_id=None,**kwargs):
         pane.dialogTableHandler(relation='@_children',nodeId='%s_children' %id(pane),condition_built='^#FORM.controller.loaded')
-    
+        
     def th_options(self):
         return dict(dialog_height='300px',dialog_width='600px',dialog_stacked=True)
