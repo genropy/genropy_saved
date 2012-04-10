@@ -49,7 +49,19 @@ class Table(object):
             addresslist = self.extractAddresses(record['%s_address' %address_type])
             for address in addresslist:
                 tblmsgaddres.insert(dict(address=address,message_id=message_id,reason=address_type))
-        
+                
+    @public_method
+    def changeMailbox(self,mailbox_id=None,pkeys=None,alias=False):
+        if not alias:
+            self.batchUpdate(updater=dict(mailbox_id=mailbox_id),where='$id IN :pk',pk=pkeys)
+        else:
+            aliastbl = self.db.table('email.message_alias')
+            currAlias = aliastbl.query(where='$mailbox_id=:mailbox_id AND $message_id IN :pkeys',pkeys=pkeys,mailbox_id=mailbox_id).fetchAsDict(key='mailbox_id')
+            for message_id in pkeys:
+                if not message_id in currAlias:
+                    aliastbl.insert(dict(mailbox_id=mailbox_id,message_id=message_id))
+        self.db.commit()
+           
     @public_method
     def receive_imap(self, page=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
         from gnrpkg.email.imap import ImapReceiver

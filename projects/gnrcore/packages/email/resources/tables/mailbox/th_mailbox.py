@@ -9,27 +9,32 @@ from gnr.core.gnrdecorator import public_method
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('code',width='5em')
-        r.fieldcell('direction',width='15em')
-        r.fieldcell('description',width='12em')
-        
+        r.fieldcell('account_id',width='12em')
+        r.fieldcell('name',width='12em')
+        r.fieldcell('user_id',width='12em')
+
     def th_order(self):
         return 'code'
         
     def th_query(self):
-        return dict(column='code',op='contains',val='',runOnStart=True)
+        return dict(column='name',op='contains',val='',runOnStart=True)
         
 class Form(BaseComponent):
     def th_form(self,form):
-        pane = form.record
-        fb = pane.formbuilder(cols=1,border_spacing='4px')
-        fb.field('child_code')
-        fb.field('description')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=1,border_spacing='4px')
+        fb.field('name')
         fb.field('account_id')
-    
-    def th_options(self):
-        return dict(height='130px',width='200px')
+        fb.field('user_id')
+        bc.contentPane(region='center').remote(self.childrenTH,parent_id='=.pkey',_onRemote='FIRE #FORM.controller.loaded;')
         
+    @public_method
+    def childrenTH(self,pane,parent_id=None,**kwargs):
+        pane.dialogTableHandler(relation='@_children',nodeId='%s_children' %id(pane),condition_built='^#FORM.controller.loaded')
+        
+    def th_options(self):
+        return dict(dialog_height='300px',dialog_width='600px',dialog_stacked=True)
+    
     @public_method
     def th_onLoading(self,record,newrecord,loadingParameters,recInfo):
         if newrecord:

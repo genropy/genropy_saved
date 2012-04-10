@@ -30,7 +30,7 @@ class TableScriptRunner(BaseComponent):
         frame = dialog.framePane(height='510px',width='600px')
         th = frame.stackTableHandler(table='task.task',default_command=resource_path,
                                     default_table_name=table,default_user_id=self.avatar.user_id)
-        th.view.store.attributes.update(_fired='^gnr.dialog_scheduler.dlg_show')
+        th.view.store.attributes.update(where='$command=:rpath',rpath=resource_path,_fired='^gnr.dialog_scheduler.dlg_show')
         #frame.bottom.slotBar('*,closebtn',_class='slotbar_dialog_footer')
         return dialog
         

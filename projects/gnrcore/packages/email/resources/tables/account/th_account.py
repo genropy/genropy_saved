@@ -59,9 +59,9 @@ class Form(BaseComponent):
         fb.field('last_uid')
         fb.button('check email', action='PUBLISH check_email')
         fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
-        self.account_messages(bottom)
+        #self.account_messages(bottom)
 
-        #bottom.inlineTableHandler(relation='@account_users',viewResource=':ViewFromAccount',picker='user_id',title='!!Users')
+        bottom.inlineTableHandler(relation='@account_users',viewResource=':ViewFromAccount',picker='user_id',title='!!Users')
         
     def account_messages(self,bottom):
         th = bottom.dialogTableHandler(relation='@messages',

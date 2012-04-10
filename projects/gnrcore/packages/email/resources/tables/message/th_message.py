@@ -52,10 +52,16 @@ class ViewFromDashboard(View):
     
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('send_date',width='7em',dtype='D')
+        r.fieldcell('send_date',width='7em',dtype='DH')
         r.fieldcell('to_address',width='12em')
         r.fieldcell('from_address',width='12em')
         r.fieldcell('subject',width='100%')
+        r.fieldcell('body',hidden=True)
+        r.fieldcell('account_id',hidden=True)
+        r.fieldcell('mailbox_id',hidden=True)
+
+    def th_order(self):
+        return 'send_date desc'
 
 class FormFromDashboard(BaseComponent):
 

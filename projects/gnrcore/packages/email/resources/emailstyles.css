@@ -44,3 +44,8 @@ background-repeat: no-repeat;
     color: #7791AB;
     margin-left:5px;
 }
+
+
+.email_message_alias td{
+    font-style:italic;
+}

@@ -32,6 +32,7 @@ class BaseResourceBatch(object):
         self.records = dict()
         self.result_info = dict()
         self._pkeys = None
+        self.selectedPkeys = None
 
     def __call__(self, batch_note=None, **kwargs):
         parameters = kwargs['parameters']
@@ -166,6 +167,7 @@ class BaseResourceBatch(object):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
+        selection = None
         if hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,

@@ -67,4 +67,4 @@ class Table(object):
     def getMailboxResolver(self, user_id=None,account_id=None,parent_id=None):
         page = self.db.application.site.currentPage
         return MailboxResolver(_page=page,parent_id=parent_id,user_id=user_id,account_id=account_id)
-   
+    
