@@ -4,7 +4,7 @@
 # Created by Francesco Porcari on 2012-04-03.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrwebpage import BaseComponent,GnrMissingResourceException
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
 class THPicker(BaseComponent):
@@ -46,10 +46,10 @@ class THPicker(BaseComponent):
             try:
                 resource = self._th_getResClass(table=table,resourceName=viewResource,defaultClass='ViewPicker')()
                 struct=resource.th_struct
-                sortedBy = getattr(resource,'th_order')
+                sortedBy = getattr(resource,'th_order',None)
                 if sortedBy:
                     sortedBy = sortedBy()
-            except:
+            except GnrMissingResourceException:
                 if tblobj.attributes.get('caption_field'):
                     def struct(struct):
                         r = struct.view().rows()
