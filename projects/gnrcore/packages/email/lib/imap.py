@@ -30,6 +30,7 @@ class ImapReceiver(object):
     def receive(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.imap.login(self.username,self.password)
         self.imap.select(remote_mailbox)
+        mailbox_id = self.db.table('email.mailbox').readColumns(columns='$id',where='$account_id=:a_id AND system_code=:s_code',a_id=self.account_id,s_code='01')
         if self.last_uid:
             searchString = '(UID %s:*)' % self.last_uid
         else:
@@ -39,7 +40,9 @@ class ImapReceiver(object):
         if self.last_uid:
             items = items[1:]
         for emailid in items:
-            self.parseEmail(emailid)
+            msgrec = self.createMessageRecord(emailid)
+            msgrec['mailbox_id'] = mailbox_id
+            self.messages_table.insert(msgrec)
         if items:
             self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
             self.db.commit()
@@ -86,7 +89,7 @@ class ImapReceiver(object):
                                                        autocreate=-1)
         
         
-    def parseEmail(self, emailid):
+    def createMessageRecord(self, emailid):
         new_mail = dict(account_id=self.account_id)
         new_mail['id'] = getUuid()
         new_mail['uid'] = emailid
@@ -110,8 +113,8 @@ class ImapReceiver(object):
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if not new_mail.get('body'):
             new_mail['body'] = new_mail['body_plain']
-        self.messages_table.insert(new_mail)
-
+        
+        return new_mail
             
 if __name__=='__main__':
     pass

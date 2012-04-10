@@ -3,7 +3,8 @@
 class Table(object):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('account', rowcaption='account_name', pkey='id', name_long='!!Account', name_plural='!!Account')
+        tbl =  pkg.table('account', rowcaption='$account_name', caption_field='account_name',
+                            pkey='id', name_long='!!Account', name_plural='!!Account')
         self.sysFields(tbl)
         tbl.column('account_name',size=':30',name_long='!!Account Name')
         tbl.column('address',size=':30',name_long='!!Address')
@@ -17,3 +18,15 @@ class Table(object):
         tbl.column('password',size=':80',name_long='!!Password')
         tbl.column('last_uid',name_long='!!Last UID')
     
+    def standardMailboxes(self):
+        return ('Inbox','Outbox','Draft','Trash')
+        
+    def trigger_onInserted(self, record_data):
+        mboxtbl = self.db.table('email.mailbox')
+        for i,mbox in enumerate(self.standardMailboxes()):
+            mboxtbl.createMbox(mbox,record_data['id'],order=i)
+
+    #def trigger_onUpdated(self, record_data,old_record=None):
+    #    mboxtbl = self.db.table('email.mailbox')
+    #    for mbox in self.standardMailboxes():
+    #        mboxtbl.createMbox(mbox,record_data['id'])

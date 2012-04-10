@@ -162,18 +162,17 @@ class TableBase(object):
         if hierarchical:
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
             tblname = tbl.parentNode.label
+            pkg = tbl.attributes['pkg']
             tbl.column('parent_id',size='22',name_long='!!Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
                                              onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', onDelete='c',relation_name='_children')
+            tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             for fld in hierarchical.split(','):
                 fld_caption=tbl.column(fld).attributes.get('name_long','path')
-                tbl.column('_h_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
+                tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
                 tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
-                #.relation('%s._h_%s' %(tblname,fld),onUpdate='c')
-                
             tbl.attributes['hierarchical'] = hierarchical                                 
-           # tbl.formulaColumn('_is_root','$parent_id IS NULL','B',name_long='!!Is a root',group=group)
             
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
@@ -204,7 +203,7 @@ class TableBase(object):
         for fld in self.attributes.get('hierarchical').split(','):
             v=record.get(fld) 
             parent_h_fld='_parent_h_%s'%fld
-            h_fld='_h_%s'%fld
+            h_fld='hierarchical_%s'%fld
             parent_v=record.get(parent_h_fld)
             if parent_id and not parent_v:
                 if not parent_record:
@@ -214,13 +213,13 @@ class TableBase(object):
             
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')
-        changed_hfields=[fld for fld in hfields if record.get('_h_%s'%fld) != old_record.get('_h_%s'%fld)]
+        changed_hfields=[fld for fld in hfields if record.get('hierarchical_%s'%fld) != old_record.get('hierarchical_%s'%fld)]
         if changed_hfields:
             fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record['id']).fetch()
             for row in fetch:
                 new_row = dict(row)
                 for fld in changed_hfields:
-                    new_row['_parent_h_%s'%fld]=record['_h_%s'%fld]
+                    new_row['_parent_h_%s'%fld]=record['hierarchical_%s'%fld]
                 self.update(new_row, row)
 
     def trigger_setCounter(self,record,fldname,**kwargs):

@@ -5678,9 +5678,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             return;
         }
         var nodeWidget = dijit.getEnclosingWidget(e.target);
-        if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
-            return;
-        }
+       //if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
+       //    return;
+       //}
         if (nodeWidget == nodeWidget.tree.rootNode) {
             return;
         }

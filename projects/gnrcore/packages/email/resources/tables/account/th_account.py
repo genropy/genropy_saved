@@ -30,7 +30,14 @@ class View(BaseComponent):
 
     def th_dialog(self):
         return dict(height='400px',width='600px')
-
+        
+class ViewSmall(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('account_name',width='100%')
+        
+    def th_order(self):
+        return 'account_name'
 
 class Form(BaseComponent):
 
@@ -52,6 +59,11 @@ class Form(BaseComponent):
         fb.field('last_uid')
         fb.button('check email', action='PUBLISH check_email')
         fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
+        self.account_messages(bottom)
+
+        #bottom.inlineTableHandler(relation='@account_users',viewResource=':ViewFromAccount',picker='user_id',title='!!Users')
+        
+    def account_messages(self,bottom):
         th = bottom.dialogTableHandler(relation='@messages',
                                    dialog_height='600px',
                                    dialog_width='800px',

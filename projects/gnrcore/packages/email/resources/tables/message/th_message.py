@@ -47,27 +47,24 @@ class ViewFromMailbox(View):
         r.fieldcell('sent',width='7em')
         r.fieldcell('user_id',width='35em')
         r.fieldcell('account_id',width='35em')
-        
-class Form(BaseComponent):
+
+class ViewFromDashboard(View):
+    
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('send_date',width='7em',dtype='D')
+        r.fieldcell('to_address',width='12em')
+        r.fieldcell('from_address',width='12em')
+        r.fieldcell('subject',width='100%')
+
+class FormFromDashboard(BaseComponent):
 
     def th_form(self, form):
         pane = form.record
-        fb = pane.formbuilder(cols=1,border_spacing='4px')
-        fb.field('to_address')
-        fb.field('from_address')
-        fb.field('cc_address')
-        fb.field('bcc_address')
-        fb.field('uid')
-        fb.field('body')
-        fb.field('body_plain')
-        fb.field('html')
-        fb.field('subject')
-        fb.field('send_date')
-        fb.field('sent')
-        fb.field('user_id')
-        fb.field('account_id')
+        pane.div('^.body')
+    
+    def th_options(self):
+        return dict(showtoolbar=False)
 
-class FormFromMailbox(Form):
-    pass
 
 
