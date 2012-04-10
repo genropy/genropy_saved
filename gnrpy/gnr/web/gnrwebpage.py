@@ -58,7 +58,8 @@ PAGE_REFRESH = 20
     
 class GnrWebPageException(GnrException):
     pass
-    
+class GnrMissingResourceException(GnrException):
+    pass
 class GnrWebPage(GnrBaseWebPage):
     """Standard class for :ref:`webpages <webpage>`
     
@@ -1114,8 +1115,12 @@ class GnrWebPage(GnrBaseWebPage):
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
+            if not m:
+                raise GnrMissingResourceException('Missing resource %(resource_path)s',resource_path=path)
             if classname:
-                return getattr(m,classname)
+                m = getattr(m,classname,None)
+                if not m:
+                    raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m
             
     def importTableResource(self, table, path):
