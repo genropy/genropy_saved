@@ -117,11 +117,11 @@ class DynamicForm(BaseComponent):
     py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
     
     @struct_method
-    def df_fieldsGrid(self,pane,title=None,searchOn=False,testForm=False,**kwargs):
+    def df_fieldsGrid(self,pane,title=None,searchOn=False,testForm=True,**kwargs):
         bc = pane.borderContainer()
         if testForm:
             mastertable = pane.getInheritedAttributes()['table']
-            bc.contentPane(region='bottom',height='50%',splitter=True,margin_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
+            bc.contentPane(region='bottom',height='50%',splitter=True,padding_top='10px',hidden=True).dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data')
                 
@@ -132,7 +132,9 @@ class DynamicForm(BaseComponent):
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)
-        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,*,delrow')
+        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
+        bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
+        bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
         fb.numberSpinner(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th

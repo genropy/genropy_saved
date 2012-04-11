@@ -28,7 +28,9 @@ class TemplateEditorBase(BaseComponent):
         return "%s::JS" % str(result).replace("u'", "'")
     
     @public_method
-    def te_getPreview(self, record_id=None, compiled=None, templates=None,**kwargs):
+    def te_getPreview(self, record_id=None, compiled=None, templates=None,template_id=None,**kwargs):
+        if template_id:
+            templates = self.db.table('adm.htmltemplate').readColumns(columns='$name',pkey=template_id)
         tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
         return self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
 
@@ -73,7 +75,7 @@ class TemplateEditorBase(BaseComponent):
             
         
     @public_method
-    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
+    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None,template_id=None):
         result = Bag()
         formats = dict()
         masks = dict()
@@ -112,7 +114,7 @@ class TemplateEditorBase(BaseComponent):
                             columns=','.join(columns),formats=formats,masks=masks)
         result.setItem('compiled',compiled)
         if record_id:
-            result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates))
+            result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates,template_id=template_id))
         return result
 
 class TemplateEditor(TemplateEditorBase):
