@@ -729,7 +729,6 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 if (parentDialog) {
                                      parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
-                                   // genro.dialogStacks[dlgtype].slice(-1)[0].show();
                                 }                   
                             }
                         });
@@ -740,6 +739,9 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         }
 
     },
+   versionpatch_11__onKey:function(){
+       //onkey block inactive (ckeditor)
+   },
     
     versionpatch_11__position: function() {
         var centerOn = this.sourceNode.attr.centerOn;
