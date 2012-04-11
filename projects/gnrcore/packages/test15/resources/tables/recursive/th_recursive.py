@@ -12,13 +12,13 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('description',name='Description',width='15em')
         r.cell('_parent_h_description',width='30%')
-        r.cell('_h_description',width='100%')
+        r.cell('hierarchical_description',width='100%')
 
     def th_query(self):
         return dict(column='description',op='contains',val='',runOnStart=True)
     
     def th_order(self):
-        return '_h_description'
+        return 'hierarchical_description'
         
 class Form(BaseComponent):
     def th_form(self,form):
