@@ -24,9 +24,10 @@ class Table(object):
     def trigger_onInserted(self, record_data):
         mboxtbl = self.db.table('email.mailbox')
         for i,mbox in enumerate(self.standardMailboxes()):
-            mboxtbl.createMbox(mbox,record_data['id'],order=i)
+            mboxtbl.createMbox(mbox,record_data['id'],order=i+1)
 
-    #def trigger_onUpdated(self, record_data,old_record=None):
-    #    mboxtbl = self.db.table('email.mailbox')
-    #    for mbox in self.standardMailboxes():
-    #        mboxtbl.createMbox(mbox,record_data['id'])
+    def trigger_onUpdated(self, record_data,old_record=None):
+        mboxtbl = self.db.table('email.mailbox')
+        if mboxtbl.query(where='$account_id=:account_id',account_id=record_data['id']).count()==0:
+            for i,mbox in enumerate(self.standardMailboxes()):
+                mboxtbl.createMbox(mbox,record_data['id'],order=i+1)

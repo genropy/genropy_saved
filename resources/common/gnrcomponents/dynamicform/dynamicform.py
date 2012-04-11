@@ -197,7 +197,7 @@ class DynamicForm(BaseComponent):
                 subfb = b.tooltipPane().formbuilder(cols=1, border_spacing='2px')
                 if '\n' in labels:
                     separator = '\n'
-                subfb.checkboxtext(labels=labels,value=value,separator=separator)
+                subfb.checkboxtext(values=labels,value=value,separator=separator)
                 b.div(innerHTML=value)
  
             else:
