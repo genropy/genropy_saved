@@ -62,10 +62,12 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         in_object = None
         root, xmlids = self.soap_app.parse_xml_string(in_string, in_string_charset)
 
-        try:
+        if True:
             in_object = self.soap_app.deserialize_soap(ctx, self.soap_app.IN_WRAPPER,
                                                                    root, xmlids)
-        except Fault,e:
+        else:
+
+        #except Fault,e:
             ctx.in_error = e
 
         return in_object
@@ -91,20 +93,23 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         self.response.content_type = 'text/xml'
         if not self.request._request.body:
             return self.service_description()
-        try:
+        if True:
             ctx = MethodContext()
             in_string = collapse_swa(self.request.content_type, self.request._request.body)
             in_obj = self.get_in_object(ctx, in_string, self.request._request.charset)
             out_obj = self.get_out_object(ctx, in_obj)
             out_string = self.get_out_string(ctx, out_obj)
             return out_string
-        except Exception, e:
+        else:
+        #except Exception, e:
+            if getattr(self, 'debug_soap',False):
+                raise
             self.response.status='500 Internal Server Error'
             fault = Fault(faultstring=str(e))
             resp = etree.tostring(fault, encoding=string_encoding)
             return resp
     def service_description(self):
-        print 'service description'
+
         wsdl = self.soap_app.get_wsdl(self.request._request.host_url+self.request._request.path)
         return wsdl
         
@@ -112,4 +117,3 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         DefinitionBase.__init__(self)
         self.soap_app = GnrSoapApplication([self],'tns')
         self.soap_app.transport = 'http://schemas.xmlsoap.org/soap/http'
-        
