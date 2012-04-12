@@ -174,9 +174,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
     
     fieldsTree:function(pane,table,kw){
-        var path = 'gnr.relation_explorers.' + table;
+        var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
-        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table}));
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath')}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
         treeattr._class = 'fieldsTree noIcon';
@@ -186,7 +186,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         treeattr.getLabelClass=function(item){
             var dtype = item.attr.dtype;
             var _class = [];
-            if(!dtype || dtype=='RM' || dtype=='RO'){
+            if(!dtype || dtype=='RM' || dtype=='RO' || item.attr.subfields){
                 _class.push('fieldsTree_folder');
             }
             dtype = dtype || (item.attr.isRoot?'root':'group');

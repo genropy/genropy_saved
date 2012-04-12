@@ -6,7 +6,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 import re
 from StringIO import StringIO
@@ -171,14 +171,17 @@ class TemplateEditor(TemplateEditorBase):
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
         if self.isDeveloper():
             fb.textbox(value='^.flags',lbl='!!Flags',colspan=5)
-        
-    def _te_info_vars(self,bc,table=None,**kwargs):
+    
+    @extract_kwargs(fieldsTree=dict(slice_prefix=False))
+    def _te_info_vars(self,bc,table=None,datasourcepath=None,fieldsTree_kwargs=None,**kwargs):
         frame = bc.frameGrid(datapath='.varsgrid',
                                 storepath='#ANCHOR.data.varsbag',
                                 struct=self._te_varsgrid_struct,
                                 datamode='bag',splitter=True,**kwargs)
-        frame.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,fieldsTree_dragCode='fieldvars',
-                            closable=True,width='150px',fieldsTree_height='100%',splitter=True)
+        frame.left.slotBar('5,fieldsTree,*',
+                            fieldsTree_table=table,
+                            fieldsTree_dragCode='fieldvars',
+                            closable=True,width='150px',fieldsTree_height='100%',splitter=True,**fieldsTree_kwargs)
         grid = frame.grid
         editor = grid.gridEditor()
         editor.textbox(gridcell='varname')
@@ -397,9 +400,9 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,preview_id=None,**kwargs):
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,datasourcepath=None,**kwargs):
         sc = self._te_mainstack(pane,table=table)
-        self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table)
+        self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table,datasourcepath=datasourcepath)
         bar = sc.info.top.bar
         bar.replaceSlots('#','#,customres,savetpl,5')
         if resource_mode:
@@ -413,25 +416,29 @@ class ChunkEditor(PaletteTemplateEditor):
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
         framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
-        self._te_framePreviewChunk(framePreview,table=table,preview_id=preview_id)
+        self._te_framePreviewChunk(framePreview,table=table,datasourcepath=datasourcepath)
         bar = framePreview.top.bar
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
         
-    def _te_frameChunkInfo(self,frame,table=None):
+    def _te_frameChunkInfo(self,frame,table=None,datasourcepath=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
-        self._te_info_vars(bc,table=table,region='center')
+        self._te_info_vars(bc,table=table,region='center',
+                            fieldsTree_currRecordPath=datasourcepath,
+                            fieldsTree_explorerPath='#ANCHOR.dbexplorer')
         #self._te_info_parameters(bc,region='center')
     
-    def _te_framePreviewChunk(self,frame,table=None,preview_id=None):
+    def _te_framePreviewChunk(self,frame,table=None,datasourcepath=None):
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=1, border_spacing='0px',margin_top='2px')
-        if not preview_id:
+        if not datasourcepath:
             fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
                     width='10em', hasDownArrow=True)
-        preview_id = preview_id or '.preview.selected.id'
+            preview_id = '.preview.selected.id'
+        else:
+            preview_id = '%s.%s' %(datasourcepath,self.db.table(table).pkey)
         record_id = '^%s' %preview_id
         frame.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id=record_id,_status='^.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',

@@ -20,8 +20,9 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 ROOTCODE = '__ROOT__'
 
@@ -48,6 +49,8 @@ class HTableResolver(BagResolver):
                    'extra_columns':None,
                    'related_extra_columns':None,
                    'related_fullrecord':None,
+                   'condition':None,
+                   'condition_kwargs':None,
                    'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
@@ -83,9 +86,12 @@ class HTableResolver(BagResolver):
         columns = '*,$child_count'
         if self.extra_columns:
             columns = '%s,%s' %(columns,self.extra_columns) 
-        
-        rows = tblobj.query(columns,where="COALESCE($parent_code,'')=:rootpath",
-                            rootpath=self.rootpath or '', order_by='$child_code').fetch()
+        where="COALESCE($parent_code,'')=:rootpath"
+        condition_kwargs = self.condition_kwargs or dict()
+        if self.condition:
+            where = ' ( %s ) AND ( %s ) ' %(where,self.condition)
+        rows = tblobj.query(columns,where=where,
+                            rootpath=self.rootpath or '', order_by='$child_code',**condition_kwargs).fetch()
         children = Bag()
         if self.related_table:
             self.setRelatedChildren(children)
@@ -99,7 +105,9 @@ class HTableResolver(BagResolver):
                                        related_table=self.related_table,
                                        limit_rec_type=self.limit_rec_type,
                                        extra_columns=self.extra_columns,
-                                       child_count=child_count, _page=self._page,storename=self.storename)
+                                       child_count=child_count, _page=self._page,
+                                       condition=self.condition,condition_kwargs=self.condition_kwargs,
+                                       storename=self.storename)
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
@@ -149,16 +157,16 @@ class HTableResolver(BagResolver):
 class HTableHandlerBase(BaseComponent):
     """TODO"""
     
-    
     @struct_method
     def ht_hdbselect(self,pane,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%(dbtable)s' %attr
         attr['hasDownArrow'] = True
-        curr_cond = attr.get('condition')
-        attr['condition'] = '$child_count=0' if not curr_cond else ' ( %s ) AND $child_count=0' %curr_cond
-        pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'])
+        dbselect_condition = attr.get('condition')
+        dbselect_condition_kwargs = dictExtract(attr,'condition_')
+        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
+        pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'],condition=dbselect_condition,condition_kwargs=dbselect_condition_kwargs)
         dbselect.menu(storepath='%s._root_' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
     @struct_method
@@ -189,7 +197,7 @@ class HTableHandlerBase(BaseComponent):
         return self.ht_treeDataStore(*args,**kwargs)
     
     
-    
+    @extract_kwargs(condition=True)
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
                          relation_path=None,
@@ -201,7 +209,7 @@ class HTableHandlerBase(BaseComponent):
                          related_extra_columns=None,
                          related_order_by=None,
                          related_fullrecord=True,
-                         storename=None,**kwargs):
+                         storename=None,condition=None,condition_kwargs=None,**kwargs):
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
             columns = '%s,%s' %(columns,extra_columns) 
@@ -209,7 +217,8 @@ class HTableHandlerBase(BaseComponent):
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
                                related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
                                related_extra_columns=related_extra_columns,
-                               related_order_by=related_order_by,related_fullrecord=related_fullrecord,storename=storename) #if child_count else None
+                               related_order_by=related_order_by,related_fullrecord=related_fullrecord,storename=storename,
+                               condition=condition,condition_kwargs=condition_kwargs) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
                                                             rootcaption=rootcaption,rootcode=rootcode,
                                                             rootpkey=None,storename=storename)

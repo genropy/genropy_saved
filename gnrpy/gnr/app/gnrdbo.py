@@ -282,7 +282,19 @@ class TableBase(object):
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         return fieldstable.query(where="$maintable_id=:pkey",pkey=pkey,order_by='$_row_count').fetch()
-
+        
+    def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
+        rows = self.df_getFieldsRows(pkey=pkey)
+        result = Bag()
+        if not rows:
+            return result
+        else:
+            for r in rows:
+                result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
+                                fieldpath='%s.%s' %(df_field,r['code']),
+                                fullcaption='%s/%s' %(df_caption,r['description']))
+        return result
+                                
     def setMultidbSubscription(self,tbl,allRecords=False):
         """TODO
         
@@ -548,7 +560,7 @@ class GnrHTable(GnrDboTable):
             #    parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
             #    if parent_children==0:
             #        self.touchRecords(where='$code=:code',code=parent_code)
-            
+
             
     def df_getFieldsRows(self,pkey=None,code=None):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))

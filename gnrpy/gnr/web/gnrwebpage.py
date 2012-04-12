@@ -1596,9 +1596,13 @@ class GnrWebPage(GnrBaseWebPage):
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
-    
+    @public_method
+    def subfieldExplorer(self,table=None,field=None, fieldvalue=None,prevRelation='', prevCaption='',
+                             omit='', **kwargs):
+        return self.db.table(table).column(field).relatedTable().dbtable.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
+        
     @public_method    
-    def relationExplorer(self, table=None, prevRelation='', prevCaption='',
+    def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
                              omit='', **kwargs):
         """TODO
         
@@ -1619,14 +1623,26 @@ class GnrWebPage(GnrBaseWebPage):
             nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
             if nodeattr.get('one_relation'):
+                innerCurrRecordPath = '%s.%s' %(node.label,currRecordPath) if currRecordPath else ''
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
                     relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
                 else:
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s})"
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s})"
                 node.setValue(jsresolver % (
                 jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)),
+                jsquote(nodeattr['fullcaption']), jsquote(omit),
+                jsquote(innerCurrRecordPath)
+                ))
+            elif 'subfields' in nodeattr and currRecordPath:
+                nodeattr['_T'] = 'JS'
+                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s})"
+                node.setValue(jsresolver % (
+                jsquote("%(pkg)s.%(table)s" %nodeattr),
+                jsquote(nodeattr['subfields']),
+                jsquote("=%s.%s" %(currRecordPath,nodeattr['subfields'])),
+                jsquote(concat(prevRelation, node.label)),
                 jsquote(nodeattr['fullcaption']), jsquote(omit)))
                 
         result = self.db.relationExplorer(table=table,

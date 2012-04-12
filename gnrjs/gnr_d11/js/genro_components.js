@@ -654,11 +654,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             paletteNode.getWidget().show();
         }else{
             var table = tplpars.table;
-            var remote_preview_id =  tplpars.preview_id || sourceNode.attr.datasource.replace('@','');
-            if (remote_preview_id){
-                remote_preview_id = sourceNode.absDatapath(remote_preview_id);
-                console.log(remote_preview_id);
-            }
+            var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
                     title:'Template Edit '+table.split('.')[1],width:'750px',
                     height:'500px',
@@ -666,7 +662,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_table:table,
                     remote_paletteId:paletteId,
                     remote_resource_mode:(templateHandler.dataInfo.respath!=null),
-                    remote_preview_id:remote_preview_id
+                    remote_datasourcepath:remote_datasourcepath
                     };
                     
             kw.palette_selfsubscribe_savechunk = function(){
@@ -768,7 +764,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var dataProvider = objectPop(kw,'dataProvider');
         if(dataProvider){
             dataProvider = sourceNode.currentFromDatasource(dataProvider);
-            kw._tplpars.preview_id = dataProvider.attr && dataProvider.attr.pkey?dataProvider.absDatapath(dataProvider.attr.pkey):null;
         }
         
         genro.assert(kw.datasource,'datasource is mandatory in templatechunk');
@@ -977,6 +972,10 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
         var table = objectPop(kw,'table');
         var trash = objectPop(kw,'trash');
         var box = sourceNode._('div',{_class:'fieldsTreeBox',_lazyBuild:true});
+        var explorerPath = objectPop(kw,'explorerPath');
+        if(explorerPath){
+            kw.explorerPath = sourceNode.absDatapath(explorerPath);
+        }
         if (trash){
             var trashKw = {_class:'fieldsTreeTrash'};
             trashKw.dropTarget=true;
@@ -1302,8 +1301,11 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         treeKw.dragCode = dragCode;
         slotKw.text_align = 'left';
         slotKw.position = 'relative';
+        var currRecordPath = objectPop(slotKw,'currRecordPath');
+        var explorerPath = objectPop(slotKw,'explorerPath');
+
         var slot = pane._('div',slotKw);
-        slot._('FieldsTree',objectUpdate({table:table,trash:true},treeKw));
+        slot._('FieldsTree',objectUpdate({table:table,trash:true,currRecordPath:currRecordPath,explorerPath:explorerPath},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
