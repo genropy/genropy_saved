@@ -221,12 +221,14 @@ class TemplateEditor(TemplateEditorBase):
                                 varname = n._value.getItem('varname');
                                 varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
                             },'static');
-                            parameters.forEach(function(n){
-                                attrs = n.attr;
-                                parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
-                            },'static');
                             result.setItem('variables',varfolder,{caption:varcaption})
-                            result.setItem('pars',parsfolder,{caption:parscaption})
+                            if (parameters){
+                                parameters.forEach(function(n){
+                                    attrs = n.attr;
+                                    parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
+                                },'static');
+                                result.setItem('pars',parsfolder,{caption:parscaption})
+                            }
                             SET .allvariables = result;
                             FIRE .tree_rebuild;""",
             varsbag="=.data.varsbag",parameters='=.data.parameters',
@@ -395,7 +397,7 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,**kwargs):
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,preview_id=None,**kwargs):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table)
         bar = sc.info.top.bar
@@ -411,7 +413,7 @@ class ChunkEditor(PaletteTemplateEditor):
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
         framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
-        self._te_framePreview(framePreview,table=table)
+        self._te_framePreviewChunk(framePreview,table=table,preview_id=preview_id)
         bar = framePreview.top.bar
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
@@ -419,8 +421,24 @@ class ChunkEditor(PaletteTemplateEditor):
     def _te_frameChunkInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
-        self._te_info_vars(bc,table=table,region='bottom',height='60%')
-        self._te_info_parameters(bc,region='center')
+        self._te_info_vars(bc,table=table,region='center')
+        #self._te_info_parameters(bc,region='center')
+    
+    def _te_framePreviewChunk(self,frame,table=None,preview_id=None):
+        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
+        fb = bar.fb.formbuilder(cols=1, border_spacing='0px',margin_top='2px')
+        if not preview_id:
+            fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
+                    selected_name='.preview.html_template_name',lbl='!!Letterhead',
+                    width='10em', hasDownArrow=True)
+        preview_id = preview_id or '.preview.selected.id'
+        record_id = '^%s' %preview_id
+        frame.dataRpc('.preview.renderedtemplate', self.te_getPreview,
+                   _POST =True,record_id=record_id,_status='^.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',
+                   compiled='=.data.compiled')
+        frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
+
+        
         
     def _te_saveButton(self,pane,table,paletteId):
         pane.slotButton('!!Save',action="""var result = genro.serverCall('te_compileTemplate',{table:table,datacontent:dc,varsbag:vb,parametersbag:pb},null,null,'POST');

@@ -654,13 +654,19 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             paletteNode.getWidget().show();
         }else{
             var table = tplpars.table;
+            var remote_preview_id =  tplpars.preview_id || sourceNode.attr.datasource.replace('@','');
+            if (remote_preview_id){
+                remote_preview_id = sourceNode.absDatapath(remote_preview_id);
+                console.log(remote_preview_id);
+            }
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
                     title:'Template Edit '+table.split('.')[1],width:'750px',
                     height:'500px',
                     remote:'te_chunkEditorPane',
                     remote_table:table,
                     remote_paletteId:paletteId,
-                    remote_resource_mode:(templateHandler.dataInfo.respath!=null)
+                    remote_resource_mode:(templateHandler.dataInfo.respath!=null),
+                    remote_preview_id:remote_preview_id
                     };
                     
             kw.palette_selfsubscribe_savechunk = function(){
@@ -762,6 +768,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var dataProvider = objectPop(kw,'dataProvider');
         if(dataProvider){
             dataProvider = sourceNode.currentFromDatasource(dataProvider);
+            kw._tplpars.preview_id = dataProvider.attr && dataProvider.attr.pkey?dataProvider.absDatapath(dataProvider.attr.pkey):null;
         }
         
         genro.assert(kw.datasource,'datasource is mandatory in templatechunk');
@@ -898,20 +905,24 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         return tabButtonsNode;
     },
     onAddChild:function(widget,child){
-        var controllerNodes = widget.sourceNode._stackButtonsNodes;
-        if(!controllerNodes){
+        var sn = widget.sourceNode;
+        var controllerNodes = sn._stackButtonsNodes;
+        
+        if((!controllerNodes) && sn._isBuilding){
             return;
         }
         var that = this;
-        widget.sourceNode.delayedCall(function(){
+        sn.delayedCall(function(){
             dojo.forEach(controllerNodes,function(c){
                 that.makeTabButton(c,child.sourceNode);
             });
         },100);
     },
     onRemoveChild:function(widget,child){
-        var controllerNodes = widget.sourceNode._stackButtonsNodes;
-        if(!controllerNodes){
+        var sn = widget.sourceNode;
+        var controllerNodes = sn._stackButtonsNodes;
+        
+        if((!controllerNodes) && sn._isBuilding){
             return;
         }
         var paneId = child.sourceNode.getStringId();
