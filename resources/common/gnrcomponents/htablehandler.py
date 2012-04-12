@@ -177,7 +177,7 @@ class HTableHandlerBase(BaseComponent):
                                      related_table=related_table,
                                      relation_path=relation_path,
                                      rootcaption=rootcaption or tblobj.name_plural, 
-                                     storename=storename,
+                                     storename=storename,rootpath=rootpath,
                                      rootcode=rootcode,rootpkey=rootpkey,
                                      **kwargs)
         pane.data(storepath, data,rootpath=rootpath)
