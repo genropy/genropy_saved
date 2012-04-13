@@ -90,6 +90,7 @@ class HTableResolver(BagResolver):
             columns = '%s,%s' %(columns,self.extra_columns) 
         where="COALESCE($parent_code,'')=:rootpath"
         condition_kwargs = self.condition_kwargs or dict()
+        condition_codes = None
         if self.condition:
             condition_codes = self.getConditionCodes()
             where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $code IN :condition_codes ) ) ' %(where,self.condition)
