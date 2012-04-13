@@ -49,6 +49,7 @@ class GnrSoapApplication(Application):
         return service
 
 
+
 class GnrSoapPage(GnrWebPage, DefinitionBase):
     
     __tns__ = 'tns'
@@ -115,5 +116,5 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         
     def _onBegin(self):
         DefinitionBase.__init__(self)
-        self.soap_app = GnrSoapApplication([self],'tns')
+        self.soap_app = GnrSoapApplication([self],getattr(self,'app_tns','tns'), name=getattr(self,'app_name',None))
         self.soap_app.transport = 'http://schemas.xmlsoap.org/soap/http'
