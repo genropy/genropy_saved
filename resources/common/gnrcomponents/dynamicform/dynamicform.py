@@ -71,7 +71,7 @@ class Form(BaseComponent):
         fb.field('source_combobox',colspan=3,row_class='df_row field_combobox',
                 tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
                  ghost='!!description1\n description2')
-        fb.field('source_checkboxtext',colspan=3,row_class='df_row field_checkboxtext',
+        fb.field('source_checkboxtext',colspan=3,row_class='df_row field_checkboxtext field_checkboxtext_nopopup',
                 tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
                 ghost='!!description1\n description2')
         fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
@@ -121,7 +121,7 @@ class DynamicForm(BaseComponent):
         bc = pane.borderContainer()
         if testForm:
             mastertable = pane.getInheritedAttributes()['table']
-            bc.contentPane(region='bottom',height='50%',splitter=True,padding_top='10px',hidden=True).dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
+            bc.tabContainer(region='bottom',height='50%',splitter=True,padding_top='10px',hidden=True).dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data')
                 
@@ -161,6 +161,9 @@ class DynamicForm(BaseComponent):
         if not fields:
             return
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath)
+        #fb.dataController("""
+        #    genro.bp();
+        #""",data='^%s' %datapath)
         for r in fields:
             attr = dict(r)
             attr.pop('id')
@@ -168,6 +171,9 @@ class DynamicForm(BaseComponent):
             attr.pop('maintable_id')
             data_type = attr.pop('data_type','T')
             tag =  attr.pop('wdg_tag') or autowdg[data_type]
+            mask = attr.pop('field_mask',None)
+            attr.setdefault('width','100%')
+
             if tag.endswith('_nopopup'):
                 tag = tag.replace('_nopopup','')
                 attr['popup'] = False
@@ -180,31 +186,22 @@ class DynamicForm(BaseComponent):
             attr['ghost'] = attr.pop('field_placeholder',None)
             attr['tip'] = attr.pop('field_tip',None)
             attr['style'] = attr.pop('field_style',None)
-          #  attr['format'] = attr.pop('field_format',None)
+            
+            attr['_df_format'] = attr.pop('field_format',None)
+            attr['_df_data_type'] = data_type
+            attr['_df_mask'] = mask
+            
             attr['colspan'] = attr.pop('wdg_colspan') or 1
             
-            mask = attr.pop('field_mask',None)
 
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
             dictExtract(attr,'source_',pop=True)
-            if tag == 'checkboxtext':
-                attr.pop('tag')
-                value = attr.pop('value')
-                labels= attr.pop('labels')
-                b = fb.div(lbl_vertical_align='top',width='100%',height='60px',lbl=attr.pop('lbl'),border='1px solid silver',rounded=4,**attr)
-                subfb = b.tooltipPane().formbuilder(cols=1, border_spacing='2px')
-                if '\n' in labels:
-                    separator = '\n'
-                subfb.checkboxtext(values=labels,value=value,separator=separator)
-                b.div(innerHTML=value)
- 
-            else:
-                self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-                self._df_handleFieldValidation(attr,fields=fields)
-                attr.pop('code')
-                fb.child(**attr)
+            self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+            self._df_handleFieldValidation(attr,fields=fields)
+            attr.pop('code')
+            fb.child(**attr)
             
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
@@ -226,7 +223,8 @@ class DynamicForm(BaseComponent):
             attr['_storename'] = '=%s' %dbstore_kwargs[pkg]
 
     def df_checkboxtext(self,attr,**kwargs):
-        attr['labels'] = attr.get('source_checkboxtext')    
+        attr.setdefault('popup',True)
+        attr['values'] = attr.get('source_checkboxtext')    
             
         
     def _df_handleFieldFormula(self,attr,fb,fields=None):

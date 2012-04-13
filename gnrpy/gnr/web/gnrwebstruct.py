@@ -770,7 +770,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane','GeoCoderField','ImgUploader','TooltipPane', 'BagNodeEditor',
-             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree', 'SearchBox', 'FormStore',
+             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
@@ -1432,91 +1432,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 pane.radioButton(label, group=group, datapath=':%s' % label)
             else:
                 pane.radioButton(label, group=group)
-                
-    def checkboxtext(self, values, value=None, separator=',',codeSeparator=None,**kwargs):
-        """A group of checkboxes that allow to compose a string with checkbox labels.
-                
-        :param labels: a string separated by comma set of words. For every words there will be
-                       created a single checkbox
-        :param value: the path of the checkboxtext value
-        :param separator: the characters that separate the checkbox text
-        """
-        
-        if ':' in values:
-            codeSeparator = ':'
-        values = gnrstring.splitAndStrip(values.replace('\n',','),',')        
-        action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
-                    var i = 0;
-                    var labels = [];
-                    var codes = [];
-                    var rows = actionNode.getValue().getItem('#0');
-                    var sourceNodes = dojo.query('.dijitCheckBoxInput',actionNode.domNode).map(function(n){
-                        return dijit.getEnclosingWidget(n).sourceNode
-                    });
-                    
-                    var has_codes = false;
-                    genro.bp();
-                    dojo.forEach(sourceNodes,function(cbNode){
-                        if(cbNode.attr._code!=null){
-                            has_codes=true;
-                        }
-                        if(cbNode.widget.checked){
-                            if(cbNode.attr._code!=null){
-                                codes.push(cbNode.attr._code);
-                            }
-                            labels.push(cbNode.attr.label)
-                        }
-                    });
 
-                    var textvaluepath = actionNode.attr._textvalue;
-                    var separator = actionNode.attr._separator;
-                    if(has_codes){
-                        actionNode.setRelativeData(textvaluepath,codes.join(','),{value_caption:labels.join(separator)},null,'cbgroup');
-                    }else{
-                        actionNode.setRelativeData(textvaluepath,labels.join(separator),null,null,'cbgroup');
-                    }
-                """
-        fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,
-                            _separator=separator,**kwargs)
-        self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
-                                var values = [];
-                                var labels = [];
-                                if(textvalue){
-                                    if(codeSeparator){
-                                        values = textvalue.split(',');
-                                    }else{
-                                        values = textvalue.split(separator);
-                                    }
-                                }
-                                var that = this;
-                                var label;
-                                var srcbag = fb._value;
-                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setAttribute('checked',false)}});
-                                var node;
-                                dojo.forEach(values,function(n){
-                                    if(codeSeparator){
-                                        node = srcbag.getNodeByAttr('_code',n);
-                                        labels.push(node.attr.label);
-                                    }else{
-                                        node = srcbag.getNodeByAttr('label',n);
-                                    }
-                                    console.log(node);
-                                    if(node){
-                                        node.widget.setAttribute('checked',true);
-                                    }else{
-                                        console.log('removed value  >'+n+'< from options');
-                                    }
-                                });
-                                if(codeSeparator){
-                                    _node.updAttributes({value_caption:labels.join(separator)},'cbgroup')
-                                }
-                            """,textvalue=value,separator=separator,codeSeparator=codeSeparator or False,fb=fb)
-        for label in values:
-            code =None
-            if codeSeparator:
-                code,label = label.split(codeSeparator)
-            fb.checkbox(label,_cbgroup=True,_code=code)
-                
     def _fieldDecode(self, fld, **kwargs):
         parentfb = self.parentfb
         tblobj = None

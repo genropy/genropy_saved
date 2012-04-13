@@ -16,6 +16,7 @@
 .dffb_enterable.dffb_combobox .field_combobox.df_row, 
 .dffb_enterable.dffb_dbselect .field_dbselect.df_row, 
 .dffb_enterable.dffb_checkboxtext .field_checkboxtext.df_row,
+.dffb_enterable.dffb_checkboxtext_nopopup .field_checkboxtext_nopopup.df_row,
 .dffb_enterable.dffb_currencytextbox .field_currencytextbox.df_row,
 .dffb_enterable.dffb_numbertextbox .field_numbertextbox.df_row,
 .dffb_calculated .field_calculated.df_row{

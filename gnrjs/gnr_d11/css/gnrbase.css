@@ -194,7 +194,16 @@ body.workInProgress{
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
 }
 
+.fakeButton{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+    cursor:pointer;
+}
+
 .tundra .dijitDisabled.dijitComboBoxDisabled .dijitArrowButton{
+    display:none;
+}
+.dijitDisabled .fakeButton{
     display:none;
 }
 
@@ -1217,7 +1226,12 @@ div.dojoxDock {
     -moz-box-shadow: 2px 2px 4px #403b3b;
     -webkit-box-shadow: 2px 2px 4px #403b3b;
 }
-
+.floatingTooltipPane{
+    
+}
+.floatingTooltipPane:hover{
+    background-color: #feffb4;
+}
 .floatingPopup:hover {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right;
 }
