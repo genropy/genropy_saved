@@ -172,8 +172,6 @@ class DynamicForm(BaseComponent):
             data_type = attr.pop('data_type','T')
             tag =  attr.pop('wdg_tag') or autowdg[data_type]
             mask = attr.pop('field_mask',None)
-            attr.setdefault('width','100%')
-
             if tag.endswith('_nopopup'):
                 tag = tag.replace('_nopopup','')
                 attr['popup'] = False
