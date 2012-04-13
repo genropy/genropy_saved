@@ -51,6 +51,7 @@ class HTableResolver(BagResolver):
                    'related_fullrecord':None,
                    'condition':None,
                    'condition_kwargs':None,
+                   '_condition_id':None,
                    'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
@@ -75,7 +76,8 @@ class HTableResolver(BagResolver):
                              pkey=row['pkey'], code=row.get('code'),
                              node_class='tree_related',_record=dict(row) if self.related_fullrecord else None)
         return children
-        
+    
+    
     def load(self):
         if self.rootpath and self.rootpath.startswith('*related*'):
             return self.loadRelated(self.rootpath.split(':')[1])
@@ -89,9 +91,12 @@ class HTableResolver(BagResolver):
         where="COALESCE($parent_code,'')=:rootpath"
         condition_kwargs = self.condition_kwargs or dict()
         if self.condition:
-            where = ' ( %s ) AND ( %s ) ' %(where,self.condition)
+            condition_codes = self.getConditionCodes()
+            where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $code IN :condition_codes ) ) ' %(where,self.condition)
         rows = tblobj.query(columns,where=where,
-                            rootpath=self.rootpath or '', order_by='$child_code',**condition_kwargs).fetch()
+                            rootpath=self.rootpath or '', order_by='$child_code',
+                            condition_codes=condition_codes,
+                            **condition_kwargs).fetch()
         children = Bag()
         if self.related_table:
             self.setRelatedChildren(children)
@@ -105,7 +110,7 @@ class HTableResolver(BagResolver):
                                        related_table=self.related_table,
                                        limit_rec_type=self.limit_rec_type,
                                        extra_columns=self.extra_columns,
-                                       child_count=child_count, _page=self._page,
+                                       child_count=child_count, _page=self._page,_condition_id=self._condition_id,
                                        condition=self.condition,condition_kwargs=self.condition_kwargs,
                                        storename=self.storename)
             elif self.related_table:
@@ -136,6 +141,21 @@ class HTableResolver(BagResolver):
             
         children.sort('#a.caption')
         return children
+    
+    def getConditionCodes(self):
+        if self._condition_id:
+            condition_codes = self._page.pageStore().getItem('hresolver.%s' %self._condition_id)
+        else:
+            self._condition_id = self._page.getUuid()
+            db = self._page.db
+            tblobj = db.table(self.table)
+            condition_kwargs = self.condition_kwargs or dict()
+            valid = tblobj.query(where='$child_count=0 AND ( %s ) ' %self.condition,columns='$id,$parent_code',**condition_kwargs).fetchAsBag('parent_code')
+            condition_codes = valid.getIndexList()
+            with self._page.pageStore() as store:
+                store.setItem('hresolver.%s' %self._condition_id,condition_codes)
+        return condition_codes
+
         
     def setRelatedChildren(self, children):
         db = self._page.db
