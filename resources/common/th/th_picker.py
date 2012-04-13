@@ -7,13 +7,18 @@
 from gnr.web.gnrwebpage import BaseComponent,GnrMissingResourceException
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdict import dictExtract
 class THPicker(BaseComponent):
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,
                          title=None,autoInsert=True,dockButton=True,picker_kwargs=None,
                          height=None,width=None,**kwargs):
+        
         one=False
+        condition=picker_kwargs.pop('condition',None)
+        condition_kwargs=dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
+        
         many = relation_field or picker_kwargs.get('relation_field',None)
         height = height or picker_kwargs.get('height')
         width = width or picker_kwargs.get('height')
@@ -55,9 +60,11 @@ class THPicker(BaseComponent):
                         r = struct.view().rows()
                         r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
                     sortedBy = tblobj.attributes.get('caption_field')
+
+
             palette = pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=dockButton,
                             title=title,searchOn=searchOn,grid_filteringGrid=grid,width=width,height=height,
-                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=table,sortedBy=sortedBy or 'pkey')
+                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=table,sortedBy=sortedBy or 'pkey',condition=condition,**condition_kwargs)
         if grid:
             grid.dragAndDrop(paletteCode)
             if autoInsert:
