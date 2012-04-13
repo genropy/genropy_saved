@@ -151,7 +151,7 @@ class HTableResolver(BagResolver):
             db = self._page.db
             tblobj = db.table(self.table)
             condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s ) ' %self.condition,columns='$id,$parent_code',**condition_kwargs).fetchAsBag('parent_code')
+            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_code IS NOT NULL' %self.condition,columns='$id,$parent_code',**condition_kwargs).fetchAsBag('parent_code')
             condition_codes = valid.getIndexList()
             with self._page.pageStore() as store:
                 store.setItem('hresolver.%s' %self._condition_id,condition_codes)
