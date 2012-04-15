@@ -42,7 +42,7 @@ class EditableView(View):
         r.fieldcell('sigla',width='3em',edit=True)
         #r.fieldcell('dimensione',width='10em',edit=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
-        r.cell('lunghezzapippo',calculated=True,formula='pippo.length')
+        r.cell('lunghezzapippo',calculated=True,formula='pippo.length/3',dtype='N',format_pattern='#0.00')
        #
         r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
                 formula_zona='^#FORM.record.zona',hidden='^piero',edit=True)

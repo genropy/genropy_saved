@@ -439,7 +439,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var attrname = attrname || 'value';
         var value = this.attr[attrname];
         value = this.currentFromDatasource(value, autocreate, dflt);
-        if (((attrname == 'value') || (attrname == 'innerHTML')) && (this.attr.mask || this.attr.format)) {
+        if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format)) {
             value = asText(value, this.attr);
         }
         return value;
@@ -1048,12 +1048,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var path;
         var value = null;
         var attr_lower = attr.toLowerCase();
+        var valueNode = kw.node;
         if(trigger_reason=='container' && attr=='value' && kw.evt=='upd'){
             var vpath = this.attr['value'];
             if (this.isPointerPath(vpath) && (vpath.indexOf('?')<0)){
-                var vnode = genro._data.getNode(this.absDatapath(vpath));
-                if (vnode){
-                    var wdg_modifiers = objectExtract(vnode.attr,'wdg_*');
+                var valueNode = genro._data.getNode(this.absDatapath(vpath));
+                if (valueNode){
+                    var wdg_modifiers = objectExtract(valueNode.attr,'wdg_*');
                     if(objectNotEmpty(wdg_modifiers)){
                         this._original_attributes = objectUpdate({},this.attr);
                         this.updAttributes(wdg_modifiers,true);
@@ -1148,6 +1149,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (setter in this.widget) {
                     var trgevt = kw.evt;
                     if (attr == 'value') {
+
                         this.resetValidationError();                // reset validationError when data from bag is set in widget
                         if ('_lastValueReported' in this.widget) {    // VERIFICARE DOJO 1.2
                             this.widget._lastValueReported = value; // see dijit.form._formWidget setValue
@@ -1176,11 +1178,26 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         }
                     }
                     dojo.hitch(this.widget, setter)(value, kw);
-                    if ((trgevt != 'del') && (attr == 'value') && (this.hasValidations())) {
-                        var formHandler = this.getFormHandler();
-                        if (formHandler) {
-                            formHandler.validateFromDatasource(this, value, trigger_reason);
+                    if ((trgevt != 'del') && (attr == 'value')) {
+                        if(this.hasValidations()){
+                            var formHandler = this.getFormHandler();
+                            if (formHandler) {
+                                formHandler.validateFromDatasource(this, value, trigger_reason);
+                            }
                         }
+                        if(trigger_reason=='container' && (this.attr.format || this.attr.mask)){
+                            var updkw = {};
+                            var valueToFormat = value;
+                            var valueAttr = valueNode.attr;
+                            if(this.widget.getDisplayedValue){
+                                valueToFormat = this.widget.getDisplayedValue();
+                                if(valueToFormat!=value){
+                                    valueAttr['_displayedValue'] = valueToFormat;
+                                }
+                            }
+                            valueAttr['_formattedValue'] = genro.formatter.asText(valueToFormat, this.attr);
+                        }
+
                     }
                 } 
                 else if (genro.dom.isStyleAttr(attr)) {

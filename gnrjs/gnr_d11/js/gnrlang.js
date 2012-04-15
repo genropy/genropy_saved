@@ -219,7 +219,7 @@ function dataTemplate(str, data, path, showAlways) {
                                     
                                 }
                                 var valueNode = data.getNode(path);
-                                var value = valueNode? valueNode._value:auxattr[path];
+                                var value = valueNode? (valueNode.attr._formattedValue || valueNode._value):auxattr[path];
                                 if (subtpl){
                                     if(value instanceof gnr.GnrBag){
                                         var subval=[];
@@ -701,6 +701,196 @@ function convertFromText(value, t, fromLocale) {
     return value;
 }
 
+var gnrformatter = {
+    asText :function (value,valueAttr){
+        var valueAttr = valueAttr || {};
+        var dtype = valueAttr.dtype || guessDtype(value);
+        var format = valueAttr.format;
+        var formatKw = objectExtract(valueAttr,'format_*',true);
+        var handler = this['format_'+dtype];
+        var mask = valueAttr.mask;
+        if(handler){
+            formattedValue = handler.call(this,value,format,formatKw);
+        }else{
+            formattedValue = value+'';
+        }
+        if(!mask || !formattedValue){
+            return formattedValue;
+        }
+        return mask.replace(/%s/g, formattedValue);
+    },
+    format_T:function(value,format,formatKw){
+        if(!format){
+            return value;
+        }
+        if(format=='autolink'){
+            return highlightLinks(v);
+        }
+        if(format=='mailto'){
+            return makeLink('mailto:'+value,value);
+        }
+        if(format=='skype'){
+            return makeLink('skype:'+value,value);
+        }
+        if(format == 'img'){
+            formatKw['src'] = value;
+            return dataTemplate('<img src="$src" height="$height" width="$width"></img>',formatKw);
+        }
+        if(format.indexOf('#')>=0){
+            format = format.split('');
+            value = value.split('');
+            var result = [];
+            dojo.forEach(format,function(n){
+                if(n==value[0] || n=='#'){
+                    if(value.length>0){
+                        result.push(value.shift());
+                    }
+                }else{
+                    result.push(n);
+                }
+            });
+            result = result.concat(value);
+            return result.join('');
+        }
+    },
+    format_D:function(value,format,formatKw){
+        var opt = {selector:'date'};
+        var standard_format = 'long,short,medium,full'
+        if(format){
+            if(standard_format.indexOf(format)>=0){
+                opt.formatLength = format;
+            }else{
+                opt.datePattern = format;
+            }
+        }
+        return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
+    },
+    
+    format_H:function(value,format,formatKw){
+        var opt = {selector:'time'};
+        var standard_format = 'long,short,medium,full'
+        if(format){
+            if(standard_format.indexOf(format)>=0){
+                opt.formatLength = format;
+            }else{
+                opt.timePattern = format;
+            }
+        }
+        return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
+    },
+    
+    format_DH:function(value,format,formatKw){
+        var opt = {selector:'datetime'};
+        var standard_format = 'long,short,medium,full';
+        if(format){
+            if(standard_format.indexOf(format)>=0){
+                opt.formatLength = format;
+            }else{
+                format = format.split('|');
+                opt.datePattern = format[0];
+                opt.timePattern = format[1];
+            }
+        }
+        return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
+    },
+
+    format_B:function(value,format,formatKw){
+        var format = format || 'true,false';
+        format = format.split(',');
+        return (value === null && format.length==3)?format[2]:(value?format[0]:format[1]);
+    },
+    format_L:function(value,format,formatKw){
+        formatKw.places=0;
+        return this.format_N(value,format,formatKw);
+    },
+    format_R:function(value,format,formatKw){
+        return this.format_N(value,format,formatKw);
+    },
+    
+    format_N:function(value,format,formatKw){
+        /*formatKw:
+            currency: ISO4217 currency code, a three letter sequence like "USD"
+            locale: override the locale used to determine formatting rules
+            pattern override formatting pattern with this string
+            places(Number) fixed number of decimal places to show. This overrides any information in the provided pattern.
+            round (Number) 5 rounds to nearest .5; 0 rounds to nearest whole (default). -1 means don't round.
+            symbol localized currency symbol;
+        */
+        var opt = {};
+        var standard_format = 'decimal,scientific,percent,currency'; //decimal default;
+        if(format){
+            if(standard_format.indexOf(format)>=0){
+                opt.type = format;
+            }else{
+                opt.pattern = format;
+            }
+        }        
+        return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
+    },
+    format_X:function(value,format,formatKw){
+        return value.toXml();
+    },
+    format_AR:function(value,format,formatKw){
+        value = dojo.map(value,this.asText);
+        return value.join(format || ',');
+    },
+    format_NN:function(value,format,formatKw){
+        return '';
+    },
+    format_FUNC:function(value,format,formatKw){
+        return value.toString();
+    },
+    format_OBJ:function(value,format,formatKw){
+        var result = [];
+        var v;
+        var indent = formatKw.indent || '';
+        if(indent){
+            result.push('')
+        }
+        formatKw.format_indent = indent+'  ';
+        for(var k in value){
+            v = this.asText(value[k],formatKw);
+            result.push(indent+k+':'+v);
+        }
+        formatKw.format_indent = indent;
+        return result.join(format || '\n');
+    }
+}
+
+function guessDtype(value){
+    if(value==null || value==undefined){
+        return 'NN';
+    }
+    var t = typeof(value);
+    if(t=='string'){
+        return 'T';
+    }
+    if(t=='boolean'){
+        return 'B';
+    }
+    if(t=='number'){
+        return value%1==0?'L':'N';
+    }if(t=='function'){
+        return 'FUNC';
+    }
+    if(value instanceof Date){
+        if(( value.getFullYear()==1970) && (value.getMonth()==11) && (value.getDate()==31)){
+            return 'H';
+        }
+        if ( (value.getHours()==0) && (value.getMinutes()==0) && (value.getSeconds()==0) && (value.getMilliseconds()==0)){
+            return 'D';
+        }
+        return 'DH';
+    }
+    if(value instanceof gnr.GnrBag){
+        return 'X'
+    }
+    if(value instanceof Array){
+        return 'AR';
+    }
+    return 'OBJ';
+};
+
 function convertToText(value, params) {
     if (value == null || value == undefined) {
         return ['NN', ''];
@@ -717,11 +907,15 @@ function convertToText(value, params) {
         result = ['T', value];
     }
     else if (t == 'boolean') {
-        if (value) {
-            result = ['B', 'true'];
-        } else {
-            result = ['B', 'false'];
+        format = format || 'true,false';
+        format = format.split(',');
+        if (value === null && format.length==3) {
+            result = format[2];
+        }else {
+            result = value?format[0]:format[1];
         }
+        result = ['B', result];
+        
     } else if (t == 'number') {
         if (format) {
             var v = numFormat(value, format);
@@ -765,64 +959,12 @@ function convertToText(value, params) {
     if (mask) {
         result[1] = mask.replace(/%s/g, result[1]);
     }
-
-
     return result;
-}
-;
+};
 
 function asText(value, params) {
     return convertToText(value, params)[1];
-}
-;
-
-function numFormat(num, params) {
-    if (typeof(params) == 'string') {
-        var decimal_precision = params[2];
-        var thousand_sep = params[0];
-        var decimal_sep = params[1];
-    } else {
-        params = params || {};
-        var decimal_precision = params['decimal_precision'] || 0;
-        var thousand_sep = params['thousand_sep'] || ',';
-        var decimal_sep = params['decimal_sep'] || '.';
-    }
-    num = num || 0;
-
-    if (typeof(num) == 'string') {
-        num = parseFloat(num);
-    }
-
-    num_str = num.toFixed(decimal_precision);
-
-    var arr, int_str, dec_str;
-    if (num_str.indexOf('.') != -1) {
-        arr = num_str.split('.');
-        int_str = arr[0];
-        dec_str = arr[1];
-    } else {
-        int_str = num_str;
-        dec_str = '0';
-    }
-
-    var c = 0;
-    var sep_str = "";
-
-    for (var x = int_str.length; x > 0; x--) {
-        c = c + 1;
-        if (c == 4 && int_str[x - 1] != '-') {
-            c = 0;
-            sep_str = thousand_sep + sep_str;
-        }
-        sep_str = int_str[x - 1] + sep_str;
-    }
-
-    if (decimal_precision > 0) {
-        return sep_str + decimal_sep + dec_str;
-    } else {
-        return sep_str;
-    }
-}
+};
 
 function parseArgs(arglist) {
     var kwargs = {};
@@ -1020,10 +1162,10 @@ function funcCreate(fnc, pars, scope,showError) {
         return fnc;
     }
 }
+function makeLink(href, title) {
+    return "<a href='" + href + "'>" + title + "</a>";
+};
 function highlightLinks(text) {
-    var makeLink = function(href, title) {
-        return "<a href='" + href + "'>" + title + "</a>";
-    }
     text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) {
         return makeLink('mailto:' + address, address);
     });

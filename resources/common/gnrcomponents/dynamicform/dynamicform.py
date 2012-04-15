@@ -117,13 +117,14 @@ class DynamicForm(BaseComponent):
     py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
     
     @struct_method
-    def df_fieldsGrid(self,pane,title=None,searchOn=False,testForm=True,**kwargs):
+    def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
         bc = pane.borderContainer()
-        if testForm:
-            mastertable = pane.getInheritedAttributes()['table']
-            bc.tabContainer(region='bottom',height='50%',splitter=True,padding_top='10px',hidden=True).dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
+        mastertable = pane.getInheritedAttributes()['table']
+        tc = bc.tabContainer(region='bottom',height='50%',splitter=True,hidden=True)
+        tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data')
+        tc.contentPane(title='!!Preview Text')
                 
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
@@ -143,9 +144,6 @@ class DynamicForm(BaseComponent):
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
                     df_folders=df_folders,**kwargs)
-                    
-
-
     
     @public_method
     def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,datapath=None,**kwargs):
@@ -161,9 +159,8 @@ class DynamicForm(BaseComponent):
         if not fields:
             return
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath)
-        #fb.dataController("""
-        #    genro.bp();
-        #""",data='^%s' %datapath)
+        fieldsToDisplay = []
+        
         for r in fields:
             attr = dict(r)
             attr.pop('id')
@@ -178,20 +175,19 @@ class DynamicForm(BaseComponent):
             attr['tag'] =tag
 
             #attr['colspan'] = col_max if data_type == 'TL' else 1
-            
-            attr['value']='^.%s' %attr.get('code')
-            attr['lbl'] = '%s' %attr.pop('description','')
+            code = attr.get('code')
+            description = attr.pop('description','')
+            attr['value']='^.%s' %code
+            fieldsToDisplay.append([code,description])
+            attr['lbl'] = description
             attr['ghost'] = attr.pop('field_placeholder',None)
             attr['tip'] = attr.pop('field_tip',None)
             attr['style'] = attr.pop('field_style',None)
             
-            attr['_df_format'] = attr.pop('field_format',None)
-            attr['_df_data_type'] = data_type
-            attr['_df_mask'] = mask
-            
+            attr['format'] = attr.pop('field_format',None)
+            attr['dtype'] = data_type
+            attr['mask'] = mask
             attr['colspan'] = attr.pop('wdg_colspan') or 1
-            
-
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
@@ -203,6 +199,20 @@ class DynamicForm(BaseComponent):
             
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
+        fb.div(innerHTML="""==function(sourceNode,data,fieldsToDisplay){
+            if(_fieldsToDisplay){
+                var result = [];
+                var node,v;
+                dojo.forEach(fieldsToDisplay,function(n){
+                    node = data.getNode(n[0]);
+                    v = node.attr._formattedValue || node.getValue();
+                    if(v){
+                        result.push(n[1]+':'+v);
+                    }
+                },'static');
+                return result.join('<br/>')
+            }
+        }(this,_data,_fieldsToDisplay);""",_fieldsToDisplay=fieldsToDisplay,_data='^%s' %datapath)
 
         
     def df_filteringselect(self,attr,**kwargs):

@@ -349,6 +349,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             attributes['class'] = kw._class;
         }
         var proto = wdgFactory.prototype;
+        objectPop(attributes,'format');
         for (var attr in attributes) {
             if (attr in proto) {
                 if (typeof (proto[attr]) == 'function') {

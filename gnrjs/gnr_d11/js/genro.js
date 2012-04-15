@@ -66,6 +66,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.dojo = dojo;
         this.ext={};
         this.userInfoCb = [];
+        this.formatter = gnrformatter;
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {

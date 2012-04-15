@@ -161,11 +161,29 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         //domnode.sourceNode.setAttributeInDatasource('value',domnode.value);
         this._doChangeInData(domnode, domnode.sourceNode, domnode.value);
     },
-    _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
-        var valueAttr = valueAttr || null;
+    setValueInData:function(sourceNode,value,valueAttr){
         var path = sourceNode.attrDatapath('value');
-        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode});
+        var valueAttr = valueAttr || {};
+        value = this.onSettingValueInData(sourceNode,value,valueAttr);
+        if (sourceNode.attr.mask || sourceNode.attr.format) {
+            var valueToFormat = '_displayedValue' in valueAttr? valueAttr['_displayedValue'] : value;
+            var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.attr);
+            this.setFormattedValue(sourceNode,formattedValue);
+            valueAttr['_formattedValue'] = formattedValue;
+        }
+        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
     },
+    onSettingValueInData: function(sourceNode, value,valueAttr) {
+        return value;
+    },
+    setFormattedValue:function(sourceNode,formattedValue){
+        return;
+    },
+    
+    _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
+        this.setValueInData(sourceNode,value,valueAttr)
+    },
+    
     _makeInteger: function(attributes, proplist) {
         dojo.forEach(proplist, function(prop) {
             if (prop in attributes) {
@@ -187,7 +205,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         objectExtract(attributes, 'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes, 'dropTarget');
         savedAttrs['dropTargetCb'] = objectPop(attributes, 'dropTargetCb');
-
         savedAttrs.connectedMenu = objectPop(attributes, 'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes, 'onEnter');
         objectUpdate(savedAttrs, this.creating(attributes, sourceNode));
@@ -575,17 +592,15 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             }
 
         }
-
-        value = this.convertValueOnBagSetItem(sourceNode, value);
-        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
-  
+        if(sourceNode.widget.getDisplayedValue){
+            valueAttr['_displayedValue'] = sourceNode.widget.getDisplayedValue();
+        }
+        this.setValueInData(sourceNode,value,valueAttr);
     },
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
     },
-    convertValueOnBagSetItem: function(sourceNode, value) {
-        return value;
-    },
+
     mixin_setDraggable:function(value) {
         this.domNode.setAttribute('draggable', value);
     },
@@ -2002,7 +2017,7 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets.baseDojo, {
         }
         ;
     },
-    convertValueOnBagSetItem: function(sourceNode, value) {
+    onSettingValueInData: function(sourceNode, value,valueAttr) {
         if (value === "") {
             value = null;
         }
