@@ -22,12 +22,14 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from gnr.web.gnrwebpage import GnrWebPage
-from soaplib.core.service import DefinitionBase
-from soaplib.core._base import MethodContext
-from soaplib.core.mime import collapse_swa
-from soaplib.core.model.exception import Fault
-from soaplib.core.model.primitive import string_encoding
-from soaplib.core import Application
+from rpclib.service import ServiceBase
+from rpclib._base import MethodContext
+from rpclib.protocol.soap.mime import collapse_swa
+from rpclib.protocol.soap.soap11 import Soap11
+from rpclib.interface.wsdl.wsdl11 import Wsdl11
+from rpclib.model.fault import Fault
+from rpclib.model.primitive import string_encoding
+from rpclib.application import Application
 from lxml import etree
 
 
@@ -50,10 +52,9 @@ class GnrSoapApplication(Application):
 
 
 
-class GnrSoapPage(GnrWebPage, DefinitionBase):
-    
-    __tns__ = 'xs'
-    
+class GnrSoapPage(GnrWebPage, ServiceBase):
+    __name__ = 'GnrSoapApplication'
+
     def __init__(self, *args, **kwargs):
         GnrWebPage.__init__(self, *args, **kwargs)
         
@@ -111,10 +112,21 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
             return resp
     def service_description(self):
 
-        wsdl = self.soap_app.get_wsdl(self.request._request.host_url+self.request._request.path)
+        #wsdl = self.soap_app.get_wsdl(self.request._request.host_url+self.request._request.path)
+        self.soap_app.interface.build_interface_document(self.request._request.host_url+self.request._request.path)
+        wsdl = self.soap_app.interface.get_interface_document()
         return wsdl
         
     def _onBegin(self):
-        DefinitionBase.__init__(self)
-        self.soap_app = GnrSoapApplication([self],getattr(self,'app_tns','xs'), name=getattr(self,'app_name',None))
+        ServiceBase.__init__(self)
+        for k in dir(self):
+            v = getattr(self,k)
+            if hasattr(v, '_is_rpc'):
+                # these three lines are needed for staticmethod wrapping to work
+                descriptor = v(_default_function_name=k)
+                setattr(self, k, staticmethod(descriptor.function))
+                descriptor.reset_function(getattr(self, k))
+                self.public_methods[k] = descriptor
+                #self.public_methods[k] = v
+        self.soap_app = GnrSoapApplication([self],getattr(self,'app_tns','gnr.soap.application'),Soap11(),Soap11(), name=getattr(self,'app_name',None))
         self.soap_app.transport = 'http://schemas.xmlsoap.org/soap/http'
