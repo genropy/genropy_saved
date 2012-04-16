@@ -361,7 +361,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         var validations = objectExtract(attributes, 'validate_*');
         var extracted = objectExtract(attributes, '_*', {'_type':null, '_identifier':null}); // strip all attributes used only for triggering rebuild or as input for ==function
         objectUpdate(attributes, attrmixins);
-        var newobj = new wdgFactory(attributes, domnode);
+        var newobj = handler.createDojoWidget(wdgFactory,attributes,domnode,sourceNode);
         if (kw.readonly) {
             var field = dojo.byId(newobj.id);
             field.readOnly = true;

@@ -166,7 +166,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         var valueAttr = valueAttr || {};
         value = this.onSettingValueInData(sourceNode,value,valueAttr);
         if (sourceNode.attr.mask || sourceNode.attr.format) {
-            var valueToFormat = '_displayedValue' in valueAttr? valueAttr['_displayedValue'] : value;
+            var valueToFormat = (typeof(value)=='string' && '_displayedValue' in valueAttr)? valueAttr['_displayedValue'] : value;
             var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.attr);
             this.setFormattedValue(sourceNode,formattedValue);
             valueAttr['_formattedValue'] = formattedValue;
@@ -288,6 +288,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
     _created:function(newobj, savedAttrs, sourceNode, ind) {
         this.created(newobj, savedAttrs, sourceNode);
+        if(this.formattedValueHandler){
+            this.formattedValueHandler(newobj, savedAttrs, sourceNode);
+        }
         var domNode = newobj.domNode || newobj;
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
@@ -557,6 +560,12 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         this._domtag = 'div';
         this._dojowidget = true;
     },
+    createDojoWidget:function(factory,attributes,domnode,sourceNode){
+        if (this.customizedTemplate){
+            attributes['templateString'] = this.customizedTemplate(sourceNode,factory.prototype.templateString);
+        }
+        return new factory(attributes, domnode);
+    },
     _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
         /*if(value==undefined){
          sourceNode.widget._isvalid = false;
@@ -600,6 +609,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
     },
+    
 
     mixin_setDraggable:function(value) {
         this.domNode.setAttribute('draggable', value);
@@ -1923,38 +1933,25 @@ dojo.declare("gnr.widgets.TextArea_", gnr.widgets.baseDojo, {
         var x = 1;
     }
 });
-dojo.declare("gnr.widgets.DateTextBox", gnr.widgets.baseDojo, {
 
-    onChanged:function(widget, value) {
-        //genro.debug('onChanged:'+value);
-        //widget.sourceNode.setAttributeInDatasource('value',value);
-        if (value) {
-            this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'D'});
-        }
-        else {
-            this._doChangeInData(widget.domNode, widget.sourceNode, null);
-        }
-    },
-
-    constructor: function() {
-        this._domtag = 'input';
-        this._dojotag = 'DateTextBox';
-    },
-    creating: function(attributes, sourceNode) {
-        
-        attributes.constraints = objectExtract(attributes, 'formatLength,datePattern,fullYear,min,max,strict,locale');
-        attributes.constraints.selector='date'
-        if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
-            attributes.popupClass = null;
-        }
+dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
+    formattedValueHandler:function(widget, savedAttrs, sourceNode){
+        if((sourceNode.attr.format || sourceNode.attr.mask)){
+           sourceNode.freeze();
+           sourceNode._('span',{'innerHTML':sourceNode.attr.value+'?_formattedValue',_class:'formattedViewer',
+                               _attachPoint:'focusNode.parentNode'});
+           sourceNode.unfreeze();
+           dojo.addClass(widget.focusNode.parentNode,'formattedTextBox');
+       }
     }
-
 });
-dojo.declare("gnr.widgets.TextBox", gnr.widgets.baseDojo, {
+
+dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
     constructor: function(application) {
         this._domtag = 'input';
         this._dojotag = 'ValidationTextBox';
     },
+    
     /*mixin_displayMessage: function(message){
      //genro.dlg.message(message, null, null, this.domNode)
      genro.setData('_pbl.errorMessage', message)
@@ -1977,10 +1974,33 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets.baseDojo, {
     mixin_selectAllInputText: function() {
         dijit.selectInputText(this.focusNode);
     }
-
-
 });
-dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets.baseDojo, {
+
+dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
+    constructor: function() {
+        this._domtag = 'input';
+        this._dojotag = 'DateTextBox';
+    },
+    onChanged:function(widget, value) {
+        //genro.debug('onChanged:'+value);
+        //widget.sourceNode.setAttributeInDatasource('value',value);
+        if (value) {
+            this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'D'});
+        }
+        else {
+            this._doChangeInData(widget.domNode, widget.sourceNode, null);
+        }
+    },
+    creating: function(attributes, sourceNode) {
+        
+        attributes.constraints = objectExtract(attributes, 'formatLength,datePattern,fullYear,min,max,strict,locale');
+        attributes.constraints.selector='date'
+        if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
+            attributes.popupClass = null;
+        }
+    }
+});
+dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {
         if (value) {
             this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'H'});
@@ -2005,7 +2025,7 @@ dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets.baseDojo, {
     }
 });
 
-dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets.baseDojo, {
+dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     constructor: function(application) {
         this._domtag = 'input';
         this._dojotag = 'NumberTextBox';
