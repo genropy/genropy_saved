@@ -1941,10 +1941,24 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets.baseDojo, {
         this._dojotag = 'DateTextBox';
     },
     creating: function(attributes, sourceNode) {
+        
+        attributes.constraints = objectExtract(attributes, 'formatLength,datePattern,fullYear,min,max,strict,locale');
+        attributes.constraints.selector='date'
         if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
             attributes.popupClass = null;
         }
+        attributes.parse= function(/*String*/ value, /*dojo.date.locale.__FormatOptions*/ constraints){
+			//	summary: parses the value as a Date, according to constraints
+			return dojo.date.locale.parse(value,{selector:'date'}) || undefined; /* can't return null to getValue since that's special */
+		}
 
+
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        dojo.connect(widget,'_onFocus',function(e){
+            console.log(e)
+        })
+        
     }
 
 
