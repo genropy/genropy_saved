@@ -1947,20 +1947,7 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets.baseDojo, {
         if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
             attributes.popupClass = null;
         }
-        attributes.parse= function(/*String*/ value, /*dojo.date.locale.__FormatOptions*/ constraints){
-			//	summary: parses the value as a Date, according to constraints
-			return dojo.date.locale.parse(value,{selector:'date'}) || undefined; /* can't return null to getValue since that's special */
-		}
-
-
-    },
-    created: function(widget, savedAttrs, sourceNode) {
-        dojo.connect(widget,'_onFocus',function(e){
-            console.log(e)
-        })
-        
     }
-
 
 });
 dojo.declare("gnr.widgets.TextBox", gnr.widgets.baseDojo, {
