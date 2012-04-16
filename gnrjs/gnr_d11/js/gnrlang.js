@@ -966,6 +966,59 @@ function asText(value, params) {
     return convertToText(value, params)[1];
 };
 
+
+function numFormat(num, params) {
+    if (typeof(params) == 'string') {
+        var decimal_precision = params[2];
+        var thousand_sep = params[0];
+        var decimal_sep = params[1];
+    } else {
+        params = params || {};
+        var decimal_precision = params['decimal_precision'] || 0;
+        var thousand_sep = params['thousand_sep'] || ',';
+        var decimal_sep = params['decimal_sep'] || '.';
+    }
+    num = num || 0;
+ 
+    if (typeof(num) == 'string') {
+        num = parseFloat(num);
+    }
+ 
+    num_str = num.toFixed(decimal_precision);
+ 
+    var arr, int_str, dec_str;
+    if (num_str.indexOf('.') != -1) {
+        arr = num_str.split('.');
+        int_str = arr[0];
+        dec_str = arr[1];
+    } else {
+        int_str = num_str;
+        dec_str = '0';
+    }
+ 
+    var c = 0;
+    var sep_str = "";
+ 
+    for (var x = int_str.length; x > 0; x--) {
+        c = c + 1;
+        if (c == 4 && int_str[x - 1] != '-') {
+            c = 0;
+            sep_str = thousand_sep + sep_str;
+        }
+        sep_str = int_str[x - 1] + sep_str;
+    }
+ 
+    if (decimal_precision > 0) {
+        return sep_str + decimal_sep + dec_str;
+    } else {
+        return sep_str;
+    }
+}
+
+
+
+
+
 function parseArgs(arglist) {
     var kwargs = {};
     if (arglist.length > 1) {
