@@ -124,7 +124,8 @@ class DynamicForm(BaseComponent):
         tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data',preview=True)
-        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',toolbar='standard')
+        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',
+                            toolbar='standard')
         
         tc.contentPane(title='!!Summary Preview',padding='10px',background='white').div('^#FORM.dynamicFormTester.data._df_summary')
                 
@@ -234,7 +235,18 @@ class DynamicForm(BaseComponent):
         
     def df_combobox(self,attr,**kwargs):
         attr['values'] = attr.get('source_combobox')
-                    
+                
+
+    def df_imguploader(self,attr,**kwargs):
+        if not attr.get('style'):
+            attr['height'] = '64px'
+            attr['width'] = '64px'
+        attr['placeholder'] = self.getResourceUri('images/imgplaceholder.png')
+        attr['folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
+        attr['filename'] = '=#FORM.pkey'
+        attr['dtype'] = 'T'
+        attr['format'] = 'img'
+
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')
         attr['dbtable'] = tbl

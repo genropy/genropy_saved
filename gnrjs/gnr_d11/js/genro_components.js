@@ -825,14 +825,24 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var placeholder = objectPop(kw,'placeholder');
         var folder = objectPop(kw,'folder');
         var filename = objectPop(kw,'filename');
+        var zoomImage = objectPop(kw,'zoomImage');
+        if(zoomImage){
+            kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
+            kw.cursor = 'pointer';
+        }
         var cb = function(result){
-            sourceNode.setRelativeData(value,this.responseText);
+            sourceNode.setRelativeData(value,this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
         };
         var uploaderAttr = {src:'==_v?_v:placeholder;', placeholder:placeholder,_v:value,
-                            dropTarget:true,dropTypes:'Files', drop_ext:kw.drop_ext || 'png,jpg,gif'};
+                            dropTarget:true,dropTypes:'Files', drop_ext:kw.drop_ext || 'png,jpg,jpeg,gif'};
         uploaderAttr.onDrop = function(data,files){
             var f = files[0];
-            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:sourceNode.currentFromDatasource(filename),
+            var currfilename = sourceNode.currentFromDatasource(filename);
+            if(!currfilename){
+                //genro.alert('Warning',"You complete your data before upload");
+                return false;
+            }
+            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
                                                       onResult:cb});
         };
         return sourceNode._('img',objectUpdate(uploaderAttr,kw));

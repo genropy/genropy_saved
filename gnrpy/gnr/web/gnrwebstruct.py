@@ -1866,16 +1866,7 @@ class GnrFormBuilder(object):
                     row[1].delItem('c_%i' % cs)
                         
         if tag:
-            field['placeholder'] = field.pop('ghost', None)
-            #if ghost:
-            #    if ghost is True:
-            #        ghost = lbl
-            #    field['id'] = field.get('id', None) or self.page.getUuid()
-            #    td.label(_for=field['id'], _class='ghostlabel', id=field['id'] + '_label').span(ghost)
-            #    field['hasGhost'] = True
-                #field['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);' 
-                #field['connect__onKeyPress'] = 'genro.dom.ghostOnEvent($1);' 
-                #field['connect_setDisplayedValue'] = 'genro.dom.ghostOnEvent("setvalue");' 
+            field['placeholder'] = field.get('placeholder',field.pop('ghost', None))
             obj = td.child(tag, **field)
             return obj
                 
