@@ -219,7 +219,7 @@ function dataTemplate(str, data, path, showAlways) {
                                     
                                 }
                                 var valueNode = data.getNode(path);
-                                var value = valueNode? (valueNode.attr._formattedValue || valueNode._value):auxattr[path];
+                                var value = valueNode? (valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode._value):auxattr[path];
                                 if (subtpl){
                                     if(value instanceof gnr.GnrBag){
                                         var subval=[];

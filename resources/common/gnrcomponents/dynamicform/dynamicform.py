@@ -104,7 +104,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',counter=True,hidden=True)
-        r.fieldcell('code', name='!!Code', width='5em')
+        r.fieldcell('code', name='!!Code', width='5em',draggable=True)
         r.fieldcell('description', name='!!Description', width='15em')
         r.fieldcell('data_type', name='!!Type', width='10em')
         r.fieldcell('wdg_tag',name='!!Widget',width='10em')
@@ -131,6 +131,11 @@ class DynamicForm(BaseComponent):
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
+                                        grid_onDrag="""
+                                        if(dragInfo.dragmode=='cell' && dragInfo.colStruct.field=='code'){
+                                            dragValues['text/plain'] = '$'+dragValues['text/plain'];
+                                        }
+                                        """,
                                         grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields;',
                                         searchOn=searchOn,**kwargs)
         if title:
@@ -202,6 +207,7 @@ class DynamicForm(BaseComponent):
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
         fb.dataController("""
+            genro.bp()
             if(fieldsToDisplay && _node.label!='_df_summary'){
                 var result = [];
                 var node,v;
@@ -212,7 +218,7 @@ class DynamicForm(BaseComponent):
                 
                 dojo.forEach(fieldsToDisplay,function(n){
                     node = data.getNode(n[0]);
-                    v = node.attr._formattedValue || node.getValue();
+                    v = node.attr._formattedValue || node.attr._displayedValue || node.getValue();
                     if(v){
                         result.push(n[1]+':'+v);
                     }
