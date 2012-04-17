@@ -9,6 +9,7 @@ import glob
 import sys
 import subprocess
 import atexit
+import signal
 wsgi_options = dict(
         port=8080,
         host='0.0.0.0',
@@ -213,11 +214,12 @@ class UwsgiRunner(object):
         return site_config
 
     def run(self):
-    	uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port, '--wsgi-file', self.site_script])
-    	atexit.register(uwsgi_master.terminate)
-    	uwsgi_master.wait()
+    	self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging'])
+    	atexit.register(self.term_uwsgi)
+    	self.uwsgi_master.wait()
 
-
+    def term_uwsgi(self):
+        self.uwsgi_master.send_signal(signal.SIGINT)
 
 if __name__ == '__main__':
     runner = UwsgiRunner()
