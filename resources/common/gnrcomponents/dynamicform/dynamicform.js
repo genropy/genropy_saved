@@ -28,7 +28,9 @@ var dynamicFormHandler = {
             defaults = {wdg_tag:'checkbox',format:'Yes,No'};
 
         }else if(data_type='P'){
-            
+            allowedWidget = 'imguploader:Image Uploader';
+            allowedFormat = ''
+            defaults = {wdg_tag:'imguploader',format:''};
         }
         sourceNode.setRelativeData('#FORM.allowedWidget',allowedWidget);
         sourceNode.setRelativeData('#FORM.allowedFormat',allowedFormat);

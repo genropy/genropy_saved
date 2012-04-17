@@ -104,7 +104,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',counter=True,hidden=True)
-        r.fieldcell('code', name='!!Code', width='5em')
+        r.fieldcell('code', name='!!Code', width='5em',draggable=True)
         r.fieldcell('description', name='!!Description', width='15em')
         r.fieldcell('data_type', name='!!Type', width='10em')
         r.fieldcell('wdg_tag',name='!!Widget',width='10em')
@@ -124,13 +124,19 @@ class DynamicForm(BaseComponent):
         tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data',preview=True)
-        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',toolbar='standard')
+        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',
+                            toolbar='standard')
         
         tc.contentPane(title='!!Summary Preview',padding='10px',background='white').div('^#FORM.dynamicFormTester.data._df_summary')
                 
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
+                                        grid_onDrag="""
+                                        if(dragInfo.dragmode=='cell' && dragInfo.colStruct.field=='code'){
+                                            dragValues['text/plain'] = '$'+dragValues['text/plain'];
+                                        }
+                                        """,
                                         grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields;',
                                         searchOn=searchOn,**kwargs)
         if title:
@@ -202,6 +208,7 @@ class DynamicForm(BaseComponent):
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
         fb.dataController("""
+            genro.bp()
             if(fieldsToDisplay && _node.label!='_df_summary'){
                 var result = [];
                 var node,v;
@@ -212,7 +219,7 @@ class DynamicForm(BaseComponent):
                 
                 dojo.forEach(fieldsToDisplay,function(n){
                     node = data.getNode(n[0]);
-                    v = node.attr._formattedValue || node.getValue();
+                    v = node.attr._formattedValue || node.attr._displayedValue || node.getValue();
                     if(v){
                         result.push(n[1]+':'+v);
                     }
@@ -228,7 +235,18 @@ class DynamicForm(BaseComponent):
         
     def df_combobox(self,attr,**kwargs):
         attr['values'] = attr.get('source_combobox')
-                    
+                
+
+    def df_imguploader(self,attr,**kwargs):
+        if not attr.get('style'):
+            attr['height'] = '64px'
+            attr['width'] = '64px'
+        attr['placeholder'] = self.getResourceUri('images/imgplaceholder.png')
+        attr['folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
+        attr['filename'] = '=#FORM.pkey'
+        attr['dtype'] = 'T'
+        attr['format'] = 'img'
+
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')
         attr['dbtable'] = tbl
