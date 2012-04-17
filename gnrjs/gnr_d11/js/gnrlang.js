@@ -704,6 +704,9 @@ function convertFromText(value, t, fromLocale) {
 var gnrformatter = {
     asText :function (value,valueAttr){
         var valueAttr = valueAttr || {};
+        if(value==null || value==undefined){
+            return '';
+        }
         var dtype = valueAttr.dtype || guessDtype(value);
         var format = valueAttr.format;
         var formatKw = objectExtract(valueAttr,'format_*',true);
