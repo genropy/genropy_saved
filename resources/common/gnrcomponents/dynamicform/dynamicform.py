@@ -123,8 +123,8 @@ class DynamicForm(BaseComponent):
         tc = bc.tabContainer(region='bottom',height='50%',splitter=True,hidden=True)
         tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
-                                                    datapath='#FORM.dynamicFormTester.data')
-        tc.contentPane(title='!!Preview Text')
+                                                    datapath='#FORM.dynamicFormTester.data',preview=True)
+        tc.contentPane(title='!!Preview Text').div('^#FORM.dynamicFormTester.data._df_summary')
                 
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
@@ -199,8 +199,8 @@ class DynamicForm(BaseComponent):
             
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
-        fb.div(innerHTML="""==function(sourceNode,data,fieldsToDisplay){
-            if(_fieldsToDisplay){
+        fb.dataController("""
+            if(fieldsToDisplay && _node.label!='_df_summary'){
                 var result = [];
                 var node,v;
                 dojo.forEach(fieldsToDisplay,function(n){
@@ -210,9 +210,9 @@ class DynamicForm(BaseComponent):
                         result.push(n[1]+':'+v);
                     }
                 },'static');
-                return result.join('<br/>')
+                data.setItem('_df_summary',result.join('<br/>'));
             }
-        }(this,_data,_fieldsToDisplay);""",_fieldsToDisplay=fieldsToDisplay,_data='^%s' %datapath)
+            """,fieldsToDisplay=fieldsToDisplay,data='^%s' %datapath)
 
         
     def df_filteringselect(self,attr,**kwargs):

@@ -1070,7 +1070,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (!(kw.evt == 'ins' || kw.evt == 'del')) {
             value = this.getAttributeFromDatasource(attr, true);
         }
-        value = (value != null) ? value : '';
+        //value = (value != null) ? value : '';
         if(attr_lower=='disabled'){
             return this.setDisabled(value);
         }

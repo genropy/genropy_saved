@@ -2056,6 +2056,8 @@ dojo.declare("gnr.widgets.NumberSpinner", gnr.widgets.NumberTextBox, {
         this._domtag = 'input';
         this._dojotag = 'NumberSpinner';
     }
+    
+    
 });
 
 // ********* Grid ************
