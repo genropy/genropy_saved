@@ -1200,7 +1200,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                     valueAttr['_displayedValue'] = valueToFormat;
                                 }
                             }
-                            valueAttr['_formattedValue'] = genro.formatter.asText(valueToFormat, this.attr);
+                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.attr)});
                         }
 
                     }
