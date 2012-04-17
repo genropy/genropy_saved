@@ -291,7 +291,7 @@ class TemplateEditor(TemplateEditorBase):
 class PaletteTemplateEditor(TemplateEditor):
     @struct_method
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
-        palette = pane.palettePane(paletteCode='template_manager',
+        palette = pane.palettePane(paletteCode=paletteCode or 'template_manager',
                                     title='^.caption',
                                     width='750px',height='500px',**kwargs)
         sc = palette.templateEditor(maintable=maintable)

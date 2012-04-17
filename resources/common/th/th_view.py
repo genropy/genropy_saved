@@ -244,7 +244,8 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_templateManager(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        pane.paletteTemplateEditor(maintable=table,dockButton_iconClass='iconbox document')
+        paletteCode = '%(thlist_root)s_template_manager' %inattr
+        pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):

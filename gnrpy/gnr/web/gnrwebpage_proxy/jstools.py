@@ -40,7 +40,10 @@ def compress_js(jsfiles, site=None):
                 f.close()
                 cpf.write(jsmin(js))
                 cpf.write('\n\n\n\n')
+            cpf.flush()
+            os.fsync(cpf.fileno())
         shutil.move(outfile_path, jspath)
+        
         
         
     return jsurl
