@@ -1936,7 +1936,7 @@ dojo.declare("gnr.widgets.TextArea_", gnr.widgets.baseDojo, {
 
 dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
     formattedValueHandler:function(widget, savedAttrs, sourceNode){
-        if((sourceNode.attr.format || sourceNode.attr.mask)){
+        if((sourceNode.attr.format || sourceNode.attr.mask) && sourceNode.attr.displayFormattedValue){
            sourceNode.freeze();
            sourceNode._('span',{'innerHTML':sourceNode.attr.value+'?_formattedValue',_class:'formattedViewer',
                                _attachPoint:'focusNode.parentNode'});

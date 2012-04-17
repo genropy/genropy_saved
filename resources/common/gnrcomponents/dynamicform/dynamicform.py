@@ -114,7 +114,7 @@ class View(BaseComponent):
         return '_row_count'
 
 class DynamicForm(BaseComponent):
-    py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
+    py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase,foundation/macrowidgets:RichTextEditor'
     
     @struct_method
     def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
@@ -124,7 +124,9 @@ class DynamicForm(BaseComponent):
         tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
                                                     datapath='#FORM.dynamicFormTester.data',preview=True)
-        tc.contentPane(title='!!Preview Text').div('^#FORM.dynamicFormTester.data._df_summary')
+        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',toolbar='standard')
+        
+        tc.contentPane(title='!!Summary Preview',padding='10px',background='white').div('^#FORM.dynamicFormTester.data._df_summary')
                 
         
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
@@ -203,6 +205,11 @@ class DynamicForm(BaseComponent):
             if(fieldsToDisplay && _node.label!='_df_summary'){
                 var result = [];
                 var node,v;
+                if(summary_template){
+                    data.setItem('_df_summary',dataTemplate(summary_template,data));
+                    return;
+                }
+                
                 dojo.forEach(fieldsToDisplay,function(n){
                     node = data.getNode(n[0]);
                     v = node.attr._formattedValue || node.getValue();
@@ -212,7 +219,8 @@ class DynamicForm(BaseComponent):
                 },'static');
                 data.setItem('_df_summary',result.join('<br/>'));
             }
-            """,fieldsToDisplay=fieldsToDisplay,data='^%s' %datapath)
+            """,fieldsToDisplay=fieldsToDisplay,data='^%s' %datapath,
+                summary_template='^#FORM.record.df_template')
 
         
     def df_filteringselect(self,attr,**kwargs):
