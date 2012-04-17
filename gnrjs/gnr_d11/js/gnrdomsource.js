@@ -440,7 +440,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var value = this.attr[attrname];
         value = this.currentFromDatasource(value, autocreate, dflt);
         if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format)) {
-            value = asText(value, this.attr);
+            value = genro.formatter.asText(value, this.attr);
         }
         return value;
     },
@@ -682,7 +682,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     build: function(destination, ind) {
         var tag = this.attr.tag;
         genro.src.stripData(this);
-
+        if(this.attr._attachPoint){
+            var _attachPoint = this.attr._attachPoint.split('.');
+            while (_attachPoint.length>0){
+                destination = destination[_attachPoint.shift()];
+            }
+        }
         if (!tag) {
             //console.warn('notag in build domsource',arguments.callee);
             this._buildChildren(destination);

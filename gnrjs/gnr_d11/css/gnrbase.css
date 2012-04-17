@@ -2179,6 +2179,21 @@ body *{
 .tundra .dijitTextBoxFocused, .tundra .dijitTextAreaFocused,.tundra .dijitComboBoxFocused {
     box-shadow: 0px 0px 5px #488fd7;
 }
+
+.tundra .formattedTextBox input{
+    width:1px !important;
+}
+
+
+.tundra .dijitTextBoxFocused .formattedTextBox input{
+    width:100% !important;
+}
+.tundra .dijitTextBoxFocused .formattedViewer{
+    display:none;
+}
+
+
+
 .tundra .dijitTextBoxFocused .cls_DbSelect, .tundra .dijitComboBoxFocused .cls_DbSelect{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#FFFFAD));
     background-image: -moz-linear-gradient(-90deg, white, #FFFFAD);
