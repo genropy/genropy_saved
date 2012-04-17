@@ -13,6 +13,9 @@ class GnrCustomWebPage(object):
         #fb.div('^.date_1',mask='Masked value:%s')
         fb.datetextbox(lbl='Full',value='^.date_2',popup=False,
                 format='full')
+        fb.div('^.tttt',format='short',dtype='DH')
+        fb.button('Test',fire='.newdate')
+        fb.dataController('SET .tttt = new Date();',_fired='^.newdate')
         #fb.div('^.date_2',mask='Masked value:%s',format='short')
         
     def test_2_numberTextBox(self, pane):

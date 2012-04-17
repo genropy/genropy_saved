@@ -104,16 +104,18 @@ class TableScriptHandler(BaseComponent):
 
         hasParameters = hasattr(self, 'table_script_parameters_pane')
         hasOptions = hasattr(self, 'table_script_option_pane')
-        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative',childname='parametersDialog')
+        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative',childname='parametersDialog',padding_bottom='25px')
         dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options',position='relative',childname='optionsDialog')
         pane = pane.div(datapath='#table_script_runner')
         if hasParameters:
             parsbox = dlgpars.div(datapath='#table_script_runner.data',
-                            min_width='300px',min_height='150px',childname='contentNode')
+                            min_width='300px',min_height='150px',childname='contentNode',position='relative',top='0',
+                            bottom='25px')
             if batch_dict.get('title'):
                 dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],batch_dict.get('record_count')),_onBuilt=True)
             self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,**batch_dict)
-            footer = self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict)    
+            footer = self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0,
+                                                         childname='footerNode',height='25px'),**batch_dict)    
             dlgpars.dataController("dlgoptions.show();",confirm="^.confirm",dlg=dlgpars.js_widget,
                                     dlgoptions=dlgoptions.js_widget,
                                     hasOptions=hasOptions,_if='hasOptions&&confirm==true',
