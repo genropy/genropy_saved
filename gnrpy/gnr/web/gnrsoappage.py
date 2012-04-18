@@ -103,7 +103,7 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
             in_obj = self.get_in_object(ctx, in_string, self.request._request.charset)
             out_obj = self.get_out_object(ctx, in_obj)
             out_string = self.get_out_string(ctx, out_obj)
-            return on_out_string(out_string)
+            return self.on_out_string(out_string)
         else:
         #except Exception, e:
             if getattr(self, 'debug_soap',False):
