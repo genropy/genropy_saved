@@ -1211,6 +1211,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
         };
         setTimeout(cb, 1);
     },
+    setTextInSelection:function(sourceNode,valueToPaste){
+        var fn = sourceNode.widget.focusNode;
+        var ss = fn.selectionStart;
+        var se = fn.selectionEnd;
+        var v =  fn.value;
+        var fistchunk = v.slice(0,ss);
+        var secondchunk = v.slice(se);
+        fn.value = fistchunk+valueToPaste+secondchunk;
+    },
+    
     centerOn: function(what, where, onlyX, onlyY) {
         var whatDomNode = this.getDomNode(what);
         var whereDomNode = where ? this.getDomNode(where) : whatDomNode.parentNode;

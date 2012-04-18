@@ -187,7 +187,9 @@ class HTableHandlerBase(BaseComponent):
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
         attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-        pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'],condition=dbselect_condition,condition_kwargs=dbselect_condition_kwargs)
+        pane.dataRemote(menupath,self.ht_remoteTreeData,table=attr['dbtable'],
+                        condition=dbselect_condition,
+                        condition_kwargs=dbselect_condition_kwargs,cacheTime=30)
         dbselect.menu(storepath='%s._root_' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
     @struct_method
@@ -816,7 +818,6 @@ class HTableHandler(HTableHandlerBase):
                                     return true;
                                     """,**kwargs)     
         pane.onDbChanges(action="""var selectedNode = treeNode.widget.currentSelectedNode;
-                                   genro.bp();
                                     var selectedPkey = selectedNode? selectedNode.item.attr.pkey:'';       
                                     var selectedCode =null;                             
                                     var refreshDict = {};

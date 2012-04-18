@@ -123,7 +123,12 @@ gnr.menuFromBag = function (bag, appendTo, menuclass, basepath) {
     for (var i = 0; i < bagnodes.length; i++) {
         var bagnode = bagnodes[i];
         attributes = objectUpdate({}, bagnode.attr);
-        attributes.label = attributes.caption || attributes.label || bagnode.label;
+        var valuelabel = null;
+        if(typeof(bagnode._value)=='string'){
+            valuelabel = bagnode._value;
+        }
+        attributes.label = attributes.caption || attributes.label || valuelabel || bagnode.label;
+
         attributes.fullpath = basepath ? basepath + '.' + bagnode.label : bagnode.label;
         menuline = appendTo._('menuline', attributes);
         if (bagnode.getResolver()) {
@@ -853,17 +858,25 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         this._domtag = 'textarea';
     },
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'value');
+        var savedAttrs = objectExtract(attributes, 'value,suggestions');
         return savedAttrs;
     },
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.value) {
             newobj.setValue(savedAttrs.value);
         }
-        ;
+       if(savedAttrs.suggestions){
+           sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',
+                                                action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:savedAttrs.suggestions});
+        }
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
         }));
+    },
+    
+    mixin_setSuggestions:function(suggestions){
+        this.sourceNode._value.popNode('suggestionMenu');
+        this.sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:suggestions});
     },
     onChanged:function(widget) {
         var value = widget.getValue();
@@ -1439,8 +1452,22 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
         return savedAttrs;
     },
+    mixin_setValues:function(values){
+        var contentBag = new gnr.GnrBag(objectFromString(values))
+        var menubag = new gnr.GnrDomSource();
+        gnr.menuFromBag(contentBag, menubag, this.sourceNode.attr._class);
+        this.sourceNode.setValue(menubag, false);
+        this.sourceNode.rebuild();
+
+    },
     created: function(widget, savedAttrs, sourceNode) {
-        if (savedAttrs.storepath) {
+        if(sourceNode.attr.values){
+            var contentBag = new gnr.GnrBag(objectFromString(sourceNode.attr.values))
+            var menubag = new gnr.GnrDomSource();
+            gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
+            
+        }
+        else if (savedAttrs.storepath) {
             var contentNode = genro.getDataNode(sourceNode.absDatapath(savedAttrs.storepath));
             if (contentNode ) {
                 var content = contentNode.getValue('static');
@@ -1448,7 +1475,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                     var menubag = new gnr.GnrDomSource();
                     gnr.menuFromBag(content, menubag, sourceNode.attr._class);
                     sourceNode.setValue(menubag, false);
-                } else if (contentNode.getResolver()) {
+                }else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }else{
                     console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
