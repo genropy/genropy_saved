@@ -63,12 +63,12 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         in_object = None
         root, xmlids = self.soap_app.parse_xml_string(in_string, in_string_charset)
 
-        if True:
+        try:
             in_object = self.soap_app.deserialize_soap(ctx, self.soap_app.IN_WRAPPER,
                                                                    root, xmlids)
-        else:
-
-        #except Fault,e:
+        except Fault,e:
+            if getattr(self, 'debug_soap',False):
+                raise
             ctx.in_error = e
 
         return in_object
@@ -97,15 +97,14 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         self.response.content_type = 'text/xml'
         if not self.request._request.body:
             return self.service_description()
-        if True:
+        try:
             ctx = MethodContext()
             in_string = collapse_swa(self.request.content_type, self.request._request.body)
             in_obj = self.get_in_object(ctx, in_string, self.request._request.charset)
             out_obj = self.get_out_object(ctx, in_obj)
             out_string = self.get_out_string(ctx, out_obj)
             return self.on_out_string(out_string)
-        else:
-        #except Exception, e:
+        except Exception, e:
             if getattr(self, 'debug_soap',False):
                 raise
             self.response.status='500 Internal Server Error'
