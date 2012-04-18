@@ -568,7 +568,7 @@ class GnrHTable(GnrDboTable):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         code = self.readColumns(pkey=pkey,columns='code')
         return fieldstable.query(where="(:code=@maintable_id.code) OR (:code ILIKE @maintable_id.code || '.%%')",
-                                    code=code,order_by='$_row_count').fetch()
+                                    code=code,order_by='@maintable_id.code,$_row_count').fetch()
 
 
         
