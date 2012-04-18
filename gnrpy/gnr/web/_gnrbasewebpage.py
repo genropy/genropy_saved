@@ -273,6 +273,7 @@ class GnrBaseWebPage(GnrObject):
             where = '%s AND %s' % (where, condition)
         selection = table.query(columns=columns, where=where,
                                 pkeys=pkeys, addPkeyColumn=False,
+                                excludeDraft=False,
                                 **condition_args).selection()
         return selection
         
