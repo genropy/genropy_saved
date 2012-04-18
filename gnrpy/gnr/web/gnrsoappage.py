@@ -89,6 +89,9 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
                     encoding=string_encoding)
         return out_string
     
+    def on_out_string(self, out_string):
+        return out_string
+
     def rootPage(self,*args, **kwargs):
         """Handle an incoming SOAP request or a non-SOAP WSDL query."""
         self.response.content_type = 'text/xml'
@@ -100,7 +103,7 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
             in_obj = self.get_in_object(ctx, in_string, self.request._request.charset)
             out_obj = self.get_out_object(ctx, in_obj)
             out_string = self.get_out_string(ctx, out_obj)
-            return out_string
+            return on_out_string(out_string)
         else:
         #except Exception, e:
             if getattr(self, 'debug_soap',False):
