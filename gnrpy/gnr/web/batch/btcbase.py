@@ -175,7 +175,7 @@ class BaseResourceBatch(object):
                                                     sortBy=self.sortBy,
                                                     columns=columns)
         elif self.selectedPkeys:
-            selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=self.selectedPkeys).selection()
+            selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=self.selectedPkeys,excludeDraft=False).selection()
         return selection
 
     def get_records(self):
