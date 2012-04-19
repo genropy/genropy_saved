@@ -523,7 +523,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
-    def remote(self, method, lazy=True, **kwargs):
+    def remote(self, method, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
         :param method: TODO
@@ -537,6 +537,8 @@ class GnrDomSrc(GnrStructData):
             parentAttr = self.parentNode.getAttr()
             parentAttr['remote'] = 'remoteBuilder'
             parentAttr['remote_handler'] = method
+            if cachedRemote:
+                parentAttr['_cachedRemote'] = cachedRemote
             for k, v in kwargs.items():
                 if k.endswith('_path'):
                     v = u'§%s' % v

@@ -1287,6 +1287,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return;
         }
         var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
+        if(this._lastRemoteAttr && this.attr._cachedRemote && objectIsEqual(this._lastRemoteAttr,remoteAttr)){
+            return;
+        }
+        this._lastRemoteAttr = remoteAttr;
         if(remoteAttr._if){
             var condition = funcApply('return (' + remoteAttr._if + ')',remoteAttr,this);
             if(!condition){
@@ -1319,6 +1323,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var that = this;
         kwargs.sync = true;
         var currval;
+        console.log('update remote')
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
                             function(result) {
                                 //that.setValue(result);

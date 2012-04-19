@@ -60,5 +60,38 @@ var dynamicFormHandler = {
                 //formclass = 'dffb_'+data_type;
         }
         sourceNode.setRelativeData('#FORM.boxClass',boxClass);
+    },
+    
+    onFieldsBagUpdated:function(kw){
+        var data = kw.data;
+        var templates = kw.templates;
+        data.popNode('_df_summaries');
+        var summaries = new gnr.GnrBag();
+        var autotemplate =data.getItem('_df_autotemplate');
+        if(autotemplate){
+            var at = [];
+            var r,vn;
+            dojo.forEach(autotemplate.split(','),function(n){
+                r = n.split(':');
+                vn = data.getNode(r[1]);
+                if(vn && vn._value+''){
+                    at.push(r[0]+': '+(vn.attr._formattedValue || vn.attr._displayedValue || vn.getValue()));
+                }
+            })
+            summaries.setItem('auto',at.join('<br/>'));
+        };
+        
+        if(templates){
+            templates.forEach(function(n){
+                var tpl = n.getValue().getItem('tpl');
+                if(tpl){
+                    summaries.setItem(n.label,dataTemplate(tpl,data));
+                }
+            },'static');
+        }
+        data.setItem('_df_summaries',summaries);
+        
+        
+        
     }
 };

@@ -390,7 +390,7 @@ class DynamicFieldsTable(TableBase):
         mastertbl_name_long = mastertbl.attributes.get('name_long')
         mastertbl_multidb = mastertbl.attributes.get('multidb')
         mastertbl.column('df_fbcolumns','L',group='_')
-        mastertbl.column('df_template','T',group='_')
+        mastertbl.column('df_custom_templates','X',group='_')
 
         tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
         tbl.attributes.setdefault('caption_field','description')
@@ -401,6 +401,8 @@ class DynamicFieldsTable(TableBase):
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
         tbl.column('id',size='22',group='_',name_long='Id')
         tbl.column('code',name_long='!!Code')
+        tbl.column('default_value',name_long='!!Default value')
+        
         tbl.column('description',name_long='!!Description')
         tbl.column('data_type',name_long='!!Data Type')
         tbl.column('calculated','B',name_long='!!Enterable')
@@ -423,13 +425,10 @@ class DynamicFieldsTable(TableBase):
 
         tbl.column('field_mask',name_long='!!Mask')
         tbl.column('field_tip',name_long='!!Tip')
-
-
-
         tbl.column('validate_case',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Case')
         tbl.column('validate_range',name_long='!!Range')
         
-        tbl.column('standard_range','N',name_long='!!')
+        tbl.column('standard_range','N',name_long='!!Std range')
         tbl.column('formula',name_long='!!Formula')
         #tbl.column('do_summary','B',name_long='!!Do summary')
         tbl.column('mandatory','B',name_long='!!Mandatory')

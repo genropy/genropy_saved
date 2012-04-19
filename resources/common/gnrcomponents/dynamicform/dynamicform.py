@@ -116,20 +116,50 @@ class View(BaseComponent):
 class DynamicForm(BaseComponent):
     py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase,foundation/macrowidgets:RichTextEditor'
     
+    def __df_tpl_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('tplname', name='Template', width='100%')
+        
+    def df_summaryTemplates(self,frame):
+        bar = frame.top.slotToolbar('parentStackButtons,*,delgridrow,addrow_dlg')
+        bc = frame.center.borderContainer(design='sidebar')
+        fg = bc.frameGrid(region='left',margin='2px',storepath='#FORM.record.df_custom_templates',datamode='bag',
+                            width='130px',struct=self.__df_tpl_struct,grid_selectedLabel='.selectedLabel',
+                            grid_autoSelect=True)
+        bar.addrow_dlg.slotButton('!!Add custom template',iconClass='iconbox add_row',
+                                            action='genro.dlg.prompt(dlgtitle,{lbl:dlglbl,action:"FIRE #FORM.dynamicFormTester.newCustTpl=value;"},this);',
+                                            dlgtitle='!!New template',dlglbl='!!Name')
+        bar.delgridrow.slotButton('!!Delete selected template',iconClass='iconbox delete_row',
+                                    action="""grid.publish("delrow");grid.widget.updateRowCount();
+                                    """,grid=fg.grid)
+        fg.dataController("""if(!currtemplates || currtemplates.len()==0){
+            currtemplates = new gnr.GnrBag();
+            currtemplates.setItem('base',new gnr.GnrBag({tpl:'',tplname:'base'}));
+            SET #FORM.record.df_custom_templates = currtemplates;
+        }else{
+        console.log('fff',currtemplates);
+        }
+        """,currtemplates='=#FORM.record.df_custom_templates',_fired='^#FORM.controller.loaded')
+        fg.dataController("""currtemplates.setItem(tplname,new gnr.GnrBag({tpl:'',tplname:tplname}));
+                             setTimeout(function(){
+                                grid.selection.select(grid.rowCount-1);
+                             },1)
+                                """,
+                         tplname="^#FORM.dynamicFormTester.newCustTpl",
+                          currtemplates='=#FORM.record.df_custom_templates',
+                          grid=fg.grid.js_widget)
+        fg.grid.dataFormula("#FORM.dynamicFormTester._editorDatapath", "'#FORM.record.df_custom_templates.'+selectedLabel;",
+        selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.dynamicFormTester.dummypath"')
+        center = bc.contentPane(region='center',datapath='^#FORM.dynamicFormTester._editorDatapath')
+        self.RichTextEditor(center,value='^.tpl',toolbar='standard')
+        
     @struct_method
     def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
         bc = pane.borderContainer()
         mastertable = pane.getInheritedAttributes()['table']
-        tc = bc.tabContainer(region='bottom',height='50%',splitter=True,hidden=True)
-        tc.contentPane(title='!!Preview Edit',padding_top='10px').dynamicFieldsPane(df_table=mastertable,df_pkey='=#FORM.pkey',
-                                                    _fired='^#FORM.dynamicFormTester._refresh_fields',_mainrecordLoaded='^#FORM.controller.loaded',
-                                                    datapath='#FORM.dynamicFormTester.data',preview=True)
-        self.RichTextEditor(tc.contentPane(title='!!Summary Template',margin='2px'),value='^#FORM.record.df_template',
-                            toolbar='standard')
-        
-        tc.contentPane(title='!!Summary Preview',padding='10px',background='white').div('^#FORM.dynamicFormTester.data._df_summary')
-                
-        
+        tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
+        self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
+        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'))        
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
                                         grid_onDrag="""
@@ -137,7 +167,7 @@ class DynamicForm(BaseComponent):
                                             dragValues['text/plain'] = '$'+dragValues['text/plain'];
                                         }
                                         """,
-                                        grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields;',
+                                        grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();',
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)
@@ -148,13 +178,51 @@ class DynamicForm(BaseComponent):
         fb.numberSpinner(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th
 
+    def df_previewForm(self,frame,mastertable=None):
+        bar = frame.top.slotToolbar('parentStackButtons,*,tplmenu,3')
+        menuslot = bar.tplmenu.div()
+        menuslot.div('^#FORM.dynamicFormTester.tplToShow',_class='floatingPopup',font_size='.9em',font_weight='bold',color='#555',cursor='pointer',padding='2px',rounded=4)
+        menuslot.menu(_class='smallmenu',values='^#FORM.dynamicFormTester.menuvalues',modifiers='*',action='SET #FORM.dynamicFormTester.tplToShow = $1.label')
+        menuslot.dataFormula("#FORM.dynamicFormTester.menuvalues", """currtemplates.keys().join(",");""",
+                        currtemplates='^#FORM.dynamicFormTester.data._df_summaries',_if='currtemplates && currtemplates.len()',
+                        _else='"auto"',_delay=1)
+        menuslot.dataFormula("#FORM.dynamicFormTester.tplToShow","'auto'",_fired='^#FORM.record.loaded')
+        
+        bc = frame.center.borderContainer()
+        bc.contentPane(region='right',width='40%',splitter=True,padding='10px').div(innerHTML='^#FORM.dynamicFormTester.tplRendered')
+        bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "summaries.getItem(tplToShow)",
+                        summaries="^#FORM.dynamicFormTester.data._df_summaries",tplToShow='^#FORM.dynamicFormTester.tplToShow',
+                        _delay=100,_if='summaries && summaries.len()>0')
+        
+        bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
+                                                    _fired='^#FORM.dynamicFormTester._refresh_fields',
+                                                    datapath='#FORM.dynamicFormTester.data',preview=True)
+
     @struct_method
-    def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
-                    df_folders=df_folders,**kwargs)
+    def df_dynamicFieldsPane_old(self,pane,df_table=None,df_pkey=None,**kwargs):
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,**kwargs)
+    
+    
+    @struct_method
+    def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
+        pane.dataController("""if(_node.label!='_df_summaries'){
+                                    dynamicFormHandler.onFieldsBagUpdated({templates:templates,data:data});
+                                }""",
+                        data="^#FORM.dynamicFormTester.data",
+                        templates='^#FORM.record.df_custom_templates')
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
+        
+    @struct_method
+    def df_dynamicFieldsPane(self,pane,field=None,*kwargs):
+        column = self.db.model.column(field) if '.' in field else self.db.table(pane.getInheritedAttributes()['table']).column(field)
+        df_field = column.attributes['subfields']
+        df_column = column.table(df_field)
+        df_table = df_column.relatedTable()
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,
+                        **kwargs)
     
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,datapath=None,**kwargs):
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,**kwargs):
         if not df_pkey:
             pane.div()
             return
@@ -186,7 +254,7 @@ class DynamicForm(BaseComponent):
             code = attr.get('code')
             description = attr.pop('description','')
             attr['value']='^.%s' %code
-            fieldsToDisplay.append([code,description])
+            fieldsToDisplay.append('%s:%s' %(description,code))
             attr['lbl'] = description
             attr['ghost'] = attr.pop('field_placeholder',None)
             attr['tip'] = attr.pop('field_tip',None)
@@ -207,26 +275,9 @@ class DynamicForm(BaseComponent):
             
            #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
            #self._df_handleFieldValidation(attr,fb,fields=fields)
-        fb.dataController("""
-            if(fieldsToDisplay && _node.label!='_df_summary'){
-                var result = [];
-                var node,v;
-                if(summary_template){
-                    data.setItem('_df_summary',dataTemplate(summary_template,data));
-                    return;
-                }
-                
-                dojo.forEach(fieldsToDisplay,function(n){
-                    node = data.getNode(n[0]);
-                    v = node.attr._formattedValue || node.attr._displayedValue || node.getValue();
-                    if(v){
-                        result.push(n[1]+':'+v);
-                    }
-                },'static');
-                data.setItem('_df_summary',result.join('<br/>'));
-            }
-            """,fieldsToDisplay=fieldsToDisplay,data='^%s' %datapath,
-                summary_template='^#FORM.record.df_template')
+        autoTemplate = ','.join(fieldsToDisplay)
+        fb.data('._df_autotemplate',autoTemplate)
+
 
         
     def df_filteringselect(self,attr,**kwargs):

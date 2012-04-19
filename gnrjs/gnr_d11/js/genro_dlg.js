@@ -258,8 +258,31 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             {message: msg, type: level, duration: duration}
         ]);
     },
-
-
+    
+    
+    prompt: function(title, kw,sourceNode) {
+        var kw = kw || {};
+        var msg = kw.msg;
+        var confirmCb = kw.action || '';
+        var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
+        var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
+                                                    dlg.close_action();
+                                                    if(this.attr.command=='confirm'){
+                                                        funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
+                                                        genro.setData('gnr.promptDlg.promptvalue',null);
+                                                    }
+                                                }});
+        var box = dlg.center._('div',{padding:'10px'});
+        if(msg){
+            box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
+        }
+        var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+        fb.addField('textbox',{value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'});
+        bar._('button','cancel',{'label':'Cancel',command:'cancel'});
+        bar._('button','confirm',{'label':'Confirm',command:'confirm'});
+        dlg.show_action();
+    },
+    
     request: function(title, msg, buttons, resultPath, valuePath) {
         genro.src.getNode()._('div', '_dlg_request');
         var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
@@ -286,7 +309,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_quick');
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
-        var kwdimension = objectExtract(kw,'height,width');
+        var kwdimension = objectExtract(kw,'height,width,background,padding');
         var dlg = node._('dialog', objectUpdate({title:title},kw));
         var box = dlg._('div',kwdimension)
         var center = box._('div', {_class:'pbl_dialog_center'});
