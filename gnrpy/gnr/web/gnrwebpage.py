@@ -1599,7 +1599,16 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def subfieldExplorer(self,table=None,field=None, fieldvalue=None,prevRelation='', prevCaption='',
                              omit='', **kwargs):
-        return self.db.table(table).column(field).relatedTable().dbtable.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
+        df_table = self.db.table(table).column(field).relatedTable().dbtable
+        subfields = df_table.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
+        df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='df_custom_templates')    
+        df_custom_templates = Bag(df_custom_templates)
+        for t in ['auto']+df_custom_templates.keys():
+            caption='Summary: %s' %t
+            subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath='%s._df_summaries.%s' %(prevRelation,t),
+                              fullcaption='%s/%s' %(prevCaption,caption))
+            
+        return subfields
         
     @public_method    
     def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
