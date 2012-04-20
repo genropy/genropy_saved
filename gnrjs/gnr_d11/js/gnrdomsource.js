@@ -1153,37 +1153,43 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var setter = 'set' + stringCapitalize(attr);
                 if (setter in this.widget) {
                     var trgevt = kw.evt;
-                    if (attr == 'value') {
+                    if (attr != 'value') {
+                        dojo.hitch(this.widget, setter)(value, kw);
+                        return
+                    }
+                    var formHandler = this.getFormHandler();
 
-                        this.resetValidationError();                // reset validationError when data from bag is set in widget
-                        if ('_lastValueReported' in this.widget) {    // VERIFICARE DOJO 1.2
-                            this.widget._lastValueReported = value; // see dijit.form._formWidget setValue
-                        }                                           // force _lastValueReported to get onChange event
-                        kw = false;
-                        if (this.attr.unmodifiable) {
-                            var parentAttr = this.getRelativeData('.?');
-                            if ('_newrecord' in parentAttr) {
-                                this.widget.setAttribute('readOnly', !parentAttr['_newrecord']);
-                            }
+                    this.resetValidationError();     // reset validationError when data from bag is set in widget
+                    if(formHandler && trigger_reason=='container' && this.attr.default_value && formHandler.isNewRecord() && (value==null) ){
+                        value = this.attr.default_value;
+                    }
+                    if ('_lastValueReported' in this.widget) {    // VERIFICARE DOJO 1.2
+                        this.widget._lastValueReported = value; // see dijit.form._formWidget setValue
+                    }                                           // force _lastValueReported to get onChange event
+                    kw = false;
+                    if (this.attr.unmodifiable) {
+                        var parentAttr = this.getRelativeData('.?');
+                        if ('_newrecord' in parentAttr) {
+                            this.widget.setAttribute('readOnly', !parentAttr['_newrecord']);
                         }
-                        if (this.attr['protected']) {
-                            var parentAttr = this.getRelativeData('.?');
-                            if ('_newrecord' in parentAttr) {
-                                if(!parentAttr['_newrecord']){
-                                    this.widget.setAttribute('readOnly', true);
-                                    var wdg = this.widget;
-                                    dojo.connect(wdg.domNode,'ondblclick',function(e){
-                                        wdg.setAttribute('readOnly',false);
-                                    });
-                                    dojo.connect(wdg,'onBlur',function(){
-                                        wdg.setAttribute('readOnly',true);
-                                    });
-                                }
+                    }
+                    if (this.attr['protected']) {
+                        var parentAttr = this.getRelativeData('.?');
+                        if ('_newrecord' in parentAttr) {
+                            if(!parentAttr['_newrecord']){
+                                this.widget.setAttribute('readOnly', true);
+                                var wdg = this.widget;
+                                dojo.connect(wdg.domNode,'ondblclick',function(e){
+                                    wdg.setAttribute('readOnly',false);
+                                });
+                                dojo.connect(wdg,'onBlur',function(){
+                                    wdg.setAttribute('readOnly',true);
+                                });
                             }
                         }
                     }
-                    dojo.hitch(this.widget, setter)(value, kw);
-                    if ((trgevt != 'del') && (attr == 'value')) {
+                    this.widget.setValue(value,kw);
+                    if (trgevt != 'del') {
                         if(this.hasValidations()){
                             var formHandler = this.getFormHandler();
                             if (formHandler) {

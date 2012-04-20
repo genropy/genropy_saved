@@ -226,6 +226,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if (attributes.onHide) {
             attributes['onHide'] = funcCreate(attributes.onHide, '', sourceNode);
         }
+        if(sourceNode && sourceNode.attr.default_value && sourceNode.attr.dtype){
+            sourceNode.attr.default_value = convertFromText(sourceNode.attr.default_value,sourceNode.attr.dtype);
+        }
 
         if (sourceNode && sourceNode.attr.zoomFactor) {
             savedAttrs['zoomFactor'] = objectPop(attributes, 'zoomFactor');

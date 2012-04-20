@@ -315,8 +315,7 @@ class DynamicForm(BaseComponent):
         if attr.get('validate_case'):
             attr['validate_case'] = attr.pop('validate_case')
         if attr.get('mandatory'):
-            attr['validate_notnull'] = attr.pop('mandatory')
-        
+            attr['validate_notnull'] = attr.pop('mandatory')            
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
             attr['row_hidden'] = """==function(sourceNode){
