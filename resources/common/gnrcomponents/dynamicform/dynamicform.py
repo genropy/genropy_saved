@@ -193,16 +193,17 @@ class DynamicForm(BaseComponent):
         menuslot = bar.tplmenu.div()
         menuslot.div('^#FORM.dynamicFormTester.tplToShow',_class='floatingPopup',font_size='.9em',font_weight='bold',color='#555',cursor='pointer',padding='2px',rounded=4)
         menuslot.menu(_class='smallmenu',values='^#FORM.dynamicFormTester.menuvalues',modifiers='*',action='SET #FORM.dynamicFormTester.tplToShow = $1.label')
-        menuslot.dataFormula("#FORM.dynamicFormTester.menuvalues", """currtemplates.keys().join(",");""",
-                        currtemplates='^#FORM.dynamicFormTester.data._df_summaries',_if='currtemplates && currtemplates.len()',
+        menuslot.dataFormula("#FORM.dynamicFormTester.menuvalues", """'auto,'+custom_templates.keys().join(",");""",
+                        custom_templates='^#FORM.record.df_custom_templates',_if='custom_templates && custom_templates.len()',
                         _else='"auto"',_delay=1)
         menuslot.dataFormula("#FORM.dynamicFormTester.tplToShow","'auto'",_fired='^#FORM.record.loaded')
         
         bc = frame.center.borderContainer()
         bc.contentPane(region='right',width='40%',splitter=True,padding='10px').div(innerHTML='^#FORM.dynamicFormTester.tplRendered')
-        bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "summaries.getItem(tplToShow)",
-                        summaries="^#FORM.dynamicFormTester.data._df_summaries",tplToShow='^#FORM.dynamicFormTester.tplToShow',
-                        _delay=100,_if='summaries && summaries.len()>0')
+        bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "tplToShow=='auto'?currdata.getFormattedValue():dataTemplate(custom_templates.getItem(tplToShow+'.tpl'),currdata);",
+                       custom_templates='^#FORM.record.df_custom_templates',currdata='^#FORM.dynamicFormTester.data',
+                       tplToShow='^#FORM.dynamicFormTester.tplToShow',
+                        _delay=100,_if='tplToShow')
         
         bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
