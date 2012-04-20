@@ -202,11 +202,7 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-        pane.dataController("""if(_node.label!='_df_summaries'){
-                                    dynamicFormHandler.onFieldsBagUpdated({templates:templates,data:data});
-                                }""",
-                        data="^#FORM.dynamicFormTester.data",
-                        templates='^#FORM.record.df_custom_templates',_delay=500)
+
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
         
     @struct_method
@@ -215,11 +211,6 @@ class DynamicForm(BaseComponent):
         df_field = column.attributes['subfields']
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
-        pane.dataController("""if(_node.label!='_df_summaries'){
-                                    dynamicFormHandler.onFieldsBagUpdated({templates:templates,data:data});
-                                }""",
-                        data='^#FORM.record.%s' %field,
-                        templates='^#FORM.record.@%s.df_custom_templates' %df_field,_delay=500)
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
                         **kwargs)
     

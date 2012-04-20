@@ -1603,9 +1603,11 @@ class GnrWebPage(GnrBaseWebPage):
         subfields = df_table.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
         df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='df_custom_templates')    
         df_custom_templates = Bag(df_custom_templates)
-        for t in ['auto']+df_custom_templates.keys():
+        #templates = ['auto']+df_custom_templates.keys()
+        for t in df_custom_templates.keys():
             caption='Summary: %s' %t
-            subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath='%s._df_summaries.%s' %(prevRelation,t),
+            fieldpath = '%s:@%s.df_custom_templates.%s.tpl' %(prevRelation,field,t)
+            subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath=fieldpath,
                               fullcaption='%s/%s' %(prevCaption,caption))
             
         return subfields

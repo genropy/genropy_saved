@@ -60,32 +60,5 @@ var dynamicFormHandler = {
                 //formclass = 'dffb_'+data_type;
         }
         sourceNode.setRelativeData('#FORM.boxClass',boxClass);
-    },
-    
-    onFieldsBagUpdated:function(kw){
-        var data = kw.data;
-        var templates = kw.templates;
-        data.popNode('_df_summaries');
-        var summaries = new gnr.GnrBag();
-        var autosummary = [];
-        data.forEach(function(n){
-            if(n && n._value !=null && n._value+''){
-                autosummary.push(n.attr._fb_lbl+': '+(n.attr._formattedValue || n.attr._displayedValue || n.getValue()))
-            }
-        });
-        summaries.setItem('auto',autosummary.join('<br/>'));
-
-        if(templates){
-            templates.forEach(function(n){
-                var tpl = n.getValue().getItem('tpl');
-                if(tpl){
-                    summaries.setItem(n.label,dataTemplate(tpl,data));
-                }
-            },'static');
-        }
-        data.setItem('_df_summaries',summaries);
-        
-        
-        
     }
 };

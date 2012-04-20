@@ -1776,7 +1776,7 @@ class GnrFormBuilder(object):
             field = f
             lbl = field.pop('lbl', '')
             if self.keeplabel:
-                f['_fb_lbl'] = lbl
+                f['_valuelabel'] = lbl
             if 'lbl_href' in field:
                 lblhref = field.pop('lbl_href')
                 lblvalue = lbl

@@ -160,6 +160,18 @@ dojo.declare("gnr.GnrBagNode", null, {
     getValue2:function(mode/*str*/, optkwargs) {
         return this.getValue(mode, optkwargs);
     },
+    getFormattedValue: function(kw,mode) {
+        var v = this.getValue(mode);
+        var kw = kw || {};
+        kw.joiner = kw.joiner || '<br/>';
+        kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty : true;
+        if(v instanceof gnr.GnrBag){
+            v = v.getFormattedValue(kw,mode);
+        }else{
+            v = this.attr._formattedValue || this.attr._displayedValue || v;
+        }
+        return (v || !kw.omitEmpty)?((this.attr._valuelabel || stringCapitalize(this.label)) +': ' +v):''; 
+    },
 
     getValue: function(mode/*str*/, optkwargs) {
         var mode = mode || '';
@@ -571,6 +583,23 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id getItem
      */
+     
+    getFormattedValue:function(kw,mode){
+        var r = [];
+        var kw = kw || {};
+        kw.joiner = kw.joiner || '<br/>';
+        kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
+        var fv;
+        this.forEach(function(n){
+            fv = n.getFormattedValue(kw,mode);
+            if(kw.omitEmpty && !fv){
+                return;
+            }
+            r.push(fv);
+        },mode);
+        return r.join(kw.joiner);
+    },
+    
     getItem: function(path, dft, mode) {
         var dft = (dft == '') ? dft : dft || null;
         if (!path) {

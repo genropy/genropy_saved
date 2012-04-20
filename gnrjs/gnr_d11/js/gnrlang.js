@@ -189,7 +189,7 @@ function dataTemplate(str, data, path, showAlways) {
          str=templates.getItem('main');
     }
     var auxattr = {};
-    var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
+    var regexpr = /\$([a-zA-Z0-9.@?_:]+)/g;
     var result;
     var is_empty = true;
     var has_field = false;
@@ -211,20 +211,30 @@ function dataTemplate(str, data, path, showAlways) {
                             function(path) {
                                 has_field=true;
                                 var path=path.slice(1);
-                                var subtpl=templates?templates.getItem(path):null;
+                                var subfields_tpl,selection_tpl;
+                                if(path.indexOf(':')>=0){
+                                    var lpath = path.split(':');
+                                    subfields_tpl = data.getItem(lpath[1]);
+                                    path = lpath[0];
+                                }else{
+                                    selection_tpl = templates?templates.getItem(path):null;
+                                }
                                 var valueNode = data.getNode(path);
-                                var value = valueNode? (valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode._value):auxattr[path];
-                                if (subtpl){
-                                    value = valueNode.getValue();
+                                if (selection_tpl){
+                                    var value = valueNode.getValue();
                                     if(value instanceof gnr.GnrBag){
                                         var subval=[];
                                         var vl;
                                         value.forEach(function(n){
                                             vl = n.getValue();
-                                            subval.push(dataTemplate(subtpl, vl));
+                                            subval.push(dataTemplate(selection_tpl, vl));
                                         })
                                         value = subval.join('');
                                     }
+                                }else if (subfields_tpl){
+                                    value = dataTemplate(subfields_tpl,valueNode.getValue());
+                                }else{
+                                    var value = valueNode? (valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode._value):auxattr[path];
                                 }
                                 
                                 if (value != null) {
@@ -232,6 +242,9 @@ function dataTemplate(str, data, path, showAlways) {
                                     var dtype = null;
                                     if (valueNode){
                                         var dtype = valueNode.attr.dtype;
+                                    }
+                                    if (value instanceof gnr.GnrBag){
+                                        value = value.getFormattedValue();
                                     }
                                     if (value instanceof Date) {
                                         value = dojo.date.locale.format(value, {selector:dtype=='H'?'time':'date', format:'short'});
