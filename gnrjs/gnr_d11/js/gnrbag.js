@@ -591,11 +591,13 @@ dojo.declare("gnr.GnrBag", null, {
         kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
         var fv;
         this.forEach(function(n){
-            fv = n.getFormattedValue(kw,mode);
-            if(kw.omitEmpty && !fv){
-                return;
+            if(n.label[0]!='_'){
+                fv = n.getFormattedValue(kw,mode);
+                if(kw.omitEmpty && !fv){
+                    return;
+                }
+                r.push(fv);
             }
-            r.push(fv);
         },mode);
         return r.join(kw.joiner);
     },

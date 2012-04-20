@@ -83,11 +83,12 @@ class Form(BaseComponent):
         fb.field('validate_range',width='6em',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox')
         fb.br()
               
-        
+
     
         
         footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
-        
+        footer.field('mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
+        footer.field('default_value',lbl='Dflt.Value')
         footer.field('field_format',values='^#FORM.allowedFormat',tag='Combobox',lbl_width='4em')
         footer.field('field_placeholder',lbl_width='6em')
         footer.field('field_visible',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
@@ -262,10 +263,7 @@ class DynamicForm(BaseComponent):
             self._df_handleFieldValidation(attr,fields=fields)
             attr.pop('code')
             fb.child(**attr)
-            
 
-
-        
     def df_filteringselect(self,attr,**kwargs):
         attr['values'] = attr.get('source_filteringselect')
         
@@ -316,6 +314,9 @@ class DynamicForm(BaseComponent):
                 attr['validate_max_error'] = '!!Over max value %s' %max_v
         if attr.get('validate_case'):
             attr['validate_case'] = attr.pop('validate_case')
+        if attr.get('mandatory'):
+            attr['validate_notnull'] = attr.pop('mandatory')
+        
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
             attr['row_hidden'] = """==function(sourceNode){

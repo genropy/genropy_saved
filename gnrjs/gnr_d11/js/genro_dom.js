@@ -343,7 +343,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     resizeContainer:function(wdgt) {
         if (wdgt.parent && wdgt.parent.isContainer) {
             this.resizeContainer(wdgt.parent);
-        } else if (wdgt.isContainer) {
+        } else if (wdgt && wdgt.isContainer) {
             wdgt.onResized();
         }
     },

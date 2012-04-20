@@ -1190,8 +1190,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                 formHandler.validateFromDatasource(this, value, trigger_reason);
                             }
                         }
-                        if(trigger_reason=='container' && (this.attr.format || this.attr.mask)){
-                            var updkw = {};
+                        if(this.attr.format || this.attr.mask){
                             var valueToFormat = value;
                             var valueAttr = valueNode.attr;
                             if(this.widget.getDisplayedValue){
@@ -1200,7 +1199,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                     valueAttr['_displayedValue'] = valueToFormat;
                                 }
                             }
-                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.attr)});
+                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.attr)},this);
                         }
 
                     }
