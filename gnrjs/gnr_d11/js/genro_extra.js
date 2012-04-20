@@ -218,12 +218,15 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             sourceNode._rsz=setTimeout(cbResize,100);
         });
         var that=this;
-        CKEDITOR.on( 'dialogDefinition', function( ev ){
-            if (that['dialog_'+ev.data.name]){
-                that['dialog_'+ev.data.name].call(that,ev.data.definition);
-            }
-        });
-        
+        if(!CKEDITOR._dialog_patched){
+            CKEDITOR.on( 'dialogDefinition', function( ev ){
+                if (that['dialog_'+ev.data.name]){
+                    that['dialog_'+ev.data.name].call(that,ev.data.definition);
+                }
+            });
+            CKEDITOR._dialog_patched = true;
+        }
+
 
          
         // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
