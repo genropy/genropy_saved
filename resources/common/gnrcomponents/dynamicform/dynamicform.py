@@ -114,6 +114,8 @@ class View(BaseComponent):
         return '_row_count'
 
 class DynamicForm(BaseComponent):
+    css_requires='gnrcomponents/dynamicform/dynamicform'
+    js_requires='gnrcomponents/dynamicform/dynamicform'
     py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase,foundation/macrowidgets:RichTextEditor'
     
     def __df_tpl_struct(self,struct):
@@ -137,7 +139,6 @@ class DynamicForm(BaseComponent):
             currtemplates.setItem('base',new gnr.GnrBag({tpl:'',tplname:'base'}));
             SET #FORM.record.df_custom_templates = currtemplates;
         }else{
-        console.log('fff',currtemplates);
         }
         """,currtemplates='=#FORM.record.df_custom_templates',_fired='^#FORM.controller.loaded')
         fg.dataController("""currtemplates.setItem(tplname,new gnr.GnrBag({tpl:'',tplname:tplname}));
@@ -198,27 +199,28 @@ class DynamicForm(BaseComponent):
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
                                                     datapath='#FORM.dynamicFormTester.data',preview=True)
 
-    @struct_method
-    def df_dynamicFieldsPane_old(self,pane,df_table=None,df_pkey=None,**kwargs):
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,**kwargs)
-    
-    
+
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
         pane.dataController("""if(_node.label!='_df_summaries'){
                                     dynamicFormHandler.onFieldsBagUpdated({templates:templates,data:data});
                                 }""",
                         data="^#FORM.dynamicFormTester.data",
-                        templates='^#FORM.record.df_custom_templates')
+                        templates='^#FORM.record.df_custom_templates',_delay=500)
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
         
     @struct_method
-    def df_dynamicFieldsPane(self,pane,field=None,*kwargs):
+    def df_dynamicFieldsPane(self,pane,field=None,**kwargs):
         column = self.db.model.column(field) if '.' in field else self.db.table(pane.getInheritedAttributes()['table']).column(field)
         df_field = column.attributes['subfields']
-        df_column = column.table(df_field)
+        df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,
+        pane.dataController("""if(_node.label!='_df_summaries'){
+                                    dynamicFormHandler.onFieldsBagUpdated({templates:templates,data:data});
+                                }""",
+                        data='^#FORM.record.%s' %field,
+                        templates='^#FORM.record.@%s.df_custom_templates' %df_field,_delay=500)
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
                         **kwargs)
     
     @public_method
@@ -234,9 +236,7 @@ class DynamicForm(BaseComponent):
         autowdg = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
         if not fields:
             return
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath)
-        fieldsToDisplay = []
-        
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath,keeplabel=True)        
         for r in fields:
             attr = dict(r)
             attr.pop('id')
@@ -254,7 +254,6 @@ class DynamicForm(BaseComponent):
             code = attr.get('code')
             description = attr.pop('description','')
             attr['value']='^.%s' %code
-            fieldsToDisplay.append('%s:%s' %(description,code))
             attr['lbl'] = description
             attr['ghost'] = attr.pop('field_placeholder',None)
             attr['tip'] = attr.pop('field_tip',None)
@@ -273,10 +272,6 @@ class DynamicForm(BaseComponent):
             attr.pop('code')
             fb.child(**attr)
             
-           #self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-           #self._df_handleFieldValidation(attr,fb,fields=fields)
-        autoTemplate = ','.join(fieldsToDisplay)
-        fb.data('._df_autotemplate',autoTemplate)
 
 
         

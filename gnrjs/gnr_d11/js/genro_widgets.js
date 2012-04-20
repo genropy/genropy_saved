@@ -176,6 +176,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             this.setFormattedValue(sourceNode,formattedValue);
             valueAttr['_formattedValue'] = formattedValue;
         }
+        if ('_fb_lbl' in sourceNode.attr){
+            valueAttr['_fb_lbl'] = sourceNode.attr['_fb_lbl'];
+        }
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
     },
     onSettingValueInData: function(sourceNode, value,valueAttr) {

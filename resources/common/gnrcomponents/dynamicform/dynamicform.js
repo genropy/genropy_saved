@@ -67,20 +67,14 @@ var dynamicFormHandler = {
         var templates = kw.templates;
         data.popNode('_df_summaries');
         var summaries = new gnr.GnrBag();
-        var autotemplate =data.getItem('_df_autotemplate');
-        if(autotemplate){
-            var at = [];
-            var r,vn;
-            dojo.forEach(autotemplate.split(','),function(n){
-                r = n.split(':');
-                vn = data.getNode(r[1]);
-                if(vn && vn._value+''){
-                    at.push(r[0]+': '+(vn.attr._formattedValue || vn.attr._displayedValue || vn.getValue()));
-                }
-            })
-            summaries.setItem('auto',at.join('<br/>'));
-        };
-        
+        var autosummary = [];
+        data.forEach(function(n){
+            if(n && n._value !=null && n._value+''){
+                autosummary.push(n.attr._fb_lbl+': '+(n.attr._formattedValue || n.attr._displayedValue || n.getValue()))
+            }
+        });
+        summaries.setItem('auto',autosummary.join('<br/>'));
+
         if(templates){
             templates.forEach(function(n){
                 var tpl = n.getValue().getItem('tpl');
