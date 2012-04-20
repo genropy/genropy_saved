@@ -211,20 +211,17 @@ function dataTemplate(str, data, path, showAlways) {
                             function(path) {
                                 has_field=true;
                                 var path=path.slice(1);
-                                var subtpl=null;
-                                if(path.indexOf('^')>0){
-                                    var x=path.split('^');
-                                    path=x[0];
-                                    var subtpl=templates.getItem(x[1]);
-                                    
-                                }
+                                var subtpl=templates?templates.getItem(path):null;
                                 var valueNode = data.getNode(path);
                                 var value = valueNode? (valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode._value):auxattr[path];
                                 if (subtpl){
+                                    value = valueNode.getValue();
                                     if(value instanceof gnr.GnrBag){
                                         var subval=[];
+                                        var vl;
                                         value.forEach(function(n){
-                                            subval.push(dataTemplate(subtpl, n.getValue()));
+                                            vl = n.getValue();
+                                            subval.push(dataTemplate(subtpl, vl));
                                         })
                                         value = subval.join('');
                                     }
