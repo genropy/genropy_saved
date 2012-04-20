@@ -123,23 +123,21 @@ class DynamicForm(BaseComponent):
         r = struct.view().rows()
         r.cell('tplname', name='Template', width='100%')
         
-    def df_summaryTemplates(self,frame):
+    def df_summaryTemplates(self,frame,table):
         bar = frame.top.slotToolbar('parentStackButtons,*,delgridrow,addrow_dlg')
         bc = frame.center.borderContainer(design='sidebar')
-        fg = bc.frameGrid(region='left',margin='2px',storepath='#FORM.record.df_custom_templates',datamode='bag',
-                            width='130px',struct=self.__df_tpl_struct,grid_selectedLabel='.selectedLabel',
-                            grid_autoSelect=True)
+        left = bc.borderContainer(width='120px',region='left',splitter=True)
+        fg = left.frameGrid(region='top',height='40%',margin_top='3px',splitter=True,storepath='#FORM.record.df_custom_templates',datamode='bag',
+                 struct=self.__df_tpl_struct,grid_selectedLabel='.selectedLabel',grid_autoSelect=True,_class='noheader buttons_grid no_over')
         bar.addrow_dlg.slotButton('!!Add custom template',iconClass='iconbox add_row',
                                             action='genro.dlg.prompt(dlgtitle,{lbl:dlglbl,action:"FIRE #FORM.dynamicFormTester.newCustTpl=value;"},this);',
                                             dlgtitle='!!New template',dlglbl='!!Name')
         bar.delgridrow.slotButton('!!Delete selected template',iconClass='iconbox delete_row',
-                                    action="""grid.publish("delrow");grid.widget.updateRowCount();
-                                    """,grid=fg.grid)
+                                    action="""grid.publish("delrow");grid.widget.updateRowCount();""",grid=fg.grid)
         fg.dataController("""if(!currtemplates || currtemplates.len()==0){
             currtemplates = new gnr.GnrBag();
             currtemplates.setItem('base',new gnr.GnrBag({tpl:'',tplname:'base'}));
             SET #FORM.record.df_custom_templates = currtemplates;
-        }else{
         }
         """,currtemplates='=#FORM.record.df_custom_templates',_fired='^#FORM.controller.loaded')
         fg.dataController("""currtemplates.setItem(tplname,new gnr.GnrBag({tpl:'',tplname:tplname}));
@@ -152,7 +150,17 @@ class DynamicForm(BaseComponent):
                           grid=fg.grid.js_widget)
         fg.grid.dataFormula("#FORM.dynamicFormTester._editorDatapath", "'#FORM.record.df_custom_templates.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.dynamicFormTester.dummypath"')
-        center = bc.contentPane(region='center',datapath='^#FORM.dynamicFormTester._editorDatapath')
+        
+        frametree = left.framePane(region='center',margin_top='10px',margin_left='10px')
+        frametree.top.div('!!Fields',font_size='.9em',font_weight='bold')
+        treepane = frametree.center.contentPane().div(position='absolute',top='2px',bottom='2px',left='2px',right='4px',overflow='auto')
+        treepane.tree(storepath='#FORM.dynamicFormTester.subfields',_fired='^#FORM.dynamicFormTester.subfields_tree',
+                      _class='fieldsTree noIcon',hideValues=True,margin_top='6px',font_size='.9em',
+                      labelAttribute='caption',draggable=True,onDrag='dragValues["text/plain"] = "$"+treeItem.attr.fieldpath;')
+        treepane.dataRpc('#FORM.dynamicFormTester.subfields',self.db.table(table).df_subFieldsBag,
+                        pkey='^#FORM.pkey',_fired='^#FORM.dynamicFormTester._refresh_fields',
+                        _onResult='FIRE #FORM.dynamicFormTester.subfields_tree')
+        center = bc.contentPane(region='center',datapath='^#FORM.dynamicFormTester._editorDatapath',margin_left='6px',margin='3px')
         self.RichTextEditor(center,value='^.tpl',toolbar='standard')
         
     @struct_method
@@ -161,7 +169,7 @@ class DynamicForm(BaseComponent):
         mastertable = pane.getInheritedAttributes()['table']
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
-        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'))        
+        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
         th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
                                         grid_onDrag="""
@@ -198,7 +206,7 @@ class DynamicForm(BaseComponent):
         
         bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
-                                                    datapath='#FORM.dynamicFormTester.data',preview=True)
+                                                    datapath='#FORM.dynamicFormTester.data')
 
 
     @struct_method

@@ -847,3 +847,58 @@
 
 
 
+.buttons_grid th{
+    display:none;
+}
+.buttons_grid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+}
+
+.tundra._common_d11 .buttons_grid .dojoxGrid-row-selected{
+    background: transparent !important;
+    background-image:none !important;
+}
+.tundra._common_d11 .buttons_grid .dojoxGrid-row{
+    background-image:none !important;
+    background: transparent !important;
+}
+.tundra._common_d11 .buttons_grid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+
+.buttons_grid .cellContent{
+    border-radius:4px;
+    margin-top:0;
+    margin-right:-5px;
+    text-align:center;
+    padding-top:2px;
+    padding-bottom:1px;
+    line-height:16px;
+    font-size: 8pt;
+    font-variant:small-caps;
+    
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    cursor:pointer;
+}
+
+.buttons_grid .dojoxGrid-row-selected .cellContent{
+    background:#888;
+    color: #fff;
+	-moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+}
+
+
+
+
+
+
+
+

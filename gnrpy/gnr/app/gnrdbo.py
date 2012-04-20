@@ -282,7 +282,8 @@ class TableBase(object):
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         return fieldstable.query(where="$maintable_id=:pkey",pkey=pkey,order_by='$_row_count').fetch()
-        
+    
+    @public_method
     def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
         rows = self.df_getFieldsRows(pkey=pkey)
         result = Bag()
@@ -290,9 +291,13 @@ class TableBase(object):
             return result
         else:
             for r in rows:
+                fieldpath = r['code']
+                fullcaption = r['description']
+                if df_field:
+                    fieldpath='%s.%s' %(df_field,r['code']),
+                    fullcaption='%s/%s' %(df_caption,r['description'])
                 result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
-                                fieldpath='%s.%s' %(df_field,r['code']),
-                                fullcaption='%s/%s' %(df_caption,r['description']))
+                                fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                                 
     def setMultidbSubscription(self,tbl,allRecords=False):

@@ -58,11 +58,7 @@ border: 2px groove #E0DFE3;
 display: block;
 }
 span.cke_skin_kama {
--moz-border-radius: 3px;
--webkit-border-radius: 3px;
-border-radius: 3px;
-border: 1px solid #D3D3D3;
-padding: 5px;
+/*border: 1px solid #D3D3D3;*/
 }
 .cke_skin_kama span.cke_browser_webkit,.cke_skin_kama span.cke_browser_gecko18 {
 display: block;

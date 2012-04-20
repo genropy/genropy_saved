@@ -38,7 +38,7 @@ CKEDITOR.lang['it'] =
 	editor		: 'Rich Text Editor', // MISSING
 
 	// Toolbar buttons without dialogs.
-	source			: 'Codice Sorgente',
+	source			: 'HTML',
 	newPage			: 'Nuova pagina vuota',
 	save			: 'Salva',
 	preview			: 'Anteprima',
