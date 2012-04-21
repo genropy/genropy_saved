@@ -1493,7 +1493,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     getChild:function(childpath){
         var v = this._value;
-        if(!v){
+        if(!v || !(v.getChild)){
              var clist = childpath.split('/')
              if(clist[0]=='parent'){
                  var node = this.getParentNode().getParentNode();
