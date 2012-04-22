@@ -20,12 +20,12 @@ class GnrCustomWebPage(object):
         fb.FilteringSelect(value='^.maptype',lbl='Map Type',values='roadmap:Roadmap,hibrid:Hibryd,satellite:Satellite,terrain:Terrain')
         fb.textbox(value='^.marker_name',lbl='Marker name')
         fb.geoCoderField(value='^.marker_address',lbl='marker',selected_position='^.marker')
-
+        fb.div(innerHTML='^.marker')
         fb.horizontalSlider(value='^.zoom',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
         c=bc.contentPane(region='center')
         m=c.GoogleMap(height='100%',border='1px solid silver',rounded=10,
                      map_center="^.center",map_type='^.maptype',
-                     map_zoom='^.zoom',map_disableDefaultUI=True)
+                     map_zoom='^.zoom',map_disableDefaultUI=False)
         
         fb.dataController("""if (marker){
                                  kw={title:marker_name,draggable:true}
@@ -33,5 +33,4 @@ class GnrCustomWebPage(object):
                            }
                            """,marker='^.marker',marker_name='=.marker_name',mapNode=m)
 
-     
-                
+
