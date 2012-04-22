@@ -86,13 +86,20 @@ class TemplateEditorBase(BaseComponent):
         if varsbag:
             tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template')
             for varname,fldpath,virtualcol,format,mask,df_template in tplvars:
-                varsdict[varname] = '$%s' %fldpath
+                fk=''
                 if format:
-                    formats[fldpath] = format
+                    fk=varname
+                    formats[varname] = format
                 if mask:
-                    masks[fldpath] = mask
+                    fk=varname
+                    masks[varname] = mask
                 if df_template:
-                    df_templates[fldpath] = df_template
+                    fk=varname
+                    df_templates[varname] = df_template
+                if fk:
+                    fk='^%s'%fk
+                varsdict[varname] = '$%s%s' %(fldpath,fk)
+                
                 columns.append(fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
@@ -197,7 +204,15 @@ class TemplateEditor(TemplateEditorBase):
         grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase();
                                 var df_template =null;
+
                                 var fieldpath = data.fieldpath;
+                                
+                                if(fieldpath.indexOf(':')>=0){
+                                    fieldpath = fieldpath.split(':');
+                                    df_template = fieldpath[1];
+                                    fieldpath = fieldpath[0];
+                                }
+                                
                                 grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     

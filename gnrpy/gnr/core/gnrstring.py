@@ -34,7 +34,7 @@ try:
     from string import Template
     
     class BagTemplate(Template):
-        idpattern = '[_a-z\@][_a-z0-9\.\@]*'
+        idpattern = '[_a-z\@][_a-z0-9\.\@^]*'
         
     class NoneIsBlankMapWrapper(object):
         
@@ -61,6 +61,11 @@ try:
             self.localizer = localizer
 
         def __getitem__(self,k):
+            as_name = k
+            if '^' in k:
+                k = k.split('^')
+                k = k[0]
+                as_name = k[1]
             value = self.data[k]
             format = None
             mask = None
@@ -69,18 +74,18 @@ try:
                 value= ''
             if self.isBag:
                 if hasattr(value, '_htraverse'):
-                    if self.templates and k in self.templates:
-                        templateNode = self.templates.getNode(k)
+                    if self.templates and as_name in self.templates:
+                        templateNode = self.templates.getNode(as_name)
                         if templateNode:
                             template = templateNode.value
                             joiner = templateNode.getAttr('joiner','')
                             result = []
-                            for k,v in value.items():
+                            for v in value.values():
                                 result.append(templateReplace(template,v, locale=self.locale, 
                                                 formats=self.formats,masks=self.masks, noneIsBlank=self.noneIsBlank))
                             return joiner.join(result)
-                    elif k in self.df_templates:
-                        templatepath = self.df_templates[k]
+                    elif as_name in self.df_templates:
+                        templatepath = self.df_templates[as_name]
                         template = self.data[templatepath]
                         return templateReplace(template,value,locale=self.locale, 
                                                 formats=self.formats,masks=self.masks, 

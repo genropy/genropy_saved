@@ -196,7 +196,7 @@ function dataTemplate(str, data, path, showAlways) {
          df_templates = mainNode.attr.df_templates || {};
     }
     var auxattr = {};
-    var regexpr = /\$([a-zA-Z0-9.@?_]+)/g;
+    var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
     var result;
     var is_empty = true;
     var has_field = false;
@@ -218,6 +218,12 @@ function dataTemplate(str, data, path, showAlways) {
                             function(path) {
                                 has_field=true;
                                 var path=path.slice(1);
+                                var as_name = path;
+                                if(path.indexOf('^')>=0){
+                                    path = path.split('^');
+                                    path = path[0];
+                                    as_name = path[1];
+                                }
                                 var valueNode = data.getNode(path);
                                 var dtype = null;
                                 var value;
@@ -225,10 +231,10 @@ function dataTemplate(str, data, path, showAlways) {
                                    dtype = valueNode.attr.dtype;
                                    value = valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode.getValue();
                                 }else{
-                                    value = auxattr[path]
+                                    value = auxattr[as_name]
                                 }
                                 if(value instanceof gnr.GnrBag){
-                                    var subtpl = templates?templates.getItem(path):null;
+                                    var subtpl = templates?templates.getItem(as_name):null;
                                     if (subtpl){
                                         var subval=[];
                                         var vl;
@@ -237,8 +243,8 @@ function dataTemplate(str, data, path, showAlways) {
                                             subval.push(dataTemplate(subtpl, vl));
                                         });
                                         value = subval.join('');
-                                    }else if(path in df_templates){
-                                        value = dataTemplate(data.getItem(df_templates[path]),value);
+                                    }else if(as_name in df_templates){
+                                        value = dataTemplate(data.getItem(df_templates[as_name]),value);
                                     }else{
                                         value = value.getFormattedValue();
                                     }
@@ -251,7 +257,7 @@ function dataTemplate(str, data, path, showAlways) {
                                     return value;
                                 } else if(showAlways){
                                     is_empty =false;
-                                    return defaults[path];
+                                    return defaults[as_name];
                                 }else{
                                     return '';
                                 }
