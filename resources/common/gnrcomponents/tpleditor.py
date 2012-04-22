@@ -198,11 +198,6 @@ class TemplateEditor(TemplateEditorBase):
                                 var varname = caption.replace(/\W/g,'_').toLowerCase();
                                 var df_template =null;
                                 var fieldpath = data.fieldpath;
-                                if(fieldpath.indexOf(':')>=0){
-                                    fieldpath = fieldpath.split(':');
-                                    df_template = fieldpath[1];
-                                    fieldpath = fieldpath[0];
-                                }
                                 grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
