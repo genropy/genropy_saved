@@ -1,3 +1,70 @@
+dojo.declare("gnr.widgets.GoogleLoader", null, {
+    geocoder:{module_name:'maps',version:'3.x',
+              other_params: "sensor=false",language:navigator.language
+    },
+              
+    constructor: function(application) {
+        this.pending_commands=[];
+        this.ready = true;
+        var that=this;
+        if (!window.google){
+            this.ready = false;
+            var that=this;
+            genro.dom.loadJs("https://www.google.com/jsapi",
+                          function(){
+                              that.ready=true;
+                              dojo.forEach(that.pending_commands, function(cb){
+                                  cb.call(that);
+                              });
+                              that.pending_commands=[];
+                          });
+        }
+    },
+    
+    runCommand:function(module,cb){
+        var that=this;
+        if (!this.ready){
+            this.pending_commands.push(function(){
+                that.runCommand(module,cb);
+            });
+            return;
+        }
+        var handler=google[module.module_name];
+        if(handler && handler._loaded){
+            cb.call(this);
+        }
+        else if('pending_calls' in module){
+            module.pending_calls.push(cb);
+        }
+        else {
+            var kw=objectUpdate({},module);
+            var pending_calls=[cb];
+            module.pending_calls=pending_calls;
+            var module_name=objectPop(kw,'module_name');
+            var version=objectPop(kw,'version');
+            kw.callback=function(){
+                handler=google[module_name];
+                handler._loaded=true;
+                 dojo.forEach(pending_calls, function(cb){
+                     cb.call(that);
+                 });
+            };
+            google.load(module_name,version,kw);
+        }
+    },
+    setGeocoder:function(widget,cb){
+        var obj=widget;
+        this.runCommand(this.geocoder,function(){
+            obj.geocoder = new google.maps.Geocoder();
+            if (cb){
+                cb();
+            }
+        });
+    }
+
+});
+
+
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -193,7 +260,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
             var dropHandler = function( evt ) {
-                setTimeout(function(){ckeditor.gnr_setInDatastore()},1)
+                setTimeout(function(){ckeditor.gnr_setInDatastore();},1);
             };
             if (editor.document.$.addEventListener) {
                 editor.document.$.addEventListener( 'drop', dropHandler, true ) ; 

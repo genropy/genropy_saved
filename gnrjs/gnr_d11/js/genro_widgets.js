@@ -4832,12 +4832,6 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'ComboBox';
-        this.pending_geocoders=[];
-        this.google_ready = true;
-        if (!window.google){
-            this.google_ready = false;
-            this.load_googleloader();
-        };
     },
     creating: function(attributes, sourceNode) {
         objectExtract(attributes, 'maxLength,_type');
@@ -5016,33 +5010,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                 dojo.connect(widget.focusNode, 'onkeydown', widget, '_onKeyPress');
             }
         }
-        this.init_geocoder(widget);
-    },
-    load_googleloader:function(widget){
-        genro.dom.loadJs("https://www.google.com/jsapi",
-            dojo.hitch(this, "load_googlemaps",widget));
-    },
-    load_googlemaps:function(widget){
-        google.load("maps", "3.x", 
-            {
-                other_params: "sensor=false",
-                language:navigator.language, 
-                callback:dojo.hitch(this, "onGoogleMapsLoaded")
-            });
-    },
-    init_geocoder: function(widget) {
-        if (this.google_ready){
-            widget.geocoder = new google.maps.Geocoder();
-        }
-        else {
-            this.pending_geocoders.push(widget);
-        }
-    },
-    onGoogleMapsLoaded: function(){
-        this.google_ready = true;
-        var that = this;
-        dojo.forEach(this.pending_geocoders, function(widget){that.init_geocoder(widget)});
-        this.pending_geocoders = [];    
+        genro.google().setGeocoder(widget)
     },
     mixin_handleGeocodeResults: function(results, status){
         this.store.mainbag=new gnr.GnrBag();
@@ -5058,6 +5026,8 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  
                  details['street_address'] = details['route']+', '+(details['street_number']||'??');
                  details['street_address_eng'] = (details['street_number']||'??')+' '+details['route'];
+                 var location=results[i].geometry.location
+                 details['location']=location.lat()+','+location.lng()
              this.store.mainbag.setItem('root.r_' + i, null, details);
 
              }
@@ -5975,7 +5945,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     }
 });
-
 dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -5985,38 +5954,81 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
-        var center = (savedAttrs.center || "37.4419,-122.1419").split(',');
-        var maptype = savedAttrs.maptype || 'normal';
-        var controls = savedAttrs.controls;
-        var zoom = savedAttrs.zoom || 13;
-        if (GBrowserIsCompatible()) {
-            var map = new GMap2(widget);
-            sourceNode.googleMap = map;
-            map.setCenter(new GLatLng(parseFloat(center[0]), parseFloat(center[1])), zoom);
-            map.setMapType(window['G_' + maptype.toUpperCase() + '_MAP']);
-            if (controls) {
-                controls = controls.split(',');
-                for (var i = 0; i < controls.length; i++) {
-                    var cnt = window['G' + controls[i] + 'Control'];
-                    map.addControl(new cnt());
+        sourceNode.markers={}
+        var that=this;
+        genro.google().setGeocoder(sourceNode,function(){
+              that.makeMap(sourceNode,savedAttrs)
+        })
+        sourceNode.gnr=this
+    },
+    makeMap:function(sourceNode,kw){
+        kw.mapTypeId=objectPop(kw,'type')||'roadmap';
+        kw.zoom=kw.zoom || 8;
+        this.getLatLong(sourceNode,kw.center,function(center){
+                    kw.center=center
+                    sourceNode.map=new google.maps.Map(sourceNode.domNode,kw)
+        })
+    },
+    setMarker:function(sourceNode,marker_name,marker){
+        this.getLatLong(sourceNode,marker,function(location){
+            if (location){
+                var kw={position:location,map:sourceNode.map,title:'Marker:'+marker_name}
+                sourceNode.markers[marker_name]=new google.maps.Marker(kw)
+            }
+        })
+    },
+    setMap_center:function(domnode,v){
+        var sourceNode=domnode.sourceNode
+        this.getLatLong(sourceNode,v,function(center){
+            if (center){
+                 sourceNode.map.setCenter(center)
+
+            }
+        })
+    },
+    setMap_zoom:function(domnode,v){
+        var sourceNode=domnode.sourceNode
+        var oldzoom=sourceNode.map.getZoom()
+        console.log('olzoom',oldzoom,'newzoom',v)
+        sourceNode.map.setZoom(v)
+
+    },
+    setMap_type:function(domnode,v){
+        var sourceNode=domnode.sourceNode
+        sourceNode.map.setMapTypeId(v)
+
+    },
+    setMap_markers:function(domnode,v){
+        var sourceNode=domnode.sourceNode
+        sourceNode.map.setMapTypeId(v)
+
+    },
+    getLatLong:function(sourceNode,v,cb){
+        var result;
+        if (typeof(v)!='string'){
+            cb(result)
+            return
+        }
+        if (v.indexOf(',')){
+            var c=v.split(',')
+            c0=parseFloat(c[0])
+            if (c0){
+                c1=parseFloat(c[1])
+                if(c1){
+                    result= new google.maps.LatLng(c0, c1);
+                    cb(result)
+                    return
                 }
             }
-            var mapcommands = objectExtract(this, 'map_*', true);
-            for (var command in mapcommands) {
-                sourceNode[command] = mapcommands[command];
-            }
-        } else {
-            alert('not compatible browser');
         }
-    },
-
-    map_getMapLoc: function(center) {
-        var c = center.split(',');
-        return new GLatLng(parseFloat(c[1]), parseFloat(c[0]));
-    },
-    map_newMarker: function(center) {
-        return new GMarker(this.getMapLoc(center));
+        sourceNode.geocoder.geocode({ 'address': v},function(results, status){
+             if (status == google.maps.GeocoderStatus.OK) {
+                 result=results[0].geometry.location
+                 cb(result)
+             }
+        });
     }
+
 });
 
 
