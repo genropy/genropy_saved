@@ -49,11 +49,12 @@ try:
     
     class LocalizedWrapper(object):
 
-        def __init__(self,data, locale=None,templates=None, formats=None,masks=None, localizer=None,noneIsBlank=None):
+        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None, localizer=None,noneIsBlank=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
             self.masks = masks or dict()
+            self.df_templates = df_templates or dict()
             self.templates=templates
             self.noneIsBlank=noneIsBlank
             self.isBag = hasattr(self.data, '_htraverse')
@@ -67,16 +68,28 @@ try:
             if self.noneIsBlank and value is None:
                 value= ''
             if self.isBag:
-                if self.templates:
-                    templateNode = self.templates.getNode(k)
-                    if templateNode:
-                        template = templateNode.value
-                        joiner = templateNode.getAttr('joiner','')
-                        result = []
-                        for k,v in value.items():
-                            result.append(templateReplace(template,v, locale=self.locale, 
-                                            formats=self.formats,masks=self.masks, noneIsBlank=self.noneIsBlank))
-                        return joiner.join(result)
+                if hasattr(value, '_htraverse'):
+                    if self.templates and k in self.templates:
+                        templateNode = self.templates.getNode(k)
+                        if templateNode:
+                            template = templateNode.value
+                            joiner = templateNode.getAttr('joiner','')
+                            result = []
+                            for k,v in value.items():
+                                result.append(templateReplace(template,v, locale=self.locale, 
+                                                formats=self.formats,masks=self.masks, noneIsBlank=self.noneIsBlank))
+                            return joiner.join(result)
+                    elif k in self.df_templates:
+                        templatepath = self.df_templates[k]
+                        template = self.data[templatepath]
+                        return templateReplace(template,value,locale=self.locale, 
+                                                formats=self.formats,masks=self.masks, 
+                                                noneIsBlank=self.noneIsBlank)
+                    else:
+                        return value.getFormattedValue(joiner='<br/>');
+                else:
+                    valueNode = self.data.getNode(k)
+                    value = valueNode.attr.get('_formattedValue') or valueNode.attr.get('_displayedValue') or value
                 attrs = self.data.getAttr(k) or dict()
                 format = attrs.get('format')
                 mask = attrs.get('mask')
@@ -369,7 +382,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,masks=None,localizer=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,masks=None,df_templates=None,localizer=None):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -395,7 +408,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,masks=masks,localizer=localizer)
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,masks=masks,df_templates=df_templates,localizer=localizer)
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:

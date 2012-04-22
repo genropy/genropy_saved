@@ -201,6 +201,16 @@ class BagNode(object):
                     self.value = self._resolver() # this may be a deferred
                 return self._value
         return self._value
+    
+    def getFormattedValue(self,joiner=None,omitEmpty=True,mode=None,**kwargs):
+        v = self.getValue(mode=mode)
+        if isinstance(v,Bag):
+            v = v.getFormattedValue(joiner=joiner,omitEmpty=omitEmpty,mode=mode,**kwargs)
+        else:
+            v = self.attr.get('_formattedValue') or self.attr.get('_displayedValue') or v
+        if v or not omitEmpty:
+            return '%s: %s' %((self.attr.get('_valuelabel') or self.label.capitalize()),v)
+        return ''
 
     def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):
         """Set the node's value, unless the node is locked. This method is called by the property .value
@@ -797,6 +807,16 @@ class Bag(GnrObject):
         :param encoding: the encoding type
         :param mode: TODO"""
         return self.__str__(mode=mode).encode(encoding, 'ignore')
+    
+    def getFormattedValue(self,joiner='\n',omitEmpty=True,**kwargs):
+        r = []
+        for n in self:
+            if not n.label.startswith('_'):
+                fv = n.getFormattedValue(joiner=joiner,omitEmpty=omitEmpty,**kwargs)
+                if fv or not omitEmpty:
+                    r.append(fv)
+        return joiner.join(r)
+
 
     def keys(self):
         """Return a copy of the Bag as a list of keys

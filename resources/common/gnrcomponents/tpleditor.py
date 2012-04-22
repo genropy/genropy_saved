@@ -42,6 +42,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.locale = compiled.getItem('main?locale')
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.masks = compiled.getItem('main?masks')
+        htmlbuilder.df_templates = compiled.getItem('main?df_templates')
         htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
         return htmlbuilder
         
@@ -55,11 +56,10 @@ class TemplateEditorBase(BaseComponent):
         locale = locale or templateBuilder.locale
         formats = templateBuilder.formats or dict()
         masks = templateBuilder.masks or dict()
-        formats.update(templateBuilder.formats or dict())
-        masks.update(templateBuilder.masks or dict())
+        df_templates = templateBuilder.df_templates or dict()
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,localizer=self.localizer),
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,df_templates=df_templates,localizer=self.localizer),
                             record=record,**kwargs)
         return body
     
@@ -79,15 +79,20 @@ class TemplateEditorBase(BaseComponent):
         result = Bag()
         formats = dict()
         masks = dict()
+        df_templates = dict()
         columns = []
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
-            for varname,fldpath,virtualcol,format,mask in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template')
+            for varname,fldpath,virtualcol,format,mask,df_template in tplvars:
                 varsdict[varname] = '$%s' %fldpath
-                formats[fldpath] = format
-                masks[fldpath] = mask
+                if format:
+                    formats[fldpath] = format
+                if mask:
+                    masks[fldpath] = mask
+                if df_template:
+                    df_templates[fldpath] = df_template
                 columns.append(fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
@@ -111,7 +116,7 @@ class TemplateEditorBase(BaseComponent):
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
-                            columns=','.join(columns),formats=formats,masks=masks)
+                            columns=','.join(columns),formats=formats,masks=masks,df_templates=df_templates)
         result.setItem('compiled',compiled)
         if record_id:
             result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates,template_id=template_id))
@@ -190,8 +195,15 @@ class TemplateEditor(TemplateEditorBase):
         frame.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables')
         grid.dragAndDrop(dropCodes='fieldvars')
         grid.dataController("""var caption = data.fullcaption;
-                                var varname = caption.replace(/\W/g,'_').toLowerCase()
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
+                                var varname = caption.replace(/\W/g,'_').toLowerCase();
+                                var df_template =null;
+                                var fieldpath = data.fieldpath;
+                                if(fieldpath.indexOf(':')>=0){
+                                    fieldpath = fieldpath.split(':');
+                                    df_template = fieldpath[1];
+                                    fieldpath = fieldpath[0];
+                                }
+                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):

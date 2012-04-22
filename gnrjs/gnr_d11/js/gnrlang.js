@@ -182,14 +182,21 @@ function dataTemplate(str, data, path, showAlways) {
         
     }
 
-    var templates=null;
+    var templates;
+    var masks={};
+    var df_templates={};
+    var formats = {};
     
     if(str instanceof gnr.GnrBag){
          templates=str;
-         str=templates.getItem('main');
+         var mainNode =templates.getNode('main');
+         str = mainNode.getValue();
+         masks = mainNode.attr.masks || {};
+         formats = mainNode.attr.formats || {};
+         df_templates = mainNode.attr.df_templates || {};
     }
     var auxattr = {};
-    var regexpr = /\$([a-zA-Z0-9.@?_:]+)/g;
+    var regexpr = /\$([a-zA-Z0-9.@?_]+)/g;
     var result;
     var is_empty = true;
     var has_field = false;
@@ -211,41 +218,33 @@ function dataTemplate(str, data, path, showAlways) {
                             function(path) {
                                 has_field=true;
                                 var path=path.slice(1);
-                                var subfields_tpl,selection_tpl;
-                                if(path.indexOf(':')>=0){
-                                    var lpath = path.split(':');
-                                    subfields_tpl = data.getItem(lpath[1]);
-                                    path = lpath[0];
-                                }else{
-                                    selection_tpl = templates?templates.getItem(path):null;
-                                }
                                 var valueNode = data.getNode(path);
-                                if (selection_tpl){
-                                    var value = valueNode.getValue();
-                                    if(value instanceof gnr.GnrBag){
+                                var dtype = null;
+                                var value;
+                                if (valueNode){
+                                   dtype = valueNode.attr.dtype;
+                                   value = valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode.getValue();
+                                }else{
+                                    value = auxattr[path]
+                                }
+                                if(value instanceof gnr.GnrBag){
+                                    var subtpl = templates?templates.getItem(path):null;
+                                    if (subtpl){
                                         var subval=[];
                                         var vl;
                                         value.forEach(function(n){
                                             vl = n.getValue();
-                                            subval.push(dataTemplate(selection_tpl, vl));
-                                        })
+                                            subval.push(dataTemplate(subtpl, vl));
+                                        });
                                         value = subval.join('');
-                                    }
-                                }else if (subfields_tpl){
-                                    value = dataTemplate(subfields_tpl,valueNode.getValue());
-                                }else{
-                                    var value = valueNode? (valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode._value):auxattr[path];
-                                }
-                                
-                                if (value != null) {
-                                    is_empty = false;
-                                    var dtype = null;
-                                    if (valueNode){
-                                        var dtype = valueNode.attr.dtype;
-                                    }
-                                    if (value instanceof gnr.GnrBag){
+                                    }else if(path in df_templates){
+                                        value = dataTemplate(data.getItem(df_templates[path]),value);
+                                    }else{
                                         value = value.getFormattedValue();
                                     }
+                                }
+                                if (value != null) {
+                                    is_empty = false;
                                     if (value instanceof Date) {
                                         value = dojo.date.locale.format(value, {selector:dtype=='H'?'time':'date', format:'short'});
                                     }
