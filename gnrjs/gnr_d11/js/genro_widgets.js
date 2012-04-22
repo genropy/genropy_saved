@@ -5026,8 +5026,8 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  
                  details['street_address'] = details['route']+', '+(details['street_number']||'??');
                  details['street_address_eng'] = (details['street_number']||'??')+' '+details['route'];
-                 var location=results[i].geometry.location
-                 details['location']=location.lat()+','+location.lng()
+                 var position=results[i].geometry.location
+                 details['position']=position.lat()+','+position.lng()
              this.store.mainbag.setItem('root.r_' + i, null, details);
 
              }
@@ -5964,22 +5964,24 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     makeMap:function(sourceNode,kw){
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
-        this.getLatLong(sourceNode,kw.center,function(center){
+        this.onPositionCall(sourceNode,kw.center,function(center){
                     kw.center=center
                     sourceNode.map=new google.maps.Map(sourceNode.domNode,kw)
         })
     },
-    setMarker:function(sourceNode,marker_name,marker){
-        this.getLatLong(sourceNode,marker,function(location){
-            if (location){
-                var kw={position:location,map:sourceNode.map,title:'Marker:'+marker_name}
+    setMarker:function(sourceNode,marker_name,marker,kw){
+        this.onPositionCall(sourceNode,marker,function(position){
+            if (position){
+                kw.position=position;
+                kw.title=kw.title || marker_name
+                kw.map=sourceNode.map;
                 sourceNode.markers[marker_name]=new google.maps.Marker(kw)
             }
         })
     },
     setMap_center:function(domnode,v){
         var sourceNode=domnode.sourceNode
-        this.getLatLong(sourceNode,v,function(center){
+        this.onPositionCall(sourceNode,v,function(center){
             if (center){
                  sourceNode.map.setCenter(center)
 
@@ -5988,8 +5990,6 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     },
     setMap_zoom:function(domnode,v){
         var sourceNode=domnode.sourceNode
-        var oldzoom=sourceNode.map.getZoom()
-        console.log('olzoom',oldzoom,'newzoom',v)
         sourceNode.map.setZoom(v)
 
     },
@@ -6003,7 +6003,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         sourceNode.map.setMapTypeId(v)
 
     },
-    getLatLong:function(sourceNode,v,cb){
+    onPositionCall:function(sourceNode,v,cb){
         var result;
         if (typeof(v)!='string'){
             cb(result)
@@ -6023,8 +6023,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         }
         sourceNode.geocoder.geocode({ 'address': v},function(results, status){
              if (status == google.maps.GeocoderStatus.OK) {
-                 result=results[0].geometry.location
-                 cb(result)
+                 cb(results[0].geometry.location)
              }
         });
     }
