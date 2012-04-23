@@ -191,9 +191,9 @@ function dataTemplate(str, data, path, showAlways) {
          templates=str;
          var mainNode =templates.getNode('main');
          str = mainNode.getValue();
-         masks = mainNode.attr.masks || {};
-         formats = mainNode.attr.formats || {};
-         df_templates = mainNode.attr.df_templates || {};
+         masks = mainNode.attr.masks || masks;
+         formats = mainNode.attr.formats || formats;
+         df_templates = mainNode.attr.df_templates || df_templates;
     }
     var auxattr = {};
     var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
@@ -219,6 +219,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 has_field=true;
                                 var path=path.slice(1);
                                 var as_name = path;
+                                var valueattr = {};
                                 if(path.indexOf('^')>=0){
                                     path = path.split('^');
                                     as_name = path[1];
@@ -228,8 +229,9 @@ function dataTemplate(str, data, path, showAlways) {
                                 var dtype = null;
                                 var value;
                                 if (valueNode){
-                                   dtype = valueNode.attr.dtype;
-                                   value = valueNode.attr._formattedValue || valueNode.attr._displayedValue || valueNode.getValue();
+                                   valueattr = valueNode.attr;
+                                   dtype = valueattr.dtype;
+                                   value = valueNode.getValue();
                                 }else{
                                     value = auxattr[as_name]
                                 }
@@ -247,6 +249,13 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = dataTemplate(data.getItem(df_templates[as_name]),value);
                                     }else{
                                         value = value.getFormattedValue();
+                                    }
+                                }else{
+                                    value = valueattr._displayedValue || value;
+                                    if(formats[as_name] || masks[as_name]){
+                                        value = gnrformatter.asText(value,{format:formats[as_name],mask:masks[as_name],dtype:dtype});
+                                    }else if(valueattr._formattedValue){
+                                        value = valueattr._formattedValue;
                                     }
                                 }
                                 if (value != null) {

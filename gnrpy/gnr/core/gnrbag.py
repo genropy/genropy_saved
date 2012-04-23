@@ -209,7 +209,7 @@ class BagNode(object):
         else:
             v = self.attr.get('_formattedValue') or self.attr.get('_displayedValue') or v
         if v or not omitEmpty:
-            return '%s: %s' %((self.attr.get('_valuelabel') or self.label.capitalize()),v)
+            return '%s: %s' %((self.attr.get('_valuelabel') or self.attr.get('name_long') or self.label.capitalize()),v)
         return ''
 
     def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):

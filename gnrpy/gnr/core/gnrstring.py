@@ -69,6 +69,7 @@ try:
             value = self.data[k]
             format = None
             mask = None
+            formattedValue = None
             caption = ''
             if self.noneIsBlank and value is None:
                 value= ''
@@ -94,16 +95,19 @@ try:
                         return value.getFormattedValue(joiner='<br/>');
                 else:
                     valueNode = self.data.getNode(k)
-                    value = valueNode.attr.get('_formattedValue') or valueNode.attr.get('_displayedValue') or value
+                    value = valueNode.attr.get('_displayedValue') or value
+                    formattedValue = valueNode.attr.get('_formattedValue')
                 attrs = self.data.getAttr(k) or dict()
                 format = attrs.get('format')
                 mask = attrs.get('mask')
                 caption = attrs.get('name_long','')
-            format = self.formats.get(k) or format
-            mask = self.masks.get(k) or mask
+            format = self.formats.get(as_name) or format
+            mask = self.masks.get(as_name) or mask
             if mask and '#' in mask:
                 caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
                 mask = mask.replace('#',caption)
+            elif formattedValue:
+                value = formattedValue
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
     
