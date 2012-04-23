@@ -37,6 +37,62 @@ class GnrCustomWebPage(object):
                                  mapNode.gnr.setMarker(mapNode,marker_name,marker,kw)
                            }
                            """,marker='^.marker',marker_name='=.marker_name',mapNode=m)
+    
+    def test_2_palette(self,pane):
+        pane.data('.center','Via omboni 10 abbiategrasso')
+        pane.data('.zoom',10)
+        pane.data('.maptype','roadmap')
+        bc=pane.borderContainer(height='600px')
+        top=bc.contentPane(region='top')
+        fb=top.formbuilder(cols=3)
+        fb.geoCoderField(value='^centertest',lbl='Center',selected_position='.center_position')
+        fb.div(innerHTML='^.center_position',lbl='center position')
+        fb.FilteringSelect(value='^maptypetest',lbl='Map Type',values='roadmap:Roadmap,hibrid:Hibryd,satellite:Satellite,terrain:Terrain')
+        fb.textbox(value='^.marker_name',lbl='Marker name')
+        fb.geoCoderField(value='^.marker_address',lbl='marker',selected_position='.marker')
+        fb.div(innerHTML='^.marker',lbl='marker position')
+        fb.horizontalSlider(value='^zoomtest',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
 
-     
+        pane.paletteMap(paletteCode='map',dockTo=False,map_center="^centertest",map_type='^maptypetest',
+                     map_zoom='^zoomtest',map_disableDefaultUI=True)
+    
+    
+    def test_3_paletteDynamic(self,pane):
+        pane.data('.center','Via omboni 10 abbiategrasso')
+        pane.data('.zoom',10)
+        pane.data('.maptype','roadmap')
+        bc=pane.borderContainer(height='600px')
+        top=bc.contentPane(region='top')
+        fb=top.formbuilder(cols=3)
+        fb.geoCoderField(value='^.center',lbl='Center',selected_position='.center_position')
+        fb.div(innerHTML='^.center_position',lbl='center position')
+        fb.FilteringSelect(value='^.maptype',lbl='Map Type',values='roadmap:Roadmap,hibrid:Hibryd,satellite:Satellite,terrain:Terrain')
+        fb.textbox(value='^.marker_name',lbl='Marker name')
+        fb.geoCoderField(value='^.marker_address',lbl='marker',selected_position='.marker')
+        fb.div(innerHTML='^.marker',lbl='marker position')
+        fb.horizontalSlider(value='^.zoom',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
+        fb.button('Make Palette',action='genro.dlg.paletteMap({map_center:center,map_type:maptype,map_zoom:zoom});',
+                  center='=.center',maptype='=.maptype',zoom='=.map_zoom')
+
+    def test_4_staticMap(self,pane):
+        pane.data('.center','Via omboni 10 abbiategrasso')
+        pane.data('.zoom',10)
+        pane.data('.maptype','roadmap')
+        bc=pane.borderContainer(height='600px')
+        top=bc.contentPane(region='top')
+        fb=top.formbuilder(cols=3)
+        fb.geoCoderField(value='^.center',lbl='Center',selected_position='.center_position')
+        fb.div(innerHTML='^.center_position',lbl='center position')
+        fb.FilteringSelect(value='^.maptype',lbl='Map Type',values='roadmap:Roadmap,hibrid:Hibryd,satellite:Satellite,terrain:Terrain')
+        fb.textbox(value='^.marker_name',lbl='Marker name')
+        fb.geoCoderField(value='^.marker_address',lbl='marker',selected_position='.marker')
+        fb.div(innerHTML='^.marker',lbl='marker position')
+        fb.horizontalSlider(value='^.zoom',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
+        fb.staticMap(map_center='^.center',map_maptype='^.maptype',map_zoom='^.zoom',height='200px',width='400px',
+                    marker_piri='Via cesare battisti 3, abbiategrasso',
+                    centerMarker=True)
+        
+        #fb.button('Make Palette',action='genro.dlg.paletteMap({map_center:center,map_type:maptype,map_zoom:zoom});',
+        #          center='=.center',maptype='=.maptype',zoom='=.map_zoom')
+        #
                 

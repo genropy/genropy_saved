@@ -328,7 +328,41 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         return new gnr.formstores[storeType](kw,handlers);
     }
 });
-
+dojo.declare("gnr.widgets.PaletteMap", gnr.widgets.gnrwdg, {
+    contentKwargs:function(sourceNode, attributes){
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var paletteCode=kw.paletteCode;
+        kw.frameCode = paletteCode;
+        kw['contentWidget'] = 'FramePane';
+        var mapKw = objectExtract(kw,'map_*',false,true)
+        var pane = sourceNode._('PalettePane',kw);
+        var centerMarker = objectPop(kw,'centerMarker',true);
+        if(centerMarker){
+            mapKw.centerMarker = true;
+        }
+       //if(kw.searchOn){
+       //    //var bar = pane._('SlotBar',{'side':'top',slots:'fbpars,*',searchOn:objectPop(kw,'searchOn'),toolbar:true});
+       //    //var fb = genro.dev.formbuilder(bar._('div','fbpars',{}),{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
+       //   // _('horizontalSlider',{'value':'^.zoom'});
+       //   // 
+       //   //         fb.horizontalSlider(value='^.zoom',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
+       //
+       //}
+        
+        var mapNode = pane._('GoogleMap',objectUpdate({'height':'100%',map_type:'roadmap'},mapKw)).getParentNode();
+        
+        var paletteNode = pane.getParentNode();
+    
+        paletteNode.addMapMarker = function(marker_name,marker){
+            var kw={title:marker_name,draggable:true}
+            mapNode.gnr.setMarker(mapNode,marker_name,marker,kw)
+        };
+        paletteNode.removeMapMarker = this.removeMapMarker;
+        return pane;
+    }
+});
 
 dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){

@@ -198,9 +198,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.unfreeze();
         genro.wdgById('_dlg_ask').show();
     },
-    thermoFloating:function(thermopath) {
 
-    },
     batchMonitor:function(thermopath) {
         var thermopath = thermopath || '_thermo';
         genro.src.getNode()._('div', '_thermo_floating');
@@ -281,6 +279,25 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
         dlg.show_action();
+    },
+    paletteMap:function(kw) {
+        var kw = kw || {};
+        kw.paletteCode = kw.paletteCode || 'mapViewer';
+        var paletteWdg = genro.wdgById(kw.paletteCode+'_floating');
+        if(!paletteWdg){
+            var node = objectPop(kw,'sourceNode');
+            if(!node){
+                genro.src.getNode()._('div', '_map_palette');
+                var node = genro.src.getNode('_map_palette').clearValue();     
+            }
+            node.freeze();
+            kw.dockTo = kw.dockTo || 'dummyDock:open';
+            var paletteNode = node._('PaletteMap',kw).getParentNode();
+            node.unfreeze();
+            paletteWdg = paletteNode.getWidget();
+        }else{
+            paletteWdg.show();
+        }
     },
     
     request: function(title, msg, buttons, resultPath, valuePath) {

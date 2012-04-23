@@ -4798,7 +4798,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
     },
     mixin__updateSelect: function(item) {
         //var item=this.lastSelectedItem;
-        var row = item ? item.attr : {};
+        var row = item ? (item.attr || {}) : {};
         if (this.sourceNode.attr.selectedRecord) {
             var path = this.sourceNode.attrDatapath('selectedRecord');
             this.sourceNode.setRelativeData(path, new gnr.GnrBag(row));
@@ -5948,6 +5948,55 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     }
 });
+dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'img';
+    },
+    creating: function(attributes, sourceNode) {
+        var urlPars = objectExtract(attributes, 'map_*');
+        urlPars.sensor=false;
+        var sizeKw =  objectExtract(attributes,'height,width');
+        var height = sizeKw.height? sizeKw.height.replace('px',''):'200';
+        var width = sizeKw.width? sizeKw.width.replace('px',''):'200';
+        urlPars.size = urlPars.size || (width+'x'+height);
+
+        var markersBag = attributes.markers
+        var markersDict = objectExtract(attributes,'marker_*');
+        var markers = [];
+        if(attributes.centerMarker){
+            markers.push(urlPars.center);
+        }
+        if(typeof(markersBag)=='string'){
+            markersBag = sourceNode.getRelativeData(markersBag);
+        }
+        if(markersDict){
+            for(var k in markersDict){
+                markers.push(markersDict[k]);
+            }
+        }
+        if(markersBag){
+            markersBag.forEach(function(n){
+                var nattr = n.attr;
+                var str = '';
+                if('color' in nattr){
+                    str+='color:'+nattr.color;
+                }
+                if('label' in nattr){
+                    str+='label:'+nattr.label;
+                }
+                markers.push(str);
+            });
+        }
+        var url = genro.addParamsToUrl('http://maps.googleapis.com/maps/api/staticmap',urlPars);
+        if(markers.length){
+            markers = markers.join('&markers=');
+            url+='&markers='+markers;
+        }
+        attributes['src'] = url; 
+        return attributes;
+    }
+
+});
 dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
@@ -5967,14 +6016,19 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     makeMap:function(sourceNode,kw){
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
+        var that = this;
         this.onPositionCall(sourceNode,kw.center,function(center){
-                    kw.center=center
-                    sourceNode.map=new google.maps.Map(sourceNode.domNode,kw)
-                    
+            kw.center=center
+            sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
+            var centerMarker = sourceNode.attr.centerMarker;
+            if(centerMarker){
+                that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);
+            }
         })
     },
 
     setMarker:function(sourceNode,marker_name,marker,kw){
+        var kw = kw || {};
         if (marker_name in sourceNode.markers){
             sourceNode.markers[marker_name].setMap(null)
             objectPop(sourceNode.markers,marker_name)
@@ -6018,7 +6072,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     onPositionCall:function(sourceNode,v,cb){
         var result;
         if (typeof(v)!='string'){
-            cb(result)
+            cb(v)
             return
         }
         if (v.indexOf(',')){
