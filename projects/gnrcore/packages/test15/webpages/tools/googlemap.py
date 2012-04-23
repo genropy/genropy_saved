@@ -89,10 +89,22 @@ class GnrCustomWebPage(object):
         fb.div(innerHTML='^.marker',lbl='marker position')
         fb.horizontalSlider(value='^.zoom',lbl='Zoom',minimum=4,maximum=21,width='150px',discreteValues=18)
         fb.staticMap(map_center='^.center',map_maptype='^.maptype',map_zoom='^.zoom',height='200px',width='400px',
-                    marker_piri='Via cesare battisti 3, abbiategrasso',
+                    marker_p='Via cesare battisti 3, abbiategrasso',
                     centerMarker=True)
         
         #fb.button('Make Palette',action='genro.dlg.paletteMap({map_center:center,map_type:maptype,map_zoom:zoom});',
         #          center='=.center',maptype='=.maptype',zoom='=.map_zoom')
         #
                 
+    def test_5_staticmap_simple(self,pane):
+        fb = pane.formbuilder(cols=2, border_spacing='3px')
+        fb.geoCoderField(value='^.addr',lbl='Addr',selected_position='.addr_position')
+        fb.staticMap(map_center='^.addr',centerMarker=True,height='150px',width='200px')
+        
+    def test_6_dynamicmap_simple(self,pane):
+        fb = pane.formbuilder(cols=2, border_spacing='3px')
+       # fb.data('.addr','via omboni 10 abbiategrasso')
+        fb.geoCoderField(value='^.addr',lbl='Addr',selected_position='.addr_position')
+        fb.GoogleMap(map_center='^.addr',centerMarker=True,height='150px',width='200px')
+
+

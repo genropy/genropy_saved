@@ -5954,6 +5954,10 @@ dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
     },
     creating: function(attributes, sourceNode) {
         var urlPars = objectExtract(attributes, 'map_*');
+        if(!urlPars['center']){
+            attributes['src'] = null;
+            return attributes;
+        }
         urlPars.sensor=false;
         var sizeKw =  objectExtract(attributes,'height,width');
         var height = sizeKw.height? sizeKw.height.replace('px',''):'200';
@@ -5964,14 +5968,14 @@ dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
         var markersDict = objectExtract(attributes,'marker_*');
         var markers = [];
         if(attributes.centerMarker){
-            markers.push(urlPars.center);
+            markers.push('label:C%7C'+urlPars.center);
         }
         if(typeof(markersBag)=='string'){
             markersBag = sourceNode.getRelativeData(markersBag);
         }
         if(markersDict){
             for(var k in markersDict){
-                markers.push(markersDict[k]);
+                markers.push('label:'+k[0].toUpperCase()+'%7C'+markersDict[k]);
             }
         }
         if(markersBag){
@@ -5979,10 +5983,10 @@ dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
                 var nattr = n.attr;
                 var str = '';
                 if('color' in nattr){
-                    str+='color:'+nattr.color;
+                    str+='color:'+nattr.color+'%7C';
                 }
                 if('label' in nattr){
-                    str+='label:'+nattr.label;
+                    str+='label:'+nattr.label[0].toUpperCase()+'%7C';
                 }
                 markers.push(str);
             });
@@ -6017,14 +6021,17 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
         var that = this;
-        this.onPositionCall(sourceNode,kw.center,function(center){
-            kw.center=center
-            sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
-            var centerMarker = sourceNode.attr.centerMarker;
-            if(centerMarker){
-                that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);
-            }
-        })
+        if(kw.center){
+            this.onPositionCall(sourceNode,kw.center,function(center){
+                kw.center=center
+                sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
+                var centerMarker = sourceNode.attr.centerMarker;
+                if(centerMarker){
+                    that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);
+                }
+            });
+        }
+        
     },
 
     setMarker:function(sourceNode,marker_name,marker,kw){
@@ -6046,11 +6053,20 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         })
     },
     setMap_center:function(domnode,v){
-        var sourceNode=domnode.sourceNode
+        var sourceNode=domnode.sourceNode;
+        if(!sourceNode.map){
+            var kw = objectExtract(sourceNode.attr,'map_*',true);
+            kw.center = v;
+            return this.makeMap(sourceNode,kw);
+        }
+        var that = this;
         this.onPositionCall(sourceNode,v,function(center){
             if (center){
                  sourceNode.map.setCenter(center)
-
+                 var centerMarker = sourceNode.attr.centerMarker;
+                 if(centerMarker){
+                    that.setMarker(sourceNode,'center_marker',center,centerMarker==true?{}:centerMarker);
+                }
             }
         })
     },
