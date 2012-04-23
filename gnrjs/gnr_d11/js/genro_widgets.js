@@ -4992,6 +4992,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         }
     },
     patch__onBlur: function(){
+        console.log('blur geocode',this)
         if (this._popupWidget && !this.item){
             this._popupWidget.highlightFirstOption();
             highlighted = this._popupWidget.getHighlightedOption()
@@ -5031,6 +5032,8 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
              this.store.mainbag.setItem('root.r_' + i, null, details);
 
              }
+         }else if (status == google.maps.GeocoderStatus.ZERO_RESULTS){
+             this._updateSelect(this.store.mainbag);
          };
          var firstline = this.store.mainbag.getItem('#0');
          if (false && firstline && firstline.len()==1){
@@ -5967,9 +5970,18 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         this.onPositionCall(sourceNode,kw.center,function(center){
                     kw.center=center
                     sourceNode.map=new google.maps.Map(sourceNode.domNode,kw)
+                    
         })
     },
+
     setMarker:function(sourceNode,marker_name,marker,kw){
+        if (marker_name in sourceNode.markers){
+            sourceNode.markers[marker_name].setMap(null)
+            objectPop(sourceNode.markers,marker_name)
+        }
+        if (!marker){
+            return
+        }
         this.onPositionCall(sourceNode,marker,function(position){
             if (position){
                 kw.position=position;
