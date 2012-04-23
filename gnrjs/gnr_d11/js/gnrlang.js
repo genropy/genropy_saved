@@ -221,8 +221,8 @@ function dataTemplate(str, data, path, showAlways) {
                                 var as_name = path;
                                 if(path.indexOf('^')>=0){
                                     path = path.split('^');
-                                    path = path[0];
                                     as_name = path[1];
+                                    path = path[0];
                                 }
                                 var valueNode = data.getNode(path);
                                 var dtype = null;

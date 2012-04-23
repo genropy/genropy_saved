@@ -439,7 +439,7 @@ class DynamicFieldsTable(TableBase):
         tbl.column('mandatory','B',name_long='!!Mandatory')
 
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete='raise', relation_name='dynamicfields',
+                    mode='foreignkey', onDelete='cascade', relation_name='dynamicfields',
                     one_group='_',many_group='_')
 
         

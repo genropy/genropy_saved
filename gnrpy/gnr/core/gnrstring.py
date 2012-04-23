@@ -64,8 +64,8 @@ try:
             as_name = k
             if '^' in k:
                 k = k.split('^')
-                k = k[0]
                 as_name = k[1]
+                k = k[0]
             value = self.data[k]
             format = None
             mask = None
