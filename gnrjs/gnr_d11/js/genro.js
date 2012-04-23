@@ -1444,6 +1444,12 @@ dojo.declare('gnr.GenroClient', null, {
     invalidFields: function(name) {
         return genro.formInfo(name).getItem('invalidFields');
     },
+    google:function(){
+        if(! this._googleHandler){
+            this._googleHandler=this.wdg.getHandler('GoogleLoader')
+        } 
+        return this._googleHandler;  
+    },
     lockScreen:function(locking, reason, options) {
         if (reason) {
             genro.lockingElements[reason] = reason;
