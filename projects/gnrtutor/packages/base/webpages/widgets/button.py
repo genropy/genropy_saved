@@ -115,6 +115,6 @@ class GnrCustomWebPage(object):
         pane.div(desc,margin='1em',font_family='Courier')
         fb = pane.formbuilder(cols=2)
         fb.data('.number',0) # sets the initial value for path '.number'
-        fb.button('36', action='SET .number=36;')
+        fb.button('Set 36 to spinner', action='SET .number=36;')
         fb.numberSpinner(lbl='number', value='^.number')
 
