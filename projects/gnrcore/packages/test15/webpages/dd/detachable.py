@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
         one = tc.contentPane(title='One').contentPane(background_color='pink', detachable=True)
         one.div('one')
         one.div('pippo', background='blue')
-        two = tc.contentPane(title='Two').contentPane(tbackground_color='yellow', detachable=True)
+        two = tc.contentPane(title='Two').contentPane(background_color='yellow', detachable=True)
         two.div('two')
         three = tc.contentPane(title='Three').contentPane(background_color='lime', detachable=True)
         three.div('three')

@@ -2,7 +2,18 @@
 <GenRoBag>
     <backoffice label="Genropy Tutor" tags="staff">
         <intro label="Introduction">
-            <element_page label="!!Element page" file="element_page"/>
+            <basics label="!!Basics" basepath="/base/basics">
+                <html label="!!HTML" file="html" />
+            </basics>
+
+            <bags label="!!Bags" basepath="/base/bags">
+                <intro label="!!Intro" file="bag_intro"/>
+            </bags>
         </intro>
+        <widgets label="!!Widgets" basepath="/base/widgets">
+            <button label="!!Buttons" file="button" />
+        </widgets>
+        <advanced label="Advanced">
+        </advanced">
     </backoffice>
 </GenRoBag>
