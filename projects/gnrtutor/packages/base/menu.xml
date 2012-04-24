@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
     <backoffice label="Genropy Tutor" tags="staff">
-        <intro label="Introduction" basepath="/base/table_pages">
-            <bags label="!!Bags" file="bagtest"/>
+        <intro label="Introduction">
+            <basics label="!!Basics" basepath="/base/basics">
+                <html label="!!HTML" file="html" />
+            </basics>
+
+            <bags label="!!Bags" basepath="/base/bags">
+                <intro label="!!Intro" file="bag_intro"/>
+            </bags>
+
             <widgets label="!!Widgets" basepath="/base/widgets">
-                <buttons label="!!Buttons" basepath="/base/widgets/buttons">
-                    <buttonaction label="!!Button Actions" file="button_action" /> 
-                </buttons>
+                <button label="!!Buttons" file="button" />
             </widgets>
         </intro>
     </backoffice>

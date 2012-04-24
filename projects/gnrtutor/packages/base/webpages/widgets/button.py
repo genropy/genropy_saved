@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""button.py"""
+
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         bc = root.borderContainer(region='center',datapath='main')
@@ -19,7 +23,7 @@ class GnrCustomWebPage(object):
         desc = """The 'button' widget can be called from another widget such as a pane or formbuilder. The 1st parameter is the button label.
                   Then keyword parameters can be used to specify tooltip, width, font, font_size, height, etc, may be included.
                   The 'action' parameter is the javascript to be called when the button is clicked.  This page shows the FIRE and SET macros
-                  which are a js short cut.
+                  which are js short cuts.
                   """
         pane.div(desc, margin='5px')
 
