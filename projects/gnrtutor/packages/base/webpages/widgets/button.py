@@ -108,11 +108,13 @@ class GnrCustomWebPage(object):
     def example6(self,pane):
         pane.div('Using the macro SET',_class='pbl_roundedGroupLabel', color='white')
         desc = """
-               fb.button('36', action='SET .number2=36;')</BR>
-               fb.numberSpinner(lbl='number 2', value='^.number2')
+               fb.data('.number',0) <I># sets the initial value for path '.number'</I> </BR> 
+               fb.button('36', action='SET .number=36;')</BR>
+               fb.numberSpinner(lbl='number', value='^.number')
                """
         pane.div(desc,margin='1em',font_family='Courier')
         fb = pane.formbuilder(cols=2)
-        fb.button('36', action='SET .number2=36;')
-        fb.numberSpinner(lbl='number 2', value='^.number2')
+        fb.data('.number',0) # sets the initial value for path '.number'
+        fb.button('36', action='SET .number=36;')
+        fb.numberSpinner(lbl='number', value='^.number')
 

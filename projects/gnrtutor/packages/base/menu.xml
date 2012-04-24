@@ -9,10 +9,11 @@
             <bags label="!!Bags" basepath="/base/bags">
                 <intro label="!!Intro" file="bag_intro"/>
             </bags>
-
-            <widgets label="!!Widgets" basepath="/base/widgets">
-                <button label="!!Buttons" file="button" />
-            </widgets>
         </intro>
+        <widgets label="!!Widgets" basepath="/base/widgets">
+            <button label="!!Buttons" file="button" />
+        </widgets>
+        <advanced label="Advanced">
+        </advanced">
     </backoffice>
 </GenRoBag>
