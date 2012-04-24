@@ -2,7 +2,7 @@
 <GenRoBag>
     <packages>
         <showcase />
-        <genrotit:genrotit />
+        <!--genrotit:genrotit / -->
         <gnrcore:adm />
         <gnrcore:sys />
     </packages>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <db dbname="gnrtutor"/>
+    <packages>
+        <base/>
+        <gnrcore:adm/>
+        <gnrcore:task/>
+        <gnrcore:email/>
+        <gnr_it:glbl/>
+        <gnrcore:flib/>
+    </packages>
+    <eager one="false" many="false" onenew="true"/>
+    <menu package='base'/>
+    <mail smtp_host='mail.bigpond.com' />
+    <authentication pkg='base'>
+        <xml_auth defaultTags="users,xml">
+            <demo pwd="demo" tags="_DEV_,_TRD_,super_adm,user,admin,staff,passpartout, _pref"/>
+        </xml_auth>
+        <py_auth defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
+</GenRoBag>
