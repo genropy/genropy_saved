@@ -24,11 +24,28 @@ class GnrCustomWebPage(object):
       
     def test_5_img_uploader_edit(self, pane):
         #pane.img(src='^.avatar_url')
-        fb=pane.formbuilder(cols=2)
+        bc=pane.borderContainer(height='300px')
+        top=bc.contentPane(region='top')
+        fb=top.formbuilder(cols=2)
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        pane.div(detachable=True,padding='5px',background_color='grey').imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',
-                        placeholder='http://images.apple.com/euro/home/images/icloud_hero.png')
+        center=bc.borderContainer(region='center',height='140px',width='168px',border='1px solid silver',rounded=8,margin='10px')
+        zmp=center.contentPane(region='bottom',border_top='1px solid silver')
+        zmp.horizontalSlider(value='^.zoomFactor',minimum=0,maximum=1,
+                            intermediateChanges=True,width='150px',height='18px')
+                            
+        btm=center.contentPane(region='top',border_bottom='1px solid silver')
+        btm.horizontalSlider(value='^.margin_left_v',minimum=-300,maximum=0,
+                            intermediateChanges=True,width='150px',height='18px')
+        btm.dataFormula('.margin_left','l+"px"',l='^.margin_left_v')
+        rgt=center.contentPane(region='right',border_left='1px solid silver')
+        rgt.verticalSlider(value='^.margin_top_v',minimum=-300,maximum=0,
+                            intermediateChanges=True,height='100px')
+        rgt.dataFormula('.margin_top','t+"px"',t='^.margin_top_v')
+        cnt=center.contentPane(region='center')            
+        cnt.div(height='100px',width='150px',overflow='hidden').imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',
+                        placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
+                        margin_top='^.margin_top',margin_left='^.margin_left',zoomFactor='^.zoomFactor')
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
