@@ -26,8 +26,6 @@ class Form(BaseComponent):
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2)
         fb.field('name')
-        fb.field('parent_id',readOnly=True)
-
         #bc.contentPane(region='center').remote(self.childrenTH,parent_id='=.pkey')
         
     @public_method
