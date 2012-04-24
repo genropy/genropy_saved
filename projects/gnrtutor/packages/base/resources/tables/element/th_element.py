@@ -21,17 +21,10 @@ class View(BaseComponent):
         return dict()
         
 class Form(BaseComponent):
+    py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2)
         fb.field('name')
-        #bc.contentPane(region='center').remote(self.childrenTH,parent_id='=.pkey')
-        
-    @public_method
-    def childrenTH(self,pane,parent_id=None,**kwargs):
-        th = pane.dialogTableHandler(relation='@_children',nodeId='%s_children' %id(pane),maintable='base.element')
-        th.view.store.attributes.update(_onBuilt=True)
-        
-    def th_options(self):
-        return dict(dialog_height='300px',dialog_width='600px',dialog_stacked=True)
+        bc.contentPane(region='center').fieldsGrid(title='!!Characteristics')
