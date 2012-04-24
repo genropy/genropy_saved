@@ -173,7 +173,11 @@ class TableBase(object):
                 tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
                 tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
             tbl.attributes['hierarchical'] = hierarchical                                 
-            
+            broadcast = tbl.attributes.get('broadcast')
+            broadcast = broadcast.split(',') if broadcast else []
+            if not 'parent_id' in broadcast:
+                broadcast.append('parent_id')
+            tbl.attributes['broadcast'] = ','.join(broadcast)
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
             _counter_fkey=counter,group=group)

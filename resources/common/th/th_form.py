@@ -25,7 +25,8 @@ class TableHandlerForm(BaseComponent):
        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
-        form = pane.view.grid.linkedForm(frameCode=frameCode,
+        linkto =  pane.view.htree if hasattr(pane.view,'htree') else pane.view.grid
+        form = linkto.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
                                  childname='form',

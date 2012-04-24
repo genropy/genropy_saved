@@ -42,6 +42,9 @@ class FormHandler(BaseComponent):
             self.__linkToParentGrid(pane,formId=formId,iframe=iframe,loadEvent=loadEvent)
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
+        elif parentTag=='tree':
+            self.__linkToParentTree(pane,formId=formId,iframe=iframe,loadEvent=loadEvent)
+
         if iframe:
             src=None if iframe is True else iframe
             return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
@@ -49,6 +52,7 @@ class FormHandler(BaseComponent):
         attachTo.form = form
         form.store.handler('load',default_kwargs=default_kwargs)
         return form
+    
     
     @extract_kwargs(palette=True,dialog=True)
     @struct_method
@@ -93,6 +97,38 @@ class FormHandler(BaseComponent):
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
     
+    def __linkToParentTree(self,tree,formId=None,iframe=None,loadEvent=None):
+        treeattr = tree.attributes
+        assert 'selected_pkey' in treeattr,'selected_pkey mandatory'
+        tree.dataController("""
+            var connectedForm = genro.formById(frmId);
+            var selectedPkey = selectedPkey || '*norecord*';
+            var kw = {destPkey:selectedPkey};
+            var lastPkey = connectedForm.getCurrentPkey();
+            var treeWdg = treeNode.widget;
+            var lastSelectedNode = treeWdg._itemNodeMap[lastPkey];
+            kw.cancelCb = function(){
+                treeWdg.focusNode(lastSelectedNode);
+                treeWdg.setSelected(lastSelectedNode);
+            }
+            connectedForm.load(kw);
+        """,selectedPkey="^%(selected_pkey)s" %treeattr,frmId=formId,treeNode=tree)
+        treeattr['subscribe_form_%s_onLoaded' %formId] ="""var treeWdg = this.widget;
+                                                           var idx;
+                                                           var cb = function(identifier){
+                                                                var treeNode = treeWdg._itemNodeMap[identifier];
+                                                                treeWdg.focusNode(treeNode);
+                                                                treeWdg.setSelected(treeNode)
+                                                           }
+                                                           if($1.pkey && !(($1.pkey=='*newrecord*') || ($1.pkey=='*norecord*'))){
+                                                                idx = $1.pkey;
+                                                            }else if($1.pkey!='*newrecord*'){
+                                                                idx = '_root_';
+                                                            }
+                                                            setTimeout(function(){cb(idx)},1);
+                                                          """
+        
+
     def __linkToParentGrid(self,grid,formId=None,iframe=None,loadEvent=None):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
     <backoffice label="Genropy Tutor" tags="staff">
-        <intro label="Introduction" basepath="/base/table_pages">
-            <bagtest label="!!bagtest" file="bagtest"/>
+        <intro label="Introduction">
+            <element_page label="!!Element page" file="element_page"/>
         </intro>
     </backoffice>
 </GenRoBag>
