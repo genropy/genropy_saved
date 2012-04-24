@@ -170,7 +170,7 @@ class TableBase(object):
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             for fld in hierarchical.split(','):
                 fld_caption=tbl.column(fld).attributes.get('name_long','path')
-                tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
+                tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,unique=True) 
                 tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
             tbl.attributes['hierarchical'] = hierarchical                                 
             broadcast = tbl.attributes.get('broadcast')
@@ -285,7 +285,17 @@ class TableBase(object):
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
-        return fieldstable.query(where="$maintable_id=:pkey",pkey=pkey,order_by='$_row_count').fetch()
+        where="$maintable_id=:p"
+        hierarchical = self.attributes.get('hierarchical')
+        p = pkey
+        order_by='$_row_count'
+        if hierarchical:
+            hierarchical = hierarchical.split(',')[0]
+            h_desc = self.readColumns(columns='hierarchical_%s' %hierarchical,pkey=pkey)
+            p = h_desc
+            order_by = hierarchical
+            where =  " ( :p = @maintable_id.hierarchical_%s ) OR ( :p ILIKE @maintable_id.hierarchical_%s || :suffix) " %(hierarchical,hierarchical)
+        return fieldstable.query(where=where,p=p,suffix='.%%',order_by=order_by).fetch()
     
     @public_method
     def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
