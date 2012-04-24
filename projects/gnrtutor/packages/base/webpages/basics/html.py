@@ -12,6 +12,9 @@ class GnrCustomWebPage(object):
 
     def top(self,pane):
         pane.div('HTML Basics and how we define them in python',_class='pbl_roundedGroupLabel')
-        desc = """HTML Basics and how we create them in python discussion
+        desc = """We should start with some simple familiar html elements and attributes such as div(), span() or table </BR>
+                  If you understand html then you can understand that we are creating html from python.
+                  For example, we can then show that a formbuilder in python, is just creating an html table in a fast way.
+
                   """
         pane.div(desc, margin='5px')
