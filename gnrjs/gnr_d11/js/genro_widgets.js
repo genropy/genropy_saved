@@ -1226,6 +1226,13 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
                 genro.publish(nodeId+'_show');
             });
         }
+        dojo.subscribe("/dnd/move/stop",function(mover){
+            var node=mover.host.node;
+            var c=dojo.coords(node)
+            if (c.y<0){
+                node.style.top = "0px";
+            }
+            });
     },
     patch_close:function(cb){
         this.saveRect();
@@ -1235,7 +1242,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         this.saveRect();
         this.hide_replaced(cb);
     },
-    
+   
     patch_show:function(cb){
         this.restoreRect();
         this.onShowing();
