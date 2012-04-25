@@ -5,11 +5,11 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(sqlschema='base',
-                    comment='gnrTutor base package',
-                    name_short='base',
-                    name_long='gnrTutor Base',
-                    full_name='gnrTutor Base Package')
+        return dict(sqlschema='gnrtutor',
+                    comment='gnrTutor gnrtutor package',
+                    name_short='gnrtutor',
+                    name_long='gnrTutor',
+                    full_name='gnrTutor Package')
 
     def config_db(self, pkg):
         pass
@@ -27,7 +27,7 @@ class Package(GnrDboPackage):
         return 'adm/modify_user.py'
 
     def loginUrl(self):
-        return 'base/login.py'
+        return 'gnrtutor/login.py'
 
 
 class Table(GnrDboTable):

@@ -2,7 +2,7 @@
 <GenRoBag>
     <db dbname="gnrtutor"/>
     <packages>
-        <base/>
+        <gnrtutor/>
         <gnrcore:adm/>
         <gnrcore:task/>
         <gnrcore:email/>
@@ -10,9 +10,9 @@
         <gnrcore:flib/>
     </packages>
     <eager one="false" many="false" onenew="true"/>
-    <menu package='base'/>
+    <menu package='gnrtutor'/>
     <mail smtp_host='mail.bigpond.com' />
-    <authentication pkg='base'>
+    <authentication pkg='gnrtutor'>
         <xml_auth defaultTags="users,xml">
             <demo pwd="demo" tags="_DEV_,_TRD_,super_adm,user,admin,staff,passpartout, _pref"/>
         </xml_auth>

@@ -2,20 +2,20 @@
 <GenRoBag>
     <backoffice label="Genropy Tutor" tags="staff">
         <intro label="Introduction">
-            <basics label="!!Basics" basepath="/base/basics">
+            <basics label="!!Basics" basepath="/gnrtutor/basics">
                 <html label="!!HTML" file="html" />
             </basics>
-            <bags label="!!Bags" basepath="/base/bags">
+            <bags label="!!Bags" basepath="/gnrtutor/bags">
                 <intro label="!!Intro" file="bag_intro"/>
             </bags>
         </intro>
         <elements label='!!Elements' file='element_page' />
-        <widgets label="!!Widgets" basepath="/base/widgets">
+        <widgets label="!!Widgets" basepath="/gnrtutor/widgets">
             <button label="!!Buttons" file="button" />
             <button2 label="!!Buttons 2" file="button2" />
             <button3 label="!!Buttons 3" file="button3" />
         </widgets>
         <advanced label="Advanced">
-        </advanced">
+        </advanced>
     </backoffice>
 </GenRoBag>
