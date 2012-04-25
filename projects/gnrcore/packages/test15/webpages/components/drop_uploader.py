@@ -35,11 +35,11 @@ class GnrCustomWebPage(object):
                             intermediateChanges=True,width='150px',height='19px')
                             
         btm=center.contentPane(region='top',border_bottom='1px solid silver')
-        btm.horizontalSlider(value='^.margin_left_v',minimum=-300,maximum=0,
+        btm.horizontalSlider(value='^.margin_left_v',minimum=-300,maximum=300,
                             intermediateChanges=True,width='150px',height='19px')
         btm.dataFormula('.margin_left','l+"px"',l='^.margin_left_v')
         rgt=center.contentPane(region='right',border_left='1px solid silver')
-        rgt.verticalSlider(value='^.margin_top_v',minimum=-300,maximum=0,
+        rgt.verticalSlider(value='^.margin_top_v',minimum=-300,maximum=300,
                             intermediateChanges=True,height='100px')
         rgt.dataFormula('.margin_top','t+"px"',t='^.margin_top_v')
         cnt=center.contentPane(region='center')            

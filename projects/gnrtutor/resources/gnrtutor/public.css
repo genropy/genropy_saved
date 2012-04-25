@@ -59,3 +59,22 @@
 .tpl_highlight{
     color:darkblue;
 }
+
+/* @group pbl_mods */
+
+.pbl_roundedGroupLabel2 {
+    height: 20px;
+    line-height:19px;
+    padding-bottom: 0;
+    padding-left: 4px; 
+    padding-right: 4px;    
+    background-color: #49637c;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    font-size: 0.9em;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    color: #FFFFFF;
+}
+
+/* @end */

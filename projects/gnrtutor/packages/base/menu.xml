@@ -12,6 +12,7 @@
         <elements label='!!Elements' file='element_page' />
         <widgets label="!!Widgets" basepath="/base/widgets">
             <button label="!!Buttons" file="button" />
+            <button2 label="!!Buttons 2" file="button2" />
         </widgets>
         <advanced label="Advanced">
         </advanced">
