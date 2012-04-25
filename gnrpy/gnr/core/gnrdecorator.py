@@ -142,18 +142,6 @@ def oncalled(func):
     setattr(func,'mixin_as','%s_oncalled_#' %(func.func_name))
     return func
     
-def example(code,height=None,description=None,**kwargs):
-    def decore(func):
-        kw=dict(kwargs)
-        kw['height']=height or 200
-        kw['description']=description or '...not description...'
-        kw['code']=code or 99
-        for k, v in kw.items():
-            setattr(func, 'example_%s' %k, v)
-        setattr(func,'isExample',True)
-        return func 
-    return decore
-    
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted

@@ -860,6 +860,11 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var folder = objectPop(kw,'folder');
         var filename = objectPop(kw,'filename');
         var zoomImage = objectPop(kw,'zoomImage');
+        var width = objectPop(kw,'width');
+        var height = objectPop(kw,'height');
+        var margin_top = objectPop(kw,'margin_top');
+        var margin_left = objectPop(kw,'margin_left');
+        var zoom = objectPop(kw,'zoom');
         if(zoomImage){
             kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
             kw.cursor = 'pointer';
@@ -868,18 +873,62 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
             sourceNode.setRelativeData(value,this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
         };
         var uploaderAttr = {src:'==_v?_v:placeholder;', placeholder:placeholder,_v:value,
-                            dropTarget:true,dropTypes:'Files', drop_ext:kw.drop_ext || 'png,jpg,jpeg,gif'};
+                            dropTarget:true,dropTypes:'Files', 
+                            drop_ext:kw.drop_ext || 'png,jpg,jpeg,gif',
+                            zoom:zoom,
+                            margin_top:margin_top,
+                            margin_left:margin_left
+                            };
+                            
+        uploaderAttr.onCreated=function(){
+                            dojo.connect(this.domNode,'ondragstart',sourceNode,"onDragStart")
+                            };
+
         uploaderAttr.onDrop = function(data,files){
-            var f = files[0];
-            var currfilename = sourceNode.currentFromDatasource(filename);
-            if(!currfilename){
-                //genro.alert('Warning',"You complete your data before upload");
-                return false;
-            }
-            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
+                 var f = files[0];
+                 var currfilename = sourceNode.currentFromDatasource(filename);
+                 if(!currfilename){
+                     //genro.alert('Warning',"You complete your data before upload");
+                     return false;
+                 }
+                 genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
                                                       onResult:cb});
+            };
+
+        sourceNode.onDragEnd=function(c1,c2){
+            dojo.body().style.cursor='auto'
+            dojo.disconnect(c1);
+            dojo.disconnect(c2);
         };
-        return sourceNode._('img',objectUpdate(uploaderAttr,kw));
+        sourceNode.onDragStart=function(e){
+            e.stopPropagation();
+            e.preventDefault();
+            if (e.shiftKey){
+                var that = this;
+                this.s_x=e.clientX;
+                this.s_y=e.clientY;
+                var body=dojo.body()
+                //body.style.cursor='move'
+               body.style.cursor=" url(/img/magnify.cur)"
+                var c1= dojo.connect(body, "onmousemove",that,'_onDragImage');
+                var c2=dojo.connect(body, "onmouseup",  function(e){
+                    that.onDragEnd(c1,c2)
+                });
+            };
+        };
+
+        sourceNode._onDragImage=function(e){
+                                             var dx=this.s_x-e.clientX;
+                 	                         var dy=this.s_y-e.clientY;
+                 	                         this.s_x=e.clientX;
+                                             this.s_y=e.clientY;
+                                             var zm=this.getRelativeData(zoom) || 1
+                 	                         var mt=this.getRelativeData(margin_top) || '0px';
+                                             var ml=this.getRelativeData(margin_left) || '0px';
+                                             this.setRelativeData(margin_top,(parseFloat(mt)-(dy/zm))+'px');
+                                             this.setRelativeData(margin_left,(parseFloat(ml)-(dx/zm))+'px');
+                                             }
+        return sourceNode._('div',{height:height,width:width,overflow:'hidden'})._('img',objectUpdate(uploaderAttr,kw));
     }
 });
 

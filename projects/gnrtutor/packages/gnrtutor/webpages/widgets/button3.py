@@ -3,9 +3,9 @@
 
 """Buttons Examples"""
 
-from gnr.core.gnrdecorator import example
+from tutorlib import example
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/examplehandler:ExampleHandlerFull"    
+    py_requires = "examplehandler:ExampleHandlerFull"    
     
     @example(code='1',height=150,description='xxxxxxx')
     def alert(self, pane):
