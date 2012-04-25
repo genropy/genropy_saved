@@ -8,6 +8,11 @@ Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 import sys
+import inspect
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+
 class ExampleHandler(BaseComponent):
     exampleOnly=False
     dojo_source=True
@@ -58,7 +63,7 @@ class ExampleHandler(BaseComponent):
         
         
         top.div(example_handler.__doc__ or '...missing example docline...',margin_left='1em')
-        print xxx
+
         ##bottom=bc.contentPane(region='bottom')
        # bottom.div("Here we will put commands as show source or other stuff",margin_left='1em')
         center=bc.tabContainer(region='center')
@@ -72,20 +77,10 @@ class ExampleHandler(BaseComponent):
        #       
        # element = element.div(padding='5px')
         example_handler(p1)
-        p2.div(""" here the code when we will have it... of course with pyflake""")
-        
-    def exampleBody__(self,pane,example_name=None,example_handler=None):
-        element=pane.div(border='1px solid gray', margin='5px',
-                           rounded=5, shadow='3px 3px 5px gray',
-                           datapath='example.%s' % example_name)
-        h = element.div()
-        h.a('Show Source',href='',float='right',onclick='alert("ggg")',style='cursor:pointer',
-             color='white',font_size='11px',margin_right='5px',margin_top='3px')
-        h.div(example_handler.__doc__ or example_name, background_color='#ACACAC',
-              color='white', padding='3px')
-        
-        element = element.div(padding='5px')
-        example_handler(element)
+        #source=inspect.getsource(example_handler)
+        source=highlight(inspect.getsource(example_handler), PythonLexer(), HtmlFormatter())
+        p2.div(source,white_space='pre')
+
         
 class ExampleHandlerBase(ExampleHandler):
     def main_root(self, root, **kwargs):
