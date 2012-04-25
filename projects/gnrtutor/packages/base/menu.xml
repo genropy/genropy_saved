@@ -13,6 +13,7 @@
         <widgets label="!!Widgets" basepath="/base/widgets">
             <button label="!!Buttons" file="button" />
             <button2 label="!!Buttons 2" file="button2" />
+            <button3 label="!!Buttons 3" file="button3" />
         </widgets>
         <advanced label="Advanced">
         </advanced">
