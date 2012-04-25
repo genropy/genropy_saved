@@ -13,10 +13,11 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
+
 class ExampleHandler(BaseComponent):
     exampleOnly=False
     dojo_source=True
-    
+    css_requires = 'pygmentcss/friendly'
 
 
     def isDeveloper(self):
@@ -34,9 +35,8 @@ class ExampleHandler(BaseComponent):
         
     def exampleHandler_headers(self, pane):
         header = pane.div(width='900px', margin='5px')
-     
 
-        
+
     def exampleHandler_loop(self, pane):
         def skip_example(example_name):
             if not self.exampleOnly:
@@ -47,16 +47,15 @@ class ExampleHandler(BaseComponent):
                 if exampleOne in example_name:
                     return False
             return True
-        example_to_do = [n for n in dir(self) if n.startswith('example_')]
-        example_to_do.sort()
-        for example_name in example_to_do:
+        example_to_do = [(n,getattr(self,n)) for n in dir(self) if hasattr(getattr(self,n),'isExample')]
+        example_to_do.sort(lambda a,b: a[1].example_code >  b[1].example_code) #
+        for example_name,example_handler in example_to_do:
             if skip_example(example_name):
                 continue
-            example_handler = getattr(self, example_name)
             self.exampleBody(pane,example_name=example_name,example_handler=example_handler)
 
     def exampleBody(self,pane,example_name=None,example_handler=None):
-        bc=pane.borderContainer(border='1px solid gray', margin='5px',height='200px',#this height is temp... we will have a better way to put it
+        bc=pane.borderContainer(border='1px solid gray', margin='5px',height='%spx' %example_handler.example_height,background_color='white',
                            rounded=5, shadow='3px 3px 5px gray',
                            datapath='example.%s' % example_name)
         top=bc.contentPane(region='top',border_bottom='1px solid silver')
@@ -77,9 +76,12 @@ class ExampleHandler(BaseComponent):
        #       
        # element = element.div(padding='5px')
         example_handler(p1)
-        #source=inspect.getsource(example_handler)
-        source=highlight(inspect.getsource(example_handler), PythonLexer(), HtmlFormatter())
-        p2.div(source,white_space='pre')
+        source=inspect.getsource(example_handler).split('\n')
+        source.pop(0)
+        source='\n'.join(source)
+        source=highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
+        p2.div(source,_class='codehilite')
+
 
         
 class ExampleHandlerBase(ExampleHandler):
