@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
         center=bc.contentPane(region='center',height='100px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
         center.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',height='100px',width='150px',
                         placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoomFactor')
+                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoom', rotate='^.rotate')
                         
     def test_1_uploader(self, pane):
         """File Uploader"""

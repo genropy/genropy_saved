@@ -865,6 +865,7 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var margin_top = objectPop(kw,'margin_top');
         var margin_left = objectPop(kw,'margin_left');
         var zoom = objectPop(kw,'zoom');
+        var rotate = objectPop(kw,'rotate');
         if(zoomImage){
             kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
             kw.cursor = 'pointer';
@@ -877,7 +878,9 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
                             drop_ext:kw.drop_ext || 'png,jpg,jpeg,gif',
                             zoom:zoom,
                             margin_top:margin_top,
-                            margin_left:margin_left
+                            margin_left:margin_left,
+                            transform_rotate:rotate
+                            
                             };
                             
         uploaderAttr.onCreated=function(){
@@ -903,14 +906,14 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         sourceNode.onDragStart=function(e){
             e.stopPropagation();
             e.preventDefault();
-            if (e.shiftKey || e.altKey){
+            if (e.shiftKey || e.altKey || e.metaKey){
                 var that = this;
                 this.s_x=e.clientX;
                 this.s_y=e.clientY;
                 c=!e.altKey
-                this.s_zoom=!e.shiftKey
-                this.s_move=!e.altKey
-                this.s_rotate=(e.shiftKey && e.altKey)
+                this.s_zoom=!e.shiftKey && !e.metaKey 
+                this.s_move=!e.altKey && !e.metaKey 
+                this.s_rotate=!e.shiftKey && !e.altKey 
                 var body=dojo.body()
                 //body.style.cursor='move'
 
@@ -935,8 +938,10 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
                                              }else if (this.s_zoom){
                                                  zm=zm+dy/100
                                                  this.setRelativeData(zoom,zm<0.05?0.05:zm);
-                                             }else{
-                                                 
+                                             }else if (this.s_rotate){
+                                                 var rt=this.getRelativeData(rotate) || 0
+                                                 rt=rt+dy
+                                                 this.setRelativeData(rotate,e.shiftKey?0:rt);
                                              }
                  	                 
         }
