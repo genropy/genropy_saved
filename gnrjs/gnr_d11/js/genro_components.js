@@ -903,12 +903,17 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         sourceNode.onDragStart=function(e){
             e.stopPropagation();
             e.preventDefault();
-            if (e.shiftKey){
+            if (e.shiftKey || e.altKey){
                 var that = this;
                 this.s_x=e.clientX;
                 this.s_y=e.clientY;
+                c=!e.altKey
+                this.s_zoom=!e.shiftKey
+                this.s_move=!e.altKey
+                this.s_rotate=(e.shiftKey && e.altKey)
                 var body=dojo.body()
                 //body.style.cursor='move'
+
                body.style.cursor=" url(/img/magnify.cur)"
                 var c1= dojo.connect(body, "onmousemove",that,'_onDragImage');
                 var c2=dojo.connect(body, "onmouseup",  function(e){
@@ -917,17 +922,24 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
             };
         };
 
-        sourceNode._onDragImage=function(e){
-                                             var dx=this.s_x-e.clientX;
-                 	                         var dy=this.s_y-e.clientY;
-                 	                         this.s_x=e.clientX;
+        sourceNode._onDragImage=function(e){ var dx=this.s_x-e.clientX;
+                                             var dy=this.s_y-e.clientY;
+                                             this.s_x=e.clientX;
                                              this.s_y=e.clientY;
                                              var zm=this.getRelativeData(zoom) || 1
-                 	                         var mt=this.getRelativeData(margin_top) || '0px';
-                                             var ml=this.getRelativeData(margin_left) || '0px';
-                                             this.setRelativeData(margin_top,(parseFloat(mt)-(dy/zm))+'px');
-                                             this.setRelativeData(margin_left,(parseFloat(ml)-(dx/zm))+'px');
+                                             if (this.s_move){
+                                                var mt=this.getRelativeData(margin_top) || '0px';
+                                                var ml=this.getRelativeData(margin_left) || '0px';
+                                                this.setRelativeData(margin_top,(parseFloat(mt)-(dy/zm))+'px');
+                                                this.setRelativeData(margin_left,(parseFloat(ml)-(dx/zm))+'px');
+                                             }else if (this.s_zoom){
+                                                 zm=zm+dy/100
+                                                 this.setRelativeData(zoom,zm<0.05?0.05:zm);
+                                             }else{
+                                                 
                                              }
+                 	                 
+        }
         return sourceNode._('div',{height:height,width:width,overflow:'hidden'})._('img',objectUpdate(uploaderAttr,kw));
     }
 });
