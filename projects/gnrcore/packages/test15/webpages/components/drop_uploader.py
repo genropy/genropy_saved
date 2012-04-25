@@ -29,23 +29,44 @@ class GnrCustomWebPage(object):
         fb=top.formbuilder(cols=2)
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        center=bc.borderContainer(region='center',height='140px',width='168px',border='1px solid silver',rounded=8,margin='10px')
+        center=bc.borderContainer(region='center',height='120px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
+        
         zmp=center.contentPane(region='bottom',border_top='1px solid silver')
+        zmp.data('.zoomFactor',1)
         zmp.horizontalSlider(value='^.zoomFactor',minimum=0,maximum=1,
                             intermediateChanges=True,width='150px',height='19px')
-                            
-        btm=center.contentPane(region='top',border_bottom='1px solid silver')
-        btm.horizontalSlider(value='^.margin_left_v',minimum=-300,maximum=300,
-                            intermediateChanges=True,width='150px',height='19px')
-        btm.dataFormula('.margin_left','l+"px"',l='^.margin_left_v')
-        rgt=center.contentPane(region='right',border_left='1px solid silver')
-        rgt.verticalSlider(value='^.margin_top_v',minimum=-300,maximum=300,
-                            intermediateChanges=True,height='100px')
-        rgt.dataFormula('.margin_top','t+"px"',t='^.margin_top_v')
         cnt=center.contentPane(region='center')            
         cnt.div(height='100px',width='150px',overflow='hidden').imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',
                         placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoomFactor')
+                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoomFactor',
+                         onCreated="""var that=this;
+                                      this._onDragImage=function(e){
+                                             var dx=this.s_x-e.clientX;
+                 	                         var dy=this.s_y-e.clientY;
+                 	                         that.s_x=e.clientX;
+                                             that.s_y=e.clientY;
+                                             var zoom=GET .zoomFactor || 1
+                 	                         var mt=GET .margin_top || '0px';
+                                             var ml=GET .margin_left || '0px';
+                                             SET .margin_top=(parseFloat(mt)-(dy/zoom))+'px';
+                                             SET .margin_left=(parseFloat(ml)-(dx/zoom))+'px';
+                                       };
+                                       dojo.connect(this.domNode,'ondragstart',function(e){
+                                                       e.stopPropagation();
+                                                       e.preventDefault();
+                                                       if (!e.shiftKey){return;}
+                                                       that.s_x=e.clientX;
+                                                       that.s_y=e.clientY;
+                                                       var d=dojo.body();
+                                                       d.style.cursor='move'
+                                                       var c1= dojo.connect(d, "onmousemove",that,'_onDragImage');
+			                                           var c2=dojo.connect(d, "onmouseup",  function(e){
+			                                                              d.style.cursor='auto'
+                 	                                                      dojo.disconnect(c1);
+                 	                                                      dojo.disconnect(c2);
+                 	                                               });
+                                        });
+               """)
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
@@ -140,32 +161,35 @@ class GnrCustomWebPage(object):
         pane.dropFileFrame(height='300px',rounded=6,border='1px solid gray',preview=True,
                             metacol_description=dict(name='!!Description', width='10em'))
     def test_8_movable(self,pane):
-
+        
         pane.div(height='100px',width='150px',overflow='hidden').img(src='http://images.apple.com/euro/home/images/icloud_hero.png',
+               margin_top='^.margin_top',margin_left='^.margin_left',
                onCreated="""
+                  var that=this;
+                  this._onDragImage=function(e){
+                     var dx=this.s_x-e.clientX;
+                 	 var dy=this.s_y-e.clientY;
+                 	 that.s_x=e.clientX;
+                      that.s_y=e.clientY;
+                 	  var mt=GET .margin_top || '0px';
+                      var ml=GET .margin_left || '0px';
+                      SET .margin_top=(parseFloat(mt)-dy)+'px';
+                      SET .margin_left=(parseFloat(ml)-dx)+'px';
+                  };
                   dojo.connect(this.domNode,'ondragstart',function(e){
-                        console.log('ondragstart',e)
                         e.stopPropagation();
                         e.preventDefault();
-                        var s_x=e.clientX;
-                        var s_y=e.clientY;
-                        var d=dojo.body()
-                        var c1= dojo.connect(d, "onmousemove", function(e){
-                 	            
-                 	            var dx=s_x-e.clientX;
-                 	            var dy=s_y-e.clientY;
-                 	            console.log('dx',dx,'dy',dy)
-                 	            });
+                        that.s_x=e.clientX;
+                        that.s_y=e.clientY;
+                        var d=dojo.body();
+                        d.style.cursor='move'
+                        var c1= dojo.connect(d, "onmousemove",that,'_onDragImage');
 			            var c2=dojo.connect(d, "onmouseup",  function(e){
-			              
-                 	        console.log('onmouseup',e)
+			                d.style.cursor='auto'
                  	        dojo.disconnect(c1);
                  	        dojo.disconnect(c2);
                  	        });
-                   
                   });
-                  
-                  
                """)
         
                             
