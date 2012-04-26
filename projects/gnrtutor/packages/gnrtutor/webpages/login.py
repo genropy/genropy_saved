@@ -11,7 +11,8 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
-    css_requires = 'public'
+    css_requires = 'public' #,example'
+
     def rootWidget(self, root, **kwargs):
         return root.framePane(_class='loginbox',margin='auto',width='360px',height='240px', **kwargs)
 

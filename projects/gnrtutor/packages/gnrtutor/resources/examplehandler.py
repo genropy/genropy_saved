@@ -27,14 +27,14 @@ class ExampleHandler(BaseComponent):
         
         self.exampleHandler_headers(pane)
         
-        title = pane.div(width='900px', text_align='center', color='#ACACAC', font_size='20pt')
+        title = pane.div(width='1000px', text_align='center', color='#ACACAC', font_size='20pt')
         moduledoc=sys.modules[self.__module__].__doc__ or '...missing docline in module...'
         title.span(moduledoc)
-        pane = pane.div(width='900px')
+        pane = pane.div(width='1000px')
         self.exampleHandler_loop(pane)
         
     def exampleHandler_headers(self, pane):
-        header = pane.div(width='900px', margin='5px')
+        header = pane.div(width='1000px', margin='5px')
 
 
     def exampleHandler_loop(self, pane):
