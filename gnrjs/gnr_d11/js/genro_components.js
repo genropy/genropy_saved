@@ -1426,7 +1426,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                     });
                 }
             }
-            slotKw = objectExtract(kw,slot+'_*');
+            slotKw = objectUpdate({},slotNode.attr);
+            objectExtract(slotKw,'tag,_childname')
+            slotKw = objectUpdate(slotKw,objectExtract(kw,slot+'_*'));
             if(slotKw.height){
                 row.getParentNode().attr['height'] = slotKw.height;
                 slotKw.height = '100%';

@@ -1,39 +1,57 @@
 var THTree = {
-    refreshTree:function(dbChanges,store,treeNode){
+    refreshTree:function(dbChanges,store,treeNode,rootIdentifier){
         treeNode.widget.saveExpanded();
         var selectedNode = treeNode.widget.currentSelectedNode
         var selectedIdentifier = selectedNode? selectedNode.item.attr.treeIdentifier:'';       
-        this.refreshDict = {};
-        this.store = store;
+        var refreshDict = {};
         var n;
         var that = this;
+        var table = store.getParentNode().attr.table;
+        var dbevent;
+        var rootIdentifier = rootIdentifier || '_root_';
         dojo.forEach(dbChanges,function(c){
-            if(c.parent_id){
-                that.addToRefreshDict(c.parent_id)
+            dbevent = c.dbevent;
+            if(dbevent=='D'){
+                selectedIdentifier = c.parent_id || rootIdentifier;
             }
-            if(c.old_parent_id){
-                that.addToRefreshDict(c.old_parent_id)
-            }
+            refreshDict[c.parent_id || rootIdentifier] = true;
+            if(c.old_parent_id != c.parent_id){
+                refreshDict[c.old_parent_id || rootIdentifier] = true;
+            }            
         });
-        for (var k in this.refreshDict){
-            this.refreshDict[k].refresh(true);
-        }
-        treeNode.widget.restoreExpanded();
-        if(selectedIdentifier){
-            var n = this.store.getNodeByAttr('treeIdentifier',selectedIdentifier);
-            var p = n.getFullpath(null, treeNode.widget.model.store.rootData());
-            if(p){
-                treeNode.widget.setSelectedPath(null,{value:p});
+        var refreshed = {};
+        for (var k in refreshDict){
+            n = store.getNodeByAttr('treeIdentifier',k);
+            if(n && !(n.attr.treeIdentifier in refreshed)){
+                if(n.getResolver()){
+                    n.refresh(true)
+                    refreshed[n.attr.treeIdentifier] = true;
+                    content = n.getValue();
+                    child_count = (content instanceof gnr.GnrBag)?content.len():0;
+                    n.updAttributes({'child_count':child_count});
+                }else{
+                    n = n.getParentNode();
+                    if(n && n.getResolver() && !(n.attr.treeIdentifier in refreshed)){
+                        n.refresh(true);
+                        refreshed[n.attr.treeIdentifier] = true;
+                    }
+                }
+            }          
             }
-        }
-    },
-    addToRefreshDict:function(parent_id){
-        var n = this.store.getNodeByAttr('treeIdentifier',parent_id || '_root_');
-        if(n && ! n.getResolver()){
-            n = n.getParentNode();
-        }
-        if(n){
-            this.refreshDict[n.getStringId()] = n;
+        treeNode.widget.restoreExpanded();
+        var p;
+        if(selectedIdentifier && dbevent!='I'){
+            var n = store.getNodeByAttr('treeIdentifier',selectedIdentifier);
+            if(n){
+                p = n.getFullpath(null, treeNode.widget.model.store.rootData());
+                treeNode.widget.setSelectedPath(null,{value:p});
+            }else{
+                p = genro.serverCall('ht_pathFromPkey',{pkey:selectedIdentifier,table:table});
+                if(p){
+                    treeNode.widget.setSelectedPath(null,{value:'root.'+p});
+                }
+            }
+            
         }
     },
     dropTargetCb:function(sourceNode,dropInfo){

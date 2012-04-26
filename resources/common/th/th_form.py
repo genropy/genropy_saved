@@ -10,6 +10,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdict import dictExtract
 
 
 class TableHandlerForm(BaseComponent):
@@ -25,8 +26,11 @@ class TableHandlerForm(BaseComponent):
        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
-        linkto =  pane.view.htree if hasattr(pane.view,'htree') else pane.view.grid
-        form = linkto.linkedForm(frameCode=frameCode,
+        linkTo = pane        
+        if hasattr(pane,'view'):
+            grid =  pane.view.grid
+            linkTo = grid
+        form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
                                  childname='form',
@@ -78,6 +82,7 @@ class TableHandlerForm(BaseComponent):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
+        hierarchical = options.pop('hierarchical',True)
         readOnly = options.get('readOnly')
         modal = options.get('modal',False)
         form.dataController(""" if(reason=='nochange' && modal){return;}
@@ -87,6 +92,15 @@ class TableHandlerForm(BaseComponent):
                             msg='!!You cannot save',
                             invalid='!!Invalid record',
                             nochange='!!No change to save',modal=modal)
+        box_kwargs = dictExtract(options,'box_')
+        if hierarchical:
+            box_kwargs['sidebar'] = True
+        if box_kwargs:
+            sidebar = box_kwargs.pop('sidebar')
+            if sidebar:
+                box_kwargs['design'] = 'sidebar'
+            form.attributes.update(**box_kwargs)
+            
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
@@ -96,7 +110,6 @@ class TableHandlerForm(BaseComponent):
         if options.get('saveOnChange'):
             form.attributes.update(form_saveOnChange=True)
             showtoolbar = False
-            
         if modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
@@ -107,7 +120,9 @@ class TableHandlerForm(BaseComponent):
           
         elif showtoolbar:
             default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
-            if navigation:
+            if hierarchical:
+                default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
+            elif navigation:
                 default_slots = 'navigation,%s' %default_slots
             elif options.get('selector'):
                 default_slots = default_slots.replace('*','5,form_selectrecord,*')
@@ -124,6 +139,9 @@ class TableHandlerForm(BaseComponent):
             form.top.slotToolbar(slots)
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
+        if hierarchical:
+            self.ht_hierarchicalForm(form,hierarchical=hierarchical)
+        
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():
