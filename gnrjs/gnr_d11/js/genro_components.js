@@ -1073,6 +1073,33 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
     }
 });
+dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        var focusNode;
+        var curNode = sourceNode;
+        while (!focusNode){
+            if(curNode.widget){
+                focusNode = curNode.widget.focusNode;
+            }
+            curNode = curNode.getParentBag().getParentNode()
+        }
+        genro.dom.addClass(focusNode.parentNode,'comboArrowTextbox')
+        var box= sourceNode._('div',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
+                                position:'absolute',top:0,bottom:0,right:0},kw)
+                                )
+        box._('div',{_class:'dijitArrowButtonInner',position:'absolute',top:0,bottom:0,left:0,right:0})
+        return box;
+    }
+    
+});
+dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw,childSourceNode){
+        kw['modifiers'] = kw['modifiers'] || '*';
+        return sourceNode._('comboArrow')._('menu',kw);
+    }
+});
+
+
 dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
@@ -1094,10 +1121,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var has_code = values.indexOf(':')>=0;
 
         if(popup){
-            var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative',},kw));
-            rootNode = tb._('div',{'_class':'fakeButton',cursor:'pointer', width:'20px',
-                                    position:'absolute',top:0,bottom:0,right:0}
-                                    )._('div',{_class:'dijitArrowButtonInner',position:'absolute',top:0,bottom:0,left:0,right:0})._('tooltipPane')._('div',{padding:'5px'});
+            var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
+            rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
         }
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
