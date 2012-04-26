@@ -1,3 +1,17 @@
+.recordHeader {
+    background-color: #3f5a8d;
+    border-bottom: 1px solid #636363;
+    padding: 4px;
+    height: 13px;
+    font-size: 1.1em;
+    color: whitesmoke;
+}
+
+.verticaltext {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+}
+
 /* @group stp_styles */
 
 .helptext {
@@ -59,3 +73,7 @@
 .tpl_highlight{
     color:darkblue;
 }
+
+/* @group pbl_mods 
+
+/* @end */

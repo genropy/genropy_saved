@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <backoffice label="Genropy Tutor" tags="staff">
+        <intro label="Introduction">
+            <basics label="!!Basics" basepath="/gnrtutor/basics">
+                <html label="!!HTML" file="html" />
+            </basics>
+            <bags label="!!Bags" basepath="/gnrtutor/bags">
+                <intro label="!!Intro" file="bag_intro"/>
+            </bags>
+        </intro>
+        <elements label='!!Elements' file='element_page' />
+        <widgets label="!!Widgets" basepath="/gnrtutor/widgets">
+            <buttons label="!!Buttons" basepath="/gnrtutor/widgets/buttons">
+                <button label="!!Buttons" file="button" />
+                <button2 label="!!Buttons 2" file="button2" />
+                <buttonsimple label="!!Buttons Simple" file="button_simple" />
+                <button_advanced label="!!Buttons Advanced" file="button_advanced" />
+            </buttons>
+        </widgets>
+        <advanced label="Advanced">
+        </advanced>
+    </backoffice>
+</GenRoBag>

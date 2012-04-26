@@ -15,4 +15,4 @@ class GnrCustomWebPage(object):
          
     def main(self, root, **kwargs):
         frame = root.rootContentPane(datapath='main',design='sidebar')    
-        frame.borderTableHandlerTree(table='base.element')
+        frame.borderTableHandlerTree(table='gnrtutor.element')

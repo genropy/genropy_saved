@@ -18,6 +18,9 @@
 body.workInProgress{
     border-left:2px solid red;
 }
+cursorZoom_plus{
+	cursor: url(icons/base10/lens.gif);
+}
 .workInProgress #mainWindow{
 	background: red;
 }

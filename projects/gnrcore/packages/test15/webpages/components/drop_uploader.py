@@ -29,44 +29,10 @@ class GnrCustomWebPage(object):
         fb=top.formbuilder(cols=2)
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        center=bc.borderContainer(region='center',height='120px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
-        
-        zmp=center.contentPane(region='bottom',border_top='1px solid silver')
-        zmp.data('.zoomFactor',1)
-        zmp.horizontalSlider(value='^.zoomFactor',minimum=0,maximum=1,
-                            intermediateChanges=True,width='150px',height='19px')
-        cnt=center.contentPane(region='center')            
-        cnt.div(height='100px',width='150px',overflow='hidden').imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',
+        center=bc.contentPane(region='center',height='100px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
+        center.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',height='100px',width='150px',
                         placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoomFactor',
-                         onCreated="""var that=this;
-                                      this._onDragImage=function(e){
-                                             var dx=this.s_x-e.clientX;
-                 	                         var dy=this.s_y-e.clientY;
-                 	                         that.s_x=e.clientX;
-                                             that.s_y=e.clientY;
-                                             var zoom=GET .zoomFactor || 1
-                 	                         var mt=GET .margin_top || '0px';
-                                             var ml=GET .margin_left || '0px';
-                                             SET .margin_top=(parseFloat(mt)-(dy/zoom))+'px';
-                                             SET .margin_left=(parseFloat(ml)-(dx/zoom))+'px';
-                                       };
-                                       dojo.connect(this.domNode,'ondragstart',function(e){
-                                                       e.stopPropagation();
-                                                       e.preventDefault();
-                                                       if (!e.shiftKey){return;}
-                                                       that.s_x=e.clientX;
-                                                       that.s_y=e.clientY;
-                                                       var d=dojo.body();
-                                                       d.style.cursor='move'
-                                                       var c1= dojo.connect(d, "onmousemove",that,'_onDragImage');
-			                                           var c2=dojo.connect(d, "onmouseup",  function(e){
-			                                                              d.style.cursor='auto'
-                 	                                                      dojo.disconnect(c1);
-                 	                                                      dojo.disconnect(c2);
-                 	                                               });
-                                        });
-               """)
+                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoom', rotate='^.rotate')
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
