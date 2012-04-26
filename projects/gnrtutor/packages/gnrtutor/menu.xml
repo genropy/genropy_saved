@@ -10,12 +10,11 @@
             </bags>
         </intro>
         <elements label='!!Elements' file='element_page' />
-        
         <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
             <widgets label="!!Widgets" basepath="widgets">
                 <buttons label="!!Buttons" basepath="buttons">
-                    <buttonsimple label="!!Buttons Simple" file="button_simple" />
-                    <button_advanced label="!!Buttons Advanced" file="button_advanced" />
+                    <simple label="!!Simple" file="button_simple" />
+                    <dropdown label="!!Dropdown" file="button_dropdown" />
                 </buttons>
             </widgets>
         </webpageelements>
