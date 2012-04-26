@@ -15,6 +15,7 @@
                 <buttons label="!!Buttons" basepath="buttons">
                     <simple label="!!Simple" file="button_simple" />
                     <dropdown label="!!Dropdown" file="button_dropdown" />
+                    <slotbutton label="!!Dropdown" file="button_slot" />
                 </buttons>
             </widgets>
         </webpageelements>
