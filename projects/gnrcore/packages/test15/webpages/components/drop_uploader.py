@@ -29,16 +29,10 @@ class GnrCustomWebPage(object):
         fb=top.formbuilder(cols=2)
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        center=bc.borderContainer(region='center',height='120px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
-        
-        zmp=center.contentPane(region='bottom',border_top='1px solid silver')
-        zmp.data('.zoomFactor',1)
-        zmp.horizontalSlider(value='^.zoomFactor',minimum=0,maximum=1,
-                            intermediateChanges=True,width='150px',height='19px')
-        cnt=center.contentPane(region='center',_class='cursorZoom_plus')            
-        cnt.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',height='100px',width='150px',
+        center=bc.contentPane(region='center',height='100px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
+        center.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',height='100px',width='150px',
                         placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoomFactor')
+                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoom', rotate='^.rotate')
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
