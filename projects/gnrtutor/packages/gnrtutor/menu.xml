@@ -10,14 +10,15 @@
             </bags>
         </intro>
         <elements label='!!Elements' file='element_page' />
-        <widgets label="!!Widgets" basepath="/gnrtutor/widgets">
-            <buttons label="!!Buttons" basepath="/gnrtutor/widgets/buttons">
-                <button label="!!Buttons" file="button" />
-                <button2 label="!!Buttons 2" file="button2" />
-                <buttonsimple label="!!Buttons Simple" file="button_simple" />
-                <button_advanced label="!!Buttons Advanced" file="button_advanced" />
-            </buttons>
-        </widgets>
+        
+        <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
+            <widgets label="!!Widgets" basepath="widgets">
+                <buttons label="!!Buttons" basepath="buttons">
+                    <buttonsimple label="!!Buttons Simple" file="button_simple" />
+                    <button_advanced label="!!Buttons Advanced" file="button_advanced" />
+                </buttons>
+            </widgets>
+        </webpageelements>
         <advanced label="Advanced">
         </advanced>
     </backoffice>
