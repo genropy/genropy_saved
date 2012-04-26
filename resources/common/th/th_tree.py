@@ -99,8 +99,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 });""" %table
         treeattr['dropTargetCb']="""return THTree.dropTargetCb(this,dropInfo);"""  
         pane = tree.parent
-        pane.data('.store',b,childname='store',caption=tblobj.name_plural,table=table)
-        pane.dataController("console.log(resolver_type,selectionName)",resolver_type="^.resolver_type",selectionName='=.#parent.view.store?selectionName')
+        pane.data('.store',b,childname='store',caption=tblobj.name_plural,table=table) 
         pane.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
     @extract_kwargs(tree=True)
@@ -140,18 +139,6 @@ class TableHandlerHierarchicalView(BaseComponent):
         if f:
             return '.'.join([r['pkey'] for r in f])
         
-    def ht_hierarchicalForm(self,form,hierarchical=None):
-        if hierarchical:
-            form.left.attributes.update(hidden=True,splitter=True,width='200px')
-            bc = form.left.borderContainer()
-            pane = bc.contentPane(region='center')
-            bar = pane.slotBar('treebar,treeViewer,2',width='100%')
-            sc = bc.stackContainer(region='bottom',hidden=True,selectedPage='^#FORM.#parent.hview.resolver_type')
-            bar.treebar.slotToolbar('stackButtons',stackButtons_height='18px',stackButtons_font_size='.9em',stackButtons_stackNode=sc,height='20px')
-            sc.contentPane(title='!!All',pageName='all_records')
-            sc.contentPane(title='!!In selection',pageName='selection')
-
-            
     @struct_method
     def ht_slotbar_form_hbreadcrumb(self,pane,**kwargs):
         table = pane.getInheritedAttributes().get('table')

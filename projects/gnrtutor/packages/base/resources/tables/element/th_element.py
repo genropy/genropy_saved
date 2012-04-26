@@ -31,7 +31,7 @@ class Form(BaseComponent):
 
 class FormTest(BaseComponent):
     def th_options(self):
-        return dict(hierarchical=True)
+        return dict(hierarchical='open')
         
     def th_form(self, form):
         bc = form.center.borderContainer()

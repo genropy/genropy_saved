@@ -140,8 +140,10 @@ class TableHandlerForm(BaseComponent):
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
-            self.ht_hierarchicalForm(form,hierarchical=hierarchical)
-        
+            form.left.attributes.update(hidden=hierarchical=='closed',splitter=True)
+            form.left.slotBar('2,treeViewer,2',width='200px')
+            
+            
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():
