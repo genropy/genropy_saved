@@ -169,7 +169,10 @@ class TableBase(object):
                                              onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', onDelete='c',relation_name='_children')
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             for fld in hierarchical.split(','):
-                fld_caption=tbl.column(fld).attributes.get('name_long','path')
+                hcol = tbl.column(fld)
+                hcol.attributes.setdefault('validate_nodup',True)
+                hcol.attributes.setdefault('validate_nodup_relative','parent_id')
+                fld_caption=hcol.attributes.get('name_long','path')
                 tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,unique=True) 
                 tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
             tbl.attributes['hierarchical'] = hierarchical                                 
@@ -216,7 +219,7 @@ class TableBase(object):
             parent_record = self.query(where='$id=:pid',pid=parent_id).fetch()[0]
             record[parent_h_fld] = parent_v = parent_record[h_fld]
             record[h_fld] = '%s.%s'%( parent_v, v)
-            
+
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')
         changed_hfields=[fld for fld in hfields if record.get('hierarchical_%s'%fld) != old_record.get('hierarchical_%s'%fld)]

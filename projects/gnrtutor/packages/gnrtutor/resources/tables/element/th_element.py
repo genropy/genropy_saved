@@ -29,6 +29,9 @@ class Form(BaseComponent):
         fb.field('name')
         bc.contentPane(region='center').fieldsGrid(title='!!Characteristics')
 
+    def th_options(self):
+        return dict(hierarchical='open')
+        
 class FormTest(BaseComponent):
     def th_options(self):
         return dict(hierarchical='open')

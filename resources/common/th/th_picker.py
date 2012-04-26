@@ -25,6 +25,8 @@ class THPicker(BaseComponent):
         autoInsert = autoInsert or picker_kwargs.get('autoInsert')
         title = title or picker_kwargs.get('title')
         viewResource = viewResource or picker_kwargs.get('viewResource')
+        if viewResource is True:
+            viewResource = ':ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
         paletteCode = paletteCode or picker_kwargs.get('paletteCode')
         if grid:
@@ -41,9 +43,8 @@ class THPicker(BaseComponent):
             tblobj = self.db.table(table)
         paletteCode = paletteCode or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
-        htable = False
-        if hasattr(tblobj,'htableFields'):
-            htable = True
+        treePicker = hasattr(tblobj,'htableFields') and not viewResource
+        if treePicker:
             self.mixinComponent('gnrcomponents/htablehandler:HTableHandlerBase')
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableStore(table=table)
@@ -71,7 +72,7 @@ class THPicker(BaseComponent):
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
                 grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
-                    if(htable){
+                    if(treePicker){
                         kw.dragPkeys = [data['pkey']];
                     }else{
                         var pkeys = [];
@@ -91,7 +92,7 @@ class THPicker(BaseComponent):
                     }
 
                 """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',_if='mainpkey',
-                        rpcmethod=method,htable=htable,tbl=maintable,one=one,many=many,grid=grid.js_widget)
+                        rpcmethod=method,treePicker=treePicker,tbl=maintable,one=one,many=many,grid=grid.js_widget)
                     
         return palette
 

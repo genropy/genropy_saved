@@ -1285,6 +1285,12 @@ dojo.declare("gnr.GnrValidator", null, {
     },
     validate_nodup: function(param, value, sourceNode,kwargs) {
         var nodupkwargs = objectExtract(kwargs,'nodup_*');
+        var relative = objectPop(nodupkwargs,'relative');
+        if(relative){
+            var _parent = sourceNode.getRelativeData('#FORM.record.'+relative);
+            nodupkwargs['condition'] = "$"+relative+"=:_parent";
+            nodupkwargs['_parent'] = _parent;
+        }
         var dbfield = ((typeof(param) == 'string') && param) ? param : sourceNode.getAttributeFromDatasource('dbfield');
         if (value) {
             var n = genro.rpc.getRecordCount(dbfield, value,null,nodupkwargs);

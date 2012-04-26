@@ -82,7 +82,7 @@ class TableHandlerForm(BaseComponent):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
-        hierarchical = options.pop('hierarchical',True)
+        hierarchical = options.pop('hierarchical',None)
         readOnly = options.get('readOnly')
         modal = options.get('modal',False)
         form.dataController(""" if(reason=='nochange' && modal){return;}

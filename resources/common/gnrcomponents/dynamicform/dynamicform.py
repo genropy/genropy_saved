@@ -200,6 +200,7 @@ class DynamicForm(BaseComponent):
         
         bc = frame.center.borderContainer()
         bc.contentPane(region='right',width='40%',splitter=True,padding='10px').div(innerHTML='^#FORM.dynamicFormTester.tplRendered')
+        bc.data('#FORM.dynamicFormTester.data',Bag())
         bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "tplToShow=='auto'?currdata.getFormattedValue():dataTemplate(custom_templates.getItem(tplToShow+'.tpl'),currdata);",
                        custom_templates='^#FORM.record.df_custom_templates',currdata='^#FORM.dynamicFormTester.data',
                        tplToShow='^#FORM.dynamicFormTester.tplToShow',

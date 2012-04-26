@@ -247,7 +247,7 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = subval.join('');
                                     }else if(as_name in df_templates){
                                         value = dataTemplate(data.getItem(df_templates[as_name]),value);
-                                    }else{
+                                    }else if (value){
                                         value = value.getFormattedValue();
                                     }
                                 }else{
