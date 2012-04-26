@@ -4,8 +4,8 @@
 """
   login
 
-  Created by Giovanni Porcari on 2007-03-24.
-  Copyright (c) 2007 Softwell. All rights reserved.
+  Created by Giovanni Porcari on 2012-03-24.
+  Copyright (c) 2012 Softwell. All rights reserved.
 """
 
 

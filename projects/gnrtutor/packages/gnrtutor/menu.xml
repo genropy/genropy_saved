@@ -11,9 +11,12 @@
         </intro>
         <elements label='!!Elements' file='element_page' />
         <widgets label="!!Widgets" basepath="/gnrtutor/widgets">
-            <button label="!!Buttons" file="button" />
-            <button2 label="!!Buttons 2" file="button2" />
-            <button3 label="!!Buttons 3" file="button3" />
+            <buttons label="!!Buttons" basepath="/gnrtutor/widgets/buttons">
+                <button label="!!Buttons" file="button" />
+                <button2 label="!!Buttons 2" file="button2" />
+                <buttonsimple label="!!Buttons Simple" file="button_simple" />
+                <button_advanced label="!!Buttons Advanced" file="button_advanced" />
+            </buttons>
         </widgets>
         <advanced label="Advanced">
         </advanced>

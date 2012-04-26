@@ -17,7 +17,7 @@ from pygments.formatters import HtmlFormatter
 class ExampleHandler(BaseComponent):
     exampleOnly=False
     dojo_source=True
-    css_requires = 'pygmentcss/friendly'
+    css_requires = 'pygmentcss/friendly,example'
 
 
     def isDeveloper(self):
@@ -63,7 +63,7 @@ class ExampleHandler(BaseComponent):
                            datapath='example.%s' % example_name)
         top=bc.contentPane(region='top',border_bottom='1px solid silver')
 
-        top.div(example_handler.example_description,_class='pbl_roundedGroupLabel')
+        top.div(example_handler.example_description,_class='exm_roundedGroupLabel')
 
         center=bc.tabContainer(region='center')
         p1=center.contentPane(title='Example',margin='3px')
@@ -76,7 +76,7 @@ class ExampleHandler(BaseComponent):
         source='\n'.join(source)
         source=highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
         p2.div(source,_class='codehilite',margin='3px')
-        p3.div(example_doc,white_space='pre',overflow='auto',margin='3px')
+        p3.div(example_doc,white_space='pre',overflow='auto', margin='10px')
 
 
         
@@ -91,6 +91,7 @@ class ExampleHandlerBase(ExampleHandler):
         
 class ExampleHandlerFull(ExampleHandler):
     def main(self, root, **kwargs):
+        print kwargs
         if self._call_args:
             if '*' in self._call_args:
                 self.exampleOnly = False
