@@ -2186,6 +2186,9 @@ body *{
 .tundra .formattedTextBox input{
     width:1px !important;
 }
+.tundra .comboArrowTextbox{
+    margin-right:22px;
+}
 
 
 .tundra .dijitTextBoxFocused .formattedTextBox input{
