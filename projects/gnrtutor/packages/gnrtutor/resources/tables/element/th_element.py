@@ -28,3 +28,13 @@ class Form(BaseComponent):
         fb = top.formbuilder(cols=2)
         fb.field('name')
         bc.contentPane(region='center').fieldsGrid(title='!!Characteristics')
+
+class FormTest(BaseComponent):
+    def th_options(self):
+        return dict(hierarchical='open')
+        
+    def th_form(self, form):
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.formbuilder(cols=2)
+        fb.field('name')

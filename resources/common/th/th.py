@@ -25,7 +25,8 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 class TableHandler(BaseComponent):
     js_requires = 'th/th'
     css_requires= 'th/th'
-    py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
+
+    py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
     
     @extract_kwargs(condition=True,grid=True,picker=True)

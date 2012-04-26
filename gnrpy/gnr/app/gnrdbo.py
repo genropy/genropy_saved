@@ -209,11 +209,13 @@ class TableBase(object):
             parent_h_fld='_parent_h_%s'%fld
             h_fld='hierarchical_%s'%fld
             parent_v=record.get(parent_h_fld)
-            if parent_id and not parent_v:
-                if not parent_record:
-                    parent_record = self.query(where='$id=:pid',pid=parent_id).fetch()[0]
-                record[parent_h_fld]=parent_v=parent_record[h_fld]
-            record[h_fld] = v if parent_v is None else '%s.%s'%( parent_v, v)
+            if parent_id is None:
+                record[h_fld] = v
+                record[parent_h_fld] = None
+                return
+            parent_record = self.query(where='$id=:pid',pid=parent_id).fetch()[0]
+            record[parent_h_fld] = parent_v = parent_record[h_fld]
+            record[h_fld] = '%s.%s'%( parent_v, v)
             
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')

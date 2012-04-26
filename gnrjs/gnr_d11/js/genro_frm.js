@@ -313,6 +313,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 if(kw.cancelCb){
                     kw.cancelCb();
                 }
+                this.publish('onCancel',{formEvent:'deleteRecord'});
             }
         }
     },
@@ -328,9 +329,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             else if(command=='discard'){
                 this.doload_store(kw);
             }else{
-                if(kw.cancelCb){
-                    kw.cancelCb();
+                var cancelCb = kw.cancelCb || this.cancelCb;
+                if(cancelCb){
+                    cancelCb = funcCreate(cancelCb);
+                    cancelCb();
                 }
+                this.publish('onCancel',{formEvent:'loadRecord'});
             }
             
             
