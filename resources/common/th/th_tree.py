@@ -66,7 +66,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         hviewTree.htableViewStore(table=table)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
-            if(!pkey){
+            if(!pkey || pkey=='*newrecord*'){
                 return;
             }
             if(pkey==currSelectedPkey){
