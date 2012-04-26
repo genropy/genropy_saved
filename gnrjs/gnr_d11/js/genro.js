@@ -116,6 +116,7 @@ dojo.declare('gnr.GenroClient', null, {
                 dojo.keys.UP_ARROW = 38;
             }
             genropatches.borderContainer();
+            genropatches.menu();
             genropatches.comboBox();
             genropatches.tree();
             //genropatches.grid();

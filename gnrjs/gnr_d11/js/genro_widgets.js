@@ -1478,7 +1478,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             var contentBag = new gnr.GnrBag(objectFromString(sourceNode.attr.values))
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
-            
+            sourceNode.setValue(menubag, false);
         }
         else if (savedAttrs.storepath) {
             var contentNode = genro.getDataNode(sourceNode.absDatapath(savedAttrs.storepath));
@@ -1639,6 +1639,15 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
 
         this.focusedChild.popup.originalContextTarget = this.originalContextTarget;
         this._openPopup_replaced.call(this, e);
+    },
+    mixin_onOpeningPopup:function(popupKwargs){
+        if(this.sourceNode.attr.attachTo){
+            var attachTo = this.sourceNode.attr.attachTo.widget;
+            popupKwargs.popup.domNode.style.width = attachTo.domNode.clientWidth+'px';
+            popupKwargs.orient = this.isLeftToRight() ? {'BL':'TL', 'BR':'TR', 'TL':'BL', 'TR':'BR'}: {'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'},
+            popupKwargs.parent = attachTo;
+            popupKwargs.around = attachTo.domNode;
+        }
     }
 
 });

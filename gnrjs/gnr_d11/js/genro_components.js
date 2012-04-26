@@ -1095,6 +1095,7 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
         kw['modifiers'] = kw['modifiers'] || '*';
+        kw['attachTo'] = sourceNode.getParentBag().getParentNode();
         return sourceNode._('comboArrow')._('menu',kw);
     }
 });

@@ -16,9 +16,5 @@ class GnrCustomWebPage(object):
     def test_1_base(self,pane):
         """tooltipPane"""
         fb = pane.formbuilder(cols=2)
-        textbox = fb.textbox(value='^.val', lbl='Choose Value',position='relative')
-        textbox.div(_class='iconbox magnifier',position='absolute',right='2px',top='0px').menu(modifiers='*', _class='smallmenu',storepath='.qtySelection')
-        
-        pane.dataRpc('.qtySelection', self.db.table('pfrc.product_stock_price').getPriceGrid,
-                      stock_id='Zsb3ZvqdNAmBwcH6YFMHTg',
-                      order_date=self.workdate,_onStart=True)
+        textbox = fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboMenu(values='Pippo,Pluto,Paperino',_class='smallmenu')
+        fb.dropDownButton('Menumio').menu(values='Pippo,Pluto,Paperino',_class='smallmenu')

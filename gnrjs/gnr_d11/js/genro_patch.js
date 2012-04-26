@@ -103,7 +103,65 @@ genropatches.dojoToJson = function() {
         return "{" + output.join("," + sep) + newLine + _indentStr + "}"; // String
     }
 };
+genropatches.menu = function(){
+    dojo.require('dijit.Menu');
+    dijit.Menu.prototype._openMyself = function(/*Event*/ e){
+		// summary:
+		//		Internal function for opening myself when the user
+		//		does a right-click or something similar
 
+		if(this.leftClickToOpen&&e.button>0){
+			return;
+		}
+		dojo.stopEvent(e);
+
+		// Get coordinates.
+		// if we are opening the menu with the mouse or on safari open
+		// the menu at the mouse cursor
+		// (Safari does not have a keyboard command to open the context menu
+		// and we don't currently have a reliable way to determine
+		// _contextMenuWithMouse on Safari)
+		var x,y;
+		if(dojo.isSafari || this._contextMenuWithMouse){
+			x=e.pageX;
+			y=e.pageY;
+		}else{
+			// otherwise open near e.target
+			var coords = dojo.coords(e.target, true);
+			x = coords.x + 10;
+			y = coords.y + 10;
+		}
+
+		var self=this;
+		var savedFocus = dijit.getFocus(this);
+		function closeAndRestoreFocus(){
+			// user has clicked on a menu or popup
+			dijit.focus(savedFocus);
+			dijit.popup.close(self);
+		}
+		var popupKw = {
+			popup: this,
+			x: x,
+			y: y,
+			onExecute: closeAndRestoreFocus,
+			onCancel: closeAndRestoreFocus,
+			orient: this.isLeftToRight() ? 'L' : 'R'
+		};
+		this.onOpeningPopup(popupKw);
+		dijit.popup.open(popupKw);
+		this.focus();
+
+		this._onBlur = function(){
+			this.inherited('_onBlur', arguments);
+			// Usually the parent closes the child widget but if this is a context
+			// menu then there is no parent
+			dijit.popup.close(this);
+			// don't try to restore focus; user has clicked another part of the screen
+			// and set focus there
+		}
+	};
+    
+};
 genropatches.comboBox = function() {
     dojo.require('dijit.form.ComboBox');
     dojo.declare("gnr.Gnr_ComboBoxMenu", dijit.form._ComboBoxMenu, {
@@ -903,6 +961,7 @@ genropatches.tree = function() {
     };
 
 };
+
 
 genropatches.parseNumbers = function() {
     dojo.require('dojo.number');
