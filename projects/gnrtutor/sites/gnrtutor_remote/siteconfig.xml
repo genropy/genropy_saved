@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi homepage='' mainpackage='gnrtutor' profile='false' port='8001' debug='true'/>
+    <!-- <memcache>
+        <local host='localhost' port='11211' />
+    </memcache>-->
+    <defaults country='AU' gst_rate='10'/>
+    <dojo version="11"/>
+    <gui css_theme='ludo'/>
+</GenRoBag>
