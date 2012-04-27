@@ -792,6 +792,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
             return;
         }
+        if(kw.value=="" && kw.oldvalue==null){
+            return;
+        }
         ;
         if (kw.value instanceof gnr.GnrBag) {
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
