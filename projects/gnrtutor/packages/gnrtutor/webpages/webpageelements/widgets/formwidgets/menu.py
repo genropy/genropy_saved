@@ -6,7 +6,7 @@ class GnrCustomWebPage(object):
     py_requires = "examplehandler:ExampleHandlerFull"
 
 
-    @example(code='1',height=450,description='Simple Menu')
+    @example(code=1,height=450,description='Simple Menu')
     def menu1(self,pane):
         fb = pane.formbuilder(cols=3,margin='5px')
         ddb = fb.dropdownbutton(iconClass='iconbox print', showLabel=False)
@@ -38,7 +38,7 @@ There is an alternative syntax to get the parameter from the menu item and to ha
 
 
 
-    @example(code='2',height=250,description='Menu and submenus. How to pass a parameter from the menu item to the menu')
+    @example(code=2,height=250,description='Menu and submenus. How to pass a parameter from the menu item to the menu')
     def menu2(self, pane):
           menudiv = pane.dropdownbutton('Menu')
           menu = menudiv.menu(action='alert($1.foo)')

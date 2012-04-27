@@ -7,7 +7,7 @@ from tutorlib import example
 class GnrCustomWebPage(object):
     py_requires = "examplehandler:ExampleHandlerFull"    
     
-    @example(code='1',height=350,description='Radio Button')
+    @example(code=1,height=350,description='Radio Button')
     def radiobutton(self, pane):
         fb = pane.formbuilder(datapath='.radio', cols=1, margin='5px')
 
