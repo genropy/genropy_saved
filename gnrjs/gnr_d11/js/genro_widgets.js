@@ -6024,22 +6024,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             }
         };
         return savedAttrs
-  
-                //attributes.onDrop = function(data,files){
-                //     var f = files[0];
-                //     var currfilename = sourceNode.currentFromDatasource(filename);
-                //     if(!currfilename){
-                //             //genro.alert('Warning',"You complete your data before upload");
-                //         return false;
-                //     }
-                //     genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),
-                //                             filename:currfilename,
-                //                             onResult:function(result){sourceNode.setRelativeData(value,
-                //                                   this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
-                //                 }
-                //     });
-                //}
-        //}
         
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -6118,7 +6102,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              if(!src){
                  return
              }
-            
              sourceNode.s_x=e.clientX;
              sourceNode.s_y=e.clientY;
              sourceNode.s_zoom=!e.shiftKey && !e.metaKey 
@@ -6136,17 +6119,19 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     },
         
     decodeUrl:function(url){
+        _pc=new Date().getMilliseconds()
         if (url && url.indexOf('?')>0){
            var parsedUrl=parseURL(url)
            var p=parsedUrl.params
-           return {'src':parsedUrl.path,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px','zoom':p['v_z']||1,'transform_rotate':p['v_r']||0}
+           return {'src':parsedUrl.path,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px','zoom':p['v_z']||1,'transform_rotate':p['v_r']||0,'_pc':p['_pc']||_pc}
        }else{
-           return {'src':url,'margin_left':'0px','margin_top':'0px','zoom':1,'transform_rotate':0}
+           return {'src':url,'margin_left':'0px','margin_top':'0px','zoom':1,'transform_rotate':0,'_pc':_pc}
        }
     },
     setSrc:function(domnode,v){
         var kwimg=this.decodeUrl(v)
-        var src=objectPop(kwimg,'src') 
+        var src=objectPop(kwimg,'src') +'?_pc='+kwimg['_pc']
+        
         if ((!src) && ('placeholder' in domnode.sourceNode.attr )){
             src=domnode.sourceNode.getAttributeFromDatasource('placeholder')
         }
