@@ -27,12 +27,25 @@ class GnrCustomWebPage(object):
         bc=pane.borderContainer(height='300px')
         top=bc.contentPane(region='top')
         fb=top.formbuilder(cols=2)
+        #fb.data('.avatar_url','/_site/test/testimages/aaa.gif?v_x=30&v_y=30&v_z=0.4&v_r=0')
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        center=bc.contentPane(region='center',height='100px',width='150px',border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666',)
-        center.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',height='100px',width='150px',
-                        placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                        margin_top='^.margin_top',margin_left='^.margin_left',zoom='^.zoom', rotate='^.rotate')
+        fb.textBox(value='^.margin_top',lbl='margin_top')
+        fb.textBox(value='^.margin_left',lbl='margin_left')
+        fb.numberTextBox(value='^.zoom',lbl='zoom')
+        fb.numberTextBox(value='^.rotate',lbl='rotate')
+        
+        center=bc.borderContainer(region='center')
+        right=center.contentPane(region='right',width='50%')
+       #center=center.contentPane(region='center')
+       #center.imgUploader(value='^.avatar_url',folder='site:test/testimages',filename='=.id',crop_height='100px',crop_width='150px',
+       #               placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
+       #               border='1px solid silver',rounded=8,margin='10px',shadow='2px 2px 5px #666') 
+       #               
+        right.img(src='^.avatar_url',crop_height='100px',crop_width='150px',upload_folder='site:test/testimages',upload_filename='=.id',
+                           border='1px solid silver',rounded=8,margin='10px',
+                            placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
+                           shadow='2px 2px 5px pink',edit=True)
                         
     def test_1_uploader(self, pane):
         """File Uploader"""

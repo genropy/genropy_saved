@@ -3,7 +3,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     constructor: function(application) {
         this._domtag = 'div';
     },
-    _beforeCreation: function(sourceNode) {
+    _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = {'gnr':this,'sourceNode':sourceNode};
         var attributes = sourceNode.attr;
         sourceNode.attr = {};
@@ -860,12 +860,8 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var folder = objectPop(kw,'folder');
         var filename = objectPop(kw,'filename');
         var zoomImage = objectPop(kw,'zoomImage');
-        var width = objectPop(kw,'width');
-        var height = objectPop(kw,'height');
-        var margin_top = objectPop(kw,'margin_top');
-        var margin_left = objectPop(kw,'margin_left');
-        var zoom = objectPop(kw,'zoom');
-        var rotate = objectPop(kw,'rotate');
+        var width = objectPop(kw,'crop_width');
+        var height = objectPop(kw,'crop_height');
         if(zoomImage){
             kw.connect_ondblclick="genro.openWindow(this.currentFromDatasource(this.attr.src),"+zoomImage+")";
             kw.cursor = 'pointer';
@@ -873,19 +869,15 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var cb = function(result){
             sourceNode.setRelativeData(value,this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
         };
-        var uploaderAttr = {src:'==_v?_v:placeholder;', placeholder:placeholder,_v:value,
-                            dropTarget:true,dropTypes:'Files', 
-                            drop_ext:kw.drop_ext || 'png,jpg,jpeg,gif',
-                            zoom:zoom,
-                            margin_top:margin_top,
-                            margin_left:margin_left,
-                            transform_rotate:rotate
-                            
+        var uploaderAttr = {'src':'==_src?_src:placeholder;',
+                           'placeholder':placeholder,'_src':value,
+                            'dropTarget':true,dropTypes:'Files', 
+                            'drop_ext':kw.drop_ext || 'png,jpg,jpeg,gif',
+                            'crop_width':width,
+                            'crop_height':height
                             };
                             
-        uploaderAttr.onCreated=function(){
-                            dojo.connect(this.domNode,'ondragstart',sourceNode,"onDragStart")
-                            };
+
 
         uploaderAttr.onDrop = function(data,files){
                  var f = files[0];
@@ -898,55 +890,9 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
                                                       onResult:cb});
             };
 
-        sourceNode.onDragEnd=function(c1,c2){
-            dojo.body().style.cursor='auto'
-            dojo.disconnect(c1);
-            dojo.disconnect(c2);
-        };
-        sourceNode.onDragStart=function(e){
-            e.stopPropagation();
-            e.preventDefault();
-            if (e.shiftKey || e.altKey || e.metaKey){
-                var that = this;
-                this.s_x=e.clientX;
-                this.s_y=e.clientY;
-                c=!e.altKey
-                this.s_zoom=!e.shiftKey && !e.metaKey 
-                this.s_move=!e.altKey && !e.metaKey 
-                this.s_rotate=!e.shiftKey && !e.altKey 
-                var body=dojo.body()
-                //body.style.cursor='move'
-
-               body.style.cursor=" url(/img/magnify.cur)"
-                var c1= dojo.connect(body, "onmousemove",that,'_onDragImage');
-                var c2=dojo.connect(body, "onmouseup",  function(e){
-                    that.onDragEnd(c1,c2)
-                });
-            };
-        };
-
-        sourceNode._onDragImage=function(e){ var dx=this.s_x-e.clientX;
-                                             var dy=this.s_y-e.clientY;
-                                             this.s_x=e.clientX;
-                                             this.s_y=e.clientY;
-                                             var zm=this.getRelativeData(zoom) || 1
-                                             if (this.s_move){
-                                                var mt=this.getRelativeData(margin_top) || '0px';
-                                                var ml=this.getRelativeData(margin_left) || '0px';
-                                                this.setRelativeData(margin_top,(parseFloat(mt)-(dy/zm))+'px');
-                                                this.setRelativeData(margin_left,(parseFloat(ml)-(dx/zm))+'px');
-                                             }else if (this.s_zoom){
-                                                 zm=zm+dy/100
-                                                 this.setRelativeData(zoom,zm<0.05?0.05:zm);
-                                             }else if (this.s_rotate){
-                                                 var rt=this.getRelativeData(rotate) || 0
-                                                 rt=rt+dy
-                                                 this.setRelativeData(rotate,e.shiftKey?0:rt);
-                                             }
-                 	                 
-        }
-        return sourceNode._('div',{height:height,width:width,overflow:'hidden'})._('img',objectUpdate(uploaderAttr,kw));
+        return sourceNode._('img',objectUpdate(uploaderAttr,kw));
     }
+    
 });
 
 
