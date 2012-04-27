@@ -5964,6 +5964,198 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     }
 });
+dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'img';
+    },
+    _beforeCreation: function(attributes, sourceNode) {
+        var crop = objectExtract(attributes, 'crop_*');
+        if(objectNotEmpty(crop)){
+            objectPop(sourceNode._dynattr,'src');
+            objectExtract(attributes,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,tag');
+            var innerImage=objectExtract(sourceNode.attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext');
+            attributes.domtag = 'div';
+            attributes.tag = 'div';
+            attributes.width=crop.width;
+            attributes.height=crop.height;
+            attributes.overflow='hidden';
+            attributes.innerImage=innerImage;
+        }else{
+            var uploadAttr=objectExtract(attributes,'upload_*')
+            if(objectNotEmpty(uploadAttr)){
+                //sourceNode.attr.dropTarget=true;
+                var uploadAttr=objectExtract(sourceNode.attr,'upload_*')
+                var filename=uploadAttr.filename
+                var folder=uploadAttr.folder
+                var src=sourceNode.attr.src
+                attributes.dropTarget=true;
+                sourceNode.attr.dropTypes='Files';
+                attributes.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
+                sourceNode.attr.onDrop = function(data,files){
+                    console.log(data,files)
+                    var f = files[0];
+                    var currfilename = sourceNode.currentFromDatasource(filename);
+                    if(!currfilename){
+                          //genro.alert('Warning',"You complete your data before upload");
+                      return false;
+                  }
+                  genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),
+                                          filename:currfilename,
+                                          onResult:function(result){sourceNode.setRelativeData(src,
+                                                this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
+                              }
+                  });
+                    
+                }
+             }
+        }
+        return attributes
+    },
+    creating: function(attributes, sourceNode) {
+        var innerImage=objectPop(attributes,'innerImage')
+        var savedAttrs
+        if(innerImage){
+            savedAttrs= {'innerImage':innerImage}
+        }else{
+            savedAttrs={'edit':objectPop(attributes,'edit')};
+            objectUpdate(attributes,this.decodeUrl(objectPop(attributes, 'src')));
+            if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
+                attributes.src=sourceNode.getAttributeFromDatasource('placeholder')
+            }
+        };
+        return savedAttrs
+  
+                //attributes.onDrop = function(data,files){
+                //     var f = files[0];
+                //     var currfilename = sourceNode.currentFromDatasource(filename);
+                //     if(!currfilename){
+                //             //genro.alert('Warning',"You complete your data before upload");
+                //         return false;
+                //     }
+                //     genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),
+                //                             filename:currfilename,
+                //                             onResult:function(result){sourceNode.setRelativeData(value,
+                //                                   this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
+                //                 }
+                //     });
+                //}
+        //}
+        
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        var dd="/_site/test/testimages/aaa.gif?v_x=30&v_y=30&v_z=0.4&v_r=0"
+        if('innerImage' in savedAttrs){
+           sourceNode._('img',savedAttrs.innerImage,{'doTrigger':false}) 
+           return
+        }
+        if('edit' in savedAttrs){
+            dojo.connect(widget,'ondragstart',this,"onDragStart")
+        }
+        var uploadAttr=savedAttrs.uploadAttr;
+        if(objectNotEmpty(uploadAttr)){
+            var filename=uploadAttr.filename;
+            var folder=uploadAttr.folder;
+            sourceNode.onDrop = function(data,files){
+                var f = files[0];
+                var currfilename = sourceNode.currentFromDatasource(filename);
+                if(!currfilename){
+                    genro.alert('Warning',"You complete your data before upload");
+                    return false;
+                }
+                genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
+                                                      onResult:cb});
+            };
+        }
+
+    },
+     onDragImage:function(sourceNode,e){ 
+         var dx=sourceNode.s_x-e.clientX;
+         var dy=sourceNode.s_y-e.clientY;
+         sourceNode.s_x=e.clientX;
+         sourceNode.s_y=e.clientY;
+         var src=sourceNode.getAttributeFromDatasource('src')
+         var parsedUrl=parseURL(src)
+         var imgkw=parsedUrl.params
+         var v_x=parseInt(imgkw['v_x'])|| 0;
+         var v_y=parseInt(imgkw['v_y']) || 0;
+         var v_z=parseFloat(imgkw['v_z'])|| 1;
+         var v_r=parseInt(imgkw['v_r']) || 0;
+         if (sourceNode.s_move){
+            imgkw['v_x']=parseInt((v_x+(dx/v_z)))
+            imgkw['v_y']=parseInt((v_y+(dy/v_z)))
+         }else if (sourceNode.s_zoom){
+             v_z=v_z+dy/100
+             imgkw['v_z']=(v_z<0.05?0.05:v_z).toFixed(2)
+         }else if (sourceNode.s_rotate){
+             v_r=v_r+dy
+             imgkw['v_r']=e.shiftKey?0:v_r
+         }
+         var parameters = [];
+         for (var key in imgkw) {
+            if(imgkw[key]!==null){
+                parameters.push(key + '=' + encodeURIComponent(imgkw[key]));
+            }
+        }
+        src= parsedUrl.path + '?' + parameters.join('&');
+        var path = sourceNode.attrDatapath('src');
+        genro._data.setItem(path, src, null, {'doTrigger':true});
+         
+    },
+     onDragEnd:function(c1,c2){
+         dojo.body().style.cursor='auto'
+         dojo.disconnect(c1);
+         dojo.disconnect(c2);
+    },
+     onDragStart:function(e){
+         var that=this
+         
+         if (e.shiftKey || e.altKey || e.metaKey){
+             e.stopPropagation();
+             e.preventDefault();
+             var target=e.target
+             var sourceNode=target.sourceNode
+             var src=sourceNode.getAttributeFromDatasource('src')
+             if(!src){
+                 return
+             }
+            
+             sourceNode.s_x=e.clientX;
+             sourceNode.s_y=e.clientY;
+             sourceNode.s_zoom=!e.shiftKey && !e.metaKey 
+             sourceNode.s_move=!e.altKey && !e.metaKey 
+             sourceNode.s_rotate=!e.shiftKey && !e.altKey 
+             var body=dojo.body();
+             body.style.cursor='move';
+             var c1= dojo.connect(body, "onmousemove",function(e){
+                 that.onDragImage(sourceNode,e)
+             });
+             var c2=dojo.connect(body, "onmouseup",  function(e){
+                    that.onDragEnd(c1,c2)
+                });
+        };
+    },
+        
+    decodeUrl:function(url){
+        if (url && url.indexOf('?')>0){
+           var parsedUrl=parseURL(url)
+           var p=parsedUrl.params
+           return {'src':parsedUrl.path,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px','zoom':p['v_z']||1,'transform_rotate':p['v_r']||0}
+       }else{
+           return {'src':url,'margin_left':'0px','margin_top':'0px','zoom':1,'transform_rotate':0}
+       }
+    },
+    setSrc:function(domnode,v){
+        var kwimg=this.decodeUrl(v)
+        var src=objectPop(kwimg,'src') 
+        if ((!src) && ('placeholder' in domnode.sourceNode.attr )){
+            src=domnode.sourceNode.getAttributeFromDatasource('placeholder')
+        }
+        domnode.setAttribute('src',src)
+        domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(kwimg)));
+    }
+});
+
+
 dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'img';
