@@ -23,19 +23,19 @@ or from a bag storepath.  A combobox allows the operator to select either one of
         def sports():
             mytable = Bag()
             mytable['r1.pkey'] = 'SC'
-            mytable['r1.Description'] = 'Soccer'
+            mytable['r1.description'] = 'Soccer'
             mytable['r2.pkey'] = 'BK'
-            mytable['r2.Description'] = 'Basket'
+            mytable['r2.description'] = 'Basket'
             mytable['r3.pkey'] = 'TE'
-            mytable['r3.Description'] = 'Tennis'
+            mytable['r3.description'] = 'Tennis'
             mytable['r4.pkey'] = 'HK'
-            mytable['r4.Description'] = 'Hockey'
+            mytable['r4.description'] = 'Hockey'
             mytable['r5.pkey'] = 'BB'
-            mytable['r5.Description'] = 'Baseball'
+            mytable['r5.description'] = 'Baseball'
             mytable['r6.pkey'] = 'SB'
-            mytable['r6.Description'] = 'Snowboard'
+            mytable['r6.description'] = 'Snowboard'
             return mytable
-        pane.data('.values.sport', sports(), id='.pkey', caption='.Description')
+        pane.data('.values.sport', sports(), id='.pkey', caption='.description')
         pane.combobox(value='^.record', storepath='.values.sport')
 
     def doc_combobox2():

@@ -13,6 +13,7 @@
         <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
             <widgets label="!!Widgets" basepath="widgets">
                 <formwidgets label="!!Form Widgets" basepath="formwidgets">
+                    <formbuilder label="!!Form Builder" basepath="formbuilder" /> <!-- Not yet done -->
                     <buttons label="!!Button" basepath="buttons">
                         <simple label="!!Simple" file="button_simple" />
                         <dropdown label="!!Dropdown" file="button_dropdown" />
@@ -25,6 +26,10 @@
                     <menuexample label="!!Menu" file="menu" />
                     <slider label="!!Slider" file="slider" />
                     <combobox label="Combobox" file="combobox" />
+                    <textbox label="Textbox" file="textbox" /> <!-- Not yet done -->
+                    <simpletextarea label="Simpletextarea" file="simpletextarea" /> <!-- Not yet done -->
+                    <dbcombobox label="DbCombobox" file="dbcombobox" /> <!-- Not yet done -->
+                    <dbselect label="DbSelect" file="dbselect" /> <!-- Not yet done -->
                 </formwidgets>
             </widgets>
         </webpageelements>
