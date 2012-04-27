@@ -68,7 +68,7 @@ class ExampleHandler(BaseComponent):
         center=bc.tabContainer(region='center')
         p1=center.contentPane(title='Example',margin='3px')
         p2=center.contentPane(title='Source Code')
-        p3=center.contentPane(title='Documantation')
+        p3=center.contentPane(title='Documentation')
 
         example_handler(p1)
         source=inspect.getsource(example_handler).split('\n')

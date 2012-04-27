@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
         dmenu.menuline('Save as...', action="alert('Saved as...')")
 
     def doc_dropdown1(self):
-        """The DropDownButton is used to display a menu items.
+        """The DropDownButton is usually used to display a menu items so we use it in conjunction with menu.
 In order to create the menu, you must reference the dropdownbutton object, then call the menu() function on it.
 You then can make multiple calls on the menu object.
 """

@@ -13,13 +13,19 @@
         <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
             <widgets label="!!Widgets" basepath="widgets">
                 <formwidgets label="!!Form Widgets" basepath="formwidgets">
-                    <buttons label="!!Buttons" basepath="buttons">
+                    <buttons label="!!Button" basepath="buttons">
                         <simple label="!!Simple" file="button_simple" />
                         <dropdown label="!!Dropdown" file="button_dropdown" />
                         <slotbutton label="!!Slot Button" file="button_slot" />
                         <togglebutton label="!!Toggle Button" file="button_toggle" />
+                        
                     </buttons>
-                    <checkbox label="!!Checkbox" file="checkbox/checkbox_simple" />
+                    <checkbox label="!!Checkbox" file="checkbox" />
+                    <radiobutton label="!!Radio Button" file="radiobutton" />
+                    <filteringselect label="!!Filtering Select" file="filteringselect" />
+                    <menuexample label="!!Menu" file="menu" />
+                    <slider label="!!Slider" file="slider" />
+                    <combobox label="Combobox" file="combobox">
                 </formwidgets>
             </widgets>
         </webpageelements>
