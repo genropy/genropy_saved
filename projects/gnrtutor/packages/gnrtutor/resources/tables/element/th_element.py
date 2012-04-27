@@ -27,7 +27,15 @@ class Form(BaseComponent):
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.formbuilder(cols=2)
         fb.field('name')
-        bc.contentPane(region='center').fieldsGrid(title='!!Characteristics')
+        fb.field('example_link')
+        
+        tc=bc.tabContainer(region='center')
+        tc.contentPane(title='Description')
+        tc.contentPane(title='Parameters').fieldsGrid(title='!!Characteristics')
+        tc.contentPane(title='Examples')
+        
+        
+        
 
     def th_options(self):
         return dict(hierarchical='open')

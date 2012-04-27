@@ -18,7 +18,6 @@
                         <dropdown label="!!Dropdown" file="button_dropdown" />
                         <slotbutton label="!!Slot Button" file="button_slot" />
                         <togglebutton label="!!Toggle Button" file="button_toggle" />
-                        
                     </buttons>
                     <checkbox label="!!Checkbox" file="checkbox" />
                     <radiobutton label="!!Radio Button" file="radiobutton" />

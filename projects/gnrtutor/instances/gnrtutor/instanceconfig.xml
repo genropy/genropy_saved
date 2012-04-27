@@ -3,6 +3,7 @@
     <db dbname="gnrtutor"/>
     <packages>
         <gnrtutor/>
+        <gnrcore:sys/>
         <gnrcore:adm/>
         <gnrcore:task/>
         <gnrcore:email/>
