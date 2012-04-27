@@ -10,9 +10,10 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import sys
 import inspect
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer,XmlLexer
 from pygments.formatters import HtmlFormatter
-
+from gnr.core.gnrbag import Bag
+import xml.dom.minidom
 
 class ExampleHandler(BaseComponent):
     exampleOnly=False
@@ -38,19 +39,13 @@ class ExampleHandler(BaseComponent):
 
 
     def exampleHandler_loop(self, pane):
-        def skip_example(example_name):
-            if not self.exampleOnly:
-                return False
-            if isinstance(self.exampleOnly, basestring):
-                self.exampleOnly = [self.exampleOnly]
-            for exampleOne in self.exampleOnly:
-                if exampleOne in example_name:
-                    return False
-            return True
         example_to_do = [(n,getattr(self,n)) for n in dir(self) if hasattr(getattr(self,n),'isExample')]
-        example_to_do.sort(lambda a,b: a[1].example_code >  b[1].example_code) #
+        
+        example_to_do = sorted(example_to_do,key=lambda x:int(x[1].example_code)) #
+        # 
         for example_name,example_handler in example_to_do:
-            if skip_example(example_name):
+            example_code = int(example_handler.example_code)
+            if self.exampleOnly and not example_code in self.exampleOnly:
                 continue
             example_doc_handler=getattr(self,'doc_%s'%example_name,None)
             example_doc= example_doc_handler.__doc__ or '...missing example doc...' if example_doc_handler else '...missing example doc...'
@@ -58,26 +53,44 @@ class ExampleHandler(BaseComponent):
             self.exampleBody(pane,example_name=example_name,example_handler=example_handler,example_doc=example_doc)
 
     def exampleBody(self,pane,example_name=None,example_handler=None,example_doc=None):
+        datapath = 'example.%s.data' % example_name
+        storepath = 'example.%s' % example_name
+        pane.data(datapath,Bag())
         bc=pane.borderContainer(border='1px solid gray', margin='2em',height='%spx' %example_handler.example_height,background_color='white',
                            rounded=5, shadow='3px 3px 5px gray',
-                           datapath='example.%s' % example_name)
+                           datapath=datapath)
         top=bc.contentPane(region='top',border_bottom='1px solid silver')
 
-        top.div(example_handler.example_description,_class='exm_roundedGroupLabel')
+        top.div('%(example_code)s - %(example_description)s' %example_handler.__dict__,_class='exm_roundedGroupLabel')
 
         center=bc.tabContainer(region='center')
-        p1=center.contentPane(title='Example',padding='6px')
+        p1=center.framePane(title='Example')
         p2=center.contentPane(title='Source Code',padding='6px')
         p3=center.contentPane(title='Documentation',padding='6px')
+        examplePane = p1.center.contentPane(padding='6px')
+        p4 = center.contentPane(title='XML Source',padding='6px')
 
-        example_handler(p1)
+        bar = p1.right.slotBar('2,datatree,2',width='200px',splitter=True,closable='close')
+        datatreeslot = bar.datatree
+        datatreeslot.attributes.update(height='100%',position='relative')
+        treebox = datatreeslot.div(position='absolute',top='2px',right='4px',bottom='2px',
+                                left='2px',overflow='auto',text_align='left',_class='pbl_roundedGroup',padding='2px',background='white')
+        treebox.tree(storepath=storepath)
+        example_handler(examplePane)
         source=inspect.getsource(example_handler).split('\n')
         source.pop(0)
         source='\n'.join(source)
         source=highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
         p2.div(source,_class='codehilite',padding='4px',rounded=6,detachable=True)
         p3.div(example_doc,white_space='pre',overflow='auto', margin='10px')
+        
+        xmlsource = examplePane.toXml(docHeader=False)
+        xmlsource = xmlsource.replace('>\n','>')
 
+        xmlsource = xml.dom.minidom.parseString(xmlsource) # or xml.dom.minidom.parseString(xml_string)
+        pretty_xml_as_string = xmlsource.toprettyxml()
+        xmlsource = highlight(pretty_xml_as_string, XmlLexer(), HtmlFormatter())
+        p4.div(innerHTML=xmlsource,zoom='.7',_class='codehilite')
 
         
 class ExampleHandlerBase(ExampleHandler):
@@ -86,7 +99,7 @@ class ExampleHandlerBase(ExampleHandler):
             if '*' in self._call_args:
                 self.exampleOnly = False
             else:
-                self.exampleOnly = ['_%s_' % str(a) for a in self._call_args]
+                self.exampleOnly = [int(a) for a in self._call_args]
         self.exampleHandler(root)
         
 class ExampleHandlerFull(ExampleHandler):
@@ -96,5 +109,5 @@ class ExampleHandlerFull(ExampleHandler):
             if '*' in self._call_args:
                 self.exampleOnly = False
             else:
-                self.exampleOnly = ['_%s_' % str(a) for a in self._call_args]
+                self.exampleOnly = [int(a) for a in self._call_args]
         self.exampleHandler(root)

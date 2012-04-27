@@ -21,31 +21,21 @@ class View(BaseComponent):
         return dict()
         
 class Form(BaseComponent):
-    py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm'
+    py_requires='gnrcomponents/dynamicform/dynamicform:DynamicForm,foundation/macrowidgets:RichTextEditor'
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=2)
+        fb = top.formbuilder(cols=1)
         fb.field('name')
-        fb.field('example_link')
+        fb.field('example_link',width='50em')
         
-        tc=bc.tabContainer(region='center')
-        tc.contentPane(title='Description')
-        tc.contentPane(title='Parameters').fieldsGrid(title='!!Characteristics')
-        tc.contentPane(title='Examples')
-        
-        
-        
+        tc=bc.tabContainer(region='center',margin='2px',margin_left='4px')
+        self.RichTextEditor(tc.contentPane(title='Description'),value='^#FORM.record.long_description')
+        tc.contentPane(title='Parameters').fieldsGrid(title='!!Characteristics',pbl_classes=True,margin='2px')
+        tc.contentPane(title='Examples',overflow='hidden').iframe(src='^#FORM.record.example_link',height='100%',width='100%',border=0)
 
     def th_options(self):
         return dict(hierarchical='open')
+
+
         
-class FormTest(BaseComponent):
-    def th_options(self):
-        return dict(hierarchical='open')
-        
-    def th_form(self, form):
-        bc = form.center.borderContainer()
-        top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=2)
-        fb.field('name')

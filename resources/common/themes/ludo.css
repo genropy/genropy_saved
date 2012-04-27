@@ -896,6 +896,30 @@
 }
 
 
+.tundra .dijitSplitter.dijitSplitterV{
+    width:4px;
+    background: transparent;
+}
+
+
+.tundra .dijitSplitter.dijitSplitterV:hover{
+    background:silver;
+    opacity:.5;
+}
+
+.tundra .dijitSplitter.dijitSplitterH{
+    height:4px;
+    background: transparent;
+}
+
+.tundra._common_d11 .dijitSplitterThumb{
+    display:none;
+}
+
+.tundra .dijitSplitter.dijitSplitterV:hover{
+    background:silver;
+    opacity:.5;
+}
 
 
 

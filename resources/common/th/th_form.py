@@ -141,7 +141,7 @@ class TableHandlerForm(BaseComponent):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
             form.left.attributes.update(hidden=hierarchical=='closed',splitter=True)
-            form.left.slotBar('2,treeViewer,2',width='200px')
+            form.left.slotBar('2,treeViewer,2',width='200px',border_right='1px solid silver')
             
             
         for side in ('top','bottom','left','right'):
