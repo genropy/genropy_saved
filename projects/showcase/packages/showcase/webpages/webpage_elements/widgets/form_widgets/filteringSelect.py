@@ -10,8 +10,7 @@ class GnrCustomWebPage(object):
         """values example"""
         fb = pane.formbuilder(cols=2)
         fb.filteringSelect(value='^.sport',
-                           values="""SC:Soccer,BK:Basket,HK:Hockey,
-                                     TE:Tennis,BB:Baseball,SB:Snowboard'""")
+                           values="SC:Soccer,BK:Basket,HK:Hockey,TE:Tennis,BB:Baseball,SB:Snowboard")
         fb.div('Values loaded through \"values\" attribute')
         
     def test_2_bag(self, pane):

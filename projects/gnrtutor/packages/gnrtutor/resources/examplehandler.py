@@ -34,7 +34,7 @@ class ExampleHandler(BaseComponent):
         self.exampleHandler_loop(pane)
         
     def exampleHandler_headers(self, pane):
-        header = pane.div(width='1000px', margin='5px')
+        pane.div(width='1000px', margin='5px')
 
 
     def exampleHandler_loop(self, pane):
@@ -66,16 +66,16 @@ class ExampleHandler(BaseComponent):
         top.div(example_handler.example_description,_class='exm_roundedGroupLabel')
 
         center=bc.tabContainer(region='center')
-        p1=center.contentPane(title='Example',margin='3px')
-        p2=center.contentPane(title='Source Code')
-        p3=center.contentPane(title='Documantation')
+        p1=center.contentPane(title='Example',padding='6px')
+        p2=center.contentPane(title='Source Code',padding='6px')
+        p3=center.contentPane(title='Documentation',padding='6px')
 
         example_handler(p1)
         source=inspect.getsource(example_handler).split('\n')
         source.pop(0)
         source='\n'.join(source)
         source=highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
-        p2.div(source,_class='codehilite',margin='3px')
+        p2.div(source,_class='codehilite',padding='4px',rounded=6,detachable=True)
         p3.div(example_doc,white_space='pre',overflow='auto', margin='10px')
 
 

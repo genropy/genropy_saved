@@ -6,5 +6,6 @@ class GnrCustomWebPage(object):
     
     def test_1_basic(self,pane):
         """checkboxtext"""
+        pane.data('^.foo','false')
         pane.checkBoxText('name,surname,address',value='^.foo',separator=' - ')
         pane.simpleTextarea(value='^.foo')
