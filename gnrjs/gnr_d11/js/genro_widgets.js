@@ -6130,7 +6130,8 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     },
     setSrc:function(domnode,v){
         var kwimg=this.decodeUrl(v)
-        var src=objectPop(kwimg,'src') +'?_pc='+kwimg['_pc']
+        var src=objectPop(kwimg,'src')
+        src=src?src+'?_pc='+kwimg['_pc']:''
         
         if ((!src) && ('placeholder' in domnode.sourceNode.attr )){
             src=domnode.sourceNode.getAttributeFromDatasource('placeholder')
