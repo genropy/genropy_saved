@@ -25,7 +25,7 @@
                     <filteringselect label="!!Filtering Select" file="filteringselect" />
                     <menuexample label="!!Menu" file="menu" />
                     <slider label="!!Slider" file="slider" />
-                    <combobox label="Combobox" file="combobox">
+                    <combobox label="Combobox" file="combobox" />
                 </formwidgets>
             </widgets>
         </webpageelements>
