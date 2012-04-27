@@ -28,8 +28,8 @@
                     <combobox label="Combobox" file="combobox" />
                     <textbox label="Textbox" file="textbox" /> <!-- Not yet done -->
                     <simpletextarea label="Simpletextarea" file="simpletextarea" /> <!-- Not yet done -->
-                    <dbcombobox label="DBcombobox" file="dbcombobox" /> <!-- Not yet done -->
-                    <dbselect label="Dbselect" file="dbselect" /> <!-- Not yet done -->
+                    <dbcombobox label="DbCombobox" file="dbcombobox" /> <!-- Not yet done -->
+                    <dbselect label="DbSelect" file="dbselect" /> <!-- Not yet done -->
                 </formwidgets>
             </widgets>
         </webpageelements>
