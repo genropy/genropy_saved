@@ -148,7 +148,7 @@ class _SaxImporter(sax.handler.ContentHandler):
             if self.valueList[0] == '\n': self.valueList[:] = self.valueList[1:]
             if self.valueList:
                 if(self.valueList[-1] == '\n'): self.valueList.pop()
-        return ''.join(self.valueList)
+        return saxutils.unescape(''.join(self.valueList))
 
     def startElement(self, tagLabel, attributes):
         attributes = dict([(str(k), self.catalog.fromTypedText(saxutils.unescape(v))) for k, v in attributes.items()])
@@ -212,6 +212,7 @@ class _SaxImporter(sax.handler.ContentHandler):
                 self.setIntoParentBag(tagLabel, curr, attributes)
         else:
             curr, attributes = self.bags.pop()
+         
             if value or isValidValue(value):
                 if curr:
                     curr.nodes.append(BagNode(curr, '_', value))
