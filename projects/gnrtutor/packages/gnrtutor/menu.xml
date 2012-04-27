@@ -9,7 +9,7 @@
                 <intro label="!!Intro" file="bag_intro"/>
             </bags>
         </intro>
-        <elements label='!!Elements' file='element_page' />
+        <elements label='!!Elements' table='gnrtutor.element' />
         <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
             <widgets label="!!Widgets" basepath="widgets">
                 <buttons label="!!Buttons" basepath="buttons">
