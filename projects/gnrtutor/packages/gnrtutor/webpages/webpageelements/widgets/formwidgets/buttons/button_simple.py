@@ -91,9 +91,9 @@ The 3rd variation sets the path '.msg' with the value true.
     @example(code=6,height='200',description='Button with action showing the use of macro SET with data controller')
     def button_set(self, pane):
         fb = pane.formbuilder(cols=2, margin='5px')
-        fb.data('.number',0) # sets the initial value for path '.number'
+        fb.data('.number',1) # sets the initial value for path '.number'
         fb.button('Set 36 to spinner', action='SET .number=36;')
-        fb.numberSpinner(lbl='number', value='^.number')
+        fb.numberSpinner(lbl='number', value='^.number',bazinga=True)
 
     def doc_button_set(self):
         """This example shows the use of the SET macro.  We are using a formbuilder again which is a genro tool to create an html table.
