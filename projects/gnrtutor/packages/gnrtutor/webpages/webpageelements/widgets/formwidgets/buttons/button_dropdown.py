@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 
-"""Buttons Examples Advanced"""
+"""Drop down Button"""
 
 from tutorlib import example
 class GnrCustomWebPage(object):
@@ -23,7 +23,7 @@ You then can make multiple calls on the menu object.
 """
 
 
-    @example(code=1,height='250',description='DropDownButton with iconClass attribute')
+    @example(code=2,height='250',description='DropDownButton with iconClass attribute')
     def dropdown2(self,pane):
         fb = pane.formbuilder(margin='5px')
         ddb = fb.dropdownbutton(label='Load', height='30px', width='7em', iconClass='iconbox storage')
