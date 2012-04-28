@@ -5992,11 +5992,15 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                 sourceNode.attr.dropTypes='Files';
                 attributes.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
                 sourceNode.attr.onDrop = function(data,files){
+                    if(sourceNode.form && sourceNode.form.isDisabled()){
+                        genro.dlg.alert("The form is locked",'Warning');
+                        return false;
+                    }
                     var f = files[0];
                     var currfilename = sourceNode.currentFromDatasource(filename);
                     if(!currfilename){
-                          //genro.alert('Warning',"You complete your data before upload");
-                      return false;
+                          genro.dlg.alert("You complete your data before upload",'Warning');
+                          return false;
                   }
                   genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),
                                           filename:currfilename,
@@ -6041,22 +6045,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                                               'toolbar':'no','titlebar':'no','status':'no'});
                                           });
         };
-        var uploadAttr=savedAttrs.uploadAttr;
-        if(objectNotEmpty(uploadAttr)){
-            var filename=uploadAttr.filename;
-            var folder=uploadAttr.folder;
-            sourceNode.onDrop = function(data,files){
-                var f = files[0];
-                var currfilename = sourceNode.currentFromDatasource(filename);
-                if(!currfilename){
-                    genro.alert('Warning',"You complete your data before upload");
-                    return false;
-                }
-                genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:currfilename,
-                                                      onResult:cb});
-            };
-        }
-
     },
      onDragImage:function(sourceNode,e){ 
          var dx=sourceNode.s_x-e.clientX;
@@ -6070,12 +6058,14 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
          var v_y=parseInt(imgkw['v_y']) || 0;
          var v_z=parseFloat(imgkw['v_z'])|| 1;
          var v_r=parseInt(imgkw['v_r']) || 0;
+         console.log('onDragImage',v_z);
          if (sourceNode.s_move){
             imgkw['v_x']=parseInt((v_x+(dx/v_z)));
             imgkw['v_y']=parseInt((v_y+(dy/v_z)));
          }else if (sourceNode.s_zoom){
              v_z=v_z+dy/100;
              imgkw['v_z']=(v_z<0.05?0.05:v_z).toFixed(2);
+             console.log('onDragImage_fff',v_z)
          }else if (sourceNode.s_rotate){
              v_r=v_r+dy;
              imgkw['v_r']=e.shiftKey?0:v_r;
@@ -6105,7 +6095,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              var target=e.target;
              var sourceNode=target.sourceNode;
              var src=sourceNode.getAttributeFromDatasource('src');
-             if(!src){
+             if(!src || (sourceNode.form && sourceNode.form.isDisabled())){
                  return;
              }
              sourceNode.s_x=e.clientX;

@@ -384,8 +384,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if (dojo.isSafari){
             styledict['zoom'] = value;
         }else{
-            styledict['-moz-transform-origin'] = '0px 0px';   
-            styledict['-moz-transform-scale'] ='('+value+')';
+            styledict['-moz-transform'] = (styledict['-moz-transform'] || '')+'scale('+value+') '
         }
   
     },
