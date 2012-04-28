@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
         right.img(src='^.avatar_url',crop_height='100px',crop_width='150px',upload_folder='site:test/testimages',upload_filename='=.id',
                            border='1px solid silver',rounded=8,margin='10px',
                             placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
-                           shadow='2px 2px 5px pink',edit=True)
+                           shadow='2px 2px 5px pink',edit=True,zoomWindow='ImageDeatail' )
                         
     def test_1_uploader(self, pane):
         """File Uploader"""

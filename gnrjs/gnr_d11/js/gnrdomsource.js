@@ -680,7 +680,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.setValue(this._value);
     },
     build: function(destination, ind) {
-        var tag = this.attr.tag;
         genro.src.stripData(this);
         if(this.attr._attachPoint){
             var _attachPoint = this.attr._attachPoint.split('.');
@@ -688,19 +687,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 destination = destination[_attachPoint.shift()];
             }
         }
-        if (!tag) {
+        if (!this.attr.tag) {
             //console.warn('notag in build domsource',arguments.callee);
             this._buildChildren(destination);
             return;
         }
+        var handler=genro.wdg.getHandler(this.attr.tag);
+        if(handler && handler.onBuilding){
+           handler.onBuilding(this);
+        }
         this._registerInForm();
         this._isBuilding = true;
-        objectPop(attributes, 'tag');
         var aux = '_bld_' + this.attr.tag.toLowerCase();
         if (aux in this) {
             this[aux].call(this);
         }else{
             var attributes = this.registerNodeDynAttr(true);
+            var tag=objectPop(attributes,'tag')
             this._doBuildNode(tag, attributes, destination, ind);
             this._setDynAttributes();
         }

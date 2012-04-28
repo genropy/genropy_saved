@@ -28,10 +28,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     constructor: function(application) {
         this.application = application;
-        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition'];
+        this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
-            'z_index', 'border','position','padding','margin','cursor','zoom',
+            'z_index', 'border','position','padding','margin','cursor',
             'color','white_space','vertical_align','background'].concat(this.css3AttrNames);
         
     },
@@ -379,6 +379,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.style_setall('overflow', styledict, attributes, noConvertStyle);
         return styledict;
     },
+    css3style_zoom:function(value,valuedict, styledict,noConvertStyle){
+
+        if (dojo.isSafari){
+            styledict['zoom'] = value;
+        }else{
+            styledict['-moz-transform-origin'] = '0px 0px';   
+            styledict['-moz-transform-scale'] ='('+value+')';
+        }
+  
+    },
     css3style_transform:function(value,valuedict, styledict,noConvertStyle){
         var key= dojo.isSafari?'-webkit-transform':'-moz-transform';
         var result='';
@@ -392,7 +402,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if('skew' in valuedict){result+='skew('+valuedict['skew']+') ';}
         if('skew_x' in valuedict){result+='skewx('+(valuedict['skew_x']||0)+'deg) ';}
         if('skew_y' in valuedict){result+='skewy('+(valuedict['skew_y']||0)+'deg) ';}
-        styledict[key] = result;
+        styledict[key] =(styledict[key] || '') + result;
     },
      css3style_transition:function(value,valuedict, styledict,noConvertStyle){
         var key= dojo.isSafari?'-webkit-transition':'-moz-transition';
