@@ -124,6 +124,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'VirtualGrid':'dojox.grid.VirtualGrid:dojox.VirtualGrid',
             //'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
             'GoogleMap':'',
+            'StaticMap':'',
+            'Image':'',
             'GoogleChart':'',
             'GoogleVisualization':'',
             'CkEditor':'',
@@ -178,16 +180,17 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     },
     create:function(tag, destination, attributes, ind, sourceNode) {
         var attributes = attributes || {};
-        var newobj, domnode;
-        var handler = this.getHandler(tag);
+        var newobj, domnode,domtag;
+        var handler = this.getHandler(tag,attributes,sourceNode);
         genro.assert(handler,'missing handler for tag:'+tag);
         if (handler._beforeCreation) {
-            var goOn = handler._beforeCreation(sourceNode);
+            var goOn = handler._beforeCreation(attributes,sourceNode);
             if (goOn === false) {
                 return false;
             }
+            domtag =objectPop(attributes,'domtag')
         }
-        var domtag = handler._domtag || tag;
+        var domtag = domtag || handler._domtag || tag;
         if (ind == 'replace') {
             domnode = destination;
         } else if (domtag == '*') {
@@ -213,7 +216,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         var kw = {'postCreation':handler._creating(attributes, sourceNode),
             'readonly' : objectPop(attributes, 'readonly'),
             // 'disabled' : disabled,
-            '_style': objectAsStyle(genro.dom.getStyleDict(attributes, (this.noConvertStyle[tag.toLowerCase()]))),
+            '_style': objectAsStyle(genro.dom.getStyleDict(attributes, (this.noConvertStyle[domtag.toLowerCase()]))),
             '_class' : objectPop(attributes, '_class')
         };
         //var extracted = objectExtract(attributes, '_*'); // strip all attributes used only for triggering rebuild or as input for ==function

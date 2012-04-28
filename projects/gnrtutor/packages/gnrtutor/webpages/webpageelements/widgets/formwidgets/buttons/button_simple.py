@@ -7,7 +7,7 @@ from tutorlib import example
 class GnrCustomWebPage(object):
     py_requires = "examplehandler:ExampleHandlerFull"    
     
-    @example(code='1',height=120,description='This is a button with an action parameter that has a js alert')
+    @example(code=1,height=120,description='This is a button with an action parameter that has a js alert')
     def alert(self, pane):
         pane.button('Alert',action='alert("Alert")', margin='5px')
         
@@ -18,7 +18,7 @@ The next important named parameter 'action='my_javasscript', is where you pass s
 The 'button' widget can be called from another widget such as a pane or formbuilder (discussed elsewhere).
 """
 
-    @example(code='2',height=200,description='Button Alert with graphical parameters')
+    @example(code=2,height=200,description='Button Alert with graphical parameters')
     def alert2(self, pane):
         pane.data('.icon','icnBaseOk')
         pane.button('alert', action="alert('Hello!')",
@@ -35,7 +35,7 @@ This example demonstrates the use of a controller named 'data'.  It is an attrib
 Its use is to SET an initial value into a path in the datastore. In this case it is setting the css class.
 """
     
-    @example(code='3',height=150,description='Button with confirm js example')
+    @example(code=3,height=150,description='Button with confirm js example')
     def confirm(self, pane):
         pane.button('Confirm', action="""var r=confirm("Are you sure?");
                                              if (r==true) { alert("You pressed OK!");}

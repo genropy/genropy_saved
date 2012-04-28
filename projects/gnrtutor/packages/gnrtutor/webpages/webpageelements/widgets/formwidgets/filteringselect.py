@@ -1,6 +1,4 @@
-
 # -*- coding: UTF-8 -*-
-
 
 """Filtering Select"""
 
@@ -8,7 +6,7 @@ from tutorlib import example
 class GnrCustomWebPage(object):
     py_requires = "examplehandler:ExampleHandlerFull"
     
-    @example(pkey='1',height=200,description='Filtering Select values loaded from values attribute')
+    @example(code=1,height=200,description='Filtering Select values loaded from values attribute')
     def filteringselectvalues(self, pane):
         fb = pane.formbuilder(cols=2, margin='5px')
         fb.filteringSelect(value='^.sport',
@@ -26,7 +24,7 @@ Note the observer (^) at path .sport so that any change in this path by any othe
 """
 
 
-    @example(pkey='2',height=450,description='Filtering Select values loaded from a bag')
+    @example(code=2,height=450,description='Filtering Select values loaded from a bag')
     def filteringselectbag(self, pane):
         from gnr.core.gnrbag import Bag
         def sports():

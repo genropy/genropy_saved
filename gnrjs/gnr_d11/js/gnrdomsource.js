@@ -1223,7 +1223,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         else if (this.domNode) {
             var domnode = this.domNode;
             var setter = 'set' + stringCapitalize(attr);
-            if (attr == 'visible') {
+            if (setter in domnode.gnr) {
+                dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
+            }
+            else if (attr == 'visible') {
                 dojo.style(domnode, 'visibility', (value ? 'visible' : 'hidden'));
                 return;
             }
@@ -1247,9 +1250,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             else if (genro.dom.isStyleAttr(attr)) {
                 domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
-            }
-            else if (setter in domnode.gnr) {
-                dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
             }
             else if (attr in domnode){
                 domnode[attr] = value;

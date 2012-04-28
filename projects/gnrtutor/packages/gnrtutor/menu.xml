@@ -13,7 +13,7 @@
         <webpageelements label="!!Web Page Elements" basepath="/gnrtutor/webpageelements">
             <widgets label="!!Widgets" basepath="widgets">
                 <formwidgets label="!!Form Widgets" basepath="formwidgets">
-                    <formbuilder label="!!Form Builder" basepath="formbuilder" /> <!-- Not yet done -->
+                    <formbuilder label="!!Form Builder" file="formbuilder" />
                     <buttons label="!!Button" basepath="buttons">
                         <simple label="!!Simple" file="button_simple" />
                         <dropdown label="!!Dropdown" file="button_dropdown" />
