@@ -11,10 +11,15 @@ class GnrCustomWebPage(object):
     dojo_source=True
     
     def windowTitle(self):
-        return 'tooltipDialog'
+        return 'ComboArrow'
          
-    def test_1_base(self,pane):
+    def test_1_Menu(self,pane):
         """tooltipPane"""
         fb = pane.formbuilder(cols=2)
-        textbox = fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboMenu(values='Pippo,Pluto,Paperino',_class='smallmenu')
-        fb.dropDownButton('Menumio').menu(values='Pippo,Pluto,Paperino',_class='smallmenu')
+        fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboMenu(values='Pippo,Pluto,Paperino',_class='smallmenu')
+    
+    def test_1_Tooltip(self,pane):
+        """tooltipPane"""
+        fb = pane.formbuilder(cols=2)
+        tooltip = fb.textbox(value='^.val', lbl='Choose Value',position='relative').comboArrow().tooltipPane()
+        tooltip.div('Ciao come va?',height='100px',width='200px')
