@@ -17,10 +17,10 @@ class GnrCustomWebPage(object):
     def test_0_img_uploader(self, pane):
         #pane.img(src='^.avatar_url')
         fb=pane.formbuilder(cols=2)
-        fb.textbox(value='^.id',lbl='Image identifier')
-        fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
-        pane.imgUploader(value='^.avatar_url',height='100px',width='100px',folder='site:test/testimages',filename='=.id',
-                        placeholder='http://images.apple.com/euro/home/images/icloud_hero.png')
+        # fb.textbox(value='^.id',lbl='Image identifier')
+        # fb.textbox(value='^.avatar_url',lbl='Image url',width='30em')
+        # pane.imgUploader(value='^.avatar_url',height='100px',width='100px',folder='site:test/testimages',filename='=.id',
+        #                 placeholder='http://images.apple.com/euro/home/images/icloud_hero.png')
       
     def test_5_img_uploader_edit(self, pane):
         #pane.img(src='^.avatar_url')
