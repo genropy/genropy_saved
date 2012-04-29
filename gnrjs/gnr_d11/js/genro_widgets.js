@@ -5957,6 +5957,8 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         var crop = objectExtract(attr, 'crop_*');
         if(objectNotEmpty(crop)){
             var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow');
+            innerImage.cr_width=crop.width
+            innerImage.cr_height=crop.height
             attr.tag = 'div';
             attr.width=crop.width;
             attr.height=crop.height;
@@ -5964,6 +5966,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             sourceNode._('img',innerImage,{'doTrigger':false}) ;
         }else{
              var uploadAttr=objectExtract(attr,'upload_*');
+             var cropAttr=objectExtract(attr,'cr_*');
              if(objectNotEmpty(uploadAttr)){
                  attr.dropTarget=true;
                  attr.dropTypes='Files';
@@ -5974,6 +5977,16 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                             genro.dlg.alert("The form is locked",'Warning');
                             return false;
                         }
+                        if(objectNotEmpty(cropAttr)){
+                            var domnode=sourceNode.domNode
+                             domnode.onload=function(){
+                                var margin_top = (domnode.clientHeight/2)-parseInt(cropAttr.height);
+                                 var margin_left = (domnode.clientWidth/2)-parseInt(cropAttr.width);
+                                 var url= sourceNode.getRelativeData(src)
+                                 sourceNode.setRelativeData(src,url+'&v_y='+margin_top+'&v_x='+margin_left);
+                        };
+                        }
+                       
                         var f = files[0];
                         var filename = sourceNode.currentFromDatasource(uploadAttr.filename);
                         if(!filename){
@@ -5982,10 +5995,16 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                         }
                         genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
                                       filename:filename,
-                                      onResult:function(result){sourceNode.setRelativeData(src,
-                                            this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
-                                            }
-                                            });
+                                      onResult:function(result){
+                                          var url = this.responseText;
+                                          var kw = {'_pc':new Date().getMilliseconds()};
+                                          if (objectNotEmpty(cropAttr)){
+                                              kw['v_w'] = parseInt(cropAttr.width);
+                                              kw['v_h'] = parseInt(cropAttr.height);
+                                          }
+                                             sourceNode.setRelativeData(src,genro.addParamsToUrl(url,kw));
+                                            }});
+                                          
                 
                 };
             }
@@ -6038,20 +6057,14 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             imgkw['v_y']=parseInt((v_y+(dy/v_z)));
             body.style.cursor='move';
          }else if (sourceNode.edit_mode=='zoom'){
-             v_z=v_z+dy/100;
+             v_z=v_z-(dy/100);
              imgkw['v_z']=(v_z<0.05?0.05:v_z).toFixed(2);
              body.style.cursor=dy>0?'n-resize':'s-resize';
          }else if (sourceNode.edit_mode=='rotate'){
              imgkw['v_r']=v_r+dy;
              body.style.cursor='crosshair';
          }
-         var parameters = [];
-         for (var key in imgkw) {
-            if(imgkw[key]!==null){
-                parameters.push(key + '=' + encodeURIComponent(imgkw[key]));
-            }
-        }
-        src= parsedUrl.path + '?' + parameters.join('&');
+        src= genro.addParamsToUrl(parsedUrl.path,imgkw);
         var path = sourceNode.attrDatapath('src');
         genro._data.setItem(path, src, null, {'doTrigger':true});
          
@@ -6089,25 +6102,34 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     },
         
     decodeUrl:function(url){
-        _pc=new Date().getMilliseconds();
+        var p={}
         if (url && url.indexOf('?')>0){
            var parsedUrl=parseURL(url);
-           var p=parsedUrl.params;
-           return {'src':parsedUrl.path,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px',
-                  'transform_scale':p['v_z']||1,'transform_rotate':p['v_r']||0,'_pc':p['_pc']||_pc};
-       }else{
-           return {'src':url,'margin_left':'0px','margin_top':'0px','transform_scale':1,'transform_rotate':0,'_pc':_pc};
+           p=parsedUrl.params;
+           url=parsedUrl.path;
        }
+       
+       return {'src':url,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px',
+                  'transform_scale':p['v_z']||1,'transform_rotate':p['v_r']||0};
+
+       
+       
     },
     setSrc:function(domnode,v){
         var kwimg=this.decodeUrl(v);
         var src=objectPop(kwimg,'src');
+        var sourceNode = domnode.sourceNode;
+                
         src=src?src+'?_pc='+kwimg['_pc']:'';
-        if ((!src) && ('placeholder' in domnode.sourceNode.attr )){
-            src=domnode.sourceNode.getAttributeFromDatasource('placeholder');
+        if ((!src) && ('placeholder' in sourceNode.attr )){
+            src=sourceNode.getAttributeFromDatasource('placeholder');
         }
-        domnode.setAttribute('src',src);
+        if(src != domnode.getAttribute('src')){
+            domnode.setAttribute('src',src);
+        }
         domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(kwimg)));
+       //var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
+       //valueNode.updAttributes({_formattedValue:domnode.parentNode.parentNode.innerHTML},sourceNode);
     }
 });
 
