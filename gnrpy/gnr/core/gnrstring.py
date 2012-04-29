@@ -124,9 +124,19 @@ try:
                 if 'v_h' in pars:
                     c = '<div style="height:%(v_h)spx;width:%(v_w)spx;overflow:hidden;border:1px solid silver;">' %pars
                     cropper = c+'%s</div>'
-                styleimg = dict(margin_top='%spx'%(pars['v_y'] or 0),margin_left='%spx'%(pars['v_x'] or 0))
-                styleimg = 'style="margin-top:-%(margin_top)s; margin-left:-%(margin_left)s;"' %styleimg
-                print x
+                styleimg = dict(margin_top='%spx'%(pars['v_y'] or 0),margin_left='%spx'%(pars['v_x'] or 0),
+                               zoom=pars['v_z'] or 1,rotate=pars['v_z'] or 0)
+                               
+                
+                styleimg = """style="margin-top:-%(margin_top)s;
+                                     margin-left:-%(margin_left)s;
+                                    -webkit-transform-scale:(%(zoom)s);
+                                    -webkit-transform-rotate:(%(rotate)sdeg);
+                                    -moz-transform-scale:(%(zoom)s);
+                                    -moz-transform-rotate:(%(rotate)sdeg);
+                                    "
+                            """ %styleimg
+             
             value = '<img %s src="%s"/>' %(styleimg,value)
             return cropper %value
 

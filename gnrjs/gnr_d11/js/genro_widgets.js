@@ -6010,7 +6010,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             }
             //            attributes.title="<h3>click & drag to move<h3><br/><h3>Shift-clik drag up-down to zoom</h3><br/><h3>Alt-clik drag up-down to rotate</h3>"
 
-            sourceNode._('tooltip',{label:'aaaa',position:['before']},{'doTrigger':false}) ;
         }
     },
     creating: function(attributes, sourceNode) {
@@ -6026,6 +6025,18 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     created: function(widget, savedAttrs, sourceNode) {
         var that=this;
         if('edit' in savedAttrs){
+         // widget.onmouseover=function(e){
+         //     var helper=document.createElement('div');
+         //     var pnode=widget.parentNode
+         //     pnode.style.position='relative'
+         // 
+         //     pnode.appendChild(helper);
+         //     helper.innerHTML='<div style="border:1px solid silver;opacity:.8;font-size:10px;padding:3px;background-color:#666;color:white;z-index:1;position:absolute;bottom:0px;left:0px;">Drag to move - Shift to zoom - Alt to rotate</div>'
+         //         widget.onmouseout=function(e){
+         //             widget.parentNode.removeChild(helper)
+         //         }
+         // }
+         //
             widget.onmousedown=function(e){
                 return that.onMouseDown(e)
             }
