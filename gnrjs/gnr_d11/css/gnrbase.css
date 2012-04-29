@@ -2621,6 +2621,16 @@ body *{
     background-color: #ffa997 !important;
 }
 
+img.canBeDropped {
+    opacity:0.5;
+    background-color: inherit !important;
+
+img.cannotBeDropped {
+    background-color: #ffa997 !important;
+}
+
+
+
 .dojoxGrid-header .canBeDropped {
     background: #8fff9d !important;
 }

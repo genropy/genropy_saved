@@ -5953,74 +5953,58 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         this._domtag = 'img';
     },
     onBuilding:function(sourceNode){
-        console.log('onBuilding',sourceNode);
-    },
-    _beforeCreation: function(attributes, sourceNode) {
-        var crop = objectExtract(attributes, 'crop_*');
+        var attr=sourceNode.attr;
+        var crop = objectExtract(attr, 'crop_*');
         if(objectNotEmpty(crop)){
-            objectPop(sourceNode._dynattr,'src');
-            objectExtract(attributes,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,tag,zoomWindow');
-            var innerImage=objectExtract(sourceNode.attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow');
-            attributes.domtag = 'div';
-            attributes.tag = 'div';
-            attributes.width=crop.width;
-            attributes.height=crop.height;
-            attributes.overflow='hidden';
-            attributes.innerImage=innerImage;
+            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow');
+            attr.tag = 'div';
+            attr.width=crop.width;
+            attr.height=crop.height;
+            attr.overflow='hidden';
+            sourceNode._('img',innerImage,{'doTrigger':false}) ;
         }else{
-            var uploadAttr=objectExtract(attributes,'upload_*');
-            if(objectNotEmpty(uploadAttr)){
-                //sourceNode.attr.dropTarget=true;
-                var uploadAttr=objectExtract(sourceNode.attr,'upload_*');
-                var filename=uploadAttr.filename;
-                var folder=uploadAttr.folder;
-                var src=sourceNode.attr.src;
-                attributes.dropTarget=true;
-                sourceNode.attr.dropTypes='Files';
-                attributes.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
-                sourceNode.attr.onDrop = function(data,files){
-                    if(sourceNode.form && sourceNode.form.isDisabled()){
-                        genro.dlg.alert("The form is locked",'Warning');
-                        return false;
-                    }
-                    var f = files[0];
-                    var currfilename = sourceNode.currentFromDatasource(filename);
-                    if(!currfilename){
-                          genro.dlg.alert("You complete your data before upload",'Warning');
-                          return false;
-                  }
-                  genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),
-                                          filename:currfilename,
-                                          onResult:function(result){sourceNode.setRelativeData(src,
-                                                this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
-                              }
-                  });
-                    
+             var uploadAttr=objectExtract(attr,'upload_*');
+             if(objectNotEmpty(uploadAttr)){
+                 attr.dropTarget=true;
+                 attr.dropTypes='Files';
+                 attr.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
+                 var src=sourceNode.attr.src;
+                 attr.onDrop = function(data,files){
+                        if(sourceNode.form && sourceNode.form.isDisabled()){
+                            genro.dlg.alert("The form is locked",'Warning');
+                            return false;
+                        }
+                        var f = files[0];
+                        var filename = sourceNode.currentFromDatasource(uploadAttr.filename);
+                        if(!filename){
+                            genro.dlg.alert("Missing info to upload the image",'Warning');
+                            return false;
+                        }
+                        genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
+                                      filename:filename,
+                                      onResult:function(result){sourceNode.setRelativeData(src,
+                                            this.responseText,{_formattedValue:genro.formatter.asText(this.responseText,{format:'img'})});
+                                            }
+                                            });
+                
                 };
-             }
+            }
+            //            attributes.title="<h3>click & drag to move<h3><br/><h3>Shift-clik drag up-down to zoom</h3><br/><h3>Alt-clik drag up-down to rotate</h3>"
+
+            sourceNode._('tooltip',{label:'aaaa',position:['before']},{'doTrigger':false}) ;
         }
-        return attributes;
     },
     creating: function(attributes, sourceNode) {
-        var innerImage=objectPop(attributes,'innerImage');
-        var savedAttrs;
-        if(innerImage){
-            savedAttrs= {'innerImage':innerImage};
-        }else{
-            savedAttrs={'edit':objectPop(attributes,'edit'), zoomWindow:objectPop(attributes,'zoomWindow')};   
-            objectUpdate(attributes,this.decodeUrl(objectPop(attributes, 'src')));
-            if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
-                attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
-            }
-        };
+        var edit=objectPop(attributes,'edit');
+        savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
+        objectUpdate(attributes,this.decodeUrl(objectPop(attributes, 'src')));
+        if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
+            attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
+        }
         return savedAttrs;
         
     },
     created: function(widget, savedAttrs, sourceNode) {
-        if('innerImage' in savedAttrs){
-           sourceNode._('img',savedAttrs.innerImage,{'doTrigger':false}) ;
-           return;
-        };
         var that=this;
         if('edit' in savedAttrs){
             widget.onmousedown=function(e){
