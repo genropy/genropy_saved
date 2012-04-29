@@ -108,8 +108,28 @@ try:
                 mask = mask.replace('#',caption)
             elif formattedValue:
                 value = formattedValue
+            if format=='img':
+                value = self.format_img(value)
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
+            
+        def format_img(self,value):
+            cropper = '%s'
+            pars = None
+            styleimg = ''
+            if '?' in value:
+                value,pars = value.split('?')
+            if pars:
+                pars = dict([p.split('=') for p in pars.split('&')])
+                if 'v_h' in pars:
+                    c = '<div style="height:%(v_h)spx;width:%(v_w)spx;overflow:hidden;border:1px solid silver;">' %pars
+                    cropper = c+'%s</div>'
+                styleimg = dict(margin_top='%spx'%(pars['v_y'] or 0),margin_left='%spx'%(pars['v_x'] or 0))
+                styleimg = 'style="margin-top:-%(margin_top)s; margin-left:-%(margin_left)s;"' %styleimg
+                print x
+            value = '<img %s src="%s"/>' %(styleimg,value)
+            return cropper %value
+
     
     class SubtemplateMapWrapper(object):
         
