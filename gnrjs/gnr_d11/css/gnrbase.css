@@ -2624,6 +2624,7 @@ body *{
 img.canBeDropped {
     opacity:0.5;
     background-color: inherit !important;
+}
 
 img.cannotBeDropped {
     background-color: #ffa997 !important;
