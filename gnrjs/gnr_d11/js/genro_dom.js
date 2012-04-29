@@ -380,11 +380,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return styledict;
     },
     css3style_zoom:function(value,valuedict, styledict,noConvertStyle){
-
         if (dojo.isSafari){
             styledict['zoom'] = value;
         }else{
-            styledict['-moz-transform'] = (styledict['-moz-transform'] || '')+'scale('+value+') '
+            styledict['-moz-transform'] = (styledict['-moz-transform'] || '')+'scale('+value+') ';
+            styledict['-moz-transform-origin'] = '0px 0px ';
         }
   
     },
