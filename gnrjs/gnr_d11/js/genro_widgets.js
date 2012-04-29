@@ -6039,6 +6039,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
      onEditImage:function(sourceNode,e){ 
          var dx=sourceNode.s_x-e.clientX;
          var dy=sourceNode.s_y-e.clientY;
+         var body=dojo.body();
          sourceNode.s_x=e.clientX;
          sourceNode.s_y=e.clientY;
          var src=sourceNode.getAttributeFromDatasource('src');
@@ -6051,11 +6052,14 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
          if (sourceNode.edit_mode=='move'){
             imgkw['v_x']=parseInt((v_x+(dx/v_z)));
             imgkw['v_y']=parseInt((v_y+(dy/v_z)));
+            body.style.cursor='move';
          }else if (sourceNode.edit_mode=='zoom'){
              v_z=v_z+dy/100;
              imgkw['v_z']=(v_z<0.05?0.05:v_z).toFixed(2);
+             body.style.cursor=dy>0?'n-resize':'s-resize';
          }else if (sourceNode.edit_mode=='rotate'){
              imgkw['v_r']=v_r+dy;
+             body.style.cursor='crosshair';
          }
          var parameters = [];
          for (var key in imgkw) {
@@ -6069,7 +6073,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
          
     },
      onEndEdit:function(sourceNode){
-         sourceNode.domNode.style.cursor='auto';
+         dojo.body().style.cursor='auto';
          dojo.forEach(sourceNode.editConnections,function(c){
              dojo.disconnect(c);
          })
@@ -6082,7 +6086,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
          if(sourceNode.edit_mode){
              e.stopPropagation();
              e.preventDefault();
-             
              var src=sourceNode.getAttributeFromDatasource('src');
              if(!src || (sourceNode.form && sourceNode.form.isDisabled())){
                  return;
@@ -6090,7 +6093,6 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              sourceNode.s_x=e.clientX;
              sourceNode.s_y=e.clientY;
              var domnode=sourceNode.domNode;
-             domnode.style.cursor='move';
              sourceNode.editConnections=[
                                         dojo.connect(domnode, "onmousemove",function(e){
                                             that.onEditImage(sourceNode,e);
@@ -6108,9 +6110,9 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
            var parsedUrl=parseURL(url);
            var p=parsedUrl.params;
            return {'src':parsedUrl.path,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px',
-                  'zoom':p['v_z']||1,'transform_rotate':p['v_r']||0,'_pc':p['_pc']||_pc};
+                  'transform_scale':p['v_z']||1,'transform_rotate':p['v_r']||0,'_pc':p['_pc']||_pc};
        }else{
-           return {'src':url,'margin_left':'0px','margin_top':'0px','zoom':1,'transform_rotate':0,'_pc':_pc};
+           return {'src':url,'margin_left':'0px','margin_top':'0px','transform_scale':1,'transform_rotate':0,'_pc':_pc};
        }
     },
     setSrc:function(domnode,v){
