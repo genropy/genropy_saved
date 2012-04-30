@@ -49,7 +49,7 @@ try:
     
     class LocalizedWrapper(object):
 
-        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None, localizer=None,noneIsBlank=None):
+        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None,dtypes=None, localizer=None,noneIsBlank=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
@@ -59,6 +59,7 @@ try:
             self.noneIsBlank=noneIsBlank
             self.isBag = hasattr(self.data, '_htraverse')
             self.localizer = localizer
+            self.dtypes = dtypes
 
         def __getitem__(self,k):
             as_name = k
@@ -103,42 +104,15 @@ try:
                 caption = attrs.get('name_long','')
             format = self.formats.get(as_name) or format
             mask = self.masks.get(as_name) or mask
+            dtype = self.dtype.get(as_name)
             if mask and '#' in mask:
                 caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
                 mask = mask.replace('#',caption)
             elif formattedValue:
                 value = formattedValue
-            if format=='img':
-                value = self.format_img(value)
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
             
-        def format_img(self,value):
-            cropper = '%s'
-            pars = None
-            styleimg = ''
-            if '?' in value:
-                value,pars = value.split('?')
-            if pars:
-                pars = dict([p.split('=') for p in pars.split('&')])
-                if 'v_h' in pars:
-                    c = '<div style="height:%(v_h)spx;width:%(v_w)spx;overflow:hidden;border:1px solid silver;">' %pars
-                    cropper = c+'%s</div>'
-                styleimg = dict(margin_top='%spx'%(pars['v_y'] or 0),margin_left='%spx'%(pars['v_x'] or 0),
-                               zoom=pars['v_z'] or 1,rotate=pars['v_z'] or 0)
-                               
-                
-                styleimg = """style="margin-top:-%(margin_top)s;
-                                     margin-left:-%(margin_left)s;
-                                    -webkit-transform-scale:(%(zoom)s);
-                                    -webkit-transform-rotate:(%(rotate)sdeg);
-                                    -moz-transform-scale:(%(zoom)s);
-                                    -moz-transform-rotate:(%(rotate)sdeg);
-                                    "
-                            """ %styleimg
-             
-            value = '<img %s src="%s"/>' %(styleimg,value)
-            return cropper %value
 
     
     class SubtemplateMapWrapper(object):
@@ -421,7 +395,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,masks=None,df_templates=None,localizer=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,dtypes=None,masks=None,df_templates=None,localizer=None):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -447,7 +421,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,masks=masks,df_templates=df_templates,localizer=localizer)
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,df_templates=df_templates,localizer=localizer)
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:

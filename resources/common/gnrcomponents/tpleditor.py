@@ -43,6 +43,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.masks = compiled.getItem('main?masks')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
+        htmlbuilder.df_templates = compiled.getItem('main?dtypes')
         htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
         return htmlbuilder
         
@@ -57,9 +58,11 @@ class TemplateEditorBase(BaseComponent):
         formats = templateBuilder.formats or dict()
         masks = templateBuilder.masks or dict()
         df_templates = templateBuilder.df_templates or dict()
+        dtypes = templateBuilder.dtypes or dict()
+
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,df_templates=df_templates,localizer=self.localizer),
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes,localizer=self.localizer),
                             record=record,**kwargs)
         return body
     
@@ -80,12 +83,13 @@ class TemplateEditorBase(BaseComponent):
         formats = dict()
         masks = dict()
         df_templates = dict()
+        dtypes = dict()
         columns = []
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template')
-            for varname,fldpath,virtualcol,format,mask,df_template in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template,#v.dtype')
+            for varname,fldpath,virtualcol,format,mask,df_template,dtype in tplvars:
                 fk=''
                 if format:
                     fk=varname
@@ -96,6 +100,8 @@ class TemplateEditorBase(BaseComponent):
                 if df_template:
                     fk=varname
                     df_templates[varname] = df_template
+                if dtype:
+                    dtypes[varname] = dtype
                 if fk:
                     fk='^%s'%fk
                 varsdict[varname] = '$%s%s' %(fldpath,fk)
@@ -123,7 +129,7 @@ class TemplateEditorBase(BaseComponent):
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
-                            columns=','.join(columns),formats=formats,masks=masks,df_templates=df_templates)
+                            columns=','.join(columns),formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes)
         result.setItem('compiled',compiled)
         if record_id:
             result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates,template_id=template_id))
@@ -206,14 +212,14 @@ class TemplateEditor(TemplateEditorBase):
                                 var df_template =null;
 
                                 var fieldpath = data.fieldpath;
-                                
+                                var dtype = data.dtype;
                                 if(fieldpath.indexOf(':')>=0){
                                     fieldpath = fieldpath.split(':');
                                     df_template = fieldpath[1];
                                     fieldpath = fieldpath[0];
                                 }
                                 
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
+                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,dtype:dtype,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):
