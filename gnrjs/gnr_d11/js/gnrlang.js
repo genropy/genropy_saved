@@ -746,6 +746,39 @@ var gnrformatter = {
         }
         return mask.replace(/%s/g, formattedValue);
     },
+    format_P:function(value,format,formatKw){
+        if (!format){
+            return value;
+        }
+        if(format=='auto'){
+            if (value.indexOf('?')){
+                value = value.split('?');
+                format = value[1];
+                value = value[0];
+                format = format.replace(/=/g,':').replace(/\&/g,',').replace(/v_/g,'')
+            }else{
+                format = {}
+            }            
+        }
+        if(typeof(format)=='string'){
+            format = objectFromString(format);
+        }
+        if(formatKw){
+            format = objectUpdate(format,formatKw);
+        }
+        format['style'] = format['style'] || '';
+        var c;
+        if('h' in format){
+            var c ='<div style="height:'+format["h"]+'px;width:'+format["w"]+'px;overflow:hidden;'+format["style"]+'">';
+            objectPop(format,'style');
+        }
+        var img_style = 'margin-top:-'+(format['y'] || 0)+'px; margin-left:-'+(format['x'] || 0)+'px;-webkit-transform:scale('+(format['z'] || 1)+') rotate('+(format['r'] || 0)+'deg); -moz-transform:scale('+(format['z'] || 1)+') rotate('+(format['r'] || 0)+'deg);';
+        var img =  '<img style="'+img_style + (format['style'] ||'') +'" src="'+value+'"/>';
+        if(c){
+            return c+img+'</div>';
+        }
+        return img;
+    },
     format_T:function(value,format,formatKw){
         if(!format){
             return value;
@@ -758,10 +791,6 @@ var gnrformatter = {
         }
         if(format=='skype'){
             return makeLink('skype:'+value,value);
-        }
-        if(format == 'img'){
-            formatKw['src'] = value;
-            return dataTemplate('<img src="$src" height="$height" width="$width"></img>',formatKw);
         }
         if(format.indexOf('#')>=0){
             format = format.split('');

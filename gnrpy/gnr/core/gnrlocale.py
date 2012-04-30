@@ -102,7 +102,9 @@ def localize_img(value, locale, format=None, **kwargs):
         return value
     if format == 'img':
         return """<img src="%s"/>""" %value
-    if format=='auto':
+    cropper_zoom = None
+    if isinstance(format,basestring) and format.startswith('auto'):
+        cropper_zoom = float(format.split(':')[1]) if ':' in format else None
         if '?' in value:
             value,format = value.split('?')
             format = format.replace('=',':').replace('&',',').replace('v_','')
@@ -114,9 +116,18 @@ def localize_img(value, locale, format=None, **kwargs):
     cropper = '%s'
     format.setdefault('style','')
     if 'h' in format and 'w' in format:
-        c = '<div style="height:%(h)spx;width:%(w)spx;overflow:hidden;%(style)s">' %format
+        format['cropper_style'] =''
+        if cropper_zoom:
+            format['h'] =float(format['h']) * cropper_zoom
+            format['w'] =float(format['w']) * cropper_zoom
+        c = '<div style="height:%(h)spx;width:%(w)spx;overflow:hidden;border:1px solid silver; %(style)s">' %format
         format.pop('style',None)
-        cropper = c+'%s</div>'
+        if cropper_zoom:
+            cropper_style = """-webkit-transform:scale(%f);-webkit-transform-origin:0px 0px;-moz-transform:scale(%f);""" %(cropper_zoom,cropper_zoom)
+            cropper = c+'<div style="%s">' %cropper_style
+            cropper = cropper+'%s'+'</div></div>'
+        else:
+            cropper = c+'%s</div>'
     styleimg = dict(margin_top=format.get('y') or 0,margin_left=format.get('x') or 0,
                        zoom=format.get('z') or 1,rotate=format.get('r') or 0)
     styleimg = """margin-top:-%(margin_top)spx;
@@ -127,7 +138,6 @@ def localize_img(value, locale, format=None, **kwargs):
     styleimg = 'style="%s %s;"' %(styleimg,(format.get('style') or ''))
     value = '<img %s src="%s"/>' %(styleimg,value)
     return cropper %value
-
     
 def parselocal_number(txt, locale):
     """TODO

@@ -202,7 +202,7 @@ class BagNode(object):
                 return self._value
         return self._value
     
-    def getFormattedValue(self,joiner=None,omitEmpty=True,mode=None,**kwargs):
+    def getFormattedValue(self,joiner=None,omitEmpty=True,mode='',**kwargs):
         v = self.getValue(mode=mode)
         if isinstance(v,Bag):
             v = v.getFormattedValue(joiner=joiner,omitEmpty=omitEmpty,mode=mode,**kwargs)

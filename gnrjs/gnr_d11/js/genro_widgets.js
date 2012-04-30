@@ -5956,7 +5956,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         var attr=sourceNode.attr;
         var crop = objectExtract(attr, 'crop_*');
         if(objectNotEmpty(crop)){
-            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow');
+            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask');
             innerImage.cr_width=crop.width
             innerImage.cr_height=crop.height
             attr.tag = 'div';
@@ -5966,7 +5966,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             sourceNode._('img',innerImage,{'doTrigger':false}) ;
         }else{
              var uploadAttr=objectExtract(attr,'upload_*');
-             var cropAttr=objectExtract(attr,'cr_*');
+             var cropAttr=objectExtract(attr,'cr_*',true);
              if(objectNotEmpty(uploadAttr)){
                  attr.dropTarget=true;
                  attr.dropTypes='Files';
@@ -6003,7 +6003,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                                               kw['v_h'] = parseInt(cropAttr.height);
                                           }
                                              sourceNode.setRelativeData(src,genro.addParamsToUrl(url,kw));
-                                            }});
+                                       }});
                                           
                 
                 };
@@ -6018,9 +6018,20 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         objectUpdate(attributes,this.decodeUrl(objectPop(attributes, 'src')));
         if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
             attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
+            if(sourceNode.attr.cr_height){
+                 attributes.style = "width:100%;height:100%";
+            }
         }
         return savedAttrs;
-        
+    },
+    
+    setPlaceHolder:function(sourceNode){
+        var domnode = sourceNode.domNode;
+        var src=sourceNode.getAttributeFromDatasource('placeholder');
+        domnode.setAttribute('src',src);
+        if(sourceNode.attr.cr_height){
+            domnode.setAttribute('style',"width:100%;height:100%");
+        }
     },
     created: function(widget, savedAttrs, sourceNode) {
         var that=this;
@@ -6132,15 +6143,20 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         var sourceNode = domnode.sourceNode;
                 
         src=src?src+'?_pc='+kwimg['_pc']:'';
-        if ((!src) && ('placeholder' in sourceNode.attr )){
-            src=sourceNode.getAttributeFromDatasource('placeholder');
+        if(src){
+            if(src != domnode.getAttribute('src')){
+                domnode.setAttribute('src',src);
+            }
+            domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(kwimg)));
         }
-        if(src != domnode.getAttribute('src')){
-            domnode.setAttribute('src',src);
+        
+        else if (('placeholder' in sourceNode.attr)){
+            this.setPlaceHolder(sourceNode);
         }
-        domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(kwimg)));
-       //var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
-       //valueNode.updAttributes({_formattedValue:domnode.parentNode.parentNode.innerHTML},sourceNode);
+
+       var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
+       var formattedValue = genro.formatter.asText(v,{dtype:'P',format:sourceNode.attr.format,mask:sourceNode.attr.mask});
+       valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);
     }
 });
 

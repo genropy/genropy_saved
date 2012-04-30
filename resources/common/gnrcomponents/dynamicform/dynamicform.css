@@ -19,6 +19,10 @@
 .dffb_enterable.dffb_checkboxtext_nopopup .field_checkboxtext_nopopup.df_row,
 .dffb_enterable.dffb_currencytextbox .field_currencytextbox.df_row,
 .dffb_enterable.dffb_numbertextbox .field_numbertextbox.df_row,
+.dffb_enterable.dffb_numberspinner .field_numberspinner.df_row,
+.dffb_enterable.dffb_img .field_img.df_row,
+.dffb_enterable.dffb_geocoderfield .field_geocoderfield.df_row,
+
 .dffb_calculated .field_calculated.df_row{
     display:table-row;
 }

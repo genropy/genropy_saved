@@ -219,7 +219,12 @@ class TemplateEditor(TemplateEditorBase):
                                     fieldpath = fieldpath[0];
                                 }
                                 
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,dtype:dtype,fieldname:caption,varname:varname,virtual_column:data.virtual_column,df_template:df_template}));""",
+                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,
+                                                                            dtype:dtype,
+                                                                            fieldname:caption,
+                                                                            varname:varname,
+                                                                            virtual_column:data.virtual_column,
+                                                                            df_template:df_template}));""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):
@@ -469,8 +474,8 @@ class ChunkEditor(PaletteTemplateEditor):
             preview_id = '%s.%s' %(datasourcepath,self.db.table(table).pkey)
         record_id = '^%s' %preview_id
         frame.dataRpc('.preview.renderedtemplate', self.te_getPreview,
-                   _POST =True,record_id=record_id,_status='^.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',
-                   compiled='=.data.compiled')
+                   _POST =True,record_id=record_id,_status='=.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',
+                   compiled='^.data.compiled')
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
 
         

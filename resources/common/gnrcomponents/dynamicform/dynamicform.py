@@ -59,11 +59,14 @@ class Form(BaseComponent):
         fb.field('formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px',tag='simpleTextArea')
         
         fb.field('wdg_tag',values='^#FORM.allowedWidget',tag='filteringSelect',
-                    row_class='df_row field_enterable')
-        fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
-
-        fb.field('wdg_colspan',width='4em')
+                    row_class='df_row field_enterable',colspan=2)
         fb.br()
+        fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
+        
+        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable',width='100%')
+        fb.numbertextBox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable',width='100%')
+        fb.numbertextBox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable',width='100%')
+    
         
         fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
                 tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
@@ -77,14 +80,19 @@ class Form(BaseComponent):
         fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
         
         
-        fb.field('validate_case',width='8em',row_class='df_row field_textbox')
+        fb.field('validate_case',row_class='df_row field_textbox',width='100%')
         fb.br()
         
-        fb.field('validate_range',width='6em',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox')
-        fb.br()
-              
+        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
 
-    
+        fb.br()
+        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.br()
+        fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
+        fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
+        fb.br()
         
         footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
         footer.field('mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
@@ -264,7 +272,14 @@ class DynamicForm(BaseComponent):
             attr['format'] = attr.pop('field_format',None)
             attr['dtype'] = data_type
             attr['mask'] = mask
-            attr['colspan'] = attr.pop('wdg_colspan') or 1
+            wdg_kwargs = attr.pop('wdg_kwargs',None)
+            if wdg_kwargs:
+                wdg_kwargs = Bag(wdg_kwargs)
+                attr.update(wdg_kwargs)
+                for dim in ('height','width','crop_height','crop_width'):
+                    c = attr.pop(dim, None)
+                    attr[dim] = '%ipx' %c if c else None
+                attr['colspan'] = attr.pop('colspan') or 1
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
@@ -281,15 +296,17 @@ class DynamicForm(BaseComponent):
         attr['values'] = attr.get('source_combobox')
                 
 
-    def df_imguploader(self,attr,**kwargs):
-        if not attr.get('style'):
-            attr['height'] = '64px'
-            attr['width'] = '64px'
+    def df_img(self,attr,**kwargs):
         attr['placeholder'] = self.getResourceUri('images/imgplaceholder.png')
-        attr['folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
-        attr['filename'] = '=#FORM.pkey'
-        attr['dtype'] = 'T'
-        attr['format'] = 'img'
+        attr['upload_folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
+        attr['upload_filename'] = '=#FORM.pkey'
+        attr['edit'] = True
+        attr['src'] = attr.pop('value',None)
+        attr['border'] = '1px solid silver'
+        attr['shadow'] = '2px 2px 3px #555'
+
+        #attr['dtype'] = 'T'
+        #attr['format'] = 'auto'
 
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')

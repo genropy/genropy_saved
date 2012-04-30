@@ -300,7 +300,7 @@ class TableBase(object):
             p = h_desc
             order_by = hierarchical
             where =  " ( :p = @maintable_id.hierarchical_%s ) OR ( :p ILIKE @maintable_id.hierarchical_%s || :suffix) " %(hierarchical,hierarchical)
-        return fieldstable.query(where=where,p=p,suffix='.%%',order_by=order_by).fetch()
+        return fieldstable.query(where=where,p=p,suffix='.%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
     
     @public_method
     def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
@@ -313,7 +313,7 @@ class TableBase(object):
                 fieldpath = r['code']
                 fullcaption = r['description']
                 if df_field:
-                    fieldpath='%s.%s' %(df_field,r['code']),
+                    fieldpath='%s.%s' %(df_field,r['code'])
                     fullcaption='%s/%s' %(df_caption,r['description'])
                 result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
                                 fieldpath=fieldpath,fullcaption=fullcaption)
@@ -433,6 +433,7 @@ class DynamicFieldsTable(TableBase):
 
         tbl.column('wdg_tag',name_long='!!Wdg type')
         tbl.column('wdg_colspan','L',name_long='!!Colspan')
+        tbl.column('wdg_kwargs','X',name_long='!!Wdg kwargs')
 
         tbl.column('source_combobox',name_long='!!Suggested Values')
         tbl.column('source_dbselect',name_long='!!Db Table')
@@ -449,6 +450,9 @@ class DynamicFieldsTable(TableBase):
 
         tbl.column('field_mask',name_long='!!Mask')
         tbl.column('field_tip',name_long='!!Tip')
+        
+    
+        
         tbl.column('validate_case',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Case')
         tbl.column('validate_range',name_long='!!Range')
         
@@ -591,7 +595,7 @@ class GnrHTable(GnrDboTable):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         code = self.readColumns(pkey=pkey,columns='code')
         return fieldstable.query(where="(:code=@maintable_id.code) OR (:code ILIKE @maintable_id.code || '.%%')",
-                                    code=code,order_by='@maintable_id.code,$_row_count').fetch()
+                                    code=code,order_by='@maintable_id.code,$_row_count',columns='*,$wdg_kwargs').fetch()
 
 
         

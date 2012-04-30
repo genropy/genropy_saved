@@ -76,8 +76,8 @@ try:
                 value= ''
             if self.isBag:
                 if hasattr(value, '_htraverse'):
-                    if self.templates and as_name in self.templates:
-                        templateNode = self.templates.getNode(as_name)
+                    if self.templates and k in self.templates:
+                        templateNode = self.templates.getNode(k)
                         if templateNode:
                             template = templateNode.value
                             joiner = templateNode.getAttr('joiner','')
@@ -90,7 +90,7 @@ try:
                         templatepath = self.df_templates[as_name]
                         template = self.data[templatepath]
                         return templateReplace(template,value,locale=self.locale, 
-                                                formats=self.formats,masks=self.masks, 
+                                                formats=self.formats,masks=self.masks, dtypes=self.dtypes,
                                                 noneIsBlank=self.noneIsBlank)
                     else:
                         return value.getFormattedValue(joiner='<br/>');
@@ -105,12 +105,13 @@ try:
             format = self.formats.get(as_name) or format
             mask = self.masks.get(as_name) or mask
             dtype = self.dtypes.get(as_name)
+            
             if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
                 value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
                 caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
                 mask = mask.replace('#',caption)
-            elif formattedValue:
+            elif not format and formattedValue:
                 value = formattedValue
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
