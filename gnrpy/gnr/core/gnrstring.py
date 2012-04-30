@@ -59,7 +59,7 @@ try:
             self.noneIsBlank=noneIsBlank
             self.isBag = hasattr(self.data, '_htraverse')
             self.localizer = localizer
-            self.dtypes = dtypes
+            self.dtypes = dtypes or dict()
 
         def __getitem__(self,k):
             as_name = k
@@ -84,7 +84,7 @@ try:
                             result = []
                             for v in value.values():
                                 result.append(templateReplace(template,v, locale=self.locale, 
-                                                formats=self.formats,masks=self.masks, noneIsBlank=self.noneIsBlank))
+                                                formats=self.formats,masks=self.masks,dtypes=self.dtypes, noneIsBlank=self.noneIsBlank))
                             return joiner.join(result)
                     elif as_name in self.df_templates:
                         templatepath = self.df_templates[as_name]
@@ -104,12 +104,15 @@ try:
                 caption = attrs.get('name_long','')
             format = self.formats.get(as_name) or format
             mask = self.masks.get(as_name) or mask
-            dtype = self.dtype.get(as_name)
+            dtype = self.dtypes.get(as_name)
+            if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
+                value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
                 caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
                 mask = mask.replace('#',caption)
             elif formattedValue:
                 value = formattedValue
+                
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
             

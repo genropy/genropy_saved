@@ -43,7 +43,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.masks = compiled.getItem('main?masks')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
-        htmlbuilder.df_templates = compiled.getItem('main?dtypes')
+        htmlbuilder.dtypes = compiled.getItem('main?dtypes')
         htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
         return htmlbuilder
         
