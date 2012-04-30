@@ -62,7 +62,7 @@ try:
             self.dtypes = dtypes or dict()
 
         def __getitem__(self,k):
-            as_name = k
+            as_name = k.replace('@','_').replace('.','_')
             if '^' in k:
                 k = k.split('^')
                 as_name = k[1]
@@ -112,7 +112,6 @@ try:
                 mask = mask.replace('#',caption)
             elif formattedValue:
                 value = formattedValue
-                
             value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
             

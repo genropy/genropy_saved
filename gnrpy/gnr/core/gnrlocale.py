@@ -20,11 +20,20 @@ def localize(obj, format=None, currency=None, locale=None):
     if obj is None: return u''
     if format and format.startswith('auto_'):
         format = DEFAULT_FORMATS_DICT.get(format[5:])
-    f = TYPES_LOCALIZERS_DICT.get(type(obj))
-    if f:
-        return f(obj, locale, format=format, currency=currency)
+        
+    obj,handler = formatHandler(obj)
+    if handler:
+        return handler(obj, locale, format=format, currency=currency)
     else:
         return unicode(obj)
+
+def formatHandler(obj):
+    if isinstance(obj,basestring) and '::' in obj:
+        obj,dtype = obj.split('::')
+    else:
+        dtype = type(obj)
+    return obj,TYPES_LOCALIZERS_DICT.get(dtype)
+
         
 def localize_number(obj, locale, format=None, currency=None):
     """TODO
@@ -85,6 +94,40 @@ def localize_time(obj, locale, format=None, **kwargs):
     format = format or 'short'
     dt = datetime.datetime(1970, 1, 1, obj.hour, obj.minute, obj.second, obj.microsecond, obj.tzinfo)
     return dates.format_time(obj, format=format, locale=locale)
+    
+
+def localize_img(value, locale, format=None, **kwargs):
+    """format='x:34,y:56,z:1,r:38,h:45,w:134'   or dict"""
+    if not format:
+        return value
+    if format == 'img':
+        return """<img src="%s"/>""" %value
+    if format=='auto':
+        if '?' in value:
+            value,format = value.split('?')
+            format = format.replace('=',':').replace('&',',').replace('v_','')
+        else:
+            format = dict()
+    if isinstance(format,basestring):
+        format = dict([p.split(':') for p in format.split(',')])
+    format.update(kwargs)
+    cropper = '%s'
+    format.setdefault('style','')
+    if 'h' in format and 'w' in format:
+        c = '<div style="height:%(h)spx;width:%(w)spx;overflow:hidden;%(style)s">' %format
+        format.pop('style',None)
+        cropper = c+'%s</div>'
+    styleimg = dict(margin_top=format.get('y') or 0,margin_left=format.get('x') or 0,
+                       zoom=format.get('z') or 1,rotate=format.get('r') or 0)
+    styleimg = """margin-top:-%(margin_top)spx;
+                  margin-left:-%(margin_left)spx;
+                  -webkit-transform:scale(%(zoom)s) rotate(%(rotate)sdeg);
+                  -moz-transform:scale(%(zoom)s) rotate(%(rotate)sdeg);
+                    """ %styleimg
+    styleimg = 'style="%s %s;"' %(styleimg,(format.get('style') or ''))
+    value = '<img %s src="%s"/>' %(styleimg,value)
+    return cropper %value
+
     
 def parselocal_number(txt, locale):
     """TODO
@@ -247,7 +290,9 @@ TYPES_LOCALIZERS_DICT = {int: localize_number,
                          datetime.date: localize_date,
                          datetime.datetime: localize_datetime,
                          datetime.time: localize_time,
-                         bool:localize_boolean
+                         bool:localize_boolean,
+                         'P':localize_img
+
 }
 
 TYPES_LOCALPARSERS_DICT = {int: parselocal_number,
