@@ -186,7 +186,8 @@ function dataTemplate(str, data, path, showAlways) {
     var masks={};
     var df_templates={};
     var formats = {};
-    
+    var dtypes = {};
+
     if(str instanceof gnr.GnrBag){
          templates=str;
          var mainNode =templates.getNode('main');
@@ -194,6 +195,8 @@ function dataTemplate(str, data, path, showAlways) {
          masks = mainNode.attr.masks || masks;
          formats = mainNode.attr.formats || formats;
          df_templates = mainNode.attr.df_templates || df_templates;
+         dtypes = mainNode.attr.dtypes || dtypes;
+
     }
     var auxattr = {};
     var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
@@ -226,11 +229,11 @@ function dataTemplate(str, data, path, showAlways) {
                                     path = path[0];
                                 }
                                 var valueNode = data.getNode(path);
-                                var dtype = null;
+                                var dtype = dtypes[as_name];
                                 var value;
                                 if (valueNode){
                                    valueattr = valueNode.attr;
-                                   dtype = valueattr.dtype;
+                                   dtype = valueattr.dtype || dtype;
                                    value = valueNode.getValue();
                                 }else{
                                     value = auxattr[as_name]
@@ -446,6 +449,11 @@ function objectMixin(obj, source) {
         }
     }
     return obj;
+}
+function objectMap(obj,func){
+    for(var k in obj){
+        obj[k] = func(obj[k]);
+    }
 }
 
 function objectUpdate(obj, source, removeNulls) {
@@ -750,15 +758,21 @@ var gnrformatter = {
         if (!format){
             return value;
         }
-        if(format=='auto'){
-            if (value.indexOf('?')){
-                value = value.split('?');
-                format = value[1];
-                value = value[0];
-                format = format.replace(/=/g,':').replace(/\&/g,',').replace(/v_/g,'')
-            }else{
-                format = {}
-            }            
+        var c,c_zoom;
+        console.log(value);
+        if(typeof(format)=='string' && stringStartsWith(format,'auto')){
+            if(format.indexOf(':')){
+                format = format.split(':')
+                var c_zoom = parseFloat(format[1]);
+            }
+            if(value.indexOf('?')>=0){
+                var parsedUrl = parseURL(value);
+                format = objectExtract(parsedUrl.params,'v_*');
+                value = value.split('?')[0];
+                if(parsedUrl.params._pc){
+                    value = genro.addParamsToUrl(value,{_pc:parsedUrl.params._pc});
+                }
+            }
         }
         if(typeof(format)=='string'){
             format = objectFromString(format);
@@ -767,18 +781,27 @@ var gnrformatter = {
             format = objectUpdate(format,formatKw);
         }
         format['style'] = format['style'] || '';
-        var c;
         if('h' in format){
+            var c_style = '';
+            if(c_zoom){
+                format['h'] = format['h'] * c_zoom;
+                format['w'] = format['w'] * c_zoom;
+            }
             var c ='<div style="height:'+format["h"]+'px;width:'+format["w"]+'px;overflow:hidden;'+format["style"]+'">';
             objectPop(format,'style');
+            if (c_zoom){
+                c_style = "-webkit-transform:scale("+c_zoom+");-webkit-transform-origin:0px 0px;-moz-transform:scale("+c_zoom+");-moz-transform-origin:0px 0px;"
+            }
+            c = c+'<div style="'+c_style+'">';
         }
-        var img_style = 'margin-top:-'+(format['y'] || 0)+'px; margin-left:-'+(format['x'] || 0)+'px;-webkit-transform:scale('+(format['z'] || 1)+') rotate('+(format['r'] || 0)+'deg); -moz-transform:scale('+(format['z'] || 1)+') rotate('+(format['r'] || 0)+'deg);';
+        var img_style = 'margin-top:'+(-parseFloat(format['y'] || 0))+'px; margin-left:'+(-parseFloat(format['x'] || 0))+'px;-webkit-transform:scale('+parseFloat(format['z'] || 1)+') rotate('+parseFloat(format['r'] || 0)+'deg); -moz-transform:scale('+parseFloat(format['z'] || 1)+') rotate('+parseFloat(format['r'] || 0)+'deg);';
         var img =  '<img style="'+img_style + (format['style'] ||'') +'" src="'+value+'"/>';
         if(c){
-            return c+img+'</div>';
+            return c_zoom?c+img+'</div></div>':c+img+'</div>';
         }
         return img;
     },
+    
     format_T:function(value,format,formatKw){
         if(!format){
             return value;

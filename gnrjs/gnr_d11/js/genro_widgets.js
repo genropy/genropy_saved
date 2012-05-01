@@ -5955,6 +5955,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     onBuilding:function(sourceNode){
         var attr=sourceNode.attr;
         var crop = objectExtract(attr, 'crop_*');
+        var that = this;
         if(objectNotEmpty(crop)){
             var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask');
             innerImage.cr_width=crop.width
@@ -5978,15 +5979,11 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                             return false;
                         }
                         if(objectNotEmpty(cropAttr)){
-                            var domnode=sourceNode.domNode
-                             domnode.onload=function(){
-                                var margin_top = (domnode.clientHeight/2)-parseInt(cropAttr.height);
-                                 var margin_left = (domnode.clientWidth/2)-parseInt(cropAttr.width);
-                                 var url= sourceNode.getRelativeData(src)
-                                 sourceNode.setRelativeData(src,url+'&v_y='+margin_top+'&v_x='+margin_left);
-                        };
+                            var domnode = sourceNode.domNode;
+                            domnode.onload=function(){
+                                that.centerImage(sourceNode,cropAttr);
+                            };
                         }
-                       
                         var f = files[0];
                         var filename = sourceNode.currentFromDatasource(uploadAttr.filename);
                         if(!filename){
@@ -5998,11 +5995,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                                       onResult:function(result){
                                           var url = this.responseText;
                                           var kw = {'_pc':new Date().getMilliseconds()};
-                                          if (objectNotEmpty(cropAttr)){
-                                              kw['v_w'] = parseInt(cropAttr.width);
-                                              kw['v_h'] = parseInt(cropAttr.height);
-                                          }
-                                             sourceNode.setRelativeData(src,genro.addParamsToUrl(url,kw));
+                                          sourceNode.setRelativeData(src,genro.addParamsToUrl(url,kw));
                                        }});
                                           
                 
@@ -6012,10 +6005,11 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
 
         }
     },
+    
     creating: function(attributes, sourceNode) {
         var edit=objectPop(attributes,'edit');
         savedAttrs={'edit':edit, zoomWindow:objectPop(attributes,'zoomWindow')};   
-        objectUpdate(attributes,this.decodeUrl(objectPop(attributes, 'src')));
+        objectUpdate(attributes,this.decodeUrl(sourceNode,objectPop(attributes, 'src')));
         if ((!attributes.src) && ('placeholder' in sourceNode.attr )){
             attributes.src=sourceNode.getAttributeFromDatasource('placeholder');
             if(sourceNode.attr.cr_height){
@@ -6025,29 +6019,9 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         return savedAttrs;
     },
     
-    setPlaceHolder:function(sourceNode){
-        var domnode = sourceNode.domNode;
-        var src=sourceNode.getAttributeFromDatasource('placeholder');
-        domnode.setAttribute('src',src);
-        if(sourceNode.attr.cr_height){
-            domnode.setAttribute('style',"width:100%;height:100%");
-        }
-    },
     created: function(widget, savedAttrs, sourceNode) {
         var that=this;
         if('edit' in savedAttrs){
-         // widget.onmouseover=function(e){
-         //     var helper=document.createElement('div');
-         //     var pnode=widget.parentNode
-         //     pnode.style.position='relative'
-         // 
-         //     pnode.appendChild(helper);
-         //     helper.innerHTML='<div style="border:1px solid silver;opacity:.8;font-size:10px;padding:3px;background-color:#666;color:white;z-index:1;position:absolute;bottom:0px;left:0px;">Drag to move - Shift to zoom - Alt to rotate</div>'
-         //         widget.onmouseout=function(e){
-         //             widget.parentNode.removeChild(helper)
-         //         }
-         // }
-         //
             widget.onmousedown=function(e){
                 return that.onMouseDown(e)
             }
@@ -6060,6 +6034,29 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                                               'toolbar':'no','titlebar':'no','status':'no'});
                                           });
         };
+    },
+    setPlaceHolder:function(sourceNode){
+        var domnode = sourceNode.domNode;
+        var src=sourceNode.getAttributeFromDatasource('placeholder');
+        domnode.setAttribute('src',src);
+        if(sourceNode.attr.cr_height){
+            domnode.setAttribute('style',"width:100%;height:100%");
+        }
+    },
+    
+    centerImage:function(sourceNode,cropAttr){
+        var domnode = sourceNode.domNode;
+        var margin_top = (domnode.clientHeight/2)-parseInt(cropAttr.height);
+        var margin_left = (domnode.clientWidth/2)-parseInt(cropAttr.width);
+        var currUrl = sourceNode.getAttributeFromDatasource('src');
+        if(currUrl){
+            var parsedUrl = parseURL(currUrl);
+            var params = parsedUrl.params;
+            params = objectUpdate(params,{'v_y':margin_top,'v_x':margin_left});
+            var url = this.encodeUrl(parsedUrl);
+            sourceNode.setAttributeInDatasource('src',url);
+        }
+
     },
      onEditImage:function(sourceNode,e){ 
          var dx=sourceNode.s_x-e.clientX;
@@ -6086,7 +6083,8 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              imgkw['v_r']=v_r+dy;
              body.style.cursor='crosshair';
          }
-        src= genro.addParamsToUrl(parsedUrl.path,imgkw);
+        src = this.encodeUrl(parsedUrl);
+        //src= genro.addParamsToUrl(parsedUrl.path,imgkw);
         var path = sourceNode.attrDatapath('src');
         genro._data.setItem(path, src, null, {'doTrigger':true});
          
@@ -6123,40 +6121,62 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
          };
     },
         
-    decodeUrl:function(url){
-        var p={}
-        if (url && url.indexOf('?')>0){
-           var parsedUrl=parseURL(url);
-           p=parsedUrl.params;
-           url=parsedUrl.path;
-       }
-       
-       return {'src':url,'margin_left':-(p['v_x']||0)+'px','margin_top':-(p['v_y']||0)+'px',
-                  'transform_scale':p['v_z']||1,'transform_rotate':p['v_r']||0};
-
-       
-       
+    decodeUrl:function(sourceNode,url){
+        if(!url){
+            return {};
+        }
+        var parsedUrl = parseURL(url);
+        var p = parsedUrl.params;
+        p['v_x'] = parseFloat((p['v_x'] || 0));
+        p['v_y'] = parseFloat((p['v_y'] || 0));
+        p['v_z'] = parseFloat((p['v_z'] || 1));
+        p['v_r'] = parseFloat((p['v_r'] || 0));
+        if(sourceNode.attr.cr_height){
+           p['v_h'] = parseFloat(sourceNode.attr.cr_height);
+           p['v_w'] = parseFloat(sourceNode.attr.cr_width);
+        }else{
+           objectExtract(p,'v_h,v_w');
+        }
+        var result = {src:this.encodeUrl(parsedUrl,true),
+                     formattedUrl:this.encodeUrl(parsedUrl),
+                     styledict:{'margin_left':(-p['v_x'])+'px','margin_top':(-p['v_y'])+'px','transform_scale':p['v_z'],'transform_rotate':p['v_r']},
+                     originalKw:parsedUrl.params
+                     };
+          
+        return result;
     },
+    
+    encodeUrl:function(parsedUrl,dropFormatters){
+        var kw = objectUpdate({},parsedUrl.params);
+        var baseUrl;
+        if(window.location.protocol.replace(':','')==parsedUrl.protocol && window.location.hostname == parsedUrl.host && window.location.port == parsedUrl.port){
+            baseUrl = parsedUrl.path;
+        }else{
+            baseUrl = parsedUrl.protocol+'://'+parsedUrl.host+parsedUrl.path;
+        }
+        if (dropFormatters){
+            objectExtract(kw,'v_*');
+        }
+        return genro.addParamsToUrl(baseUrl,kw);
+    },
+    
     setSrc:function(domnode,v){
-        var kwimg=this.decodeUrl(v);
-        var src=objectPop(kwimg,'src');
         var sourceNode = domnode.sourceNode;
-                
-        src=src?src+'?_pc='+kwimg['_pc']:'';
+        var kwimg=this.decodeUrl(sourceNode,v);
+        var src=objectPop(kwimg,'src');
         if(src){
             if(src != domnode.getAttribute('src')){
                 domnode.setAttribute('src',src);
             }
-            domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(kwimg)));
+            var style = objectAsStyle(genro.dom.getStyleDict(kwimg['styledict']));
+            domnode.setAttribute('style',style);
         }
-        
         else if (('placeholder' in sourceNode.attr)){
             this.setPlaceHolder(sourceNode);
         }
-
-       var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
-       var formattedValue = genro.formatter.asText(v,{dtype:'P',format:sourceNode.attr.format,mask:sourceNode.attr.mask});
-       valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);
+        var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
+        var formattedValue = genro.formatter.asText(kwimg.formattedUrl,{dtype:'P',format:sourceNode.attr.format,mask:sourceNode.attr.mask});
+        valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);
     }
 });
 
