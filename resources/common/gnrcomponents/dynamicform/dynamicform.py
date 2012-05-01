@@ -210,9 +210,11 @@ class DynamicForm(BaseComponent):
         bc.contentPane(region='right',width='40%',splitter=True,padding='10px').div(innerHTML='^#FORM.dynamicFormTester.tplRendered')
         bc.data('#FORM.dynamicFormTester.data',Bag())
         bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "tplToShow=='auto'?currdata.getFormattedValue():dataTemplate(custom_templates.getItem(tplToShow+'.tpl'),currdata);",
-                       custom_templates='^#FORM.record.df_custom_templates',currdata='^#FORM.dynamicFormTester.data',
+                       custom_templates='^#FORM.record.df_custom_templates',
+                       currdata='^#FORM.dynamicFormTester.data',
                        tplToShow='^#FORM.dynamicFormTester.tplToShow',
                         _delay=100,_if='tplToShow')
+        bc.dataController("SET #FORM.dynamicFormTester.data = new gnr.GnrBag();",_fired="^#FORM.controller.loaded")
         
         bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
