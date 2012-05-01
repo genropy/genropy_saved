@@ -6006,8 +6006,8 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                                   filename:filename,
                                   onResult:function(result){
                                       var url = this.responseText;
-                                      var kw = {'_pc':new Date().getMilliseconds()};
-                                      sourceNode.setRelativeData(src,genro.addParamsToUrl(url,kw));
+                                      
+                                      sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
                                    }});
                                           
                 
@@ -6148,6 +6148,9 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         }
         var parsedUrl = parseURL(url);
         var p = parsedUrl.params;
+        if (!p._pc){
+            p_pc=new Date().getMilliseconds()
+        }
         p['v_x'] = parseFloat((p['v_x'] || 0));
         p['v_y'] = parseFloat((p['v_y'] || 0));
         p['v_z'] = parseFloat((p['v_z'] || 1));
@@ -6182,6 +6185,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     },
     
     setSrc:function(domnode,v){
+        //qui il valore non credo che abbia i valori di croppatura
         var sourceNode = domnode.sourceNode;
         var kwimg=this.decodeUrl(sourceNode,v);
         var src=objectPop(kwimg,'src');

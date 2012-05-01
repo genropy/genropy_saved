@@ -544,6 +544,10 @@ dojo.declare('gnr.GenroClient', null, {
         return genro._('gnr.user_preference.'+pref);
     },
     format: function (v, f, m) {
+        if( f.dtype=='P'){
+            return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
+
+        }
         if (v instanceof Date) {
             var opt = objectUpdate({}, f);
             if (opt['time']) {
