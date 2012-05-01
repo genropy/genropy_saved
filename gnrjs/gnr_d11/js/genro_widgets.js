@@ -5970,11 +5970,20 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              var cropAttr=objectExtract(attr,'cr_*',true);
              if(objectNotEmpty(uploadAttr)){
                  attr.dropTarget=true;
-                 attr.dropTypes='Files,text/plain,text/html';
+                 attr.dropTypes='Files,text/plain';
                  attr.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
                  var src=sourceNode.attr.src;
-                 attr.onDrop_text_html = function(){
-                     console.log('drop_html',arguments);
+                 attr.onDrop_text_plain = function(dropInfo,data){
+                     if(sourceNode.form && sourceNode.form.isDisabled()){
+                        genro.dlg.alert("The form is locked",'Warning');
+                        return false;
+                    }
+                    var kw = {'_pc':new Date().getMilliseconds()};
+                    sourceNode.domNode.onload=function(){
+                        that.centerImage(sourceNode,cropAttr);
+                    };
+                    sourceNode.setRelativeData(src,data);
+                    console.log('drop_html',arguments);
                  };
                  attr.onDrop = function(data,files){
                     if(sourceNode.form && sourceNode.form.isDisabled()){
@@ -6028,6 +6037,15 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             widget.onmousedown=function(e){
                 return that.onMouseDown(e)
             }
+            //var pnode=widget.parentNode;
+            //pnode.style.position = 'relative';
+            //dojo.addClass(pnode,'widgetWithHelper')
+            //var helper=document.createElement('div');
+            //dojo.addClass(helper,'helperWidget');
+            //helper.innerHTML = "Drag to adjust the position. Shift+Drag to scale the image. "
+            //pnode.appendChild(helper);
+            //
+            
         };
         if(savedAttrs.zoomWindow){
          dojo.connect(widget,'ondblclick',function(e){
@@ -6049,15 +6067,15 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     
     centerImage:function(sourceNode,cropAttr){
         var domnode = sourceNode.domNode;
-        var margin_top = (domnode.clientHeight/2)-parseInt(cropAttr.height);
-        var margin_left = (domnode.clientWidth/2)-parseInt(cropAttr.width);
+        var margin_top = (domnode.clientHeight-parseInt(cropAttr.height))/2;
+        var margin_left = (domnode.clientWidth-parseInt(cropAttr.width))/2;
         var currUrl = sourceNode.getAttributeFromDatasource('src');
         if(currUrl){
             var parsedUrl = parseURL(currUrl);
             var params = parsedUrl.params;
             params = objectUpdate(params,{'v_y':margin_top,'v_x':margin_left});
             var url = this.encodeUrl(parsedUrl);
-            sourceNode.setAttributeInDatasource('src',url);
+            sourceNode.setAttributeInDatasource('src',url,true);
         }
 
     },
