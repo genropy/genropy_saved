@@ -88,4 +88,21 @@ class GnrCustomWebPage(object):
                                     ctx.bezierCurveTo(130,62.5,130,25,100,25);
                                     ctx.bezierCurveTo(85,25,75,37,75,40);
                                     ctx.fill()""",lbl='Test 7 ',**kwargs)
-                                    
+
+    def test_2_special(self, pane):
+        """Basic canvas"""
+        pane=pane.div(background_color='white',height='600px')
+        fb=pane.formBuilder(cols=4,lblpos='T',border_spacing='6px')
+        kwargs=dict(width='700px',height='500px',
+                                            border='1px solid silver',shadow='2px 2px 4px silver')
+        fb.canvas(onCreated="""var ctx =widget.getContext('2d');
+                                            var x = 188;
+                                            var y = 130;
+                                            var width = 200;
+                                            var height = 137;
+                                            var imageObj = new Image();
+                                            imageObj.onload = function() {
+                                                ctx.drawImage(imageObj, x, y, width, height);
+                                            };
+                                            imageObj.src = "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg";
+""",lbl='Test X',**kwargs)
