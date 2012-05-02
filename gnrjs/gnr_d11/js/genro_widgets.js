@@ -5978,12 +5978,10 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                         genro.dlg.alert("The form is locked",'Warning');
                         return false;
                     }
-                    var kw = {'_pc':new Date().getMilliseconds()};
                     sourceNode.domNode.onload=function(){
                         that.centerImage(sourceNode,cropAttr);
                     };
-                    sourceNode.setRelativeData(src,data);
-                    console.log('drop_html',arguments);
+                    sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,data).formattedUrl);
                  };
                  attr.onDrop = function(data,files){
                     if(sourceNode.form && sourceNode.form.isDisabled()){
@@ -6104,11 +6102,13 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              imgkw['v_r']=v_r+dy;
              body.style.cursor='crosshair';
          }
+        if (sourceNode.attr.cr_height){
+            imgkw['v_h'] = parseInt(sourceNode.attr.cr_height);
+            imgkw['v_w'] = parseInt(sourceNode.attr.cr_width);
+        }
         src = this.encodeUrl(parsedUrl);
         //src= genro.addParamsToUrl(parsedUrl.path,imgkw);
-        var path = sourceNode.attrDatapath('src');
-        genro._data.setItem(path, src, null, {'doTrigger':true});
-         
+        sourceNode.setAttributeInDatasource('src',src,true);         
     },
      onEndEdit:function(sourceNode){
          dojo.body().style.cursor='auto';
