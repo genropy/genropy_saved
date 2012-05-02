@@ -1443,7 +1443,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         this._dojotag = 'Menu';
     },
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'modifiers,validclass,storepath');
+        var savedAttrs = objectExtract(attributes, 'modifiers,validclass,storepath,values');
         if (savedAttrs.storepath) {
             sourceNode.registerDynAttr('storepath');
         }
@@ -1452,17 +1452,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
         return savedAttrs;
     },
-    mixin_setValues:function(values){
-        var contentBag = new gnr.GnrBag(objectFromString(values));
-        var menubag = new gnr.GnrDomSource();
-        gnr.menuFromBag(contentBag, menubag, this.sourceNode.attr._class);
-        this.sourceNode.setValue(menubag, false);
-        this.sourceNode.rebuild();
-
-    },
     created: function(widget, savedAttrs, sourceNode) {
-        if(sourceNode.attr.values){
-            var contentBag = new gnr.GnrBag(objectFromString(sourceNode.attr.values));
+        if(savedAttrs.values){
+            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values));
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
             sourceNode.setValue(menubag, false);
