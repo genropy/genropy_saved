@@ -284,6 +284,10 @@ class BagToHtml(object):
         return (self.page_width - self.page_margin_left - self.page_margin_right -\
                 self.page_leftbar_width - self.page_rightbar_width)
                 
+    
+    def onNewRow(self):
+        pass
+        
     def mainLoop(self):
         """add???"""
         self.copies = []
@@ -306,10 +310,12 @@ class BagToHtml(object):
                 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
-                
+            lastNode = nodes[len(nodes)-1] 
             for rowDataNode in nodes:
+                self.isLastRow = rowDataNode is lastNode
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
+                    self.onNewRow()
                     self.copy = copy
                     rowheight = self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
@@ -326,6 +332,9 @@ class BagToHtml(object):
                 self.copy = copy
                 self._closePage(True)
                 
+    def onNewRow(self): 
+        return
+               
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
             self._closePage()
