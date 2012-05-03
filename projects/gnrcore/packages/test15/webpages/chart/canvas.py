@@ -106,3 +106,126 @@ class GnrCustomWebPage(object):
                                             };
                                             imageObj.src = "http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg";
 """,lbl='Test X',**kwargs)
+
+
+
+
+    def test_3_special(self, pane):
+        """Basic canvas"""
+        pane=pane.div(background_color='white',height='600px')
+        fb=pane.formBuilder(cols=4,lblpos='T',border_spacing='6px')
+        kwargs=dict(width='700px',height='500px',
+                                            border='1px solid silver',shadow='2px 2px 4px silver')
+        fb.canvas(onCreated="""var canvas=widget;var context =widget.getContext('2d');
+                               var arc=function(ctx,cx,cy,radius,start,end,linew){
+                                         ctx.arc(cx, cy, radius,  start * Math.PI,  end * Math.PI, true);
+                                         ctx.lineWidth = linew;
+                                         ctx.strokeStyle = "black";
+                                         ctx.stroke();
+                                         }
+                                    line=function(ctx,x0,y0,x1,y1,linew){
+                                         ctx.moveTo(x0, y0);
+                                         ctx.lineTo(x1, y1);
+                                         ctx.lineWidth = linew;
+                                         ctx.strokeStyle = "black";
+                                         ctx.stroke();
+                                    }
+                                        var w=canvas.width
+                                        var h=canvas.height
+                                        
+                                        arc(context,w/2,h/2,40,0,-0.5,10)
+
+""",lbl='Test X',**kwargs)
+
+
+    def test_4_special(self, pane):
+        """Basic canvas"""
+        pane=pane.div(background_color='white',height='600px')
+        fb=pane.formBuilder(cols=4,lblpos='T',border_spacing='6px')
+        kwargs=dict(width='700px',height='500px',
+                                            border='1px solid silver',shadow='2px 2px 4px silver')
+        fb.canvas(onCreated="""var canvas=widget;var context =widget.getContext('2d');
+        
+                                roundrect=function(ctx,cx,cy,width,height,radius,stroke,fill){
+                                        var x=cx-width/2
+                                        var y=cy-height/2
+                                        ctx.save();	// save the context so we don't mess up others
+                                        ctx.beginPath();
+
+                                        // draw top and top right corner
+                                        ctx.moveTo(x+radius,y);
+                                        ctx.arcTo(x+width,y,x+width,y+radius,radius);
+
+                                        // draw right side and bottom right corner
+                                        ctx.arcTo(x+width,y+height,x+width-radius,y+height,radius); 
+
+                                        // draw bottom and bottom left corner
+                                        ctx.arcTo(x,y+height,x,y+height-radius,radius);
+
+                                        // draw left and top left corner
+                                        ctx.arcTo(x,y,x+radius,y,radius);
+
+                                        if(fill){
+	                                        ctx.fill();
+                                        }
+                                        if(stroke){
+	                                        ctx.stroke();
+                                        }
+                                        ctx.restore();	// restore context to what it was on entry
+                                }
+                                 roundhalfrect=function(ctx,cx,cy,width,height,radius,stroke,fill){
+                                        var x=cx-width/2
+                                        var y=cy-height/2
+                                        ctx.save();	// save the context so we don't mess up others
+                                        ctx.beginPath();
+
+                                        ctx.moveTo(x+width+20,y+radius+10);
+                                        ctx.lineTo(x+width,y+radius+10);
+                                       ctx.arcTo(x+width, y+height,   x+width-radius,y+height,radius); 
+                                       ctx.lineTo(x+width/2, y+height)
+                                       
+                                       ctx.moveTo(x-20,y+radius+10);
+                                       ctx.lineTo(x,y+radius+10);
+                                       ctx.arcTo(x, y+height,   x+width-radius,y+height,radius); 
+                                       ctx.lineTo(x+width/2, y+height)
+
+                                        if(fill){
+	                                        ctx.fill();
+                                        }
+                                        if(stroke){
+	                                        ctx.stroke();
+                                        }
+                                        ctx.restore();	// restore context to what it was on entry
+                                }
+                                context.strokeStyle='rgb(40,40,40)';
+                                context.fillStyle='rgb(0,150,0)';
+                                context.lineWidth=8;
+                                var cx=canvas.width/2;
+                                var cy=canvas.height/2
+                                var naso_w=100
+                                var naso_h=80
+                                var naso_r=25
+                                var muso_w=130
+                                var muso_h=120
+                                var muso_r=40
+                                var narice_h=25
+                                var narice_w=25
+                                var narice_r=10
+                                roundrect(context,cx,cy,naso_w,naso_h,naso_r,true,false)
+                                roundrect(context,cx-naso_w/4,cy,narice_w,narice_h,narice_r,true,false)
+                                roundrect(context,cx+naso_w/4,cy,narice_h,narice_w,narice_r,true,false)
+                                
+                                roundhalfrect(context,cx,cy,muso_w,muso_h,muso_r,true,false)
+                                    
+                        
+
+""",lbl='Test X',**kwargs)
+
+
+
+
+
+
+
+
+

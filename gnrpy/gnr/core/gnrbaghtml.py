@@ -320,6 +320,7 @@ class BagToHtml(object):
                 self.isLastRow = rowDataNode is lastNode
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
+                    self.onNewRow()
                     self.copy = copy
                     rowheight = self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
@@ -335,6 +336,9 @@ class BagToHtml(object):
             for copy in range(self.copies_per_page):
                 self.copy = copy
                 self._closePage(True)
+        
+    def onNewRow(self):
+        pass
                 
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
