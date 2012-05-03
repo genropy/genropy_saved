@@ -1443,7 +1443,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         this._dojotag = 'Menu';
     },
     creating:function(attributes, sourceNode) {
-        var savedAttrs = objectExtract(attributes, 'modifiers,validclass,storepath');
+        var savedAttrs = objectExtract(attributes, 'modifiers,validclass,storepath,values');
         if (savedAttrs.storepath) {
             sourceNode.registerDynAttr('storepath');
         }
@@ -1452,17 +1452,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
         return savedAttrs;
     },
-    mixin_setValues:function(values){
-        var contentBag = new gnr.GnrBag(objectFromString(values));
-        var menubag = new gnr.GnrDomSource();
-        gnr.menuFromBag(contentBag, menubag, this.sourceNode.attr._class);
-        this.sourceNode.setValue(menubag, false);
-        this.sourceNode.rebuild();
-
-    },
     created: function(widget, savedAttrs, sourceNode) {
-        if(sourceNode.attr.values){
-            var contentBag = new gnr.GnrBag(objectFromString(sourceNode.attr.values));
+        if(savedAttrs.values){
+            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values));
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
             sourceNode.setValue(menubag, false);
@@ -5978,12 +5970,10 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
                         genro.dlg.alert("The form is locked",'Warning');
                         return false;
                     }
-                    var kw = {'_pc':new Date().getMilliseconds()};
                     sourceNode.domNode.onload=function(){
                         that.centerImage(sourceNode,cropAttr);
                     };
-                    sourceNode.setRelativeData(src,data);
-                    console.log('drop_html',arguments);
+                    sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,data).formattedUrl);
                  };
                  attr.onDrop = function(data,files){
                     if(sourceNode.form && sourceNode.form.isDisabled()){
@@ -6104,11 +6094,13 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
              imgkw['v_r']=v_r+dy;
              body.style.cursor='crosshair';
          }
+        if (sourceNode.attr.cr_height){
+            imgkw['v_h'] = parseInt(sourceNode.attr.cr_height);
+            imgkw['v_w'] = parseInt(sourceNode.attr.cr_width);
+        }
         src = this.encodeUrl(parsedUrl);
         //src= genro.addParamsToUrl(parsedUrl.path,imgkw);
-        var path = sourceNode.attrDatapath('src');
-        genro._data.setItem(path, src, null, {'doTrigger':true});
-         
+        sourceNode.setAttributeInDatasource('src',src,true);         
     },
      onEndEdit:function(sourceNode){
          dojo.body().style.cursor='auto';

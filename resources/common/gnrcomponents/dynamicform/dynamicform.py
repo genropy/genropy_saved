@@ -214,7 +214,7 @@ class DynamicForm(BaseComponent):
                        currdata='^#FORM.dynamicFormTester.data',
                        tplToShow='^#FORM.dynamicFormTester.tplToShow',
                         _delay=100,_if='tplToShow')
-        bc.dataController("SET #FORM.dynamicFormTester.data = new gnr.GnrBag();",_fired="^#FORM.controller.loaded")
+        bc.dataController("currdata.clear();",_fired='^#FORM.pkey',currdata='=#FORM.dynamicFormTester.data')
         
         bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
@@ -274,6 +274,7 @@ class DynamicForm(BaseComponent):
             attr['format'] = attr.pop('field_format',None)
             attr['dtype'] = data_type
             attr['mask'] = mask
+            attr['colspan'] = 1
             wdg_kwargs = attr.pop('wdg_kwargs',None)
             if wdg_kwargs:
                 wdg_kwargs = Bag(wdg_kwargs)
@@ -281,7 +282,7 @@ class DynamicForm(BaseComponent):
                 for dim in ('height','width','crop_height','crop_width'):
                     c = attr.pop(dim, None)
                     attr[dim] = '%ipx' %c if c else None
-                attr['colspan'] = attr.pop('colspan') or 1
+                attr['colspan'] = attr.pop('colspan',1) or 1
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
