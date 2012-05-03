@@ -27,7 +27,15 @@ class GnrCustomWebPage(object):
     def doc_checkbox2(self):
         """This example show how multiple checkboxes can be created with a for loop
 """
-
+    @example(code=3,height=130,description='Maxi checkbox')
+    def checkbox_maximized(self, pane):
+        pane.checkbox(value='^.my_value', label='My Check box maximus')
+        
+        
+    def doc_checkbox_maximized(self):
+        """
+        hqwgekdfgqskjdhfgakjhsdgfjasdgfkj
+"""
 
 
 #     @example(code=3,height=370,description='Datastore Inspector for above examples')
