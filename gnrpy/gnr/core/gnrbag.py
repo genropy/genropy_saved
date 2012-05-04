@@ -2070,16 +2070,26 @@ class Bag(GnrObject):
                 self._nodes[i].getValue().cbtraverse(pathlist, callback, result, **kwargs)
         return result
         
-    def findNodeByAttr(self, attr, value):
-        """TODO
+    def nodesByAttr(self,attr,_mode='static',**kwargs):
+        if 'value' in kwargs:
+            def f(node,r):
+                if node.getAttr(attr) == value:
+                    r.append(node)
+        else:
+            def f(node,r):
+                if attr in node.attr:
+                    r.append(node)
+        r = []
+        self.walk(f,r,_mode=_mode)
+        return r   
         
-        :param attr: TODO
-        :param value: TODO"""
+    def findNodeByAttr(self, attr, value,_mode='static',**kwargs):
         def f(node):
             if node.getAttr(attr) == value:
-                return node
-                
-        return self.walk(f)
+                return node 
+        return self.walk(f,_mode=_mode)
+
+    
         
     def filter(self, cb, _mode='static', **kwargs):
         """TODO

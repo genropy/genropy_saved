@@ -9,6 +9,9 @@
     background: url(icons/sidemenu.png) no-repeat center center;
 }
 
+.application_window {
+    background: url(icons/new_window.png) no-repeat center center;
+}
 
 .pbl_logout {
     background: url(icons/logout.png) no-repeat center center;

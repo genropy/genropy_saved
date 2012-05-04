@@ -14,7 +14,6 @@ class GnrCustomWebPage(object):
     index_url='indexcontent.html'
     #showTabs=True
     authTags='user'
-    
     def windowTitle(self):
         return '!!Genropy Tutor'
 

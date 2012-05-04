@@ -759,7 +759,6 @@ var gnrformatter = {
             return value;
         }
         var c,c_zoom;
-        console.log(value);
         if(typeof(format)=='string' && stringStartsWith(format,'auto')){
             if(format.indexOf(':')){
                 format = format.split(':')
@@ -1336,6 +1335,7 @@ function highlightLinks(text) {
 function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     var argNames = argNames || [];
     var argValues = argValues || [];
+    var parsobj = parsobj || {};
     for (var attr in parsobj) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);

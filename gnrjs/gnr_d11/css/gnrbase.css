@@ -1765,6 +1765,23 @@ div.dojoxDock {
     border:0;
 }
 
+.index_loginbox{
+    border-radius:4px;
+    border:1px solid silver;
+    background-color:rgba(240, 240, 240, 0.7);
+}
+
+.index_loginbox{
+    font-size:1.2em;
+    color:#555;
+}
+.index_loginbox .index_logintitle{
+    font-variant:small-caps;
+    font-size:1.4em;
+    padding-top:4px;
+
+}
+
 ._common_d11 .lightboxDialog.dijitDialog .dijitDialogPaneContent {
     background: transparent;
     border: 0px;

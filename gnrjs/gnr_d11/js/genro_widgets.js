@@ -167,6 +167,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         this._doChangeInData(domnode, domnode.sourceNode, domnode.value);
     },
     setValueInData:function(sourceNode,value,valueAttr){
+       if (sourceNode.attr_kw){
+           var attr_kw = sourceNode.evaluateOnNode(sourceNode.attr_kw);
+           for (var k in attr_kw){
+               valueAttr[k] = attr_kw[k];
+           }
+        }
         var path = sourceNode.attrDatapath('value');
         var valueAttr = valueAttr || {};
         value = this.onSettingValueInData(sourceNode,value,valueAttr);
@@ -285,6 +291,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
 
     _created:function(newobj, savedAttrs, sourceNode, ind) {
+        if(sourceNode){
+            sourceNode.attr_kw = objectExtract(sourceNode.attr,'attr_*',true);
+        }
         this.created(newobj, savedAttrs, sourceNode);
         if(this.formattedValueHandler){
             this.formattedValueHandler(newobj, savedAttrs, sourceNode);
@@ -2009,6 +2018,7 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         this._domtag = 'input';
         this._dojotag = 'DateTextBox';
     },
+    
     onChanged:function(widget, value) {
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
@@ -2019,6 +2029,11 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
             this._doChangeInData(widget.domNode, widget.sourceNode, null);
         }
     },
+    patch__onFocus: function(/*Event*/ evt){
+    // summary: open the TimePicker popup
+    
+    },
+
     creating: function(attributes, sourceNode) {
         
         attributes.constraints = objectExtract(attributes, 'formatLength,datePattern,fullYear,min,max,strict,locale');
@@ -2026,7 +2041,16 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
             attributes.popupClass = null;
         }
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        var focusNode;
+        var curNode = sourceNode;
+        genro.dom.addClass(widget.focusNode,'comboArrowTextbox')
+        var box= sourceNode._('div',{cursor:'pointer', width:'20px',
+                                position:'absolute',top:0,bottom:0,right:0,connect_onclick:function(){widget._open();}})
+        box._('div',{_class:'calendar',position:'absolute',top:'-1px',bottom:0,left:0,right:0})
     }
+
 });
 dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {

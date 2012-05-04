@@ -191,7 +191,13 @@ class GnrWebPage(GnrBaseWebPage):
                 self.connection.create()
             self.page_id = getUuid()
             workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
-            return self.site.register.new_page(self.page_id, self, data=dict(pageArgs=kwargs, workdate=workdate))
+            if self.root_page_id:
+                data = self.pageStore(page_id=self.root_page_id).data
+            else:
+                data = self.connectionStore().getItem('defaultRootWindowData') or Bag()
+            data['pageArgs'] = kwargs
+            data['workdate'] = workdate or data['workdate'] or datetime.date.today()
+            return self.site.register.new_page(self.page_id, self, data=data)
             
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -263,6 +269,19 @@ class GnrWebPage(GnrBaseWebPage):
             self._jstools = GnrWebJSTools(self)
         return self._jstools
         
+    
+    def _updateEnvFromPageStore(self):
+        pageStore = self.pageStore()
+        storeDbEnv = pageStore.getItem('dbenv') or Bag()        
+        def addToStoreDbEnv(n,_pathlist=None):
+            if n.attr.get('dbenv'):
+                path = '_'.join(_pathlist+[n.label]) if n.attr['dbenv'] is True else n.attr['dbenv']
+                storeDbEnv[path] = n.value
+        _pathlist = []
+        pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
+        if len(storeDbEnv)>0:
+            self._db.updateEnv(**dict(storeDbEnv))
+    
     @property 
     def db(self):
         if not hasattr(self, '_db'):
@@ -272,10 +291,8 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
-            storeDbEnv = self.pageStore().getItem('dbenv')
-            if storeDbEnv:
-                self._db.updateEnv(**dict(storeDbEnv))
-            
+                
+            self._updateEnvFromPageStore()
             envPageArgs = dictExtract(self.pageArgs,'env_')
             if envPageArgs:
                 self._db.updateEnv(**envPageArgs)
@@ -286,8 +303,10 @@ class GnrWebPage(GnrBaseWebPage):
         
         
     def _get_workdate(self):
-        return self._workdate or datetime.date.today()
-        
+        if not self._workdate:
+             self._workdate=self.pageStore().getItem('workdate') or datetime.date.today()
+        return self._workdate
+
     def _set_workdate(self, workdate):
         with self.pageStore() as store:
             store.setItem('workdate', workdate)
@@ -362,7 +381,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
     
     
-
     @public_method
     def tableTemplate(self, table=None, tplname=None, asSource=False):
         """TODO
@@ -451,9 +469,11 @@ class GnrWebPage(GnrBaseWebPage):
     def isGuest(self):
         """TODO"""
         return self.user == self.connection.guestname
-        
+    
+
+    
     @public_method
-    def doLogin(self, login=None, guestName=None, **kwargs):
+    def doLogin(self, login=None,guestName=None, **kwargs):
         """Service method. Set user's avatar into its connection if:
         
         * The user exists and his password is correct
@@ -461,6 +481,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param login: TODO
         :param guestName: TODO"""
+        
         loginPars = {}
         if guestName:
             avatar = self.application.getAvatar(guestName)
@@ -468,7 +489,6 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.application.getAvatar(login['user'], password=login['password'],
                                                 authenticate=True, page=self, **kwargs)
         if avatar:
-            
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)

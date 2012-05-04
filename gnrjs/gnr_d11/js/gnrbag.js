@@ -1277,6 +1277,41 @@ dojo.declare("gnr.GnrBag", null, {
      */
     merge: function() {
     },
+    
+    update:function(bagOrObj,mode){
+        if(!bagOrObj instanceof gnr.GnrBag){
+            for(var k in bagOrObj){
+                this.setItem(k,bagOrObj[k]);
+                return;
+            }
+        }
+        var that = this;
+        bagOrObj.forEach(function(n){
+            var node_resolver = n.getResolver();
+            var node_value = null;
+            if (!node_resolver || mode!='static'){
+                node_value = n.getValue();
+                node_resolver = null;
+            }
+            var currNode = that.getNode(n.label);
+            if(currNode){
+                 currNode.updAttributes(n.attr);
+                 currNodeValue = currNode.getValue();
+                 if (node_resolver){
+                     currNode.setResolver(node_resolver);
+                 }
+                 if ((node_value instanceof gnr.GnrBag) && (currNodeValue instanceof gnr.GnrBag)){
+                     currNodeValue.update(node_value)
+                 }else{
+                     currNode.setValue(node_value);
+                 }
+            }else{
+                that.setItem(n.label,node_value,n.attr);
+            }
+            
+        },mode);
+    },
+    
     concat: function(b){
         if(!b){
             return;
