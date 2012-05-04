@@ -5,6 +5,7 @@
         <gnrtutor/>
         <gnrcore:sys/>
         <gnrcore:adm/>
+        <gnrcore:test15/>
         <gnrcore:task/>
         <gnrcore:email/>
         <gnr_it:glbl/>
