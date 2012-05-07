@@ -129,7 +129,7 @@ class GnrWebPage(GnrBaseWebPage):
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
-        self.root_page_id = request_kwargs.pop('_root_page_id', None)
+        self.root_page_id = None
         self.sourcepage_id = request_kwargs.pop('sourcepage_id', None)
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
@@ -183,6 +183,7 @@ class GnrWebPage(GnrBaseWebPage):
                 raise self.site.client_exception('The referenced page_id is cannot be found in site register',
                                                  self._environ)
             self.page_id = page_id
+            self.root_page_id = page_item['data'].getItem('root_page_id')
             return page_item
         else:
             if self._call_handler_type in ('pageCall', 'externalCall'):
@@ -191,8 +192,10 @@ class GnrWebPage(GnrBaseWebPage):
                 self.connection.create()
             self.page_id = getUuid()
             workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
+            self.root_page_id = kwargs.pop('_root_page_id', None)
             if self.root_page_id:
                 data = self.pageStore(page_id=self.root_page_id).data
+                data['root_page_id'] = self.root_page_id
             else:
                 data = self.connectionStore().getItem('defaultRootWindowData') or Bag()
             data['pageArgs'] = kwargs

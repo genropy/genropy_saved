@@ -1270,7 +1270,6 @@ dojo.declare("gnr.GnrValidator", null, {
             var datachanges = rpcresult.getItem('data');
             if(datachanges){
                 var sdata = sourceNode.getRelativeData();
-                console.log(sdata);
                 sdata.update(datachanges);
             }
             return result;

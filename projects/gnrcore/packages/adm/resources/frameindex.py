@@ -117,8 +117,9 @@ class FrameIndex(BaseComponent):
                                     """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
-        sb = pane.slotBar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='slotbar_toolbar framefooter',margin_top='1px',messageBox_subscribeTo='rootmessage')
+        pane.attributes.update(dict(overflow='hidden',background='silver'))
+        sb = pane.slotToolbar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='slotbar_toolbar framefooter',
+                        messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
@@ -170,11 +171,15 @@ class FrameIndex(BaseComponent):
                 indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
-                               
+                       
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
                                     margin_right='-1px',overflow='hidden',hidden=self.hideLeftPlugins))
-        sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
+        bc = pane.borderContainer()
+        
+        #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
+        
+        sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden',region='center')
         sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
                              genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'iframetab_selected',selected);
@@ -234,6 +239,16 @@ class FramedIndexLogin(BaseComponent):
     def loginboxPars(self):
         return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
 
+    def rootSummaryBox(self,pane):
+        pane.div(innerHTML='==rootWindowData.getFormattedValue();',rootWindowData='^rootWindowData',
+                    height='80px',margin='3px',border='1px solid silver')
+        
+    def windowTitle(self):
+        return self.package.attributes.get('name_long')
+        
+    def windowTitleTemplate(self):
+        return "%s $workdate" %self.package.attributes.get('name_long')
+
     @struct_method
     def login_loginPage(self,sc):
         pane = sc.contentPane(overflow='hidden')   
@@ -249,7 +264,7 @@ class FramedIndexLogin(BaseComponent):
         wtitle = '!!Login' if doLogin else '!!New Window'  
         topbar.wtitle.div(wtitle)  
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
-                                datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex')
+                                datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
         if doLogin:
             fb.textbox(value='^loginData.user',lbl='!!Username')
@@ -277,10 +292,15 @@ class FramedIndexLogin(BaseComponent):
             }else{
                 dlg.hide();
                 sc.switchPage(1);
+                genro.publish('logged');
             }
         })
         """,loginData='=loginData',rootWindowData='=rootWindowData',_fired='^do_login',rpcmethod=rpcmethod,
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)      
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
+        
+        footer.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootWindowData',
+                            tpl=self.windowTitleTemplate(),subscribe_logged=True)
+            
         return dlg
 
     @public_method

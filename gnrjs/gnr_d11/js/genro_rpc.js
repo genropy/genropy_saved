@@ -210,9 +210,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
-        if(genro.root_page_id){
-            callKwargs._root_page_id = genro.root_page_id;
-        }
+       //if(genro.root_page_id){
+       //    callKwargs._root_page_id = genro.root_page_id;
+       //}
         var content = objectUpdate({}, callKwargs);
         content.page_id = this.application.page_id;
         var kw = objectUpdate({}, xhrKwargs);
