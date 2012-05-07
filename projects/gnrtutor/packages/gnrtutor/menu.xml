@@ -26,14 +26,21 @@
                     <menuexample label="!!Menu" file="menu" />
                     <slider label="!!Slider" file="slider" />
                     <combobox label="Combobox" file="combobox" />
-                    <textbox label="Textbox" file="textbox" /> <!-- Not yet done -->
-                    <simpletextarea label="Simpletextarea" file="simpletextarea" /> <!-- Not yet done -->
-                    <dbcombobox label="DbCombobox" file="dbcombobox" /> <!-- Not yet done -->
-                    <dbselect label="DbSelect" file="dbselect" /> <!-- Not yet done -->
+                    <textboxes label="!!Textboxes" basepath="textboxes">
+                        <dbselect label="Currency Text Box" file="currency" />
+                    </textboxes>
+                    <simpletextarea label="Simpletextarea" file="simpletextarea" />
+                    <dbcombobox label="DbCombobox" file="dbcombobox" />
+                    <dbselect label="DbSelect" file="dbselect" />
                 </formwidgets>
             </widgets>
         </webpageelements>
-        <advanced label="Advanced">
+        <advanced label="Advanced" basepath="/gnrtutor/advanced">
+            <tables label="DB Tables Maintenance" basepath="tables">
+                <person label="Persons" table="gnrtutor.person" />
+                <music label="Music" table="gnrtutor.music" />
+                <artist_music label="Artist's Music" table="gnrtutor.person_music" />
+            </tables>
         </advanced>
     </backoffice>
 </GenRoBag>
