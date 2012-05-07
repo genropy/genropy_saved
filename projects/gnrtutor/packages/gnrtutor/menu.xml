@@ -26,8 +26,10 @@
                     <menuexample label="!!Menu" file="menu" />
                     <slider label="!!Slider" file="slider" />
                     <combobox label="Combobox" file="combobox" />
-                    <textbox label="Textbox" file="textbox" /> <!-- Not yet done -->
-                    <simpletextarea label="Simpletextarea" file="simpletextarea" /> <!-- Not yet done -->
+                    <textboxes label="!!Textboxes" basepath="textboxes">
+                        <dbselect label="Currency Text Box" file="currency" />
+                    </textboxes>
+                    <simpletextarea label="Simpletextarea" file="simpletextarea" />
                     <dbcombobox label="DbCombobox" file="dbcombobox" />
                     <dbselect label="DbSelect" file="dbselect" />
                 </formwidgets>

@@ -35,8 +35,8 @@ class GnrCustomWebPage(object):
     def dbSelect_2(self, pane):
         fb = pane.formbuilder(cols=2)
         fb.div('With \"auxColumns\" attribute you let user see more columns during selection')
-        fb.dbSelect(dbtable='showcase.person', value='^.person_id', hasDownArrow=True,
-                    auxColumns='$nationality,$b_year')
+        fb.dbSelect(dbtable='gnrtutor.person', value='^.person_id', hasDownArrow=True,
+                    auxColumns='$nationality,$birth_year')
 
     def doc_dbSelect_2(self, pane):
         """
@@ -48,14 +48,14 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder()
         fb.div("""If you want to keep in the datastore some attributes of the chosen record
                   (in addition to the ID), you have to use the "selected" attribute""",colspan=3)
-        fb.div("""In this example you get the column \"name\" and the column \"b_year\" and set
+        fb.div("""In this example you get the column \"name\" and the column \"birth_year\" and set
                   their value in a custom path. In particular we put the content of the
                   \"nationality\" column in \"test/test_3_selected/nationality\" and the
-                  content of the \"b_year\" column in \"test/test_3_selected/year\". You can
+                  content of the \"birth_year\" column in \"test/test_3_selected/year\". You can
                   see them in datastore (ctrl+shift+D), but you can see them even in the
                   two \"readOnly\" fields""",colspan=3)
-        fb.dbSelect(lbl='Artist', dbtable='showcase.person', value='^.id',
-                    selected_nationality='.nationality', selected_b_year='.year')
+        fb.dbSelect(lbl='Artist', dbtable='gnrtutor.person', value='^.id',
+                    selected_nationality='.nationality', selected_birth_year='.year')
         fb.textbox(lbl='nationality', value='^.nationality', readOnly=True)
         fb.textbox(lbl='birth year', value='^.year', readOnly=True)
 
@@ -68,16 +68,19 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder()
         fb.div("""If you have two or more database tables in relation,
                   you can allow the user to choose a record with a first "dbSelect"... """)
-        fb.dbSelect(dbtable='showcase.person', value='^.person_id', lbl='Artist',
-                    selected_name='.name', selected_b_year='.b_year')
+        fb.dbSelect(dbtable='gnrtutor.person', value='^.person_id', lbl='Artist',
+                    selected_name='.name', selected_birth_year='.birth_year')
         fb.div("""... and then you can make the user choose an attribute relative to the
                 first record selected through a second dbSelect:""")
-        fb.dbSelect(dbtable='showcase.person_music', value='^.music_id', lbl='Music',
+        fb.dbSelect(dbtable='gnrtutor.person_music', value='^.music_id', lbl='Music',
                     condition='$person_id=:pid', condition_pid='=.person_id',
                     alternatePkey='music_id')
 
     def doc_dbSelect_4(self, pane):
-        """
+        """This example shows the implementation of the condition attribute.
+The 'where' condition is assigned to the condition attribute. In order to pass the parameters with
+their values, we use the condition_myvar='datastorevalue' syntax.  This way we can use 'myvar' in the
+contition statement.
 """
 
     @example(code=5,height=350,description='\"columns\" attribute')
@@ -87,20 +90,12 @@ class GnrCustomWebPage(object):
                   you specify in it. In this example we specify both \"name\" and \"nationality\",
                   so try to look for an actor respect its name or its nationality (you can try
                   \"Czech\", \"German\" or \"Austrian\", for example)""")
-        fb.dbSelect(dbtable='showcase.person', value='^.value',
-                    columns='$name,$nationality', auxColumns='$name,$nationality,$b_year,$d_year')
+        fb.dbSelect(dbtable='gnrtutor.person', value='^.value',
+                    columns='$name_full,$nationality', auxColumns='$name_full,$nationality,$birth_year,$death_year')
 
     def doc_dbSelect_5(self, pane):
-        """
-"""
-
-    @example(code=6,height=350,description='\"hiddenColumns\" attribute')
-    def dbSelect_6(self, pane):
-        fb = pane.formbuilder()
-        fb.div("""...""")
-        fb.dbSelect(dbtable='showcase.person', value='^.value1',
-                    columns='$name,$nationality', auxColumns='$name,$nationality')
-
-    def doc_dbSelect_6(self, pane):
-        """
+        """The \"columns\" attribute allows user to search respect to all the fields
+you specify in it. In this example we specify both \"name\" and \"nationality\",
+so try to look for an actor respect its name or its nationality (you can try
+\"Czech\", \"German\" or \"Austrian\", for example)
 """
