@@ -16,7 +16,7 @@ class View(BaseComponent):
         return 'name'
         
     def th_query(self):
-        return dict(column='name',op='contains', val='%',runOnStart=True)
+        return dict(column='name',op='contains', val='%',runrunOnStart=True)
     def th_options(self):
         return dict()
         
