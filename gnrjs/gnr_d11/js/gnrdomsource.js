@@ -659,6 +659,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         return attributes;
     },
+    onNodeCall:function(func,kw){
+        var kw = objectUpdate(objectUpdate({},this.attr),kw); 
+        return funcApply(func,this.evaluateOnNode(kw),this);
+    },
+    
     evaluateOnNode: function(pardict) {
         // given an object representing dynamic parameters
         // get current values relative to this node

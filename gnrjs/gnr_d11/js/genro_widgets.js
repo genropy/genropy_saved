@@ -212,9 +212,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if (extension) {
             sourceNode[extension] = new gnr.ext[extension](sourceNode);
         }
-
         this._makeInteger(attributes, ['sizeShare','sizerWidth']);
         var savedAttrs = {};
+        if ('speech' in attributes){
+            objectPop(attributes,'speech');
+            if(genro.isChrome){
+                savedAttrs['speech'] = true;
+            }
+        }
         objectExtract(attributes, 'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
         objectExtract(attributes, 'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes, 'dropTarget');
@@ -297,6 +302,20 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         this.created(newobj, savedAttrs, sourceNode);
         if(this.formattedValueHandler){
             this.formattedValueHandler(newobj, savedAttrs, sourceNode);
+        }
+        if('speech' in savedAttrs){
+            if(newobj.focusNode){
+                newobj.focusNode.setAttribute("x-webkit-speech","x-webkit-speech");
+                newobj.focusNode.onwebkitspeechchange = function(){
+                    if('onSpeechEnd' in newobj){
+                        if(typeof(newobj.onSpeechEnd)=='function'){
+                            newobj.onSpeechEnd();
+                        }else{
+                            newobj.sourceNode.onNodeCall(newobj.onSpeechEnd);
+                        }
+                    }
+                }
+            }
         }
         var domNode = newobj.domNode || newobj;
         if (savedAttrs.connectedMenu) {
@@ -393,6 +412,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
            dojo.connect(newobj, 'onFocus', function(e) {
                genro.setCurrentFocused(newobj);
            });
+           if(!('onBlur' in sourceNode.attr)){
+               dojo.connect(newobj,'onBlur',function(e){
+                   genro.setLastSelection(newobj.focusNode || newobj.domNode);
+               });
+           }
+
         }
         if(sourceNode.attr.placeholder){
             var placeholder = sourceNode.getAttributeFromDatasource('placeholder');
@@ -874,6 +899,30 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
         }));
+        
+        if(savedAttrs.speech){
+            var speechInput = document.createElement('input');
+            speechInput.setAttribute("x-webkit-speech","x-webkit-speech");
+            speechInput.setAttribute('class','speechMic');
+            speechInput.setAttribute('tabindex',32767);
+
+            speechInput.onwebkitspeechchange = function(){
+                var v = this.value;
+                this.value = '';
+                var lastSelection = genro._lastSelection;
+                if(lastSelection && (lastSelection.domNode == sourceNode.widget.domNode)){
+                    var oldValue = sourceNode.getAttributeFromDatasource('value',value);
+                    var fistchunk = oldValue.slice(0,lastSelection.start);
+                    var secondchunk =  oldValue.slice(lastSelection.end);
+                    v = fistchunk+v+secondchunk;
+                }
+                setTimeout(function(){
+                    sourceNode.setAttributeInDatasource('value',v,true);
+                    sourceNode.widget.domNode.focus();
+                },1);
+            };             
+            newobj.domNode.parentNode.appendChild(speechInput);               
+        }
     },
     
     mixin_setSuggestions:function(suggestions){
@@ -4767,7 +4816,9 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
             }
         }
     },
-    
+    mixin_onSpeechEnd:function(){
+        this._startSearchFromInput();
+    },
     storeFromValues:function(values){
         var ch = values.indexOf('\n')>=0?'\n':',';
         var localStore = new gnr.GnrBag();
@@ -4861,6 +4912,9 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         store._identifier = 'id';
         attributes.store = store;
         return savedAttrs;
+    },
+    mixin_onSpeechEnd:function(){
+        this.geocodevalue();
     },
     mixin_geocodevalue:function(){
         var address = this.textbox.value;

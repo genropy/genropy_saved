@@ -269,6 +269,9 @@ dojo.declare('gnr.GenroClient', null, {
         this._counter = 0;
         this.dlg.createStandardMsg(document.body);
         this.contextIndex = {};
+        this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
+        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
+        this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
         this.mainGenroWindow = window;
         this.root_page_id = null;
@@ -329,9 +332,6 @@ dojo.declare('gnr.GenroClient', null, {
         if (this.debugopt) {
             genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }
-        this.isMac = dojo.isMac != undefined ? dojo.isMac : navigator.appVersion.indexOf('Macintosh') >= 0;
-        this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
-        this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         this._registerUserEvents();
         //genro.dom.preventGestureBackForward();
         if (this.isTouchDevice) {
@@ -414,6 +414,9 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'dragend', genro.dom, 'onDragEnd');
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
+    },
+    setLastSelection:function(focusNode){
+        genro._lastSelection = {domNode:focusNode,start:focusNode.selectionStart,end:focusNode.selectionEnd};
     },
     
     setCurrentFocused:function(wdg){
