@@ -26,7 +26,6 @@ class FrameIndex(BaseComponent):
     hideLeftPlugins = False
     preferenceTags = 'admin'
     authTags=''
-    
     login_error_msg = '!!Invalid login'
     
     def windowTitle(self):
@@ -38,10 +37,10 @@ class FrameIndex(BaseComponent):
     def mainLeftContent(self,*args,**kwargs):
         pass
     
-    def main(self,root,**kwargs):
+    def main(self,root,new_window=None,**kwargs):
         if self.root_page_id:
             self.index_dashboard(root)
-        elif not hasattr(self,'index_dashboard'):
+        elif new_window or not self.avatar:
             sc = root.stackContainer()
             sc.loginPage()
             sc.contentPane().remote(self.remoteFrameRoot,**kwargs)
@@ -50,6 +49,7 @@ class FrameIndex(BaseComponent):
             
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
+        pane.dataController("FIRE gnr.onStart",_onBuilt=True,_delay=1)
         pane.frameIndexRoot(**kwargs)
     
     @struct_method
@@ -103,7 +103,7 @@ class FrameIndex(BaseComponent):
                                 }
                                 """,
                             data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
-                            onCreatingTablist=onCreatingTablist or False,_onStart=True)
+                            onCreatingTablist=onCreatingTablist or False,_onStart=1)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
@@ -233,7 +233,7 @@ class FrameIndex(BaseComponent):
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(window.location.href);')
+        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
 
 class FramedIndexLogin(BaseComponent):
@@ -255,10 +255,10 @@ class FramedIndexLogin(BaseComponent):
     def login_loginPage(self,sc):
         pane = sc.contentPane(overflow='hidden')   
         if self.index_url:
-            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')             
+            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
         dlg = pane.dialog(_class='lightboxDialog')
-        sc.dataController("""loginDialog.show();""",_onStart=True,
-                            curravatar='=gnr.avatar',authTags=self.authTags,_if='authTags',
+        pane.dataController("""window.history.replaceState({},document.title,'/');
+                            loginDialog.show();""",_onBuilt=True,
                             loginDialog = dlg.js_widget,sc=sc.js_widget)        
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None
@@ -268,16 +268,14 @@ class FramedIndexLogin(BaseComponent):
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
                                 datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
+        defaultRootWindowData = Bag(dict(workdate=self.workdate))
         if doLogin:
             fb.textbox(value='^loginData.user',lbl='!!Username')
             fb.textbox(value='^loginData.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=loginData.user')
             rpcmethod = self.login_doLogin
-            defaultRootWindowData = Bag(dict(workdate=self.workdate))
         else:
-            defaultRootWindowData = self.connectionStore().getItem('defaultRootWindowData')
-            
-        fb.data('rootWindowData',defaultRootWindowData)
-            
+            defaultRootWindowData = self.connectionStore().getItem('defaultRootWindowData') or defaultRootWindowData
+        fb.data('rootWindowData',defaultRootWindowData)            
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
         if hasattr(self,'rootWindowDataForm'):
             self.rootWindowDataForm(fb)
