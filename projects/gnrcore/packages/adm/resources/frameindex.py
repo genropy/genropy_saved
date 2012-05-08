@@ -45,6 +45,8 @@ class FrameIndex(BaseComponent):
             sc = root.stackContainer()
             sc.loginPage()
             sc.contentPane().remote(self.remoteFrameRoot,**kwargs)
+        else:
+            root.frameIndexRoot(**kwargs)
             
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
