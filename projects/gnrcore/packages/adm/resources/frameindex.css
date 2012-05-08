@@ -75,9 +75,7 @@
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d0d0d0), to(#ffffff));
     background-image: -moz-linear-gradient(-90deg, #d0d0d0, #ffffff);
 }
-.framefooter{
-    height:20px;
-    
+.framefooter{    
 }
 .iframesubtab.iframetab{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#A6CAEE), to(#467399));

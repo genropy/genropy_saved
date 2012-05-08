@@ -2214,7 +2214,16 @@ body *{
 .tundra .dijitTextBoxFocused .formattedViewer{
     display:none;
 }
-
+.speechMic{
+    position: relative;
+    left: -23px;
+    width: 14px;
+    border: 0;
+    top: -3px;
+    color: transparent;
+    font-size: 13px;
+    background: transparent;
+}
 
 
 .tundra .dijitTextBoxFocused .cls_DbSelect, .tundra .dijitComboBoxFocused .cls_DbSelect{

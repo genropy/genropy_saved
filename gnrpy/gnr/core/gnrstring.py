@@ -96,8 +96,9 @@ try:
                         return value.getFormattedValue(joiner='<br/>');
                 else:
                     valueNode = self.data.getNode(k)
-                    value = valueNode.attr.get('_displayedValue') or value
-                    formattedValue = valueNode.attr.get('_formattedValue')
+                    if valueNode:
+                        value = valueNode.attr.get('_displayedValue') or value
+                        formattedValue = valueNode.attr.get('_formattedValue')
                 attrs = self.data.getAttr(k) or dict()
                 format = attrs.get('format')
                 mask = attrs.get('mask')
