@@ -41,7 +41,7 @@ class FrameIndex(BaseComponent):
     def main(self,root,**kwargs):
         if self.root_page_id:
             self.index_dashboard(root)
-        else:
+        elif not hasattr(self,'index_dashboard'):
             sc = root.stackContainer()
             sc.loginPage()
             sc.contentPane().remote(self.remoteFrameRoot,**kwargs)
