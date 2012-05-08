@@ -911,7 +911,7 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
                 this.value = '';
                 var lastSelection = genro._lastSelection;
                 if(lastSelection && (lastSelection.domNode == sourceNode.widget.domNode)){
-                    var oldValue = sourceNode.getAttributeFromDatasource('value',value);
+                    var oldValue = sourceNode.getAttributeFromDatasource('value');
                     var fistchunk = oldValue.slice(0,lastSelection.start);
                     var secondchunk =  oldValue.slice(lastSelection.end);
                     v = fistchunk+v+secondchunk;
