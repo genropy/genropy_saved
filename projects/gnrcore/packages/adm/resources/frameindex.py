@@ -120,7 +120,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='slotbar_toolbar framefooter',
+        sb = pane.slotToolbar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
                         messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
