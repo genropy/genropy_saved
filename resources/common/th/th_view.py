@@ -424,7 +424,11 @@ class TableHandlerView(BaseComponent):
                                        validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
                                        disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
                                        connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,display='block',
-                                       _class='st_conditionValue')
+                                       _class='st_conditionValue',
+                                       onSpeechEnd="""var searchtext=this.widget.focusNode.value;
+                                                      this.setAttributeInDatasource('value',searchtext,true);
+                                                    genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});""",
+                                       speech=True)
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
         fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
