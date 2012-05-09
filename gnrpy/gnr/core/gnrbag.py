@@ -1074,6 +1074,16 @@ class Bag(GnrObject):
         except:
             return False
 
+    def __getstate__(self):
+        result = dict(self.__dict__)
+        for k in ('_upd_subscribers','_del_subscribers','_ins_subscribers'):
+            result[k] = {}
+        result['_parent'] = None
+        result['_parentNode'] = None
+        return result
+
+
+
     def merge(self, otherbag, upd_values=True, add_values=True, upd_attr=True, add_attr=True):
         """.. warning:: deprecated since version 0.7
         
@@ -1492,7 +1502,7 @@ class Bag(GnrObject):
                     _validators[k[9:]] = v
                 else:
                     _attributes[k] = v
-        if item_path == '':
+        if item_path == '' or item_path is True:
             if isinstance(item_value, BagResolver):
                 item_value = item_value()
             if isinstance(item_value, Bag):

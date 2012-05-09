@@ -28,16 +28,14 @@ class FrameIndex(BaseComponent):
     authTags=''
     login_error_msg = '!!Invalid login'
     
-    def windowTitle(self):
-        return ''
-    
-    def pageAuthTags(self, method=None, **kwargs):
-        print method,kwargs
-    
     def mainLeftContent(self,*args,**kwargs):
         pass
     
     def main(self,root,new_window=None,**kwargs):
+        defaultRootWindowData = Bag(dict(workdate=self.workdate))
+        if self.avatar:
+            defaultRootWindowData = self.connectionStore().getItem('defaultRootWindowData') or defaultRootWindowData
+        root.data('rootWindowData',defaultRootWindowData)
         if self.root_page_id:
             self.index_dashboard(root)
         elif new_window or not self.avatar:
@@ -54,6 +52,8 @@ class FrameIndex(BaseComponent):
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootWindowData',
+                            tpl=self.windowTitleTemplate(),_onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
@@ -235,7 +235,12 @@ class FrameIndex(BaseComponent):
     def btn_newWindow(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
-
+    def windowTitle(self):
+        return self.package.attributes.get('name_long')
+        
+    def windowTitleTemplate(self):
+        return "%s $workdate" %self.package.attributes.get('name_long')
+        
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""
     def loginboxPars(self):
@@ -244,12 +249,6 @@ class FramedIndexLogin(BaseComponent):
     def rootSummaryBox(self,pane):
         pane.div(innerHTML='==rootWindowData.getFormattedValue();',rootWindowData='^rootWindowData',
                     height='80px',margin='3px',border='1px solid silver')
-        
-    def windowTitle(self):
-        return self.package.attributes.get('name_long')
-        
-    def windowTitleTemplate(self):
-        return "%s $workdate" %self.package.attributes.get('name_long')
 
     @struct_method
     def login_loginPage(self,sc):
@@ -268,14 +267,10 @@ class FramedIndexLogin(BaseComponent):
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
                                 datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
-        defaultRootWindowData = Bag(dict(workdate=self.workdate))
         if doLogin:
             fb.textbox(value='^loginData.user',lbl='!!Username')
             fb.textbox(value='^loginData.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=loginData.user')
-            rpcmethod = self.login_doLogin
-        else:
-            defaultRootWindowData = self.connectionStore().getItem('defaultRootWindowData') or defaultRootWindowData
-        fb.data('rootWindowData',defaultRootWindowData)            
+            rpcmethod = self.login_doLogin          
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
         if hasattr(self,'rootWindowDataForm'):
             self.rootWindowDataForm(fb)
@@ -297,10 +292,6 @@ class FramedIndexLogin(BaseComponent):
         })
         """,loginData='=loginData',rootWindowData='=rootWindowData',_fired='^do_login',rpcmethod=rpcmethod,
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
-        
-        footer.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootWindowData',
-                            tpl=self.windowTitleTemplate(),subscribe_logged=True)
-            
         return dlg
 
     @public_method
