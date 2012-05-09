@@ -241,7 +241,7 @@ class GnrDomSrc(GnrStructData):
         if childnode:
             return childnode._value
         
-    def child(self, tag, childname=None, childcontent=None, envelope=None, **kwargs):
+    def child(self, tag, childname=None, childcontent=None, envelope=None,**kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
@@ -277,6 +277,15 @@ class GnrDomSrc(GnrStructData):
                 kwargs[k]=v.js_sourceNode()
         if kwargs.get('nodeId'):
             self.checkNodeId(kwargs['nodeId'])
+        sourceNodeValueAttr = dictExtract(kwargs,'attr_')
+        serverpath = sourceNodeValueAttr.get('serverpath')
+       # dbenv = sourceNodeValueAttr.get('dbenv')
+        if serverpath: #or dbenv:
+            clientpath = kwargs.get('value') or kwargs.get('src') or kwargs.get('innerHTML')
+            if clientpath:
+                clientpath = clientpath.replace('^','').replace('=','')
+                value=kwargs.get('default_value')
+                self.data(clientpath,value,**sourceNodeValueAttr)
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
@@ -511,10 +520,13 @@ class GnrDomSrc(GnrStructData):
             value = Bag(value)
         if isinstance(value, Bag):
             className = 'bag'
-        if '_serverpath' in kwargs:
-            with self.page.pageStore() as store:
-                store.setItem(kwargs['_serverpath'], value)
-                store.subscribe_path(kwargs['_serverpath'])
+        serverpath = kwargs.pop('serverpath',None) or kwargs.pop('_serverpath',None)
+       #dbenv = kwargs.get('dbenv')
+       #if dbenv and not serverpath:
+       #    serverpath = 'dbenv.%s' %path.split('.')[-1]
+        if serverpath:
+            self.page.addToContext(serverpath=serverpath,value=value,attr=kwargs)
+            kwargs['serverpath'] = serverpath
         return self.child('data', __cls=className,childcontent=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):

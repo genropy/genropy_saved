@@ -389,6 +389,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             else {
                 var nodeattr = node.attr;
                 var attrvalue;
+                var specialattr={}
                 for (var attr in nodeattr) {
                     attrvalue = nodeattr[attr];
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
@@ -398,7 +399,19 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                         }
                         node.getAttributeFromDatasource(attr, true, dflt);
                     }
+                    if(attr.indexOf('attr_')==0){
+                        specialattr[attr.slice(5)] = attrvalue;
+                    }
                 }
+                if(objectNotEmpty(specialattr) ){
+                    var valuepath = nodeattr['value'] || nodeattr['src'] || nodeattr['innerHTML'];
+                    if(valuepath){
+                        var valueNode = genro.getDataNode(node.absDatapath(valuepath));
+                        if(valueNode){
+                            valueNode.updAttributes(node.evaluateOnNode(specialattr));
+                        }
+                    }
+                }                
             }
         }
         node._alreadyStripped=true;
@@ -419,7 +432,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             if (value instanceof gnr.GnrBag) {
                 value.clearBackRef();
             }
-            var serverpath = objectPop(attributes, '_serverpath');
+            var serverpath = objectPop(attributes, 'serverpath');
             if (serverpath) {
                 genro._serverstore_paths[node.absDatapath(path)] = serverpath;
             }

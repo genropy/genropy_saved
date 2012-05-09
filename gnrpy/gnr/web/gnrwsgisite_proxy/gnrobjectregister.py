@@ -692,7 +692,6 @@ class ConnectionRegister(BaseRegister):
     def on_write(self, register_item):
         pass
 
-
     def on_pop(self, register_item_id, register_item):
         if hasattr(self.onRemoveConnection, '__call__'): # why not callable??? TOTEST
             self.onRemoveConnection(register_item_id)

@@ -98,7 +98,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._response = self.response._response
         self.response.add_header('Pragma', 'no-cache')
         self._htmlHeaders = []
-        self._pendingContextToCreate = []
+        self._pendingContext = []
         self.pagename = os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
@@ -271,7 +271,10 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_jstools'):
             self._jstools = GnrWebJSTools(self)
         return self._jstools
-        
+    
+    @public_method
+    def dbCurrentEnv(self):
+        return Bag(self.db.currentEnv)
     
     def _updateEnvFromPageStore(self):
         pageStore = self.pageStore()
@@ -1359,7 +1362,9 @@ class GnrWebPage(GnrBaseWebPage):
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
-                page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
+                page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
+                page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
+
                 page.dataController(""" var changelist = copyArray(_node._value);
                                         dojo.forEach(changelist,function(c){
                                             for (var k in c){
@@ -1460,8 +1465,11 @@ class GnrWebPage(GnrBaseWebPage):
                     for v in self.dynamic_js_requires.values():
                         if v:
                             page.script('genro.dom.loadJs("%s")' %v)
-                if self._pendingContextToCreate:
-                    self._createContext(root, self._pendingContextToCreate)
+                if self._pendingContext:
+                    with self.pageStore() as store:
+                        for serverpath,value,attr in self._pendingContext:
+                            store.setItem(serverpath, value, attr)
+                            store.subscribe_path(serverpath)
                 if self.user:
                     self.site.pageLog('open')
                     
@@ -1484,8 +1492,8 @@ class GnrWebPage(GnrBaseWebPage):
     def onMain(self): #You CAN override this !
         """TODO"""
         pass
-            
-    def rpc_getPageStoreData(self):
+    @public_method    
+    def getPageStoreData(self):
         """TODO"""
         return self.pageStore().getItem('')
         
@@ -1780,21 +1788,25 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return (self.userTags and ('_DEV_' in self.userTags))
         
-    def addToContext(self, value=None, serverpath=None, clientpath=None):
-        """TODO
+  # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
+  #     """TODO
+  #     
+  #     :param value: TODO
+  #     :param serverpath: TODO
+  #     :param clientpath: TODO"""
+  #     self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
+    
+    def addToContext(self,serverpath=None,value=None,attr=None):
+        self._pendingContext.append((serverpath,value,dict(attr)))
         
-        :param value: TODO
-        :param serverpath: TODO
-        :param clientpath: TODO"""
-        self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
         
-    def _createContext(self, root, pendingContext):
-        with self.pageStore() as store:
-            for value, serverpath, clientpath in pendingContext:
-                store.setItem(serverpath, value)
-        for value, serverpath, clientpath in pendingContext:
-            root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
-            
+   #def _createContext_old(self, root, pendingContext):
+   #    with self.pageStore() as store:
+   #        for value, serverpath, clientpath in pendingContext:
+   #            store.setItem(serverpath, value)
+   #    for value, serverpath, clientpath in pendingContext:
+   #        root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
+   #        
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
         """Define a join condition in a given context (*ctxname*).
@@ -1829,9 +1841,10 @@ class GnrWebPage(GnrBaseWebPage):
         path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
         value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one,
                          applymethod=applymethod, params=Bag(kwargs)))
-                         
-        self.addToContext(value=value, serverpath='_sqlctx.conditions.%s' % path,
-                          clientpath='gnr.sqlctx.conditions.%s' % path)
+        
+        self._root.data('gnr.sqlctx.conditions.%s' % path,value, _serverpath='_sqlctx.conditions.%s' % path,__cls='bag')
+        #self.addToContext(value=value, serverpath='_sqlctx.conditions.%s' % path,
+        #                  clientpath='gnr.sqlctx.conditions.%s' % path)
                           
    #def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
    #    path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))

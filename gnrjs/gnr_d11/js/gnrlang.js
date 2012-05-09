@@ -412,6 +412,18 @@ function objectNotEmpty(obj) {
     }
     return false;
 }
+
+function objectAny(obj,cb) {
+    if (obj) {
+        for (var k in obj) {
+            if(cb(k,obj[k])){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function objectString(obj) {
     var result = [];
     for (var prop in obj) {

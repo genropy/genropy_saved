@@ -1212,9 +1212,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                 formHandler.validateFromDatasource(this, value, trigger_reason);
                             }
                         }
+                        var valueAttr = valueNode?valueNode.attr:null;
+                        var sourceNodeValueAttr = objectExtract(this.attr,'attr_*',true);
+                        if(objectNotEmpty(sourceNodeValueAttr)){
+                            objectUpdate(valueAttr,this.evaluateOnNode(sourceNodeValueAttr));
+                        }
                         if(this.attr.format || this.attr.mask){
                             var valueToFormat = value;
-                            var valueAttr = valueNode.attr;
                             if(this.widget.getDisplayedValue){
                                 valueToFormat = this.widget.getDisplayedValue();
                                 if(valueToFormat!=value){

@@ -15,5 +15,5 @@ class GnrCustomWebPage(object):
         """First test description"""
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         
-        fb.textbox(value='^.asfreddo.giusippo.testtxt',lbl='With valueattr',attr_pippo='13')
-        #fb.textbox(value='^.pippo',lbl='Pippo')
+        fb.textbox(value='^.asfreddo.giusippo.testtxt',lbl='With valueattr',attr_pippo='^.pippo')
+        fb.textbox(value='^.pippo',lbl='Pippo')

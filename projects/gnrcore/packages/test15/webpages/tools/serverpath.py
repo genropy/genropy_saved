@@ -5,6 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Serverpath"""
+from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     auto_polling = 10
@@ -47,14 +48,29 @@ class GnrCustomWebPage(object):
                    serverpath='mytest3.mirror.answer.1.2.3')
         
     def test_4_innerpath(self,pane):
-        pane.data('.mypath4','test',_serverpath='pierone')
-        pane.textbox(value='^.mypath4.pippero')
-        pane.div('^.mypath4.elio')
-        pane.textbox(value='^.tosend')
-        pane.button('Send')
-        pane.dataRpc('dummy','setval',serverpath='pierone.elio',value='^.tosend')
+        pane.data('.mypath4',Bag(),serverpath='pierone')
+        #pane.data('.mypath4.pino','gino')
         
+        #fb = pane.formbuilder(cols=2)
+        #fb.textbox(value='^.mypath4.pippero',lbl='pippero',attr_dbenv=True)
+        #fb.div('^.mypath4.elio',lbl='elio')
+        #fb.textbox(value='^.tosend',lbl='Value to send')
+        #fb.button('Send')
+        #fb.dataRpc('dummy','setval',serverpath='pierone.elio',value='^.tosend')
+        #
+    def test_5_serverpath_widget(self, pane):
+        fb = pane.formbuilder(cols=1, border_spacing='3px')
+        fb.textbox(value='^.mario',attr_serverpath='mario_path',lbl='con serverpath')
+
+    def test_6_serverpath_dbenv(self, pane):
+        fb = pane.formbuilder(cols=1, border_spacing='3px')
+        fb.dbSelect(dbtable='polimed.specialita',value='^.specialita_id',
+                    attr_dbenv='curr_spec',
+                    attr_serverpath='specialita_bella',
+                    lbl='!!Specialità')
+        fb.dbSelect(dbtable='polimed.medico',value='^.medico_id',condition='@medico_specialita.specialita_id=:env_curr_spec')
         
+             
     def rpc_setval(self, serverpath=None, value=None):
         with self.pageStore() as store:
             print 'setting at %s value %s' % (serverpath, value)
