@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-# frameindex.py
-# Created by Francesco Porcari on 2011-04-06.
-# Copyright (c) 2011 Softwell. All rights reserved.
-# Frameindex component
+"""
+frameindex.py
+Created by Francesco Porcari on 2011-04-06.
+Copyright (c) 2011 Softwell. All rights reserved.
+Frameindex component
+"""
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
@@ -27,10 +29,10 @@ class FrameIndex(BaseComponent):
     preferenceTags = 'admin'
     authTags=''
     login_error_msg = '!!Invalid login'
-    
+
     def mainLeftContent(self,*args,**kwargs):
         pass
-    
+
     def main(self,root,new_window=None,**kwargs):
         defaultRootWindowData = Bag(dict(workdate=self.workdate))
         if self.avatar:
@@ -44,12 +46,12 @@ class FrameIndex(BaseComponent):
             sc.contentPane().remote(self.remoteFrameRoot,**kwargs)
         else:
             root.frameIndexRoot(**kwargs)
-            
-    @public_method  
+
+    @public_method
     def remoteFrameRoot(self,pane,**kwargs):
         pane.dataController("FIRE gnr.onStart",_onBuilt=True,_delay=1)
         pane.frameIndexRoot(**kwargs)
-    
+
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
         pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootWindowData',
@@ -73,7 +75,7 @@ class FrameIndex(BaseComponent):
         leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
         for btn in ['menuToggle']+self.plugin_list.split(','):
             getattr(self,'btn_%s' %btn)(leftbar)
-            
+
         if self.custom_plugin_list:
             for btn in self.custom_plugin_list.split(','):
                 getattr(self,'btn_%s' %btn)(leftbar)
@@ -81,9 +83,9 @@ class FrameIndex(BaseComponent):
         rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
         for btn in ['refresh','delete','newWindow']:
             getattr(self,'btn_%s' %btn)(rightbar)
-        
+
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
-        
+
     def prepareTablist(self,pane,onCreatingTablist=False): 
         tabroot = pane.div(connect_onclick="""
                                             var targetSource = $1.target.sourceNode;
@@ -106,7 +108,7 @@ class FrameIndex(BaseComponent):
                             onCreatingTablist=onCreatingTablist or False,_onStart=1)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
-                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
+                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);
                                         var node = genro._data.getNode('iframes.'+page);
                                         var treeItem = genro.getDataNode(node.attr.fullpath);
                                         if(!treeItem){
@@ -155,7 +157,7 @@ class FrameIndex(BaseComponent):
                                             var frame = dojo.byId("iframe_"+$1);
                                             frame.sourceNode._genro.pageReload();
                                             """
-        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"        
+        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"
         scattr['subscribe_destroyFrames'] = """
                         var sc = this.widget;
                         for (var k in $1){
@@ -164,23 +166,23 @@ class FrameIndex(BaseComponent):
                         }
                         """
         scattr['subscribe_changeFrameLabel']='genro.framedIndexManager.changeFrameLabel($1);'
-        page = self.pageSource()   
+        page = self.pageSource()
         if getattr(self,'index_dashboard',None):
             self.index_dashboard(sc.contentPane(pageName='indexpage'))
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
+                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
-                       
+
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
                                     margin_right='-1px',overflow='hidden',hidden=self.hideLeftPlugins))
         bc = pane.borderContainer()
-        
+
         #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
-        
+
         sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden',region='center')
         sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
@@ -198,49 +200,49 @@ class FrameIndex(BaseComponent):
             sc.dataController("""PUBLISH main_left_set_status = true;
                                  SET .selected=plugin;
                                  """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-    
+
     def btn_iframemenu_plugin(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tip='!!Menu',
                  connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                  nodeId='plugin_block_iframemenu_plugin')
-                 
+
     def btn_batch_monitor(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tip='!!Batch monitor',
                  connect_onclick="""genro.publish('open_batch');""",
                  nodeId='plugin_block_batch_monitor')
         pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
-        
+
     def btn_chat_plugin(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
                     connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_chat_plugin')
-    
+
     def btn_datamover(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='case',tip='!!Mover plug-in',
                     connect_onclick="""SET left.selected='datamover';PUBLISH gnrdatamover_loadCurrent;genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_datamover')
-                    
+
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',
                                                       connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
 
     def btn_refresh(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
-                                                      connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
+                                                      connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")
 
     def btn_delete(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame;')
-    
+
     def btn_newWindow(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
         return self.package.attributes.get('name_long')
-        
+
     def windowTitleTemplate(self):
         return "%s $workdate" %self.package.attributes.get('name_long')
-        
+
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""
     def loginboxPars(self):
@@ -252,18 +254,18 @@ class FramedIndexLogin(BaseComponent):
 
     @struct_method
     def login_loginPage(self,sc):
-        pane = sc.contentPane(overflow='hidden')   
+        pane = sc.contentPane(overflow='hidden')
         if self.index_url:
-            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
+            pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
         dlg = pane.dialog(_class='lightboxDialog')
         pane.dataController("""window.history.replaceState({},document.title,'/');
                             loginDialog.show();""",_onBuilt=True,
-                            loginDialog = dlg.js_widget,sc=sc.js_widget)        
+                            loginDialog = dlg.js_widget,sc=sc.js_widget)
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None
-        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px')
         wtitle = '!!Login' if doLogin else '!!New Window'  
-        topbar.wtitle.div(wtitle)  
+        topbar.wtitle.div(wtitle)
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
                                 datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
@@ -274,7 +276,7 @@ class FramedIndexLogin(BaseComponent):
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
         if hasattr(self,'rootWindowDataForm'):
             self.rootWindowDataForm(fb)
-        
+
         btn = fb.div(width='100%',position='relative').button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
@@ -291,17 +293,17 @@ class FramedIndexLogin(BaseComponent):
             }
         })
         """,loginData='=loginData',rootWindowData='=rootWindowData',_fired='^do_login',rpcmethod=rpcmethod,
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)
         return dlg
 
     @public_method
-    def login_doLogin(self, login=None,rootWindowData=None,guestName=None, **kwargs): 
+    def login_doLogin(self, login=None,rootWindowData=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,**kwargs)
         if self.avatar:
             with self.connectionStore() as store:
                 store.setItem('defaultRootWindowData',rootWindowData)
             return self.login_newWindow(rootWindowData=rootWindowData)
-    
+
     @public_method
     def login_onPassword(self,value=None,user=None,**kwargs):
         avatar = self.application.getAvatar(user, password=value,authenticate=True)
@@ -311,16 +313,16 @@ class FramedIndexLogin(BaseComponent):
         if data:
             return Bag(dict(data=data))
         return True
-        
+
     def onUserSelected(self,avatar):
         return
-    
+
     @public_method
-    def login_newWindow(self, rootWindowData=None, **kwargs): 
+    def login_newWindow(self, rootWindowData=None, **kwargs):
         self.workdate = rootWindowData.pop('workdate')
         with self.pageStore() as store:
             store.update(rootWindowData)
         return True
-                    
+
 
                                                       
