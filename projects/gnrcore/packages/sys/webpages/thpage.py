@@ -4,26 +4,22 @@
 # Created by Francesco Porcari on 2011-05-05.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import boolean
 
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
-    dojo_source = True
-    @property
-    def package(self):
-        pkgId = self._call_kwargs.get('th_from_package')
-        if not pkgId:
-            pkgId,tbl = self.maintable.split('.')
-        if pkgId:
-            return self.db.package(pkgId)
     
+    @classmethod
+    def getMainPackage(cls,request_args=None,request_kwargs=None):
+        return request_kwargs.get('th_from_package') or request_args[0]
+        
     @property
     def maintable(self):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')
         return '%(th_pkg)s.%(th_table)s' %callArgs
 
-    
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,**kwargs):
         root.data('gnr.windowTitle',self.db.table(self.maintable).name_plural)

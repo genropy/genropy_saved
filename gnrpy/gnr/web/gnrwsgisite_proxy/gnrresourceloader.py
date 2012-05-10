@@ -150,13 +150,13 @@ class ResourceLoader(object):
         path = page_node_attributes.get('path')
         pkg = page_node_attributes.get('pkg')
         plugin = page_node_attributes.get('plugin')
-        page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin)
+        page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin,request_args=request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=request_args,
-                          filepath=path, packageId=pkg, pluginId=plugin,  basename=path, environ=environ)
+                          filepath=path, packageId=page_class._packageId, pluginId=plugin,  basename=path, environ=environ)
         return page
         
-    def get_page_class(self, path=None, pkg=None, plugin=None):
+    def get_page_class(self, path=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
         """TODO
         
         :param path: TODO
@@ -175,14 +175,17 @@ class ResourceLoader(object):
         page_module = gnrImport(module_path, avoidDup=True)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
+        mainPkg = pkg
+        if hasattr(custom_class,'getMainPackage'):
+            mainPkg = custom_class.getMainPackage(request_args=request_args,request_kwargs=request_kwargs)
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', ''), ',')
-        plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=pkg)
+        plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=mainPkg)
         for plugin_webpage_class in plugin_webpage_classes:
             plugin_py_requires = splitAndStrip(getattr(plugin_webpage_class, 'py_requires', ''), ',')
             py_requires.extend(plugin_py_requires)
         page_class = cloneClass('GnrCustomWebPage', page_factory)
         page_class.__module__ = page_module.__name__
-        self.page_class_base_mixin(page_class, pkg=pkg)
+        self.page_class_base_mixin(page_class, pkg=mainPkg)
         page_class.dojo_version = getattr(custom_class, 'dojo_version', None) or self.site.config[
                                                                                  'dojo?version'] or '11'
         page_class.theme = getattr(custom_class, 'theme', None) or self.site.config['dojo?theme'] or 'tundra'
@@ -201,15 +204,15 @@ class ResourceLoader(object):
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''), ',')
         page_class.pageOptions = getattr(custom_class, 'pageOptions', {})
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
-        page_class.resourceDirs = self.page_class_resourceDirs(page_class, module_path, pkg=pkg)
+        page_class.resourceDirs = self.page_class_resourceDirs(page_class, module_path, pkg=mainPkg)
         self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class, custom_class, only_callables=False)
         page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''), ',') if x])
         page_class.tpldirectories = page_class.resourceDirs + [
                 self.gnr_static_handler.path(page_class.gnrjsversion, 'tpl')]
-        page_class._packageId = pkg
+        page_class._packageId = mainPkg
         self.page_class_plugin_mixin(page_class, plugin_webpage_classes)
-        self.page_class_custom_mixin(page_class, path, pkg=pkg)
+        self.page_class_custom_mixin(page_class, path, pkg=mainPkg)
         self.page_factories[module_path] = page_class
         return page_class
         
@@ -268,6 +271,10 @@ class ResourceLoader(object):
                 component_page_class = getattr(component_page_module, 'WebPage', None)
                 if component_page_class:
                     classMixin(page_class, component_page_class, only_callables=False)
+    
+    def _appendPathIfExists(self,result, path):
+        if os.path.exists(path):
+            result.append(path)
                     
     def page_class_resourceDirs(self, page_class, path, pkg=None):
         """Build page resources directories
@@ -277,33 +284,34 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
+            packageResourcePath =  os.path.join(self.gnrapp.packages[pkg].packageFolder, 'resources')
         else:
             pagesPath = os.path.join(self.site_path, 'pages')
-        curdir = os.path.dirname(os.path.join(pagesPath, path))
-        resourcePkg = None
+        #curdir = os.path.dirname(os.path.join(pagesPath, path))
+        #resourcePkg = None
         result = [] # result is now empty
         if pkg: # for index page or other pages at root level (out of any package)
-            resourcePkg = self.gnrapp.packages[pkg].attributes.get('resourcePkg')
+            #resourcePkg = self.gnrapp.packages[pkg].attributes.get('resourcePkg')
             fpath = os.path.join(self.site_path, '_custom', pkg, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath) # we add a custom resource folder for current package
-        fpath = os.path.join(self.site_path, '_resources')
+            self._appendPathIfExists(result, fpath) # we add a custom resource folder for current package
         
-        if os.path.isdir(fpath):
-            result.append(fpath) # we add a custom resource folder for common package
+        fpath = os.path.join(self.site_path, '_resources')
+        self._appendPathIfExists(result, fpath) # we add a custom resource folder for common package
             
-        while curdir.startswith(pagesPath):
-            fpath = os.path.join(curdir, '_resources')
-            if os.path.isdir(fpath):
-                result.append(fpath)
-            curdir = os.path.dirname(curdir) # we add a resource folder for folder 
+        #while curdir.startswith(pagesPath):
+        #    fpath = os.path.join(curdir, '_resources')
+        #    if os.path.isdir(fpath):
+        #        result.append(fpath)
+        #    curdir = os.path.dirname(curdir) # we add a resource folder for folder 
             # of current page
-        if resourcePkg:
-            for rp in resourcePkg.split(','):
-                fpath = os.path.join(self.gnrapp.packages[rp].packageFolder, 'webpages', '_resources')
-                if os.path.isdir(fpath):
-                    result.append(fpath)
+        #if resourcePkg:
+        #    for rp in resourcePkg.split(','):
+        #        fpath = os.path.join(self.gnrapp.packages[rp].packageFolder, 'webpages', '_resources')
+        #        if os.path.isdir(fpath):
+        #            result.append(fpath)
             #result.extend(self.siteResources)
+        if packageResourcePath:
+            self._appendPathIfExists(result, packageResourcePath)
         resources_list = self.site.resources_dirs
         result.extend(resources_list)
         return result
@@ -403,7 +411,7 @@ class ResourceLoader(object):
             if mix:
                 self.mixinResource(page_class, page_class.resourceDirs, mix)
                 
-    def mixinResource(self, kls, resourceDirs, *path):
+    def mixinResource(self, kls, resourceDirs, *path):        
         """TODO
         
         :param kls: TODO
