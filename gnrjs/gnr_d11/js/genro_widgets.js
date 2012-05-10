@@ -552,7 +552,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
         var main_call = objectPop(attributes,'main');
-        var main_kwargs = objectExtract(attributes,'main_*');
+        var main_kwargs = objectExtract(attributes,'main_*') || {};
+        main_kwargs['_root_page_id'] = genro.root_page_id || genro.page_id;
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {

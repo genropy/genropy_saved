@@ -31,7 +31,7 @@ from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
 mimetypes.init()
 site_cache = {}
 
-OP_TO_LOG = {'RESOURCE': 'y'}
+OP_TO_LOG = {'x': 'y'}
 
 log = logging.getLogger(__name__)
 
