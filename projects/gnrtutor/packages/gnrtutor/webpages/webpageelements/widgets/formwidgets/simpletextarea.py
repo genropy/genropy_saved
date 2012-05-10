@@ -22,7 +22,7 @@ You can set the height of the area, width, color and font_size and other html at
     def simpleTextareaSpeech(self, pane):        
         pane.simpleTextarea(value='^.simpletextarea', height='80px', width='30em',
                             color='#605661', font_size='1.2em',
-                            default='A simple area to contain text',
+                            default='',
                             speech=True)
 
     def doc_simpleTextareaSpeech(self,pane):
