@@ -326,7 +326,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self._db.updateEnv(**self.avatar.extra_kwargs)
             storeDbEnv = self._dbEnvFromPageStore()
             if len(storeDbEnv)>0:
-                self._db.updateEnv(**dict(storeDbEnv))
+                self._db.updateEnv(**storeDbEnv.asDict(ascii=True))
             envPageArgs = dictExtract(self.pageArgs,'env_')
             if envPageArgs:
                 self._db.updateEnv(**envPageArgs)
