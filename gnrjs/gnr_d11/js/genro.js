@@ -96,7 +96,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (exit) {
                 return exit;
             }
-            genro.rpc.remoteCall('onClosePage', {sync:true});
+            //genro.rpc.remoteCall('onClosePage', {sync:true});
         };
         window.onunload = function(e) {
             genro.onWindowUnload(e);
@@ -174,7 +174,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     onWindowUnload:function(e) {
-        //this.rpc.remoteCall('onClosePage', {sync:true});
+        this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
         if (genro._data) {
             genro.saveContextCookie();
