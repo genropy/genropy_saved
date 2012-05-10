@@ -26,9 +26,7 @@
                     <menuexample label="!!Menu" file="menu" />
                     <slider label="!!Slider" file="slider" />
                     <combobox label="Combobox" file="combobox" />
-                    <textboxes label="!!Textboxes" basepath="textboxes">
-                        <dbselect label="Currency Text Box" file="currency" />
-                    </textboxes>
+                    <textboxes label="Text Boxes" file="textboxes" />
                     <simpletextarea label="Simpletextarea" file="simpletextarea" />
                     <dbcombobox label="DbCombobox" file="dbcombobox" />
                     <dbselect label="DbSelect" file="dbselect" />

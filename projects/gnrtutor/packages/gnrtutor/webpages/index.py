@@ -17,5 +17,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return '!!Genropy Tutor'
 
-
+    def rootWindowDataForm(self,fb):
+        fb.parent.parent.div('User:demo',color='#AAAAAA')
+        fb.parent.parent.div('Password:demo',color='#AAAAAA')
 
