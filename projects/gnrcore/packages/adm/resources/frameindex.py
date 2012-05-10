@@ -28,6 +28,9 @@ class FrameIndex(BaseComponent):
     preferenceTags = 'admin'
     authTags=''
     login_error_msg = '!!Invalid login'
+    login_title = '!!Login'
+    new_window_title = '!!New Window'
+
     
     def mainLeftContent(self,*args,**kwargs):
         pass
@@ -50,7 +53,7 @@ class FrameIndex(BaseComponent):
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
-        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootenv',
+        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=gnr.rootenv',
                             tpl=self.windowTitleTemplate(),_onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
@@ -245,9 +248,13 @@ class FramedIndexLogin(BaseComponent):
         return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
 
     def rootSummaryBox(self,pane):
-        pane.div(innerHTML='==rootenv.getFormattedValue();',rootenv='^rootenv',
+        pane.div(innerHTML='==rootenv.getFormattedValue();',rootenv='^gnr.rootenv',
                     height='80px',margin='3px',border='1px solid silver')
 
+    
+    def loginSubititlePane(self,pane):
+        pass
+        
     @struct_method
     def login_loginPage(self,sc):
         pane = sc.contentPane(overflow='hidden')   
@@ -260,10 +267,12 @@ class FramedIndexLogin(BaseComponent):
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
-        wtitle = '!!Login' if doLogin else '!!New Window'  
+        wtitle = self.login_title if doLogin else self.new_window_title  
         topbar.wtitle.div(wtitle)  
+        if hasattr(self,'loginSubititlePane'):
+            self.loginSubititlePane(box.div())
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
-                                datapath='rootenv',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
+                                datapath='gnr.rootenv',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
         if doLogin:
             fb.textbox(value='^._login.user',lbl='!!Username')
@@ -278,8 +287,7 @@ class FramedIndexLogin(BaseComponent):
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
         footer.dataController("""
         btn.widget.setDisabled(true);
-        var login = data.pop('_login');
-        genro.serverCall(rpcmethod,{'login':login,rootenv:data},function(result){
+        genro.serverCall(rpcmethod,{'rootenv':rootenv},function(result){
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
                 btn.widget.setDisabled(false);
@@ -289,13 +297,13 @@ class FramedIndexLogin(BaseComponent):
                 genro.publish('logged');
             }
         })
-        """,data='=rootenv',_fired='^do_login',rpcmethod=rpcmethod,
+        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
         return dlg
 
     @public_method
-    def login_doLogin(self, login=None,rootenv=None,guestName=None, **kwargs): 
-        self.doLogin(login=login,guestName=guestName,**kwargs)
+    def login_doLogin(self, rootenv=None,guestName=None, **kwargs): 
+        self.doLogin(login=rootenv.pop('_login'),guestName=guestName,**kwargs)
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
@@ -322,7 +330,7 @@ class FramedIndexLogin(BaseComponent):
         with self.pageStore() as store:
             store.setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
-        self.setInClientData('rootenv', rootenv)
+        self.setInClientData('gnr.rootenv', rootenv)
         return True
                     
 

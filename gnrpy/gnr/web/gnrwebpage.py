@@ -200,28 +200,13 @@ class GnrWebPage(GnrBaseWebPage):
                 connectionStore = self.connectionStore()
                 data = Bag()
                 data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
-                lastClosedPageRootenvNode = connectionStore.getNode('lastClosedRootenv')
-                if lastClosedPageRootenvNode and lastClosedPageRootenvNode.attr['url'] == self.path_url:
-                    if (datetime.datetime.now()- lastClosedPageRootenvNode.attr['ts']).seconds<2:
-                        data['rootenv'].update(lastClosedPageRootenvNode.value)
-                        
+                cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+                if cookie:
+                    data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
             data['pageArgs'] = kwargs
             data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
             return self.site.register.new_page(self.page_id, self, data=data)
-    
-    @public_method
-    def saveClosingRootenv(self):
-        closingRootEnv = self.pageStore().getItem('rootenv')
-        with self.connectionStore() as connectionStore:
-            temp = Bag()
-            defaultRootenv = connectionStore.getItem('defaultRootenv')
-            if not defaultRootenv:
-                return
-            for k in defaultRootenv.keys():
-                temp.setItem(k,closingRootEnv.getNode(k))
-            ts = datetime.datetime.now()
-            connectionStore.setItem('lastClosedRootenv',temp,ts=ts,url=self.path_url)
-            
+
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
         
@@ -1404,9 +1389,11 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
+                page.data('gnr.siteName',self.siteName)
                 page.data('gnr.page_id',self.page_id)
                 page.data('gnr.package',self.package.name)
                 page.data('gnr.root_page_id',self.root_page_id)
+                page.data('gnr.workdate',self.workdate,serverpath='rootenv.workdate')
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
@@ -1433,7 +1420,7 @@ class GnrWebPage(GnrBaseWebPage):
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
                                             regions='^_clientCtx.mainBC')
                 typekit_code = self.site.config['gui?typekit']
-                if typekit_code:
+                if typekit_code and False:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
                 self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
@@ -1469,7 +1456,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.onMainCalls()
                 if self.avatar:
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
-                page.data('rootenv',self.rootenv)
+                page.data('gnr.rootenv',self.rootenv)
                 page.data('gnr.polling.user_polling', self.user_polling)
                 page.data('gnr.polling.auto_polling', self.auto_polling)
                 pageArgs = self.pageArgs

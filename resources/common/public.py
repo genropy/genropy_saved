@@ -74,9 +74,9 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = 'menuBtn,workdate,*,caption,*,user,logout,5'
+        baseslots = 'menuBtn,infobox,*,caption,*,user,logout,5'
         if self.root_page_id:
-            baseslots = '10,caption,*,workdate,10'
+            baseslots = '10,caption,*,infobox,10'
             kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'caption' in slots:
@@ -292,6 +292,7 @@ class PublicBase(BaseComponent):
             if images:
                 return images[0]
 
+
     
     
 class Public(PublicBase):
@@ -308,39 +309,24 @@ class Public(PublicBase):
                      
 
 class PublicSlots(BaseComponent):
-    @struct_method
-    def public_slotbar_workdateBtn(self,pane,iconClass=False,**kwargs):
-        pane.data('gnr.workdate', self.workdate)
-        dlg = pane.dialog(title='!!New Workdate',closable=True)
-        frame = dlg.framePane(height='100px',width='200px',datapath='gnr.workdatemanager')
-        frame.dataRpc('gnr.workdate',self.setWorkdate,workdate='=.date',_if='workdate',_fired='^.confirm',
-                        _onResult='PUBLISH pbl_changed_workdate = {workdate:result};')
-        fb = frame.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
-        fb.dateTextBox(value='^.date', width='8em', lbl='!!Date')
-        footer = frame.bottom.slotBar('*,confirmbtn')
-        footer.confirmbtn.button('!!Confirm',action='FIRE .confirm;dlg.widget.hide();',dlg=dlg)
-        btnkw = dict(connect_onclick='this.getAttributeFromDatasource("dlg").widget.show(); SET gnr.workdatemanager.date=GET gnr.workdate;',
-                 _class=iconClass or 'pbl_slotbar_label buttonIcon',dlg=dlg)
-        btnkw.update(kwargs)
-        if not iconClass:
-            pane.div('^gnr.workdate', format='short',**btnkw)
-        else:
-            pane.div(**btnkw)
         
-
+    @struct_method
+    def public_publicRoot_workdate(self,pane,**kwargs):
+        pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
+    
+    @struct_method
+    def public_publicRoot_infobox(self,pane,**kwargs):
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_infoTemplate())
+    
+    def pbl_infoTemplate(self):
+        return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
 
 #######################OLD SLOTS#######################
 
     @struct_method
     def public_publicRoot_workdate(self,pane,**kwargs):
-        connect_onclick = None
-        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
-            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
-        pane.div('^gnr.workdate', format='short',
-                 _class='pbl_slotbar_label buttonIcon',
-                 connect_onclick=connect_onclick)
-        if connect_onclick:
-            self.pbl_workdate_dialog()
+        pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
+
             
     @struct_method
     def pbl_publicRoot_menuBtn(self,pane,**kwargs):
@@ -413,6 +399,7 @@ class PublicSlots(BaseComponent):
 
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,th/th:TableHandler"""
+
     plugin_list=''
     formResource = None
     viewResource = None
