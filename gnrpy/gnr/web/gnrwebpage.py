@@ -136,7 +136,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
         if not getattr(self,'skip_connection', False):
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
-            self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         else:
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
@@ -197,10 +197,30 @@ class GnrWebPage(GnrBaseWebPage):
                 data = self.pageStore(page_id=self.root_page_id).data
                 data['root_page_id'] = self.root_page_id
             else:
-                data = self.connectionStore().getItem('defaultRootWindowData') or Bag()
+                connectionStore = self.connectionStore()
+                data = Bag()
+                data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
+                lastClosedPageRootenvNode = connectionStore.getNode('lastClosedRootenv')
+                if lastClosedPageRootenvNode and lastClosedPageRootenvNode.attr['url'] == self.path_url:
+                    if (datetime.datetime.now()- lastClosedPageRootenvNode.attr['ts']).seconds<2:
+                        data['rootenv'].update(lastClosedPageRootenvNode.value)
+                        
             data['pageArgs'] = kwargs
-            data['workdate'] = workdate or data['workdate'] or datetime.date.today()
+            data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
             return self.site.register.new_page(self.page_id, self, data=data)
+    
+    @public_method
+    def saveClosingRootenv(self):
+        closingRootEnv = self.pageStore().getItem('rootenv')
+        with self.connectionStore() as connectionStore:
+            temp = Bag()
+            defaultRootenv = connectionStore.getItem('defaultRootenv')
+            if not defaultRootenv:
+                return
+            for k in defaultRootenv.keys():
+                temp.setItem(k,closingRootEnv.getNode(k))
+            ts = datetime.datetime.now()
+            connectionStore.setItem('lastClosedRootenv',temp,ts=ts,url=self.path_url)
             
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -271,22 +291,29 @@ class GnrWebPage(GnrBaseWebPage):
         if not hasattr(self, '_jstools'):
             self._jstools = GnrWebJSTools(self)
         return self._jstools
+        
+    @property
+    def rootenv(self):
+        if not hasattr(self,'_rootenv'):
+            self._rootenv = self.pageStore().getItem('rootenv')
+        return self._rootenv
     
     @public_method
     def dbCurrentEnv(self):
         return Bag(self.db.currentEnv)
     
-    def _updateEnvFromPageStore(self):
+    def _dbEnvFromPageStore(self):
         pageStore = self.pageStore()
-        storeDbEnv = pageStore.getItem('dbenv') or Bag()        
+        storeDbEnv = pageStore.getItem('dbenv') or Bag()   
+        storeDbEnv.update((pageStore.getItem('rootenv') or Bag()))     
         def addToStoreDbEnv(n,_pathlist=None):
             if n.attr.get('dbenv'):
                 path = '_'.join(_pathlist+[n.label]) if n.attr['dbenv'] is True else n.attr['dbenv']
                 storeDbEnv[path] = n.value
         _pathlist = []
         pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
-        if len(storeDbEnv)>0:
-            self._db.updateEnv(**dict(storeDbEnv))
+        return storeDbEnv
+        
     
     @property 
     def db(self):
@@ -297,8 +324,9 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
-                
-            self._updateEnvFromPageStore()
+            storeDbEnv = self._dbEnvFromPageStore()
+            if len(storeDbEnv)>0:
+                self._db.updateEnv(**dict(storeDbEnv))
             envPageArgs = dictExtract(self.pageArgs,'env_')
             if envPageArgs:
                 self._db.updateEnv(**envPageArgs)
@@ -310,12 +338,12 @@ class GnrWebPage(GnrBaseWebPage):
         
     def _get_workdate(self):
         if not self._workdate:
-             self._workdate=self.pageStore().getItem('workdate') or datetime.date.today()
+             self._workdate=self.pageStore().getItem('rootenv.workdate') or datetime.date.today()
         return self._workdate
 
     def _set_workdate(self, workdate):
         with self.pageStore() as store:
-            store.setItem('workdate', workdate)
+            store.setItem('rootenv.workdate', workdate)
         self._workdate = workdate
         self.db.workdate = workdate
         
@@ -1441,6 +1469,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.onMainCalls()
                 if self.avatar:
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
+                page.data('rootenv',self.rootenv)
                 page.data('gnr.polling.user_polling', self.user_polling)
                 page.data('gnr.polling.auto_polling', self.auto_polling)
                 pageArgs = self.pageArgs

@@ -8,6 +8,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
+from datetime import datetime
 from gnr.core.gnrbag import Bag
 
 class FrameIndex(BaseComponent):
@@ -30,12 +31,9 @@ class FrameIndex(BaseComponent):
     
     def mainLeftContent(self,*args,**kwargs):
         pass
+            
     
     def main(self,root,new_window=None,**kwargs):
-        defaultRootWindowData = Bag(dict(workdate=self.workdate))
-        if self.avatar:
-            defaultRootWindowData = self.connectionStore().getItem('defaultRootWindowData') or defaultRootWindowData
-        root.data('rootWindowData',defaultRootWindowData)
         if self.root_page_id:
             self.index_dashboard(root)
         elif new_window or not self.avatar:
@@ -52,7 +50,7 @@ class FrameIndex(BaseComponent):
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
-        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootWindowData',
+        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=rootenv',
                             tpl=self.windowTitleTemplate(),_onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
@@ -247,7 +245,7 @@ class FramedIndexLogin(BaseComponent):
         return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
 
     def rootSummaryBox(self,pane):
-        pane.div(innerHTML='==rootWindowData.getFormattedValue();',rootWindowData='^rootWindowData',
+        pane.div(innerHTML='==rootenv.getFormattedValue();',rootenv='^rootenv',
                     height='80px',margin='3px',border='1px solid silver')
 
     @struct_method
@@ -265,22 +263,23 @@ class FramedIndexLogin(BaseComponent):
         wtitle = '!!Login' if doLogin else '!!New Window'  
         topbar.wtitle.div(wtitle)  
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
-                                datapath='rootWindowData',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
+                                datapath='rootenv',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
         rpcmethod = self.login_newWindow
         if doLogin:
-            fb.textbox(value='^loginData.user',lbl='!!Username')
-            fb.textbox(value='^loginData.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=loginData.user')
+            fb.textbox(value='^._login.user',lbl='!!Username')
+            fb.textbox(value='^._login.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=._login.user')
             rpcmethod = self.login_doLogin          
-        fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
-        if hasattr(self,'rootWindowDataForm'):
-            self.rootWindowDataForm(fb)
+        fb.dateTextBox(value='^.workdate',lbl='!!Workdate',default_value=self.workdate)
+        if hasattr(self,'avatarForm'):
+            self.avatarForm(fb)
         
         btn = fb.div(width='100%',position='relative').button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
         footer.dataController("""
         btn.widget.setDisabled(true);
-        genro.serverCall(rpcmethod,{'login':loginData,rootWindowData:rootWindowData},function(result){
+        var login = data.pop('_login');
+        genro.serverCall(rpcmethod,{'login':login,rootenv:data},function(result){
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
                 btn.widget.setDisabled(false);
@@ -290,17 +289,19 @@ class FramedIndexLogin(BaseComponent):
                 genro.publish('logged');
             }
         })
-        """,loginData='=loginData',rootWindowData='=rootWindowData',_fired='^do_login',rpcmethod=rpcmethod,
+        """,data='=rootenv',_fired='^do_login',rpcmethod=rpcmethod,
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
         return dlg
 
     @public_method
-    def login_doLogin(self, login=None,rootWindowData=None,guestName=None, **kwargs): 
+    def login_doLogin(self, login=None,rootenv=None,guestName=None, **kwargs): 
         self.doLogin(login=login,guestName=guestName,**kwargs)
         if self.avatar:
+            rootenv['user'] = self.avatar.user
+            rootenv['user_id'] = self.avatar.user_id
             with self.connectionStore() as store:
-                store.setItem('defaultRootWindowData',rootWindowData)
-            return self.login_newWindow(rootWindowData=rootWindowData)
+                store.setItem('defaultRootenv',rootenv)
+            return self.login_newWindow(rootenv=rootenv)
     
     @public_method
     def login_onPassword(self,value=None,user=None,**kwargs):
@@ -316,10 +317,12 @@ class FramedIndexLogin(BaseComponent):
         return
     
     @public_method
-    def login_newWindow(self, rootWindowData=None, **kwargs): 
-        self.workdate = rootWindowData.pop('workdate')
+    def login_newWindow(self, rootenv=None, **kwargs): 
+        rootenv['workdate'] = rootenv['workdate'] or datetime.date.today()
         with self.pageStore() as store:
-            store.update(rootWindowData)
+            store.setItem('rootenv',rootenv)
+        self.db.workdate = rootenv['workdate']
+        self.setInClientData('rootenv', rootenv)
         return True
                     
 

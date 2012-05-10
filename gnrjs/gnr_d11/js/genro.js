@@ -96,7 +96,9 @@ dojo.declare('gnr.GenroClient', null, {
             if (exit) {
                 return exit;
             }
-            //genro.rpc.remoteCall('onClosePage', {sync:true});
+            if(!genro.root_page_id){
+                genro.serverCall('saveClosingRootenv',{});
+            }
         };
         window.onunload = function(e) {
             genro.onWindowUnload(e);
