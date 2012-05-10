@@ -270,8 +270,8 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^._login.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=._login.user')
             rpcmethod = self.login_doLogin          
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate',default_value=self.workdate)
-        if hasattr(self,'avatarForm'):
-            self.avatarForm(fb)
+        if hasattr(self,'rootenvForm'):
+            self.rootenvForm(fb)
         
         btn = fb.div(width='100%',position='relative').button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
