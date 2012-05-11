@@ -74,9 +74,9 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = 'menuBtn,infobox,*,caption,*,user,logout,5'
+        baseslots = 'menuBtn,avatar,*,caption,*,user,logout,5'
         if self.root_page_id:
-            baseslots = '10,caption,*,infobox,10'
+            baseslots = '10,caption,*,avatar,10'
             kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'caption' in slots:
@@ -315,10 +315,10 @@ class PublicSlots(BaseComponent):
         pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
     
     @struct_method
-    def public_publicRoot_infobox(self,pane,**kwargs):
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_infoTemplate())
+    def public_publicRoot_avatar(self,pane,**kwargs):
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate())
     
-    def pbl_infoTemplate(self):
+    def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
 
 #######################OLD SLOTS#######################

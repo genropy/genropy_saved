@@ -1279,7 +1279,7 @@ dojo.declare("gnr.GnrBag", null, {
     },
     
     update:function(bagOrObj,mode){
-        if(!bagOrObj instanceof gnr.GnrBag){
+        if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
                 this.setItem(k,bagOrObj[k]);
                 return;
