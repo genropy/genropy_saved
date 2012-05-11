@@ -1073,7 +1073,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(trigger_reason=='container' && attr=='value' && kw.evt=='upd'){
             var vpath = this.attr['value'];
             if (this.isPointerPath(vpath) && (vpath.indexOf('?')<0)){
-                var valueNode = genro._data.getNode(this.absDatapath(vpath));
+                var valueNode = genro._data.getNode(this.absDatapath(vpath),null,true);
                 if (valueNode){
                     var wdg_modifiers = objectExtract(valueNode.attr,'wdg_*');
                     if(objectNotEmpty(wdg_modifiers)){
