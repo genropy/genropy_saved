@@ -32,6 +32,8 @@ def formatHandler(obj):
         obj,dtype = obj.split('::')
     else:
         dtype = type(obj)
+    if dtype=='HTML':
+        obj = '%s::HTML' %obj
     return obj,TYPES_LOCALIZERS_DICT.get(dtype)
 
         
