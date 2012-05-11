@@ -316,7 +316,7 @@ class PublicSlots(BaseComponent):
     
     @struct_method
     def public_publicRoot_avatar(self,pane,**kwargs):
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_infoTemplate())
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate())
     
     def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
