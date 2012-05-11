@@ -25,8 +25,9 @@ class FrameIndex(BaseComponent):
     index_url = None
     indexTab = False
     hideLeftPlugins = False
-    preferenceTags = 'admin'
-    authTags=''
+    auth_preference = 'admin'
+    auth_workdate = 'admin'
+
     login_error_msg = '!!Invalid login'
     login_title = '!!Login'
     new_window_title = '!!New Window'
@@ -39,12 +40,11 @@ class FrameIndex(BaseComponent):
     def main(self,root,new_window=None,**kwargs):
         if self.root_page_id:
             self.index_dashboard(root)
-        elif new_window or not self.avatar:
-            sc = root.stackContainer()
-            sc.loginPage()
-            sc.contentPane().remote(self.remoteFrameRoot,**kwargs)
-        else:
-            root.frameIndexRoot(**kwargs)
+        else:         
+            sc = root.stackContainer(selectedPage='^indexStack')
+            sc.loginPage(new_window=new_window)
+            sc.contentPane(pageName='dashboard').remote(self.remoteFrameRoot,**kwargs)
+        
             
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
@@ -134,7 +134,7 @@ class FrameIndex(BaseComponent):
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'});""",
                             subscribe_app_preference=True,
-                            _tags=self.preferenceTags,pane=appPref,preftitle='!!Application preference')
+                            _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
        # dlg = self.frm_envDataDialog()
         userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',right:'10px',title:preftitle,
                                                         height:'300px', width:'400px',palette_transition:null,
@@ -256,14 +256,12 @@ class FramedIndexLogin(BaseComponent):
         pass
         
     @struct_method
-    def login_loginPage(self,sc):
-        pane = sc.contentPane(overflow='hidden')   
+    def login_loginPage(self,sc,new_window=None):
+        pane = sc.contentPane(overflow='hidden',pageName='login')   
         if self.index_url:
             pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
         dlg = pane.dialog(_class='lightboxDialog')
-        pane.dataController("""window.history.replaceState({},document.title,'/');
-                            loginDialog.show();""",_onBuilt=True,
-                            loginDialog = dlg.js_widget,sc=sc.js_widget)        
+       
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
@@ -272,38 +270,68 @@ class FramedIndexLogin(BaseComponent):
         if hasattr(self,'loginSubititlePane'):
             self.loginSubititlePane(box.div())
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE do_login;',
-                                datapath='gnr.rootenv',width='100%',fld_width='100%',row_height='3ex',keeplabel=True)
+                                datapath='gnr.rootenv',width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
         rpcmethod = self.login_newWindow
+        start = 0
         if doLogin:
-            fb.textbox(value='^._login.user',lbl='!!Username')
-            fb.textbox(value='^._login.password',lbl='!!Password',type='password',validate_remote=self.login_onPassword,validate_user='=._login.user')
-            rpcmethod = self.login_doLogin          
-        fb.dateTextBox(value='^.workdate',lbl='!!Workdate',default_value=self.workdate)
+            start = 2
+            fb.textbox(value='^_login.user',lbl='!!Username',row_hidden=False)
+            fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
+            pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
+                        _if='user&&password',_else='SET gnr.avatar = null;',
+                        _onResult="""var newenv = result.getItem('rootenv');
+                                    var rootenv = GET gnr.rootenv;
+                                    currenv = rootenv.deepCopy();
+                                    currenv.update(newenv);
+                                    SET gnr.rootenv = currenv;
+                                    SET gnr.avatar = result.getItem('avatar');
+                                """,sync=True)
+            rpcmethod = self.login_doLogin    
+        
+        fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
         if hasattr(self,'rootenvForm'):
             self.rootenvForm(fb)
+            for fbnode in fb.getNodes()[start:]:
+                if fbnode.attr['tag']=='tr':
+                    fbnode.attr['hidden'] = '==!_avatar || _hide'
+                    fbnode.attr['_avatar'] = '^gnr.avatar'
+                    fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
         
-        btn = fb.div(width='100%',position='relative').button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
+        pane.dataController("""window.history.replaceState({},document.title,'/');
+                            if(startPage=='login'){
+                                loginDialog.show();
+                            }else{
+                                SET indexStack = 'dashboard';
+                            }
+                            """,_onBuilt=True,
+                            loginDialog = dlg.js_widget,sc=sc.js_widget,fb=fb,
+                            _if='indexStack=="login"',indexStack='^indexStack',startPage=self._getStartPage(new_window)) 
+                            
+        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
         footer.dataController("""
         btn.widget.setDisabled(true);
-        genro.serverCall(rpcmethod,{'rootenv':rootenv},function(result){
+        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
                 btn.widget.setDisabled(false);
             }else{
                 dlg.hide();
-                sc.switchPage(1);
+                sc.switchPage('dashboard');
                 genro.publish('logged');
             }
         })
-        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn)  
+        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
+            avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn,_delay=1)  
         return dlg
 
     @public_method
-    def login_doLogin(self, rootenv=None,guestName=None, **kwargs): 
-        self.doLogin(login=rootenv.pop('_login'),guestName=guestName,**kwargs)
+    def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs): 
+        self.doLogin(login=login,guestName=guestName,**kwargs)
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
@@ -312,17 +340,32 @@ class FramedIndexLogin(BaseComponent):
             return self.login_newWindow(rootenv=rootenv)
     
     @public_method
-    def login_onPassword(self,value=None,user=None,**kwargs):
-        avatar = self.application.getAvatar(user, password=value,authenticate=True)
+    def login_checkAvatar(self,password=None,user=None,**kwargs):
+        result = Bag()
+        avatar = self.application.getAvatar(user, password=password,authenticate=True)
         if not avatar:
-            return False
-        data=self.onUserSelected(avatar)
-        if data:
-            return Bag(dict(data=data))
-        return True
+            return result
+        result['avatar'] = Bag(avatar.as_dict())
+        data = Bag()
+        self.onUserSelected(avatar,data)
+        canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
+        data.setItem('workdate',self.workdate, hidden= not canBeChanged)
+        result['rootenv'] = data
+        return result
         
     def onUserSelected(self,avatar):
         return
+        
+    def _getStartPage(self,new_window):
+        startPage = 'dashboard'
+        if not self.avatar:
+            startPage = 'login'
+        elif new_window:
+            for n in self.rootenv:
+                if n.attr.get('editable') and not n.attr.get('hidden'):
+                    startPage = 'login'
+                    break   
+        return startPage
     
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 

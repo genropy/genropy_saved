@@ -186,13 +186,6 @@ class GnrBaseWebPage(GnrObject):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
             self._siteStatus.toXml(path)
             
-    def pageAuthTags(self, method=None, **kwargs):
-        """Hook method. Allow to define users :ref:`auth`
-        
-        :param method: TODO
-        :returns: a string containing the users authorizations"""
-        return ""
-        
     def pageLocalDocument(self, docname, page_id=None):
         """TODO
         

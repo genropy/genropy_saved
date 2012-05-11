@@ -394,6 +394,9 @@ class GnrWebPage(GnrBaseWebPage):
             return AUTH_FORBIDDEN
         return AUTH_OK
         
+    def pageAuthTags(self,method=None,**kwargs):
+        return getattr(self,'auth_%s' %method,'')
+        
     def mixinComponent(self, *path,**kwargs):
         """TODO
         
