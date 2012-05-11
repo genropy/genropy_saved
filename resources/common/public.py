@@ -315,10 +315,10 @@ class PublicSlots(BaseComponent):
         pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
     
     @struct_method
-    def public_publicRoot_infobox(self,pane,**kwargs):
+    def public_publicRoot_avatar(self,pane,**kwargs):
         pane.div(datasource='^gnr.rootenv',template=self.pbl_infoTemplate())
     
-    def pbl_infoTemplate(self):
+    def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
 
 #######################OLD SLOTS#######################
