@@ -199,10 +199,11 @@ class GnrWebPage(GnrBaseWebPage):
             else:
                 connectionStore = self.connectionStore()
                 data = Bag()
-                data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
-                cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
-                if cookie:
-                    data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
+                if self.avatar:
+                    data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
+                    cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+                    if cookie:
+                        data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
             data['pageArgs'] = kwargs
             data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
             return self.site.register.new_page(self.page_id, self, data=data)
