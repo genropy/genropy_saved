@@ -74,9 +74,9 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = 'menuBtn,infobox,*,caption,*,user,logout,5'
+        baseslots = 'menuBtn,avatar,*,caption,*,user,logout,5'
         if self.root_page_id:
-            baseslots = '10,caption,*,infobox,10'
+            baseslots = '10,caption,*,avatar,10'
             kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'caption' in slots:
