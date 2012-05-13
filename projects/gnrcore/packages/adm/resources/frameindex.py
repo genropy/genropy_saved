@@ -48,7 +48,7 @@ class FrameIndex(BaseComponent):
             
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
-        pane.dataController("FIRE gnr.onStart",_onBuilt=True,_delay=1)
+        pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
         pane.frameIndexRoot(**kwargs)
     
     @struct_method
