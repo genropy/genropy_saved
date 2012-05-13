@@ -60,5 +60,5 @@ class GnrCustomWebPage(object):
         fb.button('Save it', action="alert('Saving!')", iconClass='^.icon',
                              font_size='^.font_size', font_family='^.fontfam')
 
-        def doc_slider3(self):
-            """ghjhjhg"""
+    def doc_slider3(self):
+        """This example shows a lot of tools to achieve the result, the first being the slider"""
