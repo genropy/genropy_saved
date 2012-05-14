@@ -43,7 +43,7 @@ class FrameIndex(BaseComponent):
         else:         
             sc = root.stackContainer(selectedPage='^indexStack')
             sc.loginPage(new_window=new_window)
-            sc.contentPane(pageName='dashboard').remote(self.remoteFrameRoot,**kwargs)
+            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,**kwargs)
         
             
     @public_method  
