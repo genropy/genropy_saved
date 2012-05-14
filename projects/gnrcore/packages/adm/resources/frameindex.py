@@ -38,12 +38,13 @@ class FrameIndex(BaseComponent):
             
     
     def main(self,root,new_window=None,**kwargs):
+        root.attributes['overflow'] = 'hidden'
         if self.root_page_id:
             self.index_dashboard(root)
         else:         
             sc = root.stackContainer(selectedPage='^indexStack')
             sc.loginPage(new_window=new_window)
-            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,**kwargs)
+            sc.contentPane(pageName='dashboard').remote(self.remoteFrameRoot,**kwargs)
         
             
     @public_method  
@@ -57,7 +58,7 @@ class FrameIndex(BaseComponent):
                             tpl=self.windowTitleTemplate(),_onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
-                                margin='0px',
+                                margin='0px',overflow='hidden',
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
