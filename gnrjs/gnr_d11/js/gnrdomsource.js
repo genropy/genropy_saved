@@ -171,7 +171,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (this.pendingFire) {
                 clearTimeout(this.pendingFire);
             }
-            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason),delay);
+            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason,subscription_args),delay);
         } else {
             this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
         }

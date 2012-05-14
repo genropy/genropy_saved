@@ -1282,8 +1282,8 @@ dojo.declare("gnr.GnrBag", null, {
         if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
                 this.setItem(k,bagOrObj[k]);
-                return;
             }
+            return;
         }
         var that = this;
         bagOrObj.forEach(function(n){
