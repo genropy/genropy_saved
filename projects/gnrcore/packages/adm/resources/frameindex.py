@@ -353,7 +353,7 @@ class FramedIndexLogin(BaseComponent):
         result['rootenv'] = data
         return result
         
-    def onUserSelected(self,avatar):
+    def onUserSelected(self,avatar,data=None):
         return
         
     def _getStartPage(self,new_window):
