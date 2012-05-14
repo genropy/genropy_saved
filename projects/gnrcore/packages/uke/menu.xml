@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <auto tags='_UBER_'>
-        <company table="uke.company" label="!!Company"/>
-        <customer table="uke.customer" label="!!Customer"/>
-        <package table="uke.package" label="!!Package"/>
-        <developer table="uke.developer" label="!!Developer"/>
-        <project table="uke.project" label="!!Project"/>
-    </auto>
-</GenRoBag>
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><auto tags="_UBER_"><company _T="NN" table="uke.company" label="!!Company"></company>
+<customer _T="NN" table="uke.customer" label="!!Customer"></customer>
+<package _T="NN" table="uke.package" label="!!Package"></package>
+<developer _T="NN" table="uke.developer" label="!!Developer"></developer>
+<project _T="NN" table="uke.project" label="!!Project"></project>
+<counter _T="NN" table="uke.counter" label="!!Counter"></counter>
+<instance _T="NN" table="uke.instance" label="!!Instance"></instance>
+<sync _T="NN" table="uke.sync" label="!!Sync"></sync>
+<userobject _T="NN" table="uke.userobject" label="!!Userobject"></userobject></auto></GenRoBag>
