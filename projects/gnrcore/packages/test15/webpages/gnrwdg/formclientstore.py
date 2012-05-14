@@ -24,9 +24,7 @@ class GnrCustomWebPage(object):
     def test_0_bagstore(self,pane):
         """First test description"""
         myform = pane.frameForm(frameCode='myform',height='300px',datapath='.myform')
-        
         pane.data('.collection',self.memoryStoreData())
-
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.name',lbl='Name')
@@ -38,8 +36,8 @@ class GnrCustomWebPage(object):
         loadfb.button('Load',action=""" if(pkey){
                                 this.form.load({destPkey:pkey});
                             }
-                            """,
-        pkey='=.pkeyToLoad')
+                            """,pkey='=.pkeyToLoad')
         myform.formstore(handler='memory',locationpath='.#parent.collection')
+        
         
         
