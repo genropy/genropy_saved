@@ -7,6 +7,9 @@
         <gnrcore:uke />
     </packages>
     <authentication pkg="adm">
+        <xml_auth defaultTags="users,xml">
+            <uke pwd="uke" tags="_DEV_,_TRD_,super_adm,user,admin,staff,passpartout, _pref"/>
+        </xml_auth>
         <py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
     </authentication>
 </GenRoBag>
