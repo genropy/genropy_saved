@@ -2,6 +2,8 @@
 <GenRoBag>
     <db dbname='uke'/>
     <packages>
+        <gnrcore:adm />
+        <gnrcore:sys />
         <gnrcore:uke />
     </packages>
     <authentication pkg="adm">
