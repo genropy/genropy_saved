@@ -35,3 +35,6 @@ class GnrCustomWebPage(object):
     #     fb.parent.parent.div('User:demo',color='#AAAAAA')
     #     fb.parent.parent.div('Password:demo',color='#AAAAAA')
 
+    def onUserSelected(self,avatar,data):
+        return {}
+        print 'I am in onUserSelected'
