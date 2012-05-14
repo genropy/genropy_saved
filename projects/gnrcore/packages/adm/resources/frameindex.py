@@ -339,7 +339,7 @@ class FramedIndexLogin(BaseComponent):
             with self.connectionStore() as store:
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
-    
+
     @public_method
     def login_checkAvatar(self,password=None,user=None,**kwargs):
         result = Bag()
@@ -353,10 +353,11 @@ class FramedIndexLogin(BaseComponent):
         data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
         return result
-        
+
+
     def onUserSelected(self,avatar,data=None):
         return
-        
+
     def _getStartPage(self,new_window):
         startPage = 'dashboard'
         if not self.avatar:
@@ -367,7 +368,7 @@ class FramedIndexLogin(BaseComponent):
                     startPage = 'login'
                     break   
         return startPage
-    
+
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 
         rootenv['workdate'] = rootenv['workdate'] or datetime.date.today()
