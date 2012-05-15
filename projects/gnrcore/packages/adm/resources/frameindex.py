@@ -38,6 +38,7 @@ class FrameIndex(BaseComponent):
             
     
     def main(self,root,new_window=None,**kwargs):
+        root.attributes['overflow'] = 'hidden'
         if self.root_page_id:
             self.index_dashboard(root)
         else:         
@@ -57,7 +58,7 @@ class FrameIndex(BaseComponent):
                             tpl=self.windowTitleTemplate(),_onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
-                                margin='0px',
+                                margin='0px',overflow='hidden',
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
@@ -338,7 +339,7 @@ class FramedIndexLogin(BaseComponent):
             with self.connectionStore() as store:
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
-    
+
     @public_method
     def login_checkAvatar(self,password=None,user=None,**kwargs):
         result = Bag()
@@ -352,10 +353,11 @@ class FramedIndexLogin(BaseComponent):
         data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
         return result
-        
+
+
     def onUserSelected(self,avatar,data=None):
         return
-        
+
     def _getStartPage(self,new_window):
         startPage = 'dashboard'
         if not self.avatar:
@@ -366,7 +368,7 @@ class FramedIndexLogin(BaseComponent):
                     startPage = 'login'
                     break   
         return startPage
-    
+
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 
         rootenv['workdate'] = rootenv['workdate'] or datetime.date.today()
