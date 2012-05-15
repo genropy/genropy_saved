@@ -42,6 +42,8 @@ class CsvWriter(object):
 
 class BaseResourceExport(BaseResourceBatch):
     batch_immediate = True
+    export_zip = False
+    export_mode = 'xls'
     def __init__(self, *args, **kwargs):
         super(BaseResourceExport, self).__init__(*args, **kwargs)
         self.locale = self.page.locale
@@ -78,12 +80,15 @@ class BaseResourceExport(BaseResourceBatch):
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')
-
+                    
+    def getFileName(self):
+        return 'export'
+        
     def _pre_process(self):
         self.pre_process()
         self.fileurl = None
-        self.export_mode = self.batch_parameters['export_mode']
-        self.prepareFilePath(self.batch_parameters['filename'])
+        self.export_mode = self.batch_parameters.get('export_mode',self.export_mode)
+        self.prepareFilePath(self.batch_parameters.get('filename',self.getFileName()))
         if not self.data:
             selection = self.get_selection()
             struct = self.batch_parameters.get('struct')
@@ -110,8 +115,14 @@ class BaseResourceExport(BaseResourceBatch):
 
     def post_process(self):
         self.writer.workbookSave()
-        self.fileurl = self.page.site.getStaticUrl('page:output', self.export_mode,
-                                                   '%s.%s' % (self.filename, self.export_mode))
+        export_mode = self.export_mode
+        if self.export_zip:
+            export_mode = 'zip'
+            self.zippath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, export_mode), autocreate=-1)
+            self.page.site.zipFiles(file_list=[self.filepath],zipPath=self.zippath)
+            self.filepath = self.zippath
+        self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,
+                                                   '%s.%s' % (self.filename, export_mode))
 
     def prepareFilePath(self, filename=None):
         if not filename:
@@ -119,7 +130,7 @@ class BaseResourceExport(BaseResourceBatch):
         filename = filename.replace(' ', '_').replace('.', '_').replace('/', '_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
-        self.filepath = self.page.site.getStaticPath('page:output', self.export_mode, self.filename, autocreate=-1)
+        self.filepath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, self.export_mode), autocreate=-1)
 
     def result_handler(self):
         if self.batch_immediate:

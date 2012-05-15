@@ -352,8 +352,11 @@ class MailHandler(GnrBaseService):
                                     (account_params, from_address, to_address, cc_address, bcc_address, msg_string))
                                     
     def _sendmail(self, account_params, from_address, to_address, cc_address, bcc_address, msg_string):
+        print 'getting connection',account_params
         smtp_connection = self.get_smtp_connection(**account_params)
+        print 'sending...',from_address, to_address,account_params
         smtp_connection.sendmail(from_address, (to_address, cc_address, bcc_address), msg_string)
+        print 'sent'
         smtp_connection.close()
         
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
