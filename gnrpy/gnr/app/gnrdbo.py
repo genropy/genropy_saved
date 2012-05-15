@@ -203,6 +203,14 @@ class TableBase(object):
         if multidb:
             tbl.attributes.update(multidb=multidb)
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
+        
+        sync = tbl.attributes.get('sync')
+        if sync:
+            tbl.column('__syncaux','B',group='_',
+                        onUpdated='syncRecordUpdated',
+                        onDeleting='syncRecordDeleting',
+                        onInserted='syncRecordInserted')
+    
             
     def trigger_hierarchical_before(self,record,fldname,**kwargs):
         parent_id=record.get('parent_id')
@@ -356,6 +364,16 @@ class TableBase(object):
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
     
+    def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
+        self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
+
+    def trigger_syncRecordInserted(self, record,**kwargs):
+        self.pkg.table('sync_event').onTableTrigger(self,record,event='I')
+    
+    def trigger_syncRecordDeleting(self, record,**kwargs):        
+        self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
+     
+
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
      
@@ -597,6 +615,35 @@ class GnrHTable(GnrDboTable):
         return fieldstable.query(where="(:code=@maintable_id.code) OR (:code ILIKE @maintable_id.code || '.%%')",
                                     code=code,order_by='@maintable_id.code,$_row_count',columns='*,$wdg_kwargs').fetch()
 
+
+class Table_sync_event(TableBase):
+    def config_db(self, pkg):
+        tbl =  pkg.table('sync_event',pkey='id',name_long='!!Sync event',
+                      name_plural='!!Sync event')
+        self.sysFields(tbl)
+        tbl.column('tablename',name_long='!!Table') #uke.help
+        tbl.column('event_type',name_long='!!Event',values='I,U,D')
+        tbl.column('event_pkey',name_long='!!Pkey')
+        tbl.column('event_data','X',name_long='!!Data')
+        tbl.column('event_check_ts','H',name_long='!!Event check ts')
+        tbl.column('status','L',name_long='!!Status') #0 updated, 1 to send, -1 conflict
+        tbl.column('topic',name_long='!!Topic')
+        tbl.column('author',name_long='!!Author')
+        tbl.column('server_user',name_long='User')
+        tbl.column('server_ts','DH',name_long='!!Server timestamp')
+
+    def onTableTrigger(self,tblobj,record,old_record=None,event=None):
+        event_check_ts = None
+        tsfield = tblobj.lastTs
+        if tsfield and event != 'I':
+            event_check_ts = old_record[tsfield] if event=='U' else record[tsfield]
+        print x
+        event_record = dict(tablename=tblobj.fullname,event_type=event,
+                    event_pkey=record[tblobj.pkey],
+                    event_data=Bag(record),
+                    event_check_ts=event_check_ts,status='to_send',
+                    topic=record.get(tblobj.attributes.get('sync_topic')))
+        self.insert(event_record)
 
         
 class Table_counter(TableBase):

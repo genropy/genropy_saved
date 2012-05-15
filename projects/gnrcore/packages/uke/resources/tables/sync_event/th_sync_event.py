@@ -9,12 +9,15 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('tablename')
-        r.fieldcell('event')
+        r.fieldcell('event_type')
         r.fieldcell('event_pkey')
         r.fieldcell('event_data')
         r.fieldcell('event_check_ts')
         r.fieldcell('status')
-        r.fieldcell('remote')
+        r.fieldcell('topic')
+        r.fieldcell('author')
+        r.fieldcell('server_user')
+        r.fieldcell('server_ts')
 
     def th_order(self):
         return 'tablename'
@@ -30,12 +33,15 @@ class Form(BaseComponent):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
         fb.field('tablename')
-        fb.field('event')
+        fb.field('event_type')
         fb.field('event_pkey')
         fb.field('event_data')
         fb.field('event_check_ts')
         fb.field('status')
-        fb.field('remote')
+        fb.field('topic')
+        fb.field('author')
+        fb.field('server_user')
+        fb.field('server_ts')
 
 
     def th_options(self):

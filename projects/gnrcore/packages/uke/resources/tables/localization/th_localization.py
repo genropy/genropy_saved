@@ -9,9 +9,8 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code')
-        r.fieldcell('description')
-        r.fieldcell('company_code')
-        r.fieldcell('customer_id')
+        r.fieldcell('topic')
+        r.fieldcell('identifier')
 
     def th_order(self):
         return 'code'
@@ -27,9 +26,8 @@ class Form(BaseComponent):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
-        fb.field('description')
-        fb.field('company_code')
-        fb.field('customer_id')
+        fb.field('topic')
+        fb.field('identifier')
 
 
     def th_options(self):

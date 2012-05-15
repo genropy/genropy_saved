@@ -4,7 +4,7 @@
     <packages>
         <gnrcore:adm />
         <gnrcore:sys />
-        <gnrcore:uke />
+        <gnrcore:uke sync="genropy"/>
     </packages>
     <authentication pkg="adm">
         <xml_auth defaultTags="users,xml">

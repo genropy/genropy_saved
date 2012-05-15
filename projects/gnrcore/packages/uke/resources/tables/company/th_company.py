@@ -8,14 +8,14 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('name')
+        r.fieldcell('code')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'name'
+        return 'code'
 
     def th_query(self):
-        return dict(column='name', op='contains', val='%')
+        return dict(column='code', op='contains', val='%')
 
 
 
@@ -24,7 +24,7 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('name')
+        fb.field('code')
         fb.field('description')
 
 
