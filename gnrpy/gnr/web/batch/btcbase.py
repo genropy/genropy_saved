@@ -38,7 +38,7 @@ class BaseResourceBatch(object):
                               Bag(self.page.application.config.getNode('mail').attr)
 
     def __call__(self, batch_note=None, **kwargs):
-        parameters = kwargs['parameters']
+        parameters = kwargs.get('parameters',dict())
         self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
         try:
@@ -128,7 +128,9 @@ class BaseResourceBatch(object):
         mailmanager = self.page.getService('mail')
         mailpars = mailpars or dict()
         mailpars.update(self.mail_preference.asDict(True))
-        filepath =  getattr(self,'filepath',None)
+        filepath =  getattr(self,'filepath',None) #qui ho il mio filepath
+        # se avesse come opzione zip lo zipperesti qui
+        #
         mailpars['attachments'] = [filepath] if filepath else None
         mailmanager.sendmail(**mailpars)
         return 'Mail sent', dict()

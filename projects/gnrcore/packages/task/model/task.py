@@ -82,16 +82,14 @@ class Table(object):
             command ='%s:Main'%command
         task_class = page.importTableResource(table,command)
         if task_class:
-            return task_class(page=page)
+            return task_class(page=page,resource_table=page.db.table(table))
     
     def runTask(self, task, page=None, timestamp=None):
         taskObj = self.loadTask(table=task['table_name'], command=task['command'], page=page)
         if not taskObj:
             return
         try:
-            if task['parameters']:
-                taskObj.batch_parameters = dict(task['parameters'])
-            tmp_result = taskObj.run() or ''
+            tmp_result = taskObj(parameters=Bag(task['parameters'])) or ''
             log_result = task['log_result']
             if isinstance(tmp_result, Bag):
                 result = tmp_result

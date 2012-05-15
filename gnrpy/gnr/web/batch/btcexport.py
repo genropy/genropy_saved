@@ -42,6 +42,8 @@ class CsvWriter(object):
 
 class BaseResourceExport(BaseResourceBatch):
     batch_immediate = True
+    export_zip = False
+    export_mode = 'xls'
     def __init__(self, *args, **kwargs):
         super(BaseResourceExport, self).__init__(*args, **kwargs)
         self.locale = self.page.locale
@@ -49,7 +51,6 @@ class BaseResourceExport(BaseResourceBatch):
         self.headers = []
         self.coltypes = {}
         self.data = None
-        self.export_mode = 'xls'
 
     def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None):
         self.batch_parameters = dict(export_mode=export_mode, filename=None)
@@ -114,8 +115,14 @@ class BaseResourceExport(BaseResourceBatch):
 
     def post_process(self):
         self.writer.workbookSave()
-        self.fileurl = self.page.site.getStaticUrl('page:output', self.export_mode,
-                                                   '%s.%s' % (self.filename, self.export_mode))
+        export_mode = self.export_mode
+        if self.export_zip:
+            export_mode = 'zip'
+            self.zippath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, export_mode), autocreate=-1)
+            self.page.site.zipFiles(file_list=[self.filepath],zipPath=self.zippath)
+            self.filepath = self.zippath
+        self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,
+                                                   '%s.%s' % (self.filename, export_mode))
 
     def prepareFilePath(self, filename=None):
         if not filename:
@@ -123,7 +130,7 @@ class BaseResourceExport(BaseResourceBatch):
         filename = filename.replace(' ', '_').replace('.', '_').replace('/', '_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
-        self.filepath = self.page.site.getStaticPath('page:output', self.export_mode, self.filename, autocreate=-1)
+        self.filepath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, self.export_mode), autocreate=-1)
 
     def result_handler(self):
         if self.batch_immediate:
