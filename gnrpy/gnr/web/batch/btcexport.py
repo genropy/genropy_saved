@@ -49,6 +49,7 @@ class BaseResourceExport(BaseResourceBatch):
         self.headers = []
         self.coltypes = {}
         self.data = None
+        self.export_mode = 'xls'
 
     def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None):
         self.batch_parameters = dict(export_mode=export_mode, filename=None)
@@ -78,12 +79,15 @@ class BaseResourceExport(BaseResourceBatch):
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')
-
+                    
+    def getFileName(self):
+        return 'export'
+        
     def _pre_process(self):
         self.pre_process()
         self.fileurl = None
-        self.export_mode = self.batch_parameters['export_mode']
-        self.prepareFilePath(self.batch_parameters['filename'])
+        self.export_mode = self.batch_parameters.get('export_mode',self.export_mode)
+        self.prepareFilePath(self.batch_parameters.get('filename',self.getFileName()))
         if not self.data:
             selection = self.get_selection()
             struct = self.batch_parameters.get('struct')

@@ -33,6 +33,9 @@ class BaseResourceBatch(object):
         self.result_info = dict()
         self._pkeys = None
         self.selectedPkeys = None
+        self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or \
+                              self.page.getPreference('mail',pkg='adm') or \
+                              Bag(self.page.application.config.getNode('mail').attr)
 
     def __call__(self, batch_note=None, **kwargs):
         parameters = kwargs['parameters']
@@ -120,6 +123,16 @@ class BaseResourceBatch(object):
     def result_handler(self):
         """TODO"""
         return 'Execution completed', dict()
+    
+    def result_email(self,**mailpars):
+        mailmanager = self.page.getService('mail')
+        mailpars = mailpars or dict()
+        mailpars.update(self.mail_preference.asDict(True))
+        filepath =  getattr(self,'filepath',None)
+        mailpars['attachments'] = [filepath] if filepath else None
+        mailmanager.sendmail(**mailpars)
+        return 'Mail sent', dict()
+        
 
     def get_step_caption(self, item, progress, maximum, **kwargs):
         """TODO
