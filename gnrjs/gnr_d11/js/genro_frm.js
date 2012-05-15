@@ -194,10 +194,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     validateFromDatasource: function(sourceNode, value, trigger_reason) {
         // called when a widget changes its value because of a databag change, not an user action
+        var result = {}
         if (trigger_reason == 'container') {
-            var result = genro.vld.validateInLoading(sourceNode, value);
+            result = genro.vld.validateInLoading(sourceNode, value);
         } else if (trigger_reason == 'node') {
-            var result = genro.vld.validate(sourceNode, value);
+            result = genro.vld.validate(sourceNode, value);
             //console.log("value: " +value+" result: "+ result.toSource());
             if (result['modified']) {
                 sourceNode.widget.setValue(result['value']);

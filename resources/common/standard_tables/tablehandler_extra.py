@@ -414,7 +414,7 @@ class TagsHandler(BaseComponent):
                 cb_col = tag_row.div(style='display:table-cell', _class='tag_left_col bgcolor_darkest color_brightest',
                                      padding_left='10px', width='30px')
                 cb_col.checkbox(value='^.?enabled', validate_onAccept="""if(!value){
-                                                                            var line = GET #; 
+                                                                            var line = this.getRelativeData();
                                                                             line.walk(function(node){if(node.getValue()){node.setValue(null);}});
                                                                             SET .?selectedTag = null;
                                                                         }else if(userChange){
