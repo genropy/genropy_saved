@@ -42,8 +42,9 @@ class TableScriptRunner(BaseComponent):
                                     default_table_name='=gnr.dialog_scheduler.pars.table',
                                     default_parameters='=#table_script_runner.data',
                                     default_user_id=self.avatar.user_id)
-        th.view.store.attributes.update(where='$command=:rpath',rpath='=gnr.dialog_scheduler.pars.resource_path',
-                                        _fired='^gnr.dialog_scheduler.dlg_show')
+        th.view.store.attributes.update(where='$command=:rpath AND $table_name=:t',rpath='=gnr.dialog_scheduler.pars.resource_path',
+                                        t='=gnr.dialog_scheduler.pars.table',
+                                        _fired='^gnr.dialog_scheduler.dlg_show',_onBuilt=True)
         #frame.bottom.slotBar('*,closebtn',_class='slotbar_dialog_footer')
         
     
