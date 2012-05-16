@@ -59,7 +59,7 @@ var THTree = {
         var dataTransfer = dropInfo.event.dataTransfer;
         var nodeattr = genro.dom.getFromDataTransfer(dataTransfer,'nodeattr');
         if (!nodeattr){
-            return false;
+            return true;
         }
         var dragged_record = convertFromText(nodeattr);
         var draggedNode = sourceNode.getRelativeData('.store').getNodeByAttr('pkey',dragged_record.pkey);

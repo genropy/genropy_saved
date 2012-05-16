@@ -62,7 +62,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        hviewTree = box.hviewTree()
+        hviewTree = box.hviewTree(**kwargs)
         hviewTree.htableViewStore(table=table)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -84,7 +84,9 @@ class TableHandlerHierarchicalView(BaseComponent):
         form.dataController("""var currpkey = this.form.getCurrentPkey();
                             if(currpkey!='*newrecord*'){
                                 treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
-                            }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)        
+                            }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)    
+        pane.htree = hviewTree
+        return hviewTree
          
     @struct_method
     def ht_htableViewStore(self,tree,table=None):

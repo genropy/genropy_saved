@@ -2635,6 +2635,10 @@ body *{
     opacity: .5;
 }
 
+.form_noItem .fh_content .fh_external{
+    opacity: 1;
+}
+
 /* @end */
 
 /* @group drag drop */

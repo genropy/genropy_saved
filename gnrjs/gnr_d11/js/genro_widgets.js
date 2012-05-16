@@ -4352,7 +4352,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         if (currNode.attr.disabled) {
             return;
         }
-        if(this.sourceNode.form && this.sourceNode.form.isDisabled()){
+        if(this.sourceNode.attr.parentForm!==false && this.sourceNode.form && this.sourceNode.form.isDisabled()){
             return;
         }
         var gridId = this.sourceNode.attr.nodeId;

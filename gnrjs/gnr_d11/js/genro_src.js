@@ -507,13 +507,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         if (source) {
             sourceNode = sourceNode || objectPop(source,'_sourceNode');
+            var formulaProp = [];
             for (var prop in source) {
                 var val = source[prop];
                 if (typeof(val) == 'string') {
                     var dynval = stringStrip(val);
                     if (dynval.indexOf('==') == 0) {
-                        //val = genro.evaluate(dynval.slice(2));
-                        val = funcApply("return "+dynval.slice(2),source,sourceNode);
+                        formulaProp.push(prop);
+                        //val = funcApply("return "+dynval.slice(2),source,sourceNode);
                     } else if ((dynval.indexOf('^') == 0) || (dynval.indexOf('=') == 0)) {
                         path = dynval.slice(1);
                         if (sourceNode) {
@@ -529,6 +530,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                     val = val();
                 }
                 obj[prop] = val;
+            }
+            if(formulaProp.length>0){
+                dojo.forEach(formulaProp,function(prop){
+                    obj[prop] = funcApply("return "+stringStrip(source[prop]).slice(2),obj,sourceNode);
+                });
             }
         }
         return obj;
