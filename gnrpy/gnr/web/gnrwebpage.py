@@ -1862,7 +1862,7 @@ class GnrWebPage(GnrBaseWebPage):
         value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one,
                          applymethod=applymethod, params=Bag(kwargs)))
         
-        self._root.data('gnr.sqlctx.conditions.%s' % path,value, _serverpath='_sqlctx.conditions.%s' % path,__cls='bag')
+        self._root.data('gnr.sqlctx.conditions.%s' % path,value, _serverpath='_sqlctx.conditions.%s' % path)
         #self.addToContext(value=value, serverpath='_sqlctx.conditions.%s' % path,
         #                  clientpath='gnr.sqlctx.conditions.%s' % path)
                           
