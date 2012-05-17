@@ -252,7 +252,8 @@ class GnrWebBatch(GnrBaseProxy):
             progress = k + 1
             message = cb_message(item, progress, maximum, **kwargs)
             self.thermo_line_update(line_code, maximum=maximum, message=message, progress=progress)
-            item._curridx = k
+            if not isinstance(item,basestring):
+                item._curridx = k
             yield item
         if not keep:
             self.thermo_line_del(line_code)

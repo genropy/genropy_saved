@@ -1514,12 +1514,15 @@ dojo.declare("gnr.formstores.Base", null, {
 
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         var onSaving = objectPop(kw,'onSaving');
-        
-        if (destPkey){
-            kw._autoreload=destPkey;
-        }else if(this.onSaved=='reload' || this.form.isNewRecord()){
-            kw._autoreload=true;
+        kw['_autoreload'] = kw['_autoreload'] || false;
+        if(kw._autoreload){
+            if (destPkey){
+                kw._autoreload=destPkey;
+            }else if(this.onSaved=='reload' || this.form.isNewRecord()){
+                kw._autoreload=true;
+            }
         }
+
         //kw._autoreload = null;
         var autoreload =kw._autoreload;
         
