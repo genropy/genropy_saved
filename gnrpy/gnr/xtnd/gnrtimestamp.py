@@ -60,6 +60,9 @@ class GnrTimeStamp(object):
             for x in range(nChars - len(result)):
                 result.insert(0, BASE36[0])
         return ''.join(result)
+    
+    def getDate(self,gnrts):
+        return self.startdate+datetime.timedelta(days=BASE36.index(gnrts[0])*36**2+BASE36.index(gnrts[1])*36+BASE36.index(gnrts[2]))
 
 if __name__ == '__main__':
     s = GnrTimeStamp()

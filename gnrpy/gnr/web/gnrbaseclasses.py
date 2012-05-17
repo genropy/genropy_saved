@@ -255,7 +255,7 @@ class TableScriptToHtml(BagToHtml):
         caption = ''
         if self.record is not None:
             caption = slugify(self.tblobj.recordCaption(self.getData('record')))
-            idx = getattr(self.record,'_curridx',None)
+            idx = self.record.get('__curridx')
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)
         doc_name = '%s_%s%s' % (self.tblobj.name, caption, ext)
