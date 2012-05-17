@@ -300,7 +300,13 @@ class FramedIndexLogin(BaseComponent):
                     fbnode.attr['_avatar'] = '^gnr.avatar'
                     fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
         
-        pane.dataController("""window.history.replaceState({},document.title,'/');
+        
+        pane.dataController("""
+                            var href = window.location.href;
+                            if(window.location.search){
+                                href = href.replace(window.location.search,'');
+                                window.history.replaceState({},document.title,href);
+                            }
                             if(startPage=='login'){
                                 loginDialog.show();
                             }else{
@@ -308,8 +314,8 @@ class FramedIndexLogin(BaseComponent):
                             }
                             """,_onBuilt=True,
                             loginDialog = dlg.js_widget,sc=sc.js_widget,fb=fb,
-                            _if='indexStack=="login"',indexStack='^indexStack',startPage=self._getStartPage(new_window)) 
-                            
+                            _if='indexStack=="login"',indexStack='^indexStack',startPage=self._getStartPage(new_window))
+ 
         btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')

@@ -38,7 +38,7 @@ class BaseResourcePrint(BaseResourceBatch):
         self.batch_options = self.batch_parameters['batch_options']
         self.print_mode = self.batch_options['print_mode']
         self.server_print_options = self.batch_parameters['_printerOptions']
-        self.print_options = self.batch_options['print_mode_option']
+        self.print_options = self.batch_options[self.print_mode]
         self.print_handler = self.page.getService('print')
         self.pdf_make = self.print_mode != 'client_print'
 
@@ -92,7 +92,7 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
-        mailpars.update(self.print_options.getItem('mail').asDict(True))
+        mailpars.update(self.print_options.asDict(True))
 
         for pkey, result in self.results.items():
             record = self.records[pkey]
@@ -104,7 +104,7 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
-        mailpars.update(self.print_options.getItem('mail').asDict(True))
+        mailpars.update(self.print_options.asDict(True))
         mailpars['attachments'] = self.results.values()
         mailmanager.sendmail(**mailpars)
         
@@ -140,13 +140,13 @@ class BaseResourcePrint(BaseResourceBatch):
         frame.dataFormula('#table_script_runner.dialog_options.title','dlgtitle',dlgtitle='!!Print Options',_onBuilt=True)
         frame.data('.print_mode',print_modes[0])
         frame.top.slotToolbar('*,stackButtons,*',stackButtons_font_size='.9em')
-        sc = frame.center.stackContainer(selectedPage='^.print_mode',datapath='.print_mode_option')
+        sc = frame.center.stackContainer(selectedPage='^.print_mode')
         for pm in print_modes:
             if pm in mail_modes:
                 if not (self.current_batch.mail_tags \
                     and self.application.checkResourcePermission(self.current_batch.mail_tags,self.userTags)):
                     continue
-            getattr(self,'table_script_options_%s' %pm)(sc.contentPane(title=pm,pageName=pm),**kwargs)
+            getattr(self,'table_script_options_%s' %pm)(sc.contentPane(title=pm,pageName=pm,datapath='.%s' %pm),**kwargs)
             
     def table_script_option_common(self,fb,askLetterhead=None,**kwargs):
         if askLetterhead:
