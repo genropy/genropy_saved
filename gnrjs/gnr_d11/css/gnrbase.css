@@ -568,6 +568,9 @@ label.ghostlabel span {
     color: #1c004e;
     margin-top:2px;
 }
+label{
+    vertical-align:middle;
+}
 
 .floatRight {
     float: right
@@ -2431,9 +2434,10 @@ body *{
 	border: 1px solid #316ac5;
 	background-color:#abc1e5;
 }*/
-.slotbar_toolbar label {	
+/*.slotbar_toolbar label {	
 	padding: 3px 3px 0 6px;
-}
+}*/
+
 
 .slotbar_vertical.slotbar_toolbar{
 	
