@@ -11,11 +11,12 @@ from gnr.core.gnrdict import dictExtract
 class THPicker(BaseComponent):
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
-                         viewResource=None,searchOn=True,
+                         viewResource=None,searchOn=True,multiSelect=True,
                          title=None,autoInsert=True,dockButton=True,picker_kwargs=None,
                          height=None,width=None,**kwargs):
         
         one=False
+        picker_kwargs = picker_kwargs or dict()
         condition=picker_kwargs.pop('condition',None)
         condition_kwargs=dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         
@@ -61,11 +62,14 @@ class THPicker(BaseComponent):
                         r = struct.view().rows()
                         r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
                     sortedBy = tblobj.attributes.get('caption_field')
-
-
-            palette = pane.paletteGrid(paletteCode=paletteCode,struct=struct,dockButton=dockButton,
-                            title=title,searchOn=searchOn,grid_filteringGrid=grid,width=width,height=height,
-                             grid_filteringColumn='_pkey:%s' %many).selectionStore(table=table,sortedBy=sortedBy or 'pkey',condition=condition,**condition_kwargs)
+            paletteGridKwargs = dict(paletteCode=paletteCode,struct=struct,dockButton=dockButton,
+                            grid_multiSelect=multiSelect,
+                            title=title,searchOn=searchOn,
+                            width=width,height=height)
+            if grid:
+                paletteGridKwargs['grid_filteringGrid']=grid
+                paletteGridKwargs['grid_filteringColumn'] = '_pkey:%s' %many
+            palette = pane.paletteGrid(**paletteGridKwargs).selectionStore(table=table,sortedBy=sortedBy or 'pkey',condition=condition,**condition_kwargs)
         if grid:
             grid.dragAndDrop(paletteCode)
             if autoInsert:

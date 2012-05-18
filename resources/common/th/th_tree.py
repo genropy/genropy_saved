@@ -6,6 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 
@@ -42,11 +43,13 @@ class TableHandlerTreeResolver(BagResolver):
                             caption=caption,
                             child_count=record['child_count'],pkey=pkey or '_all_',
                             parent_id=self.parent_id,
+                            hierarchical_pkey=record['hierarchical_pkey'],
                             treeIdentifier=pkey)
         return result
 
 class TableHandlerHierarchicalView(BaseComponent):
     js_requires='th/th_tree'
+    py_requires='th/th_picker:THPicker'
 
     @public_method    
     def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None):
@@ -55,14 +58,17 @@ class TableHandlerHierarchicalView(BaseComponent):
         self.db.commit()
         
     @struct_method
-    def ht_slotbar_treeViewer(self,pane,**kwargs):
+    def ht_treeViewer(self,pane,**kwargs):
         pane.attributes['height'] = '100%'
-        box = pane.div(height='100%',position='relative',datapath='.#parent.hview',text_align='left')
+        pane.attributes['overflow'] = 'hidden'
+        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        hviewTree = box.hviewTree(**kwargs)
+        
+        hviewTree = box.hviewTree(table=table,**kwargs)
+        form.htree = hviewTree
         hviewTree.htableViewStore(table=table)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -73,19 +79,16 @@ class TableHandlerHierarchicalView(BaseComponent):
                 return;
             }
             PUT .tree.pkey = pkey;
-            var path = ['root'];
-            var recordpath = genro.serverCall('ht_pathFromPkey',{pkey:this.form.getCurrentPkey(),table:table});
-            if(recordpath){
-                path = path.concat(recordpath.split('.'));
-            }
-            path = path.join('.');
-            tree.widget.setSelectedPath(null,{value:path});                        
-        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey')
+            var selectedPath = currHierarchicalPkey?'root.'+currHierarchicalPkey.replace(/\//g,'.'):'root';
+            tree.widget.setSelectedPath(null,{value:selectedPath});                        
+        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey',currHierarchicalPkey='=#FORM.record.hierarchical_pkey')
+        
+
+        
         form.dataController("""var currpkey = this.form.getCurrentPkey();
                             if(currpkey!='*newrecord*'){
                                 treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
                             }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)    
-        pane.htree = hviewTree
         return hviewTree
          
     @struct_method
@@ -104,11 +107,12 @@ class TableHandlerHierarchicalView(BaseComponent):
         pane.data('.store',b,childname='store',caption=tblobj.name_plural,table=table) 
         pane.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
-    @extract_kwargs(tree=True)
     @struct_method
-    def th_hviewTree(self,parent,storepath='.store',tree_kwargs=None,**kwargs):
-        box = parent.div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
-        tree = box.tree(storepath=storepath,_class='fieldsTree', hideValues=True,
+    def th_hviewTree(self,box,table=None,picker=None,**kwargs):  
+        if picker: 
+            bar = box.slotToolbar('*,treePicker,2')
+        pane = box.div(overflow='auto',position='relative',top='2px',bottom='2px',left='2px',right='2px')
+        tree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             draggable=True,childname='htree',
                             onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.form.isNewRecord() || sn.form.isDisabled()){return false;}""", 
@@ -116,18 +120,44 @@ class TableHandlerHierarchicalView(BaseComponent):
                             labelAttribute='caption',
                             dropTarget=True,
                             selected_pkey='.tree.pkey',
-                            selectedPath='.tree.path',                            
-                            identifier='treeIdentifier',
-                            **tree_kwargs)
+                            selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
+                            selectedPath='.tree.path',  
+                            identifier='treeIdentifier')
+        if picker:
+            picker_kwargs = dictExtract(kwargs,'picker_')
+            picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
+            paletteCode = 'picker_%s' %picker_table.replace('.','_')
+            picker_kwargs['paletteCode'] = paletteCode
+            bar.treePicker.palettePicker(table=picker_table,autoInsert=False,multiSelect=False,**picker_kwargs)
+            tree.attributes['onDrop_%s' %paletteCode] = "THTree.onPickerDrop(this,data,dropInfo,{type_field:'%s',maintable:'%s',typetable:'%s'});" %(picker,table,picker_table)
+
         return tree
-        
+
     @public_method
-    def ht_pkeyFromPath(self,table=None,hpath=None,hfield=None):
-        tblobj = self.db.table(table)
-        if not hfield:
-            hierarchical = tblobj.attributes['hierarchical']
-            hfield = hierarchical.split(',')[0]
-        return tblobj.readColumns(columns='$%s' %tblobj.pkey,where='$hierarchical_%s=:hpath' %hfield,hpath=hpath)
+    def th_htreeCreateChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_id=None,how_many=None):
+        if not types:
+            return
+        how_many = how_many or 1
+        tblobj = self.db.table(maintable)
+        typetable = self.db.table(typetable)
+        caption_field = tblobj.attributes['hierarchical'].split(',')[0]
+        type_caption_field = typetable.attributes['caption_field']
+        wherelist = ['$parent_id=:p_id' if parent_id else '$parent_id IS NULL']
+        wherelist.append("$%s LIKE :type_caption || :suffix" %caption_field)
+        where = ' AND '.join(wherelist)
+        for type_id in types:
+            type_caption = typetable.readColumns(columns=type_caption_field,pkey=type_id)
+            last_child = tblobj.query(where=where ,p_id=parent_id,
+                                 order_by='$%s desc' %caption_field,
+                                 type_caption=type_caption,limit=1,suffix=' %%').fetch()
+            offset = 0
+            if last_child:
+                last_child = last_child[0]
+                offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
+            for i in range(how_many):
+                record = {type_field:type_id,'parent_id':parent_id,caption_field:'%s %i' %(type_caption,offset+1+i)}
+                tblobj.insert(record)
+        self.db.commit()
     
     @public_method
     def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
@@ -137,7 +167,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             hfield = hierarchical.split(',')[0]
         hdescription = tblobj.readColumns(columns='$hierarchical_%s' %hfield,pkey=pkey)
         where = " ( :hdescription = $hierarchical_%s ) OR ( :hdescription ILIKE $hierarchical_%s || :suffix) " %(hfield,hfield)
-        f = tblobj.query(where=where,hdescription=hdescription,suffix='.%%',order_by='$hierarchical_%s' %hfield).fetch()
+        f = tblobj.query(where=where,hdescription=hdescription,suffix='/%%',order_by='$hierarchical_%s' %hfield).fetch()
         if f:
             return '.'.join([r['pkey'] for r in f])
         
@@ -154,16 +184,17 @@ class TableHandlerHierarchicalView(BaseComponent):
                            if(this.form.isNewRecord()){
                                 return;
                            }
-                           var pathlist = main_h_desc?main_h_desc.split('.'):[];
+                           var pathlist = main_h_desc?main_h_desc.split('/'):[];
+                           var pkeylist = hpkey?hpkey.split('/'):[];
                            rootnode.freeze().clearValue();
-                           var label;
+                           var label,pkey;
                            var path2set = '_root_';
                            var that = this;
                            var standardCb = function(evt){
                                 if(evt.target && evt.target.sourceNode){
                                     var sn = evt.target.sourceNode;
-                                    if(sn.attr._hpath && sn.attr._hpath!=main_h_desc){
-                                        this.form.load({destPkey:genro.serverCall('ht_pkeyFromPath',{table:table,hpath:sn.attr._hpath,hfield:hfield})});
+                                    if(sn.attr.pkey && sn.attr.pkey!=this.form.getCurrentPkey()){
+                                        this.form.load({destPkey:sn.attr.pkey});
                                     }else if(sn.attr._addchild){
                                         if(!this.form.isNewRecord()){
                                             this.form.newrecord({parent_id:this.form.getCurrentPkey()});
@@ -179,7 +210,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                            for(var i=0;i<pathlist.length;i++){
                                label = pathlist[i];
                                row._('td')._('div',{'_class':'bread_middle'});
-                               row._('td',{'innerHTML':label,_class:'iconbox_text',_hpath:pathlist.slice(0,i+1).join('.')});
+                               row._('td',{'innerHTML':label,_class:'iconbox_text',pkey:pkeylist[i]});
                            }
                            row._('td')._('div',{'_class':'last_bread_middle bread_middle'});
                            row._('td')._('div',{'_class':'bread_add',_addchild:true});
@@ -189,7 +220,9 @@ class TableHandlerHierarchicalView(BaseComponent):
                                rootName = tblobj.name_plural,
                                currpath = '=.hview.tree.path',
                                hfield=hfield,
-                               main_h_desc = '^.form.record.hierarchical_%s' %hfield,
+                               main_h_desc = '=.form.record.hierarchical_%s' %hfield,
+                               hpkey = '=.form.record.hierarchical_pkey',
+                               _fired='^.form.controller.loaded',
                                add_label='!!Add')
 
 

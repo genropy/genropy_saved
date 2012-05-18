@@ -74,6 +74,30 @@ var THTree = {
         var ondrop_record = dropNode.attr;
         var ondrop_pkey = ondrop_record.pkey;
         return (ondrop_pkey!=dragged_record.pkey && dragged_record.parent_id != ondrop_pkey);
+    },
+    
+    onPickerDrop:function(sourceNode,data,dropInfo,kw){
+        if(sourceNode.form.isDisabled()){
+            return false;
+        }
+        var types = [];
+        if(data instanceof Array){
+            dojo.forEach(data,function(n){types.push(n._pkey)})
+            }else{
+                types[0] = data['pkey'];
+            }
+            var onResult = function(result){
+                sourceNode.setRelativeData('.tree.path','_root_.'+result);
+            }
+            var cb= function(count){
+                genro.serverCall('th_htreeCreateChildren',{types:types,parent_id:dropInfo.treeItem.attr.pkey,
+                                type_field:kw.type_field,maintable:kw.maintable,typetable:kw.typetable,how_many:count},onResult,null,'POST');
+            }
+        if(dropInfo.modifiers=='Shift'){
+            genro.dlg.prompt("How Many",{msg:'How many copies do you want to insert?',widget:'numberTextBox',action:cb});
+        }else{
+            cb();
+        }
     }
     
 };

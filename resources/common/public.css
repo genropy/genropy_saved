@@ -46,7 +46,7 @@
     color: inherit;
 }
 
-.gnrzoomlabel {
+/*.gnrzoomlabel {
     text-decoration: none;
     padding-left: 15px;
     display:inline;
@@ -57,7 +57,7 @@
     -moz-border-radius: 7px;
     -webkit-border-radius: 7px;
     background: transparent url(icons/linkto.gif) no-repeat;
-}
+}*/
 
 .gnrzoomcell:hover {
     -moz-border-radius: 7px;

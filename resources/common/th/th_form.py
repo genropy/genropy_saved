@@ -86,7 +86,8 @@ class TableHandlerForm(BaseComponent):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
-        hierarchical = options.pop('hierarchical',None)
+        hierarchical = options.pop('hierarchical',None)   
+        tree_kwargs = dictExtract(options,'tree_')     
         readOnly = options.get('readOnly')
         modal = options.get('modal',False)
         form.dataController(""" if(reason=='nochange' && modal){return;}
@@ -145,9 +146,8 @@ class TableHandlerForm(BaseComponent):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
             form.left.attributes.update(hidden=hierarchical=='closed',splitter=True)
-            form.left.slotBar('2,treeViewer,2',width='200px',border_right='1px solid silver')
-            
-            
+            bar = form.left.slotBar('0,htreeSlot,0',width='200px',border_right='1px solid silver')
+            bar.htreeSlot.treeViewer(**tree_kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():

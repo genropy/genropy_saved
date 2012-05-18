@@ -160,6 +160,7 @@ class TableBase(object):
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group='_')
         if hierarchical:
+            hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
             tblname = tbl.parentNode.label
             pkg = tbl.attributes['pkg']
@@ -168,14 +169,19 @@ class TableBase(object):
                                              onUpdated='hierarchical_after',
                                              onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', onDelete='c',relation_name='_children')
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
+            
             for fld in hierarchical.split(','):
-                hcol = tbl.column(fld)
-                hcol.attributes.setdefault('validate_nodup',True)
-                hcol.attributes.setdefault('validate_nodup_relative','parent_id')
-                fld_caption=hcol.attributes.get('name_long','path')
-                tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,unique=True) 
-                tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
-            tbl.attributes['hierarchical'] = hierarchical                                 
+                if fld=='pkey':
+                    tbl.column('hierarchical_pkey',unique=True,group='_') 
+                    tbl.column('_parent_h_pkey',group='_') 
+                else:
+                    hcol = tbl.column(fld)
+                    hcol.attributes.setdefault('validate_nodup',True)
+                    hcol.attributes.setdefault('validate_nodup_relative','parent_id')
+                    fld_caption=hcol.attributes.get('name_long','path')
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,unique=True) 
+                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
+            tbl.attributes['hierarchical'] = hierarchical  
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if not 'parent_id' in broadcast:
@@ -213,26 +219,28 @@ class TableBase(object):
     
             
     def trigger_hierarchical_before(self,record,fldname,**kwargs):
+        pkeyfield = self.pkey
+
         parent_id=record.get('parent_id')
         parent_record=None
         for fld in self.attributes.get('hierarchical').split(','):
-            v=record.get(fld) 
+            v=record.get(pkeyfield if fld=='pkey' else fld) 
             parent_h_fld='_parent_h_%s'%fld
             h_fld='hierarchical_%s'%fld
             parent_v=record.get(parent_h_fld)
             if parent_id is None:
                 record[h_fld] = v
                 record[parent_h_fld] = None
-                return
-            parent_record = self.query(where='$id=:pid',pid=parent_id).fetch()[0]
+                continue
+            parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0]
             record[parent_h_fld] = parent_v = parent_record[h_fld]
-            record[h_fld] = '%s.%s'%( parent_v, v)
+            record[h_fld] = '%s/%s'%( parent_v, v)
 
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')
         changed_hfields=[fld for fld in hfields if record.get('hierarchical_%s'%fld) != old_record.get('hierarchical_%s'%fld)]
         if changed_hfields:
-            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record['id']).fetch()
+            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[self.pkey]).fetch()
             for row in fetch:
                 new_row = dict(row)
                 for fld in changed_hfields:
@@ -303,12 +311,11 @@ class TableBase(object):
         p = pkey
         order_by='$_row_count'
         if hierarchical:
-            hierarchical = hierarchical.split(',')[0]
-            h_desc = self.readColumns(columns='hierarchical_%s' %hierarchical,pkey=pkey)
-            p = h_desc
-            order_by = hierarchical
-            where =  " ( :p = @maintable_id.hierarchical_%s ) OR ( :p ILIKE @maintable_id.hierarchical_%s || :suffix) " %(hierarchical,hierarchical)
-        return fieldstable.query(where=where,p=p,suffix='.%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
+            hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
+            p = hpkey
+            order_by = 'hierarchical_pkey'
+            where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
+        return fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
     
     @public_method
     def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
