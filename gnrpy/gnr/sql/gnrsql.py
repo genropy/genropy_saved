@@ -45,7 +45,8 @@ import re
 import thread
 import locale
 
-IN_OPERATOR_PATCH = re.compile(r'\s\S+\sIN\s\(\)')
+IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sIN\s\(\)')
+NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sNOT\s+IN\s\(\)')
 
 class GnrSqlException(GnrException):
     """Standard Gnr Sql Base Exception
@@ -322,6 +323,7 @@ class GnrSqlDb(GnrObject):
                 sqlargs.pop(k)
                 sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
                 sql = re.sub(':%s(\W|$)' % k, sqllist, sql)
+            sql = re.sub(NOT_IN_OPERATOR_PATCH, ' TRUE', sql)    
             sql = re.sub(IN_OPERATOR_PATCH, ' FALSE', sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
