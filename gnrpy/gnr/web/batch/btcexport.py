@@ -118,7 +118,7 @@ class BaseResourceExport(BaseResourceBatch):
         export_mode = self.export_mode
         if self.export_zip:
             export_mode = 'zip'
-            self.zippath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, export_mode), autocreate=-1)
+            self.zippath = self.page.site.getStaticPath('page:output',export_mode,'%s.%s' % (self.filename, export_mode), autocreate=-1)
             self.page.site.zipFiles(file_list=[self.filepath],zipPath=self.zippath)
             self.filepath = self.zippath
         self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,
@@ -130,7 +130,7 @@ class BaseResourceExport(BaseResourceBatch):
         filename = filename.replace(' ', '_').replace('.', '_').replace('/', '_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
-        self.filepath = self.page.site.getStaticPath('page:output','%s.%s' % (self.filename, self.export_mode), autocreate=-1)
+        self.filepath = self.page.site.getStaticPath('page:output',self.export_mode,'%s.%s' % (self.filename, self.export_mode), autocreate=-1)
 
     def result_handler(self):
         if self.batch_immediate:
