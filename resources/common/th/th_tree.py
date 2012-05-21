@@ -102,16 +102,16 @@ class TableHandlerHierarchicalView(BaseComponent):
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,into_pkey:into_pkey},
                                                 function(result){
                                                 });""" %table
-        treeattr['dropTargetCb']="""return THTree.dropTargetCb(this,dropInfo);"""  
+        treeattr['dropTargetCb']="""return this.form.isDisabled()?false:THTree.dropTargetCb(this,dropInfo);"""  
         pane = tree.parent
         pane.data('.store',b,childname='store',caption=tblobj.name_plural,table=table) 
         pane.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
     @struct_method
-    def th_hviewTree(self,box,table=None,picker=None,**kwargs):  
+    def ht_hviewTree(self,box,table=None,picker=None,**kwargs):  
         if picker: 
-            bar = box.slotToolbar('*,treePicker,2')
-        pane = box.div(overflow='auto',position='relative',top='2px',bottom='2px',left='2px',right='2px')
+            bar = box.slotToolbar('*,treePicker,2',height='20px')
+        pane = box.div(position='relative',height='100%',padding='2px')
         tree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             draggable=True,childname='htree',
                             onDrag="""var sn = dragInfo.sourceNode;
@@ -122,7 +122,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                             selected_pkey='.tree.pkey',
                             selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                             selectedPath='.tree.path',  
-                            identifier='treeIdentifier')
+                            identifier='treeIdentifier',margin='2px')
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
@@ -134,7 +134,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         return tree
 
     @public_method
-    def th_htreeCreateChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_id=None,how_many=None):
+    def ht_htreeCreateChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_id=None,how_many=None):
         if not types:
             return
         how_many = how_many or 1
@@ -224,36 +224,128 @@ class TableHandlerHierarchicalView(BaseComponent):
                                hpkey = '=.form.record.hierarchical_pkey',
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
-
-
-class TableHandlerTree(TableHandlerHierarchicalView):
-    py_requires='th/th:TableHandler'
-    @extract_kwargs(condition=True,tree=True,default=True,picker=True)
     @struct_method
-    def th_borderTableHandlerTree(self,pane,table=None,relation=None,formResource=None,treeResource=None,
-                                nodeId=None,datapath=None,condition=None,
-                                condition_kwargs=None,default_kwargs=None,picker_kwargs=None,**kwargs):
-        if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
-                                                    condition_kwargs=condition_kwargs,
-                                                    default_kwargs=default_kwargs,original_kwargs=kwargs)
-        tableCode = table.replace('.','_')
-        th_root = self._th_mangler(pane,table,nodeId=nodeId)
-        treeCode='T_%s' %th_root
-        formCode='F_%s' %th_root
-        frame = pane.framePane(datapath=datapath or '.%s'%tableCode,
-                        thtree_root=treeCode,
-                        thform_root=formCode,
-                        nodeId=th_root,
-                        table=table,
-                        **kwargs)
-        #frame.top.slotToolbar('2,vtitle,currentSelected,add_child,*,delrow,addrow,locker')
-        bc = frame.center.borderContainer()
-        default_kwargs.setdefault('parent_id','=#FORM/parent/#FORM.record.parent_id')
-        form = frame.tableEditor(frameCode=formCode,formRoot=bc,formResource=formResource,
-                       table=table,loadEvent='onclick',form_locked=True,
-                        default_kwargs=default_kwargs,navigation=False)
-        form.attributes.update(region='center',margin='2px',margin_left='4px',rounded=4,border='1px solid silver')
-        form.top.bar.replaceSlots('#','hbreadcrumb,#')
-        form.left.slotBar('treeViewer',splitter=True,width='300px')
+    def ht_relatedTableHandler(self,tree,th,relation_table=None):
+        vstore = th.view.store
+        vstoreattr = vstore.attributes
+        fstore = th.form.store
+        grid = th.view.grid
+        gridattr = grid.attributes
+        maintable = tree.getInheritedAttributes()['table']
+        maintableobj = self.db.table(maintable)
+        bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
+        bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',parentForm=False,label_color='#666')
+        if not relation_table:
+            tblalias = maintableobj.pkg.tables['%s_alias' %maintable.split('.')[1]]
+            relation_table = tblalias.fullname if tblalias else ''
+                    
+        dragTable = th.attributes['table']
+        fkey_name = vstoreattr.get('_fkey_name')
+        assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
+        condlist = []
+        condpars = dict(suffix='/%%',curr_fkey='=#FORM.pkey',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        
+        hiddencolumns = gridattr.get('hiddencolumns') or []
+        rel_fkey_name = False 
+        if fkey_name:
+            hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
+            condlist.append("""( CASE WHEN :curr_fkey IS NULL 
+                                     THEN $%s IS NULL 
+                                     ELSE (( :showInherited AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
+                                 END )""" %(fkey_name,fkey_name,fkey_name)) 
+        if relation_table:
+            joiner = maintableobj.model.getJoiner(relation_table)
+            relation_name = joiner['relation_name']
+            rel_fkey_name = joiner['many_relation'].split('.')[-1]
+            condlist.append("""
+            ( ( @%s.%s =:curr_fkey ) OR 
+                  ( :showInherited AND
+                        ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
+                  )
+            )
+            """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
+            hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
+        
+        vstoreattr['condition'] = ' OR '.join(condlist)
+        vstoreattr.update(condpars)
+        
+        dragCode = 'hrows_%s' %dragTable.replace('.','_')
+        trashId = False
+        if fkey_name and relation_table:
+            trashId=str(id(tree))
+            tree.parent.div(_class='treeTrash',id=trashId,onCreated="""
+                var that = this;
+                var c1 = dojo.connect(window,'dragend',function(){
+                    genro.dom.removeClass(that,'treeShowTrash');
+                });
+            """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
+                genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
+            """ %(relation_table,dragTable)})
+
+        gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
+                                    var sourceNode = dragInfo.sourceNode;
+                                    var curr_hfkey = sourceNode._curr_hfkey;
+                                    var rows = dragValues.gridrow.rowset;
+                                    var inherited_pkeys = [];
+                                    var alias_pkeys = [];
+                                    var pkeys = [];
+                                    dojo.forEach(rows,function(r){
+                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey);
+                                        var pkey = r['_pkey'];
+                                        if(r['_hieararchical_inherited']){
+                                            inherited_pkeys.push(pkey);
+                                        }
+                                        if(r['_alias_row']){
+                                            alias_pkeys.push(pkey);
+                                        }
+                                        pkeys.push(pkey);
+                                    });
+                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !this.form.isDisabled()){
+                                        console.log(sourceNode.attr.trashId,dojo.byId(sourceNode.attr.trashId))
+                                        dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
+                                    }
+                                    dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
+                                        rowCustomClassesCb="""function(row){
+                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey);
+                                                      }""",                                        
+                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
+        tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
+        treeattr = tree.attributes
+        treeattr['dropTargetCb_%s' %dragCode]="""return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;"""  
+
+        treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
+                                                genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
+                                                                                        relationValue:relationValue,modifiers:dropInfo.modifiers,
+                                                                                        relation_table:'%s',maintable:'%s'},null,null,'POST');
+                                                """ %(dragTable,fkey_name,relation_table,maintable)
+        
+    @public_method
+    def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
+                             relationValue=None,modifiers=None,relation_table=None):
+        tblobj = self.db.table(table)
+        reltblobj = None
+        if relation_table:
+            reltblobj = self.db.table(relation_table)
+            rel_fkey_name = self.db.table(maintable).model.getJoiner(relation_table)['many_relation'].split('.')[-1]
+            rkey_name = tblobj.model.getJoiner(relation_table)['many_relation'].split('.')[-1]
+        if modifiers == 'Shift' or not fkey_name:
+            if reltblobj:
+                currRelatedRecords = reltblobj.query(where='$%s=:v AND $%s IS NOT NULL' %(rel_fkey_name,rkey_name),v=relationValue).fetchAsDict(rkey_name)
+                for pkey in pkeys:
+                    if pkey not in currRelatedRecords:
+                        reltblobj.insert({rel_fkey_name:relationValue,rkey_name:pkey})
+        elif fkey_name:
+            tblobj.batchUpdate({fkey_name:relationValue},_pkeys=pkeys)
+            if reltblobj:
+                reltblobj.deleteSelection(where='$%s=:v AND $%s IN :pkeys' %(rel_fkey_name,rkey_name),pkeys=pkeys,v=relationValue)
+        self.db.commit()
+        
+    @public_method
+    def ht_removeAliasRows(self,aliastable=None,dragtable=None,fkeys=None):
+        dragtblobj = self.db.table(dragtable)
+        fkey_name = dragtblobj.model.getJoiner(aliastable)['many_relation'].split('.')[-1]
+        self.db.table(aliastable).deleteSelection(where='$%s IN :fkeys' %fkey_name,fkeys=fkeys)
+        dragtblobj.touchRecords(_pkeys=fkeys)
+        self.db.commit()
+        
 

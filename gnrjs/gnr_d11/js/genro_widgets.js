@@ -224,6 +224,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         objectExtract(attributes, 'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes, 'dropTarget');
         savedAttrs['dropTargetCb'] = objectPop(attributes, 'dropTargetCb');
+        savedAttrs['dropTargetCb_extra'] = objectExtract(attributes,'dropTargetCb_*');
         savedAttrs.connectedMenu = objectPop(attributes, 'connectedMenu');
         savedAttrs.onEnter = objectPop(attributes, 'onEnter');
         objectUpdate(savedAttrs, this.creating(attributes, sourceNode));
@@ -335,6 +336,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         
         if (savedAttrs.dropTargetCb) {
             sourceNode.dropTargetCb = funcCreate(savedAttrs.dropTargetCb, 'dropInfo', sourceNode);
+        }
+        
+        if(savedAttrs.dropTargetCb_extra && objectNotEmpty(savedAttrs.dropTargetCb_extra)){
+            sourceNode.dropTargetCbExtra = {};
+            for(var key in savedAttrs.dropTargetCb_extra){
+                sourceNode.dropTargetCbExtra[key] = funcCreate(savedAttrs.dropTargetCb_extra[key], 'dropInfo,data', sourceNode);
+            }
         }
         if (savedAttrs.dropTarget) {
             if (newobj.setDropTarget) {
@@ -2247,10 +2255,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if(sourceNode.attr.configurable){
             var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
             sourceNode.registerSubscription('endDrag',sourceNode,function(){
-                genro.dom.removeClass(frameNode,'fieldsTreeShowTrash');
+                genro.dom.removeClass(frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                genro.dom.addClass(frameNode,'fieldsTreeShowTrash');
+                genro.dom.addClass(frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
         }

@@ -825,21 +825,23 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var attr = sourceNode.attr;
             var dropTarget = sourceNode.dropTarget || attr.selfDragRows || attr.selfDragColumns;
             var dropTargetCb = sourceNode.dropTargetCb;
+            var dropTargetCbExtra = sourceNode.dropTargetCbExtra;
             info.dragSourceInfo = genro.dom.getDragSourceInfo(event.dataTransfer);
             if (info.dragSourceInfo.detachable) {
                 return info;
             }
-            if (dropTarget || dropTargetCb) {
+            if (dropTarget || dropTargetCb || dropTargetCbExtra) {
                 info.sourceNodeId = info.dragSourceInfo.nodeId;
                 info.selfdrop = (info.nodeId && (info.nodeId == info.sourceNodeId));
-                info.hasDragType = function() {
-                    var draggedTypes = genro.dom.dataTransferTypes(event.dataTransfer);
-                    return (dojo.filter(arguments,
-                                       function (value) {
-                                           return dojo.indexOf(draggedTypes, value) >= 0;
-                                       }).length > 0);
-                };
                 var continueDrop = ! (info.handler.fillDropInfo(info) === false);
+                if(dropTargetCbExtra){
+                    for(var k in dropTargetCbExtra){
+                        continueDrop = dropTargetCbExtra[k](info,genro.dom.getFromDataTransfer(info.event.dataTransfer,k));
+                        if (!continueDrop){
+                            break
+                        }
+                    }
+                }
                 if (!continueDrop || ( dropTargetCb && (! dropTargetCb(info)))) {
                     //info = null;
                     info.isTarget=false

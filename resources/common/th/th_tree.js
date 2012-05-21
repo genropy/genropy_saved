@@ -46,7 +46,7 @@ var THTree = {
                 p = n.getFullpath(null, treeNode.widget.model.store.rootData());
                 treeNode.widget.setSelectedPath(null,{value:p});
             }else{
-                p = genro.serverCall('ht_pathFromPkey',{pkey:selectedIdentifier,table:table});
+                p = genro.serverCall('th_pathFromPkey',{pkey:selectedIdentifier,table:table});
                 if(p){
                     treeNode.widget.setSelectedPath(null,{value:'root.'+p});
                 }
@@ -54,13 +54,10 @@ var THTree = {
             
         }
     },
-    dropTargetCb:function(sourceNode,dropInfo){
+    dropTargetCbOnSelf:function(sourceNode,dropInfo){
         var pkey = dropInfo.treeItem.attr.pkey;
         var dataTransfer = dropInfo.event.dataTransfer;
         var nodeattr = genro.dom.getFromDataTransfer(dataTransfer,'nodeattr');
-        if (!nodeattr){
-            return true;
-        }
         var dragged_record = convertFromText(nodeattr);
         var draggedNode = sourceNode.getRelativeData('.store').getNodeByAttr('pkey',dragged_record.pkey);
         var dropNode = dropInfo.treeItem;
@@ -76,6 +73,15 @@ var THTree = {
         return (ondrop_pkey!=dragged_record.pkey && dragged_record.parent_id != ondrop_pkey);
     },
     
+    dropTargetCb:function(sourceNode,dropInfo){
+        if((sourceNode._id==dropInfo.dragSourceInfo._id) && (dropInfo.dragSourceInfo.page_id == genro.page_id)){
+            return this.dropTargetCbOnSelf(sourceNode,dropInfo)
+        }else{
+            return true;
+        }
+        
+    },
+
     onPickerDrop:function(sourceNode,data,dropInfo,kw){
         if(sourceNode.form.isDisabled()){
             return false;
@@ -90,7 +96,7 @@ var THTree = {
                 sourceNode.setRelativeData('.tree.path','_root_.'+result);
             }
             var cb= function(count){
-                genro.serverCall('th_htreeCreateChildren',{types:types,parent_id:dropInfo.treeItem.attr.pkey,
+                genro.serverCall('ht_htreeCreateChildren',{types:types,parent_id:dropInfo.treeItem.attr.pkey,
                                 type_field:kw.type_field,maintable:kw.maintable,typetable:kw.typetable,how_many:count},onResult,null,'POST');
             }
         if(dropInfo.modifiers=='Shift'){
@@ -99,5 +105,32 @@ var THTree = {
             cb();
         }
     }
-    
 };
+var THTreeRelatedTableHandler = {
+    onRelatedRow:function(r,curr_hfkey){
+        var result = [];
+        if(r.one_hpkey == curr_hfkey){
+            return;
+        }
+        if(r.one_hpkey && r.one_hpkey.indexOf(curr_hfkey)==0){
+            r['_hieararchical_inherited'] = true;
+            return '_hieararchical_inherited';
+        }
+        if(r.many_hpkey==curr_hfkey){
+            if(r.one_hpkey){
+                r['_alias_row'] = true;
+                return '_alias_row';
+            }else{
+                return;
+            }
+        }else if(r.many_hpkey && r.many_hpkey.indexOf(curr_hfkey)==0){
+            r['_hieararchical_inherited'] = true;
+            if(r.one_hpkey){
+                r['_alias_row'] = true;
+                return '_alias_row _hieararchical_inherited'
+            }else{
+                return '_hieararchical_inherited';
+            }
+        }
+    }
+}

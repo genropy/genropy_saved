@@ -1190,7 +1190,7 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
             kw.explorerPath = sourceNode.absDatapath(explorerPath);
         }
         if (trash){
-            var trashKw = {_class:'fieldsTreeTrash'};
+            var trashKw = {_class:'treeTrash'};
             trashKw.dropTarget=true;
             trashKw.dropTypes='trashable';
             trashKw.onDrop_trashable=function(dropInfo,data){

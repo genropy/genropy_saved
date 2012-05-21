@@ -488,7 +488,7 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -496,6 +496,11 @@ class SqlTable(GnrObject):
         :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
+        if not 'where' in kwargs and _pkeys:
+            kwargs['where'] = '$%s IN :_pkeys' %self.pkey
+            if isinstance(_pkeys,basestring):
+                _pkeys = _pkeys.split(',')
+            kwargs['_pkeys'] = _pkeys
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
@@ -631,10 +636,15 @@ class SqlTable(GnrObject):
             # if not self.trigger_onDeleting:
             #  sql delete where
             
-    def touchRecords(self, where=None, **kwargs):
+    def touchRecords(self, where=None,_pkeys=None, **kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
+        if where and _pkeys:
+            where = '$%s IN :_pkeys' %self.pkey
+            if isinstance(_pkeys,basestring):
+                _pkeys = _pkeys.split(',')
+            kwargs['_pkeys'] = _pkeys
         sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
         for row in sel:
             row._notUserChange = True

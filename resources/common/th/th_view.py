@@ -77,17 +77,38 @@ class TableHandlerView(BaseComponent):
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
                                **kwargs)   
         if configurable:
-            frame.left.viewConfigurator(table,frameCode)                         
+            frame.right.viewConfigurator(table,frameCode)     
+        if False:
+            frame.left.viewLeftDrawer(table,frameCode)             
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
         return frame
+    
+    @struct_method
+    def th_viewLeftDrawer(self,pane,table,th_root):
+        
+        bar = pane.slotBar('drawerStack',min_width='160px',closable='close',
+                            splitter=True,border_right='1px solid silver')
+        bar.drawerStack.attributes['height'] = '100%'
+        sc = bar.drawerStack.stackContainer(height='100%')
+        sc.contentPane(background='red')
+        
+       #bar.confBar.slotToolbar('*,menuslot',menuslot='menu',height='20px',background='whitesmoke')
+       #tclass = bar.treeClassificator
+       #tclass.attributes['height']='100%'
+       #tclass.div(height='100%').('dragArea')
+       #bar.footerBar.slotToolbar('*,tools',tools='tools',height='20px')
+        
+   #@public_method
+   #def buildClassificator(self,pane):
+   #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
         
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root):
         bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
-                            fieldsTree_height='100%',splitter=True)
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke',border_right='1px solid gray')
+                            fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
         gridId = '%s_grid' %th_root
         confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
                                         action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)

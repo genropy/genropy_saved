@@ -40,27 +40,26 @@ cursorZoom_plus{
 
 .fieldsTreeBox{
 	position: absolute;
-	top: 2px;
-	bottom: 2px;
-	left: 2px;
+	top: 0;
+	bottom: 0;
+	left: 0;
 	right: 0;
-	border: 1px solid silver;
 	color: #555;
-	border-radius:4px;
+	
 	font-family: helvetica;
 	overflow: auto;
 	font-size: 9px;
 	background: white;
 }
-.fieldsTreeShowTrash .fieldsTreeTrash{
+.treeShowTrash .treeTrash,.treeShowTrash.treeTrash{
     display:block;
 }
-.fieldsTreeTrash.canBeDropped{
+.treeTrash.canBeDropped{
     background-color: #e5e5e5 !important;
     opacity:.8;
 }
 
-.fieldsTreeTrash{
+.treeTrash{
     display:none;
     position: absolute;
 	top: 2px;
