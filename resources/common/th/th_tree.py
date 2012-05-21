@@ -228,7 +228,6 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_relatedTableHandler(self,tree,th,relation_table=None):
         vstore = th.view.store
         vstoreattr = vstore.attributes
-        fstore = th.form.store
         grid = th.view.grid
         gridattr = grid.attributes
         maintable = tree.getInheritedAttributes()['table']
