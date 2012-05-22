@@ -691,7 +691,18 @@ class DbStoresHandler(object):
         """TODO
         
         :param storename: TODO"""
-        self.config.pop('%s_xml' % storename)
+        return self.config.pop('%s_xml' % storename)
+    
+    def drop_store(self,storename):
+        config = self.drop_dbstore_config(storename)
+        if not config:
+            return
+        try:
+            self.db.dropDb(config['db?dbname'])
+        except Exception:
+            print Exception
+        self.save_config()
+        
         
     def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True):
         """TODO
