@@ -302,7 +302,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         }
                                         pkeys.push(pkey);
                                     });
-                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !this.form.isDisabled()){
+                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.isDisabled()){
                                         console.log(sourceNode.attr.trashId,dojo.byId(sourceNode.attr.trashId))
                                         dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
                                     }

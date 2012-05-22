@@ -331,7 +331,7 @@ class SqlQueryCompiler(object):
             colname = col.group(2)
             asname = self.db.colToAs(colname)
             reldict[asname] = colname
-            teststring = teststring.replace(colname, '$%s' % asname)
+            teststring = teststring.replace(colname, '$%s' % asname,1)
         return teststring
         
     def expandMultipleColumns(self, flt, bagFields):
