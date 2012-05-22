@@ -298,8 +298,10 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=th_root)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
+        options = self._th_hook('options',mangler=th_root)() or dict()
+
         frame.dataFormula('.title','custom_title || view_title || name_plural || name_long',
-                        custom_title=title or False,
+                        custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
                         name_long='=.table?name_long',
                         view_title='=.title',_init=True)

@@ -38,10 +38,12 @@ class TableHandlerForm(BaseComponent):
                                  formResource=formResource,
                                  iframe=formInIframe,
                                  **options) 
-        form.dataFormula("#FORM.controller.title","newrecord? caption: tablename+': '+caption;",
+        form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
                             tablename=self.db.table(table).name_long,
                             caption='^#FORM.record?caption',
-                            newrecord='=#FORM.record?_newrecord')
+                            newrecord='=#FORM.record?_newrecord',
+                            record='=#FORM.record',titleTemplate=options.get('titleTemplate',False),
+                            newTitleTemplate=options.get('newTitleTemplate',False))
         if formInIframe:
             return form
         self._th_applyOnForm(form,options=options,mangler=frameCode)   
