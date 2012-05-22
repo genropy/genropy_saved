@@ -17,6 +17,7 @@ from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
 from gnr.core.gnrclasses import GnrMixinError
+from gnr.core.gnrlang import uniquify
 import glob
 import logging
 
@@ -477,7 +478,7 @@ class ResourceLoader(object):
                     result.extend(glob.glob(os.path.join(dpath,path)))
                 else:
                     result.append(fpath)
-        return result
+        return uniquify(result)
         
     def loadResource(self, *path, **kwargs):
         """TODO"""
