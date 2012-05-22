@@ -102,6 +102,7 @@ class TableHandlerForm(BaseComponent):
         box_kwargs = dictExtract(options,'box_')
         if hierarchical:
             box_kwargs['sidebar'] = True
+            box_kwargs['persist'] = True
         if box_kwargs:
             sidebar = box_kwargs.pop('sidebar')
             if sidebar:
@@ -148,7 +149,7 @@ class TableHandlerForm(BaseComponent):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
             form.left.attributes.update(hidden=hierarchical=='closed',splitter=True)
-            bar = form.left.slotBar('0,htreeSlot,0',width='200px',border_right='1px solid silver')
+            bar = form.left.slotBar('0,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver')
             bar.htreeSlot.treeViewer(**tree_kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)

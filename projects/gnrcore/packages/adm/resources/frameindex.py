@@ -68,6 +68,7 @@ class FrameIndex(BaseComponent):
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',overflow='hidden',
+                                persist=True,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
