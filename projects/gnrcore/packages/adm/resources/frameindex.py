@@ -187,7 +187,7 @@ class FrameIndex(BaseComponent):
                        
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
-                                    margin_right='-5px',overflow='hidden',hidden=self.hideLeftPlugins))
+                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins))
         bc = pane.borderContainer()
         
         #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
