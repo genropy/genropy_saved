@@ -74,14 +74,17 @@ class BaseResourceBatch(object):
                               note=self.batch_note)
         self._pre_process()
         if self.batch_steps:
-            for step in self.btc.thermo_wrapper(self.batch_steps, 'btc_steps', message=self.get_step_caption,
-                                                keep=True):
-                step_handler = getattr(self, 'step_%s' % step)
-                step_handler()
-                for line_code in self.btc.line_codes[1:]:
-                    self.btc.thermo_line_del(line_code)
+            self.call_steps()
         else:
             self.do()
+    
+    def call_steps(self,offset=1):
+        for step in self.btc.thermo_wrapper(self.batch_steps, 'btc_steps', message=self.get_step_caption,
+                                                keep=True):
+            step_handler = getattr(self, 'step_%s' % step)
+            step_handler()
+            for line_code in self.btc.line_codes[offset:]:
+                self.btc.thermo_line_del(line_code)
 
     def storeResult(self, key, result, record=None, **info):
         """TODO

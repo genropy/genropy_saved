@@ -176,10 +176,10 @@ class TableBase(object):
                     tbl.column('_parent_h_pkey',group='_') 
                 else:
                     hcol = tbl.column(fld)
-                    hcol.attributes.setdefault('validate_nodup',True)
-                    hcol.attributes.setdefault('validate_nodup_relative','parent_id')
+                   #hcol.attributes.setdefault('validate_nodup',True)
+                   #hcol.attributes.setdefault('validate_nodup_relative','parent_id')
                     fld_caption=hcol.attributes.get('name_long','path')
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,unique=True) 
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
             tbl.attributes['hierarchical'] = hierarchical  
             broadcast = tbl.attributes.get('broadcast')
