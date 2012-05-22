@@ -253,9 +253,12 @@ class TableHandlerHierarchicalView(BaseComponent):
                                      ELSE (( :showInherited AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
                                  END )""" %(fkey_name,fkey_name,fkey_name)) 
         if relation_table:
-            joiner = maintableobj.model.getJoiner(relation_table)
-            relation_name = joiner['relation_name']
-            rel_fkey_name = joiner['many_relation'].split('.')[-1]
+            mainjoiner = maintableobj.model.getJoiner(relation_table)
+            relatedjoiner = self.db.table(dragTable).model.getJoiner(relation_table)
+
+            relation_name = relatedjoiner['relation_name']
+            
+            rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
             ( ( @%s.%s =:curr_fkey ) OR 
                   ( :showInherited AND

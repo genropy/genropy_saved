@@ -54,8 +54,17 @@ class FrameIndex(BaseComponent):
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
-        pane.dataFormula("gnr.windowTitle", "dataTemplate(tpl,data)",data='=gnr.rootenv',
-                            tpl=self.windowTitleTemplate(),_onStart=1)
+        pane.dataController("""var d = data.deepCopy();
+                            if(deltaDays(new Date(),d.getItem('workdate'))==0){
+                                d.setItem('workdate','');
+                            }
+                            var str = dataTemplate(tpl,d);
+                            
+                            SET gnr.windowTitle = str;
+                            """,
+                            data='=gnr.rootenv',
+                            tpl=self.windowTitleTemplate(),
+                            _onStart=1)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',overflow='hidden',
