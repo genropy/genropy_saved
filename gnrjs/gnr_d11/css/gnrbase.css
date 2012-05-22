@@ -2132,7 +2132,7 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group DojoxGrid*/
 .tundra .filteredGrid .dojoxGrid-cell{
-    font-style:italic;
+    text-decoration:underline;
 }
 .logicalDeleted .dojoxGrid-cell {
     color: #b50000;
