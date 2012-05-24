@@ -46,7 +46,7 @@ var THTree = {
                 p = n.getFullpath(null, treeNode.widget.model.store.rootData());
                 treeNode.widget.setSelectedPath(null,{value:p});
             }else{
-                p = genro.serverCall('th_pathFromPkey',{pkey:selectedIdentifier,table:table});
+                p = genro.serverCall('ht_pathFromPkey',{pkey:selectedIdentifier,table:table});
                 if(p){
                     treeNode.widget.setSelectedPath(null,{value:'root.'+p});
                 }
