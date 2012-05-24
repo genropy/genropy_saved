@@ -208,7 +208,7 @@ class TableBase(object):
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
             tbl.attributes.update(multidb=multidb)
-            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'))
+            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'))
         
         sync = tbl.attributes.get('sync')
         if sync:
@@ -334,7 +334,7 @@ class TableBase(object):
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
                                 
-    def setMultidbSubscription(self,tbl,allRecords=False):
+    def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
@@ -350,12 +350,12 @@ class TableBase(object):
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
-            tbl.attributes.update(multidb_allRecords=allRecords)
+            tbl.attributes.update(multidb_allRecords=allRecords,multidb_forcedStore=forcedStore)
             tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted')
-            if allRecords:
+            if allRecords or forcedStore:
                 return 
                 
             tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
@@ -370,16 +370,6 @@ class TableBase(object):
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-    
-    def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
-
-    def trigger_syncRecordInserted(self, record,**kwargs):
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='I')
-    
-    def trigger_syncRecordDeleting(self, record,**kwargs):        
-        self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
-     
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
@@ -414,6 +404,16 @@ class TableBase(object):
                         name_long=name_long, dtype='TAG')
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
 
+
+    def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
+        self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
+
+    def trigger_syncRecordInserted(self, record,**kwargs):
+        self.pkg.table('sync_event').onTableTrigger(self,record,event='I')
+    
+    def trigger_syncRecordDeleting(self, record,**kwargs):        
+        self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
+     
 
 class GnrDboTable(TableBase):
     """TODO"""

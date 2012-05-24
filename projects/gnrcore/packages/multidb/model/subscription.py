@@ -121,7 +121,10 @@ class Table(object):
         fkeyname = self.tableFkey(tblobj)
         pkey = record[tblobj.pkey]
         tablename = tblobj.fullname
-        if tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed'):
+        subscribedStores = []
+        if tblobj.attributes.get('multidb_forcedStore'):
+            subscribedStores.append(tblobj.multidb_getForcedStore(record))
+        elif tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed'):
             subscribedStores = self.db.dbstores.keys()
         else:
             subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
