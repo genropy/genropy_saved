@@ -49,6 +49,7 @@ class Table(object):
             handler(pkey,dbstore)
         if not self.checkDuplicate(**dict(record)):
             self.insert(record)
+            self.db.deferredCommit()
 
     
     @public_method
