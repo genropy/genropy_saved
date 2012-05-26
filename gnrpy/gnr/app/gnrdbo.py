@@ -333,7 +333,10 @@ class TableBase(object):
                 result.setItem(r['code'],None,caption=r['description'],dtype=r['data_type'],
                                 fieldpath=fieldpath,fullcaption=fullcaption)
         return result
-                                
+                     
+    def multidbSubscribe(self,pkey,dbstore=None):
+        self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
+           
     def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False):
         """TODO
         
