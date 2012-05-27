@@ -503,6 +503,7 @@ class SqlTable(GnrObject):
             kwargs['_pkeys'] = _pkeys
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
+            _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
         for row in fetch:
             new_row = dict(row)
@@ -636,7 +637,7 @@ class SqlTable(GnrObject):
             # if not self.trigger_onDeleting:
             #  sql delete where
             
-    def touchRecords(self, where=None,_pkeys=None, **kwargs):
+    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None, **kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -646,6 +647,9 @@ class SqlTable(GnrObject):
                 _pkeys = _pkeys.split(',')
             kwargs['_pkeys'] = _pkeys
         sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
+        if _wrapper:
+            _wrapperKwargs = _wrapperKwargs or dict()
+            sel = _wrapper(sel, **(_wrapperKwargs or dict()))
         for row in sel:
             row._notUserChange = True
             self.update(row, old_record=dict(row))

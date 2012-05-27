@@ -181,10 +181,11 @@ class TableScriptToHtml(BagToHtml):
         self.print_handler = self.page.getService('print')
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
+        self.record_idx = record_idx
         if record=='*':
             record = None
         else:
@@ -255,7 +256,7 @@ class TableScriptToHtml(BagToHtml):
         caption = ''
         if self.record is not None:
             caption = slugify(self.tblobj.recordCaption(self.getData('record')))
-            idx = self.record.get('__curridx')
+            idx = self.record_idx
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)
         doc_name = '%s_%s%s' % (self.tblobj.name, caption, ext)

@@ -57,11 +57,11 @@ class BaseResourcePrint(BaseResourceBatch):
         pkeyfield = self.tblobj.pkey
         if not self.get_selection():
             return
-        for record in self.btc.thermo_wrapper(records, maximum=len(self.get_selection()), **thermo_s):
-            self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield])
+        for k,record in self.btc.thermo_wrapper(records, maximum=len(self.get_selection()),enum=True ,**thermo_s):
+            self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield],idx=k)
 
-    def print_record(self, record=None, thermo=None, storagekey=None):
-        result = self.htmlMaker(record=record, thermo=thermo, pdf=self.pdf_make,
+    def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
+        result = self.htmlMaker(record=record,record_idx=idx, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         self.onRecordExit(record)
         if result:

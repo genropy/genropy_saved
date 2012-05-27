@@ -221,7 +221,7 @@ class GnrWebBatch(GnrBaseProxy):
                                  reason='tl_upd')
             store.setItem('lastBatchUpdate',curr_time)
 
-    def thermo_wrapper(self, iterable=None, line_code=None, message=None, keep=True, **kwargs):
+    def thermo_wrapper(self, iterable=None, line_code=None, message=None, keep=True,enum=False, **kwargs):
         """Return an iterator that wraps the given iterable and update the related thermo
         
         :param iterable:  it can be an iterable or a callable. If callable: it's called before iteration
@@ -252,8 +252,8 @@ class GnrWebBatch(GnrBaseProxy):
             progress = k + 1
             message = cb_message(item, progress, maximum, **kwargs)
             self.thermo_line_update(line_code, maximum=maximum, message=message, progress=progress)
-            if hasattr(item,'keys'):
-                item['__curridx'] = k
+            if enum is True:
+                item = (k,item )
             yield item
         if not keep:
             self.thermo_line_del(line_code)
