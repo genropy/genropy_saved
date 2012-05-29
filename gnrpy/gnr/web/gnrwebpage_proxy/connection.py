@@ -50,10 +50,6 @@ class GnrWebConnection(GnrBaseProxy):
         self.user = self.guestname
         self.register()
         self.write_cookie()
-        if hasattr(self.page,'automaticLogin'):
-            login = self.page.automaticLogin()
-            if login:
-                self.page.doLogin(login)
 
     def validate_page_id(self, page_id):
         return page_id in self.connection_item['pages']

@@ -27,7 +27,7 @@ class FrameIndex(BaseComponent):
     hideLeftPlugins = False
     auth_preference = 'admin'
     auth_workdate = 'admin'
-
+    auth_page='user'
     login_error_msg = '!!Invalid login'
     login_title = '!!Login'
     new_window_title = '!!New Window'
@@ -49,8 +49,12 @@ class FrameIndex(BaseComponent):
             
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
-        pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-        pane.frameIndexRoot(**kwargs)
+        pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
+        if pageAuth:
+            pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
+            pane.frameIndexRoot(**kwargs)
+        else:
+            pane.div('Not allowed')
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
@@ -274,7 +278,7 @@ class FramedIndexLogin(BaseComponent):
         dlg = pane.dialog(_class='lightboxDialog')
        
         box = dlg.div(**self.loginboxPars())
-        doLogin = self.avatar is None
+        doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         wtitle = self.login_title if doLogin else self.new_window_title  
         topbar.wtitle.div(wtitle)  
@@ -304,11 +308,11 @@ class FramedIndexLogin(BaseComponent):
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
         if hasattr(self,'rootenvForm'):
             self.rootenvForm(fb)
-            for fbnode in fb.getNodes()[start:]:
-                if fbnode.attr['tag']=='tr':
-                    fbnode.attr['hidden'] = '==!_avatar || _hide'
-                    fbnode.attr['_avatar'] = '^gnr.avatar'
-                    fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
+        for fbnode in fb.getNodes()[start:]:
+            if fbnode.attr['tag']=='tr':
+                fbnode.attr['hidden'] = '==!_avatar || _hide'
+                fbnode.attr['_avatar'] = '^gnr.avatar'
+                fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
         
         
         pane.dataController("""
@@ -379,11 +383,26 @@ class FramedIndexLogin(BaseComponent):
 
     def onUserSelected(self,avatar,data=None):
         return
-
+    
+    def automaticLogin(self,rootenv=None):
+        return False
+        
     def _getStartPage(self,new_window):
-        startPage = 'dashboard'
-        if not self.avatar:
-            startPage = 'login'
+        startPage = 'dashboard'        
+        if not self.avatar and self.auth_page:
+            newrootenv = Bag()
+            autologin = self.automaticLogin(newrootenv)
+            if autologin:
+                authenticate = autologin.pop('_authenticate',True)
+                self.doLogin(autologin,authenticate=authenticate)
+                canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),self.avatar.user_tags)
+                newrootenv.setItem('workdate',self.workdate, hidden= not canBeChanged,editable=True)
+                with self.pageStore() as pagestore:
+                    pagestore.setItem('rootenv',newrootenv)
+                with self.connectionStore() as connectionstore:
+                    connectionstore.setItem('defaultRootenv',Bag(newrootenv))
+            else:
+                return 'login'
         elif new_window:
             for n in self.rootenv:
                 if n.attr.get('editable') and not n.attr.get('hidden'):

@@ -496,7 +496,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     
     @public_method
-    def doLogin(self, login=None,guestName=None, **kwargs):
+    def doLogin(self, login=None,guestName=None,authenticate=True, **kwargs):
         """Service method. Set user's avatar into its connection if:
         
         * The user exists and his password is correct
@@ -509,8 +509,8 @@ class GnrWebPage(GnrBaseWebPage):
         if guestName:
             avatar = self.application.getAvatar(guestName)
         else:
-            avatar = self.application.getAvatar(login['user'], password=login['password'],
-                                                authenticate=True, page=self, **kwargs)
+            avatar = self.application.getAvatar(login['user'], password=login.get('password'),
+                                                authenticate=authenticate, page=self, **kwargs)
         if avatar:
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
