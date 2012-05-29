@@ -68,7 +68,7 @@ class FrameIndex(BaseComponent):
                             """,
                             data='=gnr.rootenv',
                             tpl=self.windowTitleTemplate(),
-                            _onStart=1)
+                            _onStart=True)
         frame = pane.framePane('standard_index',_class='hideSplitter frameindexroot',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',overflow='hidden',
@@ -110,16 +110,18 @@ class FrameIndex(BaseComponent):
         pane.dataController("""
                                 if(!data){
                                     if(indexTab){
-                                        data = new gnr.GnrBag();
-                                        data.setItem('indexpage',null,{'fullname':indexTab,pageName:'indexpage',fullpath:'indexpage'});
-                                        SET iframes = data;
+                                        genro.callAfter(function(){
+                                            var data = new gnr.GnrBag();
+                                            data.setItem('indexpage',null,{'fullname':indexTab,pageName:'indexpage',fullpath:'indexpage'});
+                                            this.setRelativeData("iframes",data);
+                                        },1,this);
                                     }
                                 }else{
                                     genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
                                 """,
                             data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
-                            onCreatingTablist=onCreatingTablist or False,_onStart=1)
+                            onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
