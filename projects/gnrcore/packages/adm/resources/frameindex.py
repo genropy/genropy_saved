@@ -324,7 +324,8 @@ class FramedIndexLogin(BaseComponent):
                             }
                             """,_onBuilt=True,
                             loginDialog = dlg.js_widget,sc=sc.js_widget,fb=fb,
-                            _if='indexStack=="login"',indexStack='^indexStack',startPage=self._getStartPage(new_window))
+                            _if='indexStack=="login"',indexStack='^indexStack',
+                            startPage=self._getStartPage(new_window))
  
         btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
@@ -337,6 +338,10 @@ class FramedIndexLogin(BaseComponent):
                 btn.widget.setDisabled(false);
             }else{
                 dlg.hide();
+                genro.bp()
+                if(result['rootpage']){
+                    genro.gotoURL(result['rootpage']);
+                }
                 sc.switchPage('dashboard');
                 genro.publish('logged');
             }
@@ -355,6 +360,7 @@ class FramedIndexLogin(BaseComponent):
             with self.connectionStore() as store:
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
+        return False
 
     @public_method
     def login_checkAvatar(self,password=None,user=None,**kwargs):
@@ -382,7 +388,7 @@ class FramedIndexLogin(BaseComponent):
             for n in self.rootenv:
                 if n.attr.get('editable') and not n.attr.get('hidden'):
                     startPage = 'login'
-                    break   
+                    break               
         return startPage
 
     @public_method
@@ -392,7 +398,7 @@ class FramedIndexLogin(BaseComponent):
             store.setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
-        return True
+        return self.avatar.as_dict()
                     
 
                                                       
