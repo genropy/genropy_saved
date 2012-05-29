@@ -124,7 +124,9 @@ class Table(object):
         tablename = tblobj.fullname
         subscribedStores = []
         if tblobj.attributes.get('multidb_forcedStore'):
-            subscribedStores.append(tblobj.multidb_getForcedStore(record))
+            store = tblobj.multidb_getForcedStore(record)
+            if store:
+                subscribedStores.append(store)
         elif tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed'):
             subscribedStores = self.db.dbstores.keys()
         else:
