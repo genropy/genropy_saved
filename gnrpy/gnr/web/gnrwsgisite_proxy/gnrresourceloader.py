@@ -144,7 +144,12 @@ class ResourceLoader(object):
         return None, None
         
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
-        page_node, page_node_attributes = self.get_page_node(path_list)
+        page_node = None
+        mobile = request_kwargs.pop('_mobile',False)
+        if mobile:
+            page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
+        if not page_node:
+            page_node, page_node_attributes = self.get_page_node(path_list)
         if not page_node:
             return None
         request_args = page_node._tail_list

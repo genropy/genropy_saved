@@ -344,7 +344,6 @@ class FramedIndexLogin(BaseComponent):
                 btn.widget.setDisabled(false);
             }else{
                 dlg.hide();
-                genro.bp()
                 if(result['rootpage']){
                     genro.gotoURL(result['rootpage']);
                 }

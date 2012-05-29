@@ -7,6 +7,7 @@ from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 import os
 import glob
+import re
 import logging
 from time import time
 from datetime import datetime
@@ -33,9 +34,12 @@ site_cache = {}
 
 OP_TO_LOG = {'x': 'y'}
 
+IS_MOBILE = re.compile(r'iPhone|iPad|Android')
+
 log = logging.getLogger(__name__)
 
 global GNRSITE
+
 
 def currentSite():
     global GNRSITE
@@ -552,6 +556,7 @@ class GnrWsgiSite(object):
         :param start_response: TODO"""
         t = time()
         request = Request(environ)
+
         response = Response()
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
@@ -561,6 +566,10 @@ class GnrWsgiSite(object):
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
         request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        
+        isMobile = len(IS_MOBILE.findall(request.user_agent))>0
+        if isMobile:
+            request_kwargs['_mobile'] = True
         request_kwargs.pop('_no_cache_', None)
         download_name = request_kwargs.pop('_download_name_', None)
         #print 'site dispatcher: ',path_list
