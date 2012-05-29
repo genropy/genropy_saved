@@ -288,7 +288,7 @@ dojo.declare('gnr.GenroClient', null, {
             this.root_page_id = this.mainGenroWindow.genro.page_id;
         }
         var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
-        if (mainBagPage  && mainBagPage.attr.redirect) {
+        if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
             if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
             {
