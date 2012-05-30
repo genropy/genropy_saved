@@ -33,16 +33,13 @@ class PublicBase(BaseComponent):
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
         pane = self.pageSource()
-        if self.root_page_id:
-            return
-        self._pbl_dialogs(pane)        
         
                               
     def pbl_userTable(self):
         return 'adm.user'
         
     def rootWidget(self, root, **kwargs):
-        return root.borderContainer(_class='pbl_root', **kwargs)
+        return root.contentPane(_class='pbl_root', **kwargs)
         
     def _pbl_dialogs(self, pane):
         self._pbl_dialogs_waiting(pane)
@@ -74,10 +71,8 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = 'menuBtn,avatar,*,caption,*,user,logout,5'
-        if self.root_page_id:
-            baseslots = '10,caption,*,avatar,10'
-            kwargs['margin_top'] ='2px'
+        baseslots = '10,caption,*,avatar,10'
+        kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'caption' in slots:
             kwargs['caption_title'] = title
@@ -326,22 +321,12 @@ class PublicSlots(BaseComponent):
     @struct_method
     def public_publicRoot_workdate(self,pane,**kwargs):
         pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
-
             
     @struct_method
-    def pbl_publicRoot_menuBtn(self,pane,**kwargs):
-        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
-                                if(this.attr._inframe){
-                                    genro.publish({'topic':'main_left_set_status',parent:true},'toggle');
-                                }else{
-                                    PUBLISH main_left_set_status= 'toggle';
-                                }
-                                """,_inframe=self.root_page_id)
-            
-    @struct_method
-    def public_publicRoot_caption(self,pane,title='',**kwargs):   
-        pane.div(title, _class='pbl_title_caption',
-                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
+    def public_publicRoot_caption(self,pane,title='',**kwargs):  
+        if title:
+            pane.data('gnr.publicTitle',title) 
+        pane.div('^gnr.publicTitle', _class='pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
                     
     @struct_method
@@ -506,23 +491,21 @@ class TableHandlerMain(BaseComponent):
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
                 th.dataController("""var title = (selectedPage!='form'?viewtitle:formtitle)||currTitle;
-                                     genro.setData("gnr.windowTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                                     genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
                             """,
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
                             selectionName='^.view.store?selectionName',table='=.view.table',
-                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle') 
+                            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle') 
                 
             else:
-                th.dataFormula('gnr.windowTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
+                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
     
-    @struct_method
-    def public_publicRoot_caption(self,pane,title='',**kwargs):   
-        pane.div(title, _class='pbl_title_caption',
-                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
-                    draggable=True,
-                    onDrag="""dragValues["webpage"] = genro.page_id;
-                              dragValues["dbrecords"] = genro.getDataNode("gnr.windowTitle").attr;
-                                """,**kwargs)            
+  # @struct_method
+  # def public_publicRoot_caption(self,pane,title='',**kwargs):  
+  #     if title:
+  #         pane.data('gnr.publicTitle',title) 
+  #     pane.div('^gnr.publicTitle', _class='pbl_title_caption',
+  #                 draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)           
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

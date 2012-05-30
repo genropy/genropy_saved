@@ -98,9 +98,11 @@
     height: 22px;
     vertical-align: middle;
     color: white;
-    background:#6c727d;
-    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#bdc7d6), to(#6c727d));
-    background-image: -moz-linear-gradient(-90deg, #bdc7d6, #6c727d);*/
+    background:;
+    
+    
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
 }
 
 /*background-color: #59514f;
@@ -153,9 +155,8 @@
 .pbl_root_bottom {
     height: 20px;
     vertical-align: middle;
-    background:#6c727d;
-   /* background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#6c727d), to(#bdc7d6));
-    background-image: linear-gradient(-90deg, #6c727d, #bdc7d6);*/
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
 }
 
 /* @end */
