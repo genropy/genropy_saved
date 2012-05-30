@@ -17,7 +17,8 @@ class TableHandlerMain(BaseComponent):
         th = getattr(self,'root_tablehandler',None)
         if th:
             self.__viewCustomization(th.view)
-            self.__formCustomization(th.form)
+            if hasattr(th,'form'):
+                self.__formCustomization(th.form)
     
     def __formCustomization(self,form):
         if self.tblobj.multidb_readOnly():

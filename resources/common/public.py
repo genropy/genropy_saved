@@ -32,7 +32,6 @@ class PublicBase(BaseComponent):
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
-        pane = self.pageSource()
         
                               
     def pbl_userTable(self):
@@ -64,6 +63,7 @@ class PublicBase(BaseComponent):
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         if bottom:
             self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
+        self.root_publicframe = frame
         return frame
         
     def public_frameTopBarSlots(self,baseslot):
@@ -107,158 +107,7 @@ class PublicBase(BaseComponent):
     def public_rootContentPane(self, root, title=None, height=None, width=None,**kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width, **kwargs) 
         return frame
-        
-    def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None, flagsLocale=False):
-        if centered:
-            margin = 'auto'
-        else:
-            margin = None
-        self.pageSource('_pageRoot').setAttr(height=height, width=width, margin=margin)
-        top = self.pbl_topBar(rootbc.borderContainer(region='top', _class='pbl_root_top', overflow='hidden'), title,
-                              flagsLocale=flagsLocale)
-        bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom', _class='pbl_root_bottom', overflow='hidden'))
-        bc = rootbc.borderContainer(region='center', _class='pbl_root_center')
-        return bc, top, bottom
-        
-    def pbl_rootContentPane(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
-                            **kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
-                                         flagsLocale=flagsLocale)
-        center = bc.contentPane(region='center', **kwargs)
-        return center, top, bottom
-        
-    def pbl_rootStackContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
-                               **kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
-                                         flagsLocale=flagsLocale)
-        center = bc.stackContainer(region='center', **kwargs)
-        return center, top, bottom
-        
-    def pbl_rootTabContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
-                             **kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
-                                         flagsLocale=flagsLocale)
-        center = bc.tabContainer(region='center', **kwargs)
-        return center, top, bottom
-        
-    def pbl_rootBorderContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
-                                **kwargs):
-        bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
-                                         flagsLocale=flagsLocale)
-        center = bc.borderContainer(region='center', **kwargs)
-        return center, top, bottom
-        
-    def pbl_topBarLeft(self, pane):
-        self.pbl_workdateManager(pane)
-        
-    def pbl_canChangeWorkdate(self):
-        return
-        
-    def pbl_workdateManager(self, pane):
-        connect_onclick = None
-        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
-            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
-        pane.div('^gnr.workdate', float='left', format='short',
-                 _class='pbl_workdate buttonIcon',
-                 connect_onclick=connect_onclick)
-        if connect_onclick:
-            self.pbl_workdate_dialog()
-            
-    def pbl_workdate_dialog(self):
-        def cb_center(parentBC, **kwargs):
-            pane = parentBC.contentPane(**kwargs)
-            fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
-            fb.dateTextBox(value='^.current_date', width='8em', lbl='!!Date')
-        dlg = self.formDialog(self.pageSource(), title='!!Set workdate', datapath='changeWorkdate',
-                              formId='changeWorkdate', height='100px', width='200px',
-                              cb_center=cb_center, loadsync=True)
-        dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
-        dlg.dataRpc('gnr.workdate', self.setWorkdate, workdate='=.data.current_date',
-                    _if='workdate', nodeId='changeWorkdate_saver', 
-                    _onResult="FIRE .saved; PUBLISH pbl_changed_workdate = {workdate:result};")
 
-    def mainLeftTop(self, pane):
-        if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
-            pane.div(_class='icnBasePref buttonIcon', connect_onclick='PUBLISH preference_open="app";',
-                     tip='!!Application Preferences', position='absolute', left='5px', top='5px')
-        pane.div('^gnr.app_preference.adm.instance_data.owner_name')
-        
-    def pbl_topBar(self, top, title=None, flagsLocale=False):
-        """docstring for publicTitleBar"""
-        left = top.contentPane(region='left', width='250px')
-        top.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
-        menubtn = left.div(_class='pbl_menu_icon buttonIcon', float='left',
-                           connect_onclick="PUBLISH main_left_set_status= 'toggle';")
-        self.pbl_topBarLeft(left)
-        right = top.contentPane(region='right', width='250px', padding_top='5px', padding_right='8px')
-        right.div(connect_onclick='genro.pageBack()', _class='goback', tooltip='!!Torna alla pagina precedente')
-        center = top.contentPane(region='center', margin_top='3px', overflow='hidden')
-        if title:
-            center.div(title, _class='pbl_title_caption')
-            #right.div(connect_onclick="genro.pageBack()", title="!!Back",
-        #          _class='icnBaseUpYellow buttonIcon', content='&nbsp;', float='right',margin_left='10px')
-        if flagsLocale:
-            right.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
-            right.dataController('genro.pageReload()', _fired='^aux.locale_ok')
-            right.div(connect_onclick="SET aux.locale = 'EN'", title="!!English",
-                      _class='icnIntlEn buttonIcon', content='&nbsp;', float='right', margin_left='5px',
-                      margin_top='2px')
-            right.div(connect_onclick="SET aux.locale = 'IT'", title="!!Italian",
-                      _class='icnIntlIt buttonIcon', content='&nbsp;', float='right', margin_left='5px',
-                      margin_top='2px')
-        if not self.isGuest:
-            right.div(connect_onclick="genro.logout()", title="!!Logout",
-                      _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
-            right.div(content=self.user, float='right', _class='pbl_username buttonIcon',
-                      connect_onclick='PUBLISH preference_open="user";')
-        return center
-        
-    def pbl_bottomBar(self, pane):
-        """docstring for publicTitleBar"""
-        sc = pane.stackContainer(selectedPage='^pbl.bottom_stack')
-        sc.data('pbl.bottom_stack', 'default')
-        default_bottom = self.pbl_bottom_default(sc.borderContainer(pageName='default'))
-        self.pbl_bottom_message(sc.contentPane(pageName='message'))
-        return default_bottom
-        
-    def pbl_bottom_message(self, pane):
-        pane.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
-        pane.dataController("""
-                                SET pbl.bottom_stack='message';
-                                var _this = this;
-                                var cb = function(){
-                                    _this.setRelativeData('pbl.bottom_stack','default');
-                                }
-                                genro.dom.effect('bottomMsg','fadeout',{duration:1000,delay:2000,onEnd:cb});
-                                
-                                """,
-                            msg='^pbl.bottomMsg', _if='msg')
-                            
-    def pbl_preferenceAppTags(self):
-        return 'admin'
-        
-    def pbl_bottom_default(self, bc):
-        left = bc.contentPane(region='left', overflow='hidden', nodeId='pbl_bottomBarLeft')
-        right = bc.contentPane(region='right', overflow='hidden', nodeId='pbl_bottomBarRight')
-        
-        right.dataScript('gnr.localizerClass', """return 'localizer_'+status""",
-                         status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
-        if self.isDeveloper():
-            right.div(connect_onclick='genro.dev.showDebugger();',
-                      _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
-        if self.isLocalizer():
-            right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
-            
-        center = bc.contentPane(region='center', nodeId='pbl_bottomBarCenter')
-        center.dock(id='default_dock', background='none', border=0, float='left', margin_left='4px')
-        return dict(left=left, right=right, center=center)
-        
-    def pbl_batch_floating(self, pane):
-        pane.floatingPane(title='public floating', _class='shadow_4',
-                          top='80px', left='20px', width='200px', height='470px',
-                          visible=False,
-                          closable=True, resizable=True, resizeAxis='xy', maxable=True,
-                          dockable=True, dockTo='pbl_floating_dock', duration=400)
 
     def app_logo_url(self):
         logo_url = self.custom_logo_url()
@@ -286,9 +135,6 @@ class PublicBase(BaseComponent):
             images = [f for f in files if f.startswith('%s' % 'custom_logo')]
             if images:
                 return images[0]
-
-
-    
     
 class Public(PublicBase):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
@@ -306,10 +152,6 @@ class Public(PublicBase):
 class PublicSlots(BaseComponent):
         
     @struct_method
-    def public_publicRoot_workdate(self,pane,**kwargs):
-        pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
-    
-    @struct_method
     def public_publicRoot_avatar(self,pane,**kwargs):
         pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate())
     
@@ -318,9 +160,6 @@ class PublicSlots(BaseComponent):
 
 #######################OLD SLOTS#######################
 
-    @struct_method
-    def public_publicRoot_workdate(self,pane,**kwargs):
-        pane.div('^gnr.workdate', format='short',_class='pbl_slotbar_label buttonIcon')
             
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):  
@@ -427,19 +266,28 @@ class TableHandlerMain(BaseComponent):
     @extract_kwargs(th=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
-        kwargs.update(self.getCallArgs('th_pkey'))
-        th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
+        self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)
+        th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',
+                        readOnly=False,virtualStore=True,public=True)
+        viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
+        resource = self._th_getResClass(table=self.maintable,resourceName=viewResource,defaultClass='View')()
+        resource_options = resource.th_options() if hasattr(resource,'th_options') else dict()
         th_options.update(self.th_options())
+        th_options.update(resource_options)
         th_options.update(th_kwargs)
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = boolean(th_options.get('formInIframe'))
-        insidePublic = boolean(th_options.get('public'))
+        th_public = th_options.get('public',True)
+        publicCollapse = th_public=='collapse'
+        insidePublic = False
+        if not publicCollapse:
+            insidePublic = boolean(th_public) is True
         tablecode = self.maintable.replace('.','_')
-        th_options['lockable'] = th_options.get('lockable',True)
         kwargs.update(th_options)
-        kwargs['extendedQuery'] = kwargs.get('extendedQuery',True)
+        extendedQuery = kwargs.pop('extendedQuery',True) 
+        lockable = kwargs.pop('lockable',True)           
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
         else:
@@ -455,22 +303,36 @@ class TableHandlerMain(BaseComponent):
                 extras.append('hierarchicalHandler')
                 self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
-        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
+                                                      extendedQuery=extendedQuery,**kwargs)
         self.root_tablehandler = th
-        th.view.store.attributes.update(startLocked=True)
+        vstore = th.view.store
+        viewbar = th.view.top.bar
+        
+        if publicCollapse:
+            th.view.attributes.update(_class='pbl_root')
+            viewbar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_root_top',height='22px')
+            if not hasattr(th.view.bottom,'bar'):
+                self.public_frameBottomBar(th.view.bottom)
+            else:
+                th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
+            viewbar.replaceSlots('#','#,avatarslot')
+            viewbar.replaceSlots('vtitle','captioslot')
+            viewbar.avatarslot.publicRoot_avatar()
+            viewbar.captioslot.publicRoot_caption()
+        storeupd = dict(startLocked=lockable)
+        if not extendedQuery:
+            storeupd['_onStart'] = True
+        vstore.attributes.update(storeupd)
         if len(extras)>0:
-            viewbar = th.view.top.bar
             viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))  
         if insidePublic and hasattr(self,'customizePublicFrame'):
             self.customizePublicFrame(root)
-
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        self.__th_title(th,thwidget,insidePublic)
+        self.__th_title(th,thwidget,insidePublic or publicCollapse)
         self.__th_moverdrop(th)
-        if insidePublic and not formInIframe:
+        if hasattr(th,'form') and insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
-        view_option = self._th_hook('options',mangler=th.view)() or dict()
-        th_options.update(view_option)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
         return th
