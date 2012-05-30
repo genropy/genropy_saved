@@ -190,6 +190,7 @@ class GnrAppTransactionAgent(GnrApp):
             errtbl.insert(dict(id=errid, ts=trargs['execution_end'], data=tb_text))
             self.db.commit()
             result = False
+        self.db.clearCurrentEnv()
         return result
     
  
