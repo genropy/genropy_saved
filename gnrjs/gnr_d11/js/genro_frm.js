@@ -786,7 +786,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
             return;
         }
-        if(kw.value=="" && kw.oldvalue==null){
+        if(kw.value==="" && kw.oldvalue==null){
             return;
         }
         ;

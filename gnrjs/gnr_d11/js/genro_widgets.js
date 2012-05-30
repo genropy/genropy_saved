@@ -2039,6 +2039,7 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
            dojo.addClass(widget.focusNode.parentNode,'formattedTextBox');
        }
     }
+
 });
 
 dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
@@ -2069,6 +2070,7 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
     mixin_selectAllInputText: function() {
         dijit.selectInputText(this.focusNode);
     }
+    
 });
 
 dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
@@ -2153,6 +2155,13 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
             value = null;
         }
         return value;
+    },
+    patch_format:function(v,c){
+        if(v==null){
+            return null;
+        }else{
+            return this.format_replaced(v,c);
+        }
     }
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {
