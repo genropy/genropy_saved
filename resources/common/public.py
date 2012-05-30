@@ -152,8 +152,8 @@ class Public(PublicBase):
 class PublicSlots(BaseComponent):
         
     @struct_method
-    def public_publicRoot_avatar(self,pane,**kwargs):
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate())
+    def public_publicRoot_avatar(self,pane,frameCode=None,**kwargs):
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),**kwargs)
     
     def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
@@ -316,9 +316,9 @@ class TableHandlerMain(BaseComponent):
                 self.public_frameBottomBar(th.view.bottom)
             else:
                 th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
-            viewbar.replaceSlots('#','#,avatarslot')
-            viewbar.replaceSlots('vtitle','captioslot')
-            viewbar.avatarslot.publicRoot_avatar()
+            viewbar.replaceSlots('#','#,avatarslot,10')
+            viewbar.replaceSlots('5,vtitle','10,captioslot')
+            viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
             viewbar.captioslot.publicRoot_caption()
         storeupd = dict(startLocked=lockable)
         if not extendedQuery:
