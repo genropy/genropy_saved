@@ -207,6 +207,8 @@ class SqlModelChecker(object):
                     old_dtype = dbcolumns[col.sqlname]['dtype']
                     old_size = dbcolumns[col.sqlname].get('size')
                     old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
+                    if new_dtype == 'A' and not new_size:
+                        new_dtype = 'T'
                     if new_dtype == 'A' and not ':' in new_size:
                         new_dtype = 'C'
                     if new_size and ':' in new_size:
