@@ -399,7 +399,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 if precision:
                     col['size'] = '%i,%i' % (precision, scale)
             elif dtype == 'A':
-                col['size'] = '0:%i' % col.get('length')
+                size = col.get('length')
+                if size:
+                    col['size'] = '0:%i' % size
+                else:
+                    dtype = col['dtype'] = 'T'
             elif dtype == 'C':
                 col['size'] = str(col.get('length'))
             result.append(col)
