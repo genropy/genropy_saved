@@ -46,6 +46,7 @@ class EditableView(View):
        #
         r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
                 formula_zona='^#FORM.record.zona',hidden='^piero',edit=True)
+        r.cell('datadistruzione',dtype='D',edit=dict(tag='dateTextBox'),calculated=True)
        #
        #r.fieldcell('regione',width='8em',name='Regione',edit=dict(condition='$zona=:miazona',hasDownArrow=True,
        #                                                            condition_miazona='^.miazonaregione'))

@@ -243,11 +243,11 @@ class FrameIndex(BaseComponent):
                                                       connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
 
     def btn_refresh(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab',hidden='^selectedFrame?=#v=="indexpage"').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
+        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
                                                       connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
 
     def btn_delete(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab',hidden='^selectedFrame?=#v=="indexpage"').div(_class='icnFrameDelete',tip='!!Close the current page',
+        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):

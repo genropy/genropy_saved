@@ -1121,6 +1121,19 @@ table.formbuilder {
 
 /* @group Base12 */
 
+.dijitTextBoxDisabled .dateTextBoxCal{
+    display: none;
+}
+.dateTextBoxCal{
+    background: url(icons/base12/calsmall.png) no-repeat center center;
+    opacity:.6;
+    display: block;
+}
+
+.timeTextBoxWatch{
+    background: url(icons/base12/timesmall.png) no-repeat center center;
+}
+
 .icnTabClose {
     background: url(icons/base12/tabClose.gif) no-repeat center center;
     width: 12px;
