@@ -2158,7 +2158,7 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
     },
     patch_format:function(v,c){
         if(v==null){
-            return null;
+            return '';
         }else{
             return this.format_replaced(v,c);
         }
