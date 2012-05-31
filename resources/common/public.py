@@ -329,7 +329,7 @@ class TableHandlerMain(BaseComponent):
         if insidePublic and hasattr(self,'customizePublicFrame'):
             self.customizePublicFrame(root)
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        self.__th_title(th,thwidget,insidePublic or publicCollapse)
+        self.__th_title(th,thwidget,insidePublic or publicCollapse,extendedQuery=extendedQuery)
         self.__th_moverdrop(th)
         if hasattr(th,'form') and insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
@@ -348,7 +348,7 @@ class TableHandlerMain(BaseComponent):
         gridattr.update(dropTarget_grid=','.join(currCodes))
         
 
-    def __th_title(self,th,widget,insidePublic):
+    def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
@@ -358,7 +358,10 @@ class TableHandlerMain(BaseComponent):
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
                             selectionName='^.view.store?selectionName',table='=.view.table',
                             selectedPage='^.selectedPage',currTitle='=gnr.publicTitle') 
-                
+                if not extendedQuery:
+                    th.view.top.bar.replaceSlots('count','')
+                    th.view.top.bar.replaceSlots('searchOn','')
+                    th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
             else:
                 th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
     
