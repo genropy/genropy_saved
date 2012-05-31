@@ -158,7 +158,7 @@ class TableBase(object):
                 tbl.attributes['lastTS'] = '__mod_ts'
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
-                       group='_')
+                       group=group)
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
@@ -167,20 +167,23 @@ class TableBase(object):
             tbl.column('parent_id',size='22',name_long='!!Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
-                                             onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', onDelete='c',relation_name='_children')
+                                             onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', 
+                                                                                        onDelete='c',relation_name='_children',
+                                                                                        one_name='!!Parent',many_name='!!Children',
+                                                                                        one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             
             for fld in hierarchical.split(','):
                 if fld=='pkey':
-                    tbl.column('hierarchical_pkey',unique=True,group='_') 
-                    tbl.column('_parent_h_pkey',group='_') 
+                    tbl.column('hierarchical_pkey',unique=True,group=group) 
+                    tbl.column('_parent_h_pkey',group=group) 
                 else:
                     hcol = tbl.column(fld)
                    #hcol.attributes.setdefault('validate_nodup',True)
                    #hcol.attributes.setdefault('validate_nodup_relative','parent_id')
-                    fld_caption=hcol.attributes.get('name_long','path')
+                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
                     tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
-                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption)
+                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group)
             tbl.attributes['hierarchical'] = hierarchical  
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
@@ -208,11 +211,11 @@ class TableBase(object):
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
             tbl.attributes.update(multidb=multidb)
-            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'))
+            self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         
         sync = tbl.attributes.get('sync')
         if sync:
-            tbl.column('__syncaux','B',group='_',
+            tbl.column('__syncaux','B',group=group,
                         onUpdated='syncRecordUpdated',
                         onDeleting='syncRecordDeleting',
                         onInserted='syncRecordInserted')
@@ -337,7 +340,7 @@ class TableBase(object):
     def multidbSubscribe(self,pkey,dbstore=None):
         self.db.table('multidb.subscription').addSubscription(table=self.fullname,pkey=pkey,dbstore=dbstore)
            
-    def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False):
+    def setMultidbSubscription(self,tbl,allRecords=False,forcedStore=False,group='zzz'):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
@@ -357,12 +360,13 @@ class TableBase(object):
             tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
-                        onInserted='multidbSyncInserted')
+                        onInserted='multidbSyncInserted',
+                        group=group)
             if allRecords or forcedStore:
                 return 
                 
             tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',plugToForm=True)
+                    name_long='!!Subscribed by default',plugToForm=True,group=group)
             tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                         FROM multidb.multidb_subscription AS sub
                                                         WHERE sub.dbstore = :env_target_store 
@@ -371,8 +375,8 @@ class TableBase(object):
                                                         )""" %(tblfullname,fkey,pkey),dtype='B',
                                                         name_long='!!Subscribed')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
-                              size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
-                                                                                 many_group='_', one_group='_')
+                              size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
+                                                                                 many_group=group, one_group=group)
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
