@@ -180,7 +180,7 @@ class SqlTable(GnrObject):
             size = column.attributes.get('size', None)
             if not size:
                 if column.dtype == 'T':
-                    result = 35
+                    result = 20
                 else:
                     result = 12
             elif isinstance(size, basestring):
@@ -202,7 +202,8 @@ class SqlTable(GnrObject):
                                         format=column.attributes.get('print_format', None),
                                         mask=column.attributes.get('print_mask', None))
                                         
-        namelong = column.attributes.get('name_long', 'untitled')
+        namelong = column.attributes.get('name_short') or column.attributes.get('name_long', 'untitled')
+        namelong = namelong.replace('!!','')
         if '\n' in namelong:
             namelong = namelong.split('\n')
             nl = [len(x) for x in namelong]

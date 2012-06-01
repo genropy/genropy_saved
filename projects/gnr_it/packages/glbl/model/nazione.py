@@ -8,6 +8,7 @@ class Table(object):
         tbl.column('name', size=':48', name_long='!!Name')
         tbl.column('code3', size='3', name_long='!!Code3')
         tbl.column('nmbr', size='3', name_long='!!Num.Code')
+        tbl.column('nmbrunico', size='3', name_long='!!Num.Unico')
         
     def populate(self):
         data = """

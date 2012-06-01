@@ -44,9 +44,9 @@ def cellFromField(field,tableobj):
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
     if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True
-    kwargs['name'] =  fldobj.name_long
+    kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
-    kwargs['width'] = '%iem' % fldobj.print_width if fldobj.print_width else None
+    kwargs['width'] = '%iem' % int(fldobj.print_width*.8) if fldobj.print_width else None
     relfldlst = tableobj.fullRelationPath(field).split('.')
     kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
     #if 'values' in fldobj.attributes:
@@ -1401,7 +1401,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if kwargs is False:
                 continue
             self.field(f,**kwargs)
-        
+
+
+
     def field(self, field=None, **kwargs):
         """``field`` is used to view, select and modify data included in a database :ref:`table`.
 
@@ -1793,6 +1795,7 @@ class GnrFormBuilder(object):
                 lblhref = field.pop('lbl_href')
                 lblvalue = lbl
                 lbl = None
+
             for k in field.keys():
                 attr_name = k[4:]
                 if attr_name == 'class':
@@ -1810,6 +1813,9 @@ class GnrFormBuilder(object):
                 elif k.startswith('tdl_'):
                     td_lbl_attr[attr_name] = field.pop(k)
                     
+            if field.pop('html_label',None):
+                field['label'] = lbl
+                lbl = None
             lblalign, fldalign = field.pop('lblalign', lblalign), field.pop('fldalign', fldalign)
             lblvalign, fldvalign = field.pop('lblvalign', lblvalign), field.pop('fldvalign', fldvalign)
             tag = field.pop('tag', None)
