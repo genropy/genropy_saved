@@ -1358,6 +1358,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
        //        return result;
        //    }
        //},false);
+    },
+    setRootStyle:function(rs){
+        if(rs instanceof gnr.GnrBag){
+            var mw = dojo.byId('mainWindow');
+            mw.style.cssText = objectAsStyle(genro.dom.getStyleDict(rs.asDict(), {}));
+        }        
     }
 
 });

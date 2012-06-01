@@ -7,11 +7,11 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
-
+from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     """USER PREFERENCE BUILDER"""
     maintable = 'adm.preference'
-    py_requires = """public:Public"""
+    py_requires = """public:Public,preference:UserPref"""
 
     def windowTitle(self):
         return '!!Preference panel'
@@ -22,17 +22,11 @@ class GnrCustomWebPage(object):
     def rootWidget(self, root, **kwargs):
         return root.borderContainer(_class='pbl_dialog_center', **kwargs)
 
-    def onIniting(self, url_parts, request_kwargs):
-        for pkgname in self.db.packages.keys():
-            try:
-                cl = self.site.loadResource(pkgname, 'preference:UserPref')
-                self.mixin(cl)
-            except GnrMixinError:
-                pass
-
     def main(self, rootBC, **kwargs):
         self.controllers(rootBC)
         self.bottom(rootBC.contentPane(region='bottom', _class='dialog_bottom'))
+       #rootBC.dataController("""genro.bp();
+       #                        //genro.publish({iframe:'*',topic:'changed_user_preference'},{preference:_node.label,});""",preference="^preference")
         tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference')
         for pkg in self.db.packages.values():
             panecb = getattr(self, 'prefpane_%s' % pkg.name, None)
@@ -58,6 +52,8 @@ class GnrCustomWebPage(object):
 
     def rpc_savePreference(self, data):
         self.db.table('adm.user').setPreference(username=self.user, data=data)
+    @public_method
+    def spreadPreference(self):
         self.setInClientData('gnr.serverEvent.refreshNode', value='gnr.user_preference', filters='user:%s' % self.user,
                              fired=True, public=True)
 

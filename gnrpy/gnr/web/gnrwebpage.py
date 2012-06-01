@@ -1409,6 +1409,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                             bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
+                
+                page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     
@@ -1420,9 +1422,11 @@ class GnrWebPage(GnrBaseWebPage):
                                         
                 page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
                 page.dock(id='dummyDock',display='none')
+  
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
                                             regions='^_clientCtx.mainBC')
+                
                 typekit_code = self.site.config['gui?typekit']
                 if typekit_code and False:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)

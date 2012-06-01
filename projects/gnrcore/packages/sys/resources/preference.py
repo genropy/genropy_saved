@@ -1,4 +1,5 @@
-# -*- coding: UTF-8 -*-
+
+# # -*- coding: UTF-8 -*-
 #--------------------------------------------------------------------------
 # Copyright (c) : 2004 - 2007 Softwell sas - Milano 
 # Written by    : Giovanni Porcari, Michele Bertoldi
@@ -17,13 +18,20 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+FONTFAMILIES = """Arial, Helvetica, sans-serif
+Courier, monospace
+'Comic Sans MS', cursive
+Verdana, Geneva, sans-serif
+'Palatino Linotype', 'Book Antiqua', Palatino, serif
+'Times New Roman', Times, serif"""
 
 class AppPref(object):
     def prefpane_sys(self, tc, **kwargs):
         pane = tc.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.numberTextBox(value='^.personal', lbl='!!Personal info')
-
+        fb = pane.formbuilder(cols=1, border_spacing='4px',datapath='.theme')
+        fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
+        fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family',width='20em')        
+        
 class UserPref(object):
     def prefpane_sys(self, tc, **kwargs):
         tc = tc.tabContainer(**kwargs)
@@ -34,7 +42,8 @@ class UserPref(object):
     def pref_theme(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.checkbox(value='^.bordered_icons',label='Bordered icons')
-
+        fb.filteringSelect(value='^.rootstyle.font_size',values='!!12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
+        fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family')
 
     def pref_sound(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')

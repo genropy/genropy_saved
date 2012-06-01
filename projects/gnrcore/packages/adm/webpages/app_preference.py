@@ -11,7 +11,7 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 
 class GnrCustomWebPage(object):
     maintable = 'adm.preference'
-    py_requires = """public:Public,foundation/includedview,foundation/dialogs,
+    py_requires = """public:Public,preference:AppPref,foundation/includedview,foundation/dialogs,
                    foundation/tools,foundation/macrowidgets:RichTextEditor"""
 
     def windowTitle(self):
@@ -23,14 +23,14 @@ class GnrCustomWebPage(object):
     def rootWidget(self, root, **kwargs):
         return root.borderContainer(_class='pbl_dialog_center', **kwargs)
 
-    def onIniting(self, url_parts, request_kwargs):
-        for pkgname in self.db.packages.keys():
-            try:
-                cl = self.site.loadResource(pkgname, 'preference:AppPref')
-                self.mixin(cl)
-            except GnrMixinError:
-                pass
-
+   #def onIniting(self, url_parts, request_kwargs):
+   #    for pkgname in self.db.packages.keys():
+   #        try:
+   #            cl = self.site.loadResource(pkgname, 'preference:AppPref')
+   #            self.mixin(cl)
+   #        except GnrMixinError:
+   #            pass
+   #
     def main(self, rootBC, **kwargs):
         """APPLICATION PREFERENCE BUILDER"""
         self.controllers(rootBC)
