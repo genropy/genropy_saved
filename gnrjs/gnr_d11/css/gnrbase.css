@@ -513,18 +513,14 @@ label.ghostlabel span {
 .dlg_ask {
     padding: 5px;
     padding-bottom: 2.5em;
-    background-color: darkgray;
-
+    position:relative;
 }
 
 .dlg_ask_msg {
     min-height: 10ex;
     width: 25em;
     padding: 10px;
-    background-color: whitesmoke;
-    border: 1px solid gray;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
+    border: 1px solid silver;
     border-radius: 6px;
 }
 
@@ -540,12 +536,18 @@ label.ghostlabel span {
     width: 25em;
     height: 20ex;
     padding: 1em;
-    background-color: whitesmoke;
-    border: 1px solid gray;
+    border: 1px solid silver;
     margin: 1em;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
+}
+.dlg_ask_btnBox{
+    position:absolute;
+    bottom:0;
+    height:20px;
+    right:0;
+    left:0;
 }
 
 /* @end */
