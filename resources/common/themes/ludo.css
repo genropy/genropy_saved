@@ -44,12 +44,12 @@
 ._common_d11 .dojoxFloatingPane {
     border-radius: 4px;
     box-shadow: 4px 4px 6px #403b3b;
-    border: 0px
+    border: 0px;
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(gray));
-    background-image: -moz-linear-gradient(-90deg, silver, gray);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
@@ -313,8 +313,8 @@
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(gray));
-    background-image: -moz-linear-gradient(-90deg, silver, gray);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
     color: #ffffff;
     vertical-align: middle;
     border-top-left-radius: 4px;
@@ -334,7 +334,7 @@
     border-top-right-radius: 5px;
     background-color: #f6f6f6;
     box-shadow: 3px 3px 5px #403b3b;
-    border:0px solid silver;
+    border:1px solid silver;
 }
 
 ._common_d11 .dijitDialog .dijitDialogPaneContent {

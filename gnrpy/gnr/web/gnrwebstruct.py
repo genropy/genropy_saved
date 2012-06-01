@@ -1813,7 +1813,7 @@ class GnrFormBuilder(object):
                 elif k.startswith('tdl_'):
                     td_lbl_attr[attr_name] = field.pop(k)
                     
-            if field.pop('html_label',None):
+            if field.pop('html_label',None) and field.get('dtype') =='B':
                 field['label'] = lbl
                 lbl = None
             lblalign, fldalign = field.pop('lblalign', lblalign), field.pop('fldalign', fldalign)
