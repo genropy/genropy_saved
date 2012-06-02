@@ -39,7 +39,7 @@ class Form(BaseComponent):
         fb.field('command',colspan='2')
         fb.field('date_start')
         fb.field('date_end')
-        fb.field('stopped')
+        fb.field('stopped',colspan=2)
         rpane = fb.div(lbl='!!Rules',colspan=2,_class='pbl_roundedGroup',padding='3px',padding_top='0')
         self.task_params(rpane)
     
@@ -58,7 +58,7 @@ class Form(BaseComponent):
             shadow='1px 1px 2px #666 inset',lbl='!!Minute').field('minute',tag='checkboxtext',cols=10,border_spacing='2px')
         
     def th_options(self):
-        return dict(dialog_height='510px',dialog_width='600px',modal=True)
+        return dict(dialog_height='530px',dialog_width='600px',modal=True)
         
         
 class FormFromTableScript(Form):
