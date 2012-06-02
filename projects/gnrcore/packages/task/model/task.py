@@ -22,7 +22,8 @@ class Table(object):
         tbl.column('user_id',size='22',group='_',name_long='User id').relation('adm.user.id', mode='foreignkey', onDelete='raise')
         tbl.column('date_start','D',name_long='!!Start Date')
         tbl.column('date_end','D',name_long='!!End Date')
-        
+        tbl.column('stopped','B',name_long='!!Stopped')
+
 
     def isTaskScheduledNow(self,task,timestamp):
         def expandIntervals(string_interval,limits=None):
@@ -64,7 +65,7 @@ class Table(object):
 
     def findTasks(self, timestamp=None):
         timestamp = timestamp or datetime.now()
-        all_tasks = self.query('*,parameters').fetch()
+        all_tasks = self.query('*,parameters',where='$stopped IS NOT TRUE').fetch()
         tasks_to_run = []
         for task in all_tasks:
             try:

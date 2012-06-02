@@ -212,7 +212,8 @@ class BaseResourceBatch(object):
     def get_selection_pkeys(self):
         """TODO"""
         if self._pkeys is None:
-            self._pkeys = self.get_selection().output('pkeylist')
+            selection = self.get_selection()
+            self._pkeys = selection.output('pkeylist') if selection else []
         return self._pkeys
 
     #def rpc_selectionFilterCb(self,row):

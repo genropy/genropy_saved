@@ -186,6 +186,15 @@ batch_monitor.btc_result = function(node, sourceNode) {
                 rlink._('td',{_class:'bm_resulttd'})._('a',{href:url_print,display:'inline-block',_class:'bm_resultlink'})._('div')._('div', {_class:'iconbox print'});
             }
         }
+        if (resultAttr.autoDestroy){
+            var autoDestroy = resultAttr.autoDestroy * 1000;
+            if (autoDestroy<0){
+                autoDestroy = 1;
+            }
+            genro.callAfter(function(){
+                genro.serverCall("btc.remove_batch",{"batch_id":batch_id});
+            },autoDestroy);
+        }
     }
     tbl._('tr')._('td', {innerHTML:'Execution time:' + batch_value.getItem('time_delta'),colspan:2,font_size:'.9em',font_style:'italic'});
 };

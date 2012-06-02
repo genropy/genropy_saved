@@ -12,6 +12,7 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('task_name',width='10em') # char(4)
         r.fieldcell('table_name',width='10em')
+        r.fieldcell('stopped',semaphore=True)
         r.fieldcell('command',width='15em')
         r.fieldcell('month',width='20em')
         r.fieldcell('day',width='15em')
@@ -19,7 +20,6 @@ class View(BaseComponent):
         r.fieldcell('hour',width='12em')
         r.fieldcell('minute',width='12em')
         r.fieldcell('last_execution',width='14em')
-
     def th_order(self):
         return 'task_name'
         
@@ -33,12 +33,13 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         top = bc.contentPane(region='top')
-        fb = top.div(margin_right='10px').formbuilder(cols=2,border_spacing='4px',margin_top='3px',fld_width='100%',width='100%',lbl_width='5em')
+        fb = top.div(margin_right='10px').formbuilder(cols=2,border_spacing='4px',margin_top='3px',fld_width='100%',width='100%',lbl_width='5em',fld_html_label=True)
         fb.field('task_name')
         fb.field('table_name')
         fb.field('command',colspan='2')
         fb.field('date_start')
         fb.field('date_end')
+        fb.field('stopped')
         rpane = fb.div(lbl='!!Rules',colspan=2,_class='pbl_roundedGroup',padding='3px',padding_top='0')
         self.task_params(rpane)
     
