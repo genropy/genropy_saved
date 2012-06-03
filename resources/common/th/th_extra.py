@@ -209,8 +209,7 @@ class THStatsHandler(BaseComponent):
         if distinct_cols:
             distinct_cols = [x.replace('@', '_').replace('.', '_') for x in distinct_cols]
         result = Bag()
-        analyzer.analyze(self.btc.thermo_wrapper(selection, 'stat_tot', message='Row', keep=True),
-                            group_by=group_by, sum=sum_cols, keep=keep_cols,
+        analyzer.analyze(selection,group_by=group_by, sum=sum_cols, keep=keep_cols,
                             collect=collect_cols, distinct=distinct_cols,
                             key=key_col, captionCb=captionCb)
         selection.analyzeBag = analyzer
