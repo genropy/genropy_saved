@@ -36,7 +36,7 @@ class Main(BaseResourcePrint):
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
             
-    def print_record(self, record=None, thermo=None, storagekey=None):
+    def print_record(self, record=None, thermo=None, storagekey=None,**kwargs):
         record.update(self.batch_parameters)
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
