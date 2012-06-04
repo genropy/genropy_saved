@@ -286,7 +286,7 @@ class TableHandlerMain(BaseComponent):
             insidePublic = boolean(th_public) is True
         tablecode = self.maintable.replace('.','_')
         kwargs.update(th_options)
-        extendedQuery = kwargs.pop('extendedQuery',True) 
+        extendedQuery = kwargs.pop('extendedQuery','*') 
         lockable = kwargs.pop('lockable',True)           
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
