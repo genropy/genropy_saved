@@ -1233,6 +1233,9 @@ div.dojoxDock {
     width: 16px;
 
 }*/
+._common_d11 .dojoxFloatingPaneContent {
+    overflow:hidden !important;
+}
 
 ._common_d11.tundra .dojoxFloatingMinimizeIcon {
     background: transparent url(icons/base16/floatingclose.png) no-repeat scroll center center;
@@ -1255,6 +1258,7 @@ div.dojoxDock {
 .floatingPopup:hover {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right;
 }
+
 
 .helperField {
     position: absolute;
