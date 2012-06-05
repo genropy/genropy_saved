@@ -10,7 +10,7 @@ class XlsWriter(object):
         self.columns = columns
         self.filepath = '%s.xls' % os.path.splitext(filepath)[0]
         self.workbook = xlwt.Workbook(encoding='latin-1')
-        self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath))
+        self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath)[:31])
         self.coltypes = coltypes
         self.locale = locale
         
