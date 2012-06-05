@@ -57,7 +57,12 @@ class TableHandlerView(BaseComponent):
                 templateManager = 'templateManager'
             else:
                 templateManager = False
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
+            if extendedQuery == '*':
+                base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
+            elif extendedQuery is True:
+                base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
+            else:
+                base_slots = extendedQuery.split(',')
         elif not virtualStore:
             base_slots = ['5','vtitle','count','*']
             if searchOn:

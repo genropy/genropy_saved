@@ -7,8 +7,6 @@ from gnr.core.gnrlang import errorLog
 from datetime import datetime
 from gnr.core.gnrbag import Bag
 
-
-
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('transaction',  name_short='Transaction', pkey='id')
@@ -29,7 +27,6 @@ class Table(object):
         tbl.column('user_ip', size='0:300')
         tbl.column('file_name')
         tbl.column('queue_id', size='0:22', indexed='y')
-
 
 
     def transactionsToExpand(self,limit=200):
@@ -77,7 +74,7 @@ class Table(object):
 
             #self.db.execute("UPDATE gnr.gnr_transaction SET error_id=:err_id, execution_start=:ts_start, execution_end=:ts_end WHERE id=:id;", err_id=err_id, ts_end=ts_end, **trargs)
             self.update(trargs,old_record=transaction)
-            tb_text = errorLog(self.processName)
+            tb_text = errorLog('transaction daemon')
             gnrlogger.error(tb_text)
 
             #self.db.execute("INSERT INTO gnr.gnr_error (id, ts, data) VALUES (:id, :ts, :data);", id=err_id, ts=ts_end, data=tb_text)
@@ -115,3 +112,4 @@ class Table(object):
             tblobj.insertOrUpdate(data)
         elif action == 'DEL':
             tblobj.delete(data)
+

@@ -61,7 +61,7 @@ class Main(BaseResourceMail):
         self.mail_preference['html'] = not self.batch_parameters['as_pdf']
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
             
-    def sendmail_record(self, record=None, thermo=None, storagekey=None):
+    def sendmail_record(self, record=None, thermo=None, storagekey=None,**kwargs):
         record.update(self.batch_parameters)
         as_pdf = self.batch_parameters['as_pdf']
         to_address = templateReplace(self.mail_pars.getItem('to_address',''),record)

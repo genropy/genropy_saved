@@ -145,7 +145,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'},kw))._('div', {_class:'dlg_ask',
             'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);"});
         dlg._('div', {'innerHTML':msg,'_class':'dlg_ask_msg'});
-        var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
         for (var btn in buttons) {
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
         }
@@ -190,7 +189,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         var dlg = node._('dialog', {nodeId:'_dlg_ask',title:title,centerOn:'_pageRoot'})._('div', {_class:'dlg_ask','action':action});
         dlg._('div', {'content':msg,'_class':'dlg_ask_msg'});
-        var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
+        //var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
 
         for (var btn in buttons) {
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn,'act':actions[btn]});
