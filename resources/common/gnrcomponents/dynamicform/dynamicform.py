@@ -193,7 +193,7 @@ class DynamicForm(BaseComponent):
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
-        fb.numberSpinner(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
+        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th
 
     def df_previewForm(self,frame,mastertable=None):
