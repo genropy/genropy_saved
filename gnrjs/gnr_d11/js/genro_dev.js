@@ -176,7 +176,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     fieldsTree:function(pane,table,kw){
         var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
-        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath')}));
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
         treeattr._class = 'fieldsTree noIcon';
