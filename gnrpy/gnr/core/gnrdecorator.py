@@ -142,18 +142,24 @@ def oncalled(func):
     setattr(func,'mixin_as','%s_oncalled_#' %(func.func_name))
     return func
     
-def deprecated(func):
+def deprecated(message=None):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted
     when the function is used
 
     :param func: the function to deprecate"""
-    def newFunc(*args, **kwargs):
-        warnings.warn("Call to deprecated function %s." % func.__name__,
-                      category=DeprecationWarning, stacklevel=2)
-        return func(*args, **kwargs)
+    if message:
+        message = ': %s'%message
+    else:
+        message = ''
+    def decore(func):
+        def newFunc(*args, **kwargs):
+            warnings.warn("Call to deprecated function %s%s" % (func.__name__, message),
+                          category=DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
 
-    newFunc.__name__ = func.__name__
-    newFunc.__doc__ = func.__doc__
-    newFunc.__dict__.update(func.__dict__)
-    return newFunc
+        newFunc.__name__ = func.__name__
+        newFunc.__doc__ = func.__doc__
+        newFunc.__dict__.update(func.__dict__)
+        return newFunc
+    return decore

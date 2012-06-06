@@ -28,7 +28,7 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
-
+import warnings
 mimetypes.init()
 site_cache = {}
 
@@ -37,7 +37,7 @@ OP_TO_LOG = {'x': 'y'}
 IS_MOBILE = re.compile(r'iPhone|iPad|Android')
 
 log = logging.getLogger(__name__)
-
+warnings.simplefilter("default")
 global GNRSITE
 
 
@@ -547,7 +547,7 @@ class GnrWsgiSite(object):
             except UnicodeDecodeError:
                 pass
         return out_dict
-        
+    
     def dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
