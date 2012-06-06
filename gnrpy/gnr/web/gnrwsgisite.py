@@ -574,7 +574,7 @@ class GnrWsgiSite(object):
         download_name = request_kwargs.pop('_download_name_', None)
         #print 'site dispatcher: ',path_list
         if path_list and (path_list[0] in self.dbstores):
-            request_kwargs.setdefault('_dbstore',path_list.pop(0))
+            request_kwargs.setdefault('temp_dbstore',path_list.pop(0))
         if not path_list:
             path_list= self.get_path_list('')                   
         if path_list and path_list[0] == '_ping':

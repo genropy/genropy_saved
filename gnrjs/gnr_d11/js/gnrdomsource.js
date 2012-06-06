@@ -280,10 +280,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 objectPop(kwargs, 'nodeId');
                 var _onCalling = objectPop(kwargs, '_onCalling');
                 var origKwargs = objectUpdate({}, kwargs);
-                
-                if('_dbstore' in origKwargs){
-                    kwargs['_dbstore'] = origKwargs['_dbstore'];
-                }
                 if (_onResult) {
                     _onResult = funcCreate(_onResult, 'result,kwargs,old', this);
                 }

@@ -673,7 +673,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param savedQuery: TODO
         :param savedView: TODO
         :param externalChanges: TODO"""
-        
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)

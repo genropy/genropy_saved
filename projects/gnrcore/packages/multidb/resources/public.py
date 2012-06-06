@@ -33,7 +33,7 @@ class TableHandlerMain(BaseComponent):
             bar.replaceSlots('delrow','unsubscriberow')
             bar.replaceSlots('addrow','subscribepalette')
             bar.unsubscriberow.slotButton('!!Unsubscribe',iconClass='iconbox delete_row',
-                            action="""genro.serverCall('_table.multidb.subscription.delRowsSubscription',{table:tbl,pkeys:grid.getSelectedPkeys(),dbstore:dbstore,_dbstore:false});
+                            action="""genro.serverCall('_table.multidb.subscription.delRowsSubscription',{table:tbl,pkeys:grid.getSelectedPkeys(),dbstore:dbstore,temp_dbstore:false});
                                         """,dbstore=self.dbstore,tbl=self.maintable,grid=view.grid.js_widget,disabled='^.disabledButton')
             palette = bar.subscribepalette.palettePane(paletteCode='mainstore',title='!!Mainstore',
                                         dockButton_iconClass='iconbox add_row',width='900px',
@@ -49,7 +49,7 @@ class TableHandlerMain(BaseComponent):
                                                 return false;
                                             }
                                             genro.serverCall('_table.multidb.subscription.addRowsSubscription',
-                                                            {table:data['table'],pkeys:data.pkeys,dbstore:'%s',_dbstore:false},
+                                                            {table:data['table'],pkeys:data.pkeys,dbstore:'%s',temp_dbstore:false},
                                                             function(){
                                                                 genro.publish({topic:'ping',iframe:'subscriber_palette'});
                                                             });
