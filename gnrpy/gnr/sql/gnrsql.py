@@ -431,12 +431,9 @@ class GnrSqlDb(GnrObject):
     
     def deferredCommit(self):
         currentEnv = self.currentEnv
-        savedEnv = currentEnv.get('__savedEnv')
-        if not savedEnv:
-            return
         dbstore = currentEnv.get('storename')
         assert dbstore, 'deferredCommit must have a dbstore'
-        savedEnv.setdefault('_storesToCommit',set()).add(dbstore)
+        currentEnv.setdefault('_storesToCommit',set()).add(dbstore)
     
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)
@@ -620,18 +617,30 @@ class TempEnv(object):
     def __init__(self, db, **kwargs):
         self.db = db
         self.kwargs = kwargs
-        
+
     def __enter__(self):
         if self.db.adapter.support_multiple_connections:
             currentEnv = self.db.currentEnv
-            self.savedEnv = dict(currentEnv)
-            currentEnv.update(self.kwargs)
-            currentEnv['__savedEnv'] = self.savedEnv
+            self.savedValues = dict()
+            self.addedKeys = []
+            for k,v in self.kwargs.items():
+                if k in currentEnv:
+                    self.savedValues[k] = currentEnv.get(k) 
+                else:
+                    self.addedKeys.append(k)
+                currentEnv[k] = v
         return self.db
+        
         
     def __exit__(self, type, value, traceback):
         if self.db.adapter.support_multiple_connections:
-            self.db.currentEnv = self.savedEnv
+            currentEnv = self.db.currentEnv
+            for k in self.addedKeys:
+                currentEnv.pop(k,None)
+            currentEnv.update(self.savedValues)
+
+
+            #self.db.currentEnv = self.savedEnv
             
 class DbStoresHandler(object):
     """Handler for using multi-database"""

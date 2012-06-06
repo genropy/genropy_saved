@@ -420,7 +420,10 @@ class TableBase(object):
     
     def trigger_syncRecordDeleting(self, record,**kwargs):        
         self.pkg.table('sync_event').onTableTrigger(self,record,event='D')
-     
+
+    #FUNCTIONS SQL
+    def normalizeText(self,text):
+        return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
 
 class GnrDboTable(TableBase):
     """TODO"""
