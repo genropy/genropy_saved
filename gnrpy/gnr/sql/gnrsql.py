@@ -317,7 +317,6 @@ class GnrSqlDb(GnrObject):
         if dbtable and not self.table(dbtable).use_dbstores():
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            zzzzz_storename = storename
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
            
