@@ -45,7 +45,7 @@ class Table(object):
         print transaction['id']
         
 
-        if True:
+        try:
             tablepath = transaction['maintable']
             data = Bag(transaction['data']) 
             action = transaction['action'].strip()
@@ -64,7 +64,7 @@ class Table(object):
             self.update(trargs,old_record=transaction)
            # self.db.commit() # actually commit only modification to the transaction. do_ methods commits by themself
             result = True
-        else:
+        except :
             self.db.rollback()
 
             errtbl = self.db.table('gnr.error')
