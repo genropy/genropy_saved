@@ -69,7 +69,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         
         hviewTree = box.hviewTree(table=table,**kwargs)
         form.htree = hviewTree
-        hviewTree.htableViewStore(table=table)
+        hviewTree.connectToStore(table=table)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
             if(!pkey || pkey=='*newrecord*'){
@@ -90,9 +90,18 @@ class TableHandlerHierarchicalView(BaseComponent):
                                 treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
                             }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)    
         return hviewTree
-         
+    
+
     @struct_method
-    def ht_htableViewStore(self,tree,table=None):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store'):
+        b = Bag()
+        tblobj = self.db.table(table)
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
+
+
+    @struct_method
+    def ht_connectToStore(self,tree,table=None):
         b = Bag()
         tblobj = self.db.table(table)
         b.setItem('root',TableHandlerTreeResolver(_page=self,table=table),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')

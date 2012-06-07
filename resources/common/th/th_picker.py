@@ -44,11 +44,15 @@ class THPicker(BaseComponent):
             tblobj = self.db.table(table)
         paletteCode = paletteCode or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
-        treePicker = hasattr(tblobj,'htableFields') and not viewResource
-        if treePicker:
+        oldtreePicker = hasattr(tblobj,'htableFields') and not viewResource
+        treepicker = tblobj.attributes.get('hierarchical') and not viewResource
+        if oldtreePicker:
             self.mixinComponent('gnrcomponents/htablehandler:HTableHandlerBase')
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableStore(table=table)
+        elif treepicker:
+            palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
+                            tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableViewStore(table=table)
         else:
             try:
                 resource = self._th_getResClass(table=table,resourceName=viewResource,defaultClass='ViewPicker')()
@@ -76,7 +80,7 @@ class THPicker(BaseComponent):
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
                 grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
-                    if(treePicker){
+                    if(treepicker){
                         kw.dragPkeys = [data['pkey']];
                     }else{
                         var pkeys = [];
@@ -96,7 +100,8 @@ class THPicker(BaseComponent):
                     }
 
                 """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',_if='mainpkey',
-                        rpcmethod=method,treePicker=treePicker,tbl=maintable,one=one,many=many,grid=grid.js_widget)
+                        rpcmethod=method,treepicker=oldtreePicker or treepicker,tbl=maintable,
+                        one=one,many=many,grid=grid.js_widget)
                     
         return palette
 
