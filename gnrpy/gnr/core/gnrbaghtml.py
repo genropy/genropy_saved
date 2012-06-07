@@ -562,10 +562,7 @@ class BagToHtml(object):
     def defineStandardStyles(self):
         """TODO"""
         self.body.style("""
-                        @page
-                        {
-                            margin:0;
-                        }
+      
                         .caption{text-align:center;
                                  color:gray;
                                  font-size:8pt;
