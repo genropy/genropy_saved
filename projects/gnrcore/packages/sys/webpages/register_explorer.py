@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
         return '!!Register explorer'
 
     def main(self, rootBC, **kwargs):
-        tc, top, bottom = self.pbl_rootTabContainer(rootBC, '!!Connections')
+        tc = rootBC.rootTabContainer('!!Connections')
         self.dlg_cleanup(tc)
         #bottom['left'].button('refresh',fire='refresh_all')
         self.overview_pane(tc.borderContainer(title='!!Overview', datapath='overviewPane', design='sidebar'))

@@ -294,8 +294,8 @@ class SiteRegister(object):
         with self.sd.locked(self.cleanup_key):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
-            if lastCleanupTs and (thisCleanupTs-lastCleanupTs > self.site.cleanup_interval):
-                self.cleanup(cascade=False, max_age=self.site.page_max_age)# FIXME!!
+            if lastCleanupTs and (thisCleanupTs - lastCleanupTs > self.site.cleanup_interval):
+                self.cleanup(cascade=True, max_age=150, onlyGuest=True)  # FIXME!!
             self.sd.set(self.cleanup_key, thisCleanupTs, 0)
 
         return page_item
@@ -380,16 +380,18 @@ class SiteRegister(object):
     def tree(self):
         return PagesTreeResolver()
 
-    def cleanup(self, max_age=30, cascade=False):
+    def cleanup(self, max_age=300, cascade=False, onlyGuest=False):
         for page_id, page in self.pages().items():
             page_last_rpc_age = page.get('last_rpc_age')
-            if page_last_rpc_age and page_last_rpc_age > max_age:
+            guest_page = (page.get('user') or '').startswith('guest_')
+            if (page_last_rpc_age and page_last_rpc_age > max_age) and (onlyGuest and guest_page):
                 self.drop_page(page_id, cascade=cascade)
         for connection_id, connection in self.connections().items():
             connection_last_rpc_age = connection.get('last_rpc_age')
-            if connection_last_rpc_age > max_age:
+            guest_connection = onlyGuest and (connection.get('user') or '').startswith('guest_')
+            if (connection_last_rpc_age and connection_last_rpc_age > max_age) and (onlyGuest and guest_connection):
                 self.drop_connection(connection_id, cascade=cascade)
-        
+
 
     def cleanup_(self, max_age=30, cascade=False):
         with self.u_register as user_register:
