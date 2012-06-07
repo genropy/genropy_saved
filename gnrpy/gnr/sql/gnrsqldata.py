@@ -1113,6 +1113,7 @@ class SqlSelection(object):
                     for col in mixColumns:
                         if d[col] not in masterRow[col]:
                             masterRow[col].append(d[col])
+                            masterRow[col].sort()
                     if aggregateDict:
                         for k,v in aggregateDict.items():
                             subfld = v[0]

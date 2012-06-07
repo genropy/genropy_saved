@@ -506,13 +506,14 @@ class SqlTable(GnrObject):
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
+        pkeycol = self.pkey
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
                 updater(new_row)
             elif isinstance(updater, dict):
                 new_row.update(updater)
-            self.update(new_row, row)
+            self.update(new_row, row,pkey=row[pkeycol])
         if autocommit:
             self.db.commit()
         

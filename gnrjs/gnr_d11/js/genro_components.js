@@ -794,6 +794,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
         kw._tplpars.showAlways = kw._tplpars.editable===true;
         kw._tplpars.asSource =  kw._tplpars.editable!=null;
+        var onEditEnd = objectPop(kw,'onEditEnd');
+        if (onEditEnd){
+            onEditEnd = funcCreate(onEditEnd,null,sourceNode);
+        }
 
         var dataProvider = objectPop(kw,'dataProvider');
         if(dataProvider){
@@ -844,6 +848,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             sourceNode.updateTemplate = function(){
                 this._templateHandler.template = null;
                 this.domNode.innerHTML = dataTemplate(this._templateHandler, this, this.attr.datasource);
+                if(onEditEnd){
+                    onEditEnd();
+                }
             }
             sourceNode.attr.template = this._templateHandler;
             sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate();",_fired:tplpars.template});

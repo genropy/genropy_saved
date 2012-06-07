@@ -425,15 +425,6 @@ class TableBase(object):
     def normalizeText(self,text):
         return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
 
-    def convertToNewHierarchical(self):
-        f = self.query(order_by='$code',for_update=True,addPkeyColumn=False,columns='*,@parent_code.id AS old_parent_id').fetch()
-        for r in f:
-            r = dict(r)
-            parent_id = r.pop('old_parent_id')
-            old_record = dict(r)
-            r['parent_id'] =  parent_id
-            self.update(r,old_record=old_record)
-
 class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self):
