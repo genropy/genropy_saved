@@ -523,6 +523,18 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (savedAttrs.onLoad) {
             dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
+        var mainGenro =genro.mainGenroWindow.genro;
+        dojo.connect(newobj, 'onload', function(){
+            var cw = this.contentWindow;
+            if(!cw.genro){
+                dojo.connect(cw, 'onmouseup', function(e){
+                    var currentDnDMover = mainGenro.currentDnDMover;
+                    if (currentDnDMover){
+                        currentDnDMover.destroy();
+                    }
+                });
+            }
+        });
         if (savedAttrs.onStarted){
             sourceNode.subscribe('pageStarted',funcCreate(savedAttrs.onStarted));
         }
