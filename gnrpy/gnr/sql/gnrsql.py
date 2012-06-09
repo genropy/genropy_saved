@@ -556,7 +556,10 @@ class GnrSqlDb(GnrObject):
         
         :param name: the database's name"""
         self.adapter.dropDb(name)
-            
+
+    def dropTable(self,table,cascade=None):
+        self.adapter.dropTable(self.table(table),cascade=cascade)
+
     def dump(self, filename):
         """Dump a database to a given path
         

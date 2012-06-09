@@ -1090,8 +1090,12 @@ class GnrApp(object):
         
     def onDbCommitted(self):
         """Hook method called during the database commit"""
-        pass
+        _storesToCommit = self.db.currentEnv.pop('_storesToCommit',None) or []
+        for s in _storesToCommit:
+            with self.db.tempEnv(storename=s,_systemDbEvent=True):
+                self.db.commit()
         
+
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """TODO
         

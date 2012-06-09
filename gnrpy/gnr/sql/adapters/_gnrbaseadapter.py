@@ -451,15 +451,12 @@ class SqlDbAdapter(object):
         else:
             return self.revTypesDict[dtype]
 
-    def dropTable(self, sqltable):
-        """Create a new database schema"""
-        if '.' in sqltable:
-            sqlschema, table = sqltable.split('.')
-        else:
-            sqlschema = self.defaultMainSchema
-            table = sqltable
-        if table in self.listElements('tables', schema=sqlschema):
-            self.dbroot.execute('DROP TABLE %s;' % sqltable)
+    def dropTable(self, dbtable,cascade=False):
+        """Drop table"""
+        command = 'DROP TABLE %s;'
+        if cascade:
+            command = 'DROP TABLE %s CASCADE;'
+        self.dbroot.execute(command % dbtable.model.sqlfullname)
 
     def dropIndex(self, index_name, sqlschema=None):
         """Drop an index

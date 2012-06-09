@@ -35,6 +35,7 @@ class GnrCustomWebPage(object):
 
     def bottom(self, bottom):
         bottom.button('!!Save', baseClass='bottom_btn', float='right', margin='1px',
+                        margin_right='20px',
                       action='genro.formById("preference").save(true)')
         bottom.button('!!Cancel', baseClass='bottom_btn', float='right', margin='1px',
                       action='window.parent.genro.wdgById("userpreference").hide();')

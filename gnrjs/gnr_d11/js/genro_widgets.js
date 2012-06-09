@@ -1287,6 +1287,18 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
                 node.style.top = "0px";
             }
             });
+        if(widget.resizeHandle){
+            dojo.connect(widget,'startup',function(){
+                dojo.connect(this._resizeHandle,'_beginSizing',function(e){
+                    this.screenStartPoint = {x:e.screenX,y:e.screenY};
+                    this.page_id = genro.page_id;
+                    genro.mainGenroWindow.genro.currentResizeHandle=this;
+                });
+                dojo.connect(this._resizeHandle,'_endSizing',function(e){
+                    genro.mainGenroWindow.genro.currentResizeHandle=null;
+                });
+            });
+        }
     },
     patch_close:function(cb){
         this.saveRect();

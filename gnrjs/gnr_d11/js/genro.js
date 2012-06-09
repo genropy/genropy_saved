@@ -341,6 +341,30 @@ dojo.declare('gnr.GenroClient', null, {
             genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }
         this._registerUserEvents();
+        dojo.subscribe('/dnd/move/start',function(mover){
+            mover.page_id = genro.page_id;
+            genro.mainGenroWindow.genro.currentDnDMover=mover;
+        });
+        dojo.connect(window, 'onmouseup', function(e){
+            var currentDnDMover = genro.mainGenroWindow.genro.currentDnDMover;
+            if(currentDnDMover && (currentDnDMover.page_id != genro.page_id)){
+                currentDnDMover.destroy();
+            }
+            var currentResizeHandle = genro.mainGenroWindow.genro.currentResizeHandle;
+            if(currentResizeHandle && (currentResizeHandle.page_id!=genro.page_id)){
+                currentResizeHandle._endSizing(e);
+            }
+        });
+        dojo.connect(window,'onmousemove',function(e){
+            var currentResizeHandle = genro.mainGenroWindow.genro.currentResizeHandle;
+            if(currentResizeHandle && (currentResizeHandle.page_id!=genro.page_id)){
+                var screeStartPoint = currentResizeHandle.screenStartPoint;
+                var startPoint = currentResizeHandle.startPoint;
+                e.clientX = startPoint.x + e.screenX -screeStartPoint.x;
+                e.clientY = startPoint.y + e.screenY -screeStartPoint.y;
+                currentResizeHandle._updateSizing(e);
+            }
+        });
         //genro.dom.preventGestureBackForward();
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
