@@ -630,7 +630,7 @@ class TempEnv(object):
                 if k in currentEnv:
                     self.savedValues[k] = currentEnv.get(k) 
                 else:
-                    self.addedKeys.append(k)
+                    self.addedKeys.append((k,v))
                 currentEnv[k] = v
         return self.db
         
@@ -638,12 +638,10 @@ class TempEnv(object):
     def __exit__(self, type, value, traceback):
         if self.db.adapter.support_multiple_connections:
             currentEnv = self.db.currentEnv
-            for k in self.addedKeys:
-                currentEnv.pop(k,None)
+            for k,v in self.addedKeys:
+                if currentEnv[k]==v:
+                    currentEnv.pop(k,None)
             currentEnv.update(self.savedValues)
-
-
-            #self.db.currentEnv = self.savedEnv
             
 class DbStoresHandler(object):
     """Handler for using multi-database"""
