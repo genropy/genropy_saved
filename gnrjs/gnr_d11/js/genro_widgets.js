@@ -486,6 +486,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     }
 });
 
+dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
+        setSrc:function(domnode, v, kw) {
+            if(v){
+                domnode.setAttribute('src',v);
+            }
+        }
+
+});
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');

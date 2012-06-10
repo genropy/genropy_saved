@@ -30,7 +30,12 @@ class TableHandlerTreeResolver(BagResolver):
         where = '$parent_id IS NULL'
         if self.parent_id:
             where='$parent_id=:p_id' #sottopratiche
-        caption_field = self.caption_field or tblobj.attributes.get('caption_field')
+        caption_field = self.caption_field
+        if not caption_field:
+            if tblobj.attributes['hierarchical'] is not True:
+                caption_field = tblobj.attributes['hierarchical'].split(',')[0]
+            else:
+                caption_field = tblobj.attributes.get('caption_field')
         q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
                          order_by='$%s' %caption_field)
         result = Bag()
@@ -58,7 +63,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         self.db.commit()
         
     @struct_method
-    def ht_treeViewer(self,pane,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%')        
@@ -67,7 +72,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
         
-        hviewTree = box.hviewTree(table=table,**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=None,**kwargs)
         form.htree = hviewTree
         hviewTree.connectToStore(table=table)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
@@ -101,10 +106,11 @@ class TableHandlerHierarchicalView(BaseComponent):
 
 
     @struct_method
-    def ht_connectToStore(self,tree,table=None):
+    def ht_connectToStore(self,tree,table=None,caption_field=None):
         b = Bag()
         tblobj = self.db.table(table)
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),
+                                                    caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                var pkey = data.pkey;
@@ -164,7 +170,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                 last_child = last_child[0]
                 offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
             for i in range(how_many):
-                record = {type_field:type_id,'parent_id':parent_id,caption_field:'%s %i' %(type_caption,offset+1+i)}
+                record = {type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,offset+1+i)}
                 tblobj.insert(record)
         self.db.commit()
     
