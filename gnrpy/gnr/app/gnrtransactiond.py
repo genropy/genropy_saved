@@ -114,13 +114,13 @@ class GnrAppTransactionAgent(GnrApp):
 
 
     def _doNoQueue(self):
-        l = self.db.table(self.transaction_tname).query(columns='*,data',
+        l = self.db.table(self.transaction_tname).query(columns='*,$data',
                                                         where="$execution_start IS NULL AND $queue_id IS NULL",
                                                         order_by="$request", limit=200).fetch()
         while l:
             for t in l:
                 self.expandTransaction(t)
-            l = self.db.table(self.transaction_tname).query(columns='*,data',
+            l = self.db.table(self.transaction_tname).query(columns='*,$data',
                                                             where="$execution_start IS NULL AND $queue_id IS NULL",
                                                             order_by="$request", limit=200).fetch()
 
@@ -132,7 +132,7 @@ class GnrAppTransactionAgent(GnrApp):
         stoppedQuery = ""
         if stoppedQueues:
             stoppedQuery = "AND (NOT ($queue_id IN :stoppedQueues ))"
-        l = self.db.table(self.transaction_tname).query(columns='*',
+        l = self.db.table(self.transaction_tname).query(columns='*,$data',
                                                         where="""($execution_start IS NULL)
                                                               AND ($queue_id IS NOT NULL)
                                                               %s""" % stoppedQuery,
