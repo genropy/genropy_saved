@@ -185,7 +185,7 @@ class TableBase(object):
                     tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group)
             tbl.attributes['hierarchical'] = hierarchical  
-            tbl.attributes.setdefault('order_by','$hierarchical_pkey')
+            tbl.attributes.setdefault('order_by','$hierarchical_pkey' if hierarchical is True else hierarchical.split(',')[0])
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if not 'parent_id' in broadcast:
@@ -430,7 +430,7 @@ class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self):
         """TODO"""
-        return True
+        return False
 
 class DynamicFieldsTable(TableBase):
     """CustomFieldsTable"""
