@@ -486,14 +486,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     }
 });
 
-dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
-        setSrc:function(domnode, v, kw) {
-            if(v){
-                domnode.setAttribute('src',v);
-            }
-        }
 
-});
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');
@@ -6068,10 +6061,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
     }
 });
-dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
-    constructor: function(application) {
-        this._domtag = 'img';
-    },
+
+
+
+
+dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     onBuilding:function(sourceNode){
         var attr=sourceNode.attr;
         var crop = objectExtract(attr, 'crop_*');
@@ -6084,14 +6078,14 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
             attr.width=crop.width;
             attr.height=crop.height;
             attr.overflow='hidden';
-            sourceNode._('img',innerImage,{'doTrigger':false}) ;
+            sourceNode._(this._domtag,innerImage,{'doTrigger':false}) ;
         }else{
              var uploadAttr=objectExtract(attr,'upload_*');
              var cropAttr=objectExtract(attr,'cr_*',true);
              if(objectNotEmpty(uploadAttr)){
                  attr.dropTarget=true;
                  attr.dropTypes='Files,text/plain';
-                 attr.drop_ext=uploadAttr.ext || 'png,jpg,jpeg,gif';
+                 attr.drop_ext=uploadAttr.ext || this._default_ext;
                  var src=sourceNode.attr.src;
                  attr.onDrop_text_plain = function(dropInfo,data){
                      if(sourceNode.form && sourceNode.form.isDisabled()){
@@ -6151,7 +6145,7 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
     
     created: function(widget, savedAttrs, sourceNode) {
         var that=this;
-        if('edit' in savedAttrs){
+        if(savedAttrs.edit){
             widget.onmousedown=function(e){
                 return that.onMouseDown(e)
             }
@@ -6324,7 +6318,18 @@ dojo.declare("gnr.widgets.img", gnr.widgets.baseHtml, {
         valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);
     }
 });
-
+dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
+    constructor: function(application) {
+        this._domtag = 'img';
+         this._default_ext='png,jpg,jpeg,gif';
+    }
+});
+dojo.declare("gnr.widgets.embed", gnr.widgets.uploadable, {
+    constructor: function(application) {
+        this._domtag = 'embed';
+        this._default_ext='png,jpg,jpeg,gif,pdf,mov';
+    }
+});
 
 dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
     constructor: function(application) {
