@@ -566,8 +566,8 @@ class GnrWsgiSite(object):
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
         request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
-        
-        isMobile = len(IS_MOBILE.findall(request.user_agent))>0
+        user_agent = request.user_agent or ''
+        isMobile = len(IS_MOBILE.findall(user_agent))>0
         if isMobile:
             request_kwargs['_mobile'] = True
         request_kwargs.pop('_no_cache_', None)
