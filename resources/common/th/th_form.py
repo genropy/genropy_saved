@@ -30,7 +30,7 @@ class TableHandlerForm(BaseComponent):
         if hasattr(pane,'view'):
             grid =  pane.view.grid
             linkTo = grid
-        context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
+        #context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
         form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
@@ -38,7 +38,7 @@ class TableHandlerForm(BaseComponent):
                                  table=table,
                                  formResource=formResource,
                                  iframe=formInIframe,
-                                 context_dbstore=context_dbstore,
+                                 #context_dbstore=context_dbstore,
                                  **options) 
         form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
                             tablename=self.db.table(table).name_long,
