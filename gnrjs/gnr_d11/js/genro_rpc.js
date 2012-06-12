@@ -207,6 +207,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             genro._serverstore_changes = null;
         }
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
+        var sourceNode = callKwargs['_sourceNode'];
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
@@ -217,6 +218,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         content.page_id = this.application.page_id;
         var kw = objectUpdate({}, xhrKwargs);
         kw.url = kw.url || this.pageIndexUrl();
+
+        if(sourceNode){
+            var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
+            if (req_dbstore){
+                kw.url = '/'+req_dbstore+kw.url;
+            }
+        }
 
         if (this.application.debugopt) {
             content.debugopt = this.application.debugopt;

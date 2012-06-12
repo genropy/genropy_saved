@@ -34,7 +34,7 @@ class TableHandler(BaseComponent):
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
-                            picker=None,addrow=True,delrow=True,title=None,picker_kwargs=True,**kwargs):
+                            picker=None,addrow=True,delrow=True,title=None,picker_kwargs=True,dbstore=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -50,6 +50,7 @@ class TableHandler(BaseComponent):
                         thform_root=formCode,
                         nodeId=th_root,
                         table=table,
+                        context_dbstore=dbstore,
                         **kwargs) 
         top_slots = ['#']     
         if readOnly:

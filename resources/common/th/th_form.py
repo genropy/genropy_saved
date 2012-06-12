@@ -30,6 +30,7 @@ class TableHandlerForm(BaseComponent):
         if hasattr(pane,'view'):
             grid =  pane.view.grid
             linkTo = grid
+        context_dbstore = pane.getInheritedAttributes().get('context_dbstore')
         form = linkTo.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
@@ -37,6 +38,7 @@ class TableHandlerForm(BaseComponent):
                                  table=table,
                                  formResource=formResource,
                                  iframe=formInIframe,
+                                 context_dbstore=context_dbstore,
                                  **options) 
         form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
                             tablename=self.db.table(table).name_long,
@@ -64,7 +66,7 @@ class TableHandlerForm(BaseComponent):
     @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
     def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
-                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,**kwargs):
+                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,**kwargs):
         tableCode = table.replace('.','_')
         formId = formId or tableCode
         self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
@@ -74,7 +76,7 @@ class TableHandlerForm(BaseComponent):
         if formroot is None:
             formroot = formroot or pane
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
-                             store_startKey=startKey,
+                             store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,
                              **kwargs)
         self._th_applyOnForm(form,options=resource_options,mangler=formId)

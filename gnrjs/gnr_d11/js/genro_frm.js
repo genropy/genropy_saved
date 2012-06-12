@@ -1492,7 +1492,7 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns?virtual_columns.split(','):[]
         form_virtual_columns = form_virtual_columns?form_virtual_columns.split(','):[]
         virtual_columns = virtual_columns.concat(form_virtual_columns);
-        
+        kw['_sourceNode'] = form.sourceNode;
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,maincb);
@@ -1514,6 +1514,7 @@ dojo.declare("gnr.formstores.Base", null, {
 
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         var onSaving = objectPop(kw,'onSaving');
+        kw['_sourceNode'] = form.sourceNode;
         kw['_autoreload'] = kw['_autoreload'] || false;
         if(kw._autoreload){
             if (destPkey){

@@ -211,7 +211,6 @@ class TableBase(object):
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         if multidb:
-            tbl.attributes.update(multidb=multidb)
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         
         sync = tbl.attributes.get('sync')
@@ -347,6 +346,8 @@ class TableBase(object):
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
         pkg = tbl.attributes['pkg']
+        tbl.attributes.update(multidb='*' if allRecords else True)
+
         tblname = tbl.parentNode.label
         tblfullname = '%s.%s' %(pkg,tblname)
         model = self.db.model
@@ -430,7 +431,7 @@ class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self):
         """TODO"""
-        return False
+        return self.attributes.get('multidb')
 
 class DynamicFieldsTable(TableBase):
     """CustomFieldsTable"""

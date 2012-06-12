@@ -322,6 +322,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     if (!this._deferredRegister){
                         this._deferredRegister ={};
                     }   
+                    kwargs['_sourceNode'] = this;
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
                     if(deferred){
                         this._deferredRegister[deferred.id]= deferred;

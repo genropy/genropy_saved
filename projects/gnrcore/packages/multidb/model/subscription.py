@@ -27,6 +27,8 @@ class Table(object):
         queryargs = dict()
         if pkeys:
             queryargs = dict(where='$pkey IN :pkeys',pkeys=pkeys)
+        if tblobj.attributes.get('hierarchical'):
+            queryargs.setdefault('order_by','$hierarchical_pkey')
         records = tblobj.query(addPkeyColumn=False,bagFields=True,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
