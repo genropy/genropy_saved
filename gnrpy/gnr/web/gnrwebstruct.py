@@ -72,7 +72,7 @@ def cellFromField(field,tableobj):
             joiner = fkeycol.relatedColumnJoiner()
             if 'storefield' in joiner:
                 ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
-                kwargs['_storename'] = joiner['storefield']
+                kwargs['_storename'] = joiner['storefield'] or "'%s'" %tableobj.db.rootstore
                 kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
                 ext_fldname = '.'.join(relfldlst[1:])
                 if not ext_fldname.startswith('@'):

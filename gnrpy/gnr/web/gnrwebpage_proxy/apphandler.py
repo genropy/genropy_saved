@@ -799,7 +799,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     tblobj = self.db.table(k)
                     extfkeyname = '%s_fkey' %k.replace('.','_')
                     fkeys = [r[extfkeyname] for r in selection.data]
-                    columns = ','.join(v+['%s AS %s' %(tblobj.pkey,extfkeyname)])
+                    columns = ','.join(v+['$%s AS %s' %(tblobj.pkey,extfkeyname)])
                     resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %tblobj.pkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
                     for r in subsel:
                         if r[extfkeyname] in resdict:
