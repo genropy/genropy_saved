@@ -87,6 +87,7 @@ class THPicker(BaseComponent):
                         dojo.forEach(data,function(n){pkeys.push(n['_pkey'])});
                         kw.dragPkeys = pkeys;
                     }
+                    kw['_sourceNode'] = this;
                     if(grid.gridEditor && grid.gridEditor.editorPars){
                         var rows = [];
                         dojo.forEach(kw.dragPkeys,function(fkey){

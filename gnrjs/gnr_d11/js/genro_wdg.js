@@ -816,9 +816,10 @@ dojo.declare("gnr.GridEditor", null, {
     saveChangedRows:function(){
         var that = this;
         var changeset = this.getChangeset(true);
+        var sourceNode = this.grid.sourceNode;
         if(changeset.len()>0){
             that.grid.updateRowCount();
-            genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset},
+            genro.serverCall(that.editorPars.saveMethod,{table:that.table,changeset:changeset,_sourceNode:sourceNode},
                             function(result){that.onSavedChangedRows(changeset,result);});
         }
     },
@@ -923,7 +924,8 @@ dojo.declare("gnr.GridEditor", null, {
                 }
             }
             if(queries.len()>0){
-                var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
+                var sourceNode = this.grid.sourceNode;
+                var remoteDefaults = genro.serverCall('app.getMultiFetch',{'queries':queries,_sourceNode:sourceNode},null,null,'POST');
                 for(var k in cellmap){
                     rcol = cellmap[k].relating_column;
                     if (rcol){
