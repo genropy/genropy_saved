@@ -448,7 +448,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
     },
     setLastSelection:function(focusNode){
-        if (focusNode.selection){
+        if (focusNode.selection || focusNode.selectionStart || focusNode.selectionEnd){
             genro._lastSelection = {domNode:focusNode,start:focusNode.selectionStart,end:focusNode.selectionEnd};
         }else{
             genro._lastSelection = {};
