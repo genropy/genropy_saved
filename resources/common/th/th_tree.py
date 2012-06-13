@@ -44,7 +44,7 @@ class TableHandlerTreeResolver(BagResolver):
             record = dict(r)
             caption = r[caption_field]
             pkey = record[pkeyfield]
-            result.setItem(pkey,TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey),
+            result.setItem(pkey,TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field),
                             caption=caption,
                             child_count=record['child_count'],pkey=pkey or '_all_',
                             parent_id=self.parent_id,
@@ -72,9 +72,9 @@ class TableHandlerHierarchicalView(BaseComponent):
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
         
-        hviewTree = box.hviewTree(table=table,caption_field=None,**kwargs)
+        hviewTree = box.hviewTree(table=table,**kwargs)
         form.htree = hviewTree
-        hviewTree.connectToStore(table=table)
+        hviewTree.connectToStore(table=table,caption_field=caption_field)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
             if(!pkey || pkey=='*newrecord*'){
@@ -111,6 +111,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         tblobj = self.db.table(table)
         b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),
                                                     caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                var pkey = data.pkey;
