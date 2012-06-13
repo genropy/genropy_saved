@@ -9,7 +9,7 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('title', name='!!Title')
         r.fieldcell('description', name='!!Description')
-        r.fieldcell('url', name='!!Url')
+        r.fieldcell('url', name='!!Url',template='<a href="#?download=True">download<a/>')
         r.fieldcell('path', name='!!Path')
         r.fieldcell('thumb_url', name='!!Url')
         r.fieldcell('thumb_path', name='!!Path')
