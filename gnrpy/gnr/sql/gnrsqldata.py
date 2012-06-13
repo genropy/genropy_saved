@@ -499,6 +499,7 @@ class SqlQueryCompiler(object):
             columns = columns.strip('\n').strip(',')
             
         # replace $fldname with tn.fldname: finally the real SQL columns!
+        
         columns = gnrstring.templateReplace(columns, colPars, safeMode=True)
         
         # replace $fldname with tn.fldname: finally the real SQL where!
@@ -531,7 +532,6 @@ class SqlQueryCompiler(object):
                     where = '(%s) AND (%s)' % (where, extracnd)
                 else:
                     where = extracnd
-                    
         order_by = gnrstring.templateReplace(order_by, colPars)
         having = gnrstring.templateReplace(having, colPars)
         group_by = gnrstring.templateReplace(group_by, colPars)
@@ -541,6 +541,13 @@ class SqlQueryCompiler(object):
             if self._explodingRows:
                 if not aggregate:              # if there is not yet a group_by
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
+                    if order_by:
+                        xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(' ')
+                        colsplit =col
+                        for xrd in xorderby:
+                            if not xrd in columns:
+                                columns = '%s, \n%s' % (columns, xrd)
+                    #order_by=None
                     if count:
                         columns = 't0.%s' % self.tblobj.pkey
                         # Count the DISTINCT maintable pkeys, instead of count(*) which will give the number of JOIN rows.
