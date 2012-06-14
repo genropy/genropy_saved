@@ -126,6 +126,15 @@ class SiteStaticHandler(StaticHandler):
     def path(self, *args):
         return expandpath(os.path.join(self.site.site_static_dir, *args))
 
+class AbsStaticHandler(StaticHandler):
+    prefix = 'abs'
+
+    def url(self, *args, **kwargs):
+        return '%s_abs/%s' % (self.home_uri, '/'.join(args))
+
+    def path(self, *args):
+        return '/%s' %os.path.join(*args)
+
 class PkgStaticHandler(StaticHandler):
     prefix = 'pkg'
 
