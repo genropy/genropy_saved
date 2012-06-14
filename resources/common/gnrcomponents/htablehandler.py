@@ -179,7 +179,7 @@ class HTableHandlerBase(BaseComponent):
     """TODO"""
     
     @struct_method
-    def ht_hdbselect(self,pane,**kwargs):
+    def ht_hdbselect_old(self,pane,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%(dbtable)s' %attr
@@ -266,14 +266,12 @@ class HTableHandlerBase(BaseComponent):
             rootpath = row['code']
             code = row['code']
             child_count = row['child_count']
-            rec_type = row['rec_type']
         else:
             caption = rootcaption or tblobj.name_plural
             rootlabel = '_root_'
             pkey = rootpkey
             code = rootcode
             rootpath = None
-            rec_type = None
             row = dict()
             with self.db.tempEnv(storename=storename):
                 child_count = tblobj.query().count()

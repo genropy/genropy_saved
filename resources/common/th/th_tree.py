@@ -7,7 +7,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 
 class TableHandlerTreeResolver(BagResolver):
@@ -15,6 +15,9 @@ class TableHandlerTreeResolver(BagResolver):
                    'table':None,
                    'parent_id': None,
                    'caption_field':None,
+                   'condition':None,
+                   'condition_kwargs':None,
+                   '_condition_id':None,
                    '_page':None}
     classArgs = ['parent_id']
 
@@ -22,6 +25,23 @@ class TableHandlerTreeResolver(BagResolver):
         attr = super(TableHandlerTreeResolver, self).resolverSerialize()
         attr['kwargs'].pop('_page',None)
         return attr
+
+
+
+    def getConditionPkeys(self):
+        if self._condition_id:
+            condition_pkeys = self._page.pageStore().getItem('th_hresolver.%s' %self._condition_id)
+        else:
+            self._condition_id = self._page.getUuid()
+            db = self._page.db
+            tblobj = db.table(self.table)
+            condition_kwargs = self.condition_kwargs or dict()
+            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$id,$parent_id',**condition_kwargs).fetchAsBag('parent_id')
+            condition_pkeys = valid.getIndexList()
+            with self._page.pageStore() as store:
+                store.setItem('hresolver.%s' %self._condition_id,condition_pkeys)
+        return condition_pkeys
+
 
     def load(self):
         page = self._page
@@ -36,17 +56,34 @@ class TableHandlerTreeResolver(BagResolver):
                 caption_field = tblobj.attributes['hierarchical'].split(',')[0]
             else:
                 caption_field = tblobj.attributes.get('caption_field')
+
+        condition_kwargs = self.condition_kwargs or dict()
+        condition_pkeys = None
+
+        if self.condition:
+            condition_pkeys = self.getConditionPkeys()
+            where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $id IN :condition_pkeys ) ) ' %(where,self.condition)
+        
+       #rows = tblobj.query(columns,where=where,
+       #                    rootpath=self.rootpath or '', order_by='$child_code',
+       #                    condition_codes=condition_codes,
+       #                    **condition_kwargs).fetch()
+
+
         q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
-                         order_by='$%s' %caption_field)
+                         condition_pkeys=condition_pkeys,
+                         order_by='$%s' %caption_field,**condition_kwargs)
         result = Bag()
         f = q.fetch()
         for r in f:
             record = dict(r)
             caption = r[caption_field]
             pkey = record[pkeyfield]
-            result.setItem(pkey,TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field),
+            child_count=record['child_count']
+            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field) if child_count else None
+            result.setItem(pkey,value,
                             caption=caption,
-                            child_count=record['child_count'],pkey=pkey or '_all_',
+                            child_count=child_count,pkey=pkey or '_all_',
                             parent_id=self.parent_id,
                             hierarchical_pkey=record['hierarchical_pkey'],
                             treeIdentifier=pkey)
@@ -98,20 +135,15 @@ class TableHandlerHierarchicalView(BaseComponent):
     
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store'):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None):
         b = Bag()
         tblobj = self.db.table(table)
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
         pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
-
 
     @struct_method
     def ht_connectToStore(self,tree,table=None,caption_field=None):
-        b = Bag()
-        tblobj = self.db.table(table)
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),
-                                                    caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-        
+        tree.htableViewStore(table=table,caption_field=caption_field)
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                var pkey = data.pkey;
@@ -119,9 +151,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 function(result){
                                                 });""" %table
         treeattr['dropTargetCb']="""return this.form.isDisabled()?false:THTree.dropTargetCb(this,dropInfo);"""  
-        pane = tree.parent
-        pane.data('.store',b,childname='store',caption=tblobj.name_plural,table=table) 
-        pane.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
+        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
     @struct_method
     def ht_hviewTree(self,box,table=None,picker=None,**kwargs):  
@@ -365,5 +395,33 @@ class TableHandlerHierarchicalView(BaseComponent):
         self.db.table(aliastable).deleteSelection(where='$%s IN :fkeys' %fkey_name,fkeys=fkeys)
         dragtblobj.touchRecords(_pkeys=fkeys)
         self.db.commit()
-        
 
+    @struct_method
+    def ht_hdbselect(self,pane,caption_field=None,**kwargs):
+        dbselect = pane.dbselect(**kwargs)
+        attr = dbselect.attributes
+        menupath = 'gnr.htablestores.%(dbtable)s' %attr
+        attr['hasDownArrow'] = True
+        dbselect_condition = attr.get('condition')
+        dbselect_condition_kwargs = dictExtract(attr,'condition_')
+        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
+        pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
+                        condition=dbselect_condition,
+                        condition_kwargs=dbselect_condition_kwargs,
+                        cacheTime=30,caption_field=caption_field)
+        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
+        
+        
+    @public_method
+    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,**kwargs):
+        b = Bag()
+        tblobj = self.db.table(table)
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        return b
+
+   #@public_method
+   #def ht_remoteTreeData(self, *args,**kwargs):
+   #    if 'storename' in kwargs:
+   #        self.db.use_store(kwargs['storename'])
+   #    return self.ht_treeDataStore(*args,**kwargs)
+   #
