@@ -107,7 +107,7 @@ class PeriodCombo(BaseComponent):
         dates = ','.join(dates)
         return dates
 
-    def periodCombo(self, fb, period_store=None, value=None, lbl='!!Period', dflt='12em',width=None,**kwargs):
+    def periodCombo(self, fb, period_store=None, value=None, lbl='!!Period', dflt='',width=None,**kwargs):
         value = value or '^.period_input'
         period_store = period_store or '.period'
         fb.dataRpc(period_store, self.decodeDatePeriod, datestr=value,

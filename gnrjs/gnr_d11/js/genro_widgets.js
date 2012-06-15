@@ -6322,10 +6322,12 @@ dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
          this._default_ext='png,jpg,jpeg,gif';
     }
 });
-dojo.declare("gnr.widgets.embed", gnr.widgets.uploadable, {
+dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'embed';
-        this._default_ext='png,jpg,jpeg,gif,pdf,mov';
+    },
+    setSrc:function(domnode,v){
+        domnode.sourceNode.rebuild();
     }
 });
 
