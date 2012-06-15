@@ -6071,12 +6071,11 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var crop = objectExtract(attr, 'crop_*');
         var that = this;
         if(objectNotEmpty(crop)){
-            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask');
+            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
             innerImage.cr_width=crop.width
             innerImage.cr_height=crop.height
             attr.tag = 'div';
-            attr.width=crop.width;
-            attr.height=crop.height;
+            objectUpdate(attr,crop)
             attr.overflow='hidden';
             sourceNode._(this._domtag,innerImage,{'doTrigger':false}) ;
         }else{
@@ -6149,15 +6148,6 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             widget.onmousedown=function(e){
                 return that.onMouseDown(e)
             }
-            //var pnode=widget.parentNode;
-            //pnode.style.position = 'relative';
-            //dojo.addClass(pnode,'widgetWithHelper')
-            //var helper=document.createElement('div');
-            //dojo.addClass(helper,'helperWidget');
-            //helper.innerHTML = "Drag to adjust the position. Shift+Drag to scale the image. "
-            //pnode.appendChild(helper);
-            //
-            
         };
         if(savedAttrs.zoomWindow){
          dojo.connect(widget,'ondblclick',function(e){
@@ -6167,6 +6157,12 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                                               'toolbar':'no','titlebar':'no','status':'no'});
                                           });
         };
+        var url=widget.getAttribute('src')
+        widget.setAttribute('src',null)
+        setTimeout(function(){
+            console.log('created')
+            widget.setAttribute('src',url)
+            },1000)
     },
     setPlaceHolder:function(sourceNode){
         var domnode = sourceNode.domNode;
@@ -6263,7 +6259,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var parsedUrl = parseURL(url);
         var p = parsedUrl.params;
         if (!p._pc){
-            p_pc=new Date().getMilliseconds()
+            p['_pc']=new Date().getMilliseconds()
         }
         p['v_x'] = parseFloat((p['v_x'] || 0));
         p['v_y'] = parseFloat((p['v_y'] || 0));
@@ -6307,7 +6303,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             if(src != domnode.getAttribute('src')){
                 domnode.setAttribute('src',src);
             }
-            var style = objectAsStyle(genro.dom.getStyleDict(kwimg['styledict']));
+            var currStyle=objectFromStyle(domnode.style.cssText)
+            var newStyle=genro.dom.getStyleDict(kwimg['styledict'])
+            var style = objectAsStyle(objectUpdate(currStyle,newStyle));
             domnode.setAttribute('style',style);
         }
         else if (('placeholder' in sourceNode.attr)){

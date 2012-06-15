@@ -30,10 +30,25 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.id',lbl='Image identifier')
         fb.textbox(value='^.avatar_url',lbl='Image url',width='50em')
         center=bc.contentPane(region='center')             
+        center.img(src='^.avatar_url',crop_height='200px',crop_width='250px',upload_folder='site:test/testimages',upload_filename='=.id',
+                           border='1px solid silver',rounded=8,margin='10px',
+                           placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
+                           shadow='2px 2px 5px silver',edit=True,zoomWindow='ImageDeatail' )
+          
+    def test_9_img_uploader_edit(self, pane):
+        bc=pane.borderContainer(height='500px')
+        top=bc.contentPane(region='top')
+        fb=top.formbuilder(cols=1)
+     
+        fb.textbox(value='^.id',lbl='Image identifier')
+        fb.textbox(value='^.avatar_url',lbl='Image url',width='50em')
+        center=bc.contentPane(region='center')             
         center.embed(src='^.avatar_url',height='100%',width='100%',upload_folder='site:test/testimages',upload_filename='=.id',
                            border='1px solid silver',rounded=8,margin='10px',
                            #placeholder='http://images.apple.com/euro/home/images/icloud_hero.png',
                            shadow='2px 2px 5px pink',edit=False,zoomWindow='ImageDeatail' )
+                        
+                        
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
