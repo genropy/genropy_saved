@@ -296,7 +296,9 @@ class SiteRegister(object):
             thisCleanupTs = time.time()
             if lastCleanupTs and (thisCleanupTs - lastCleanupTs > self.site.cleanup_interval):
                 self.cleanup(cascade=True, max_age=150, onlyGuest=True)  # FIXME!!
-            self.sd.set(self.cleanup_key, thisCleanupTs, 0)
+                self.sd.set(self.cleanup_key, thisCleanupTs, 0)
+            if not lastCleanupTs:
+                self.sd.set(self.cleanup_key, thisCleanupTs, 0)
 
         return page_item
 
