@@ -12,7 +12,7 @@ class THPicker(BaseComponent):
     @struct_method
     def pk_palettePicker(self,pane,grid=None,table=None,relation_field=None,paletteCode=None,
                          viewResource=None,searchOn=True,multiSelect=True,
-                         title=None,autoInsert=True,dockButton=True,picker_kwargs=None,
+                         title=None,autoInsert=None,dockButton=True,picker_kwargs=None,
                          height=None,width=None,**kwargs):
         
         one=False
@@ -24,6 +24,8 @@ class THPicker(BaseComponent):
         height = height or picker_kwargs.get('height')
         width = width or picker_kwargs.get('height')
         autoInsert = autoInsert or picker_kwargs.get('autoInsert')
+        if autoInsert is None:
+            autoInsert = True
         title = title or picker_kwargs.get('title')
         viewResource = viewResource or picker_kwargs.get('viewResource')
         if viewResource is True:
