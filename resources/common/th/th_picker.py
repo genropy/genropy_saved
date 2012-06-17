@@ -103,7 +103,7 @@ class THPicker(BaseComponent):
                     }
 
                 """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',_if='mainpkey',
-                        rpcmethod=method,treepicker=oldtreePicker or treepicker,tbl=maintable,
+                        rpcmethod=method,treepicker=oldtreePicker or treepicker or False,tbl=maintable,
                         one=one,many=many,grid=grid.js_widget)
                     
         return palette
