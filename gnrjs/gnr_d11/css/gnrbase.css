@@ -2515,7 +2515,7 @@ body *{
 
 
 
-.th_enableLinker .th_linkerField{
+.th_enableLinker .th_linkerField, .th_linkerAlwaysOpen .th_linkerField{
     display:block;
     width:12em;
     box-shadow:none;
@@ -2535,7 +2535,7 @@ body *{
     background:white !important;
 }
 
-.th_enableLinker.th_linker{
+.th_enableLinker.th_linker,.th_linkerAlwaysOpen .th_linker{
     opacity:1;
     border:1px solid gray;
 	background: white url(icons/base12/linker.png) no-repeat 3px center;

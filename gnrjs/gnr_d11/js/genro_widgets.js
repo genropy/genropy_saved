@@ -603,7 +603,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                 }
             }, sourceNode.attr.delay || 1, domnode, v);
         }
-
     }
     
 });
@@ -1812,6 +1811,10 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['action'] = objectPop(attributes, 'action');
         savedAttrs['fire'] = objectPop(attributes, 'fire');
         savedAttrs['publish'] = objectPop(attributes, 'publish');
+        var focusOnTab = objectPop(attributes,'focusOnTab');
+        if (!focusOnTab){
+            attributes['tabindex'] = 32767;
+        }
         return savedAttrs;
     },
     
