@@ -218,30 +218,32 @@
 }
  
 .qb_div {
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    border-radius: 6px;
-    background-color: #eee;
-    min-height: 1ex;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    border:1px solid silver;
+    color:#555;
+    font-size:9px;
+    border-radius: 4px;
     padding-left: 6px;
-    min-height:13px;
+    line-height:15px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#F7F7F7), to(#E4E4E4));    
+    background-image: -moz-linear-gradient(-90deg, #F7F7F7, to(#E4E4E4));
+
 }
+._common_d11 .qb_value .dijitInputField{
+    line-height:14px;
+}
+
  
 .qb_group {
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    border-radius: 6px;
+    border:1px solid silver;
     width: auto;
 }
  
 .qb_group_even {
-    background-color: #c3c3c3;
+    background-color: #F2F9FE;
 }
  
 .qb_group_odd {
-    background-color: #939393;
+    background-color: #FFFFFF;
 }
  
 .qb_jc {
