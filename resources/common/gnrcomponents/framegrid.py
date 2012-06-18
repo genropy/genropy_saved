@@ -10,10 +10,10 @@ from gnr.core.gnrdecorator import extract_kwargs
 
 class FrameGridSlots(BaseComponent):
     @struct_method
-    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,**kwargs):
+    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,**kwargs):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
-                                iconClass=_class,**kwargs) 
+                                opt_rawData=rawData, iconClass=_class,**kwargs) 
        
     @struct_method
     def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,**kwargs):
