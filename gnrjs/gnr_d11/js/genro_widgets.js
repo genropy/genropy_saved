@@ -2405,9 +2405,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget.gridEditor = new gnr.GridEditor(widget);
             };
         }
-        if(sourceNode.attr.gridEditor){
-            widget.gridEditor = new gnr.GridEditor(widget);
-        }
         if ('draggable_row' in sourceNode.attr) {
             dojo.connect(widget.views, 'addView', dojo.hitch(widget, 'onAddedView'));
             if (widget.views.views.length > 0) {
