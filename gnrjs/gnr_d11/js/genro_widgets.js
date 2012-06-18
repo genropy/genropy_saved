@@ -4799,16 +4799,41 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_resetFilter: function(value) {
         return this.collectionStore().resetFilter();
     },
-    mixin_currentData:function(nodes){
+    mixin_currentData:function(nodes, rawData){
         var nodes = nodes || (this.getSelectedRowidx().length<1?'all':'selected');
         var result = new gnr.GnrBag();
         var nodes;
-        if(nodes=='all'){
-            nodes = this.collectionStore().getData().getNodes();
-        }else if(nodes=='selected'){
-            nodes = this.getSelectedNodes();
+        if (rawData===true){
+            if(nodes=='all'){
+                nodes = this.collectionStore().getData().getNodes();
+            }else if(nodes=='selected'){
+                nodes = this.getSelectedNodes();
+            }
+            dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
+        }else{
+            var col_fields = this.structbag().getItem('#0.#0').digest('#a.field');
+            var col_names = [];
+            dojo.forEach(col_fields, function(c){col_names.push(c[0].replace(/\W/g, '_'))});
+            var col_length = col_fields.length;
+            var selector = nodes=='selected'?'.dojoxGrid-view .dojoxGrid-row-selected .dojoxGrid-cell':'.dojoxGrid-view .dojoxGrid-cell';
+            var cells = dojo.query(selector, this.domNode);
+            var curr_row = 0;
+            var cell_attrs = {};
+            var cell_idx;
+            for (var i=0;i<cells.length;i++){
+                var cell = cells[i];
+                cell_idx = i%col_length;
+                cell_attrs[col_names[cell_idx]]=cell.childNodes[0].innerHTML.replace('&nbsp;','');
+                if ((i+1)%col_length==0){
+                    result.setItem('r_'+curr_row, null, cell_attrs);
+                    cell_attrs = {};
+                    curr_row += 1;
+                }
+            }
+
+
         }
-        dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
+        
         return result;
     },
     mixin_serverAction:function(kw){
@@ -4820,7 +4845,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kwargs['selectionName'] = this.collectionStore().selectionName;
             kwargs['selectedRowidx'] = this.getSelectedRowidx();
         }else{
-            kwargs['data'] = this.currentData();
+            console.log(options['rawData']);
+            kwargs['data'] = this.currentData(null, options['rawData']===true);
         }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
