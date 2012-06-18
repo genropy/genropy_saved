@@ -140,10 +140,7 @@ cursorZoom_plus{
     padding: 0px 2px;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -opera-border-radius: 4px;
-    -khtml-border-radius: 4px;
+    border-radius: 4px;
     cursor: pointer;
     opacity: 1;
     color: #494949;
@@ -259,19 +256,13 @@ cursorZoom_plus{
 
 /* @end */
 ._common_d11 .dijitComboBox .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
+    border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
+    border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
 }
@@ -296,19 +287,13 @@ cursorZoom_plus{
 
 
 ._common_d11 .dijitComboBox .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
+    border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
+    border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
 }
@@ -437,9 +422,8 @@ label.ghostlabel span {
 
 /* @group Plugin */
 .plugin_block {
-    -moz-border-radius: 0px 0px 5px 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -webkit-border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     width: 27px;
     height: 20px;
     cursor: pointer;
@@ -538,8 +522,6 @@ label.ghostlabel span {
     padding: 1em;
     border: 1px solid silver;
     margin: 1em;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
     border-radius: 6px;
 }
 .dlg_ask_btnBox{
@@ -582,8 +564,7 @@ label{
 }
 
 .borderRadius {
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    border-radius: 12px;
 }
 
 .gnrfield {
@@ -1041,8 +1022,7 @@ table.formbuilder {
 .formulaColumnTreeNode {
     background-color: #d1ffeb;
     font-style: italic;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
+    border-radius: 4px;
 }
 
 /* @group Dtype */
@@ -1777,7 +1757,7 @@ div.dojoxDock {
 }
 
 ._common_d11 .lightboxDialog.dijitDialog {
-    -moz-border-radius: 0px;
+    border-radius: 0px;
     -webkit-border-radius: 0px;
     -moz-box-shadow: 0px 0px 0px;
     -webkit-box-shadow: 0px 0px 0px;
@@ -1936,8 +1916,6 @@ div.dojoxDock {
     top: 4px;
     left: 4px;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
 }
 
 .dojoxScrollWrapper {
@@ -1980,10 +1958,8 @@ textarea:disabled {
 .countBoxPartial {
     border: 1px solid #AEB6BD;
     border-right: 0px;
-    -moz-border-radius-topleft: 12px;
-    -moz-border-radius-bottomleft: 12px;
-    -webkit-border-top-left-radius: 12px;
-    -webkit-border-bottom-left-radius: 12px;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
     text-align: right;
     padding-right: 3px;
     padding-left: 5px;
@@ -1996,10 +1972,8 @@ textarea:disabled {
 }
 .countBoxTotal {
     border: 1px solid #AEB6BD;
-    -moz-border-radius-topright: 12px;
-    -moz-border-radius-bottomright: 12px;
-    -webkit-border-top-right-radius: 12px;
-    -webkit-border-bottom-right-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     text-align: left;
     padding-left: 4px;
     padding-right: 5px;
@@ -2007,16 +1981,13 @@ textarea:disabled {
     color: #9C9474;
 }
 .unfilteredCount .countBoxTotal {
-    -moz-border-radius-topleft: 12px;
-    -moz-border-radius-bottomleft: 12px;
-    -webkit-border-top-left-radius: 12px;
-    -webkit-border-bottom-left-radius: 12px;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
     text-align: center;
     padding-right: 5px;
 }
 .searchInputBox {
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    border-radius: 12px;
     padding-left: 5px;
     padding-right: 20px;
     border: 1px solid #AEB6BD;
@@ -2029,8 +2000,7 @@ textarea:disabled {
 
 
 .searchInput {
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    border-radius: 12px;
     padding-left: 5px;
     padding-right: 15px;
     border: 1px solid gray;
@@ -2066,8 +2036,7 @@ textarea:disabled {
     border-top: 1px solid #E3E3E3;
     background-color:#F8F8F8;
     border-radius: 4px;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
+	border-radius: 4px;
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
 }
@@ -2098,8 +2067,7 @@ textarea:disabled {
     border: 1px solid #CECECE;
     background-color:#CECECE;
     border-radius: 4px;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
+	border-radius: 4px;
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#E3E3E3), to(#CDCDCD));
     background-image: -moz-linear-gradient(-90deg, #E3E3E3, #CDCDCD);
 }
@@ -2361,8 +2329,7 @@ body *{
 }
 
 .slotCaption {
-    -moz-border-radius:12px;
-    -webkit-border-radius:12px;
+    border-radius:12px;
     background:#555;
     border:1px solid gray;
     padding-left:1em;
@@ -3035,18 +3002,15 @@ p {
 }
 
 .rounded_min {
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
+    border-radius: 6px;
 }
 
 .rounded_medium {
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
 }
 
 .rounded_max {
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    border-radius: 12px;
 }
 
 /* @end */
@@ -3064,17 +3028,13 @@ p {
 }
 
 .multibutton:last-child{
-	-moz-border-radius-topright: 6px;
-    -moz-border-radius-bottomright: 6px;
-    -webkit-border-top-right-radius: 6px;
-    -webkit-border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
     border-right: 1px solid;
 }
 .multibutton:first-child{
-    -moz-border-radius-topleft: 6px;
-    -moz-border-radius-bottomleft: 6px;
-    -webkit-border-top-left-radius: 6px;
-    -webkit-border-bottom-left-radius: 6px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
 }
 
 .multibutton_selected.multibutton{
