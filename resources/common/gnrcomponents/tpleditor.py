@@ -172,9 +172,9 @@ class TemplateEditor(TemplateEditorBase):
 
     def _te_info_top(self,pane):
         fb = pane.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
-                                                tdl_width='6em',datapath='.data.metadata')
-        fb.textbox(value='^.author',lbl='!!Author',tdf_width='20em')
-        fb.numberTextBox(value='^.version',lbl='!!Version')
+                                                tdl_width='5em',datapath='.data.metadata')
+        fb.textbox(value='^.author',lbl='!!Author',tdf_width='12em')
+        fb.numberTextBox(value='^.version',lbl='!!Version',width='4em')
         fb.dateTextBox(value='^.date',lbl='!!Date')
         fb.checkbox(value='^.is_print',label='!!Print')
         fb.checkbox(value='^.is_mail',label='!!Mail')
@@ -199,6 +199,7 @@ class TemplateEditor(TemplateEditorBase):
         frame.left.slotBar('5,fieldsTree,*',
                             fieldsTree_table=table,
                             fieldsTree_dragCode='fieldvars',
+                            border_right='1px solid silver',
                             closable=True,width='150px',fieldsTree_height='100%',splitter=True,**fieldsTree_kwargs)
         grid = frame.grid
         editor = grid.gridEditor()
@@ -243,7 +244,7 @@ class TemplateEditor(TemplateEditorBase):
         
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
+        bc = frame.center.borderContainer()
         self._te_info_top(bc.contentPane(region='top'))
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
@@ -327,12 +328,16 @@ class PaletteTemplateEditor(TemplateEditor):
         palette = pane.palettePane(paletteCode=paletteCode or 'template_manager',
                                     title='^.caption',
                                     width='750px',height='500px',**kwargs)
+        palette.remote(self.remoteTemplateEditor,maintable=maintable)
+
+    @public_method
+    def remoteTemplateEditor(self,palette,maintable=None):
         sc = palette.templateEditor(maintable=maintable)
         infobar = sc.info.top.bar
         infobar.replaceSlots('#','#,menutemplates,deltpl,savetpl,5')
         infobar.deltpl.slotButton('!!Delete current',iconClass='iconbox trash',
                                 action='FIRE .deleteCurrent',disabled='^.currentTemplate.pkey?=!#v')
-        infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onStart=True)
+        infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onBuilt=True)
         infobar.dataFormula(".palette_caption", "prefix+caption",caption="^.caption",prefix='!!Edit ')
         infobar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
                 action="""SET .currentTemplate.pkey=$1.pkey;
@@ -456,7 +461,7 @@ class ChunkEditor(PaletteTemplateEditor):
         
     def _te_frameChunkInfo(self,frame,table=None,datasourcepath=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
+        bc = frame.center.borderContainer()
         self._te_info_vars(bc,table=table,region='center',
                             fieldsTree_currRecordPath=datasourcepath,
                             fieldsTree_explorerPath='#ANCHOR.dbexplorer')

@@ -603,7 +603,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                 }
             }, sourceNode.attr.delay || 1, domnode, v);
         }
-
     }
     
 });
@@ -1812,6 +1811,10 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['action'] = objectPop(attributes, 'action');
         savedAttrs['fire'] = objectPop(attributes, 'fire');
         savedAttrs['publish'] = objectPop(attributes, 'publish');
+        var focusOnTab = objectPop(attributes,'focusOnTab');
+        if (!focusOnTab){
+            attributes['tabindex'] = 32767;
+        }
         return savedAttrs;
     },
     
@@ -2402,7 +2405,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget.gridEditor = new gnr.GridEditor(widget);
             };
         }
-        ;
+        if(sourceNode.attr.gridEditor){
+            widget.gridEditor = new gnr.GridEditor(widget);
+        }
         if ('draggable_row' in sourceNode.attr) {
             dojo.connect(widget.views, 'addView', dojo.hitch(widget, 'onAddedView'));
             if (widget.views.views.length > 0) {
@@ -6322,10 +6327,12 @@ dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
          this._default_ext='png,jpg,jpeg,gif';
     }
 });
-dojo.declare("gnr.widgets.embed", gnr.widgets.uploadable, {
+dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'embed';
-        this._default_ext='png,jpg,jpeg,gif,pdf,mov';
+    },
+    setSrc:function(domnode,v){
+        domnode.sourceNode.rebuild();
     }
 });
 

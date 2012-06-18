@@ -56,6 +56,7 @@ class TableHandlerTreeResolver(BagResolver):
                 caption_field = tblobj.attributes['hierarchical'].split(',')[0]
             else:
                 caption_field = tblobj.attributes.get('caption_field')
+            self.caption_field = caption_field
 
         condition_kwargs = self.condition_kwargs or dict()
         condition_pkeys = None
@@ -135,11 +136,28 @@ class TableHandlerHierarchicalView(BaseComponent):
     
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-        pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
+        if not condition:
+            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+            pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
+        else:
+            pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+                        table=table,
+                        caption_field=caption_field,
+                        condition=condition,
+                        childname='store',caption=tblobj.name_plural,
+                        **kwargs)
+
+    @public_method
+    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,**kwargs):
+        b = Bag()
+        tblobj = self.db.table(table)
+        condition_kwargs = condition_kwargs or dict()
+        condition_kwargs.update(dictExtract(kwargs,'condition_'))
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        return b
 
     @struct_method
     def ht_connectToStore(self,tree,table=None,caption_field=None):
@@ -412,12 +430,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
         
-    @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,**kwargs):
-        b = Bag()
-        tblobj = self.db.table(table)
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-        return b
+
 
    #@public_method
    #def ht_remoteTreeData(self, *args,**kwargs):

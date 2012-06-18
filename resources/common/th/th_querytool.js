@@ -123,8 +123,8 @@ dojo.declare("gnr.QueryManager", null, {
                                             that.sourceNode.setRelativeData('.query.queryEditor',false);
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
-                                        gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,|,5,runbtn',toolbar:true,'side':'top'});
+                                        gradient_from:'#E5E5E5',gradient_to:'#EDEDED',gradient_deg:'-90'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,10,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.caption',
                                                  padding_right:'10px',padding_left:'2px',
                                     color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
@@ -377,7 +377,7 @@ dojo.declare("gnr.QueryManager", null, {
                 _dtype:'^' + relpath + '?column_dtype',selected_fullpath:relpath + '?op',
                 selected_caption: relpath + '?op_caption',innerHTML:'^' + relpath + '?op_caption',
                 id:'_op_' + node.getStringId(),_fired:'^' + relpath + '?column_dtype',_qb:this});
-            var valtd = tr._('td')._('div', {_class:'qb_div qb_value'});
+            var valtd = tr._('td')._('div', {_class:'qb_value'});
 
             var input_attrs = {value:'^' + relpath + '?value_caption', width:'10em',relpath:relpath,
                 _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.querymanager.checkQueryLineValue(this,value);'};

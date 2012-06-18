@@ -18,8 +18,8 @@ class GnrCustomWebPage(object):
         pane.data('.pdfurl',"/_site/test/testimages/test.pdf")
         fb.textbox(lbl='Url',value='^.pdfurl',width='50em')
         
-        fb.embed(lbl='Pdf',src="^.pdfurl",margin='10px',
-                    border='1px solid silver',height='500px',width='700px')
+        fb.div(height='200px',width='300px',border='1px solid silver').embed(lbl='Pdf',src="^.pdfurl",
+                    height='100%',width='100%',zoom='.2')
 
 
 
