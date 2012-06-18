@@ -241,7 +241,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             deferred.addCallback(function(){
                 that.reset();
-                that.do_load(kw);
+                //that.do_load(kw);
             })
             return;
         }
