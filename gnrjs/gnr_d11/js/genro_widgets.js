@@ -4355,7 +4355,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 getChangeManager().addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
             }else if (this.changeManager){
                 this.changeManager.delFormulaColumn(cellmap[k].field);
-            }            
+            }
+            if(cell.totalize){
+                getChangeManager().addTotalizer(cellmap[k].field,objectUpdate({},cellmap[k]));
+            }else if (this.changeManager){
+                this.changeManager.delTotalizer(cellmap[k].field);
+            }
         }
         if(this.changeManager){
             this.changeManager.registerParameters();
