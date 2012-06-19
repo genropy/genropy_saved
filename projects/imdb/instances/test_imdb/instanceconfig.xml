@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <db dbname='imdb'/>
+    <packages>
+        <gnrcore:adm />
+        <imdb />
+    </packages>
+     <menu package='imdb'/>
+    <authentication pkg="imdb">
+        <xml_auth defaultTags="users,xml">
+            <imdb pwd="imdb" tags="_DEV_,_TRD_,super_adm,user,admin,staff,passpartout, _pref"/>
+        </xml_auth>
+        <py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
+    </authentication>
+</GenRoBag>
