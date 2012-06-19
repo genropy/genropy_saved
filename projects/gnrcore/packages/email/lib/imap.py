@@ -30,7 +30,7 @@ class ImapReceiver(object):
     def receive(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.imap.login(self.username,self.password)
         self.imap.select(remote_mailbox)
-        mailbox_id = self.db.table('email.mailbox').readColumns(columns='$id',where='$account_id=:a_id AND system_code=:s_code',a_id=self.account_id,s_code='01')
+        mailbox_id = self.db.table('email.mailbox').readColumns(columns='$id',where='$account_id=:a_id AND $system_code=:s_code',a_id=self.account_id,s_code='01')
         if self.last_uid:
             searchString = '(UID %s:*)' % self.last_uid
         else:

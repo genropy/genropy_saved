@@ -568,8 +568,10 @@ dojo.declare("gnr.RowEditor", null, {
     deleteRowEditor:function(){
         objectPop(this.gridEditor.rowEditors,this.rowId);
         var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
-        genro.assert(rowIndex>=0,'not found '+this.rowId);
-        this.grid.updateRow(rowIndex);
+        //genro.assert(rowIndex>=0,'not found '+this.rowId);
+        if(rowIndex>=0){
+            this.grid.updateRow(rowIndex);
+        }
     },
     checkRowEditor:function(){
         var toDelete = true;
@@ -1199,6 +1201,8 @@ dojo.declare("gnr.GridChangeManager", null, {
     constructor:function(grid){
         this.grid = grid;
         this.formulaColumns = {};
+        this.totalizeColumns = {};
+
         this.triggeredColumns = {};
         this.cellpars = {};
         this.sourceNode = grid.sourceNode;
@@ -1209,7 +1213,7 @@ dojo.declare("gnr.GridChangeManager", null, {
                                                    'ins':dojo.hitch(that, "triggerINS"),
                                                    'del':dojo.hitch(that, "triggerDEL")});
                 that.resolveCalculatedColumns();
-                
+                that.resolveTotalizeColumns();
                 });
     },
     resolveCalculatedColumns:function(){
@@ -1219,6 +1223,16 @@ dojo.declare("gnr.GridChangeManager", null, {
                 this.recalculateOneFormula(k);
             }
         }
+    },
+
+
+    resolveTotalizeColumns:function(){
+        for(var k in this.totalizeColumns){
+            this.updateTotalizer(k);
+        }
+    },
+    updateTotalizer:function(k){
+        this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum('#a.'+k));
     },
     recalculateOneFormula:function(key){
         var that = this;
@@ -1248,6 +1262,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         this.formulaColumns[field] = formula;
     },
+
     
     delFormulaColumn:function(field){
         for (var p in this.triggeredColumns){
@@ -1255,6 +1270,15 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         delete this.formulaColumns[field];
     },
+
+    addTotalizer:function(field,kw){
+        this.totalizeColumns[field] = kw.totalize;
+    },
+
+    delTotalizer:function(field,kw){
+        delete this.totalizeColumns[field];
+    },
+
     calculateFormula:function(formulaKey,rowNode){
         var formula = this.formulaColumns[formulaKey];
         var result;
@@ -1339,13 +1363,15 @@ dojo.declare("gnr.GridChangeManager", null, {
             return;
         }
         if(kw.updattr){
-            console.log('upd',kw);
             rowNode = kw.node;
             var newattr = kw.node.attr;
             var oldattr = kw.oldattr;
             for (k in newattr){
                 if( (k in this.triggeredColumns) && (newattr[k]!=oldattr[k]) ){
                     changedPars[k] = true;
+                }
+                if(k in this.totalizeColumns){
+                    this.updateTotalizer(k);
                 }
             }
         }
@@ -1363,9 +1389,11 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
     triggerINS:function(kw){
         console.log('ins',kw);
+        this.resolveTotalizeColumns();
     },
     triggerDEL:function(kw){
-        console.log('del',kw)
+        console.log('del',kw);
+        this.resolveTotalizeColumns();
     }
 });
 

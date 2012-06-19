@@ -491,9 +491,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     
     css3style_rounded:function(value,valuedict,styledict, noConvertStyle){
         var v;
-        var cb=dojo.isSafari? function(y,x){return '-webkit-border-'+y+'-'+x+'-radius';}: 
-                                function(y,x){
-                                    return '-moz-border-radius-'+y+x;};
+        var cb= function(y,x){return 'border-'+y+'-'+x+'-radius';};
         var rounded_corners = this.normalizedRoundedCorners(value,valuedict);
         for(var k in rounded_corners){
             var v = rounded_corners[k];
