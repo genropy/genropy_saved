@@ -112,11 +112,15 @@ if __name__ == '__main__':
     while True:
         if options.verbose:
             print 'Calling url %s'%url
-        response = urllib.urlopen(url)
-        response_code = response.getcode()
-        if response_code!=200:
-            if options.verbose:
-                print 'Response code: %s'%response_code
-        time.sleep(options.interval)
+        try:
+            response = urllib.urlopen(url)
+            response_code = response.getcode()
+            if response_code!=200:
+                if options.verbose:
+                    print 'Response code: %s'%response_code
+            time.sleep(options.interval)
+        except IOError:
+            print 'IOError -> will retry in %i seconds'%(3*options.interval)
+            time.sleep(3*options.interval)
         
         
