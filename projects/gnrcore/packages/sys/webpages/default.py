@@ -24,7 +24,12 @@ class GnrCustomWebPage(object):
             top=bc.contentPane(region='top',height='120px')
             top.div('^tree.current_path')
             center=bc.contentPane(region='center')
+            prefix=''.join(self.getCallArgs())
+            center.dataController("""
+                                    genro.gotoURL(prefix+'/'+x);
+                                """,x='^tree.current_path',prefix=prefix)
             center.tree(storepath='pages_tree', hideValues=True, inspect='shift', labelAttribute='name',
-                  isTree=False, selected_path='tree.current_path', selected_name='tree.name')
+                  isTree=False, selected_path='tree.current_path',  _class='menutree',
+                  selected_name='tree.name')
             
         return

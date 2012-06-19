@@ -34,7 +34,7 @@ class TableHandler(BaseComponent):
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
-                            picker=None,addrow=True,delrow=True,title=None,picker_kwargs=True,dbstore=None,**kwargs):
+                            picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -58,6 +58,8 @@ class TableHandler(BaseComponent):
             addrow =False
             lockable = False  
             picker = False
+        if export:
+            top_slots.append('export')
         if delrow:
             top_slots.append('delrow')
         if addrow:
