@@ -54,7 +54,7 @@ setup(
         #namespace_packages=['gnr'],
         data_files=data_files,
         install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel', 'python-memcached'
-                          , 'pypdf', 'argparse'],
+                          , 'pyPdf', 'argparse'],
         zip_safe=False,
         extras_require=dict(
                 #pdf = ['z3c.rml'],
