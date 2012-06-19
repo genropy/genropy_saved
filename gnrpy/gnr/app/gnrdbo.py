@@ -172,20 +172,18 @@ class TableBase(object):
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            
-            for fld in hierarchical.split(','):
+            hfields = hierarchical.split(',')
+            for fld in hfields:
                 if fld=='pkey':
                     tbl.column('hierarchical_pkey',unique=True,group=group) 
                     tbl.column('_parent_h_pkey',group=group) 
                 else:
                     hcol = tbl.column(fld)
-                   #hcol.attributes.setdefault('validate_nodup',True)
-                   #hcol.attributes.setdefault('validate_nodup_relative','parent_id')
                     fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
                     tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group)
             tbl.attributes['hierarchical'] = hierarchical  
-            tbl.attributes.setdefault('order_by','$hierarchical_pkey' if hierarchical is True else hierarchical.split(',')[0])
+            tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0])
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if not 'parent_id' in broadcast:
