@@ -314,7 +314,6 @@ class TableBase(object):
         if hierarchical:
             hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
             p = hpkey
-            order_by = 'hierarchical_pkey'
             where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
         return fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
     
