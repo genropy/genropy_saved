@@ -4811,9 +4811,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
             dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
         }else{
-            var col_fields = this.structbag().getItem('#0.#0').digest('#a.field');
+            var col_fields = this.structbag().getItem('#0.#0').digest('#a.field,#a.hidden');
             var col_names = [];
-            dojo.forEach(col_fields, function(c){col_names.push(c[0].replace(/\W/g, '_'))});
+            dojo.forEach(col_fields, function(c){if(!c[1]) col_names.push(c[0].replace(/\W/g, '_'))});
             var col_length = col_fields.length;
             var selector = nodes=='selected'?'.dojoxGrid-view .dojoxGrid-row-selected .dojoxGrid-cell':'.dojoxGrid-view .dojoxGrid-cell';
             var cells = dojo.query(selector, this.domNode);

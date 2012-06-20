@@ -1410,7 +1410,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                             bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
                 
-                page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
+                #page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
+                #da sistemare
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     

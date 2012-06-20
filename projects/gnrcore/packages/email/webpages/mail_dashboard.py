@@ -16,13 +16,13 @@ class GnrCustomWebPage(object):
     
     def main(self, root, **kwargs):
         framebc = root.rootBorderContainer(datapath='main',_class='hideSplitter')
-        self.maildashboard_left(framebc.framePane(region='left',width='220px',margin='2px',datapath='.configuration',_class='pbl_roundedGroup',splitter=True))
-        self.maildashboard_center(framebc.borderContainer(region='center',margin='2px',datapath='.messages'))
+        self.maildashboard_left(framebc.framePane(region='left',width='220px',datapath='.configuration',splitter=True,border_right='1px solid silver'))
+        self.maildashboard_center(framebc.borderContainer(region='center',datapath='.messages'))
 
     def maildashboard_center(self,bc):
-        bottom = bc.contentPane(region='bottom',height='50%',margin='2px',
+        bc.contentPane(region='bottom',height='50%',border_top='1px solid pixel',
                                 nodeId='messageBodyBox',splitter=True,datapath='.current').div('^.body')
-        center = bc.contentPane(region='center',margin='2px')
+        center = bc.contentPane(region='center')
         th = center.plainTableHandler(table='email.message',
                                 condition='$mailbox_id=:m_id OR @message_mailboxes.mailbox_id=:m_id',
                                 condition_m_id='=#mailBoxTree.tree.mailbox_id',
