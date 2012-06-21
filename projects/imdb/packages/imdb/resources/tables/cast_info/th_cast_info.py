@@ -25,7 +25,23 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='title', op='startswith', val='')
 
+class ViewFromMovie(BaseComponent):
 
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nr_order')
+        r.fieldcell('year',width='4em')
+        r.fieldcell('actor',width='16em')
+        r.fieldcell('character',width='16em')      
+        r.fieldcell('role',width='12em')
+        r.fieldcell('note')
+        
+    def th_order(self):
+        return 'nr_order'
+
+ 
+        
+        
 
 class Form(BaseComponent):
 

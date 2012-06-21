@@ -30,7 +30,7 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        bc=form.borderContainer()
+        bc=form.center.borderContainer()
         top=bc.contentPane(region='top',datapath='.record')
 
         fb = top.formbuilder(cols=2, border_spacing='4px')
@@ -41,6 +41,10 @@ class Form(BaseComponent):
         fb.field('season_nr')
         fb.field('episode_nr')
         fb.field('series_years')
+        self.castMembers( bc.contentPane(region='center'))
+        
+    def castMembers(self,pane):
+        pane.plainTableHandler(relation='@cast_members',viewResource=':ViewFromMovie')
 
 
     def th_options(self):
