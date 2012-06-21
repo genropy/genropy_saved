@@ -1704,7 +1704,7 @@ class GnrWebPage(GnrBaseWebPage):
                 ))
             elif 'subfields' in nodeattr and currRecordPath:
                 nodeattr['_T'] = 'JS'
-                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s})"
+                jsresolver = "genro.rpc.remoteResolver('subfieldExplorer',{table:%s, field:%s,fieldvalue:%s,prevRelation:%s, prevCaption:%s, omit:%s},{cacheTime:1})"
                 node.setValue(jsresolver % (
                 jsquote("%(pkg)s.%(table)s" %nodeattr),
                 jsquote(nodeattr['subfields']),

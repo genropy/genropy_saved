@@ -38,7 +38,7 @@ class Form(BaseComponent):
         pane = bc.contentPane(region='center')
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
-        tbl = pane.getInheritedAttributes()['table']
+        #tbl = pane.getInheritedAttributes()['table']
         fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
                 validate_regex='!\.', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',

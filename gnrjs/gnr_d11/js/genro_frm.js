@@ -91,6 +91,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
+
+
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode = this.sourceNode.getDomNode();
@@ -538,6 +540,61 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
+
+    copyPasteMenu:function(){
+        var result = new gnr.GnrBag();
+        var currentPkey = this.getCurrentPkey();
+        var that = this;
+        var clipboard = this.getControllerData('clipboard');
+        var disabled = this.isDisabled();
+        var copyDisabled = currentPkey==null || currentPkey=='*newrecord*' || this.changed;
+        result.setItem('r_0',null,{caption:_T('Copy current record'),
+                                   disabled:copyDisabled,
+                                   action:function(){that.copyCurrentRecord();}}
+                                   );
+        if(clipboard){
+            result.setItem('r_1',null,{caption:'-'});
+            clipboard.forEach(function(n){
+                result.setItem(n.label,null,{caption:n.attr.caption,action:function(item){that.pasteClipboard(item.fullpath)},disabled:disabled});
+            });
+        }
+            
+        result.setItem('r_2',null,{caption:'-'});
+        result.setItem('r_3',null,{caption:_T('Clear clipboard')});
+
+        return result;
+    },
+    copyCurrentRecord:function(){
+        var controller = this.getControllerData();
+        var clipboard = controller.getItem('clipboard') || new gnr.GnrBag();
+        var copy = new gnr.GnrBag();
+        var record = this.getFormData();
+        var pkeyField =
+        record.forEach(function(n){
+            if(n.label[0]!='@' && n.label[0]!='$' && !n.attr._sysfield){
+                var value = n._value;
+                if(value instanceof gnr.GnrBag){
+                    value = value.deepCopy();
+                }
+                copy.setItem(n.label,value,n.attr);
+            }
+        },'static');
+        clipboard.setItem(this.getCurrentPkey(),copy,{caption:this.getRecordCaption()})
+        controller.setItem('clipboard',clipboard);
+    },
+
+    pasteClipboard:function(path){
+        var clipboard = this.getControllerData('clipboard');
+        var copy = clipboard.getItem(path);
+        var currdata = this.getFormData();
+        copy.forEach(function(n){
+            currdata.setItem(n.label,n._value);
+        });
+    },
+    clearClipboard:function(){
+        this.getControllerData().setItem('clipboard',new gnr.GnrBag());
+    },
+
     save: function(kw,modifiers) {
         var kw = kw || {};
         var always;
@@ -648,7 +705,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     getControllerData: function(path) {
         var cd = this.sourceNode.getRelativeData(this.controllerPath, true, new gnr.GnrBag());
-        return path?cd.getItem('path'):cd;
+        return path?cd.getItem(path):cd;
     },
     setControllerData: function(path,value) {
         this.getControllerData().setItem(path,value,null,{lazySet:true});
