@@ -1033,7 +1033,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-            
+
+    @public_method
+    def duplicateRecord(self,pkey=None,table=None):
+        tblobj = self.db.table(table)
+        record = tblobj.duplicateRecord(pkey)
+        self.db.commit()
+        return record['id']
         
     @public_method
     @extract_kwargs(default=True)

@@ -102,6 +102,7 @@ class TableHandlerForm(BaseComponent):
                             invalid='!!Invalid record',
                             nochange='!!No change to save',modal=modal)
         box_kwargs = dictExtract(options,'box_')
+        extra_slots = []
         if hierarchical:
             box_kwargs['sidebar'] = True
             box_kwargs['persist'] = True
@@ -130,6 +131,8 @@ class TableHandlerForm(BaseComponent):
           
         elif showtoolbar:
             default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            if options.get('duplicate'):
+                default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
                 default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
             elif navigation:
@@ -137,12 +140,20 @@ class TableHandlerForm(BaseComponent):
             elif options.get('selector'):
                 default_slots = default_slots.replace('*','5,form_selectrecord,*')
             if options.get('printMenu'):
-                default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
+                #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
+                extra_slots.append('form_print')
+
+            if options.get('copypaste'):
+                extra_slots.append('form_copypaste')
+
             if options.get('linker'):
                 default_slots = default_slots.replace('form_delete','')
                 default_slots = default_slots.replace('form_add','')
-                #default_slots = default_slots.replace('locker','')   
-            table = form.getInheritedAttributes()['table']    
+                #default_slots = default_slots.replace('locker','') 
+
+            table = form.getInheritedAttributes()['table']  
+            if extra_slots:
+                default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))
             slots = options.get('slots',default_slots)
             if table == self.maintable:
                 slots = 'logicalDeleter,%s' %slots 
@@ -153,6 +164,7 @@ class TableHandlerForm(BaseComponent):
             form.left.attributes.update(hidden=hierarchical=='closed',splitter=True)
             bar = form.left.slotBar('0,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver')
             bar.htreeSlot.treeViewer(**tree_kwargs)
+            form.store.attributes.setdefault('startKey','*norecord*')
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
             for hook in hooks.values():
@@ -163,10 +175,19 @@ class TableHandlerForm(BaseComponent):
             
     
     @struct_method          
+    def th_slotbar_form_copypaste(self,pane,**kwargs):
+        pane.dataController("""var form = this.form;
+                                var cb = function(){return form.copyPasteMenu()};
+                                SET .controller.copypaste.menu = new gnr.GnrBagCbResolver({method:cb});""",
+                        _onStart=True)
+        pane.div(tip='!!Copy and paste',_class='iconbox case').menu(storepath='#FORM.controller.copypaste.menu',_class='smallmenu',modifiers='*')
+
+
+    @struct_method          
     def th_slotbar_form_print(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',
+        pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;

@@ -137,7 +137,7 @@ class TableBase(object):
                       For more information, check the :ref:`group` section
         :param group_name: TODO"""
         if id:
-            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True)
+            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True,_sysfield=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
@@ -146,19 +146,19 @@ class TableBase(object):
             else:
                 group = '_'
         if ins:
-            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group)
+            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True)
         if ldel:
-            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group)
+            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
             tbl.column('__mod_ts', dtype='DH', name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
-                       group=group)
+                       group=group,_sysfield=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
                 tbl.attributes['lastTS'] = '__mod_ts'
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
-                       group=group)
+                       group=group,_sysfield=True)
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
@@ -167,25 +167,23 @@ class TableBase(object):
             tbl.column('parent_id',size='22',name_long='!!Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
-                                             onInserting='hierarchical_before').relation('%s.id' %tblname,mode='foreignkey', 
+                                             onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='c',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            
-            for fld in hierarchical.split(','):
+            hfields = hierarchical.split(',')
+            for fld in hfields:
                 if fld=='pkey':
-                    tbl.column('hierarchical_pkey',unique=True,group=group) 
-                    tbl.column('_parent_h_pkey',group=group) 
+                    tbl.column('hierarchical_pkey',unique=True,group=group,_sysfield=True) 
+                    tbl.column('_parent_h_pkey',group=group,_sysfield=True)
                 else:
                     hcol = tbl.column(fld)
-                   #hcol.attributes.setdefault('validate_nodup',True)
-                   #hcol.attributes.setdefault('validate_nodup_relative','parent_id')
                     fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption) 
-                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group)
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,_sysfield=True)
+                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
             tbl.attributes['hierarchical'] = hierarchical  
-            tbl.attributes.setdefault('order_by','$hierarchical_pkey' if hierarchical is True else hierarchical.split(',')[0])
+            tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0])
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if not 'parent_id' in broadcast:
@@ -193,23 +191,24 @@ class TableBase(object):
             tbl.attributes['broadcast'] = ','.join(broadcast)
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
-            _counter_fkey=counter,group=group)
+            _counter_fkey=counter,group=group,_sysfield=True)
+            tbl.attributes.setdefault('order_by','_row_count')
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
-                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True)
         diagnostic = tbl.attributes.get('diagnostic')
         if diagnostic:
-            tbl.column('__warnings',name_long='!!Warnings',group=group)
-            tbl.column('__errors',name_long='!!Errors',group=group)
+            tbl.column('__warnings',name_long='!!Warnings',group=group,_sysfield=True)
+            tbl.column('__errors',name_long='!!Errors',group=group,_sysfield=True)
         if user_ins:
-            tbl.column('__ins_user', name_long='!!User Insert', onInserting='setCurrentUser', group=group)
+            tbl.column('__ins_user', name_long='!!User Insert', onInserting='setCurrentUser', group=group,_sysfield=True)
         if user_upd:
-            tbl.column('__mod_user', name_long='!!User Modify', onUpdating='setCurrentUser', onInserting='setCurrentUser', group=group)
+            tbl.column('__mod_user', name_long='!!User Modify', onUpdating='setCurrentUser', onInserting='setCurrentUser', group=group,_sysfield=True)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
-            tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
+            tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
         if multidb:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         
@@ -218,7 +217,7 @@ class TableBase(object):
             tbl.column('__syncaux','B',group=group,
                         onUpdated='syncRecordUpdated',
                         onDeleting='syncRecordDeleting',
-                        onInserted='syncRecordInserted')
+                        onInserted='syncRecordInserted',_sysfield=True)
     
             
     def trigger_hierarchical_before(self,record,fldname,**kwargs):
@@ -316,7 +315,6 @@ class TableBase(object):
         if hierarchical:
             hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
             p = hpkey
-            order_by = 'hierarchical_pkey'
             where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
         return fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
     
@@ -363,20 +361,20 @@ class TableBase(object):
                         onUpdated='multidbSyncUpdated',
                         onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted',
-                        group=group)
+                        group=group,_sysfield=True)
             if allRecords or forcedStore:
                 return 
                 
             tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                    name_long='!!Subscribed by default',plugToForm=True,group=group)
+                    name_long='!!Subscribed by default',plugToForm=True,group=group,_sysfield=True)
             tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                         FROM multidb.multidb_subscription AS sub
                                                         WHERE sub.dbstore = :env_target_store 
                                                               AND sub.tablename = '%s'
                                                         AND sub.%s = #THIS.%s
                                                         )""" %(tblfullname,fkey,pkey),dtype='B',
-                                                        name_long='!!Subscribed')
-            subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
+                                                        name_long='!!Subscribed',_sysfield=True)
+            subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
 
@@ -433,7 +431,43 @@ class GnrDboTable(TableBase):
         """TODO"""
         return self.attributes.get('multidb')
 
-class DynamicFieldsTable(TableBase):
+class AttachmentTable(GnrDboTable):
+    """AttachmentTable"""
+
+    def config_db(self,pkg):
+        tblname = self._tblname
+        tbl = pkg.table(tblname,pkey='id')
+        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_atc',''))
+
+        pkgname,mastertblname = mastertbl.split('.')
+        tblname = '%s_atc' %mastertblname
+        assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
+        model = self.db.model
+        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
+        mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
+        mastertbl_name_long = mastertbl.attributes.get('name_long')
+        mastertbl_multidb = mastertbl.attributes.get('multidb')
+
+
+        #tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
+        
+        tbl.attributes.setdefault('caption_field','description')
+        tbl.attributes.setdefault('rowcaption','$description')
+        tbl.attributes.setdefault('name_long','%s  Attachment' %mastertbl_name_long)
+        tbl.attributes.setdefault('name_plural','%s Attachments' %mastertbl_name_long)
+
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
+        tbl.column('id',size='22',group='_',name_long='Id')
+        tbl.column('filepath' ,name_long='!!Filepath')
+        tbl.column('description' ,name_long='!!Description')
+        tbl.column('mimetype' ,name_long='!!Mimetype')
+        tbl.column('text_content',name_long='!!Content')
+        tbl.column('info' ,'X',name_long='!!Additional info')
+        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+                    mode='foreignkey', onDelete='cascade', relation_name='attachments',
+                    one_group='_',many_group='_')
+
+class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
     def config_db(self,pkg):
         tblname = self._tblname

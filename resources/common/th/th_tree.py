@@ -115,6 +115,9 @@ class TableHandlerHierarchicalView(BaseComponent):
         hviewTree.connectToStore(table=table,caption_field=caption_field)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
+            if(pkey==null){
+                tree.widget.setSelectedPath(null,{value:'root'});
+            }
             if(!pkey || pkey=='*newrecord*'){
                 return;
             }

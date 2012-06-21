@@ -91,6 +91,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
+
+
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode = this.sourceNode.getDomNode();
@@ -416,7 +418,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.reset();
             this.setCurrentPkey(null);
             this.publish('onDismissed');
-
+            return;
+        }else if(kw['destPkey'] == '*duplicate*'){
+            this.store.duplicateCurrent();
             return;
         }
         var kw = kw || {};
@@ -538,6 +542,73 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
+
+    copyPasteMenu:function(){
+        var result = new gnr.GnrBag();
+        var currentPkey = this.getCurrentPkey();
+        var that = this;
+        var clipboard = this.getControllerData('clipboard');
+        var disabled = this.isDisabled();
+        var copyDisabled = currentPkey==null || currentPkey=='*newrecord*' || this.changed;
+        result.setItem('r_0',null,{caption:_T('Copy current record'),
+                                   disabled:copyDisabled,
+                                   action:function(){that.copyCurrentRecord();}}
+                                   );
+        if(clipboard){
+            result.setItem('r_1',null,{caption:'-'});
+            clipboard.forEach(function(n){
+                result.setItem(n.label,null,{caption:n.attr.caption,action:function(item){that.pasteClipboard(item.fullpath)},disabled:disabled});
+            });
+        }
+            
+        result.setItem('r_2',null,{caption:'-'});
+        result.setItem('r_3',null,{caption:_T('Clear clipboard')});
+
+        return result;
+    },
+    copyCurrentRecord:function(){
+        var controller = this.getControllerData();
+        var clipboard = controller.getItem('clipboard') || new gnr.GnrBag();
+        var copy = new gnr.GnrBag();
+        var record = this.getFormData();
+        var pkeyField =
+        record.forEach(function(n){
+            if(n.label[0]!='@' && n.label[0]!='$' && !n.attr._sysfield){
+                var value = n._value;
+                if (value==null || value==undefined || value==''){
+                    return;
+                }
+                if(value instanceof gnr.GnrBag){
+                    value = value.deepCopy();
+                }
+                copy.setItem(n.label,value,n.attr);
+            }
+        },'static');
+        clipboard.setItem(this.getCurrentPkey(),copy,{caption:this.getRecordCaption()})
+        controller.setItem('clipboard',clipboard);
+    },
+
+    pasteClipboard:function(path){
+        var controllerdata = this.getControllerData();
+        var clipboard = controllerdata.getItem('clipboard')
+        var copy = clipboard.getNode(path);
+        var copybag = copy.getValue().deepCopy();
+        var currdata = this.getFormData();
+        copybag.forEach(function(n){
+            var value = n._value;
+            var currnode = currdata.getNode(n.label);
+            var currvalue = currnode._value;
+            if(currvalue && currvalue instanceof gnr.GnrBag){
+                currvalue.update(value.deepCopy());
+            }else{
+                currnode.setValue(value);
+            }
+        });
+    },
+    clearClipboard:function(){
+        this.getControllerData().setItem('clipboard',new gnr.GnrBag());
+    },
+
     save: function(kw,modifiers) {
         var kw = kw || {};
         var always;
@@ -648,7 +719,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     getControllerData: function(path) {
         var cd = this.sourceNode.getRelativeData(this.controllerPath, true, new gnr.GnrBag());
-        return path?cd.getItem('path'):cd;
+        return path?cd.getItem(path):cd;
     },
     setControllerData: function(path,value) {
         this.getControllerData().setItem(path,value,null,{lazySet:true});
@@ -1027,6 +1098,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             pkey = '*newrecord*';
         }else if (command=='dismiss'){
             pkey = '*dismiss*';
+        }else if(command=='duplicate'){
+            pkey = '*duplicate*';
         }
         else{
             pkey = this.store.navigationEvent(kw);
@@ -1478,6 +1551,15 @@ dojo.declare("gnr.formstores.Base", null, {
                 kw['default_'+k] = default_kwargs[k]
             }
         }
+    },
+    duplicateCurrent:function(){
+        var form=this.form;
+        var that = this;
+        var currPkey = this.form.getCurrentPkey();
+        genro.assert(this.table,'only form with table allow duplicate');
+        genro.serverCall('app.duplicateRecord',{table:this.table,pkey:form.getCurrentPkey()},function(pkey){
+            form.doload_store({destPkey:pkey});
+        })
     },
 
     load_recordCluster:function(default_kw){

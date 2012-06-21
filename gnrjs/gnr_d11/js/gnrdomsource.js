@@ -82,7 +82,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     
-    
+    _relativeGetter:function(prefix){
+        var that = this;
+        return function(path){
+            return that.getRelativeData(prefix? prefix+path:path);
+        };
+    },
     
     getParentWidget:function() {
         var parentNode = this.getParentNode();

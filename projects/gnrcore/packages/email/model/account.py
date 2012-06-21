@@ -6,8 +6,8 @@ class Table(object):
         tbl =  pkg.table('account', rowcaption='$account_name', caption_field='account_name',
                             pkey='id', name_long='!!Account', name_plural='!!Account')
         self.sysFields(tbl)
-        tbl.column('account_name',size=':30',name_long='!!Account Name')
-        tbl.column('address',size=':30',name_long='!!Address')
+        tbl.column('account_name',name_long='!!Account Name')
+        tbl.column('address',name_long='!!Address')
         tbl.column('full_name',size=':80',name_long='!!Full Name')
         tbl.column('host',size=':80',name_long='!!Host')
         tbl.column('port','L',name_long='!!Port')

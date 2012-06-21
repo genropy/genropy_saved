@@ -38,12 +38,13 @@ class Form(BaseComponent):
         pane = bc.contentPane(region='center')
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
-        tbl = pane.getInheritedAttributes()['table']
+        #tbl = pane.getInheritedAttributes()['table']
         fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
                 validate_regex='!\.', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
                 validate_nodup=True,validate_nodup_error='!!Already existing code',
                 validate_nodup_condition='$maintable_id=:fkey',validate_nodup_fkey='=#FORM.record.maintable_id',
+                validate_case='l',
                 ghost='!!Field code')
         fb.field('description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
                     ghost='!!Field description')
@@ -330,7 +331,8 @@ class DynamicForm(BaseComponent):
         if not formula:
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
-        fb.dataFormula(".%s" %attr['code'], formula,**formulaArgs)
+
+        fb.dataFormula(".%s" %attr['code'], formula,_="""==this._relativeGetter('#FORM.record');""",_init=True,**formulaArgs)
         attr['readOnly'] =True 
     
     def _df_handleFieldValidation(self,attr,fields):

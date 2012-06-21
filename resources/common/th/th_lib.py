@@ -44,7 +44,7 @@ class TableHandlerCommon(BaseComponent):
         if not name:
             return '%s:%s' %(defaultModule,defaultClass)
         if not ':' in name:
-            return '%s:%s' %(name,defaultClass)
+            return '%s:%s' %(defaultModule,name)
         if name.startswith(':'):
             return '%s%s' %(defaultModule,name)
         return name

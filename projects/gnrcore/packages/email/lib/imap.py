@@ -5,6 +5,7 @@ import email, imaplib,datetime
 from gnr.core.gnrlang import getUuid
 import chardet
 detach_dir = '.'
+import os
 wait = 600
 
 class ImapReceiver(object):
@@ -85,8 +86,9 @@ class ImapReceiver(object):
     def getAttachmentPath(self,date,filename):
         year = str(date.year)
         month = '%02i' %date.month
-        return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
+        self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
                                                        autocreate=-1)
+        return os.path.join('mail',self.account_id, year,month, filename)
         
         
     def createMessageRecord(self, emailid):
