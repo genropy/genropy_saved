@@ -418,7 +418,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.reset();
             this.setCurrentPkey(null);
             this.publish('onDismissed');
-
+            return;
+        }else if(kw['destPkey'] == '*duplicate*'){
+            this.store.duplicateCurrent();
             return;
         }
         var kw = kw || {};
@@ -573,6 +575,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         record.forEach(function(n){
             if(n.label[0]!='@' && n.label[0]!='$' && !n.attr._sysfield){
                 var value = n._value;
+                if (value==null || value==undefined || value==''){
+                    return;
+                }
                 if(value instanceof gnr.GnrBag){
                     value = value.deepCopy();
                 }
@@ -584,11 +589,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     pasteClipboard:function(path){
-        var clipboard = this.getControllerData('clipboard');
-        var copy = clipboard.getItem(path);
+        var controllerdata = this.getControllerData();
+        var clipboard = controllerdata.getItem('clipboard')
+        var copy = clipboard.getNode(path);
+        var copybag = copy.getValue().deepCopy();
         var currdata = this.getFormData();
-        copy.forEach(function(n){
-            currdata.setItem(n.label,n._value);
+        copybag.forEach(function(n){
+            var value = n._value;
+            var currnode = currdata.getNode(n.label);
+            var currvalue = currnode._value;
+            if(currvalue && currvalue instanceof gnr.GnrBag){
+                currvalue.update(value.deepCopy());
+            }else{
+                currnode.setValue(value);
+            }
         });
     },
     clearClipboard:function(){
@@ -1084,6 +1098,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             pkey = '*newrecord*';
         }else if (command=='dismiss'){
             pkey = '*dismiss*';
+        }else if(command=='duplicate'){
+            pkey = '*duplicate*';
         }
         else{
             pkey = this.store.navigationEvent(kw);
@@ -1535,6 +1551,15 @@ dojo.declare("gnr.formstores.Base", null, {
                 kw['default_'+k] = default_kwargs[k]
             }
         }
+    },
+    duplicateCurrent:function(){
+        var form=this.form;
+        var that = this;
+        var currPkey = this.form.getCurrentPkey();
+        genro.assert(this.table,'only form with table allow duplicate');
+        genro.serverCall('app.duplicateRecord',{table:this.table,pkey:form.getCurrentPkey()},function(pkey){
+            form.doload_store({destPkey:pkey});
+        })
     },
 
     load_recordCluster:function(default_kw){

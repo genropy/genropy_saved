@@ -420,6 +420,28 @@ class SqlTable(GnrObject):
             return record.output(mode)
         else:
             return record
+
+    def duplicateRecord(self,recordOrKey):
+        record = self.recordAs(recordOrKey,mode='dict')
+        pkey = record.pop(self.pkey,None)
+        for colname,obj in self.model.columns.items():
+            if obj.attributes.get('_sysfield') and colname!='parent_id':
+                record.pop(colname,None)
+        self.insert(record)
+        newpkey = record[self.pkey]
+        for n in self.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M' and joiner['onDelete']=='cascade':
+                rellist = joiner['many_relation'].split('.')
+                fkey = rellist[-1]
+                subtable ='.'.join(rellist[:-1])
+                manytable = self.db.table(subtable)
+                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False).fetch()
+                for r in rows:
+                    r = dict(r)
+                    r[fkey] = newpkey
+                    manytable.duplicateRecord(r)
+        return record
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
@@ -442,6 +464,7 @@ class SqlTable(GnrObject):
                                virtual_columns=virtual_columns)
         return record
             
+
     def defaultValues (self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""

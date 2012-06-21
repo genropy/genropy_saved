@@ -131,6 +131,8 @@ class TableHandlerForm(BaseComponent):
           
         elif showtoolbar:
             default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            if options.get('duplicate'):
+                default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
                 default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
             elif navigation:
@@ -147,7 +149,8 @@ class TableHandlerForm(BaseComponent):
             if options.get('linker'):
                 default_slots = default_slots.replace('form_delete','')
                 default_slots = default_slots.replace('form_add','')
-                #default_slots = default_slots.replace('locker','')   
+                #default_slots = default_slots.replace('locker','') 
+
             table = form.getInheritedAttributes()['table']  
             if extra_slots:
                 default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))
@@ -178,14 +181,6 @@ class TableHandlerForm(BaseComponent):
                                 SET .controller.copypaste.menu = new gnr.GnrBagCbResolver({method:cb});""",
                         _onStart=True)
         pane.div(tip='!!Copy and paste',_class='iconbox case').menu(storepath='#FORM.controller.copypaste.menu',_class='smallmenu',modifiers='*')
-        #pane.dataController("""var result = new gnr.GnrBag();
-        #                     var form = this.form;
-        #                     result.setItem('copy_record',null,{'caption':caption_copy,action:function(){
-#
-        #                        }});
-        #                    #FORM.controller.copypaste.menu = result;""",
-        #                    clipboard='^#FORM.controller.copypaste.clipboard',caption_copy='!!Copy record')
-
 
 
     @struct_method          
