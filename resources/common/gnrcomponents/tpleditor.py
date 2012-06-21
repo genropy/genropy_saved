@@ -152,6 +152,7 @@ class TemplateEditor(TemplateEditorBase):
         sc = pane.stackContainer(selectedPage='^.status',_anchor=True)
         sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',parametersbag='=.data.parameters',
                     datacontent='=.data.content',table=table,_if='_status=="preview"&&datacontent&&varsbag',
+                    _POST=True,
                     _status='^.status',record_id='=.preview.selected_id',templates='=.preview.html_template_name',
                     _onResult="""
                     SET .data.compiled = result.getItem('compiled').deepCopy();
