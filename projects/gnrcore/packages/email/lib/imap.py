@@ -77,8 +77,11 @@ class ImapReceiver(object):
             counter += 1
         att_data = part.get_payload(decode=True)
         new_attachment['filename'] = filename
-        attachment_path =  self.getAttachmentPath(new_mail['send_date'],filename)
-        new_attachment['path'] = attachment_path
+        date = new_mail['send_date']
+        attachment_path =  self.getAttachmentPath(date,filename)
+        year = str(date.year)
+        month = '%02i' %date.month
+        new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
@@ -86,9 +89,8 @@ class ImapReceiver(object):
     def getAttachmentPath(self,date,filename):
         year = str(date.year)
         month = '%02i' %date.month
-        self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
+        return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
                                                        autocreate=-1)
-        return os.path.join('mail',self.account_id, year,month, filename)
         
         
     def createMessageRecord(self, emailid):

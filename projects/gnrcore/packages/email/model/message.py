@@ -1,6 +1,8 @@
 # encoding: utf-8
 from gnr.core.gnrdecorator import public_method
 import re
+import email
+
 EMAIL_PATTERN = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
 
 class Table(object):
@@ -10,6 +12,7 @@ class Table(object):
         self.sysFields(tbl)
         tbl.column('to_address',name_long='!!To',_sendback=True)
         tbl.column('from_address',name_long='!!From',_sendback=True)
+
         tbl.column('cc_address',name_long='!!Cc',_sendback=True)
         tbl.column('bcc_address',name_long='!!Bcc',_sendback=True)
         tbl.column('uid',name_long='!!UID')
@@ -38,6 +41,9 @@ class Table(object):
         for match in EMAIL_PATTERN.findall(addresses):
             outaddress[match[0].lower()] = True
         return outaddress.keys()
+
+    def parsedAddress(self,address):
+        return email.Utils.parseaddr(address)
             
     def deleteAddressRelations(self,record):
         self.db.table('email.message_address').deleteSelection('message_id',record['id'])

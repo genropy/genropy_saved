@@ -466,6 +466,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete='cascade', relation_name='attachments',
                     one_group='_',many_group='_')
+        tbl.formulaColumn('fileurl',"'/_site/' || $filepath",name_long='Fileurl')
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
