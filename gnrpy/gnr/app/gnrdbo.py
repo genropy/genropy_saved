@@ -463,6 +463,9 @@ class AttachmentTable(GnrDboTable):
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
+        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+                    mode='foreignkey', onDelete='cascade', relation_name='attachments',
+                    one_group='_',many_group='_')
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
