@@ -431,7 +431,40 @@ class GnrDboTable(TableBase):
         """TODO"""
         return self.attributes.get('multidb')
 
-class DynamicFieldsTable(TableBase):
+class AttachmentTable(GnrDboTable):
+    """AttachmentTable"""
+
+    def config_db(self,pkg):
+        tblname = self._tblname
+        tbl = pkg.table(tblname,pkey='id')
+        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_atc',''))
+
+        pkgname,mastertblname = mastertbl.split('.')
+        tblname = '%s_atc' %mastertblname
+        assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
+        model = self.db.model
+        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
+        mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
+        mastertbl_name_long = mastertbl.attributes.get('name_long')
+        mastertbl_multidb = mastertbl.attributes.get('multidb')
+
+
+        #tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
+        
+        tbl.attributes.setdefault('caption_field','description')
+        tbl.attributes.setdefault('rowcaption','$description')
+        tbl.attributes.setdefault('name_long','%s  Attachment' %mastertbl_name_long)
+        tbl.attributes.setdefault('name_plural','%s Attachments' %mastertbl_name_long)
+
+        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
+        tbl.column('id',size='22',group='_',name_long='Id')
+        tbl.column('filepath' ,name_long='!!Filepath')
+        tbl.column('description' ,name_long='!!Description')
+        tbl.column('mimetype' ,name_long='!!Mimetype')
+        tbl.column('text_content',name_long='!!Content')
+        tbl.column('info' ,'X',name_long='!!Additional info')
+
+class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
     def config_db(self,pkg):
         tblname = self._tblname
