@@ -162,6 +162,9 @@ try:
         def default(self, obj):
             if isinstance(obj, datetime.time):
                 return '%s::H' %str(obj)
+                
+            elif isinstance(obj, Decimal):
+                    return str(obj)
             elif isinstance(obj, datetime.datetime):
                 return '%s::DH' %str(obj)
             elif isinstance(obj, datetime.date):
