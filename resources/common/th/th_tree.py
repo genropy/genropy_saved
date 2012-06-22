@@ -64,13 +64,6 @@ class TableHandlerTreeResolver(BagResolver):
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $id IN :condition_pkeys ) ) ' %(where,self.condition)
-        
-       #rows = tblobj.query(columns,where=where,
-       #                    rootpath=self.rootpath or '', order_by='$child_code',
-       #                    condition_codes=condition_codes,
-       #                    **condition_kwargs).fetch()
-
-
         q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
                          order_by='$%s' %caption_field,**condition_kwargs)
@@ -87,7 +80,7 @@ class TableHandlerTreeResolver(BagResolver):
                             child_count=child_count,pkey=pkey or '_all_',
                             parent_id=self.parent_id,
                             hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey)
+                            treeIdentifier=pkey,_record=record)
         return result
 
 class TableHandlerHierarchicalView(BaseComponent):
