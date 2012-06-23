@@ -313,8 +313,9 @@ class ThLinker(BaseComponent):
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
             manyrelfld = joiner['relation_name']
-            noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
+            noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
             condition =  kwargs.get('condition')
+            kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
             kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,

@@ -53,7 +53,6 @@ var dynamicFormHandler = {
         var wdg_tag,boxClass;
         boxClass = 'dffb_enterable';
         if(calculated){
-            wdg_tag = 'div';
             boxClass = 'dffb_calculated';
             sourceNode.setRelativeData('.wdg_tag',null);
         }else{

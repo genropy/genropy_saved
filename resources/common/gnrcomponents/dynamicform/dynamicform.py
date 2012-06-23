@@ -64,9 +64,9 @@ class Form(BaseComponent):
         fb.br()
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
         
-        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable',width='100%')
-        fb.numbertextBox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable',width='100%')
-        fb.numbertextBox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable',width='100%')
+        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
     
         
         fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
@@ -208,7 +208,7 @@ class DynamicForm(BaseComponent):
         menuslot.dataFormula("#FORM.dynamicFormTester.tplToShow","'auto'",_fired='^#FORM.record.loaded')
         
         bc = frame.center.borderContainer()
-        bc.contentPane(region='right',width='40%',splitter=True,padding='10px').div(innerHTML='^#FORM.dynamicFormTester.tplRendered')
+        bc.contentPane(region='right',width='40%',splitter=True,padding='15px',background='#eee').div(innerHTML='^#FORM.dynamicFormTester.tplRendered',background='white',shadow='3px 3px 6px gray',padding='4px',rounded=4)
         bc.data('#FORM.dynamicFormTester.data',Bag())
         bc.dataFormula("#FORM.dynamicFormTester.tplRendered", "tplToShow=='auto'?currdata.getFormattedValue():dataTemplate(custom_templates.getItem(tplToShow+'.tpl'),currdata);",
                        custom_templates='^#FORM.record.df_custom_templates',
@@ -249,7 +249,7 @@ class DynamicForm(BaseComponent):
         autowdg = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
         if not fields:
             return
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath,keeplabel=True)        
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         for r in fields:
             attr = dict(r)
             attr.pop('id')
@@ -262,7 +262,6 @@ class DynamicForm(BaseComponent):
                 tag = tag.replace('_nopopup','')
                 attr['popup'] = False
             attr['tag'] =tag
-
             #attr['colspan'] = col_max if data_type == 'TL' else 1
             code = attr.get('code')
             description = attr.pop('description','')
@@ -282,8 +281,16 @@ class DynamicForm(BaseComponent):
                 attr.update(wdg_kwargs)
                 for dim in ('height','width','crop_height','crop_width'):
                     c = attr.pop(dim, None)
-                    attr[dim] = '%ipx' %c if c else None
+                    if isinstance(c,int) or (c and c.isdigit()):
+                        attr[dim] = '%spx' %c if c else None
+                    else:
+                        attr[dim] = c
                 attr['colspan'] = attr.pop('colspan',1) or 1
+
+            if tag.lower()=='simpletextarea':
+                attr.setdefault('speech',True)
+                attr['width'] = attr.get('width') or '94%'
+
             customizer = getattr(self,'df_%(tag)s' %attr,None)
             if customizer:
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
