@@ -447,9 +447,6 @@ class AttachmentTable(GnrDboTable):
         mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')
         mastertbl_multidb = mastertbl.attributes.get('multidb')
-
-
-        #tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
         
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
@@ -464,7 +461,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete='cascade', relation_name='attachments',
+                    mode='foreignkey', onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_')
         tbl.formulaColumn('fileurl',"'/_site/' || $filepath",name_long='Fileurl')
 
@@ -487,8 +484,6 @@ class DynamicFieldsTable(GnrDboTable):
         mastertbl_multidb = mastertbl.attributes.get('multidb')
         mastertbl.column('df_fbcolumns','L',group='_')
         mastertbl.column('df_custom_templates','X',group='_')
-
-        tbl.attributes['_componentBasepath'] = 'gnrcomponents/dynamicform/dynamicform'
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
         tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)

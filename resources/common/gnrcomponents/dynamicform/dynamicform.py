@@ -179,7 +179,9 @@ class DynamicForm(BaseComponent):
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',formResource=':Form',viewResource=':View',
+        th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',
+                                        formResource='gnrcomponents/dynamicform/dynamicform:Form',
+                                        viewResource='gnrcomponents/dynamicform/dynamicform:View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
                                         grid_onDrag="""
                                         if(dragInfo.dragmode=='cell' && dragInfo.colStruct.field=='code'){

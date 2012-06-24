@@ -28,14 +28,14 @@ class GnrCustomWebPage(object):
         
     def test_1_palette(self, pane):
         pane.div(height='30px').dock(id='mydock_1')
-        pg = pane.paletteGroup('first', dockTo='mydock_1')
-        pg.palettePane('aa', title='aa', background_color='pink').div('aaa')
-        pg.palettePane('bb', title='bb', background_color='red').div('bb')
-        pg = pane.paletteGroup('second', dockTo='mydock_1')
-        pg.palettePane('uu', title='uuu', background_color='yellow').div('uuu')
-        pg.palettePane('ee', title='eeee', background_color='cream').div('eeeee')
-        pane.palettePane('xx', title='xx', background_color='orange').div('xx')
-        pane.palettePane('zz', title='zz', background_color='lime', dockTo='mydock_1').div('zz')
+        pane.palettePane('first', dockTo='mydock_1',maxable=True,background='red')
+        #pg.palettePane('aa', title='aa', background_color='pink').div('aaa')
+        #pg.palettePane('bb', title='bb', background_color='red').div('bb')
+        #pg = pane.paletteGroup('second', dockTo='mydock_1')
+        #pg.palettePane('uu', title='uuu', background_color='yellow').div('uuu')
+        #pg.palettePane('ee', title='eeee', background_color='cream').div('eeeee')
+        #pane.palettePane('xx', title='xx', background_color='orange').div('xx')
+        #pane.palettePane('zz', title='zz', background_color='lime', dockTo='mydock_1').div('zz')
     
     def test_2_treepalette(self, pane):
         pane.div(height='30px').dock(id='mydock_2')

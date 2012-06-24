@@ -1311,6 +1311,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
                 });
             });
         }
+        dojo.connect(widget,'maximize',function(){
+            this.resize({'t':'0','l':'0'});
+        });
     },
     patch_close:function(cb){
         this.saveRect();
@@ -1347,7 +1350,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }     
     },
     mixin_saveRect:function(){
-        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode)){
+        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode) && !this._maximized){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
         }     

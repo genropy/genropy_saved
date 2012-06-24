@@ -93,12 +93,25 @@ class GnrWebRpc(GnrBaseProxy):
         return result or error
 
     def rpc_upload_file(self, *args ,**kwargs):
+        onUploadingMethod= kwargs.get('onUploadingMethod')
+        if onUploadingMethod:
+            onUploading = self.page.getPublicMethod('rpc', onUploadingMethod)
+            onUploading(kwargs)
         file_handle = kwargs.get('file_handle')
         uploadPath = kwargs.get('uploadPath')
         uploaderId = kwargs.get('uploaderId')
+
+
+
+        onUploadedMethod = kwargs.get('onUploadedMethod')
+
         filename = kwargs.get('filename')
         site = self.page.site
-        kwargs = site.parse_kwargs(kwargs)
+
+        #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
+
+
+
         file_actions = dictExtract(kwargs, 'process_') or {}
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
@@ -134,11 +147,17 @@ class GnrWebRpc(GnrBaseProxy):
                     action_params[str(action_param)] = action_params.pop(action_param)
                 action_results[action_name] = action_runner(file_url=file_url, file_path=file_path, file_ext=file_ext,
                                                             action_name=action_name, **action_params)
-        if uploaderId:
+        if onUploadedMethod:
+            handler = self.page.getPublicMethod('rpc', onUploadingMethod)
+            if handler:
+                return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
+                               **kwargs)
+        elif uploaderId:
             handler = getattr(self.page, 'onUploading_%s' % uploaderId,None)
             if handler:
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
+
         return file_url
         
 

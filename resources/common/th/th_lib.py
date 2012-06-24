@@ -61,8 +61,6 @@ class TableHandlerCommon(BaseComponent):
             try:
                 self.mixinComponent('tables',tablename,resourcePath,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True)
             except GnrMixinError:
-                componentBasepath = tableObj.attributes.get('_componentBasepath')
-                resourcePath = self._th_getResourceName(resourceName,defaultModule=componentBasepath)
                 self.mixinComponent(resourcePath,mangling_th=rootCode)
         return resourceName
             

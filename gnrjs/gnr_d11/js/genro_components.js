@@ -193,7 +193,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
             pane._('dataController', controller_kw);
             return pane;
         } else {
-            var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
+            var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width,maxable,resizable');
             palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
             palette_kwargs['nodeId'] = paletteCode + '_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
@@ -646,7 +646,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
-        var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,height,width');
+        var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,height,width,maxable,resizable');
         palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode + '_floating';
         palette_kwargs.selfsubscribe_showing = function() {

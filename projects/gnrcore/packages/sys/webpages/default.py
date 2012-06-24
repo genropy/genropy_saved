@@ -32,6 +32,7 @@ class GnrCustomWebPage(object):
                   isTree=False, selected_path='tree.current_path',  _class='menutree',
                   openOnClick=True,
                   autoCollapse=True,
+                  connect_ondblclick='genro.openWindow(GET current_url);',
                   selected_name='tree.name')
             center.iframe(border='0px',width='100%',height='100%',src='^current_url')
             
