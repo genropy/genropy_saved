@@ -132,27 +132,30 @@ class TableHandlerHierarchicalView(BaseComponent):
     
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,**kwargs):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
+        caption = caption or tblobj.name_plural
         if not condition:
             b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-            pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
+            pane.data(storepath,b,childname='store',caption=caption,table=table) 
         else:
             pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
-                        childname='store',caption=tblobj.name_plural,
+                        childname='store',caption=caption,
                         **kwargs)
 
+
     @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,**kwargs):
+    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,caption=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
+        caption = caption or tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
         return b
 
     @struct_method
