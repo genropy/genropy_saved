@@ -1,3 +1,4 @@
+
 # -*- coding: UTF-8 -*-
 from gnr.core.gnrbag import Bag
 import inspect
@@ -14,6 +15,7 @@ class StaticHandlerManager(object):
     def __init__(self, site):
         self.site = site
         self.statics = Bag()
+        
 
     def addAllStatics(self, module=None):
         """inspect self (or other modules) for StaticHandler subclasses and 
@@ -26,6 +28,9 @@ class StaticHandlerManager(object):
         statichandler_classes = inspect.getmembers(module, is_StaticHandler)
         for statichandler in statichandler_classes:
             self.add(statichandler[1])
+
+
+
 
     def add(self, static_handler_factory, **kwargs):
         static_handler = static_handler_factory(self.site, **kwargs)
@@ -116,6 +121,26 @@ class DojoStaticHandler(StaticHandler):
 
     def path(self, version, *args, **kwargs):
         return expandpath(os.path.join(self.site.dojo_path[version], *args))
+
+class VolumesStaticHandler(StaticHandler):
+    prefix = 'vol'
+
+    def __init__(self, *args, **kwargs):
+        super(VolumesStaticHandler, self).__init__(*args,**kwargs)
+        self.volumes = dict()
+        sitevolumes = self.site.config.getItem('volumes')
+        if sitevolumes:
+            self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
+
+    def url(self, volume, *args, **kwargs):
+        vpath = self.volumes.get(volume,None)
+        assert vpath,'Not existing volume %s' %volume
+        return '%s_vol/%s/%s' % (self.home_uri, vpath, '/'.join(args))
+
+    def path(self, volume, *args, **kwargs):
+        vpath = self.volumes.get(volume,None)
+        assert vpath,'Not existing volume %s' %volume
+        return expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
 
 class SiteStaticHandler(StaticHandler):
     prefix = 'site'
