@@ -133,13 +133,11 @@ class VolumesStaticHandler(StaticHandler):
             self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
 
     def url(self, volume, *args, **kwargs):
-        vpath = self.volumes.get(volume,None)
-        assert vpath,'Not existing volume %s' %volume
+        vpath = self.volumes.get(volume,volume)
         return '%s_vol/%s/%s' % (self.home_uri, vpath, '/'.join(args))
 
     def path(self, volume, *args, **kwargs):
-        vpath = self.volumes.get(volume,None)
-        assert vpath,'Not existing volume %s' %volume
+        vpath = self.volumes.get(volume,volume)
         return expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
 
 class SiteStaticHandler(StaticHandler):
