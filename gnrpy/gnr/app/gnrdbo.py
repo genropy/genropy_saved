@@ -461,9 +461,9 @@ class AttachmentTable(GnrDboTable):
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete='cascade', relation_name='atc_attachments',
+                    mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_')
-        tbl.formulaColumn('fileurl',"'/_site/' || $filepath",name_long='Fileurl')
+        tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
@@ -529,7 +529,7 @@ class DynamicFieldsTable(GnrDboTable):
         tbl.column('mandatory','B',name_long='!!Mandatory')
 
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete='cascade', relation_name='dynamicfields',
+                    mode='foreignkey', onDelete_sql='cascade', relation_name='dynamicfields',
                     one_group='_',many_group='_')
 
         
