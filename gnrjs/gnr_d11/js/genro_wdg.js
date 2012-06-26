@@ -556,6 +556,9 @@ dojo.declare("gnr.RowEditor", null, {
         this.gridEditor.updateStatus();
         this.gridEditor.lastEditTs = new Date();
         this.currentCol = null;
+        if(this.grid.pendingSort){
+            this.grid.refreshSort();
+        }
     },
     startEditCell:function(colname){
         this.currentCol = colname;
@@ -1115,7 +1118,6 @@ dojo.declare("gnr.GridEditor", null, {
 
     },
     endEdit:function(editWidget, delta, editingInfo) {
-        console.log('endEdit',editWidget,delta,editingInfo);
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         editWidget.sourceNode._destroy();
@@ -1128,13 +1130,12 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         if (delta) {
-            console.log('findingNextCell',delta)
             var rc = this.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
             if (rc) {
-                console.log('runStartEdit',rc)
                 this.startEdit(rc.row, rc.col);
             }
         }
+
     },
     editableCell:function(col) {
         return (this.grid.getCell(col).field in this.columns);

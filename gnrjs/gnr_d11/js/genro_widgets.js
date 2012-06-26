@@ -4742,6 +4742,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             store.filterToRebuild(true);
             this.updateRowCount('*');
         }
+        this.pendingSort = false;
+    },
+    mixin_refreshSort:function(){
+        this.setSortedBy(this.sortedBy);
     },
 
 
@@ -4776,6 +4780,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
             
             
+        }
+        if(this.sortedBy){
+            this._collectionStore.sortedBy = this.sortedBy;
         }
         return this._collectionStore;
     },

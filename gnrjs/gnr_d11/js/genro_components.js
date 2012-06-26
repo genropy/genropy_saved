@@ -1712,7 +1712,15 @@ dojo.declare("gnr.stores._Collection",null,{
     sort:function(sortedBy){
         this.sortedBy = sortedBy || this.sortedBy;
         var data = this.getData();
-        data.sort(this.sortedBy);
+        var sl = [];
+        dojo.forEach(this.sortedBy.split(','),function(n){
+            if(n.slice(0,3)!='#a.'){
+                n = '#a.'+n;
+            }
+            sl.push(n);
+        });
+        sl = sl.join(',');
+        data.sort(sl);
     },
     
     absIndex:function(idx){
@@ -2017,7 +2025,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                                         if(rowValue instanceof gnr.GnrBag){
                                             var editedNode = rowValue.getNode(attrname);
                                             if(editedNode){
-                                                editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                                editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)},false);
                                             }
                                         }
                                         if(attrname in newattr){
@@ -2026,7 +2034,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                                      }else if(rowValue instanceof gnr.GnrBag){
                                          var editedNode = rowValue.getNode(attrname);
                                          if(editedNode){
-                                            editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)});
+                                            editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)},false);
                                          }
                                      }
                                 }
@@ -2048,12 +2056,23 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                 });
         }
         if(toUpdate && this.sortedBy){
-            this.sort();
+            this.mustBeSorted = true;
         } 
+        var that = this;
         dojo.forEach(linkedGrids,function(grid){
             //grid.batchUpdating(false);   
             if(toUpdate){
-                //grid.updateRowCount();
+                if (!grid.gnrediting){
+                    if(that.mustBeSorted){
+                        that.sort();
+                        that.filterToRebuild(true);
+                        that.mustBeSorted = false;
+                    }
+                    grid.updateRowCount('*');
+                }else{
+                    grid.pendingSort = true;
+                }
+
                 grid.restoreSelectedRows();
             }
             for (var k in changedRows){
