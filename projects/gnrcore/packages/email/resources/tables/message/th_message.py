@@ -60,7 +60,7 @@ class ViewFromDashboard(View):
         r.fieldcell('mailbox_id',hidden=True)
 
     def th_order(self):
-        return 'send_date desc'
+        return 'send_date:d'
 
 class Form(BaseComponent):
     def th_form(self, form):
