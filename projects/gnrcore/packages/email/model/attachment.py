@@ -10,4 +10,5 @@ class Table(object):
         tbl.column('mime_type',name_long='!!Mime Type')
         tbl.column('size',name_long='!!Size')
         tbl.column('path',name_long='!!path')
-        tbl.column('message_id',size='22',name_long='!!Message id').relation('email.message.id', mode='foreignkey',deferred=True, relation_name='attachments')
+        tbl.column('message_id',size='22',name_long='!!Message id').relation('email.message.id', mode='foreignkey',deferred=True, 
+                                                                             onDelete_sql='cascade',relation_name='attachments')
