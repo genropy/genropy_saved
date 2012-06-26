@@ -37,6 +37,7 @@ class ImapReceiver(object):
         else:
             searchString = '(ALL)'
         resp, items = self.imap.uid('search',None, searchString)
+        print 'receiving... mail from inbox'
         items = items[0].split()
         if self.last_uid:
             items = items[1:]
