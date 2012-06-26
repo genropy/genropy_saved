@@ -70,6 +70,7 @@ class Table(object):
            
     @public_method
     def receive_imap(self, page=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
+        print 'RECEIVE IMAP'
         from gnrpkg.email.imap import ImapReceiver
         if isinstance(account, basestring):
             account = self.db.table('email.account').record(pkey=account).output('bag')
