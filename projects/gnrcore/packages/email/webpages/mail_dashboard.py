@@ -7,7 +7,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='email.mailbox'
     css_requires='emailstyles'
-    py_requires="""public:Public,th/th:TableHandler,th/th_tree:TableHandlerTree"""  
+    py_requires="""public:Public,th/th:TableHandler"""  
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
         
