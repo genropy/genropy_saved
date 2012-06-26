@@ -56,12 +56,12 @@ class ViewFromDashboard(View):
         r.fieldcell('to_address',width='12em')
         r.fieldcell('from_address',width='12em')
         r.fieldcell('subject',width='100%')
-        r.fieldcell('body',hidden=True)
         r.fieldcell('account_id',hidden=True)
         r.fieldcell('mailbox_id',hidden=True)
 
     def th_order(self):
         return 'send_date desc'
+
 class Form(BaseComponent):
     def th_form(self, form):
         fb = form.record.formbuilder(cols=2,border_spacing='3px')
