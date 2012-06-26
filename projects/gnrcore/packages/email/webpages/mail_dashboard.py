@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
                         _fired="^#mailBoxTree.tree.mailbox_id",grid=th.view.grid)
         top.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, 
                             account='=#mailBoxTree.tree.account_id',_POST=True)
-        bc.contentPane(region='center',border_top='1px solid pixel',splitter=True,padding='10px').div('^.current.record.body')
+        bc.contentPane(region='center',border_top='1px solid silver',splitter=True,padding='10px').div('^.current.record.body')
         bc.dataRecord('.current.record','email.message',pkey='^#messageth.view.grid.selectedId',_if='pkey')
 
 
