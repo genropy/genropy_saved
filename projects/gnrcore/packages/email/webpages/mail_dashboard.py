@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
         center.dataController("""grid.publish('runbtn',{"modifiers":null});""",
                         _fired="^#mailBoxTree.tree.mailbox_id",grid=th.view.grid)
         center.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, 
-                            account='=#mailBoxTree.tree.account_id')
+                            account='=#mailBoxTree.tree.account_id',_POST=True)
 
 
     def maildashboard_left(self,frame):
