@@ -431,7 +431,7 @@ class SqlTable(GnrObject):
         newpkey = record[self.pkey]
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
-            if joiner and joiner['mode'] == 'M' and joiner['onDelete']=='cascade':
+            if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
                 rellist = joiner['many_relation'].split('.')
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])
