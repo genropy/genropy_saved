@@ -1734,14 +1734,14 @@ class SqlSelection(object):
                            _pkey=pkey, _attributes=row, _removeNullAttributes=False)
         return result
             
-    def out_grid(self, outsource, recordResolver=True):
+    def out_grid(self, outsource, recordResolver=True,**kwargs):
         """TODO
            
         :param outsource: TODO
         :param recordResolver: boolean. TODO"""
-        return self.buildAsGrid(outsource, recordResolver)
+        return self.buildAsGrid(outsource, recordResolver,**kwargs)
         
-    def buildAsGrid(self, outsource, recordResolver):
+    def buildAsGrid(self, outsource, recordResolver,virtual_columns=None,**kwargs):
         """TODO
            
         :param outsource: TODO
@@ -1759,6 +1759,7 @@ class SqlSelection(object):
                 content = SqlRelatedRecordResolver(db=self.db, cacheTime=-1, mode='bag',
                                                    target_fld='%s.%s' % (self.dbtable.fullname, self.dbtable.pkey),
                                                    relation_value=pkey, joinConditions=self.joinConditions,
+                                                   virtual_columns=virtual_columns,
                                                    sqlContextName=self.sqlContextName)
 
             result.addItem('%s' % spkey, content, _pkey=spkey, _attributes=dict(row), _removeNullAttributes=False)
@@ -1888,7 +1889,7 @@ class SqlRelatedSelectionResolver(BagResolver):
     """TODO"""
     classKwargs = {'cacheTime': 0, 'readOnly': True, 'db': None,
                    'columns': None, 'mode': None, 'sqlparams': None, 'joinConditions': None, 'sqlContextName': None,
-                   'target_fld': None, 'relation_value': None, 'condition': None, 'bagFields': None}
+                   'target_fld': None, 'relation_value': None, 'condition': None, 'bagFields': None,'virtual_columns':None}
                    
     def resolverSerialize(self):
         """TODO"""
@@ -1916,7 +1917,7 @@ class SqlRelatedSelectionResolver(BagResolver):
         query = SqlQuery(self.db.table(dbtable), columns=self.columns, where=where,
                          joinConditions=self.joinConditions, sqlContextName=self.sqlContextName,
                          bagFields=self.bagFields, **self.sqlparams)
-        return query.selection().output(self.mode, recordResolver=(self.mode == 'grid'))
+        return query.selection().output(self.mode, recordResolver=(self.mode == 'grid'),virtual_columns=self.virtual_columns)
         
 class SqlRecord(object):
     """TODO"""
@@ -2076,7 +2077,7 @@ class SqlRecord(object):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
    
 
-    def _loadRecord_DynItemMany(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
+    def _loadRecord_DynItemMany(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):
         opkg, otbl, ofld = joiner['one_relation'].split('.')
 
         info['_from_fld'] = joiner['one_relation']
@@ -2088,14 +2089,17 @@ class SqlRecord(object):
                 target_fld=info['_target_fld'],
                 relation_value=info['_relation_value'],
                 mode='grid', joinConditions=self.joinConditions,
-                sqlContextName=self.sqlContextName
+                sqlContextName=self.sqlContextName,
+                virtual_columns=virtual_columns
                 )
         #else:
         info['_sqlContextName'] = self.sqlContextName
         info['_resolver_name'] = resolver_many
+        info['_virtual_columns'] = virtual_columns
+
         return value,info
 
-    def _loadRecord_DynItemOneOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
+    def _loadRecord_DynItemOneOne(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
@@ -2108,33 +2112,30 @@ class SqlRecord(object):
                                          mode='bag',
                                          bagFields=True,
                                          ignoreMissing=True,
+                                         virtual_columns=virtual_columns,
                                          joinConditions=self.joinConditions,
                                          sqlContextName=self.sqlContextName)
         #else:
         info['_resolver_name'] = resolver_one
         info['_sqlContextName'] = self.sqlContextName
         info['_relation_value'] = relation_value
+        info['_virtual_columns'] = virtual_columns
+
         return value,info
                          
 
-    def _loadRecord_DynItemOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
+    def _loadRecord_DynItemOne(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):
         if joiner.get('eager_one'):
             info['_eager_one']=joiner['eager_one']
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         info['_from_fld'] = joiner['many_relation']
         info['_target_fld'] = joiner['one_relation']
-        relation_value = sqlresult['t0_%s' %mfld]
-        rel_vc = None
-        if self.virtual_columns:
-            rel_vc = ','.join(
-                    [vc.split('.', 1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(fieldname)])
-                    
-                    
+        relation_value = sqlresult['t0_%s' %mfld]                       
         #if True or resolver_one is True:
         value=SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                              target_fld=info['_target_fld'],
                                              relation_value=relation_value,
-                                             mode='bag', virtual_columns=rel_vc,
+                                             mode='bag', virtual_columns=virtual_columns,
                                              bagFields=True,
                                              ignoreMissing=True,
                                              joinConditions=self.joinConditions,
@@ -2146,7 +2147,7 @@ class SqlRecord(object):
         info['_resolver_name'] = resolver_one
         info['_sqlContextName'] = self.sqlContextName
         info['_auto_relation_value'] = mfld
-        info['_virtual_columns'] = rel_vc
+        info['_virtual_columns'] = virtual_columns
         info['_storename'] = self.storename
         return value,info
         
@@ -2165,7 +2166,11 @@ class SqlRecord(object):
             if relmode:
                 info['mode'] = joiner['mode']
                 if (relmode=='DynItemMany' and resolver_many) or (resolver_one and relmode in ('DynItemOneOne','DynItemOne')):
-                    value, info = getattr(self,'_loadRecord_%s' %relmode)(fieldname,joiner,info,sqlresult,resolver_one,resolver_many)
+                    virtual_columns = self.virtual_columns
+                    if virtual_columns:
+                        virtual_columns = ','.join(
+                            [vc.split('.', 1)[1] for vc in virtual_columns.split(',') if vc.startswith(fieldname)])
+                    value, info = getattr(self,'_loadRecord_%s' %relmode)(joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns)
                     result.setItem(fieldname, value, info)               
                     if resolver_one and relmode =='DynItemOne':
                         result.getNode(fieldname[1:]).subscribe('resolverChanged',self._onChangedValueCb)
