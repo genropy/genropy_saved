@@ -443,7 +443,15 @@ class ChunkEditor(PaletteTemplateEditor):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table,datasourcepath=datasourcepath)
         bar = sc.info.top.bar
-        bar.replaceSlots('#','#,customres,savetpl,5')
+        bar.replaceSlots('#','#,customres,menutemplates,savetpl,5')
+        bar.menutemplates.div(_class='iconbox folder',tip='!!Copy From').menu(modifiers='*',storepath='.menu',
+                action="""var that = this;
+                          genro.serverCall('_table.adm.userobject.loadUserObject',{table:'%s',pkey:$1.pkey},function(result){
+                                that.setRelativeData('.data',result._value.deepCopy());
+                         },null,'POST');
+        """ %table,_class='smallmenu')
+        bar.dataRemote('.menu',self.te_menuTemplates,table=table,cacheTime=5)
+
         if resource_mode:
             bar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
         else:
