@@ -167,7 +167,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,into_pkey:into_pkey},
                                                 function(result){
                                                 });""" %table
-        treeattr['dropTargetCb']="""return this.form.isDisabled()?false:THTree.dropTargetCb(this,dropInfo);"""  
+        treeattr['dropTargetCb']="""return this.form.locked?false:THTree.dropTargetCb(this,dropInfo);"""  
         tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
     @struct_method
@@ -178,7 +178,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         tree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             draggable=True,childname='htree',
                             onDrag="""var sn = dragInfo.sourceNode;
-                                      if(sn.form.isNewRecord() || sn.form.isDisabled()){return false;}""", 
+                                      if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                             selectedLabelClass='selectedTreeNode',
                             labelAttribute='caption',
                             dropTarget=True,
@@ -365,8 +365,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         }
                                         pkeys.push(pkey);
                                     });
-                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.isDisabled()){
-                                        console.log(sourceNode.attr.trashId,dojo.byId(sourceNode.attr.trashId))
+                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.locked ){
                                         dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
                                     }
                                     dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
@@ -376,7 +375,10 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
-        treeattr['dropTargetCb_%s' %dragCode]="""return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;"""  
+        treeattr['dropTargetCb_%s' %dragCode]="""if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
+                                                    return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;
+                                                }return true;
+                                                """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
                                                 genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
