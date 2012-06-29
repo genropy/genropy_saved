@@ -232,14 +232,36 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             id : 'gnr_tableProperties',
             label : 'Genropy',
             accessKey : 'G',
-            elements : [{id : 'row_datasource',type : 'text',label : 'Row Datasource',
+            elements : [
+                    {id : 'row_datasource',type : 'text',label : 'Row Datasource',
                         setup: function(i) {
                             this.setValue(i.getAttribute('row_datasource') || '');
                         },
                         commit: function(i, j) {
                             if (this.getValue()) j.setAttribute('row_datasource', this.getValue());
                             else j.removeAttribute('row_datasource');
-                        }}]
+                        }
+                    },
+
+                    {id : 'row_condition',type : 'text',label : 'Row Condition',
+                        setup: function(i) {
+                            this.setValue(i.getAttribute('row_condition') || '');
+                        },
+                        commit: function(i, j) {
+                            if (this.getValue()) j.setAttribute('row_condition', this.getValue());
+                            else j.removeAttribute('row_condition');
+                        }
+                    },
+                    {id : 'row_sort',type : 'text',label : 'Row Sort',
+                        setup: function(i) {
+                            this.setValue(i.getAttribute('row_sort') || '');
+                        },
+                        commit: function(i, j) {
+                            if (this.getValue()) j.setAttribute('row_sort', this.getValue());
+                            else j.removeAttribute('row_sort');
+                        }
+                    }
+                    ]
             });
     },
     created: function(widget, savedAttrs, sourceNode) {

@@ -268,7 +268,10 @@ class DynamicForm(BaseComponent):
             code = attr.get('code')
             description = attr.pop('description','')
             attr['value']='^.%s' %code
-            attr['lbl'] = description
+            if tag.lower() in ('checkbox' or 'radiobutton'):
+                attr['label'] = description
+            else:
+                attr['lbl'] = description
             attr['ghost'] = attr.pop('field_placeholder',None)
             attr['tip'] = attr.pop('field_tip',None)
             attr['style'] = attr.pop('field_style',None)
