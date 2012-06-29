@@ -4107,7 +4107,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_updateCounterColumn: function() {
         var storebag = this.storebag();
         var cb;
-        var k = 0;
+        var k = 1;
         var changes = [];
         var serializableChanges = [];
         var that = this;
@@ -4116,18 +4116,29 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             return;
         }
         if (this.datamode == 'bag' || this.gridEditor) {
-            cb = function(n) {
-                var row = n.getValue();
-                var oldk = row.getItem(counterField);
-                if (k != oldk) {
-                    row.setItem(counterField, k);
+            if(this.collectionStore){
+                //new gridEditor
+                var ge = this.gridEditor;
+                var cb = function(n){
+                    ge.updateCounterColumn(n,k,counterField);
+                    k++;
                 }
-                k++;
-            };
+            }
+            else{
+                cb = function(n) {
+                    var row = n.getValue();
+                    var oldk = row.getItem(counterField);
+                    if (k != oldk) {
+                        row.setItem(counterField, k);
+                    }
+                    k++;
+                };
+            }
+
         } else {
             cb = function(n) {
                 var row = n.attr;
-                var oldk = row.counterField;
+                var oldk = row[counterField];
                 if (k != oldk) {
                     n.setAttribute(counterField, k);
                     changes.push({'node':n,'old':oldk,'new':k});
@@ -4142,6 +4153,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(changes.length>0){
             var collectionStore = this.collectionStore;
             if(collectionStore){
+
                 this.collectionStore().onCounterChanges(counterField,serializableChanges);
             }else{
                 this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});

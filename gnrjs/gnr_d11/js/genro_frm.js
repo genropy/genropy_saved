@@ -630,7 +630,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             } else {
                 this.fireControllerData('save_failed','nochange');
                 if(kw.destPkey){
-                    console.log('To check')
                     this.load({destPkey:kw.destPkey});
                 }
             }

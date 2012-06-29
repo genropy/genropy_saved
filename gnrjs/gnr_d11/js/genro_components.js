@@ -691,6 +691,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
                     title:'Template Edit '+table.split('.')[1],width:'750px',
+                    maxable:true,
                     height:'500px',
                     remote:'te_chunkEditorPane',
                     remote_table:table,

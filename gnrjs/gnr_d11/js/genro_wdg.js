@@ -980,7 +980,20 @@ dojo.declare("gnr.GridEditor", null, {
             rowEditor = this.newRowEditor(rowNode);
         }
         for(var k in updkw){
-            rowEditor.data.setItem(k,updkw[k]);
+            var rowData = rowEditor.data;
+            if(rowData.index(k)<0){
+                rowData.setItem(k,rowNode.attr[k],{_loadedValue:rowNode.attr[k]});
+            }
+            rowData.setItem(k,updkw[k]);
+        }
+        this.updateStatus();
+    },
+
+    updateCounterColumn:function(rowNode,k,counterField){
+        if(rowNode.attr[counterField]!=k){
+            var kw = {};
+            kw[counterField] = k;
+            this.updateRow(rowNode,kw);
         }
     },
     startEdit:function(row, col) {
