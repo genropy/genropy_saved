@@ -1269,13 +1269,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=condition, exclude=exclude,
                                       limit=limit, order_by=order_by,
-                                      identifier=identifier, ignoreCase=ignoreCase, **kwargs)
+                                      identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
             if not selection and weakCondition:
                 resultClass = 'relaxedCondition'
                 selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                           resultcolumns=resultcolumns, exclude=exclude,
                                           limit=limit, order_by=order_by,
-                                          identifier=identifier, ignoreCase=ignoreCase, **kwargs)
+                                          identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
 
         _attributes = {}
         resultAttrs = {}
