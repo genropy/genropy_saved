@@ -206,9 +206,15 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         this._domtag = 'div';
     },
     creating: function(attributes, sourceNode) {
+
         attributes.id = attributes.id || 'ckedit_' + sourceNode.getStringId();
         var toolbar = objectPop(attributes, 'toolbar');
         var config = objectExtract(attributes, 'config_*');
+        var showtoolbar = true;
+        if (toolbar===false){
+            toolbar=[];
+            showtoolbar = false;
+        }
         if (typeof(toolbar) == 'string') {
             toolbar = genro.evaluate(toolbar);
         }
@@ -218,7 +224,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             config.toolbar_custom = toolbar;
         }
         ;
-        var savedAttrs = {'config':config};
+        var savedAttrs = {'config':config,showtoolbar:showtoolbar};
         return savedAttrs;
 
     },
@@ -264,8 +270,19 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                     ]
             });
     },
-    created: function(widget, savedAttrs, sourceNode) {
+    makeEditor:function(widget, savedAttrs, sourceNode){
+        var showtoolbar = objectPop(savedAttrs,'showtoolbar');
+
+        if(showtoolbar===false){
+        objectUpdate(savedAttrs.config, {
+            toolbar: 'Custom', //makes all editors use this toolbar
+            toolbarStartupExpanded : false,
+            toolbarCanCollapse  : false,
+            toolbar_Custom: '' //define an empty array or whatever buttons you want.
+            });
+        }
         CKEDITOR.replace(widget, savedAttrs.config);
+
         var ckeditor_id = 'ckedit_' + sourceNode.getStringId();
         var ckeditor = CKEDITOR.instances[ckeditor_id];
         sourceNode.externalWidget = ckeditor;
@@ -316,16 +333,26 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             CKEDITOR._dialog_patched = true;
         }
 
-
+        var ckeditor =  sourceNode.externalWidget;
+        dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
+        dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        var that = this;
+        var cb = function(){
+            that.makeEditor(widget, savedAttrs, sourceNode);
+        }
+        if(!window.CKEDITOR){
+            genro.dom.loadJs('/_rsrc/js_libs/ckeditor/ckeditor.js',function(){
+                cb();
+            });
+            return;
+        }
+        cb();
          
         // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
         // setTimeout(function(){;},1000);
 
-    },
-    connectChangeEvent:function(obj) {
-        var ckeditor = obj.sourceNode.externalWidget;
-        dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
-        dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
     },
 
     mixin_gnr_value:function(value, kw, reason) {

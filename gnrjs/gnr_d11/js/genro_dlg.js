@@ -416,6 +416,36 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
+
+
+
+    floatingEditor:function(sourceNode,kw){
+        var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
+        var wdg = genro.wdgById(paletteCode+'_floating');
+        if (wdg){
+            wdg.show();
+            wdg.bringToTop();
+            return;
+        }
+        genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
+        var node = genro.src.getNode(paletteCode).clearValue();
+        node.freeze();
+        var kw = kw || {};
+        var paletteAttr = {'paletteCode':paletteCode,title:'Editor',
+                            overflow:'hidden',
+                            dockTo:'dummyDock:open',
+                            width:'600px',height:'400px',
+                            maxable:true};
+        var palette = node._('palettePane',paletteCode,paletteAttr);
+        var tc = palette._('tabcontainer');
+        var editorpane = tc._('contentpane',{title:'Editor'});
+        var previewpane = tc._('contentpane',{title:'Preview'});
+        var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
+        valuepath = '^'+sourceNode.absDatapath(valuepath);
+        editorpane._('ckeditor',{value:valuepath});
+        previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
+        node.unfreeze(); 
+    },
     zoomPalette:function(kw){
         var pkey = kw.pkey;
         var table = kw.table;

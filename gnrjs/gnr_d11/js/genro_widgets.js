@@ -905,10 +905,66 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'textarea';
     },
+    onBuilding:function(sourceNode){
+        //{value:,height,width}
+        var areaAttr = objectUpdate({},sourceNode.attr);
+        var speech = objectPop(areaAttr,'speech');
+        var editor = objectPop(areaAttr,'editor');
+        var tag = this._domtag;
+        var notrigger = {'doTrigger':false};
+        if (editor || speech){
+            sourceNode.attr = {'tag':'div',_class:'textAreaWrapper'};
+            var leftKw = {display:'inline-block',overflow:'hidden'}; 
+            if(editor){
+                leftKw['border'] = '1px solid silver';
+                leftKw['rounded'] = 4;
+            } 
+            var left = sourceNode._('div',leftKw,notrigger);
+            var right = sourceNode._('div',{display:'inline-block',width:'24px'},notrigger)
+            if(editor){
+                right._('div',{_class:'iconbox app',connect_onclick:function(){
+                    genro.dlg.floatingEditor(textarea,{});
+                }},{'doTrigger':false})
+                tag = 'ckeditor';
+                objectPop(areaAttr,'tag')
+                areaAttr['toolbar'] = false;
+                areaAttr['config_height']=objectPop(areaAttr,'height');
+                areaAttr['config_width']=objectPop(areaAttr,'width');
+
+
+                this._dojotag = null;
+            }
+            var textarea = left._(tag,areaAttr,notrigger).getParentNode();
+            if(speech){
+                right._('input',{width:'14px',border:0,color:'transparent',
+                            font_size:'13px',background:'transparent','tabindex':32767,
+                            "x-webkit-speech":"x-webkit-speech",onCreated:function(newobj,attributes){
+                                newobj.onwebkitspeechchange=function(){
+                                    var v = this.value;
+                                    this.value = '';
+                                    var lastSelection = genro._lastSelection;
+                                    if(lastSelection && (lastSelection.domNode == textarea.widget.domNode)){
+                                        var oldValue = textarea.getAttributeFromDatasource('value');
+                                        var fistchunk = oldValue.slice(0,lastSelection.start);
+                                        var secondchunk =  oldValue.slice(lastSelection.end);
+                                        v = fistchunk+v+secondchunk;
+                                    }
+                                    setTimeout(function(){
+                                        textarea.setAttributeInDatasource('value',v,true);
+                                        textarea.widget.domNode.focus();
+                                    },1);
+                                }
+                            }          
+                },{'doTrigger':false});
+            }
+        }
+    },
+
     creating:function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'value,suggestions');
         return savedAttrs;
     },
+
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.value) {
             newobj.setValue(savedAttrs.value);
@@ -920,30 +976,6 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
         }));
-        
-        if(savedAttrs.speech){
-            var speechInput = document.createElement('input');
-            speechInput.setAttribute("x-webkit-speech","x-webkit-speech");
-            speechInput.setAttribute('class','speechMic');
-            speechInput.setAttribute('tabindex',32767);
-
-            speechInput.onwebkitspeechchange = function(){
-                var v = this.value;
-                this.value = '';
-                var lastSelection = genro._lastSelection;
-                if(lastSelection && (lastSelection.domNode == sourceNode.widget.domNode)){
-                    var oldValue = sourceNode.getAttributeFromDatasource('value');
-                    var fistchunk = oldValue.slice(0,lastSelection.start);
-                    var secondchunk =  oldValue.slice(lastSelection.end);
-                    v = fistchunk+v+secondchunk;
-                }
-                setTimeout(function(){
-                    sourceNode.setAttributeInDatasource('value',v,true);
-                    sourceNode.widget.domNode.focus();
-                },1);
-            };             
-            newobj.domNode.parentNode.appendChild(speechInput);               
-        }
     },
     
     mixin_setSuggestions:function(suggestions){
