@@ -913,16 +913,25 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         var tag = this._domtag;
         var notrigger = {'doTrigger':false};
         if (editor || speech){
-            sourceNode.attr = {'tag':'div',_class:'textAreaWrapper'};
-            var leftKw = {display:'inline-block',overflow:'hidden'}; 
+            var parentNode =sourceNode.getParentNode();
+            var insideTable = parentNode && parentNode.attr.tag=='td';
+            var _class = 'textAreaWrapper';
+            if(insideTable){
+                _class+= ' textAreaWrapperInTable';
+            }
             if(editor){
-                leftKw['border'] = '1px solid silver';
-                leftKw['rounded'] = 4;
+                _class+= ' textAreaIsEditor';
+            }
+            sourceNode.attr = {'tag':'div',_class:_class};
+            var tKw = {overflow:'hidden',_class:'textAreaWrapperArea'}; 
+            if(editor){
+                tKw['border'] = '1px solid silver';
+                tKw['rounded'] = 4;
             } 
-            var left = sourceNode._('div',leftKw,notrigger);
-            var right = sourceNode._('div',{display:'inline-block',width:'24px'},notrigger)
+            var top = sourceNode._('div',tKw,notrigger);
+            var bottom = sourceNode._('div',{_class:'textAreaWrapperButtons',transition:'1s all'},notrigger)
             if(editor){
-                right._('div',{_class:'iconbox app',connect_onclick:function(){
+                bottom._('div',{_class:'TAeditorPalette',connect_onclick:function(){
                     genro.dlg.floatingEditor(textarea,{});
                 }},{'doTrigger':false})
                 tag = 'ckeditor';
@@ -934,10 +943,11 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
 
                 this._dojotag = null;
             }
-            var textarea = left._(tag,areaAttr,notrigger).getParentNode();
+            var textarea = top._(tag,areaAttr,notrigger).getParentNode();
             if(speech){
-                right._('input',{width:'14px',border:0,color:'transparent',
-                            font_size:'13px',background:'transparent','tabindex':32767,
+                var b = bottom._('div',{_class:'TAspeechInputBox'},notrigger);
+
+                b._('input',{_class:'TAspeechInput','tabindex':32767,
                             "x-webkit-speech":"x-webkit-speech",onCreated:function(newobj,attributes){
                                 newobj.onwebkitspeechchange=function(){
                                     var v = this.value;
