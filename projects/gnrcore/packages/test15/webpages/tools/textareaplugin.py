@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
 
     def test_3_simpleTextareaSpeechFb(self, pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px',fld_width='100%',width='400px')
-        fb.simpleTextarea(value='^.simpleTextarea', height='200px',speech=True,lbl='Prova')
+        fb.simpleTextarea(value='^.simpleTextarea', height='200px',speech=True,lbl='Prova',editor=True)
 
 
    #def test_1_simpleTextareaFullEditor(self, pane):
