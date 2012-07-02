@@ -428,7 +428,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setControllerData('loading',true);
         var pkey= ('destPkey' in kw)? kw.destPkey : this.store.getStartPkey();
         this.setCurrentPkey(pkey);
-        this.publish('onLoading',pkey);
+        this.publish('onLoading',{destPkey:pkey});
         if(pkey){
             if (!sync) {
                 this._showHider();

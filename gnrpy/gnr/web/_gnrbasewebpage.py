@@ -489,8 +489,6 @@ class GnrBaseWebPage(GnrObject):
             for virtual_col in virtual_columns.keys():
                 recordCluster.pop(virtual_col, None)
         record = tblobj.writeRecordCluster(recordCluster, recordClusterAttr)
-        if onSavedHandler:
-            onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
         if gridsChanges:
             fkey = record[tblobj.pkey]
             for gridchange in gridsChanges:
@@ -502,6 +500,8 @@ class GnrBaseWebPage(GnrObject):
                                 if v == '*newrecord*':
                                     row[k] = fkey
                 self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
+        if onSavedHandler:
+            onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
         if not _nocommit:
             self.db.commit()
         if not 'caption' in resultAttr:
