@@ -2263,6 +2263,9 @@ body *{
     left:8px;
     top:0;
 }
+.ckBody{
+    margin:2px;
+}
 
 .TAeditorPalette{
     background: transparent url(icons/base12/editorpalette.png) no-repeat center center;
@@ -2275,14 +2278,18 @@ body *{
     cursor: pointer;
 }
 
-.textAreaWrapper .cke_skin_kama iframe {
+._common_d11 .cke_skin_kama iframe {
     border:0px;
     vertical-align: inherit;
     box-shadow:none;
     width:100%!important;
 }
-.textAreaWrapper .cke_skin_kama .cke_wrapper{
+._common_d11 .cke_skin_kama .cke_wrapper{
     border:0px;
+}
+._common_d11 .cke_top{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#F6F6F6), to(#E9E9E9));
+    background-image: -moz-linear-gradient(-90deg, #F6F6F6, #E9E9E9);
 }
 
 

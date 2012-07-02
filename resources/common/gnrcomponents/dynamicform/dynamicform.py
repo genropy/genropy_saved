@@ -67,7 +67,11 @@ class Form(BaseComponent):
         fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
         fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
         fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
-    
+        fb.checkbox(value='^.wdg_kwargs.speech',label='!!Vocal input', row_class='df_row field_enterable')
+        fb.br()
+        fb.checkbox(value='^.wdg_kwargs.editor',label='!!Full text editor', row_class='df_row field_simpletextarea')
+        fb.br()
+
         
         fb.field('source_filteringselect',colspan=3,row_class='df_row field_filteringselect',
                 tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',

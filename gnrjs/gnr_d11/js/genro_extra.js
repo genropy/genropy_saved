@@ -224,7 +224,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             config.toolbar_custom = toolbar;
         }
         ;
-        var savedAttrs = {'config':config,showtoolbar:showtoolbar};
+        var savedAttrs = {'config':config,showtoolbar:showtoolbar,enterMode:objectPop(attributes,'enterMode'),bodyStyle:objectPop(attributes,'bodyStyle',{margin:'2px'})};
         return savedAttrs;
 
     },
@@ -272,7 +272,9 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
     makeEditor:function(widget, savedAttrs, sourceNode){
         var showtoolbar = objectPop(savedAttrs,'showtoolbar');
-
+        var enterMode = objectPop(savedAttrs,'enterMode') || 'div';
+        var bodyStyle = objectPop(savedAttrs,'bodyStyle');
+        var enterModeDict = {'div':CKEDITOR.ENTER_DIV,'p':CKEDITOR.ENTER_P,'br':CKEDITOR.ENTER_BR};
         if(showtoolbar===false){
         objectUpdate(savedAttrs.config, {
             toolbar: 'Custom', //makes all editors use this toolbar
@@ -281,6 +283,10 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             toolbar_Custom: '' //define an empty array or whatever buttons you want.
             });
         }
+        savedAttrs.config.enterMode = enterModeDict[enterMode];
+        //savedAttrs.config.enterMode = CKEDITOR.ENTER_BR;
+        //savedAttrs.config.enterMode = CKEDITOR.ENTER_P;
+
         CKEDITOR.replace(widget, savedAttrs.config);
 
         var ckeditor_id = 'ckedit_' + sourceNode.getStringId();
@@ -298,6 +304,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var parentDomNode=sourceNode.getParentNode().getDomNode();        
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
+            if(bodyStyle){
+                var b = editor.document.getBody();
+                dojo.style(editor.document.getBody().$,bodyStyle);
+            }
+            
             var dropHandler = function( evt ) {
                 setTimeout(function(){ckeditor.gnr_setInDatastore();},1);
             };
