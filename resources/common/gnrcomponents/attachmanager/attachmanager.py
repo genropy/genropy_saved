@@ -103,8 +103,8 @@ class AttachManager(BaseComponent):
         filename = kwargs.get('filename')
         description,ext = os.path.splitext(filename)
         path = os.path.join(maintable.replace('.','_'),maintable_id)
-        if hasattr(maintableobj,'getAttachmentPath'):
-            path = maintableobj.getAttachmentPath(pkey=maintable_id)
+        if hasattr(maintableobj,'atc_getAttachmentPath'):
+            path = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
         kwargs['uploadPath'] = self.site.getStaticPath('vol:%s' %path)
         record = dict(maintable_id=maintable_id,mimetype=kwargs.get('mimetype'),description=description,filepath=os.path.join(path,filename))
         self.db.table(attachment_table).insert(record)

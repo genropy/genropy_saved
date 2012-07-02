@@ -78,7 +78,7 @@ class ImapReceiver(object):
         att_data = part.get_payload(decode=True)
         new_attachment['filename'] = filename
         date = new_mail['send_date']
-        attachment_path =  self.getAttachmentPath(date,filename)
+        attachment_path =  self.atc_getAttachmentPath(date,filename)
         year = str(date.year)
         month = '%02i' %date.month
         new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
@@ -86,7 +86,7 @@ class ImapReceiver(object):
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
     
-    def getAttachmentPath(self,date,filename):
+    def atc_getAttachmentPath(self,date,filename):
         year = str(date.year)
         month = '%02i' %date.month
         return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
