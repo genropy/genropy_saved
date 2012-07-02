@@ -550,6 +550,8 @@ label.ghostlabel span {
     /*vertical-align: middle;*/
     color: #1c004e;
     margin-top:2px;
+    white-space: nowrap;
+    padding-left:4px;
 }
 label{
     vertical-align:middle;
