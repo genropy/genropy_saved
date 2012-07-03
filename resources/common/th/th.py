@@ -183,6 +183,7 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
+            var mainpkey = this.form.getCurrentPkey();
             if(!this._pageHandler){
                 var th = {formResource:formResource,public:public}
                 var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
@@ -199,7 +200,8 @@ class TableHandler(BaseComponent):
             }
         """,formUrl=formUrl,formResource=formResource or ':Form',
              pkey='^.editrow',
-             mainpkey='^#FORM.pkey',
+             formsubscribe_onLoaded=True,
+            formsubscribe_onDismissed=True,
            default_kwargs=default_kwargs,_fakeform=True,
            dbname=dbname or False,viewStore=th.view.store,
            recyclablePages=recyclablePages or False,public=public,main_call=main_call or False
