@@ -40,12 +40,7 @@ class TableHandlerForm(BaseComponent):
                                  iframe=formInIframe,
                                  #context_dbstore=context_dbstore,
                                  **options) 
-        form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
-                            tablename=self.db.table(table).name_long,
-                            caption='^#FORM.record?caption',
-                            newrecord='=#FORM.record?_newrecord',
-                            record='=#FORM.record',titleTemplate=options.get('titleTemplate',False),
-                            newTitleTemplate=options.get('newTitleTemplate',False))
+
         if formInIframe:
             return form
         self._th_applyOnForm(form,options=options,mangler=frameCode)   
@@ -86,6 +81,13 @@ class TableHandlerForm(BaseComponent):
         return form
         
     def _th_applyOnForm(self,form,options=None,mangler=None):
+        table = form.getInheritedAttributes()['table']
+        form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
+                            tablename=self.db.table(table).name_long,
+                            caption='^#FORM.record?caption',
+                            newrecord='=#FORM.record?_newrecord',
+                            record='=#FORM.record',titleTemplate=options.get('titleTemplate',False),
+                            newTitleTemplate=options.get('newTitleTemplate',False))
         if form.attributes.get('form_isRootForm'):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         showtoolbar = boolean(options.pop('showtoolbar',True))
