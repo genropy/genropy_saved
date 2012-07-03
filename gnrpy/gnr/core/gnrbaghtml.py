@@ -138,17 +138,19 @@ class BagToHtml(object):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(self.templates,letterhead_id=self.letterhead_id)
-        self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
-        self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
-        self.page_header_height = self.page_header_height or self.htmlTemplate['layout.top?height'] or 0
-        self.page_footer_height = self.page_footer_height or self.htmlTemplate['layout.bottom?height'] or 0
-        self.page_leftbar_width = self.page_leftbar_width or self.htmlTemplate['layout.left?width'] or 0
-        self.page_rightbar_width = self.page_leftbar_width or self.htmlTemplate['layout.right?width'] or 0
-        self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
-        self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
-        self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
-        self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
+        d = self.__dict__
+        self.page_height = d.get('page_height') or self.htmlTemplate['main.page.height'] or self.page_height
+        self.page_width = d.get('page_width') or self.htmlTemplate['main.page.width'] or self.page_width
+        self.page_margin_top = d.get('page_margin_top') or self.htmlTemplate['main.page.top'] or self.page_margin_top
+        self.page_margin_left = d.get('page_margin_left')or self.htmlTemplate['main.page.left'] or self.page_margin_left
+        self.page_margin_right = d.get('page_margin_right')or self.htmlTemplate['main.page.right'] or self.page_margin_right
+        self.page_margin_bottom = d.get('page_margin_bottom') or self.htmlTemplate['main.page.bottom'] or self.page_margin_bottom
         
+        self.page_header_height =d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height
+        self.page_footer_height =d.get('page_footer_height') or self.htmlTemplate['layout.bottom?height'] or self.page_footer_height
+        self.page_leftbar_width = d.get('page_leftbar_width') or self.htmlTemplate['layout.left?width'] or self.page_leftbar_width
+        self.page_rightbar_width = d.get('page_rightbar_width')or self.htmlTemplate['layout.right?width'] or self.page_rightbar_width
+
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
         """TODO
         

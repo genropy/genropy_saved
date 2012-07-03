@@ -21,6 +21,7 @@ except ImportError:
 
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.core.gnrdecorator import extract_kwargs
 import sys
 
 class PrinterConnection(GnrBaseService):
@@ -118,21 +119,35 @@ class PrintHandler(object):
         self.hasCups = HAS_CUPS
         self.hasPyPdf = HAS_PYPDF
         self.parent = parent
-        
-    def htmlToPdf(self, srcPath, destPath, orientation=None): #srcPathList per ridurre i processi?
+    
+    @extract_kwargs(pdf=True)
+    def htmlToPdf(self, srcPath, destPath, orientation=None,pdf_kwargs=None): #srcPathList per ridurre i processi?
+            
         """TODO
         
         :param src_path: TODO
         :param destPath: TODO
         :param orientation: TODO"""
-        orientation = orientation or 'Portrait'
+        pdf_kwargs['orientation'] = orientation or 'Portrait'
+        if not 'quiet' in pdf_kwargs:
+            pdf_kwargs['quiet'] = True
+        args = ['wkhtmltopdf']
+        for k,v in pdf_kwargs.items():
+            if v is not False and v is not None:
+                args.append('--%s' %k.replace('_','-'))
+                if v is not True:
+                    args.append(str(v))
         if os.path.isdir(destPath):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
-        if sys.platform.startswith('linux'):
-            result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
-        else:
-            result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
+        args.append(srcPath)
+        args.append(destPath)
+        result = call(args)
+
+       #if sys.platform.startswith('linux'):
+       #    result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath])
+       #else:
+       #    result = call(['wkhtmltopdf', '-q', '-O', orientation, srcPath, destPath,])
         if result < 0:
             raise PrintHandlerError('wkhtmltopdf error')
         return destPath

@@ -4,14 +4,14 @@
 # Created by Francesco Porcari on 2011-06-22.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent,TableScriptToHtml
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 import re
 from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
-from gnr.core.gnrbaghtml import BagToHtml
+#from gnr.core.gnrbaghtml import BagToHtml
 import lxml.html as ht
 
 TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
@@ -36,7 +36,8 @@ class TemplateEditorBase(BaseComponent):
 
     
     def getTemplateBuilder(self, compiled=None, templates=None):
-        htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
+        tblobj = self.db.table(compiled.getItem('main?maintable'))
+        htmlbuilder = TableScriptToHtml(page=self,templates=templates, resource_table=tblobj,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.doctemplate = compiled
         htmlbuilder.virtual_columns = compiled.getItem('main?virtual_columns')
         htmlbuilder.locale = compiled.getItem('main?locale')
@@ -44,7 +45,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.masks = compiled.getItem('main?masks')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
         htmlbuilder.dtypes = compiled.getItem('main?dtypes')
-        htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
+        htmlbuilder.data_tblobj = tblobj
         return htmlbuilder
         
     def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,**kwargs):
