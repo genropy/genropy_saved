@@ -308,7 +308,7 @@ class TableHandlerMain(BaseComponent):
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
-        
+
         if publicCollapse:
             th.view.attributes.update(_class='pbl_root')
             viewbar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_root_top',height='22px')
@@ -390,9 +390,11 @@ class TableHandlerMain(BaseComponent):
         form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
                                   formResource=formResource,
                                   formCb=formCb,form_isRootForm=True,**formkw)
-        form.dataController("""
-                            SET gnr.windowTitle = title;
-                            """,title='^#FORM.controller.title')    
+        if public:
+            form.dataController("""
+                            SET gnr.publicTitle = title;
+                            """,title='^#FORM.controller.title')  
+
         if th_kwargs.get('showfooter',True):
             self._usePublicBottomMessage(form)
         return form
