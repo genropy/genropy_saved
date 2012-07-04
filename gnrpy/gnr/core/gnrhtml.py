@@ -320,15 +320,20 @@ class GnrHtmlBuilder(object):
     def newPage(self):
         """Create a new page"""
         firstpage = (len(self.body) == 0)
-        border_color = 'red' if self.page_debug else 'white'
+        border_color = 'white'
+        extra_style= ''
+        if self.page_debug:
+            border_color = 'red' if self.page_debug is True else self.page_debug
+            extra_style = 'box-shadow:3px 3px 4px gray;'
         page_break = '' if firstpage else 'page-break-before:always;'
         page = self.body.div(style="""position:relative;
                                    width:%smm;
                                    height:%smm;
-                                   border:.3mm solid %s; /* do not remove */
+                                   border:.3mm solid %s; /*do not remove */
                                    top:0mm;
                                    left:0mm;
-                                   %s""" % (self.page_width, self.page_height, border_color, page_break))
+                                   %s
+                                   %s""" % (self.page_width, self.page_height, border_color, extra_style,page_break))
         tplpage = page.div(style="""position:absolute;
                                    top:%imm;
                                    left:%imm;

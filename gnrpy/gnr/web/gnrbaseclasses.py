@@ -211,6 +211,12 @@ class TableScriptToHtml(BagToHtml):
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
         self.pdfpath = self.getPdfPath('%s.pdf' % docname, autocreate=-1)
+        pdf_pref = self.page.getPreference('.pdf_render',pkg='sys')
+        if pdf_pref:
+            pdf_pref = pdf_pref.asDict(ascii=True)
+            pdf_kwargs = pdf_kwargs or dict()
+            pdf_pref.update(pdf_kwargs)
+            pdf_kwargs = pdf_pref
         self.print_handler.htmlToPdf(filepath or self.filepath, pdfpath or self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
 
     def get_css_requires(self):

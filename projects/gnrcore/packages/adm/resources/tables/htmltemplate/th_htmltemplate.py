@@ -28,7 +28,7 @@ class Form(BaseComponent):
         bc.data('zoomFactor', .5)
         #self.editorDialog(bc)
         self.htmltemplate_controllers(bc)
-        self.htmltemplate_mainInfo(bc.borderContainer(region='left', width='50em', splitter=True,datapath='.record'))
+        self.htmltemplate_mainInfo(bc.borderContainer(region='left', width='55em', splitter=True,datapath='.record'))
         bc.borderContainer(region='center', overflow='auto', datapath='#FORM._temp.data').remote(self.htmltemplate_printLayout,
                                                                                            design='^#FORM.record.data.main.design')
     @public_method
@@ -73,6 +73,21 @@ class Form(BaseComponent):
         for part in ('height', 'width', 'top', 'bottom', 'left', 'right'):
             pane.dataFormula("#FORM._temp.data.main.page.%s" % part, "part+'mm';", part='^#FORM.record.data.main.page.%s' % part)
         pane.dataFormula("#FORM._temp.data.main.design", "design", design="^#FORM.record.data.main.design")
+        pane.dataFormula('#FORM.record.center_height',"Math.floor(page_height-page_margin_top-page_margin_bottom-header_height-footer_height)",
+                            page_height='^.main.page.height',
+                            page_margin_top='^.main.page.top',
+                            page_margin_bottom='^.main.page.bottom',
+                            header_height='^.layout.top?height',
+                            footer_height='^.layout.bottom?height',
+                            datapath='#FORM.record.data')
+
+        pane.dataFormula('#FORM.record.center_width',"Math.floor(page_width-page_margin_left-page_margin_right-side_left-side_right)",
+                            page_width='^.main.page.width',
+                            page_margin_left='^.main.page.left',
+                            page_margin_right='^.main.page.right',
+                            side_left='^.layout.left?width',
+                            side_right='^.layout.left?width',
+                            datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
 
@@ -93,9 +108,9 @@ class Form(BaseComponent):
 
     def htmltemplate_tplInfo(self, pane):
         pane.div('!!Info', _class='pbl_roundedGroupLabel')
-        fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.field('name', width='15em')
-        fb.field('version', width='15em')
+        fb = pane.formbuilder(cols=1, border_spacing='3px')
+        fb.field('name', width='12em')
+        fb.field('version', width='5em')
 
     def htmltemplate_basePageParams(self, pane):
         fb = pane.formbuilder(cols=2, border_spacing='4px')
@@ -136,6 +151,10 @@ class Form(BaseComponent):
                         "if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" % data_path
                         ,
                         val="^#FORM._temp.data.layout.%s" % temp_path)
+        fb.numbertextBox(value='^#FORM.record.center_height', lbl='!!Center height', width='5em',readOnly=True)
+        fb.br()
+        fb.numbertextBox(value='^#FORM.record.center_width', lbl='!!Center width', width='5em',readOnly=True)
+
 
     def htmltemplate_sideBarOpt(self, pane):
         fb = pane.formbuilder(cols=3, border_spacing='4px', datapath='.data.layout')
@@ -167,6 +186,9 @@ class Form(BaseComponent):
                         "if(_triggerpars.kw.reason!=true){SET .%s = dojo.number.round(parseFloat(val.slice(0,-2))/3.779527559,2);}" % data_path
                         ,
                         val="^#FORM._temp.data.layout.%s" % temp_path)
+        fb.numbertextBox(value='^#FORM.record.center_height', lbl='!!Center height', width='5em',readOnly=True)
+        fb.br()
+        fb.numbertextBox(value='^#FORM.record.center_width', lbl='!!Center width', width='5em',readOnly=True)
 
     
     @public_method

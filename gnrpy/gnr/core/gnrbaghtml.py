@@ -92,7 +92,7 @@ class BagToHtml(object):
             return 'Portrait'
             
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
-                 htmlContent=None,**kwargs):
+                 htmlContent=None,page_debug=None,**kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
         if record is None:
@@ -120,6 +120,7 @@ class BagToHtml(object):
         self.showTemplate(hideTemplate is not True)
         self.htmlTemplate = None
         self.prepareTemplates()
+        self.page_debug = page_debug or self.page_debug
         self.builder = GnrHtmlBuilder(page_width=self.page_width, page_height=self.page_height,
                                       page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
                                       page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,

@@ -225,6 +225,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         }
         ;
         var savedAttrs = {'config':config,showtoolbar:showtoolbar,enterMode:objectPop(attributes,'enterMode'),bodyStyle:objectPop(attributes,'bodyStyle',{margin:'2px'})};
+        savedAttrs.constrainAttr = objectExtract(attributes,'constrain_*')
         return savedAttrs;
 
     },
@@ -270,10 +271,20 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                     ]
             });
     },
+    mixin_gnr_constrain_height:function(height,kw, trigger_reason){
+         this.document.getBody()['$'].style.height = height;
+    }, 
+
+    mixin_gnr_constrain_width:function(width,kw, trigger_reason){
+         this.document.getBody()['$'].style.width = width;
+    }, 
+
     makeEditor:function(widget, savedAttrs, sourceNode){
+        console.log('MakeEditor',savedAttrs)
         var showtoolbar = objectPop(savedAttrs,'showtoolbar');
         var enterMode = objectPop(savedAttrs,'enterMode') || 'div';
         var bodyStyle = objectPop(savedAttrs,'bodyStyle');
+        var constrainAttr = objectPop(savedAttrs,'constrainAttr');
         var enterModeDict = {'div':CKEDITOR.ENTER_DIV,'p':CKEDITOR.ENTER_P,'br':CKEDITOR.ENTER_BR};
         if(showtoolbar===false){
         objectUpdate(savedAttrs.config, {
@@ -304,11 +315,10 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var parentDomNode=sourceNode.getParentNode().getDomNode();        
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
-            if(bodyStyle){
-                var b = editor.document.getBody();
-                dojo.style(editor.document.getBody().$,bodyStyle);
-            }
-            
+            var b = editor.document.getBody()['$'];
+            console.log('instanceReady',constrainAttr);
+            b.style.cssText = objectAsStyle(objectUpdate(objectFromStyle(b.style.cssText),
+                                            genro.dom.getStyleDict(constrainAttr)));            
             var dropHandler = function( evt ) {
                 setTimeout(function(){ckeditor.gnr_setInDatastore();},1);
             };

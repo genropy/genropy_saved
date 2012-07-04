@@ -676,7 +676,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         return curr_vc;
     },
     
-    openTemplatePalette:function(sourceNode){
+    openTemplatePalette:function(sourceNode,editorConstrain,showLetterhead){
         var paletteCode = 'template_editor_'+sourceNode._id;
         //genro._data.popNode('gnr.palettes.'+paletteCode);
         var tplpars = sourceNode.attr._tplpars;
@@ -689,7 +689,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }else{
             var table = tplpars.table;
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
-            var remote_showLetterhead = sourceNode.attr.showLetterhead;
+            var showLetterhead = typeof(showLetterhead)=='string'?(sourceNode.getRelativeData(showLetterhead) || true):showLetterhead;
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
                     title:'Template Edit '+table.split('.')[1],width:'750px',
                     maxable:true,
@@ -699,7 +699,8 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_paletteId:paletteId,
                     remote_resource_mode:(templateHandler.dataInfo.respath!=null),
                     remote_datasourcepath:remote_datasourcepath,
-                    remote_showLetterhead:remote_showLetterhead
+                    remote_showLetterhead:showLetterhead,
+                    remote_editorConstrain: editorConstrain
                     };
                     
             kw.palette_selfsubscribe_savechunk = function(){
@@ -792,12 +793,24 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             console.warn('templateChunk warning: use "template" param instead of "resource" param');
         }
         var tplpars = objectExtract(kw,'table,template,editable');
+        var editorConstrain = objectExtract(kw,'constrain_*',null,true);
+        var showLetterhead = objectPop(kw, 'showLetterhead');
+        if(typeof(showLetterhead)=='string'){
+            showLetterhead = sourceNode.absDatapath(showLetterhead);
+        }
+        for(var k in editorConstrain){
+            var c = editorConstrain[k];
+            if(typeof(c)=='string' && (c[0]=='^' || c[0]=='=')){
+                editorConstrain[k] = c[0]+sourceNode.absDatapath(c);
+            }
+        }
         var showAlways = tplpars.editable;
         tplpars.template = tplpars.template || resource;
         kw._tplpars = tplpars;
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
         kw._tplpars.showAlways = kw._tplpars.editable===true;
         kw._tplpars.asSource =  kw._tplpars.editable!=null;
+
         var dataProvider = objectPop(kw,'dataProvider');
         if(dataProvider){
             dataProvider = sourceNode.currentFromDatasource(dataProvider);
@@ -808,7 +821,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         if(tplpars.editable){
             kw.connect_ondblclick = function(evt){
                 if(tplpars.editable==true || evt.metaKey){
-                    handler.openTemplatePalette(this);
+                    handler.openTemplatePalette(this,editorConstrain,showLetterhead);
                 }
            };
         }
