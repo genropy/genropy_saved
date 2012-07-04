@@ -278,13 +278,21 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     mixin_gnr_constrain_width:function(width,kw, trigger_reason){
          this.document.getBody()['$'].style.width = width;
     }, 
+    mixin_gnr_assignConstrain:function(){
+        var constrainAttr = objectExtract(this.sourceNode.attr,'constrain_*',true);
+        constrainAttr = this.sourceNode.evaluateOnNode(constrainAttr);
+        var b = this.document.getBody()['$'];
+        b.style.cssText = objectAsStyle(objectUpdate(objectFromStyle(b.style.cssText),
+                                            genro.dom.getStyleDict(constrainAttr)));      
+
+    },
 
     makeEditor:function(widget, savedAttrs, sourceNode){
         console.log('MakeEditor',savedAttrs)
         var showtoolbar = objectPop(savedAttrs,'showtoolbar');
         var enterMode = objectPop(savedAttrs,'enterMode') || 'div';
         var bodyStyle = objectPop(savedAttrs,'bodyStyle');
-        var constrainAttr = objectPop(savedAttrs,'constrainAttr');
+        //var constrainAttr = objectPop(savedAttrs,'constrainAttr');
         var enterModeDict = {'div':CKEDITOR.ENTER_DIV,'p':CKEDITOR.ENTER_P,'br':CKEDITOR.ENTER_BR};
         if(showtoolbar===false){
         objectUpdate(savedAttrs.config, {
@@ -312,13 +320,14 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ckeditor.gnr_getFromDatastore();
         var parentWidget = dijit.getEnclosingWidget(widget);
         ckeditor.gnr_readOnly('auto');
-        var parentDomNode=sourceNode.getParentNode().getDomNode();        
+        var parentDomNode=sourceNode.getParentNode().getDomNode();
+        ckeditor.on('currentInstance', function(ev){
+            console.log('currentInstance',constrainAttr);
+        });
+        
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
-            var b = editor.document.getBody()['$'];
-            console.log('instanceReady',constrainAttr);
-            b.style.cssText = objectAsStyle(objectUpdate(objectFromStyle(b.style.cssText),
-                                            genro.dom.getStyleDict(constrainAttr)));            
+            editor.gnr_assignConstrain();
             var dropHandler = function( evt ) {
                 setTimeout(function(){ckeditor.gnr_setInDatastore();},1);
             };
@@ -332,6 +341,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var cbResize=function(){
                 sourceNode._rsz=null;
                 try{
+                    ckeditor.gnr_assignConstrain();
                     ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
                 }catch(e){
                     
@@ -356,6 +366,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
         var ckeditor =  sourceNode.externalWidget;
         dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
+
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
     },
     created: function(widget, savedAttrs, sourceNode) {
