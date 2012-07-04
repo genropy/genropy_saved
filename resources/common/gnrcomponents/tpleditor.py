@@ -53,6 +53,9 @@ class TemplateEditorBase(BaseComponent):
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
                                                         virtual_columns=templateBuilder.virtual_columns).output('bag')
+        else:
+            record = templateBuilder.data_tblobj.record(pkey='*sample*',ignoreMissing=True,
+                                                        virtual_columns=templateBuilder.virtual_columns).output('sample')
         if extraData:
             record.update(extraData)
         locale = locale or templateBuilder.locale
@@ -440,7 +443,7 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,datasourcepath=None,**kwargs):
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,datasourcepath=None,showLetterhead=False,**kwargs):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table,datasourcepath=datasourcepath)
         bar = sc.info.top.bar
@@ -464,7 +467,7 @@ class ChunkEditor(PaletteTemplateEditor):
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
         framePreview = sc.framePane(title='!!Preview',pageName='preview',childname='preview')
-        self._te_framePreviewChunk(framePreview,table=table,datasourcepath=datasourcepath)
+        self._te_framePreviewChunk(framePreview,table=table,datasourcepath=datasourcepath,showLetterhead=showLetterhead)
         bar = framePreview.top.bar
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
@@ -477,20 +480,22 @@ class ChunkEditor(PaletteTemplateEditor):
                             fieldsTree_explorerPath='#ANCHOR.dbexplorer')
         #self._te_info_parameters(bc,region='center')
     
-    def _te_framePreviewChunk(self,frame,table=None,datasourcepath=None):
+    def _te_framePreviewChunk(self,frame,table=None,datasourcepath=None,showLetterhead=None):
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=1, border_spacing='0px',margin_top='2px')
+        letterhead_id =None
         if not datasourcepath:
-            fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
-                    selected_name='.preview.html_template_name',lbl='!!Letterhead',
-                    width='10em', hasDownArrow=True)
-            preview_id = '.preview.selected.id'
+            fb.dbSelect(dbtable=table, value='^.preview.id',lbl='!!Record',width='15em', hasDownArrow=True)
+            preview_id = '.preview.id'
         else:
             preview_id = '%s.%s' %(datasourcepath,self.db.table(table).pkey)
+        if showLetterhead:
+            fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',lbl='!!Letterhead',width='15em', hasDownArrow=True)
+            letterhead_id = '^.preview.letterhead_id'
         record_id = '^%s' %preview_id
         frame.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id=record_id,_status='=.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',
-                   compiled='^.data.compiled')
+                   compiled='^.data.compiled',template_id=letterhead_id)
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
 
         

@@ -689,6 +689,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }else{
             var table = tplpars.table;
             var remote_datasourcepath =  sourceNode.absDatapath(sourceNode.attr.datasource);
+            var remote_showLetterhead = sourceNode.attr.showLetterhead;
             var kw = {'paletteCode':paletteCode,'dockTo':'dommyDock:open',
                     title:'Template Edit '+table.split('.')[1],width:'750px',
                     maxable:true,
@@ -697,7 +698,8 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_table:table,
                     remote_paletteId:paletteId,
                     remote_resource_mode:(templateHandler.dataInfo.respath!=null),
-                    remote_datasourcepath:remote_datasourcepath
+                    remote_datasourcepath:remote_datasourcepath,
+                    remote_showLetterhead:remote_showLetterhead
                     };
                     
             kw.palette_selfsubscribe_savechunk = function(){

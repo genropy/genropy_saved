@@ -1043,13 +1043,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         return record['id']
         
     @public_method
-    @extract_kwargs(default=True)
+    @extract_kwargs(default=True,sample=True)
     def getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
-                      _eager_level=0, onLoadingHandler=None,**kwargs):
+                      _eager_level=0, onLoadingHandler=None,sample_kwargs=None,**kwargs):
         """TODO
         
         ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
@@ -1102,8 +1102,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         if sqlContextName:
             self._joinConditionsFromContext(rec, sqlContextName)
 
-        if (pkey == '*newrecord*'):
+        if pkey == '*newrecord*':
             record = rec.output('newrecord', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
+        elif pkey=='*sample*':
+            record = rec.output('sample', resolver_one=js_resolver_one, resolver_many=js_resolver_many,sample_kwargs=sample_kwargs)
+            return record,dict(_pkey=pkey,caption='!!Sample data')
         else:
             record = rec.output('bag', resolver_one=js_resolver_one, resolver_many=js_resolver_many)
         pkey = record[tblobj.pkey] or '*newrecord*'

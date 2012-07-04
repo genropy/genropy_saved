@@ -460,8 +460,9 @@ class SqlTable(GnrObject):
         if mode == 'dict' and not isinstance(record, dict):
             return dict([(k, v) for k, v in record.items() if not k.startswith('@')])
         if mode == 'bag' and (virtual_columns or not isinstance(record, Bag)):
-            return self.record(pkey=record.get('pkey', None) or record.get(self.pkey), mode=mode,
-                               virtual_columns=virtual_columns)
+            pkey=record.get('pkey', None) or record.get(self.pkey)
+            if pkey:
+                record = self.record(pkey=pkey, mode=mode,virtual_columns=virtual_columns)
         return record
             
 
@@ -470,6 +471,12 @@ class SqlTable(GnrObject):
         it with defaults"""
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
         
+
+    def sampleValues (self):
+        """Override this method to assign defaults to new record. Return a dictionary - fill
+        it with defaults"""
+        return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
+
     def query(self, columns='*', where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,

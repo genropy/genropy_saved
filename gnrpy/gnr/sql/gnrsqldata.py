@@ -2040,6 +2040,19 @@ class SqlRecord(object):
             result[k] = v
         
         return result
+
+
+    def out_sample(self, resolver_one=True, resolver_many=True,sample_kwargs=None):
+        """TODO
+        
+        :param resolver_one: boolean. TODO
+        :param resolver_many: boolean. TODO"""
+        result = SqlRecordBag(self.db, self.dbtable.fullname)
+        self.result = Bag(self.dbtable.sampleValues())
+        self.loadRecord(result, resolver_many=resolver_many, resolver_one=resolver_one)
+        if sample_kwargs:
+            result.update(sample_kwargs)
+        return result
         
     def out_bag(self, resolver_one=True, resolver_many=True):
         """TODO
