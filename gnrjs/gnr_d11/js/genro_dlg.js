@@ -262,6 +262,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var msg = kw.msg;
         var confirmCb = kw.action || '';
         var wdg = kw['widget'] || 'textbox';
+        var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
@@ -279,6 +280,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
         dlg.show_action();
+        if (dflt){
+            genro.setData('gnr.promptDlg.promptvalue',null);
+        }
+
+
     },
     paletteMap:function(kw) {
         var kw = kw || {};
