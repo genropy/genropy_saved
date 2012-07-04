@@ -281,7 +281,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
         dlg.show_action();
         if (dflt){
-            genro.setData('gnr.promptDlg.promptvalue',null);
+            genro.setData('gnr.promptDlg.promptvalue',dflt);
         }
 
 
