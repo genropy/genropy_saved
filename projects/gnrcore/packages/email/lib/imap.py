@@ -5,6 +5,7 @@ import email, imaplib,datetime
 from gnr.core.gnrlang import getUuid
 import chardet
 detach_dir = '.'
+import os
 wait = 600
 
 class ImapReceiver(object):
@@ -30,7 +31,7 @@ class ImapReceiver(object):
     def receive(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.imap.login(self.username,self.password)
         self.imap.select(remote_mailbox)
-        mailbox_id = self.db.table('email.mailbox').readColumns(columns='$id',where='$account_id=:a_id AND system_code=:s_code',a_id=self.account_id,s_code='01')
+        mailbox_id = self.db.table('email.mailbox').readColumns(columns='$id',where='$account_id=:a_id AND $system_code=:s_code',a_id=self.account_id,s_code='01')
         if self.last_uid:
             searchString = '(UID %s:*)' % self.last_uid
         else:
@@ -76,13 +77,16 @@ class ImapReceiver(object):
             counter += 1
         att_data = part.get_payload(decode=True)
         new_attachment['filename'] = filename
-        attachment_path =  self.getAttachmentPath(new_mail['send_date'],filename)
-        new_attachment['path'] = attachment_path
+        date = new_mail['send_date']
+        attachment_path =  self.atc_getAttachmentPath(date,filename)
+        year = str(date.year)
+        month = '%02i' %date.month
+        new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
     
-    def getAttachmentPath(self,date,filename):
+    def atc_getAttachmentPath(self,date,filename):
         year = str(date.year)
         month = '%02i' %date.month
         return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,

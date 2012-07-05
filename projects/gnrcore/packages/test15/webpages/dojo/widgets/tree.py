@@ -1,23 +1,17 @@
 # -*- coding: UTF-8 -*-
 
-# tree.py
-# Created by Francesco Porcari on 2010-08-18.
+# serverpath.py
+# Created by Francesco Porcari on 2010-09-03.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-"""tree"""
-
+"""Serverpath"""
+from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme = 'claro'
-    
-    def windowTitle(self):
-        return 'Tree'
-        
-    def test_1_simple(self, root, **kwargs):
-        """simple"""
-        pass
-        
-class ToFix(object):
-    """
-    1-tooltip inspector
-    """
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+    auto_polling = 10
+    user_polling = 3
+
+    def test_0_tree(self, pane):
+        pane.dataRecord('record','studio.pt_uscita',default_tipo_id='1-KC7vGDM_u55MEOpv47Dg',pkey='*newrecord*',_onStart=True,ignoreMissing=True)
+        pane.dataRemote('.store',self.relationExplorer,table='studio.pt_uscita',currRecordPath='record')
+        pane.tree('.store',hideValues=True)

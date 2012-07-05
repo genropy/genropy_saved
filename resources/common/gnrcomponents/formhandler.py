@@ -200,6 +200,12 @@ class FormHandler(BaseComponent):
         pane.formButton('!!Add',topic='navigationEvent',command='add',
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
+
+    @struct_method          
+    def fh_slotbar_form_duplicate(self,pane,parentForm=True,**kwargs):
+        pane.formButton('!!Duplicate',iconClass='iconbox copy',
+                       topic='navigationEvent',command='duplicate',parentForm=parentForm)
+
     @struct_method          
     def fh_slotbar_form_first(self,pane,**kwargs):
         pane.formButton('!!First',iconClass="iconbox first",

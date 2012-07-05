@@ -30,6 +30,8 @@ class Table(object):
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('data', dtype='X', name_long='!!Data', _sendback=True)
+        tbl.column('center_height',dtype='I',name_long='!!Center height')
+        tbl.column('center_width',dtype='I',name_long='!!Center width')
 
     def getTemplate(self, name=None,letterhead_id=None):
         if not(name or letterhead_id):
@@ -42,4 +44,13 @@ class Table(object):
         if len(templatelist) > 1:
             pass
         return templatebase            
+
+    def updateCenterSize(self,record):
+        pass
+        
+    def trigger_onInserting(self,record):
+        self.updateCenterSize(record)
+
+    def trigger_onUpdating(self,record=None,old_record=None):
+        self.updateCenterSize(record)
     

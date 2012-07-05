@@ -420,6 +420,28 @@ class SqlTable(GnrObject):
             return record.output(mode)
         else:
             return record
+
+    def duplicateRecord(self,recordOrKey):
+        record = self.recordAs(recordOrKey,mode='dict')
+        pkey = record.pop(self.pkey,None)
+        for colname,obj in self.model.columns.items():
+            if obj.attributes.get('_sysfield') and colname!='parent_id':
+                record.pop(colname,None)
+        self.insert(record)
+        newpkey = record[self.pkey]
+        for n in self.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
+                rellist = joiner['many_relation'].split('.')
+                fkey = rellist[-1]
+                subtable ='.'.join(rellist[:-1])
+                manytable = self.db.table(subtable)
+                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False).fetch()
+                for r in rows:
+                    r = dict(r)
+                    r[fkey] = newpkey
+                    manytable.duplicateRecord(r)
+        return record
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
@@ -438,15 +460,23 @@ class SqlTable(GnrObject):
         if mode == 'dict' and not isinstance(record, dict):
             return dict([(k, v) for k, v in record.items() if not k.startswith('@')])
         if mode == 'bag' and (virtual_columns or not isinstance(record, Bag)):
-            return self.record(pkey=record.get('pkey', None) or record.get(self.pkey), mode=mode,
-                               virtual_columns=virtual_columns)
+            pkey=record.get('pkey', None) or record.get(self.pkey)
+            if pkey:
+                record = self.record(pkey=pkey, mode=mode,virtual_columns=virtual_columns)
         return record
             
+
     def defaultValues (self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
         
+
+    def sampleValues (self):
+        """Override this method to assign defaults to new record. Return a dictionary - fill
+        it with defaults"""
+        return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
+
     def query(self, columns='*', where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,

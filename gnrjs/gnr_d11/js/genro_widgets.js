@@ -905,10 +905,76 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'textarea';
     },
+    onBuilding:function(sourceNode){
+        //{value:,height,width}
+        var areaAttr = objectUpdate({},sourceNode.attr);
+        var speech = objectPop(areaAttr,'speech');
+        var editor = objectPop(areaAttr,'editor');
+        var tag = this._domtag;
+        var notrigger = {'doTrigger':false};
+        if (editor || speech){
+            var parentNode =sourceNode.getParentNode();
+            var insideTable = parentNode && parentNode.attr.tag=='td';
+            var _class = 'textAreaWrapper';
+            if(insideTable){
+                _class+= ' textAreaWrapperInTable';
+            }
+            if(editor){
+                _class+= ' textAreaIsEditor';
+            }
+            sourceNode.attr = {'tag':'div',_class:_class};
+            var tKw = {overflow:'hidden',_class:'textAreaWrapperArea'}; 
+            if(editor){
+                tKw['border'] = '1px solid silver';
+                tKw['rounded'] = 4;
+            } 
+            var top = sourceNode._('div',tKw,notrigger);
+            var bottom = sourceNode._('div',{_class:'textAreaWrapperButtons',transition:'1s all'},notrigger)
+            if(editor){
+                bottom._('div',{_class:'TAeditorPalette',connect_onclick:function(){
+                    genro.dlg.floatingEditor(textarea,{});
+                }},{'doTrigger':false})
+                tag = 'ckeditor';
+                objectPop(areaAttr,'tag')
+                areaAttr['toolbar'] = false;
+                areaAttr['config_height']=objectPop(areaAttr,'height');
+                areaAttr['config_width']=objectPop(areaAttr,'width');
+
+
+                this._dojotag = null;
+            }
+            var textarea = top._(tag,areaAttr,notrigger).getParentNode();
+            if(speech){
+                var b = bottom._('div',{_class:'TAspeechInputBox'},notrigger);
+
+                b._('input',{_class:'TAspeechInput','tabindex':32767,
+                            "x-webkit-speech":"x-webkit-speech",onCreated:function(newobj,attributes){
+                                newobj.onwebkitspeechchange=function(){
+                                    var v = this.value;
+                                    this.value = '';
+                                    var lastSelection = genro._lastSelection;
+                                    if(lastSelection && (lastSelection.domNode == textarea.widget.domNode)){
+                                        var oldValue = textarea.getAttributeFromDatasource('value');
+                                        var fistchunk = oldValue.slice(0,lastSelection.start);
+                                        var secondchunk =  oldValue.slice(lastSelection.end);
+                                        v = fistchunk+v+secondchunk;
+                                    }
+                                    setTimeout(function(){
+                                        textarea.setAttributeInDatasource('value',v,true);
+                                        textarea.widget.domNode.focus();
+                                    },1);
+                                }
+                            }          
+                },{'doTrigger':false});
+            }
+        }
+    },
+
     creating:function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'value,suggestions');
         return savedAttrs;
     },
+
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.value) {
             newobj.setValue(savedAttrs.value);
@@ -920,30 +986,6 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         dojo.connect(newobj.domNode, 'onchange', dojo.hitch(this, function() {
             this.onChanged(newobj);
         }));
-        
-        if(savedAttrs.speech){
-            var speechInput = document.createElement('input');
-            speechInput.setAttribute("x-webkit-speech","x-webkit-speech");
-            speechInput.setAttribute('class','speechMic');
-            speechInput.setAttribute('tabindex',32767);
-
-            speechInput.onwebkitspeechchange = function(){
-                var v = this.value;
-                this.value = '';
-                var lastSelection = genro._lastSelection;
-                if(lastSelection && (lastSelection.domNode == sourceNode.widget.domNode)){
-                    var oldValue = sourceNode.getAttributeFromDatasource('value');
-                    var fistchunk = oldValue.slice(0,lastSelection.start);
-                    var secondchunk =  oldValue.slice(lastSelection.end);
-                    v = fistchunk+v+secondchunk;
-                }
-                setTimeout(function(){
-                    sourceNode.setAttributeInDatasource('value',v,true);
-                    sourceNode.widget.domNode.focus();
-                },1);
-            };             
-            newobj.domNode.parentNode.appendChild(speechInput);               
-        }
     },
     
     mixin_setSuggestions:function(suggestions){
@@ -1311,6 +1353,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
                 });
             });
         }
+        dojo.connect(widget,'maximize',function(){
+            this.resize({'t':'0','l':'0'});
+        });
     },
     patch_close:function(cb){
         this.saveRect();
@@ -1347,7 +1392,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }     
     },
     mixin_saveRect:function(){
-        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode)){
+        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode) && !this._maximized){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
         }     
@@ -4104,7 +4149,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_updateCounterColumn: function() {
         var storebag = this.storebag();
         var cb;
-        var k = 0;
+        var k = 1;
         var changes = [];
         var serializableChanges = [];
         var that = this;
@@ -4113,18 +4158,29 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             return;
         }
         if (this.datamode == 'bag' || this.gridEditor) {
-            cb = function(n) {
-                var row = n.getValue();
-                var oldk = row.getItem(counterField);
-                if (k != oldk) {
-                    row.setItem(counterField, k);
+            if(this.collectionStore){
+                //new gridEditor
+                var ge = this.gridEditor;
+                var cb = function(n){
+                    ge.updateCounterColumn(n,k,counterField);
+                    k++;
                 }
-                k++;
-            };
+            }
+            else{
+                cb = function(n) {
+                    var row = n.getValue();
+                    var oldk = row.getItem(counterField);
+                    if (k != oldk) {
+                        row.setItem(counterField, k);
+                    }
+                    k++;
+                };
+            }
+
         } else {
             cb = function(n) {
                 var row = n.attr;
-                var oldk = row.counterField;
+                var oldk = row[counterField];
                 if (k != oldk) {
                     n.setAttribute(counterField, k);
                     changes.push({'node':n,'old':oldk,'new':k});
@@ -4139,6 +4195,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(changes.length>0){
             var collectionStore = this.collectionStore;
             if(collectionStore){
+
                 this.collectionStore().onCounterChanges(counterField,serializableChanges);
             }else{
                 this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
@@ -4739,6 +4796,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             store.filterToRebuild(true);
             this.updateRowCount('*');
         }
+        this.pendingSort = false;
+    },
+    mixin_refreshSort:function(){
+        this.setSortedBy(this.sortedBy);
     },
 
 
@@ -4773,6 +4834,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
             
             
+        }
+        if(this.sortedBy){
+            this._collectionStore.sortedBy = this.sortedBy;
         }
         return this._collectionStore;
     },
@@ -4811,9 +4875,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
             dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
         }else{
-            var col_fields = this.structbag().getItem('#0.#0').digest('#a.field');
+            var col_fields = this.structbag().getItem('#0.#0').digest('#a.field,#a.hidden');
             var col_names = [];
-            dojo.forEach(col_fields, function(c){col_names.push(c[0].replace(/\W/g, '_'))});
+            dojo.forEach(col_fields, function(c){if(!c[1]) col_names.push(c[0].replace(/\W/g, '_'))});
             var col_length = col_fields.length;
             var selector = nodes=='selected'?'.dojoxGrid-view .dojoxGrid-row-selected .dojoxGrid-cell':'.dojoxGrid-view .dojoxGrid-cell';
             var cells = dojo.query(selector, this.domNode);
@@ -5204,7 +5268,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         } else {
             attributes.hasDownArrow = false;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
         }

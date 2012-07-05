@@ -262,6 +262,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var msg = kw.msg;
         var confirmCb = kw.action || '';
         var wdg = kw['widget'] || 'textbox';
+        var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
@@ -279,6 +280,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
         dlg.show_action();
+        if (dflt){
+            genro.setData('gnr.promptDlg.promptvalue',dflt);
+        }
+
+
     },
     paletteMap:function(kw) {
         var kw = kw || {};
@@ -415,6 +421,36 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             }
         }
         return genro.addParamsToUrl(zoomUrl,urlKw); 
+    },
+
+
+
+    floatingEditor:function(sourceNode,kw){
+        var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
+        var wdg = genro.wdgById(paletteCode+'_floating');
+        if (wdg){
+            wdg.show();
+            wdg.bringToTop();
+            return;
+        }
+        genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
+        var node = genro.src.getNode(paletteCode).clearValue();
+        node.freeze();
+        var kw = kw || {};
+        var paletteAttr = {'paletteCode':paletteCode,title:'Editor',
+                            overflow:'hidden',
+                            dockTo:'dummyDock:open',
+                            width:'600px',height:'400px',
+                            maxable:true};
+        var palette = node._('palettePane',paletteCode,paletteAttr);
+        var tc = palette._('tabcontainer');
+        var editorpane = tc._('contentpane',{title:'Editor'});
+        var previewpane = tc._('contentpane',{title:'Preview'});
+        var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
+        valuepath = '^'+sourceNode.absDatapath(valuepath);
+        editorpane._('ckeditor',{value:valuepath});
+        previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
+        node.unfreeze(); 
     },
     zoomPalette:function(kw){
         var pkey = kw.pkey;

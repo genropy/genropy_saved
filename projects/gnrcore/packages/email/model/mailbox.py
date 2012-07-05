@@ -47,11 +47,11 @@ class MailboxResolver(BagResolver):
 class Table(object):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('mailbox', rowcaption='$hierarchical_name',
-                        caption_field='hierarchical_name', 
+        tbl =  pkg.table('mailbox', rowcaption='$name',
+                        caption_field='name', 
                         pkey='id', name_long='!!Mailbox', 
                         name_plural='!!Mailboxes')
-        self.sysFields(tbl) #,hierarchical='name'
+        self.sysFields(tbl,hierarchical=True) #,hierarchical='name'
         tbl.column('name',name_long='!!Name')
         tbl.column('account_id',size='22',group='_',name_long='Account id').relation('account.id', mode='foreignkey', 
                                                                                     onDelete='raise',relation_name='mailboxes')

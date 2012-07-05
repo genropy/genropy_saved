@@ -932,6 +932,13 @@ genropatches.borderContainer = function() {
 
 genropatches.tree = function() {
     dojo.require('dijit.Tree');
+    dijit.Tree.prototype._expandNode_replaced=dijit.Tree.prototype._expandNode;
+    dijit.Tree.prototype._expandNode = function(node) {
+        if(node.item && node.item._resolver && node.item._resolver.expired()){
+            node.state = 'UNCHECKED';
+        }
+        return this._expandNode_replaced(node)
+    }
     dijit._TreeNode.prototype.setLabelNode = function(label) {
         this.labelNode.innerHTML = "";
         var itemattr = this.item.attr || {};

@@ -4,14 +4,14 @@
 # Created by Francesco Porcari on 2011-06-22.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent,TableScriptToHtml
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 import re
 from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
-from gnr.core.gnrbaghtml import BagToHtml
+#from gnr.core.gnrbaghtml import BagToHtml
 import lxml.html as ht
 
 TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
@@ -36,7 +36,8 @@ class TemplateEditorBase(BaseComponent):
 
     
     def getTemplateBuilder(self, compiled=None, templates=None):
-        htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
+        tblobj = self.db.table(compiled.getItem('main?maintable'))
+        htmlbuilder = TableScriptToHtml(page=self,templates=templates, resource_table=tblobj,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.doctemplate = compiled
         htmlbuilder.virtual_columns = compiled.getItem('main?virtual_columns')
         htmlbuilder.locale = compiled.getItem('main?locale')
@@ -44,7 +45,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.masks = compiled.getItem('main?masks')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
         htmlbuilder.dtypes = compiled.getItem('main?dtypes')
-        htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
+        htmlbuilder.data_tblobj = tblobj
         return htmlbuilder
         
     def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,**kwargs):
@@ -52,6 +53,9 @@ class TemplateEditorBase(BaseComponent):
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
                                                         virtual_columns=templateBuilder.virtual_columns).output('bag')
+        else:
+            record = templateBuilder.data_tblobj.record(pkey='*sample*',ignoreMissing=True,
+                                                        virtual_columns=templateBuilder.virtual_columns).output('sample')
         if extraData:
             record.update(extraData)
         locale = locale or templateBuilder.locale
@@ -63,7 +67,7 @@ class TemplateEditorBase(BaseComponent):
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
         body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes,localizer=self.localizer),
-                            record=record,**kwargs)
+                            record=record,page_debug='silver',**kwargs)
         return body
     
     def te_compileBagForm(self,table=None,sourcebag=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
@@ -136,13 +140,13 @@ class TemplateEditorBase(BaseComponent):
         return result
 
 class TemplateEditor(TemplateEditorBase):
-    py_requires='foundation/macrowidgets:RichTextEditor,gnrcomponents/framegrid:FrameGrid'
+    py_requires='gnrcomponents/framegrid:FrameGrid'
     css_requires='public'
     @struct_method
-    def te_templateEditor(self,pane,storepath=None,maintable=None,**kwargs):
+    def te_templateEditor(self,pane,storepath=None,maintable=None,editorConstrain=None,**kwargs):
         sc = self._te_mainstack(pane,table=maintable)
         self._te_frameInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=maintable)
-        self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
+        self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit',editorConstrain=editorConstrain))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=maintable)
         #self._te_frameHelp(sc.framePane(title='!!Help',pageName='help',childname='help'))
         
@@ -152,6 +156,7 @@ class TemplateEditor(TemplateEditorBase):
         sc = pane.stackContainer(selectedPage='^.status',_anchor=True)
         sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',parametersbag='=.data.parameters',
                     datacontent='=.data.content',table=table,_if='_status=="preview"&&datacontent&&varsbag',
+                    _POST=True,
                     _status='^.status',record_id='=.preview.selected_id',templates='=.preview.html_template_name',
                     _onResult="""
                     SET .data.compiled = result.getItem('compiled').deepCopy();
@@ -281,7 +286,7 @@ class TemplateEditor(TemplateEditorBase):
 
         
         
-    def _te_frameEdit(self,frame):
+    def _te_frameEdit(self,frame,editorConstrain=None):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bc = frame.center.borderContainer(design='sidebar')
         self._te_pickers(frame.tabContainer(region='left',width='200px',splitter=True))                
@@ -292,8 +297,18 @@ class TemplateEditor(TemplateEditorBase):
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
-        self.RichTextEditor(bc.contentPane(region='center'), value='^.data.content',
-                            toolbar='standard')
+        editorConstrain = editorConstrain or dict()
+        constrain_height = editorConstrain.pop('constrain_height',False)
+        constrain_width = editorConstrain.pop('constrain_width',False)
+        bc.dataController("""SET .editor.height = letterhead_center_height?letterhead_center_height+'mm': constrain_height;
+                             SET .editor.width = letterhead_center_width?letterhead_center_width+'mm':constrain_width;
+            """,constrain_height=constrain_height,
+                constrain_width=constrain_width,
+                letterhead_center_height='^.preview.letterhead_record.center_height',
+                letterhead_center_width='^.preview.letterhead_record.center_width',
+                _init=True)
+        bc.contentPane(region='center').ckEditor(value='^.data.content',constrain_height='^.editor.height',
+                                                 constrain_width='^.editor.width',**editorConstrain)
                             
     def _te_framePreview(self,frame,table=None):
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
@@ -301,7 +316,7 @@ class TemplateEditor(TemplateEditorBase):
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
                     width='10em', hasDownArrow=True)
-        fb.dbSelect(dbtable=table, value='^.preview.selected_id',lbl='!!Record', width='12em',lbl_width='6em')
+        fb.dbSelect(dbtable=table, value='^.preview.selected_id',lbl='!!Record', width='12em',lbl_width='6em',excludeDraft=False)
         fb.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id='^.preview.selected_id',
                    templates='^.preview.html_template_name',
@@ -327,7 +342,7 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
         palette = pane.palettePane(paletteCode=paletteCode or 'template_manager',
                                     title='^.caption',
-                                    width='750px',height='500px',**kwargs)
+                                    width='750px',height='500px',maxable=True,**kwargs)
         palette.remote(self.remoteTemplateEditor,maintable=maintable)
 
     @public_method
@@ -438,18 +453,36 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,datasourcepath=None,**kwargs):
+    def te_chunkEditorPane(self,pane,table=None,resource_mode=None,paletteId=None,
+                            datasourcepath=None,showLetterhead=False,editorConstrain=None,**kwargs):
         sc = self._te_mainstack(pane,table=table)
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=table,datasourcepath=datasourcepath)
         bar = sc.info.top.bar
-        bar.replaceSlots('#','#,customres,savetpl,5')
+        bar.replaceSlots('#','#,customres,menutemplates,savetpl,5')
+        bar.menutemplates.div(_class='iconbox folder',tip='!!Copy From').menu(modifiers='*',storepath='.menu',
+                action="""var that = this;
+                          genro.serverCall('_table.adm.userobject.loadUserObject',{table:'%s',pkey:$1.pkey},function(result){
+                                that.setRelativeData('.data',result._value.deepCopy());
+                         },null,'POST');
+        """ %table,_class='smallmenu')
+        bar.dataRemote('.menu',self.te_menuTemplates,table=table,cacheTime=5)
+
         if resource_mode:
             bar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
         else:
             bar.customres.div()
         self._te_saveButton(bar.savetpl,table,paletteId)
         frameEdit = sc.framePane(title='!!Edit',pageName='edit',childname='edit')
-        self._te_frameEdit(frameEdit)
+        self._te_frameEdit(frameEdit,editorConstrain=editorConstrain)
+        if showLetterhead:
+            bar = frameEdit.top.bar.replaceSlots('parentStackButtons','parentStackButtons,letterhead_selector')
+            fb = bar.letterhead_selector.formbuilder(cols=1,border_spacing='1px')
+            if isinstance(showLetterhead,basestring):
+                fb.data('.preview.letterhead_id',showLetterhead)
+            fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
+                        lbl='!!Letterhead',width='15em', hasDownArrow=True)
+            fb.dataRecord('.preview.letterhead_record','adm.htmltemplate',pkey='^.preview.letterhead_id',_if='pkey')
+
         bar = frameEdit.top.bar
         bar.replaceSlots('#','#,savetpl,5')
         self._te_saveButton(bar.savetpl,table,paletteId)
@@ -471,17 +504,15 @@ class ChunkEditor(PaletteTemplateEditor):
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=1, border_spacing='0px',margin_top='2px')
         if not datasourcepath:
-            fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
-                    selected_name='.preview.html_template_name',lbl='!!Letterhead',
-                    width='10em', hasDownArrow=True)
-            preview_id = '.preview.selected.id'
+            fb.dbSelect(dbtable=table, value='^.preview.id',lbl='!!Record',width='15em', hasDownArrow=True)
+            preview_id = '.preview.id'
         else:
             preview_id = '%s.%s' %(datasourcepath,self.db.table(table).pkey)
         record_id = '^%s' %preview_id
         frame.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id=record_id,_status='=.status',_if='compiled && _status=="preview"',_else='return new gnr.GnrBag()',
-                   compiled='^.data.compiled')
-        frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
+                   compiled='^.data.compiled',template_id='^.preview.letterhead_id')
+        frame.center.contentPane(margin='5px').div('^.preview.renderedtemplate')
 
         
         

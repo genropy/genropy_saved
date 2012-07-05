@@ -324,15 +324,17 @@ class TableHandlerView(BaseComponent):
                         draggable_row=True,
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
-                        onDrop=""" for (var k in data){
-                                        this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
-                                   }""",
                         selfsubscribe_runbtn="""
                             if($1.modifiers=='Shift'){
                                 FIRE .#parent.showQueryCountDlg;
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
+
+                        #onDrop=""" for (var k in data){
+                        #                this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
+                        #           }""", NON USATO
+
         if virtualStore:
             chunkSize= rowsPerPage * 4
             selectionName = '*%s' %th_root

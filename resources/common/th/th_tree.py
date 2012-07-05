@@ -64,13 +64,6 @@ class TableHandlerTreeResolver(BagResolver):
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $id IN :condition_pkeys ) ) ' %(where,self.condition)
-        
-       #rows = tblobj.query(columns,where=where,
-       #                    rootpath=self.rootpath or '', order_by='$child_code',
-       #                    condition_codes=condition_codes,
-       #                    **condition_kwargs).fetch()
-
-
         q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
                          order_by='$%s' %caption_field,**condition_kwargs)
@@ -87,7 +80,7 @@ class TableHandlerTreeResolver(BagResolver):
                             child_count=child_count,pkey=pkey or '_all_',
                             parent_id=self.parent_id,
                             hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey)
+                            treeIdentifier=pkey,_record=record)
         return result
 
 class TableHandlerHierarchicalView(BaseComponent):
@@ -115,6 +108,9 @@ class TableHandlerHierarchicalView(BaseComponent):
         hviewTree.connectToStore(table=table,caption_field=caption_field)
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
+            if(pkey==null){
+                tree.widget.setSelectedPath(null,{value:'root'});
+            }
             if(!pkey || pkey=='*newrecord*'){
                 return;
             }
@@ -136,27 +132,30 @@ class TableHandlerHierarchicalView(BaseComponent):
     
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,**kwargs):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
+        caption = caption or tblobj.name_plural
         if not condition:
             b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-            pane.data(storepath,b,childname='store',caption=tblobj.name_plural,table=table) 
+            pane.data(storepath,b,childname='store',caption=caption,table=table) 
         else:
             pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
-                        childname='store',caption=tblobj.name_plural,
+                        childname='store',caption=caption,
                         **kwargs)
 
+
     @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,**kwargs):
+    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,caption=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
+        caption = caption or tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
         return b
 
     @struct_method
@@ -168,7 +167,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,into_pkey:into_pkey},
                                                 function(result){
                                                 });""" %table
-        treeattr['dropTargetCb']="""return this.form.isDisabled()?false:THTree.dropTargetCb(this,dropInfo);"""  
+        treeattr['dropTargetCb']="""return this.form.locked?false:THTree.dropTargetCb(this,dropInfo);"""  
         tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
         
     @struct_method
@@ -179,7 +178,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         tree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             draggable=True,childname='htree',
                             onDrag="""var sn = dragInfo.sourceNode;
-                                      if(sn.form.isNewRecord() || sn.form.isDisabled()){return false;}""", 
+                                      if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                             selectedLabelClass='selectedTreeNode',
                             labelAttribute='caption',
                             dropTarget=True,
@@ -366,8 +365,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         }
                                         pkeys.push(pkey);
                                     });
-                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.isDisabled()){
-                                        console.log(sourceNode.attr.trashId,dojo.byId(sourceNode.attr.trashId))
+                                    if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.locked ){
                                         dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
                                     }
                                     dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
@@ -377,7 +375,10 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
-        treeattr['dropTargetCb_%s' %dragCode]="""return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;"""  
+        treeattr['dropTargetCb_%s' %dragCode]="""if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
+                                                    return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;
+                                                }return true;
+                                                """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
                                                 genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,

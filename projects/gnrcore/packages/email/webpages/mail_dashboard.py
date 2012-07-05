@@ -7,44 +7,34 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='email.mailbox'
     css_requires='emailstyles'
-    py_requires="""public:Public,th/th:TableHandler,th/th_tree:TableHandlerTree"""  
+    py_requires="""public:Public,th/th:TableHandler"""  
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
         
-    def windowTitle(self):
-        return '!!Email Dashboard'
-    
+
     def main(self, root, **kwargs):
-        framebc = root.rootBorderContainer(datapath='main',_class='hideSplitter')
-        self.maildashboard_left(framebc.framePane(region='left',width='220px',margin='2px',datapath='.configuration',_class='pbl_roundedGroup',splitter=True))
-        self.maildashboard_center(framebc.borderContainer(region='center',margin='2px',datapath='.messages'))
+        framebc = root.rootBorderContainer(datapath='main',title='Mail dasboard')
+        self.maildashboard_left(framebc.framePane(region='left',width='220px',datapath='.configuration',splitter=True,border_right='1px solid silver'))
+        self.maildashboard_center(framebc.borderContainer(region='center',datapath='.messages'))
 
     def maildashboard_center(self,bc):
-        bottom = bc.contentPane(region='bottom',height='50%',margin='2px',
-                                nodeId='messageBodyBox',splitter=True,datapath='.current').div('^.body')
-        center = bc.contentPane(region='center',margin='2px')
-        th = center.plainTableHandler(table='email.message',
+        top = bc.contentPane(region='top',height='50%',splitter=True)
+        th = top.plainTableHandler(table='email.message',
                                 condition='$mailbox_id=:m_id OR @message_mailboxes.mailbox_id=:m_id',
-                                condition_m_id='=#mailBoxTree.tree.mailbox_id',
-                                viewResource=':ViewFromDashboard',
-                                grid_selected_body='#messageBodyBox.body',
-                                #formResource=':FormFromDashboard',
-                                grid_autoSelect=True,
-                                virtualStore=True,extendedQuery=True,
-                                grid_dragTags='message_row',
-                                grid_rowCustomClassesCb="""function(row){
-                                                        return (this._curr_mailbox_id && row['mailbox_id']!=this._curr_mailbox_id)? 'email_message_alias':null;
-                                                    }""",
-                                grid_subscribe_curr_mailbox_id='this.widget._curr_mailbox_id=$1')
-        bar = th.view.top.bar.replaceSlots('#','5,queryfb,runbtn,queryMenu,*,receivebtn')
+                                condition_m_id='^#mailBoxTree.tree.mailbox_id',
+                                nodeId='messageth',
+                                viewResource=':ViewFromDashboard')
+        bar = th.view.top.bar.replaceSlots('#','#,receivebtn')
         bar.receivebtn.slotButton('Check',action='PUBLISH check_email;',disabled='^#mailBoxTree.tree.account_id?=!#v')
         
         th.view.dataController("PUBLISH curr_mailbox_id=curr_mailbox_id;",curr_mailbox_id="^#mailBoxTree.tree.mailbox_id")
 
-        center.dataController("""grid.publish('runbtn',{"modifiers":null});""",
+        top.dataController("""grid.publish('runbtn',{"modifiers":null});""",
                         _fired="^#mailBoxTree.tree.mailbox_id",grid=th.view.grid)
-        center.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, 
-                            account='=#mailBoxTree.tree.account_id')
+        top.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, 
+                            account='=#mailBoxTree.tree.account_id',_POST=True)
+        bc.contentPane(region='center',border_top='1px solid silver',splitter=True,padding='10px').div('^.current.record.body')
+        bc.dataRecord('.current.record','email.message',pkey='^#messageth.view.grid.selectedId',_if='pkey')
 
 
     def maildashboard_left(self,frame):

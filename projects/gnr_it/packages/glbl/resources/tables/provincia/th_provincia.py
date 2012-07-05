@@ -43,10 +43,12 @@ class EditableView(View):
         #r.fieldcell('dimensione',width='10em',edit=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
         r.cell('lunghezzapippo',calculated=True,formula='pippo.length/3',dtype='N',format_pattern='#0.00')
+        
+    def th_order(self):
+        return 'nome'
        #
-        r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
-                formula_zona='^#FORM.record.zona',hidden='^piero',edit=True)
-        r.cell('datadistruzione',dtype='D',edit=dict(tag='dateTextBox'),calculated=True)
+       #r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
+       #        formula_zona='^#FORM.record.zona',hidden='^piero',edit=True)
        #
        #r.fieldcell('regione',width='8em',name='Regione',edit=dict(condition='$zona=:miazona',hasDownArrow=True,
        #                                                            condition_miazona='^.miazonaregione'))

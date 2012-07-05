@@ -56,14 +56,30 @@ class ViewFromDashboard(View):
         r.fieldcell('to_address',width='12em')
         r.fieldcell('from_address',width='12em')
         r.fieldcell('subject',width='100%')
-        r.fieldcell('body',hidden=True)
         r.fieldcell('account_id',hidden=True)
         r.fieldcell('mailbox_id',hidden=True)
 
     def th_order(self):
-        return 'send_date desc'
+        return 'send_date:d'
 
-class FormFromDashboard(BaseComponent):
+class Form(BaseComponent):
+    def th_form(self, form):
+        fb = form.record.formbuilder(cols=2,border_spacing='3px')
+        fb.field('to_address',width='7em')
+        fb.field('from_address',width='7em')
+        fb.field('cc_address',width='7em')
+        fb.field('bcc_address',width='7em')
+        fb.field('uid',width='7em')
+        fb.field('body',width='7em')
+        fb.field('body_plain',width='7em')
+        fb.field('html',width='7em')
+        fb.field('subject',width='7em')
+        fb.field('send_date',width='7em')
+        fb.field('sent',width='7em')
+        fb.field('user_id',width='35em')
+        fb.field('account_id',width='35em')
+
+class FormFromDashboard(Form):
 
     def th_form(self, form):
         pane = form.record

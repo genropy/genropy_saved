@@ -234,9 +234,13 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         if(mainpkey==this.mainpkey){
             return;
         }
-        window.parent.genro.publish('destroyFrames',this.pages_dict);
+        this.destroyPages();
+    },
+    destroyPages:function(){
+        genro.mainGenroWindow.genro.publish('destroyFrames',this.pages_dict);
         this.pages_dict = {};
     }
+
 });
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){

@@ -25,6 +25,7 @@
 
 import os,sys
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrstring import  splitAndStrip, slugify
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
@@ -197,8 +198,7 @@ class TableScriptToHtml(BagToHtml):
         if not pdf:
             return html
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
-        self.pdfpath = self.getPdfPath('%s.pdf' % docname, autocreate=-1)
-        self.print_handler.htmlToPdf(self.filepath, self.pdfpath, orientation=self.orientation())
+        self.writePdf(docname)
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -207,6 +207,17 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
+
+    @extract_kwargs(pdf=True)
+    def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
+        self.pdfpath = self.getPdfPath('%s.pdf' % docname, autocreate=-1)
+        pdf_pref = self.page.getPreference('.pdf_render',pkg='sys')
+        if pdf_pref:
+            pdf_pref = pdf_pref.asDict(ascii=True)
+            pdf_kwargs = pdf_kwargs or dict()
+            pdf_pref.update(pdf_kwargs)
+            pdf_kwargs = pdf_pref
+        self.print_handler.htmlToPdf(filepath or self.filepath, pdfpath or self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
 
     def get_css_requires(self):
         """TODO"""

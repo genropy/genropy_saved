@@ -111,7 +111,7 @@ class ResourceLoader(object):
             self._sitemap = _sitemap
         return self._sitemap
         
-    def get_page_node(self, path_list, default=False):
+    def get_page_node(self, path_list, default_path=None):
         """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
         
         :param path_list: TODO
@@ -136,8 +136,8 @@ class ResourceLoader(object):
                     if page_node_attributes.get('path'):
                         page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
                         return page_node, page_node_attributes
-        if self.default_path and not default:
-            page_node, page_node_attributes = self.get_page_node(self.default_path, default=True)
+        if not page_node and default_path:
+            page_node, page_node_attributes = self.get_page_node(default_path)
             if page_node:
                 page_node._tail_list =  unescape_path_list(path_list)
             return page_node, page_node_attributes
@@ -149,7 +149,7 @@ class ResourceLoader(object):
         if mobile:
             page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
         if not page_node:
-            page_node, page_node_attributes = self.get_page_node(path_list)
+            page_node, page_node_attributes = self.get_page_node(path_list, default_path=self.default_path)
         if not page_node:
             return None
         request_args = page_node._tail_list
