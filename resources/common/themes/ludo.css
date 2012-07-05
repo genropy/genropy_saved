@@ -882,6 +882,7 @@
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
     border: 1px solid #666;
     cursor:pointer;
+    margin-top:2px;
 }
 
 .buttons_grid .dojoxGrid-row-selected .cellContent{
