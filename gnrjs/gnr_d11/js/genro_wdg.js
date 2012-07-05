@@ -980,11 +980,13 @@ dojo.declare("gnr.GridEditor", null, {
             rowEditor = this.newRowEditor(rowNode);
         }
         for(var k in updkw){
-            var rowData = rowEditor.data;
-            if(rowData.index(k)<0){
-                rowData.setItem(k,rowNode.attr[k],{_loadedValue:rowNode.attr[k]});
+            if(k in this.grid.cellmap){
+                var rowData = rowEditor.data;
+                if(rowData.index(k)<0){
+                    rowData.setItem(k,rowNode.attr[k],{_loadedValue:rowNode.attr[k]});
+                }
+                rowData.setItem(k,updkw[k]);
             }
-            rowData.setItem(k,updkw[k]);
         }
         this.updateStatus();
     },
