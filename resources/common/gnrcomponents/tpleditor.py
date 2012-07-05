@@ -297,6 +297,7 @@ class TemplateEditor(TemplateEditorBase):
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        editorConstrain = editorConstrain or dict()
         constrain_height = editorConstrain.pop('constrain_height',None)
         constrain_width = editorConstrain.pop('constrain_width',None)
         bc.dataController("""SET .editor.height = letterhead_center_height?letterhead_center_height+'mm': constrain_height;
