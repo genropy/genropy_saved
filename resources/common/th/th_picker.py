@@ -21,8 +21,9 @@ class THPicker(BaseComponent):
         condition_kwargs=dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         
         many = relation_field or picker_kwargs.get('relation_field',None)
+        table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height')
-        width = width or picker_kwargs.get('height')
+        width = width or picker_kwargs.get('width')
         autoInsert = autoInsert or picker_kwargs.get('autoInsert')
         if autoInsert is None:
             autoInsert = True
@@ -36,14 +37,17 @@ class THPicker(BaseComponent):
             maintable = grid.getInheritedAttributes()['table']
             if not table:
                 tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
-                table = tblobj.fullname
-            formNode = pane.parentNode.attributeOwnerNode('formId')
-            if formNode:
-                formtblobj = self.db.table(formNode.attr.get('table'))
-                oneJoiner = formtblobj.model.getJoiner(maintable)
-                one = oneJoiner.get('many_relation').split('.')[-1]                
+                table = tblobj.fullname  
+            else:
+                tblobj = self.db.table(table) 
         elif table:
             tblobj = self.db.table(table)
+        formNode = pane.parentNode.attributeOwnerNode('formId')
+        if formNode:
+            formtblobj = self.db.table(formNode.attr.get('table'))
+            oneJoiner = formtblobj.model.getJoiner(maintable)
+            one = oneJoiner.get('many_relation').split('.')[-1]  
+
         paletteCode = paletteCode or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
         oldtreePicker = hasattr(tblobj,'htableFields') and not viewResource
