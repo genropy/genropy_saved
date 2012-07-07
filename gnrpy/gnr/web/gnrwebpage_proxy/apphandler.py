@@ -994,7 +994,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
         if inserted:
             for k,r in inserted.items():
-                print 'insert nominativo' ,r
                 tblobj.insert(r)
                 insertedRecords[k] = r[pkeyfield]
         if deletedNode:

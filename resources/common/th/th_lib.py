@@ -25,10 +25,11 @@ class TableHandlerCommon(BaseComponent):
         if default_kwargs is None:
             default_kwargs = dict()
         #relation_attr = self.db.table(maintable).model.getRelation(relation)
-        relation_attr = self.db.table(maintable).model.relations.getAttr(relation, 'joiner')
+        tblrel = self.db.table(maintable)
+        relation_attr = tblrel.model.relations.getAttr(relation, 'joiner')
         many = relation_attr['many_relation'].split('.')
         if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
-            original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name'),field=relation_attr['many_relation'].split('.')[-1])
+            original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
         fkey = many.pop()
         table = str('.'.join(many))
         fkey = str(fkey)

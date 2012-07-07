@@ -40,13 +40,10 @@ class FormConProvince(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('zona')
         fb.checkbox(value='^piero')
-        fb.textbox(value='^testnome')
-        fb.dateTextBox(value='^xxx')
 
-        fb.data('testnome','Nome Provincia')
         th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                               viewResource=':EditableView',autoSave=True,searchOn=False,
-                                                                statusColumn=True,semaphore=False,configurable=True)
+                                                               viewResource=':EditableView',autoSave=True,searchOn=False ,
+                                                                )
                                                                 
 class View(BaseComponent):
     
