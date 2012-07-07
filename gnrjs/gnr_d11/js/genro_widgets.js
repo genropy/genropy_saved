@@ -6400,7 +6400,11 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             if(src != domnode.getAttribute('src')){
                 domnode.setAttribute('src',src);
             }
-            var currStyle=objectFromStyle(domnode.style.cssText)
+            var currStyle=objectFromStyle(domnode.style.cssText);
+            if('cr_height' in sourceNode.attr){
+                objectPop(currStyle,'height');
+                objectPop(currStyle,'width');
+            }
             var newStyle=genro.dom.getStyleDict(kwimg['styledict'])
             var style = objectAsStyle(objectUpdate(currStyle,newStyle));
             domnode.setAttribute('style',style);

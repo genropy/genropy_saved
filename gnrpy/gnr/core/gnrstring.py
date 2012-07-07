@@ -49,7 +49,8 @@ try:
     
     class LocalizedWrapper(object):
 
-        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None,dtypes=None, localizer=None,noneIsBlank=None):
+        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None,dtypes=None,
+                         localizer=None,urlformatter=None,noneIsBlank=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
@@ -59,6 +60,7 @@ try:
             self.noneIsBlank=noneIsBlank
             self.isBag = hasattr(self.data, '_htraverse')
             self.localizer = localizer
+            self.urlformatter = urlformatter
             self.dtypes = dtypes or dict()
 
         def __getitem__(self,k):
@@ -106,7 +108,8 @@ try:
             format = self.formats.get(as_name) or format
             mask = self.masks.get(as_name) or mask
             dtype = self.dtypes.get(as_name)
-            
+            if dtype =='P' and self.urlformatter:
+                value = self.urlformatter(value)
             if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
                 value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
@@ -402,7 +405,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,dtypes=None,masks=None,df_templates=None,localizer=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,urlformatter=None):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -428,7 +431,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,df_templates=df_templates,localizer=localizer)
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,df_templates=df_templates,localizer=localizer,urlformatter=urlformatter)
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:
