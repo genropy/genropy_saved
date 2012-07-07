@@ -169,6 +169,8 @@ class TableScriptToHtml(BagToHtml):
     """TODO"""
     rows_table = None
     virtual_columns = None
+    html_folder = 'page:html'
+    pdf_folder = 'page:pdf'
         
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -198,7 +200,7 @@ class TableScriptToHtml(BagToHtml):
         if not pdf:
             return html
         docname = os.path.splitext(os.path.basename(self.filepath))[0]
-        self.writePdf(docname)
+        self.writePdf(docname=docname)
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -210,14 +212,14 @@ class TableScriptToHtml(BagToHtml):
 
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
-        self.pdfpath = self.getPdfPath('%s.pdf' % docname, autocreate=-1)
+        self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
         pdf_pref = self.page.getPreference('.pdf_render',pkg='sys')
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
             pdf_kwargs = pdf_kwargs or dict()
             pdf_pref.update(pdf_kwargs)
             pdf_kwargs = pdf_pref
-        self.print_handler.htmlToPdf(filepath or self.filepath, pdfpath or self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
+        self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
 
     def get_css_requires(self):
         """TODO"""
@@ -244,19 +246,19 @@ class TableScriptToHtml(BagToHtml):
         
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticPath('page:html', *args, **kwargs)
+        return self.page.site.getStaticPath(self.html_folder, *args, **kwargs)
         
     def getPdfPath(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticPath('page:pdf', *args, **kwargs)
+        return self.page.site.getStaticPath(self.pdf_folder, *args, **kwargs)
         
     def getHtmlUrl(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticUrl('page:html', *args, **kwargs)
+        return self.page.site.getStaticUrl(self.html_folder, *args, **kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticUrl('page:pdf', *args, **kwargs)
+        return self.page.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
         
     def outputDocName(self, ext=''):
         """TODO

@@ -421,14 +421,20 @@ class SqlTable(GnrObject):
         else:
             return record
 
-    def duplicateRecord(self,recordOrKey):
+    def duplicateRecord(self,recordOrKey, howmany=1):
+        duplicatedRecords=[]
         record = self.recordAs(recordOrKey,mode='dict')
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
-            if obj.attributes.get('_sysfield') and colname!='parent_id':
+            if obj.attributes.get('unique') or (obj.attributes.get('_sysfield') and colname!='parent_id'):
                 record.pop(colname,None)
-        self.insert(record)
-        newpkey = record[self.pkey]
+        if hasattr(self,'onDuplicating'):
+            self.onDuplicating(record)
+        for i in range(howmany):
+            r=dict(record)
+            self.insert(r)
+            duplicatedRecords.append(r)
+            
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
@@ -437,11 +443,12 @@ class SqlTable(GnrObject):
                 subtable ='.'.join(rellist[:-1])
                 manytable = self.db.table(subtable)
                 rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False).fetch()
-                for r in rows:
-                    r = dict(r)
-                    r[fkey] = newpkey
-                    manytable.duplicateRecord(r)
-        return record
+                for dupRec in duplicatedRecords:
+                    for r in rows:
+                        r = dict(r)
+                        r[fkey] = dupRec[self.pkey]
+                        manytable.duplicateRecord(r)
+        return duplicatedRecords[0] if howmany==1 else duplicatedRecords
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
