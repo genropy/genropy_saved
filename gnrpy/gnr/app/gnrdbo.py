@@ -250,19 +250,22 @@ class TableBase(object):
                 self.update(new_row, row)
 
     def trigger_setCounter(self,record,fldname,**kwargs):
-        if record['_row_count'] is not None:
+        if record.get('_row_count') is not None:
             return
         fldlist = self.column('_row_count').attributes.get('_counter_fkey').split(',')
         where = []
         wherekw = dict()
         cols = []
         for f in fldlist:
-            where.append('$%s=:p_%s' %(f,f))
-            wherekw['p_%s' %f] = record[f]
-            cols.append('$%s' %f)
-        last_counter = self.readColumns(columns='$%s' %fldname,where=' OR '.join(where),
+            if record.get(f):
+                where.append('$%s=:p_%s' %(f,f))
+                wherekw['p_%s' %f] = record[f]
+                cols.append('$%s' %f)
+                break
+        if cols:
+            last_counter = self.readColumns(columns='$%s' %fldname,where=' OR '.join(where),
                                         order_by='$%s desc' %fldname,limit=1,**wherekw)
-        record[fldname] = (last_counter or 0)+1
+            record[fldname] = (last_counter or 0)+1
         
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
