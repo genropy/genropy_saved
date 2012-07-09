@@ -83,7 +83,7 @@ var THTree = {
     },
 
     onPickerDrop:function(sourceNode,data,dropInfo,kw){
-        if(sourceNode.form.isDisabled()){
+        if(sourceNode.form.isNewRecord() || sourceNode.form.locked ){
             return false;
         }
         var types = [];
@@ -95,7 +95,8 @@ var THTree = {
             var onResult = function(result){
                 sourceNode.setRelativeData('.tree.path','_root_.'+result);
             }
-            var cb= function(count){
+            var cb = objectPop(kw,'customCb');
+            cb = cb || function(count){
                 genro.serverCall('ht_htreeCreateChildren',{types:types,parent_id:dropInfo.treeItem.attr.pkey,
                                 type_field:kw.type_field,maintable:kw.maintable,typetable:kw.typetable,how_many:count},onResult,null,'POST');
             }

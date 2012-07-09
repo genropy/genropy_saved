@@ -1036,9 +1036,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             return ('delete_error', {'msg': e.message})
 
     @public_method
-    def duplicateRecord(self,pkey=None,table=None):
+    def duplicateRecord(self,pkey=None,table=None,**kwargs):
         tblobj = self.db.table(table)
-        record = tblobj.duplicateRecord(pkey)
+        record = tblobj.duplicateRecord(pkey,**kwargs)
         self.db.commit()
         return record['id']
         

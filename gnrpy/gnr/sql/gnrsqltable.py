@@ -421,8 +421,9 @@ class SqlTable(GnrObject):
         else:
             return record
 
-    def duplicateRecord(self,recordOrKey, howmany=1):
+    def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
+        howmany = howmany or 1
         record = self.recordAs(recordOrKey,mode='dict')
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
@@ -432,9 +433,13 @@ class SqlTable(GnrObject):
             self.onDuplicating(record)
         for i in range(howmany):
             r=dict(record)
-            self.insert(r)
+            r.update(kwargs)
+            if destination_store:
+                with self.db.tempEnv(storename=destination_store):
+                    self.insert(r)
+            else:
+                self.insert(r)
             duplicatedRecords.append(r)
-            
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
@@ -447,7 +452,7 @@ class SqlTable(GnrObject):
                     for r in rows:
                         r = dict(r)
                         r[fkey] = dupRec[self.pkey]
-                        manytable.duplicateRecord(r)
+                        manytable.duplicateRecord(r,destination_store=destination_store)
         return duplicatedRecords[0] if howmany==1 else duplicatedRecords
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
@@ -528,7 +533,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
-                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=None,
+                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
                          **kwargs)
         return query
             
