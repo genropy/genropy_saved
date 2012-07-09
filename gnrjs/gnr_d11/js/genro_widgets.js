@@ -2978,7 +2978,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var bagnodes = struct.getNodes();
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
-            var gridEditor = sourceNode.widget?sourceNode.widget.gridEditor:false;
+            var editorPars = sourceNode.attr.gridEditor;
             for (var i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 view = objectUpdate({}, viewnode.attr);
@@ -3001,7 +3001,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             'field':'_edit_record','name':' '};
                         rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false});
                     }
-                    if(gridEditor && gridEditor.editorPars && gridEditor.editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
+                    if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
                         if(!rowBag.getNode('_rowEditorStatus')){
                             rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'3em',
                                                                 field:'_rowEditorStatus',
@@ -6400,7 +6400,11 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             if(src != domnode.getAttribute('src')){
                 domnode.setAttribute('src',src);
             }
-            var currStyle=objectFromStyle(domnode.style.cssText)
+            var currStyle=objectFromStyle(domnode.style.cssText);
+            if('cr_height' in sourceNode.attr){
+                objectPop(currStyle,'height');
+                objectPop(currStyle,'width');
+            }
             var newStyle=genro.dom.getStyleDict(kwimg['styledict'])
             var style = objectAsStyle(objectUpdate(currStyle,newStyle));
             domnode.setAttribute('style',style);

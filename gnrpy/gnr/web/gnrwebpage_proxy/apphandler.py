@@ -601,6 +601,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 wasInSelection = bool(filter(lambda r: r['pkey'] in pkeys,selection.data))
                 if dbevent=='D' and not wasInSelection:
                     continue
+                kwargs.pop('columns',None)
                 willBeInSelection = bool(tblobj.query(where=where,_pkeys=pkeys,limit=1,**kwargs).fetch())
                 if dbevent=='I' and not willBeInSelection:
                     continue
@@ -994,7 +995,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
         if inserted:
             for k,r in inserted.items():
-                print 'insert nominativo' ,r
                 tblobj.insert(r)
                 insertedRecords[k] = r[pkeyfield]
         if deletedNode:

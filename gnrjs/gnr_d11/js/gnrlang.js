@@ -1019,7 +1019,7 @@ function convertToText(value, params) {
             if (value == parseInt(v)) {
                 result = ['L', v];
             } else {
-                result = ['R', v];
+                result = ['N', v];
             }
         }
     }

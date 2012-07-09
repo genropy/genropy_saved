@@ -43,8 +43,9 @@ class Main(BaseResourcePrint):
                                     locale=self.page.locale,
                                     formats=self.compiledTemplate.getItem('main?formats'),
                                     masks=self.compiledTemplate.getItem('main?masks'),
-                                    localizer=self.page.localizer)
-                                    
+                                    dtypes=  self.compiledTemplate.getItem('main?dtypes'),
+                                    localizer=self.page.localizer,
+                                    urlformatter=self.page.externalUrl)
         result = self.htmlMaker(htmlContent=htmlContent,
                                 filename='%s.html' %record['id'],
                                 record=record, thermo=thermo, pdf=self.pdf_make,

@@ -66,7 +66,10 @@ class TemplateEditorBase(BaseComponent):
 
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes,localizer=self.localizer),
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, 
+                                                            formats=formats,masks=masks,df_templates=df_templates,
+                                                            dtypes=dtypes,localizer=self.localizer,
+                                                            urlformatter=self.externalUrl),
                             record=record,page_debug='silver',**kwargs)
         return body
     
@@ -77,7 +80,7 @@ class TemplateEditorBase(BaseComponent):
             varsdict[varname] = '$%s' %fieldpath
         for k,v in sourcebag.items():
             if v:
-                result[k] = templateReplace(v, varsdict, True,False)
+                result[k] = templateReplace(v, varsdict, True,False,urlformatter=self.externalUrl)
         return result
             
         
