@@ -601,6 +601,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 wasInSelection = bool(filter(lambda r: r['pkey'] in pkeys,selection.data))
                 if dbevent=='D' and not wasInSelection:
                     continue
+                kwargs.pop('columns',None)
                 willBeInSelection = bool(tblobj.query(where=where,_pkeys=pkeys,limit=1,**kwargs).fetch())
                 if dbevent=='I' and not willBeInSelection:
                     continue
