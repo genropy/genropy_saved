@@ -24,15 +24,15 @@ class THPicker(BaseComponent):
         table = table or picker_kwargs.get('table',None)
         height = height or picker_kwargs.get('height')
         width = width or picker_kwargs.get('width')
-        autoInsert = autoInsert or picker_kwargs.get('autoInsert')
         if autoInsert is None:
-            autoInsert = True
+            autoInsert = picker_kwargs.get('autoInsert',True)
         title = title or picker_kwargs.get('title')
         viewResource = viewResource or picker_kwargs.get('viewResource')
         if viewResource is True:
             viewResource = ':ViewPicker'
         searchOn = searchOn or picker_kwargs.get('searchOn')
         paletteCode = paletteCode or picker_kwargs.get('paletteCode')
+        maintable = None
         if grid:
             maintable = grid.getInheritedAttributes()['table']
             if not table:
@@ -42,12 +42,6 @@ class THPicker(BaseComponent):
                 tblobj = self.db.table(table) 
         elif table:
             tblobj = self.db.table(table)
-        formNode = pane.parentNode.attributeOwnerNode('formId')
-        if formNode:
-            formtblobj = self.db.table(formNode.attr.get('table'))
-            oneJoiner = formtblobj.model.getJoiner(maintable)
-            one = oneJoiner.get('many_relation').split('.')[-1]  
-
         paletteCode = paletteCode or '%s_picker' %table.replace('.','_')
         title = title or tblobj.name_long
         oldtreePicker = hasattr(tblobj,'htableFields') and not viewResource
@@ -84,6 +78,11 @@ class THPicker(BaseComponent):
             grid.dragAndDrop(paletteCode)
             if autoInsert:
                 method = getattr(tblobj,'insertPicker',self._th_insertPicker)
+                formNode = pane.parentNode.attributeOwnerNode('formId')
+                if formNode:
+                    formtblobj = self.db.table(formNode.attr.get('table'))
+                    oneJoiner = formtblobj.model.getJoiner(maintable)
+                    one = oneJoiner.get('many_relation').split('.')[-1]  
                 grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
                     if(treepicker){
