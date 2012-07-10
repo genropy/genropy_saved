@@ -34,7 +34,7 @@ class Table(object):
         self.savePreference(record)
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):
-        with self.db.tempEnv(connectionName='system'):
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             try:
                 record = self.record(pkey=pkey, for_update=for_update).output('bag')
             except RecordNotExistingError:
@@ -42,6 +42,6 @@ class Table(object):
         return record
 
     def savePreference(self, record):
-        with self.db.tempEnv(connectionName='system'):
+        with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             self.insertOrUpdate(record)
             self.db.commit()
