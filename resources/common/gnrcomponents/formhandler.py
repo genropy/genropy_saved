@@ -58,12 +58,12 @@ class FormHandler(BaseComponent):
         attachTo = attachTo or pane
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
-        if dialog_kwargs:
-            handlerType = 'dialog'
-        elif palette_kwargs:
-            handlerType = 'palette'
-        else:
-            handlerType = pane.getInheritedAttributes().get('handlerType')
+        handlerType = form_kwargs.get('handlerType') or pane.getInheritedAttributes().get('handlerType')
+        if not handlerType:
+            if dialog_kwargs:
+                handlerType = 'dialog'
+            elif palette_kwargs:
+                handlerType = 'palette'
         if formRoot:
             if form_kwargs.get('pageName'):
                 formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'

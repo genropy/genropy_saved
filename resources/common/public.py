@@ -344,7 +344,6 @@ class TableHandlerMain(BaseComponent):
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
             viewbar.captioslot.publicRoot_captionslot()
 
-
         storeupd = dict(startLocked=lockable)
         if not extendedQuery:
             storeupd['_onStart'] = True
@@ -388,14 +387,7 @@ class TableHandlerMain(BaseComponent):
                     th.view.top.bar.replaceSlots('searchOn','')
                     th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
             else:
-                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
-    
-  # @struct_method
-  # def public_publicRoot_caption(self,pane,title='',**kwargs):  
-  #     if title:
-  #         pane.data('gnr.publicTitle',title) 
-  #     pane.div('^gnr.publicTitle', _class='pbl_title_caption',
-  #                 draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)           
+                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)        
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
