@@ -108,7 +108,7 @@ class TableHandler(BaseComponent):
                             formInIframe=False,dialog_kwargs=None,default_kwargs=None,readOnly=False,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,handlerType='dialog',
-                                        tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)     
+                                        tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
                                form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formInIframe=formInIframe,
                                formResource=formResource,default_kwargs=default_kwargs,readOnly=readOnly)     

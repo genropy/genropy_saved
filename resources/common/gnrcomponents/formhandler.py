@@ -58,6 +58,8 @@ class FormHandler(BaseComponent):
         attachTo = attachTo or pane
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
+        onChangedTitle = 'subscribe_form_%s_onChangedTitle' %formId
+
         handlerType = form_kwargs.get('handlerType') or pane.getInheritedAttributes().get('handlerType')
         if not handlerType:
             if dialog_kwargs:
@@ -77,7 +79,8 @@ class FormHandler(BaseComponent):
             if 'width' in dialog_kwargs:
                 form_kwargs['width'] = dialog_kwargs.pop('width','600px')
             dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
-            dialog_kwargs['title'] = dialog_kwargs.get('title','^.form.controller.title')
+            #dialog_kwargs['title'] = dialog_kwargs.get('title','^.form.controller.title')
+            dialog_kwargs[onChangedTitle] = "this.widget.setTitle($1.title);"
             dialog_kwargs[loadSubscriber] = "this.widget.show();"
             dialog_kwargs[closeSubscriber] = "this.widget.hide();"
             dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
@@ -87,8 +90,8 @@ class FormHandler(BaseComponent):
                 palette_kwargs['datapath'] = datapath
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
+            palette_kwargs[onChangedTitle] = "this.widget.setTitle($1.title);"
             palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
-            palette_kwargs['title'] = palette_kwargs.get('title','^.form.controller.title')
             dialog_kwargs['selfsubscribe_close'] = """genro.formById('%s').dismiss($1.modifiers);
                                                             """ %formId
             formRoot = attachTo.palette(**palette_kwargs)
