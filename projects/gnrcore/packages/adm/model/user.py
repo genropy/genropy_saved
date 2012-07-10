@@ -59,8 +59,9 @@ class Table(object):
     def setPreference(self, path='', data='', pkg='', username=''):
         with self.db.tempEnv(connectionName='system'):
             record = self.loadRecord(username, for_update=True)
+            old_record = self.recordAs(record,'dict')
             record['preferences.%s.%s' % (pkg, path)] = data
-            self.update(record)
+            self.update(record,old_record=old_record)
             self.db.commit()
 
     def loadRecord(self, username, for_update=False):

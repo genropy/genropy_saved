@@ -17,6 +17,32 @@ var th_view_batch_caller = function(kw){
     genro.publish("table_script_run",kw);
 }
 
+var th_usersettings = function(th){
+    var attr = th.attr;
+    var formResource = attr.th_formResource;
+    var viewResource = attr.th_viewResource;
+    var table = attr.table;
+    var key = (table+'/'+formResource).replace(/\:/g, '_').replace(/\./g, '_');
+    var dlg = genro.dlg.quickDialog('User setting',{width:'300px'});
+    dlg.center._('div',{remote:'th_userSetting',remote_thkey:key,height:'200px'});
+
+    var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
+                                                dlg.close_action();
+                                                if(this.attr.command=='confirm'){
+                                                    var data = genro.getData('gnr.thpref.'+key);
+                                                    genro.serverCall('th_saveUserSetting',{data:data,thkey:key},function(){
+                                                        genro.pageReload();
+                                                    },null,'POST');
+                                                }
+                                            }});
+    bar._('button','cancel',{'label':'Cancel',command:'cancel'});
+    bar._('button','confirm',{'label':'Confirm',command:'confirm'});
+
+
+
+
+    dlg.show_action()
+};
 dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){
         var table = objectPop(kw,'table');
