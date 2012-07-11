@@ -154,7 +154,15 @@ class FormHandler(BaseComponent):
         
     @struct_method               
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
-        pane.div(_class='fh_semaphore')
+        pane.div(_class='fh_semaphore',connect_onclick="""
+            if(genro.dom.getEventModifiers($1)=='Shift'){
+                if(this.form.status=='readOnly'){
+                    objectPop(this.form.getDataNodeAttributes(),'_protect_write');
+                    this.form.updateStatus();
+                    this.form.applyDisabledStatus();
+                }
+            }
+            """)
     
     @struct_method          
     def fh_slotbar_form_formcommands(self,pane,**kwargs):
@@ -259,8 +267,9 @@ class FormHandler(BaseComponent):
     @struct_method 
     def fh_slotbar_form_locker(self,pane,**kwargs):
         pane.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
-                    action='this.form.publish("setLocked","toggle");',disabled='==_pw||_pd||(_changed && !this.form.isDisabled())',
-                    _pw='^#FORM.record?_protect_write',_pd='^#FORM.record?_protect_write',
+                    action='this.form.publish("setLocked","toggle");',
+                    disabled='==_pw||_pd||(_changed && !this.form.isDisabled())',
+                    _pw='^#FORM.record?_protect_write',_pd='^#FORM.record?_protect_delete',
                     _changed='^#FORM.controller.changed',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'iconbox lock':'iconbox unlock');""",
