@@ -1040,7 +1040,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj = self.db.table(table)
         record = tblobj.duplicateRecord(pkey,**kwargs)
         self.db.commit()
-        return record['id']
+        return record[tblobj.pkey]
         
     @public_method
     @extract_kwargs(default=True,sample=True)

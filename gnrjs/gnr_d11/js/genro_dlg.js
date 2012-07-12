@@ -278,7 +278,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
         }
         var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
-        fb.addField(wdg,{value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'});
+        fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
         dlg.show_action();
         if (dflt){
             genro.setData('gnr.promptDlg.promptvalue',dflt);
