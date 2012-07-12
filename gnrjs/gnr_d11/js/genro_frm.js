@@ -666,6 +666,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     if(resultDict.loadedRecordNode){
                         that.setCurrentPkey(destPkey);
                         that.store.loaded(destPkey,resultDict.loadedRecordNode);
+                    }else if(destPkey=='*duplicate*'){
+                        that.store.duplicateCurrent();
                     }else{
                         that.setCurrentPkey(destPkey);
                         that.load({'destPkey':destPkey});
