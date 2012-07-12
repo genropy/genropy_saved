@@ -420,7 +420,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.publish('onDismissed');
             return;
         }else if(kw['destPkey'] == '*duplicate*'){
-            this.store.duplicateCurrent();
+            this.store.duplicateRecord(null, kw.howmany);
             return;
         }
         var kw = kw || {};
@@ -614,7 +614,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var always;
         if (typeof(kw)=='object'){
             always=kw.command;
-            var modifiers = kw.modifiers;
         }else{
             always = kw;
         }
@@ -626,7 +625,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 return 'invalid:'+invalid;
             }
             if (this.changed || always || this.isNewRecord()) {
-                return this.do_save(kw.destPkey);
+                return this.do_save(kw);
             } else {
                 this.fireControllerData('save_failed','nochange');
                 if(kw.destPkey){
@@ -639,7 +638,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return false;
         }
     },
-    do_save:function(destPkey){        
+    do_save:function(kw){
+        var destPkey = kw.destPkey        
         this.setOpStatus('saving');
         this.fireControllerData('saving');
         var saverNode = genro.nodeById(this.formId + '_saver');
@@ -666,6 +666,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     if(resultDict.loadedRecordNode){
                         that.setCurrentPkey(destPkey);
                         that.store.loaded(destPkey,resultDict.loadedRecordNode);
+                    }else if(destPkey=='*duplicate*'){
+                        that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
                         that.setCurrentPkey(destPkey);
                         that.load({'destPkey':destPkey});
@@ -1091,19 +1093,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     navigationEvent:function(kw){
+        var loadkw={modifiers:kw.modifiers,cancelCb:kw.cancelCb}
         var command = kw.command;
-        var pkey;
         if(command=='add'){
-            pkey = '*newrecord*';
+            loadkw.destPkey = '*newrecord*';
         }else if (command=='dismiss'){
-            pkey = '*dismiss*';
+            loadkw.destPkey = '*dismiss*';
         }else if(command=='duplicate'){
-            pkey = '*duplicate*';
+            loadkw.destPkey = '*duplicate*';
+            loadkw.howmany = kw.howmany
         }
         else{
-            pkey = this.store.navigationEvent(kw);
+            loadkw.destPkey = this.store.navigationEvent(kw);
         }
-         this.load({destPkey:pkey,modifiers:kw.modifiers,cancelCb:kw.cancelCb});
+         this.load(loadkw);
         
     }  
 });
@@ -1551,13 +1554,24 @@ dojo.declare("gnr.formstores.Base", null, {
             }
         }
     },
-    duplicateCurrent:function(){
+    duplicateRecord:function(srcPkey, howmany){
         var form=this.form;
         var that = this;
-        var currPkey = this.form.getCurrentPkey();
+        var srcPkey = srcPkey || this.form.getCurrentPkey();
+        var howmany = howmany || 1;
+        if (howmany=='?'){
+            var that = this;
+            genro.dlg.prompt('How many', {msg:_T('How many copies of current record?'),
+                                          lbl:'How many',
+                                          widget:'numberTextBox',
+                                          action:function(value){that.duplicateRecord(srcPkey,value);}
+                                          });
+            return
+        }
         genro.assert(this.table,'only form with table allow duplicate');
-        genro.serverCall('app.duplicateRecord',{table:this.table,pkey:form.getCurrentPkey()},function(pkey){
-            form.doload_store({destPkey:pkey});
+        genro.serverCall('app.duplicateRecord',{table:this.table,pkey:srcPkey,howmany:howmany},function(resultPkey){
+            form.doload_store({destPkey:resultPkey});
+            
         })
     },
 

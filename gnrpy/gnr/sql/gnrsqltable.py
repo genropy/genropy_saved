@@ -453,7 +453,7 @@ class SqlTable(GnrObject):
                         r = dict(r)
                         r[fkey] = dupRec[self.pkey]
                         manytable.duplicateRecord(r,destination_store=destination_store)
-        return duplicatedRecords[0] if howmany==1 else duplicatedRecords
+        return duplicatedRecords[0]
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
