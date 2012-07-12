@@ -657,7 +657,7 @@ class SqlTable(GnrObject):
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param \*\*kwargs: optional arguments for the "where" attribute"""
-        todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
+        todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,**kwargs).fetch()
         if todelete:
             self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
             
