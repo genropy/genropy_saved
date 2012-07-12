@@ -474,6 +474,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.protect_write = this.isProtectWrite();
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
+        genro.dom.setClass(this.sourceNode,'form_draft',this.isDraft());
 
         this.protect_delete = this.isProtectDelete();
         genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
@@ -754,6 +755,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isLogicalDeleted:function(){
         var logical_deleted = this.getDataNodeAttributes()._logical_deleted;
         return logical_deleted;
+    },
+
+    isDraft:function(){
+        return this.getDataNodeAttributes()._draft;
     },
     
     isProtectDelete:function(){

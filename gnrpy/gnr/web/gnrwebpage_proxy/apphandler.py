@@ -1152,6 +1152,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         if tblobj.logicalDeletionField and record[tblobj.logicalDeletionField]:
             recInfo['_logical_deleted'] = True
+        if tblobj.draftField and record[tblobj.draftField]:
+            recInfo['_draft'] = True
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
