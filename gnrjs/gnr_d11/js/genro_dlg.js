@@ -410,7 +410,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     _prepareZoomUrl:function(kw,usepublic){
         var formOnly = 'formOnly' in kw? kw.formOnly:true;
         var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
-        var urlKw = {th_public:usepublic};
+        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
         if(!formOnly){
             zoomUrl+'/'+kw.pkey;
         }else{
@@ -480,13 +480,19 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         //paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         var palette = node._('palettePane',paletteCode,paletteAttr);
+        var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
             var palette_height = this._genro.getData('gnr.rootform.size.height');
             var palette_width = this._genro.getData('gnr.rootform.size.width');
             var wdg = palette.getParentNode().getWidget();
             wdg.setBoxAttributes({height:palette_height,width:palette_width});
             this._genro._rootForm.subscribe('onDismissed',function(){wdg.hide();})
-            
+            this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+            if(onSavedCb){
+                this._genro._rootForm.subscribe('onSaved',function(kw){
+                    onSavedCb(kw);
+                });
+            }
         }}); 
         node.unfreeze(); 
     },
