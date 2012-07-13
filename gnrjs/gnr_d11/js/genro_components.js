@@ -1739,11 +1739,15 @@ dojo.declare("gnr.stores._Collection",null,{
         data.sort(sl);
     },
     
-    absIndex:function(idx){
+    absIndex:function(idx,reverse){
         if (this.filterToRebuild()) {
             console.log('invalid filter');
         }
-        return this._filtered ? this._filtered[idx] : idx;
+        if(!this._filtered){
+            return idx;
+        }
+
+        return reverse ? dojo.indexOf(this._filtered,idx):this._filtered[idx];
     },
   
     rowFromItem:function(item,grid){

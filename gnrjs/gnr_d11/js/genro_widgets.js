@@ -3662,7 +3662,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                         var rowIdx = this.sourceNode.updateGridCellAttr(kw, true);
                         //var rowIdx = this.getRowIdxFromNode(kw.node);
                         if((!(this.gnrediting && this.gridEditor.editorPars)) || (rowIdx!=kw.reason.editedRowIndex)){
-                            this.updateRow(rowIdx);
+                            this.updateRow(this.absIndex(rowIdx,true));
                         }
                         
                         // dojo.publish('upd_grid_cell', [this.sourceNode, rowLabel, rowIdx]);
@@ -3966,12 +3966,19 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.setChangeManager();
     },
 
-    mixin_absIndex: function(inRowIndex) {
+    mixin_absIndex: function(idx,reverse) {
         if (this.invalidFilter()) {
             console.log('invalid filter');
         }
-        return this._filtered? this._filtered[inRowIndex] : inRowIndex;
+        if(!this._filtered){
+            return idx;
+        }
+        return reverse ? dojo.indexOf(this._filtered,idx):this._filtered[idx];
+
+
+
     },
+
     
     mixin_storeRowCount: function(all) {
         if (this._filtered && !all) {
@@ -4921,6 +4928,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         };
         kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
+    },
+    mixin_absIndex:function(idx,reverse){
+         return this.collectionStore().absIndex(idx,reverse);
     }
 });
 
