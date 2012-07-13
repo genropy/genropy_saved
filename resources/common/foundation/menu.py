@@ -81,12 +81,15 @@ class MenuBase(BaseComponent):
 
 class MenuIframes(MenuBase):
     def mainLeft_iframemenu_plugin(self, tc):
-        pane = tc.contentPane(title="Menu", pageName='menu_plugin')
+        pane = tc.framePane(title="Menu", pageName='menu_plugin',)
+        pane.bottom.slotToolbar('*,searchOn',searchOn=True,searchOn_nodeId='_menutree__searchbox')
         self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
         
     def menu_iframemenuPane(self, pane, **kwargs):
         b = Bag()
-        b['root'] = MenuResolver(path=getattr(self,'menu_path',None), pagepath=self.pagepath)
+
+        b['root'] = MenuResolver(path=getattr(self,'menu_path',None), pagepath=self.pagepath,_page=self)
+        b.getIndex()
         pane.data('gnr.appmenu', b)
         #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
@@ -114,6 +117,7 @@ class MenuIframes(MenuBase):
                             appmenu="=gnr.appmenu", _if="appmenu.len()==0")
 
 class MenuLink(MenuBase):
+
     def menu_menuPane(self, pane, **kwargs):
         b = Bag()
         b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
@@ -146,8 +150,15 @@ class MenuResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
                    'readOnly': False,
                    'path': None,
-                   'pagepath': None}
+                   'pagepath': None,
+                   '_page':None}
     classArgs = ['path']
+
+
+    def resolverSerialize(self):
+        attr = super(MenuResolver, self).resolverSerialize()
+        attr['kwargs'].pop('_page',None)
+        return attr
 
     def load(self):
         sitemenu = self._page.application.siteMenu
@@ -175,7 +186,7 @@ class MenuResolver(BagResolver):
                         newpath = '%s.%s' % (self.path, node.label)
                     else:
                         newpath = node.label
-                    value = MenuResolver(path=newpath, pagepath=self.pagepath)
+                    value = MenuResolver(path=newpath, pagepath=self.pagepath,_page=self._page)
                    # labelClass = 'menu_level_%i' % level
                 else:
                     value = None

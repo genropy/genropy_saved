@@ -1504,8 +1504,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
-        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
-
+        var nodeId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
+        div._('SearchBox', {searchOn:slotValue,nodeId:nodeId,datapath:'.searchbox',parentForm:false,'width':slotKw.width});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
         var scNode = objectPop(slotKw,'stackNode');

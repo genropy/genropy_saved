@@ -87,7 +87,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }
             button = root._('div',pageName,kw);
             
-            button._('div',{'innerHTML':n.attr.fullname,'_class':'iframetab_caption'});
+            button._('div',{'innerHTML':n.attr.fullname,'_class':'iframetab_caption',connectedMenu:'_menu_tab_opt_'});
         }
         data.forEach(cb,'static');
         if(onCreatingTablist){

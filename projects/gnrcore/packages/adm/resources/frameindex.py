@@ -100,11 +100,20 @@ class FrameIndex(BaseComponent):
         
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
-    def prepareTablist(self,pane,onCreatingTablist=False): 
+    def prepareTablist(self,pane,onCreatingTablist=False):
+
+        menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_')
+        menu.menuline('!!Add to favorites')
+        menu.menuline('!!Set as start page')
+        menu.menuline('!!Open zoom palette') 
         tabroot = pane.div(connect_onclick="""
+                                            if(genro.dom.getEventModifiers($1)=='Shift'){
+                                                return;
+                                            }
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
+
                                             """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
         tabroot.div()
         pane.dataController("""
