@@ -560,11 +560,11 @@ class GnrSqlDb(GnrObject):
     def dropTable(self,table,cascade=None):
         self.adapter.dropTable(self.table(table),cascade=cascade)
 
-    def dump(self, filename):
+    def dump(self, filename,dbname=None):
         """Dump a database to a given path
         
         :param filename: the path on which the database will be dumped"""
-        self.adapter.dump(filename)
+        self.adapter.dump(filename,dbname=dbname)
         
     def restore(self, filename):
         """Restore db to a given path
