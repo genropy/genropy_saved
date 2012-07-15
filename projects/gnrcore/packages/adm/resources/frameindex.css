@@ -56,6 +56,15 @@
 	text-decoration:none;
 }
 
+._common_d11 .detachPalette.dojoxFloatingPane{
+    border:1px solid silver;
+}
+._common_d11.tundra .detachPalette .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(gray));
+    background-image: -moz-linear-gradient(-90deg, silver,gray);
+    color:whitesmoke;
+}
+
 .iframetab{
     position:relative;
     display:inline-block;

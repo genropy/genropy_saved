@@ -496,7 +496,31 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }}); 
         node.unfreeze(); 
     },
-    
+
+    quickPalette:function(paletteCode,kw,contentNode){
+        var kw = kw || {};
+        kw = objectUpdate({paletteCode:paletteCode,dockTo:'dummyDock:open'},kw);
+        var wdg = genro.wdgById(paletteCode+'_floating');
+        var evt = kw.evt;
+        if(wdg){
+            wdg.show();
+            wdg.bringToTop();
+            return;
+        }
+        genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
+        var node = genro.src.getNode(paletteCode).clearValue();
+        node.freeze();
+        if(evt){
+            kw.top=_px(evt.clientY);
+            kw.left=_px(evt.clientX);
+        }
+        var palette = node._('palettePane',paletteCode,kw);
+        if(contentNode){
+            palette.setItem(contentNode.label,contentNode._value,contentNode.attr);
+        }
+        node.unfreeze();
+        return palette.getParentNode();
+    },
     
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {

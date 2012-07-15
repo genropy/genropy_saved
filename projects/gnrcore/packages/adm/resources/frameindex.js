@@ -128,5 +128,26 @@ dojo.declare("gnr.FramedIndexManager", null, {
         selected = selected<0? 0:selected;
         var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
+    },
+    menuAction:function(menuitem,ctxSourceNode,event){
+        var action = menuitem.code;
+        var pageattr = ctxSourceNode.getParentNode().attr;
+        if(action =='detach'){
+            this.detachPage(pageattr,ctxSourceNode.attr.innerHTML,event);
+        }
+    },
+    detachPage:function(attr,title,evt){
+        var that = this;
+        var iframenode = this.stackSourceNode._value.getItem(attr.pageName).getNode('#0.#0');
+        var iframedomnode = iframenode.domNode;
+        var paletteCode = attr.pageName;
+        var kw = {height:_px(iframedomnode.clientHeight),width:_px(iframedomnode.clientWidth),maxable:true,evt:evt,
+                title:title,palette__class:'detachPalette',dockTo:false};
+        kw['palette_connect_close'] = function(){
+            that.stackSourceNode._value.getItem(attr.pageName).getNode('#0').widget.domNode.appendChild(iframedomnode);
+        }
+        var paletteNode = genro.dlg.quickPalette(paletteCode,kw);
+        var newparentNode = paletteNode.getValue().getNode('#0.#0.#0').widget.domNode;
+        newparentNode.appendChild(iframedomnode);
     }
 });

@@ -146,7 +146,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         
         :param filename: db name"""
         from subprocess import call
-        
+        print x
         return call(['pg_dump', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
         
     def restore(self, filename):
