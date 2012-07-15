@@ -23,8 +23,8 @@ class Main(BaseResourceBatch):
     batch_steps = 'dumpmain,dumpaux,end'
 
     def pre_process(self):
-        self.dumpfolder = self.page.getPreference(path='backups.backup_folder',pkg='adm') or 'site:maintenance/backups'
-        dumpfolderpath = self.page.site.getStaticPath(self.dumpfolder)
+        self.dumpfolder = self.page.getPreference(path='backups.backup_folder',pkg='adm') or 'site:maintenance'
+        dumpfolderpath = self.page.site.getStaticPath(self.dumpfolder,'backups',autocreate=-1)
         self.max_copies = self.page.getPreference(path='backups.max_copies',pkg='adm') or 10
         self.ts_start = datetime.datetime.now()
         self.dump_name = self.batch_parameters['name'] or '%04i_%02i_%02i_%02i_%02i' %(self.ts_start.year,self.ts_start.month,

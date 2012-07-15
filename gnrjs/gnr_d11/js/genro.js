@@ -1113,7 +1113,7 @@ dojo.declare('gnr.GenroClient', null, {
         var sessionType = sessionType || 'session';
         var storage = (sessionType == 'local') ? localStorage : sessionStorage;
         storage.setItem(key, asTypedTxt(value));
-        console.log('Stored in ' + sessionType + 'Storage at key:' + key + '  value:' + value);
+        //console.log('Stored in ' + sessionType + 'Storage at key:' + key + '  value:' + value);
     },
     getFromStorage:function(sessionType, key) {
         var sessionType = sessionType || 'session';
