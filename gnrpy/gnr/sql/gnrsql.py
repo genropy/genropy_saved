@@ -132,11 +132,37 @@ class GnrSqlDb(GnrObject):
         
         return DbModel(self)
         
-    def startup(self):
+    def startup(self,restorepath=None):
         """Build the model.obj from the model.src"""
+        if restorepath:
+            self.autoRestore(restorepath)
         self.model.build()
         self.started = True
         
+    def autoRestore(self,path):
+        assert os.path.exists(path),'Restore archive %s does not exist' %path
+        from zipfile import ZipFile
+        myzip =  ZipFile(path, 'r')
+        extractpath = path.replace('.zip','')
+        myzip.extractall(extractpath)
+        mainstorefile = os.path.join(extractpath,'mainstore')
+
+        for s in self.stores_handler.dbstores.keys():
+            self.stores_handler.drop_store(s)
+        self.dropDb(self.dbname)
+        self.createDb(self.dbname)
+        self.restore(mainstorefile)
+        auxstoresfiles = [f for f in os.listdir(extractpath) if not f.startswith('.') and f!='mainstore']
+        for f in auxstoresfiles:
+            dbname= '%s_%s' %(self.dbname,f)
+            self.createDb(dbname)
+            self.restore(os.path.join(extractpath,f),dbname=dbname)
+            self.stores_handler.add_dbstore_config(f,dbname=dbname,save=False)
+        self.stores_handler.save_config()
+        shutil.rmtree(extractpath)
+        #self.commit()
+
+
     def packageSrc(self, name):
         """Return a DbModelSrc corresponding to the required package
         
@@ -566,13 +592,15 @@ class GnrSqlDb(GnrObject):
         :param filename: the path on which the database will be dumped"""
         self.adapter.dump(filename,dbname=dbname)
         
-    def restore(self, filename):
+    def restore(self, filename,dbname=None):
         """Restore db to a given path
         
         :param name: the path on which the database will be restored"""
         #self.dropDb(self.dbname)
         #self.createDb(self.dbname)
-        self.adapter.restore(filename)
+        self.adapter.restore(filename,dbname=dbname)
+
+
         
     def createSchema(self, name):
         """Create a database schema

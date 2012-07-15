@@ -286,16 +286,16 @@ class GnrWsgiSite(object):
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
-        self.gnrapp = self.build_gnrapp()
-        self.wsgiapp = self.build_wsgiapp()
-        self.db = self.gnrapp.db
-        self.dbstores = self.db.dbstores
-        self.resource_loader = ResourceLoader(self)
         self.pages_dir = os.path.join(self.site_path, 'pages')
         self.site_static_dir = self.config['resources?site'] or '.'
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
+        self.gnrapp = self.build_gnrapp()
+        self.wsgiapp = self.build_wsgiapp()
+        self.db = self.gnrapp.db
+        self.dbstores = self.db.dbstores
+        self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.services = ServiceHandlerManager(self)
@@ -800,8 +800,16 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
-        app = GnrWsgiWebApp(instance_path, site=self)
+        restorepath = self.getStaticPath('site:maintenance','restore',autocreate=-1)
+        restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+        if restorefiles:
+            restorepath = os.path.join(restorepath,restorefiles[0])
+        else:
+            restorepath = None
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
+        for f in restorefiles:
+            os.rename(restorepath,self.getStaticPath('site:maintenance','restored',f,autocreate=-1))
         return app
         
     def onAuthenticated(self, avatar):

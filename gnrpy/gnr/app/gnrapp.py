@@ -457,7 +457,7 @@ class GnrApp(object):
     >>> testgarden = GnrApp('testgarden')
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
-    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, debug=False, **kwargs):
+    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, debug=False, restorepath=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -489,7 +489,7 @@ class GnrApp(object):
             self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'), 'custom_application')
             instanceMixin(self, getattr(self.main_module, 'Application', None))
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
-        self.init(forTesting=forTesting)
+        self.init(forTesting=forTesting,restorepath=restorepath)
         self.creationTime = time.time()
         
     def get_modulefinder(self, path_entry):
@@ -545,7 +545,7 @@ class GnrApp(object):
         instance_config.update(base_instance_config)
         return instance_config
         
-    def init(self, forTesting=False):
+    def init(self, forTesting=False,restorepath=None):
         """Initiate a :class:`GnrApp`
         
         :param forTesting:  if ``False``, setup the application normally.
@@ -607,7 +607,7 @@ class GnrApp(object):
 
         self.db.inTransactionDaemon = False
         self.pkgBroadcast('onDbStarting')
-        self.db.startup()
+        self.db.startup(restorepath=restorepath)
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
         self.buildLocalization()

@@ -149,14 +149,14 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         dbname = dbname or self.dbroot.dbname
         return call(['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename])
         
-    def restore(self, filename):
+    def restore(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
         Drop an existing database
         
         :param filename: db name"""
         from subprocess import call
-        
-        return call(['psql', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
+        dbname = dbname or self.dbroot.dbname
+        return call(['psql', dbname, '-U', self.dbroot.user, '-f', filename])
         
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
