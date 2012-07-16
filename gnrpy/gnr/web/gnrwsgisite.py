@@ -800,7 +800,7 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
-        restorepath = self.getStaticPath('site:maintenance','restore',autocreate=-1)
+        restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
         restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
         if restorefiles:
             restorepath = os.path.join(restorepath,restorefiles[0])
