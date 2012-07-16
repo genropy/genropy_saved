@@ -253,10 +253,10 @@ class DynamicForm(BaseComponent):
         df_tblobj = self.db.table(df_table)
         ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
-        fb.addFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
+        fb.addDynamicFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
 
     @struct_method
-    def df_addFields(self,fb,df_table=None,df_pkey=None,datapath=None,**kwargs):
+    def df_addDynamicFields(self,fb,df_table=None,df_pkey=None,datapath=None,**kwargs):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         df_tblobj = self.db.table(df_table)
         fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
