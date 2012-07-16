@@ -252,7 +252,7 @@ class DynamicForm(BaseComponent):
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
         ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         fb.addFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
 
     @struct_method
