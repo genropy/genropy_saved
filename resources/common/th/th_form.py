@@ -82,7 +82,10 @@ class TableHandlerForm(BaseComponent):
         
     def _th_applyOnForm(self,form,options=None,mangler=None):
         table = form.getInheritedAttributes()['table']
-        form.dataFormula("#FORM.controller.title","newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);",
+        form.dataController("""var title = newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);
+                            SET #FORM.controller.title = title;
+                            this.form.publish('onChangedTitle',{title:title});
+                            """,
                             tablename=self.db.table(table).name_long,
                             caption='^#FORM.record?caption',
                             newrecord='=#FORM.record?_newrecord',

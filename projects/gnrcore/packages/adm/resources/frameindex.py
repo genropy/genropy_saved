@@ -16,11 +16,12 @@ class FrameIndex(BaseComponent):
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
-                   gnrcomponents/datamover:MoverPlugin
+                   gnrcomponents/datamover:MoverPlugin,
+                   gnrcomponents/maintenance:MaintenancePlugin
                    """
     js_requires='frameindex'
     css_requires='frameindex,public'
-    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover'
+    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
     custom_plugin_list = None
     index_url = None
     indexTab = False
@@ -100,11 +101,21 @@ class FrameIndex(BaseComponent):
         
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
-    def prepareTablist(self,pane,onCreatingTablist=False): 
+    def prepareTablist(self,pane,onCreatingTablist=False):
+
+        menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
+                                action="genro.framedIndexManager.menuAction($1,$2,$3);")
+        menu.menuline('!!Add to favorites',code='fav')
+        menu.menuline('!!Set as start page',code='start')
+        menu.menuline('!!Detach',code='detach') 
         tabroot = pane.div(connect_onclick="""
+                                            if(genro.dom.getEventModifiers($1)=='Shift'){
+                                                return;
+                                            }
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
+
                                             """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
         tabroot.div()
         pane.dataController("""
@@ -237,6 +248,12 @@ class FrameIndex(BaseComponent):
         pane.div(_class='button_block iframetab').div(_class='case',tip='!!Mover plug-in',
                     connect_onclick="""SET left.selected='datamover';PUBLISH gnrdatamover_loadCurrent;genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_datamover')
+
+    def btn_maintenance(self,pane,**kwargs):
+        if 'admin' in self.userTags:
+            pane.div(_class='button_block iframetab').div(_class='gear',tip='!!Maintenance',
+                        connect_onclick="""SET left.selected='maintenance';genro.getFrameNode('standard_index').publish('showLeft');""",
+                        nodeId='plugin_block_maintenance')
                     
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',

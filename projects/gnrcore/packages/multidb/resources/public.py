@@ -30,42 +30,44 @@ class TableHandlerMain(BaseComponent):
         
         if self.dbstore:
             bar = view.top.bar
-            bar.replaceSlots('delrow','unsubscriberow')
-            bar.replaceSlots('addrow','subscribepalette')
-            bar.unsubscriberow.slotButton('!!Unsubscribe',iconClass='iconbox delete_row',
+            if 'delrow' in bar.keys():
+                bar.replaceSlots('delrow','unsubscriberow')
+                bar.unsubscriberow.slotButton('!!Unsubscribe',iconClass='iconbox delete_row',
                             action="""genro.serverCall('_table.multidb.subscription.delRowsSubscription',{table:tbl,pkeys:grid.getSelectedPkeys(),dbstore:dbstore,temp_dbstore:false});
                                         """,dbstore=self.dbstore,tbl=self.maintable,grid=view.grid.js_widget,disabled='^.disabledButton')
-            palette = bar.subscribepalette.palettePane(paletteCode='mainstore',title='!!Mainstore',
-                                        dockButton_iconClass='iconbox add_row',width='900px',
-                                        height='400px',_lazyBuild=True,overflow='hidden',dockButton_disabled='^.disabledButton')
-            urlist = self.site.get_path_list(self.request.path_info)
-            urlist.pop(0)
-            palette.iframe(src='/%s' %'/'.join(urlist),height='100%',width='100%',border=0,
-                          main_th_public=False,main_env_target_store=self.dbstore,nodeId='subscriber_palette')
-            gridattr = view.grid.attributes
-            gridattr.update(dropTypes='dbrecords',
-                                onDrop_dbrecords="""function(dropInfo,data){
-                                            if(data.table!='%s'){
-                                                return false;
-                                            }
-                                            genro.serverCall('_table.multidb.subscription.addRowsSubscription',
-                                                            {table:data['table'],pkeys:data.pkeys,dbstore:'%s',temp_dbstore:false},
-                                                            function(){
-                                                                genro.publish({topic:'ping',iframe:'subscriber_palette'});
-                                                            });
-                                        }""" %(self.maintable,self.dbstore))
-            currCodes = gridattr.get('dropTarget_grid')
-            currCodes = currCodes.split(',') if currCodes else []
-            if not 'dbrecords' in currCodes:
-                currCodes.append('dbrecords')
-            gridattr['dropTarget_grid'] = ','.join(currCodes)
+            if 'addrow' in bar.keys():
+                bar.replaceSlots('addrow','subscribepalette')
+                palette = bar.subscribepalette.palettePane(paletteCode='mainstore',title='!!Mainstore',
+                                            dockButton_iconClass='iconbox add_row',width='900px',
+                                            height='400px',_lazyBuild=True,overflow='hidden',dockButton_disabled='^.disabledButton')
+                urlist = self.site.get_path_list(self.request.path_info)
+                urlist.pop(0)
+                palette.iframe(src='/%s' %'/'.join(urlist),height='100%',width='100%',border=0,
+                              main_th_public=False,main_env_target_store=self.dbstore,nodeId='subscriber_palette')
+                gridattr = view.grid.attributes
+                gridattr.update(dropTypes='dbrecords',
+                                    onDrop_dbrecords="""function(dropInfo,data){
+                                                if(data.table!='%s'){
+                                                    return false;
+                                                }
+                                                genro.serverCall('_table.multidb.subscription.addRowsSubscription',
+                                                                {table:data['table'],pkeys:data.pkeys,dbstore:'%s',temp_dbstore:false},
+                                                                function(){
+                                                                    genro.publish({topic:'ping',iframe:'subscriber_palette'});
+                                                                });
+                                            }""" %(self.maintable,self.dbstore))
+                currCodes = gridattr.get('dropTarget_grid')
+                currCodes = currCodes.split(',') if currCodes else []
+                if not 'dbrecords' in currCodes:
+                    currCodes.append('dbrecords')
+                gridattr['dropTarget_grid'] = ','.join(currCodes)
+                
+                view.onDbChanges(action="""
+                if(dojo.some(dbChanges,function(c){return (c['tablename']==tablename) && (c['dbstore']==dbstore);})){
+                    store.fireNode();
+                };
             
-            view.onDbChanges(action="""
-            if(dojo.some(dbChanges,function(c){return (c['tablename']==tablename) && (c['dbstore']==dbstore);})){
-                store.fireNode();
-            };
-        
-        """,table='multidb.subscription',tablename=self.maintable,dbstore=self.dbstore,store=view.store)
+            """,table='multidb.subscription',tablename=self.maintable,dbstore=self.dbstore,store=view.store)
             
         elif 'env_target_store' in self._call_kwargs:
             target_store = self._call_kwargs.get('env_target_store')

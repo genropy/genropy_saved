@@ -2642,6 +2642,10 @@ body *{
 .form_protect_write{
 }
 
+.form_draft{
+    background: url(icons/drafts_stamp_small.png);
+}
+
 .form_logical_deleted .gnrfieldlabel{
     color:red;
 }

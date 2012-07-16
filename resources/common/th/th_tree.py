@@ -18,6 +18,7 @@ class TableHandlerTreeResolver(BagResolver):
                    'condition':None,
                    'condition_kwargs':None,
                    '_condition_id':None,
+                   'dbstore':None,
                    '_page':None}
     classArgs = ['parent_id']
 
@@ -25,8 +26,6 @@ class TableHandlerTreeResolver(BagResolver):
         attr = super(TableHandlerTreeResolver, self).resolverSerialize()
         attr['kwargs'].pop('_page',None)
         return attr
-
-
 
     def getConditionPkeys(self):
         if self._condition_id:
@@ -36,12 +35,12 @@ class TableHandlerTreeResolver(BagResolver):
             db = self._page.db
             tblobj = db.table(self.table)
             condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$id,$parent_id',**condition_kwargs).fetchAsBag('parent_id')
+            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$id,$parent_id',
+                                 _storename=self.dbstore,**condition_kwargs).fetchAsBag('parent_id')
             condition_pkeys = valid.getIndexList()
             with self._page.pageStore() as store:
                 store.setItem('hresolver.%s' %self._condition_id,condition_pkeys)
         return condition_pkeys
-
 
     def load(self):
         page = self._page
@@ -60,13 +59,12 @@ class TableHandlerTreeResolver(BagResolver):
 
         condition_kwargs = self.condition_kwargs or dict()
         condition_pkeys = None
-
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $id IN :condition_pkeys ) ) ' %(where,self.condition)
         q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
-                         order_by='$%s' %caption_field,**condition_kwargs)
+                         order_by='$%s' %caption_field,_storename=self.dbstore,**condition_kwargs)
         result = Bag()
         f = q.fetch()
         for r in f:
@@ -74,7 +72,7 @@ class TableHandlerTreeResolver(BagResolver):
             caption = r[caption_field]
             pkey = record[pkeyfield]
             child_count=record['child_count']
-            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field) if child_count else None
+            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field,dbstore=self.dbstore) if child_count else None
             result.setItem(pkey,value,
                             caption=caption,
                             child_count=child_count,pkey=pkey or '_all_',
@@ -97,7 +95,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_treeViewer(self,pane,caption_field=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
-        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%')        
+        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
         formNode = pane.parentNode.attributeOwnerNode('formId')
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
@@ -132,30 +130,34 @@ class TableHandlerHierarchicalView(BaseComponent):
     
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,**kwargs):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
-        if not condition:
-            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field),caption=tblobj.name_long,child_count=1,pkey='',treeIdentifier='_root_')
-            pane.data(storepath,b,childname='store',caption=caption,table=table) 
-        else:
+        if condition:
             pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
-                        childname='store',caption=caption,
+                        childname='store',caption=caption,dbstore=dbstore,
                         **kwargs)
+        else:
+            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore),caption=tblobj.name_long,
+                                                    child_count=1,pkey='',treeIdentifier='_root_')
+            pane.data(storepath,b,childname='store',caption=caption,table=table) 
+
 
 
     @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,condition_kwargs=None,caption=None,**kwargs):
+    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
+                                    condition_kwargs=None,caption=None,dbstore=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,dbstore=dbstore,
+                                                condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
         return b
 
     @struct_method

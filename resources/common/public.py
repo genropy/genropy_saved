@@ -71,10 +71,10 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = '10,caption,*,avatar,10'
+        baseslots = '10,captionslot,*,avatar,10'
         kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
-        if 'caption' in slots:
+        if 'captionslot' in slots:
             kwargs['caption_title'] = title
         return pane.slotBar(slots=slots,childname='bar',
                             **kwargs)
@@ -158,16 +158,18 @@ class PublicSlots(BaseComponent):
     def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
 
-#######################OLD SLOTS#######################
 
             
     @struct_method
-    def public_publicRoot_caption(self,pane,title='',**kwargs):  
+    def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
         if title:
             pane.data('gnr.publicTitle',title) 
         pane.div('^gnr.publicTitle', _class='pbl_title_caption',
-                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
-                    
+                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
+                    childname='captionbox',**kwargs)
+             
+#######################OLD SLOTS#######################
+       
     @struct_method
     def public_publicRoot_pageback(self,pane,**kwargs): 
         pane.div(connect_onclick="genro.pageBack()", title="!!Back",
@@ -223,12 +225,10 @@ class PublicSlots(BaseComponent):
 
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,th/th:TableHandler"""
-
     plugin_list=''
     formResource = None
     viewResource = None
     formInIframe = False
-    th_widget = 'stack'
     th_readOnly = False
     maintable = None
     
@@ -262,12 +262,28 @@ class TableHandlerMain(BaseComponent):
     
     def rootWidget(self, root, **kwargs):
         return root.contentPane(_class='pbl_root', **kwargs)
+
+
+            
+    #@struct_method
+    #def public_publicRoot_caption(self,pane,title='',**kwargs):  
+    #    if title:
+    #        pane.data('gnr.publicTitle',title) 
+    #    pane.div('^gnr.publicTitle', _class='pbl_title_caption',
+    #                draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
+    #                connect_onclick="""var mod = genro.dom.getEventModifiers($1);
+    #                                    if(mod=='Shift'){
+    #                                        th_usersettings($1.target);
+    #                                    }
+    #                                    """,
+    #                **kwargs)
         
     @extract_kwargs(th=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
         self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)
-        th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',
+        thRootWidget = 'stack'
+        th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
                         readOnly=False,virtualStore=True,public=True)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
         resource = self._th_getResClass(table=self.maintable,resourceName=viewResource,defaultClass='View')()
@@ -302,12 +318,19 @@ class TableHandlerMain(BaseComponent):
             if hasattr(self,'hv_main'):
                 extras.append('hierarchicalHandler')
                 self.hv_main(tc)
-        thwidget = th_options.get('widget','stack')
+        self.th_mainUserSettings(kwargs=kwargs)
+        thwidget = kwargs.pop('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
+
+        if insidePublic:
+            root.top.bar.captionslot.captionbox.attributes.update(connect_onclick="""if(genro.dom.getEventModifiers($1)=="Shift"){
+                    th_usersettings(this.getAttributeFromDatasource("_mainth"));
+                }
+                """,_mainth=th.js_sourceNode())
 
         if publicCollapse:
             th.view.attributes.update(_class='pbl_root')
@@ -319,7 +342,8 @@ class TableHandlerMain(BaseComponent):
             viewbar.replaceSlots('#','#,avatarslot,10')
             viewbar.replaceSlots('5,vtitle','10,captioslot')
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
-            viewbar.captioslot.publicRoot_caption()
+            viewbar.captioslot.publicRoot_captionslot()
+
         storeupd = dict(startLocked=lockable)
         if not extendedQuery:
             storeupd['_onStart'] = True
@@ -336,7 +360,7 @@ class TableHandlerMain(BaseComponent):
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
         return th
-        
+
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes
         currCodes = gridattr.get('dropTarget_grid')
@@ -363,14 +387,7 @@ class TableHandlerMain(BaseComponent):
                     th.view.top.bar.replaceSlots('searchOn','')
                     th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
             else:
-                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
-    
-  # @struct_method
-  # def public_publicRoot_caption(self,pane,title='',**kwargs):  
-  #     if title:
-  #         pane.data('gnr.publicTitle',title) 
-  #     pane.div('^gnr.publicTitle', _class='pbl_title_caption',
-  #                 draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)           
+                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)        
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

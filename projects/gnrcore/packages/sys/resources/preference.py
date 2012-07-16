@@ -18,6 +18,9 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+from gnr.core.gnrdecorator import public_method
+
 FONTFAMILIES = """Arial, Helvetica, sans-serif
 Courier, monospace
 'Comic Sans MS', cursive
@@ -40,6 +43,13 @@ class AppPref(object):
         fb.textbox(value='^.margin_left',lbl='Margin left')
         fb.textbox(value='^.margin_right',lbl='Margin right')
 
+
+        dev = tc.contentPane(title='Developer')
+        dev.button('Flush memcached',action='genro.serverCall("_resetMemcached");',_tags='admin')
+
+    @public_method
+    def _resetMemcached(self):
+        self.site.shared_data.flush_all()
 
 
 class UserPref(object):

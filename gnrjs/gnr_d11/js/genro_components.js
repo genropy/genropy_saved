@@ -1504,8 +1504,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
-        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
-
+        var nodeId = objectPop(slotKw,'nodeId') || frameCode+'_searchbox';
+        div._('SearchBox', {searchOn:slotValue,nodeId:nodeId,datapath:'.searchbox',parentForm:false,'width':slotKw.width});
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
         var scNode = objectPop(slotKw,'stackNode');
@@ -1739,11 +1739,15 @@ dojo.declare("gnr.stores._Collection",null,{
         data.sort(sl);
     },
     
-    absIndex:function(idx){
+    absIndex:function(idx,reverse){
         if (this.filterToRebuild()) {
             console.log('invalid filter');
         }
-        return this._filtered ? this._filtered[idx] : idx;
+        if(!this._filtered){
+            return idx;
+        }
+
+        return reverse ? dojo.indexOf(this._filtered,idx):this._filtered[idx];
     },
   
     rowFromItem:function(item,grid){

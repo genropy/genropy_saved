@@ -22,12 +22,13 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 
+from gnr.core.gnrbag import Bag
+
 class TableHandler(BaseComponent):
     js_requires = 'th/th'
     css_requires= 'th/th'
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
-    
     
     @extract_kwargs(condition=True,grid=True,picker=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
@@ -43,11 +44,15 @@ class TableHandler(BaseComponent):
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
         formCode='F_%s' %th_root
+
+        defaultModule = 'th_%s' %tableCode
         
         unlinkdict = kwargs.pop('store_unlinkdict',None)
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
+                        th_viewResource=self._th_getResourceName(viewResource,defaultClass='View',defaultModule=defaultModule),
+                        th_formResource=self._th_getResourceName(kwargs.get('formResource'),defaultClass='Form',defaultModule=defaultModule),
                         nodeId=th_root,
                         table=table,
                         context_dbstore=dbstore,
@@ -103,7 +108,7 @@ class TableHandler(BaseComponent):
                             formInIframe=False,dialog_kwargs=None,default_kwargs=None,readOnly=False,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,handlerType='dialog',
-                                        tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)     
+                                        tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
                                form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formInIframe=formInIframe,
                                formResource=formResource,default_kwargs=default_kwargs,readOnly=readOnly)     
@@ -295,6 +300,43 @@ class TableHandler(BaseComponent):
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
+
+    #USER SETTINGS 
+    def th_mainUserSettings(self,kwargs=None):
+        table = self.maintable
+        defaultModule = 'th_%s' %table.replace('.','_')
+        #th_viewResource=self._th_getResourceName(kwargs.get('viewResource'),defaultClass='View',defaultModule=defaultModule)
+        th_formResource=self._th_getResourceName(kwargs.get('formResource'),defaultClass='Form',defaultModule=defaultModule)
+        settingKey = '%s/%s' %(table,th_formResource)
+        settingKey = 'thpref.%s' %settingKey.replace('.','_').replace(':','_')
+        currset = self.getUserPreference(path=settingKey,pkg='sys') or Bag()
+        widget = currset.getItem('widget') or 'stack'
+        kwargs['widget'] = widget
+        h = '%spx' %(currset['form.height'] or 400)
+        w = '%spx' %(currset['form.width'] or 500)
+        if widget in ('dialog','palette'):
+            kwargs['%s_height' %widget] = h 
+            kwargs['%s_width' %widget] = w
+
+    @public_method
+    def th_userSetting(self,pane,thkey=None):
+        path = 'thpref.%s' %thkey
+        datapath = 'gnr.%s' %path
+        currpref = self.getUserPreference(path=path,pkg='sys') or Bag()
+        currpref['widget'] = currpref['widget'] or 'stack'
+        currpref['form.height'] = currpref['form.height'] or 400
+        currpref['form.width'] = currpref['form.width'] or 600
+        pane.data(datapath,currpref)
+        fb = pane.formbuilder(cols=2,border_spacing='3px',datapath=datapath)
+        fb.filteringSelect(value='^.widget',lbl='Widget',
+                            values='stack:Stack,palette:Palette,dialog:Dialog,border:Border',colspan='2')
+        fb.numbertextbox(value='^.form.height',lbl='!!F. height',width='5em',
+                        row_hidden='^.widget?=(#v=="stack" || #v=="border")')
+        fb.numbertextbox(value='^.form.width',lbl='!!F. width',width='5em')
+
+    @public_method
+    def th_saveUserSetting(self,data=None,thkey=None):
+        self.db.table('adm.user').setPreference(data=data,path='thpref.%s' %thkey,pkg='sys',username=self.user)
 
 class ThLinker(BaseComponent):
     py_requires='gnrcomponents/tpleditor:ChunkEditor'

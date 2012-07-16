@@ -1036,11 +1036,11 @@ class GnrWebAppHandler(GnrBaseProxy):
             return ('delete_error', {'msg': e.message})
 
     @public_method
-    def duplicateRecord(self,pkey=None,table=None):
+    def duplicateRecord(self,pkey=None,table=None,**kwargs):
         tblobj = self.db.table(table)
-        record = tblobj.duplicateRecord(pkey)
+        record = tblobj.duplicateRecord(pkey,**kwargs)
         self.db.commit()
-        return record['id']
+        return record[tblobj.pkey]
         
     @public_method
     @extract_kwargs(default=True,sample=True)
@@ -1152,6 +1152,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         if tblobj.logicalDeletionField and record[tblobj.logicalDeletionField]:
             recInfo['_logical_deleted'] = True
+        if tblobj.draftField and record[tblobj.draftField]:
+            recInfo['_draft'] = True
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)

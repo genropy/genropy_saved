@@ -107,14 +107,14 @@ class SqlDbAdapter(object):
         """
         raise NotImplementedException()
 
-    def dump(self, filename):
+    def dump(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
         Dump a database to a given path
         @param name: db name
         """
         raise NotImplementedException()
 
-    def restore(self, filename):
+    def restore(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
         Restore a database from existing path
         @param name: db name

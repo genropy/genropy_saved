@@ -168,7 +168,7 @@ class TableBase(object):
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
                                              onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
-                                                                                        onDelete='c',relation_name='_children',
+                                                                                        onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))

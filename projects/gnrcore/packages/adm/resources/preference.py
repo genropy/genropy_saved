@@ -26,6 +26,12 @@ class AppPref(object):
         tc = parent.tabContainer(**kwargs)
         self._pr_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
         self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+        self._pr_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
+
+    def _pr_backups(self, pane):
+        fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')
+        fb.textbox(value='^.backup_folder',lbl='Folder path')
+        fb.numberTextBox(value='^.max_copies',lbl='Max copies')
 
     def _pr_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',

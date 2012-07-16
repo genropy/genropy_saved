@@ -288,7 +288,6 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
 
     makeEditor:function(widget, savedAttrs, sourceNode){
-        console.log('MakeEditor',savedAttrs)
         var showtoolbar = objectPop(savedAttrs,'showtoolbar');
         var enterMode = objectPop(savedAttrs,'enterMode') || 'div';
         var bodyStyle = objectPop(savedAttrs,'bodyStyle');
