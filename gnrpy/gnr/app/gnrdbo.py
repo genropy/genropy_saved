@@ -328,7 +328,9 @@ class TableBase(object):
             hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
             p = hpkey
             where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
-        return fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs').fetch()
+            order_by = '$hlevel,$_row_count'
+        result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey').fetch()
+        return result
     
     @public_method
     def df_subFieldsBag(self,pkey=None,df_field='',df_caption=''):
@@ -529,9 +531,7 @@ class DynamicFieldsTable(GnrDboTable):
 
         tbl.column('field_mask',name_long='!!Mask')
         tbl.column('field_tip',name_long='!!Tip')
-        
     
-        
         tbl.column('validate_case',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Case')
         tbl.column('validate_range',name_long='!!Range')
         
@@ -543,6 +543,8 @@ class DynamicFieldsTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade', relation_name='dynamicfields',
                     one_group='_',many_group='_')
+        if mastertbl.attributes.get('hierarchical'):
+            tbl.formulaColumn('hlevel',"""array_length(string_to_array(@maintable_id.hierarchical_pkey,'/'),1)""")
 
         
               
