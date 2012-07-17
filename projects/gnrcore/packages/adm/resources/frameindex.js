@@ -2,8 +2,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
     constructor:function(stackSourceNode){
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
-        var thurl = '/sys/thpage/'
-        this.thpage_url = this.dbstore?'/'+this.dbstore+thurl:thurl;
+        var default_uri =  genro.getData('gnr.default_uri')||'/';
+        var thurl = 'sys/thpage/'
+        this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
     },
     
     createIframePage:function(kw){
