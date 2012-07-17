@@ -8,8 +8,9 @@
 
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+from gnr.core.gnrdecorator import public_method
 
+from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 CONNECTION_TIMEOUT = 3600
 CONNECTION_REFRESH = 20
@@ -140,7 +141,8 @@ class GnrWebConnection(GnrBaseProxy):
     def rpc_logout(self):
         self.change_user()
 
-    def rpc_connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):
+    @public_method
+    def connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):
         users = self.page.site.register.users()
         result = Bag()
         exclude = exclude or []

@@ -56,6 +56,13 @@ class GnrCustomWebPage(object):
         ddm2 = pane.div(height='50px', width='50px', background='red', connectedMenu='test3menu')
         pane.dataRemote('.menudata', 'menudata', cacheTime=5)
         
+    def test_5_resolver(self, pane):
+        """From resolver user"""
+        ddm = pane.dropDownButton()
+        ddm.menu(action='alert($1.code)', storepath='.menudata', _class='smallmenu',
+                        id='test3menu')
+        pane.dataRemote('.menudata', 'connection.connected_users_bag', cacheTime=5)
+
     def rpc_menudata(self):
         menudata = self.menudata()
         menudata.setItem('r_6', None, code='PP', caption=str(datetime.datetime.now()))

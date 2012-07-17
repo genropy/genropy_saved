@@ -5278,7 +5278,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         } else {
             attributes.hasDownArrow = false;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
         }
@@ -5307,6 +5307,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
         var storeAttrs = objectExtract(attributes, 'store_*');
         objectExtract(attributes, 'condition_*');
+        resolverAttrs['condition'] = sourceNode.attr.condition;
         objectUpdate(resolverAttrs, objectExtract(sourceNode.attr, 'condition_*', true));
         resolverAttrs['exclude'] = sourceNode.attr['exclude']; // from sourceNode.attr because ^ has to be resolved at runtime
         resolverAttrs._id = '';
