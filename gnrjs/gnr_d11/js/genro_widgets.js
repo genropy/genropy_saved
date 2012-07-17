@@ -6424,8 +6424,10 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             this.setPlaceHolder(sourceNode);
         }
         var valueNode = genro.getDataNode(sourceNode.absDatapath(sourceNode.attr.src));
-        var formattedValue = genro.formatter.asText(kwimg.formattedUrl,{dtype:'P',format:sourceNode.attr.format,mask:sourceNode.attr.mask});
-        valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);
+        if(valueNode){
+            var formattedValue = genro.formatter.asText(kwimg.formattedUrl,{dtype:'P',format:sourceNode.attr.format,mask:sourceNode.attr.mask});
+            valueNode.updAttributes({_formattedValue:formattedValue},sourceNode);  
+        }
     }
 });
 dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
