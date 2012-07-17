@@ -60,7 +60,7 @@ class Main(BaseResourceBatch):
         shutil.rmtree(self.folderpath)
 
     def result_handler(self):
-        resultAttr = dict(url=self.page.site.getStaticUrl(self.dumpfolder,'%s.zip' %self.dump_name))
+        resultAttr = dict(url=self.page.site.getStaticUrl(self.dumpfolder,'backups','%s.zip' %self.dump_name))
         return 'Dump complete', resultAttr
 
     def table_script_parameters_pane(self, pane, **kwargs):
