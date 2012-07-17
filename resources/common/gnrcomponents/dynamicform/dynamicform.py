@@ -26,7 +26,9 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
-import re
+
+AUTOWDG = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+
 
 class Form(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
@@ -247,67 +249,76 @@ class DynamicForm(BaseComponent):
         if not df_pkey:
             pane.div()
             return
-        dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
-        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
-        autowdg = {'T':'TextBox','L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+        fb.addDynamicFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
+
+    @struct_method
+    def df_addDynamicFields(self,fb,df_table=None,df_pkey=None,datapath=None,**kwargs):
+        dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
+        df_tblobj = self.db.table(df_table)
+        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         if not fields:
             return
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,datapath=datapath,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         for r in fields:
-            attr = dict(r)
-            attr.pop('id')
-            attr.pop('pkey')
-            attr.pop('maintable_id')
-            data_type = attr.pop('data_type','T')
-            tag =  attr.pop('wdg_tag') or autowdg[data_type]
-            mask = attr.pop('field_mask',None)
-            if tag.endswith('_nopopup'):
-                tag = tag.replace('_nopopup','')
-                attr['popup'] = False
-            attr['tag'] =tag
-            #attr['colspan'] = col_max if data_type == 'TL' else 1
-            code = attr.get('code')
-            description = attr.pop('description','')
-            attr['value']='^.%s' %code
-            if tag.lower() in ('checkbox' or 'radiobutton'):
-                attr['label'] = description
-            else:
-                attr['lbl'] = description
-            attr['ghost'] = attr.pop('field_placeholder',None)
-            attr['tip'] = attr.pop('field_tip',None)
-            attr['style'] = attr.pop('field_style',None)
+            fb.dynamicField(r,fields=fields,datapath=datapath,dbstore_kwargs=dbstore_kwargs)
             
-            attr['format'] = attr.pop('field_format',None)
-            attr['dtype'] = data_type
-            attr['mask'] = mask
-            attr['colspan'] = 1
-            wdg_kwargs = attr.pop('wdg_kwargs',None)
-            if wdg_kwargs:
-                wdg_kwargs = Bag(wdg_kwargs)
-                attr.update(wdg_kwargs)
-                for dim in ('height','width','crop_height','crop_width'):
-                    c = attr.pop(dim, None)
-                    if isinstance(c,int) or (c and c.isdigit()):
-                        attr[dim] = '%spx' %c if c else None
-                    else:
-                        attr[dim] = c
-                attr['colspan'] = attr.pop('colspan',1) or 1
+    @struct_method
+    def df_dynamicField(self,fb,r,fields=None,datapath=None,dbstore_kwargs=None):
+        attr = dict(r)
+        attr.pop('id')
+        attr.pop('pkey')
+        attr.pop('maintable_id')
+        attr['datapath'] = datapath
+        data_type = attr.pop('data_type','T')
+        tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
+        mask = attr.pop('field_mask',None)
+        if tag.endswith('_nopopup'):
+            tag = tag.replace('_nopopup','')
+            attr['popup'] = False
+        attr['tag'] =tag
+        #attr['colspan'] = col_max if data_type == 'TL' else 1
+        code = attr.get('code')
+        description = attr.pop('description','')
+        attr['value']='^.%s' %code
+        if tag.lower() in ('checkbox' or 'radiobutton'):
+            attr['label'] = description
+        else:
+            attr['lbl'] = description
+        attr['ghost'] = attr.pop('field_placeholder',None)
+        attr['tip'] = attr.pop('field_tip',None)
+        attr['style'] = attr.pop('field_style',None)
+        
+        attr['format'] = attr.pop('field_format',None)
+        attr['dtype'] = data_type
+        attr['mask'] = mask
+        attr['colspan'] = 1
+        wdg_kwargs = attr.pop('wdg_kwargs',None)
+        if wdg_kwargs:
+            wdg_kwargs = Bag(wdg_kwargs)
+            attr.update(wdg_kwargs)
+            for dim in ('height','width','crop_height','crop_width'):
+                c = attr.pop(dim, None)
+                if isinstance(c,int) or (c and c.isdigit()):
+                    attr[dim] = '%spx' %c if c else None
+                else:
+                    attr[dim] = c
+            attr['colspan'] = attr.pop('colspan',1) or 1
 
-            if tag.lower()=='simpletextarea':
-                attr.setdefault('speech',True)
-                attr['width'] = attr.get('width') or '94%'
+        if tag.lower()=='simpletextarea':
+            attr.setdefault('speech',True)
+            attr['width'] = attr.get('width') or '94%'
 
-            customizer = getattr(self,'df_%(tag)s' %attr,None)
-            if customizer:
-                customizer(attr,dbstore_kwargs=dbstore_kwargs)
-            dictExtract(attr,'source_',pop=True)
-            self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-            self._df_handleFieldValidation(attr,fields=fields)
-            attr.pop('code')
-            fb.child(**attr)
+        customizer = getattr(self,'df_%(tag)s' %attr,None)
+        if customizer:
+            customizer(attr,dbstore_kwargs=dbstore_kwargs)
+        dictExtract(attr,'source_',pop=True)
+        self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+        self._df_handleFieldValidation(attr,fields=fields)
+        attr.pop('code')
+        fb.child(**attr)
 
     def df_filteringselect(self,attr,**kwargs):
         attr['values'] = attr.get('source_filteringselect')
@@ -331,7 +342,6 @@ class DynamicForm(BaseComponent):
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')
         attr['dbtable'] = tbl
-        htbl = hasattr(self.db.table(tbl),'htableFields')
         pkg,tblname = tbl.split('.')
         attr['hasDownArrow'] =True
         if pkg in dbstore_kwargs:
@@ -348,7 +358,7 @@ class DynamicForm(BaseComponent):
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
 
-        fb.dataFormula(".%s" %attr['code'], formula,_="""==this._relativeGetter('#FORM.record');""",_init=True,**formulaArgs)
+        fb.dataFormula(".%s" %attr['code'], formula,_="""==this._relativeGetter('#FORM.record');""",_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
     
     def _df_handleFieldValidation(self,attr,fields):

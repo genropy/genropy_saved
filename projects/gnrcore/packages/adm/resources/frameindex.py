@@ -108,6 +108,9 @@ class FrameIndex(BaseComponent):
         menu.menuline('!!Add to favorites',code='fav')
         menu.menuline('!!Set as start page',code='start')
         menu.menuline('!!Detach',code='detach') 
+        menu.menuline('!!Remove from favorites',code='remove')
+        menu.menuline('!!Clear favorites',code='clear')
+
         tabroot = pane.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
                                                 return;
@@ -130,6 +133,7 @@ class FrameIndex(BaseComponent):
                                 }else{
                                     genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
+                                genro.framedIndexManager.loadFavorites();
                                 """,
                             data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
@@ -173,7 +177,9 @@ class FrameIndex(BaseComponent):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 border_left='1px solid silver',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);',_class='frameindexcenter')
-        sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
+        sc.dataController("""setTimeout(function(){
+                                genro.framedIndexManager.selectIframePage(selectIframePage[0])
+                            },1);""",subscribe_selectIframePage=True)
 
         scattr = sc.attributes
         scattr['subscribe_reloadFrame'] = """
