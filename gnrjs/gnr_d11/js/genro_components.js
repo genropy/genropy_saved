@@ -59,7 +59,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var parentDomNode = sourceNode.getParentNode().getDomNode();
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode)){
+                if(!onOpening || onOpening(e,e.target.sourceNode)!==false){
                     genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
                 }
             } 
@@ -69,7 +69,10 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                                 selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
 
         kw['connect_onOpen'] = function(){
-            this.widget.resize();
+            var wdg = this.widget;
+            setTimeout(function(){
+                wdg.resize();
+            },1)
         };
         return  ddb._('TooltipDialog',kw);
     }

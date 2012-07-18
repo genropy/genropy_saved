@@ -584,9 +584,15 @@ dojo.declare('gnr.GenroClient', null, {
             return genro.prefs[prefname];
         }
     },
+
     userPreference:function(pref){
         return genro._('gnr.user_preference.'+pref);
     },
+
+    chat:function(){
+        return this.mainGenroWindow.ct_chat_utils;
+    },
+
     format: function (v, f, m) {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
@@ -1080,6 +1086,7 @@ dojo.declare('gnr.GenroClient', null, {
             window.parent.genro.publish(t,kw);
         }
     },
+
     absoluteUrl: function(url, kwargs, avoidCache) {
         var base = document.location.pathname;
         var avoidCache = avoidCache === false ? false : true;
@@ -1109,6 +1116,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return url;
     },
+
+
     setInStorage:function(sessionType, key, value) {
         var sessionType = sessionType || 'session';
         var storage = (sessionType == 'local') ? localStorage : sessionStorage;
