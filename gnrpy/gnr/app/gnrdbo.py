@@ -321,15 +321,17 @@ class TableBase(object):
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         where="$maintable_id=:p"
+        columns='*,$wdg_kwargs'
         hierarchical = self.attributes.get('hierarchical')
         p = pkey
         order_by='$_row_count'
         if hierarchical:
             hpkey = self.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
             p = hpkey
-            where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
+            where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) "
+            columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey'
             order_by = '$hlevel,$_row_count'
-        result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey').fetch()
+        result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
         return result
     
     @public_method
