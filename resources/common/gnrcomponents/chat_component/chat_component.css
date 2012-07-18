@@ -66,8 +66,6 @@
 
 .newMessage .chat_plugin_icon {
     background: url(images/buddy_chat.png) no-repeat center center;
-    width: 16px;
-    height: 16px;
 }
 
 .tundra .chat_rooms_tab .dijitTab {

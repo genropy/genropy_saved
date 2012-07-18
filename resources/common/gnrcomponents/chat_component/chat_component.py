@@ -30,9 +30,14 @@ class ChatComponent(BaseComponent):
         pane.dataRpc('dummy', 'setStoreSubscription', active=False, subscribe_chat_plugin_off=True, storename='user',
                     _onCalling='genro.rpc.setPolling();')
 
-        pane.dataController("genro.playSound('NewMessage');",
+        pane.dataController("""genro.playSound('NewMessage'); 
+                                setTimeout(function(){
+                                    genro.dom.setClass(dojo.body(),'newMessage',true);
+
+                                },1)
+                            """,
                             roomId="^gnr.chat.room_alert", selectedTab='=#gnr_main_left_center.selected',
-                            sel_room='=gnr.chat.selected_room')
+                            sel_room='=gnr.chat.selected_room',rooms='=gnr.chat.rooms')
         pane.dataController("""
                               var unread = rooms.sum('unread');
                               genro.dom.setClass(dojo.body(),'newMessage',unread>0);
