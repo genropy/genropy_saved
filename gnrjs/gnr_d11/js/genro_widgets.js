@@ -408,6 +408,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var callback = dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
             var kbhandler = function(evt) {
                 if (evt.keyCode == genro.PATCHED_KEYS.ENTER) {
+                    console.log('after enter')
                     evt.target.blur();
                     setTimeout(callback, 100);
                 }

@@ -325,7 +325,7 @@ class TableBase(object):
         p = pkey
         order_by='$_row_count'
         if hierarchical:
-            hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
+            hpkey = self.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
             p = hpkey
             where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
             order_by = '$hlevel,$_row_count'

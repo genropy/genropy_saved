@@ -45,8 +45,9 @@ ct_chat_utils.open_chat = function(roomId, users) {
     genro.setData(roompath, roombag,{'user_room_key':user_room_key});
     var pane = roomsNode._('ContentPane', {title:'^.title',closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
         onClose:function() {
-            var sn = this.sourceNode._destroy();
-            genro.publish("ct_send_message", {"roomId":roomId,msg:null,disconnect:true});
+            console.log("closing",this.sourceNode.attr.pageName);
+            genro.publish("ct_send_message", {"roomId":this.sourceNode.attr.pageName,msg:null,disconnect:true});
+            this.sourceNode._destroy();
             return false;
         }});
     var newroom = pane._('BorderContainer', {nodeId:roomId + '_room',detachable:true,height:'100%',rounded:4});
@@ -56,9 +57,11 @@ ct_chat_utils.open_chat = function(roomId, users) {
     var bottom = newroom._('ContentPane', {region:'bottom',_class:'ct_chatbottom'});
     roomsNode.widget.resize();
     roomsNode.setRelativeData('.selected_room', roomId);
-    var bottombox = bottom._('div', {margin:'3px',margin_right:'8px',
+    var bottombox = bottom._('div', {margin:'3px',margin_right:'8px',roomId:roomId,
         onEnter:function() {
-            genro.publish("ct_send_message", {roomId:roomId});
+            console.log("message",this.attr.roomId);
+
+            genro.publish("ct_send_message", {roomId:this.attr.roomId});
         }
     });
     bottombox._('textbox', {value:'^.current_msg',width:'100%',id:'ct_msgtextbox_' + roomId});
