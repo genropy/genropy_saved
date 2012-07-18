@@ -55,12 +55,12 @@ class ChatComponent(BaseComponent):
         frame.dataRpc('dummy', self.ct_send_message, subscribe_ct_send_message=True,
                     _onCalling="""
                                 var roombag =this.getRelativeData("gnr.chat.rooms."+kwargs.roomId);
-                                var msg = roombag.getItem('current_msg');
+                                var msg = kwargs.msg || roombag.getItem('current_msg');
                                 if (!msg && !kwargs.disconnect){
                                     return false;
                                 }
-                                kwargs.users=roombag.getItem('users');
                                 kwargs.msg=msg
+                                kwargs.users=roombag.getItem('users');
                                 roombag.setItem('current_msg','');
                                 """,
                     _onResult="""
@@ -69,12 +69,12 @@ class ChatComponent(BaseComponent):
                                 """)
 
     def ct_chat_grid(self, button):
-        tp = button.tooltipPane(onOpening="""FIRE gnr.chat.checkusers;
+        tp = button.tooltipPane(onOpening="""genro.getDataNode('gnr.chat.connected_users.#0');
                                                 setTimeout(function(){
                                                     genro.getFrameNode('ct_connected_user').widget.resize()
                                                 },1)
                                                 """)
-        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px')
+        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px',_class='noheader')
 
         frame.data('.grid_users', Bag())
         frame.dataRemote('gnr.chat.connected_users', 'connection.connected_users_bag',cacheTime=2)
@@ -104,7 +104,7 @@ class ChatComponent(BaseComponent):
                             var rows = grid.getSelectedNodes();
                             var users =new gnr.GnrBag();
                             dojo.forEach(rows,function(n){
-                              users.setItem(n.attr.user,null,{user_name:n.attr.user_name,user:n.attr.user});
+                                users.setItem(n.attr.user,null,{user_name:n.attr.user_name,user:n.attr.user});
                             });
                             var roomId= 'cr_'+new Date().getTime();
                             ct_chat_utils.open_chat(roomId,users);
@@ -120,7 +120,6 @@ class ChatComponent(BaseComponent):
         path = 'gnr.chat.msg.%s' % roomId
         for userNode in users:
             user = userNode.label
-            print roomId,users,msg
             with self.userStore(user) as store:
                 if disconnect and (user == self.user):
                     store.drop_datachanges(path)

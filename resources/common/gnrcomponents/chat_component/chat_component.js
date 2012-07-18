@@ -28,7 +28,7 @@ ct_chat_utils.key_from_users = function(users){
     if(idx>=0){
         user_list.splice(idx,1);
     }
-    var user_list = [user].append(user_list);
+    var user_list = [user].concat(user_list);
     return user_list.join('*');
 };
 
@@ -43,10 +43,11 @@ ct_chat_utils.open_chat = function(roomId, users) {
     ct_chat_utils.fill_title(roombag);
     var user_room_key = ct_chat_utils.key_from_users(users);
     genro.setData(roompath, roombag,{'user_room_key':user_room_key});
-    var pane = roomsNode._('ContentPane', {title:'^.title',closable:true,closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
+    var pane = roomsNode._('ContentPane', {title:'^.title',closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
         onClose:function() {
+            var sn = this.sourceNode._destroy();
             genro.publish("ct_send_message", {"roomId":roomId,msg:null,disconnect:true});
-            return true;
+            return false;
         }});
     var newroom = pane._('BorderContainer', {nodeId:roomId + '_room',detachable:true,height:'100%',rounded:4});
     var sourceNode = newroom.getParentNode();
@@ -57,15 +58,9 @@ ct_chat_utils.open_chat = function(roomId, users) {
     roomsNode.setRelativeData('.selected_room', roomId);
     var bottombox = bottom._('div', {margin:'3px',margin_right:'8px',
         onEnter:function() {
-            genro.publish("ct_send_message", {roomId:roomId})
+            genro.publish("ct_send_message", {roomId:roomId});
         }
     });
-
-   //bottombox._('button', {label:'!!Share the current page', width:"100%", id:'ct_msgbtn_'+roomId, 
-   //                       roomId:roomId, msg_path: roompath + '.current_msg',
-   //                       action:'genro.setData(msg_path,window.location.href);' +
-   //                               'genro.publish("ct_send_message", {roomId: roomId});'});
-
     bottombox._('textbox', {value:'^.current_msg',width:'100%',id:'ct_msgtextbox_' + roomId});
     label._('div', {innerHTML:'^.title'});
     var chatbox = newroom._('ContentPane', {region:'center'})._('div', {height:'100%',overflow:'auto'});
@@ -82,23 +77,26 @@ ct_chat_utils.read_msg = function(msgbag) {
     var roomId = msgbag.getItem('roomId');
     var disconnect = msgbag.getItem('disconnect');
     var roomPage,message;
-    var roombag;
+    var roombag,roomNode;
     roomPage = genro.nodeById(roomId + '_room');
     if (!roomPage) {
         ct_chat_utils.open_chat(roomId, users);
         roomPage = genro.nodeById(roomId + '_room');
     }
-    roombag = genro.getData('gnr.chat.rooms.' + roomId);
+    roomNode = genro.getDataNode('gnr.chat.rooms.' + roomId);
+    roombag = roomNode.getValue();
     if (genro.getData('gnr.chat.selected_room') != roomId) {
         roombag.setItem('unread', roombag.getItem('unread') || 0 + 1);
     } else {
         roombag.setItem('unread', null);
     }
     genro.fireEvent('gnr.chat.calc_unread');
+    var users = roombag.getItem('users')
     if (disconnect) {
-        roombag.pop('users.' + from_user);
+        users.popNode(from_user);
     }
     ct_chat_utils.fill_title(roombag);
+    roomNode.updAttributes({'user_room_key':this.key_from_users(users)});
     var chatNode = roomPage.chatNode;
 
     message = chatNode.lastElementChild;
@@ -120,24 +118,48 @@ ct_chat_utils.read_msg = function(msgbag) {
 ct_chat_utils.get_rooms=function(){
     return genro.getData('gnr.chat.rooms');
 };
-ct_chat_utils.select_room = function(roomId,users){
-    if(!roomId){
-        var users = typeof(users)=='string'?this.prepare_usersbag(users):users;
+
+ct_chat_utils.select_room = function(roomOrUsers){
+    var roomNode = genro.getDataNode('gnr.chat.rooms.' +roomOrUsers);
+    var roomId;
+    if(roomNode){
+        roomId = roomOrUsers;
+    }else{
+        var users = this.prepare_usersbag(roomOrUsers);
         var user_room_key = this.key_from_users(users);
         var rooms = genro.getData('gnr.chat.rooms')
-        var n = rooms.nodeByAttr('user_room_key',user_room_key);
+        if(!rooms){
+            rooms = new gnr.GnrBag();
+            genro.setData('gnr.chat.rooms',rooms);
+        }
+        var n = rooms.getNodeByAttr('user_room_key',user_room_key);
         if (!n){
             roomId= 'cr_'+new Date().getTime();
             this.open_chat(roomId,users)
         }else{
             roomId = n.label;
         }
-
     }
     var roomsNode = genro.nodeById('ct_chat_rooms');
     roomsNode.setRelativeData('.selected_room',roomId);
+    return roomId;
 };
+
 ct_chat_utils.prepare_usersbag = function(userstring){
+    var connectedUsers = genro.getData('gnr.chat.connected_users');
+    var userlist = userstring.split(',');
+    var n;
+    var users = new gnr.GnrBag();
+    dojo.forEach(userlist,function(username){
+        n = connectedUsers.getNode(username);
+        users.setItem(n.attr.user,null,{user_name:n.attr.user_name,user:n.attr.user});
+    });
+    return users;
+};
+
+ct_chat_utils.send_message = function(userstring,message){
+    var roomId = this.select_room(userstring);
+    genro.publish("ct_send_message", {roomId:roomId,msg:message});
 
 };
 

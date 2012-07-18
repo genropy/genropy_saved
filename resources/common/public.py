@@ -305,7 +305,7 @@ class TableHandlerMain(BaseComponent):
         extendedQuery = kwargs.pop('extendedQuery','*') 
         lockable = kwargs.pop('lockable',True)           
         if insidePublic:
-            root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
+            pbl_root = root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
         else:
             root.attributes.update(_class=None,datapath=tablecode)
         extras = []
@@ -327,7 +327,7 @@ class TableHandlerMain(BaseComponent):
         viewbar = th.view.top.bar
 
         if insidePublic:
-            root.top.bar.captionslot.captionbox.attributes.update(connect_onclick="""if(genro.dom.getEventModifiers($1)=="Shift"){
+            pbl_root.top.bar.captionslot.captionbox.attributes.update(connect_onclick="""if(genro.dom.getEventModifiers($1)=="Shift"){
                     th_usersettings(this.getAttributeFromDatasource("_mainth"));
                 }
                 """,_mainth=th.js_sourceNode())
