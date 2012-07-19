@@ -357,8 +357,8 @@ class DynamicForm(BaseComponent):
         if not formula:
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
-
-        fb.dataFormula(".%s" %attr['code'], formula,_="""==this._relativeGetter('#FORM.record');""",_init=True,datapath=attr['datapath'],**formulaArgs)
+        formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
+        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression);" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
     
     def _df_handleFieldValidation(self,attr,fields):

@@ -59,5 +59,14 @@ var dynamicFormHandler = {
                 //formclass = 'dffb_'+data_type;
         }
         sourceNode.setRelativeData('#FORM.boxClass',boxClass);
+    },
+    executeFormula:function(sourceNode,expression,kwargs){
+        try{
+            return sourceNode.onNodeCall('return '+expression,kwargs);
+        }catch(e){
+            alert("Wrong formula:"+e.toString());
+            return 'error';
+        }
     }
+
 };
