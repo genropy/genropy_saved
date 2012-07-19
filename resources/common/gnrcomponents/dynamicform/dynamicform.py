@@ -358,7 +358,7 @@ class DynamicForm(BaseComponent):
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
-        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression);" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
+        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
     
     def _df_handleFieldValidation(self,attr,fields):
@@ -377,14 +377,19 @@ class DynamicForm(BaseComponent):
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
             attr['row_hidden'] = """==function(sourceNode){
-                                        if(%s){
-                                            return false;
-                                        }else{
-                                            sourceNode.setRelativeData('.%s',null);
-                                            return true;
+                                        try{
+                                            if(%s){
+                                                return false;
+                                            }else{
+                                                sourceNode.setRelativeData('.%s',null);
+                                                return true;
+                                            }
+                                        }catch(e){
+                                            alert(e.toString());
                                         }
                                     }(this);""" %(condition,attr['code'])
-            conditionArgs = dict([('row_%s' %str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
+            conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
+            print 'conditionArgs',conditionArgs
             attr.update(conditionArgs)
             
     
