@@ -254,6 +254,11 @@ class SiteRegister(object):
 
         self.attach_connections_to_user(connection_item['user'], connection_item)
         self.c_register.write(connection_item)
+        if connection_item['pages']:
+            for page_id in connection_item['pages']:
+                page_item = self.p_register.read(page_id)
+                page_item['user'] = user
+                self.p_register.write(page_item)
 
     @lock_connection
     def attach_pages_to_connection(self, connection_id, page_items):

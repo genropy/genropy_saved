@@ -74,19 +74,20 @@ class ChatComponent(BaseComponent):
                                 """)
 
     def ct_chat_grid(self, button):
-        tp = button.tooltipPane(onOpening="""genro.getDataNode('gnr.chat.connected_users.#0');
+        tp = button.tooltipPane(onOpening=""" var users = genro.getData('gnr.chat.connected_users');
                                                 setTimeout(function(){
-                                                    genro.getFrameNode('ct_connected_user').widget.resize()
+                                                    genro.getFrameNode('ct_connected_user').widget.resize();
+                                                    genro.setData('gnr.chat.grid_users.store',users.deepCopy());
                                                 },1)
                                                 """)
-        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px',_class='noheader')
+        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px',_class='noheader ct_chatgrid')
 
         frame.data('.grid_users', Bag())
         frame.dataRemote('gnr.chat.connected_users', 'connection.connected_users_bag',cacheTime=2)
 
         def struct(struct):
             r = struct.view().rows()
-            r.cell('user_name', dtype='T', name='Fullname', width='16em')
+            r.cell('user_name', dtype='T', name='Fullname', width='100%')
 
         bar = frame.top.slotToolbar('5,vtitle,*,searchOn',font_size='.8em')
         bottom = frame.bottom.slotBar('*,openchat,2',font_size='.9em',padding='2px',border_top='1px solid silver')
@@ -96,7 +97,7 @@ class ChatComponent(BaseComponent):
         frame.includedview(identifier='user',
                            datapath='.grid_users',
                            selectedIndex='.selectedIndex',
-                           storepath='gnr.chat.connected_users',
+                           storepath='.store',
                            label='!!Users',
                          connect_onRowDblClick="""FIRE .open_chat;""",
                          struct=struct)

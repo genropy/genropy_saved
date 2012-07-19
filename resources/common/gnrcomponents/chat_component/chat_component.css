@@ -120,3 +120,42 @@
 }
 
 
+
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    background: transparent !important;
+    cursor:pointer;
+    border-bottom: 1px dotted #B4BECB !important;
+}
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row{
+    background-image: none;
+    height: 25px;
+}
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row-odd{
+    background-image: none;
+}
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row-selected{
+    background-image: none;
+    background: #C8D1DC !important;
+}
+
+
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+
+
+.tundra._common_d11 .ct_chatgrid .cellContent{
+    margin-top: 4px;
+}
+
+
