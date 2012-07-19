@@ -389,7 +389,6 @@ class DynamicForm(BaseComponent):
                                         }
                                     }(this);""" %(condition,attr['code'])
             conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
-            print 'conditionArgs',conditionArgs
             attr.update(conditionArgs)
             
     
