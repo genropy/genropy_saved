@@ -272,7 +272,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
-        if (this.changed && kw.destPkey &&(kw.destPkey != currentPkey)) {
+        if (this.changed && kw.destPkey &&(currentPkey=='*newrecord*' || (kw.destPkey != currentPkey))) {
             if(kw.modifiers=='Shift'){
                 this.save(kw);
             }else{
@@ -671,7 +671,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
                         that.setCurrentPkey(destPkey);
-                        that.load({'destPkey':destPkey});
+                        if(that.store){
+                            that.doload_store({'destPkey':destPkey});
+                        }else{
+                            that.doload_loader({'destPkey':destPkey});
+                        }
                     }
                 };
             }else{
