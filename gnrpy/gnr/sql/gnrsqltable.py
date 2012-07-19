@@ -442,7 +442,7 @@ class SqlTable(GnrObject):
             duplicatedRecords.append(r)
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
-            if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
+            if joiner and joiner['mode'] == 'M' and (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade'):
                 rellist = joiner['many_relation'].split('.')
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])
