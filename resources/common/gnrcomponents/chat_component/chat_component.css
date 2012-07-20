@@ -155,7 +155,24 @@
 
 
 .tundra._common_d11 .ct_chatgrid .cellContent{
-    margin-top: 4px;
+    margin-top: 3px;
+    font-weight: bold;
+    font-size: .9em;
+    color:#666;
+    padding-left: 20px;
+	background: url(../../icons/greenLight.gif) no-repeat left center;
 }
 
+.ct_chatgrid .user_disconnected .cellContent{
+    color:silver;
+    opacity:.5;
+}
 
+.ct_chatgrid .user_away .cellContent{
+	background: url(../../icons/redLight.gif) no-repeat left center !important;
+
+}
+
+.ct_chatgrid .user_idle .cellContent{
+	background: url(../../icons/yellowLight.gif) no-repeat left center !important;
+}

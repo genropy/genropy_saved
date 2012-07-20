@@ -89,11 +89,11 @@ class ChatComponent(BaseComponent):
             r = struct.view().rows()
             r.cell('user_name', dtype='T', name='Fullname', width='100%')
 
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn',font_size='.8em')
+        bar = frame.top.slotToolbar('5,vtitle,*,searchOn',height='20px',font_size='.9em')
         bottom = frame.bottom.slotBar('*,openchat,2',font_size='.9em',padding='2px',border_top='1px solid silver')
-        bottom.openchat.button('!!Add and close',action='FIRE #ct_connected_user_grid.open_chat; tp.widget.onCancel();',tp=tp,
+        bottom.openchat.button('!!Start chat',action='FIRE #ct_connected_user_grid.open_chat; tp.widget.onCancel();',tp=tp,
                                 disabled='^#ct_connected_user_grid.selectedIndex?=(#v==null)')
-        bar.vtitle.div('!!Users')
+        bar.vtitle.div('!!Users',color='#666')
         frame.includedview(identifier='user',
                            datapath='.grid_users',
                            selectedIndex='.selectedIndex',

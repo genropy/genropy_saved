@@ -1074,6 +1074,7 @@ class GnrWsgiSite(object):
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
 
         page_item = self.register.refresh(page_id, _lastUserEventTs)
+        print page_item['user'],_lastUserEventTs
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
         catalog = self.gnrapp.catalog
