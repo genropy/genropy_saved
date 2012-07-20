@@ -1,4 +1,10 @@
-var ct_chat_utils = {};
+var ct_chat_utils = {
+};
+
+ct_chat_utils.processors = {};
+ct_chat_utils.addProcessor = function(command,cb){
+    this.processors[command] = cb;
+};
 
 ct_chat_utils.fill_title = function(roombag) {
     var user = roombag.getItem('user');
@@ -59,9 +65,7 @@ ct_chat_utils.open_chat = function(roomId, users) {
     roomsNode.setRelativeData('.selected_room', roomId);
     var bottombox = bottom._('div', {margin:'3px',margin_right:'8px',roomId:roomId,
         onEnter:function() {
-            console.log("message",this.attr.roomId);
-
-            genro.publish("ct_send_message", {roomId:this.attr.roomId});
+            genro.publish("ct_typed_message", {roomId:this.attr.roomId});
         }
     });
     bottombox._('textbox', {value:'^.current_msg',width:'100%',id:'ct_msgtextbox_' + roomId});
@@ -165,5 +169,15 @@ ct_chat_utils.send_message = function(userstring,message){
     genro.publish("ct_send_message", {roomId:roomId,msg:message});
 
 };
+
+ct_chat_utils.processCommand = function(command,message,roomId){
+    var room = genro.getData('gnr.chat.rooms.' +roomId);
+    var processor = this.processors[command];
+    return processor? processor.call(this,message,room):'*error: unknown command "'+command+'"';
+};
+
+ct_chat_utils.addProcessor('me',function(msg,room){
+    return msg?"<i>"+room.getItem('user_name')+ ' '+ msg+"</i>":false;
+});
 
 

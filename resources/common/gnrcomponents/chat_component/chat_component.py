@@ -57,21 +57,39 @@ class ChatComponent(BaseComponent):
                              FIRE gnr.chat.calc_unread;
                              ct_chat_utils.fill_title(roombag);
                             """, sel_room='^.selected_room', rooms='=.rooms')
+
+        frame.dataController("""
+            var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
+            var msg = roombag.getItem('current_msg');
+            roombag.setItem('current_msg','');
+            var textbox = dojo.byId("ct_msgtextbox_"+roomId);
+            if(textbox){
+                textbox.focus();
+            }
+            if(msg.indexOf('/')==0){
+                msg = msg.slice(1).split(' ');
+                var command = msg[0];
+                msg = msg.slice(1).join(' ');
+                var msg = genro.chat().processCommand(command,msg,roomId);
+                if(msg && msg.indexOf('*error:')==0){
+                    alert(msg.slice(1));
+                    msg=false;
+                }
+
+            }
+            if(msg!==false){
+                PUBLISH ct_send_message = {roomId:roomId,msg:msg};
+            }
+
+
+            """,subscribe_ct_typed_message=True)
         frame.dataRpc('dummy', self.ct_send_message, subscribe_ct_send_message=True,
                     _onCalling="""
-                                var roombag =this.getRelativeData("gnr.chat.rooms."+kwargs.roomId);
-                                var msg = kwargs.msg || roombag.getItem('current_msg');
+                                var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
                                 if (!msg && !kwargs.disconnect){
                                     return false;
                                 }
-                                kwargs.msg=msg
-                                kwargs.users=roombag.getItem('users');
-                                roombag.setItem('current_msg','');
-                                """,
-                    _onResult="""
-                                var textbox = dojo.byId("ct_msgtextbox_"+kwargs.roomId);
-                                if(textbox){textbox.focus();}
-                                """)
+                                kwargs.users=roombag.getItem('users');""")
 
     def ct_chat_grid(self, button):
         tp = button.tooltipPane(onOpening=""" var users = genro.getData('gnr.chat.connected_users');
