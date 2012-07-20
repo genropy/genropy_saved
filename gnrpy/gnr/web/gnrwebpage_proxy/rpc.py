@@ -119,7 +119,6 @@ class GnrWebRpc(GnrBaseProxy):
                 uploadPath = '%s/%s' % (uploadPath, uploaderId)
         if file_handle is None or uploadPath is None:
             return
-        dest_dir = site.getStaticPath(uploadPath, autocreate=True)
         f = file_handle.file
         content = f.read()
         original_filename = file_handle.filename
@@ -130,7 +129,7 @@ class GnrWebRpc(GnrBaseProxy):
         if not file_ext:
             filename = '%s%s' %(filename,original_ext)
             file_ext = original_ext
-        file_path = site.getStaticPath(uploadPath, filename)
+        file_path = site.getStaticPath(uploadPath, filename,autocreate=-1)
         file_url = site.getStaticUrl(uploadPath, filename)
         with file(file_path, 'wb') as outfile:
             outfile.write(content)
@@ -148,7 +147,7 @@ class GnrWebRpc(GnrBaseProxy):
                 action_results[action_name] = action_runner(file_url=file_url, file_path=file_path, file_ext=file_ext,
                                                             action_name=action_name, **action_params)
         if onUploadedMethod:
-            handler = self.page.getPublicMethod('rpc', onUploadingMethod)
+            handler = self.page.getPublicMethod('rpc', onUploadedMethod)
             if handler:
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
