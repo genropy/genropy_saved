@@ -34,6 +34,12 @@ class AttachManagerView(BaseComponent):
         r.fieldcell('description',edit=True)
         r.fieldcell('mimetype')
         r.fieldcell('fileurl',hidden=True)
+        r.cell('imp',calculated=True,name='!!Imp.',format_isbutton=True,format_buttonclass='iconbox document',
+                format_onclick="""
+                    genro.serverCall('_table.'+this.attr.table+'.atc_importAttachment',{pkey:this.widget.rowIdByIndex($1.rowIndex)},
+                                     function(){console.log("ocr done")});
+                """,width='22px')
+
 
         #tbl.column('description' ,name_long='!!Description')
         #tbl.column('mimetype' ,name_long='!!Mimetype')

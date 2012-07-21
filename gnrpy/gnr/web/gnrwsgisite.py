@@ -9,6 +9,8 @@ import os
 import glob
 import re
 import logging
+import subprocess
+
 from time import time
 from datetime import datetime
 from gnr.core.gnrlang import deprecated
@@ -1194,6 +1196,30 @@ class GnrWsgiSite(object):
         """.. warning:: deprecated since version 0.7"""
         return self.getStatic('site').url(*args)
         
+
+    def shellCall(self,*args):
+        return subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+
+    def extractTextContent(self, filepath=None):
+        filename,ext = os.path.splitext(filepath)
+        tifname = '%s.tif' %filename
+        txtname = '%s.txt' %filename
+        try:
+            self.shellCall('convert','-density','300',filepath,'-depth','8',tifname)
+            self.shellCall('tesseract', tifname, filename)
+        except Exception:
+            print 'missing tesseract in this installation'
+            return
+        result = ''
+        if not os.path.isfile(txtname):
+            return
+        with open(txtname,'r') as f:
+            result = f.read()
+        os.remove(tifname)
+        os.remove(txtname)
+        return result
+
+
     def zipFiles(self, file_list=None, zipPath=None):
         """Allow to zip one or more files
         

@@ -481,6 +481,19 @@ class AttachmentTable(GnrDboTable):
                     one_group='_',many_group='_')
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
 
+    @public_method
+    def atc_importAttachment(self,pkey=None):
+        site = self.db.application.site
+        record = self.record(pkey=pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        filepath = record['filepath']
+        text_content = site.extractTextContent(site.getStaticPath('vol:%s' %filepath))
+        if text_content:
+            record['text_content'] = text_content
+            self.update(record,old_record=old_record)
+            self.db.commit()
+        
+
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
     def config_db(self,pkg):
