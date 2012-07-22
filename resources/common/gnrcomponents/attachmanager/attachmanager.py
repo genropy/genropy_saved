@@ -31,8 +31,8 @@ class AttachManagerView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         #tbl.column('filepath' ,name_long='!!Filepath')
-        r.fieldcell('description',edit=True)
-        r.fieldcell('mimetype')
+        r.fieldcell('description',edit=True,width='20em')
+        #r.fieldcell('mimetype')
         r.fieldcell('fileurl',hidden=True)
         r.cell('imp',calculated=True,name='!!Imp.',format_isbutton=True,format_buttonclass='iconbox document',
                 format_onclick="""
@@ -103,7 +103,7 @@ class AttachManager(BaseComponent):
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
 
-        bc.contentPane(region='center',datapath=datapath,margin='2px').iframe(src='^.view.grid.selectedId?fileurl',
+        bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver').iframe(src='^.view.grid.selectedId?fileurl',
                                                                 height='100%',width='100%',border=0)
         return th
 

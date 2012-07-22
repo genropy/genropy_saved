@@ -75,7 +75,7 @@ class PublicBase(BaseComponent):
         kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'captionslot' in slots:
-            kwargs['caption_title'] = title
+            kwargs['captionslot_title'] = title
         return pane.slotBar(slots=slots,childname='bar',
                             **kwargs)
                             
