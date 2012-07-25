@@ -60,12 +60,14 @@ class ImapReceiver(object):
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
             content = part.get_payload(decode=True)
-            encoding = chardet.detect(content)['encoding']
+            #encoding = chardet.detect(content)['encoding']
+            encoding = part.get_content_charset()
             new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
             new_mail['html'] = True
         elif part_content_type == 'text/plain':
             content = part.get_payload(decode=True)
-            encoding = chardet.detect(content)['encoding']
+            #encoding = chardet.detect(content)['encoding']
+            encoding = part.get_content_charset()
             new_mail['body_plain'] = unicode(content.decode(encoding).encode('utf8'))
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
@@ -103,7 +105,8 @@ class ImapReceiver(object):
         self.fillHeaders(mail, new_mail)
         if mail.get_content_maintype() != 'multipart':
             content = mail.get_payload(decode=True)
-            encoding = chardet.detect(content)['encoding']
+            encoding = part.get_content_charset()
+            #encoding = chardet.detect(content)['encoding']
             new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
             new_mail['body_plain'] = new_mail['body']
         else:
