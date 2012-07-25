@@ -101,11 +101,11 @@ class THPicker(BaseComponent):
                             rows.push(r);
                         });
                         grid.gridEditor.addNewRows(rows);
-                    }else{
+                    }else if(mainpkey){
                         genro.serverCall(rpcmethod,kw,function(){},null,'POST');
                     }
 
-                """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',_if='mainpkey',
+                """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',
                         rpcmethod=method,treepicker=oldtreePicker or treepicker or False,tbl=maintable,
                         one=one,many=many,grid=grid.js_widget)
                     

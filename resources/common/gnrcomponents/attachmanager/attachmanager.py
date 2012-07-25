@@ -31,7 +31,16 @@ class AttachManagerView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         #tbl.column('filepath' ,name_long='!!Filepath')
-        r.fieldcell('description',edit=True)
+        r.fieldcell('description',edit=True,width='20em')
+        #r.fieldcell('mimetype')
+        r.fieldcell('fileurl',hidden=True)
+        r.cell('imp',calculated=True,name='!!Imp.',format_isbutton=True,format_buttonclass='iconbox document',
+                format_onclick="""
+                    genro.serverCall('_table.'+this.attr.table+'.atc_importAttachment',{pkey:this.widget.rowIdByIndex($1.rowIndex)},
+                                     function(){console.log("ocr done")});
+                """,width='22px')
+
+
         #tbl.column('description' ,name_long='!!Description')
         #tbl.column('mimetype' ,name_long='!!Mimetype')
         #tbl.column('text_content',name_long='!!Content')
@@ -83,14 +92,19 @@ class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'
 
     @struct_method
-    def df_attachmentGrid(self,pane,title=None,searchOn=False,folderId=None,uploadPath=None,**kwargs):
-        th = pane.inlineTableHandler(relation='@atc_attachments',
+    def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
+        bc = pane.borderContainer()
+        th = bc.contentPane(region='left',width='400px',margin='2px',splitter=True).inlineTableHandler(relation='@atc_attachments',
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
-                                     semaphore=False, searchOn=False,**kwargs)
+                                        addrow=False,pbl_classes=pbl_classes,margin='2px',
+                                     semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
+
+        bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver').iframe(src='^.view.grid.selectedId?fileurl',
+                                                                height='100%',width='100%',border=0)
         return th
 
 
@@ -105,7 +119,7 @@ class AttachManager(BaseComponent):
         path = os.path.join(maintable.replace('.','_'),maintable_id)
         if hasattr(maintableobj,'atc_getAttachmentPath'):
             path = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
-        kwargs['uploadPath'] = self.site.getStaticPath('vol:%s' %path)
+        kwargs['uploadPath'] = 'vol:%s' %path
         record = dict(maintable_id=maintable_id,mimetype=kwargs.get('mimetype'),description=description,filepath=os.path.join(path,filename))
         self.db.table(attachment_table).insert(record)
         self.db.commit()

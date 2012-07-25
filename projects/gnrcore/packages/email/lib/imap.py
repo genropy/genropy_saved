@@ -119,7 +119,7 @@ class ImapReceiver(object):
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if not new_mail.get('body'):
-            new_mail['body'] = new_mail['body_plain']
+            new_mail['body'] = new_mail.get('body_plain')
         
         return new_mail
             

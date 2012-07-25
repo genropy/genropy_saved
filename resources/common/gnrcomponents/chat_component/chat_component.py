@@ -57,46 +57,65 @@ class ChatComponent(BaseComponent):
                              FIRE gnr.chat.calc_unread;
                              ct_chat_utils.fill_title(roombag);
                             """, sel_room='^.selected_room', rooms='=.rooms')
+
+        frame.dataController("""
+            var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
+            var msg = roombag.getItem('current_msg');
+            roombag.setItem('current_msg','');
+            var textbox = dojo.byId("ct_msgtextbox_"+roomId);
+            if(textbox){
+                textbox.focus();
+            }
+            if(msg.indexOf('/')==0){
+                msg = msg.slice(1).split(' ');
+                var command = msg[0];
+                msg = msg.slice(1).join(' ');
+                var msg = genro.chat().processCommand(command,msg,roomId);
+                if(msg && msg.indexOf('*error:')==0){
+                    alert(msg.slice(1));
+                    msg=false;
+                }
+
+            }
+            if(msg!==false){
+                PUBLISH ct_send_message = {roomId:roomId,msg:msg};
+            }
+
+
+            """,subscribe_ct_typed_message=True)
         frame.dataRpc('dummy', self.ct_send_message, subscribe_ct_send_message=True,
                     _onCalling="""
-                                var roombag =this.getRelativeData("gnr.chat.rooms."+kwargs.roomId);
-                                var msg = kwargs.msg || roombag.getItem('current_msg');
+                                var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
                                 if (!msg && !kwargs.disconnect){
                                     return false;
                                 }
-                                kwargs.msg=msg
-                                kwargs.users=roombag.getItem('users');
-                                roombag.setItem('current_msg','');
-                                """,
-                    _onResult="""
-                                var textbox = dojo.byId("ct_msgtextbox_"+kwargs.roomId);
-                                if(textbox){textbox.focus();}
-                                """)
+                                kwargs.users=roombag.getItem('users');""")
 
     def ct_chat_grid(self, button):
-        tp = button.tooltipPane(onOpening="""genro.getDataNode('gnr.chat.connected_users.#0');
+        tp = button.tooltipPane(onOpening=""" var users = genro.getData('gnr.chat.connected_users');
                                                 setTimeout(function(){
-                                                    genro.getFrameNode('ct_connected_user').widget.resize()
+                                                    genro.getFrameNode('ct_connected_user').widget.resize();
+                                                    genro.setData('gnr.chat.grid_users.store',users.deepCopy());
                                                 },1)
                                                 """)
-        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px',_class='noheader')
+        frame = tp.framePane(frameCode='ct_connected_user',height='400px',width='230px',_class='noheader ct_chatgrid')
 
         frame.data('.grid_users', Bag())
         frame.dataRemote('gnr.chat.connected_users', 'connection.connected_users_bag',cacheTime=2)
 
         def struct(struct):
             r = struct.view().rows()
-            r.cell('user_name', dtype='T', name='Fullname', width='16em')
+            r.cell('user_name', dtype='T', name='Fullname', width='100%')
 
-        bar = frame.top.slotToolbar('5,vtitle,*,searchOn',font_size='.8em')
+        bar = frame.top.slotToolbar('5,vtitle,*,searchOn',height='20px',font_size='.9em')
         bottom = frame.bottom.slotBar('*,openchat,2',font_size='.9em',padding='2px',border_top='1px solid silver')
-        bottom.openchat.button('!!Add and close',action='FIRE #ct_connected_user_grid.open_chat; tp.widget.onCancel();',tp=tp,
+        bottom.openchat.button('!!Start chat',action='FIRE #ct_connected_user_grid.open_chat; tp.widget.onCancel();',tp=tp,
                                 disabled='^#ct_connected_user_grid.selectedIndex?=(#v==null)')
-        bar.vtitle.div('!!Users')
+        bar.vtitle.div('!!Users',color='#666')
         frame.includedview(identifier='user',
                            datapath='.grid_users',
                            selectedIndex='.selectedIndex',
-                           storepath='gnr.chat.connected_users',
+                           storepath='.store',
                            label='!!Users',
                          connect_onRowDblClick="""FIRE .open_chat;""",
                          struct=struct)

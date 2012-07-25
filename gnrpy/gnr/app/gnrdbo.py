@@ -478,8 +478,21 @@ class AttachmentTable(GnrDboTable):
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
-                    one_group='_',many_group='_')
+                    one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+
+    @public_method
+    def atc_importAttachment(self,pkey=None):
+        site = self.db.application.site
+        record = self.record(pkey=pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        filepath = record['filepath']
+        text_content = site.extractTextContent(site.getStaticPath('vol:%s' %filepath))
+        if text_content:
+            record['text_content'] = text_content
+            self.update(record,old_record=old_record)
+            self.db.commit()
+        
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""

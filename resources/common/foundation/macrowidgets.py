@@ -110,7 +110,7 @@ class PeriodCombo(BaseComponent):
     def periodCombo(self, fb, period_store=None, value=None, lbl='!!Period', dflt='',width=None,**kwargs):
         value = value or '^.period_input'
         period_store = period_store or '.period'
-        fb.dataRpc(period_store, self.decodeDatePeriod, datestr=value,
+        fb.dataRpc('dummy', self.decodeDatePeriod, datestr=value,
                    _onResult="""if (result.getItem("valid")){
                                     var period = result.getItem("period");
                                     if(kwargs.datestr!=period){
@@ -118,8 +118,24 @@ class PeriodCombo(BaseComponent):
                                     }
                                  }else{
                                     result.setItem('period_string','Invalid period');
-                                 }""",_onBuilt=True,_dflt=dflt or False,
-                    _onCalling='if(_triggerpars.kw&&_triggerpars.kw.reason=="puttingdefault"){return false;};kwargs["datestr"]= kwargs["datestr"] || _dflt || "";')
+                                 }
+                                 var ds = objectPop(this,'_defaultset');
+                                 if(ds){
+                                    PUT %s = result;
+                                 }else{
+                                    SET %s = result;
+                                 }
+                                 """ %(period_store,period_store),_onBuilt=True,_defaultPeriod=dflt or False,
+                    _onCalling="""if(_triggerpars.kw&&_triggerpars.kw.reason=="puttingdefault"){
+                                        return false;
+                                  };
+                                  if(!datestr && _defaultPeriod){
+                                      kwargs['datestr'] = _defaultPeriod;
+                                      this._defaultset = true;
+                                  }
+                                  kwargs["datestr"]= kwargs["datestr"] || "";
+                                  """)
+        
         fb.combobox(lbl=lbl,value=value, width=width, tip='^%s.period_string' % period_store,
                     values=self._pc_datesHints(), margin_right='5px', padding_top='1px', **kwargs)
 
