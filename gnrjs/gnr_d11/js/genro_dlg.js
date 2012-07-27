@@ -262,6 +262,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var msg = kw.msg;
         var confirmCb = kw.action || '';
         var wdg = kw['widget'] || 'textbox';
+        var remote = kw['remote'];
+
         var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
@@ -273,12 +275,19 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
-        var box = dlg.center._('div',{padding:'10px'});
-        if(msg){
-            box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
+        var kwbox = {padding:'10px'};
+        if(remote){
+            kwbox['remote'] = remote;
+            kwbox['remote_valuepath'] = '.promptvalue';
         }
-        var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
-        fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
+        var box = dlg.center._('div',kwbox);
+        if(!remote){
+            if(msg){
+                box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
+            }
+            var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+            fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
+        }
         dlg.show_action();
         if (dflt){
             genro.setData('gnr.promptDlg.promptvalue',dflt);
