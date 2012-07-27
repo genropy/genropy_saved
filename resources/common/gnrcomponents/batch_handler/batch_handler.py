@@ -128,7 +128,7 @@ class TableScriptHandler(BaseComponent):
             dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
             dlgoptions.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgoptions.js_widget)  
 
-        immediate = extra_parameters.getItem('batch_immediate') if extra_parameters else batch_dict.get('immediate') or False,
+        immediate = extra_parameters.getItem('batch_immediate') if extra_parameters else batch_dict.get('immediate') or False
         pane.dataController("""
                             dlgpars.hide();
                             dlgoptions.hide();
@@ -138,7 +138,7 @@ class TableScriptHandler(BaseComponent):
                             }else{
                                 var modifier = _node.attr.modifier;
                                 if(modifier!='Shift'){
-                                    genro.publish({parent:true,topic:'open_batch'});
+                                    genro.mainGenroWindow.genro.publish('open_batch');
                                 }                                
                             }
                             FIRE .run;
