@@ -105,7 +105,7 @@ class ImapReceiver(object):
         self.fillHeaders(mail, new_mail)
         if mail.get_content_maintype() != 'multipart':
             content = mail.get_payload(decode=True)
-            encoding = part.get_content_charset()
+            encoding = mail.get_content_charset()
             #encoding = chardet.detect(content)['encoding']
             new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
             new_mail['body_plain'] = new_mail['body']
