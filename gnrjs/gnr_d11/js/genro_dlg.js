@@ -461,7 +461,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
         node.unfreeze(); 
     },
+
     zoomPalette:function(kw){
+        if(objectPop(kw,'rootZoom')){
+            genro.mainGenroWindow.genro.dlg.zoomPalette(kw);
+            return;
+        }
         var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;
