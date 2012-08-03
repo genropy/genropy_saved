@@ -990,6 +990,7 @@ dojo.declare("gnr.GridEditor", null, {
                 rowData.setItem(k,updkw[k]);
             }
         }
+        this.lastEditTs = new Date();
         this.updateStatus();
     },
 
