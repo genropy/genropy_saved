@@ -6267,9 +6267,8 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                                           });
         };
         var url=widget.getAttribute('src')
-        widget.setAttribute('src',null)
+        //widget.setAttribute('src',null)
         setTimeout(function(){
-            console.log('created')
             widget.setAttribute('src',url)
             },1000)
     },
