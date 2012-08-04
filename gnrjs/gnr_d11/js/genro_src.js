@@ -237,10 +237,13 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             cb = this.afterBuildCalls.pop();
             cb.call();
         }
-        for (var formId in this.formsToUpdate){
-            var form = this.formsToUpdate[formId];
-            form.applyDisabledStatus();
-        } 
+        if(genro._pageStarted){
+            for (var formId in this.formsToUpdate){
+                var form = this.formsToUpdate[formId];
+                form.applyDisabledStatus();
+            } 
+        }
+
     },
 
 

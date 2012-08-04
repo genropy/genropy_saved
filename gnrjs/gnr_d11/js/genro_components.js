@@ -1632,13 +1632,20 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         var that = this;
         var cb = function(){
-            that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
+            that.storeNode.subscribe('setLocked',function(v){
+                console.log('setLocked published for the store of the grid')
+                that.setLocked(v);
+            });
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);},null,that.storeNode);
+                parentForm.subscribe('onDisabledChange',function(kwargs){
+                    that.setLocked(kwargs.disabled);
+                },null,that.storeNode);
             }
-            startLocked = parentForm?parentForm.locked:startLocked;
-            setTimeout(function(){that.setLocked(startLocked);},1);
+            dojo.subscribe('onPageStart',function(){
+                startLocked = parentForm?parentForm.isDisabled():startLocked;
+                that.setLocked(startLocked);
+            });
         };
         genro.src.afterBuildCalls.push(cb);
     },

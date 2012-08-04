@@ -134,8 +134,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 },null,this.sourceNode);
                 this.locked = parentForm.locked;
             }
-            genro.src.afterBuildCalls.push(function(){
-                setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
+            dojo.subscribe('onPageStart',function(){
+                that.setLocked(that.locked);
+                that.updateStatus();
             });
         }
     },
@@ -144,7 +145,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope,subscriberNode){
@@ -753,7 +754,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (parentForm){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
-        return protect_write || this.readOnly;
+        return protect_write || this.readOnly || false;
     },
     
     isLogicalDeleted:function(){
