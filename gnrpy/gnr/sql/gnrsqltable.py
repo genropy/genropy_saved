@@ -691,7 +691,7 @@ class SqlTable(GnrObject):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
-        if where and _pkeys:
+        if not where and _pkeys:
             where = '$%s IN :_pkeys' %self.pkey
             if isinstance(_pkeys,basestring):
                 _pkeys = _pkeys.split(',')

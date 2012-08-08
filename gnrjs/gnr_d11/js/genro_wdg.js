@@ -1392,6 +1392,7 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
     triggerINS:function(kw){
         this.resolveTotalizeColumns();
+        this.resolveCalculatedColumns();
     },
     triggerDEL:function(kw){
         this.resolveTotalizeColumns();
