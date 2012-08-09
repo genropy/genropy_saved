@@ -264,6 +264,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
 
+
         var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
@@ -278,10 +279,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var kwbox = {padding:'10px'};
         if(remote){
             kwbox['remote'] = remote;
+            objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
+            dlg.center._('div',kwbox);
         }
-        var box = dlg.center._('div',kwbox);
-        if(!remote){
+        else{
+            var box = dlg.center._('div',kwbox);
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
             }
