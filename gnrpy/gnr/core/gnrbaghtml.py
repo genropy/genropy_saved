@@ -138,7 +138,7 @@ class BagToHtml(object):
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
         if not self.htmlTemplate:
-            self.htmlTemplate = self.templateLoader(self.templates,letterhead_id=self.letterhead_id)
+            self.htmlTemplate = self.templateLoader(letterhead_id=self.letterhead_id,name=self.templates)
         d = self.__dict__
         self.page_height = d.get('page_height') or self.htmlTemplate['main.page.height'] or self.page_height
         self.page_width = d.get('page_width') or self.htmlTemplate['main.page.width'] or self.page_width

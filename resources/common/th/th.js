@@ -186,7 +186,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         this.pages_dict = {};
         this.recyclablePages = kw.recyclablePages;
         this.page_kw = {url_main_call:kw.main_call || 'main_form',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
-                        url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
+                        url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection','url_th_from_package':genro.getData('gnr.package')};
         this.formUrl = kw.formUrl;
         this.loadingTitle = 'loading...'
         this.indexgenro = window.parent.genro;

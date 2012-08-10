@@ -21,19 +21,17 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('htmltemplate', pkey='id', name_long='!!Html Template',
-                        name_plural='!!Html Template', rowcaption='name')
+        tbl = pkg.table('htmltemplate', pkey='id', name_long='!!Letterhead',
+                        name_plural='!!Letterheads', rowcaption='name')
         self.sysFields(tbl)
-        tbl.column('name', name_long='!!Name', validate_nodup=True, unique=True,
-                   validate_notnull=True, validate_notnull_error='!!Name is mandatory',
-                   validate_nodup_error='!!This name is already taken')
+        tbl.column('name', name_long='!!Name',validate_notnull=True)
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('data', dtype='X', name_long='!!Data', _sendback=True)
         tbl.column('center_height',dtype='I',name_long='!!Center height')
         tbl.column('center_width',dtype='I',name_long='!!Center width')
 
-    def getTemplate(self, name=None,letterhead_id=None):
+    def getTemplate(self,letterhead_id=None,name=None):
         if not(name or letterhead_id):
             return Bag()
         if letterhead_id:

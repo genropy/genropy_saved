@@ -216,4 +216,7 @@ class Form(BaseComponent):
                 for j in ('top', 'bottom'):
                     path = '%s.%s' % (i, j)
                     record.setItem('data.layout.%s' % path, None, height=30)
+
+    def th_options(self):
+        return dict(dialog_height='600px',dialog_width='900px')
                           

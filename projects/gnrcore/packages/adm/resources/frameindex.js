@@ -60,12 +60,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = genro.getData("gnr.package");
-            if(kw.formResource){
-                urlPars['th_formResource'] = kw.formResource;
-            }
-            if(kw.viewResource){
-                urlPars['th_viewResource'] = kw.viewResource;
-            }
+        }
+        if(kw.formResource){
+            urlPars['th_formResource'] = kw.formResource;
+        }
+        if(kw.viewResource){
+            urlPars['th_viewResource'] = kw.viewResource;
         }
         if(kw.workInProgress){
             urlPars.workInProgress = true;
