@@ -590,7 +590,7 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
-    def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
+    def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
@@ -601,7 +601,7 @@ class SqlTable(GnrObject):
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
         fetch = self.query(columns=columns, limit=1, where=where,
-                           pkey=pkey, addPkeyColumn=False, **kwargs).fetch()
+                           pkey=pkey, addPkeyColumn=False,excludeDraft=excludeDraft, **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
