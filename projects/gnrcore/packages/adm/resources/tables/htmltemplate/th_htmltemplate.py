@@ -42,7 +42,7 @@ class Form(BaseComponent):
                                                                     -moz-box-shadow:8px 8px 15px gray;
 	                                                                -webkit-box-shadow:8px 8px 15px gray;
                                                                     """,
-                                        zoomFactor='^zoomFactor', margin='10px')
+                                        zoom='^zoomFactor', margin='10px')
         bc = page.borderContainer(region='center',
                                   margin_top='^.main.page.top',
                                   margin_bottom='^.main.page.bottom',
