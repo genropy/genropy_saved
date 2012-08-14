@@ -196,12 +196,12 @@ class Form(BaseComponent):
         if newrecord:
             record['username'] = self.user
             record['data'] = Bag()
-            record['data.main.page.height'] = 280
-            record['data.main.page.width'] = 200
-            record['data.main.page.top'] = 5
-            record['data.main.page.bottom'] = 5
-            record['data.main.page.left'] = 5
-            record['data.main.page.right'] = 5
+            record['data.main.page.height'] = 297
+            record['data.main.page.width'] = 210
+            record['data.main.page.top'] = 0
+            record['data.main.page.bottom'] = 0
+            record['data.main.page.left'] = 0
+            record['data.main.page.right'] = 0
             record['data.main.design'] = 'headline'
             for i in ('top', 'center', 'bottom'):
                 if i != 'center':
