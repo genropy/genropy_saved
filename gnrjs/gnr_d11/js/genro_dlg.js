@@ -292,9 +292,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
         }
         dlg.show_action();
-        if (dflt){
-            genro.setData('gnr.promptDlg.promptvalue',dflt);
-        }
+        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
 
 
     },

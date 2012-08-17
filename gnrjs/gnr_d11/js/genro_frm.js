@@ -365,6 +365,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
+    waitingStatus:function(waiting){
+        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>'});
+    },
     
     openPendingChangesDlg:function(kw){
          var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'280px'});
