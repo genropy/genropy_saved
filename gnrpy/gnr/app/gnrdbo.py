@@ -321,15 +321,17 @@ class TableBase(object):
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         where="$maintable_id=:p"
+        columns='*,$wdg_kwargs'
         hierarchical = self.attributes.get('hierarchical')
         p = pkey
         order_by='$_row_count'
         if hierarchical:
-            hpkey = self.readColumns(columns='hierarchical_pkey' ,pkey=pkey)
+            hpkey = self.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
             p = hpkey
-            where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) " 
+            where =  " ( :p = @maintable_id.hierarchical_pkey ) OR ( :p ILIKE @maintable_id.hierarchical_pkey || :suffix) "
+            columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey'
             order_by = '$hlevel,$_row_count'
-        result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey').fetch()
+        result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
         return result
     
     @public_method
@@ -476,8 +478,21 @@ class AttachmentTable(GnrDboTable):
         tbl.column('info' ,'X',name_long='!!Additional info')
         tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade', relation_name='atc_attachments',
-                    one_group='_',many_group='_')
+                    one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')
+
+    @public_method
+    def atc_importAttachment(self,pkey=None):
+        site = self.db.application.site
+        record = self.record(pkey=pkey,for_update=True).output('dict')
+        old_record = dict(record)
+        filepath = record['filepath']
+        text_content = site.extractTextContent(site.getStaticPath('vol:%s' %filepath))
+        if text_content:
+            record['text_content'] = text_content
+            self.update(record,old_record=old_record)
+            self.db.commit()
+        
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""

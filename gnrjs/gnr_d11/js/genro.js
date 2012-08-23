@@ -202,9 +202,9 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg);
     },
-    childUserEvent:function(childgenro,e){
+    childUserEvent:function(childgenro){
         genro._lastUserEventTs = new Date();
-        genro.onUserEvent(e);
+        genro.onUserEvent();
     },
     
     _registerUserEvents:function() {
@@ -213,19 +213,18 @@ dojo.declare('gnr.GenroClient', null, {
         if(this.root_page_id){
             var rootgenro = this.mainGenroWindow.genro;
             that = this;
-            cb = function(e){
-                rootgenro.childUserEvent(that,e);
+            cb = function(){
+                rootgenro.childUserEvent(that);
             }
         }else{
-            genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
             cb = genro.onUserEvent;
         }
-        var commoncb = function(e){
+        var commoncb = function(){
             if(genro.userInfoCb.length>0){
                 dojo.forEach(genro.userInfoCb,function(cb){cb()});
                 genro.userInfoCb = [];
             }
-            cb(e);
+            cb();
         }
         dojo.connect(window, 'onmousemove', commoncb);
         dojo.connect(window, 'onkeypress', commoncb);
@@ -234,11 +233,11 @@ dojo.declare('gnr.GenroClient', null, {
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
 
-    onUserEvent:function(e) {
+    onUserEvent:function() {
         if (genro.user_polling > 0) {
             genro._lastUserEventTs = new Date();
             if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
-                genro.rpc.ping({'reason':e?'user':'auto'});
+                genro.rpc.ping({'reason':'user'});
             }
         }
     },
@@ -341,6 +340,15 @@ dojo.declare('gnr.GenroClient', null, {
             genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }
         this._registerUserEvents();
+        if(!this.root_page_id){
+            genro.auto_polling_handler = setInterval(function(){
+                if ((new Date() - genro.lastRpc) / 1000 > genro.user_polling) {
+                    genro.rpc.ping({'reason':'auto'});
+                }
+            },genro.auto_polling * 1000);
+
+        }
+
         dojo.subscribe('/dnd/move/start',function(mover){
             mover.page_id = genro.page_id;
             genro.mainGenroWindow.genro.currentDnDMover=mover;
@@ -373,6 +381,7 @@ dojo.declare('gnr.GenroClient', null, {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
             }
+            genro._pageStarted = true;
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
         }, 100);
@@ -585,9 +594,15 @@ dojo.declare('gnr.GenroClient', null, {
             return genro.prefs[prefname];
         }
     },
+
     userPreference:function(pref){
         return genro._('gnr.user_preference.'+pref);
     },
+
+    chat:function(){
+        return this.mainGenroWindow.ct_chat_utils;
+    },
+
     format: function (v, f, m) {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
@@ -1081,6 +1096,7 @@ dojo.declare('gnr.GenroClient', null, {
             window.parent.genro.publish(t,kw);
         }
     },
+
     absoluteUrl: function(url, kwargs, avoidCache) {
         var base = document.location.pathname;
         var avoidCache = avoidCache === false ? false : true;
@@ -1110,6 +1126,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return url;
     },
+
+
     setInStorage:function(sessionType, key, value) {
         var sessionType = sessionType || 'session';
         var storage = (sessionType == 'local') ? localStorage : sessionStorage;

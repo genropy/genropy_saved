@@ -59,7 +59,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var parentDomNode = sourceNode.getParentNode().getDomNode();
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode)){
+                if(!onOpening || onOpening(e,e.target.sourceNode)!==false){
                     genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
                 }
             } 
@@ -69,7 +69,10 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                                 selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
 
         kw['connect_onOpen'] = function(){
-            this.widget.resize();
+            var wdg = this.widget;
+            setTimeout(function(){
+                wdg.resize();
+            },1)
         };
         return  ddb._('TooltipDialog',kw);
     }
@@ -1401,6 +1404,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             slotKw = objectExtract(kw,slot+'_*');
             if(slotKw.width){
+                console.log('zumbo')
                 cell.getParentNode().attr['width'] = slotKw.width;
                 slotKw.width = '100%';
             }
@@ -1629,13 +1633,20 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         var that = this;
         var cb = function(){
-            that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
+            that.storeNode.subscribe('setLocked',function(v){
+                console.log('setLocked published for the store of the grid')
+                that.setLocked(v);
+            });
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);},null,that.storeNode);
+                parentForm.subscribe('onDisabledChange',function(kwargs){
+                    that.setLocked(kwargs.disabled);
+                },null,that.storeNode);
             }
-            startLocked = parentForm?parentForm.locked:startLocked;
-            setTimeout(function(){that.setLocked(startLocked);},1);
+            dojo.subscribe('onPageStart',function(){
+                startLocked = parentForm?parentForm.isDisabled():startLocked;
+                that.setLocked(startLocked);
+            });
         };
         genro.src.afterBuildCalls.push(cb);
     },

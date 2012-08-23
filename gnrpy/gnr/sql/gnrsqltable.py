@@ -442,7 +442,7 @@ class SqlTable(GnrObject):
             duplicatedRecords.append(r)
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
-            if joiner and joiner['mode'] == 'M' and joiner.get('onDelete')=='cascade':
+            if joiner and joiner['mode'] == 'M' and (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade'):
                 rellist = joiner['many_relation'].split('.')
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])
@@ -590,7 +590,7 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
-    def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
+    def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
@@ -601,7 +601,7 @@ class SqlTable(GnrObject):
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
         fetch = self.query(columns=columns, limit=1, where=where,
-                           pkey=pkey, addPkeyColumn=False, **kwargs).fetch()
+                           pkey=pkey, addPkeyColumn=False,excludeDraft=excludeDraft, **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
@@ -691,7 +691,7 @@ class SqlTable(GnrObject):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
-        if where and _pkeys:
+        if not where and _pkeys:
             where = '$%s IN :_pkeys' %self.pkey
             if isinstance(_pkeys,basestring):
                 _pkeys = _pkeys.split(',')

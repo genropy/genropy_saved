@@ -1393,6 +1393,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
+                page.data('gnr.defaultUrl', self.site.default_uri)
                 page.data('gnr.siteName',self.siteName)
                 page.data('gnr.page_id',self.page_id)
                 page.data('gnr.package',self.package.name)

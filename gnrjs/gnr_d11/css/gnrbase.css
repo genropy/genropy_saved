@@ -2638,7 +2638,14 @@ body *{
 }
 .form_activeForm{
 }
-
+.form_waiting{
+    height: 30px;
+    width:230px;
+    background: white url(icons/form_waiting.gif) center center no-repeat;
+    border-radius:4px;
+    border:1px solid silver;
+    box-shadow:2px 2px 3px #666;
+}
 .form_protect_write{
 }
 

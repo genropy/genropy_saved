@@ -2,8 +2,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
     constructor:function(stackSourceNode){
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
-        var thurl = '/sys/thpage/'
-        this.thpage_url = this.dbstore?'/'+this.dbstore+thurl:thurl;
+        var default_uri =  genro.getData('gnr.defaultUrl')||'/';
+        var thurl = 'sys/thpage/'
+        this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
     },
     
     createIframePage:function(kw){
@@ -59,12 +60,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = genro.getData("gnr.package");
-            if(kw.formResource){
-                urlPars['th_formResource'] = kw.formResource;
-            }
-            if(kw.viewResource){
-                urlPars['th_viewResource'] = kw.viewResource;
-            }
+        }
+        if(kw.formResource){
+            urlPars['th_formResource'] = kw.formResource;
+        }
+        if(kw.viewResource){
+            urlPars['th_viewResource'] = kw.viewResource;
         }
         if(kw.workInProgress){
             urlPars.workInProgress = true;

@@ -262,6 +262,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var msg = kw.msg;
         var confirmCb = kw.action || '';
         var wdg = kw['widget'] || 'textbox';
+        var remote = kw['remote'];
+
+
         var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
@@ -273,16 +276,23 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         bar._('button','confirm',{'label':'Confirm',command:'confirm'});
-        var box = dlg.center._('div',{padding:'10px'});
-        if(msg){
-            box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
+        var kwbox = {padding:'10px'};
+        if(remote){
+            kwbox['remote'] = remote;
+            objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
+            kwbox['remote_valuepath'] = '.promptvalue';
+            dlg.center._('div',kwbox);
         }
-        var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
-        fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
+        else{
+            var box = dlg.center._('div',kwbox);
+            if(msg){
+                box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
+            }
+            var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+            fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
+        }
         dlg.show_action();
-        if (dflt){
-            genro.setData('gnr.promptDlg.promptvalue',dflt);
-        }
+        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
 
 
     },
@@ -452,7 +462,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
         node.unfreeze(); 
     },
+
     zoomPalette:function(kw){
+        if(objectPop(kw,'rootZoom')){
+            genro.mainGenroWindow.genro.dlg.zoomPalette(kw);
+            return;
+        }
         var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;

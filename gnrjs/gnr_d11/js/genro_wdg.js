@@ -852,7 +852,6 @@ dojo.declare("gnr.GridEditor", null, {
 
     deleteSelectedRows:function(pkeys){
         var selectedIdx = this.grid.selection.getSelected()
-        console.log('pippero',selectedIdx,pkeys);
         var existingPkeys = [];
         var that = this;
         var storebag = this.grid.storebag();
@@ -990,6 +989,7 @@ dojo.declare("gnr.GridEditor", null, {
                 rowData.setItem(k,updkw[k]);
             }
         }
+        this.lastEditTs = new Date();
         this.updateStatus();
     },
 
@@ -1048,7 +1048,6 @@ dojo.declare("gnr.GridEditor", null, {
         }
         //attr.preventChangeIfIvalid = true;     
         if ('value' in attr) {
-            console.log('value in attr',attr);
             if (attr.tag.toLowerCase() == 'dbselect') {
                 attr.selectedCaption = '.' + gridcell;
             }
@@ -1392,11 +1391,10 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
     },
     triggerINS:function(kw){
-        console.log('ins',kw);
         this.resolveTotalizeColumns();
+        this.resolveCalculatedColumns();
     },
     triggerDEL:function(kw){
-        console.log('del',kw);
         this.resolveTotalizeColumns();
     }
 });

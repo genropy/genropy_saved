@@ -54,10 +54,22 @@ var dynamicFormHandler = {
         boxClass = 'dffb_enterable';
         if(calculated){
             boxClass = 'dffb_calculated';
-            sourceNode.setRelativeData('.wdg_tag',null);
         }else{
                 //formclass = 'dffb_'+data_type;
         }
         sourceNode.setRelativeData('#FORM.boxClass',boxClass);
+    },
+    executeFormula:function(sourceNode,expression,extractstr){
+        try{
+            var kw = objectUpdate({},sourceNode.attr); 
+            if(extractstr){
+                objectExtract(kw,extractstr);
+            }
+            return funcApply('return '+expression,sourceNode.evaluateOnNode(kw),sourceNode);
+        }catch(e){
+            alert("Wrong formula:"+e.toString());
+            return 'error';
+        }
     }
+
 };

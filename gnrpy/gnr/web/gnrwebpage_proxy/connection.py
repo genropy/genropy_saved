@@ -152,12 +152,25 @@ class GnrWebConnection(GnrBaseProxy):
         for user, arguments in users.items():
             if user in exclude:
                 continue
-            menuattr = dict()
+            row = dict()
             if exclude_guest and user.startswith('guest_') or user == self.page.user:
                 continue
-            menuattr['caption'] = arguments['user_name'] or user
-            menuattr.update(arguments)
-            menuattr.pop('datachanges', None)
-            result.setItem(user, None, **menuattr)
+            _customClasses = []
+            row['_pkey'] = user
+            print arguments['last_event_age']
+            if arguments['last_rpc_age'] > 60:
+                _customClasses.append('user_disconnected')
+            elif arguments['last_event_age']>300:
+                _customClasses.append('user_away')
+            elif arguments['last_event_age'] > 60:
+                _customClasses.append('user_idle')
+            row['_customClasses'] = _customClasses
+            row['caption'] = arguments['user_name'] or user
+            row.update(arguments)
+            row.pop('datachanges', None)
+            result.setItem(user, None, **row)
         return result
+
+
+
         

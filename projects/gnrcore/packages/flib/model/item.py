@@ -24,3 +24,6 @@ class Table(object):
 
     def zoomUrl(self):
         return 'flib/items' 
+
+    def getUploadPath(self):
+        return 'site:uploaded_files'

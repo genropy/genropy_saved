@@ -46,7 +46,6 @@ class DropUploaderBase(BaseComponent):
             r.cell('_status', name='Status', width='6em')
 
         if preview:
-            bottom = frame.bottom
             footer = frame.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
             footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True).previewPane(uploaderId=uploaderId)
 

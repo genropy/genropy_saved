@@ -134,8 +134,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 },null,this.sourceNode);
                 this.locked = parentForm.locked;
             }
-            genro.src.afterBuildCalls.push(function(){
-                setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
+            dojo.subscribe('onPageStart',function(){
+                that.setLocked(that.locked);
+                that.updateStatus();
             });
         }
     },
@@ -144,7 +145,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope,subscriberNode){
@@ -272,7 +273,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
-        if (this.changed && kw.destPkey &&(kw.destPkey != currentPkey)) {
+        if (this.changed && kw.destPkey &&(currentPkey=='*newrecord*' || (kw.destPkey != currentPkey))) {
             if(kw.modifiers=='Shift'){
                 this.save(kw);
             }else{
@@ -363,6 +364,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             }
         }
+    },
+    waitingStatus:function(waiting){
+        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>'});
     },
     
     openPendingChangesDlg:function(kw){
@@ -671,7 +675,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.store.duplicateRecord(resultDict.savedPkey, kw.howmany);
                     }else{
                         that.setCurrentPkey(destPkey);
-                        that.load({'destPkey':destPkey});
+                        if(that.store){
+                            that.doload_store({'destPkey':destPkey});
+                        }else{
+                            that.doload_loader({'destPkey':destPkey});
+                        }
                     }
                 };
             }else{
@@ -749,7 +757,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (parentForm){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
-        return protect_write || this.readOnly;
+        return protect_write || this.readOnly || false;
     },
     
     isLogicalDeleted:function(){

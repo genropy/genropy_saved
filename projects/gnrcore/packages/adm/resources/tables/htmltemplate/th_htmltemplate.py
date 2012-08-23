@@ -42,7 +42,7 @@ class Form(BaseComponent):
                                                                     -moz-box-shadow:8px 8px 15px gray;
 	                                                                -webkit-box-shadow:8px 8px 15px gray;
                                                                     """,
-                                        zoomFactor='^zoomFactor', margin='10px')
+                                        zoom='^zoomFactor', margin='10px')
         bc = page.borderContainer(region='center',
                                   margin_top='^.main.page.top',
                                   margin_bottom='^.main.page.bottom',
@@ -196,12 +196,12 @@ class Form(BaseComponent):
         if newrecord:
             record['username'] = self.user
             record['data'] = Bag()
-            record['data.main.page.height'] = 280
-            record['data.main.page.width'] = 200
-            record['data.main.page.top'] = 5
-            record['data.main.page.bottom'] = 5
-            record['data.main.page.left'] = 5
-            record['data.main.page.right'] = 5
+            record['data.main.page.height'] = 297
+            record['data.main.page.width'] = 210
+            record['data.main.page.top'] = 0
+            record['data.main.page.bottom'] = 0
+            record['data.main.page.left'] = 0
+            record['data.main.page.right'] = 0
             record['data.main.design'] = 'headline'
             for i in ('top', 'center', 'bottom'):
                 if i != 'center':
@@ -216,4 +216,7 @@ class Form(BaseComponent):
                 for j in ('top', 'bottom'):
                     path = '%s.%s' % (i, j)
                     record.setItem('data.layout.%s' % path, None, height=30)
+
+    def th_options(self):
+        return dict(dialog_height='600px',dialog_width='900px')
                           
