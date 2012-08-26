@@ -28,12 +28,23 @@ class TemplateEditorBase(BaseComponent):
         return "%s::JS" % str(result).replace("u'", "'")
     
     @public_method
-    def te_getPreview(self, record_id=None, compiled=None, templates=None,template_id=None,**kwargs):
+    def te_getPreview(self, record_id=None, compiled=None,templates=None,template_id=None,**kwargs):
         if template_id:
             templates = self.db.table('adm.htmltemplate').readColumns(columns='$name',pkey=template_id)
         tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
         return self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
 
+    @public_method
+    def te_renderChunk(self, record_id=None,template_address=None,templates=None,template_id=None,**kwargs):
+        data,dataInfo = self.loadTemplate(template_address=template_address,asSource=True)
+        if not data:
+            return '<div class="chunkeditor_emptytemplate">Template not yet created</div>',dataInfo
+        compiled = data['compiled']
+        result = Bag()
+        tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
+        result['rendered'] = self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
+        result['template_data'] = data
+        return result,dataInfo
     
     def getTemplateBuilder(self, compiled=None, templates=None):
         tblobj = self.db.table(compiled.getItem('main?maintable'))
@@ -48,7 +59,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.data_tblobj = tblobj
         return htmlbuilder
         
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,**kwargs):
+    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,contentOnly=False,**kwargs):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
@@ -66,10 +77,13 @@ class TemplateEditorBase(BaseComponent):
 
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, 
+        htmlContent = templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, 
                                                             formats=formats,masks=masks,df_templates=df_templates,
                                                             dtypes=dtypes,localizer=self.localizer,
-                                                            urlformatter=self.externalUrl),
+                                                            urlformatter=self.externalUrl)
+        if contentOnly:
+            return htmlContent
+        body = templateBuilder(htmlContent=htmlContent,
                             record=record,page_debug='silver',**kwargs)
         return body
     
