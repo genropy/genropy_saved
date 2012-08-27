@@ -536,6 +536,25 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.unfreeze();
         return palette.getParentNode();
     },
+
+    lazyTip:function(domNode,rpcmethod){
+        var kw = {};
+        var k = 0;
+        for (var i=2; i<arguments.length;i++){
+            kw['p_'+k] = arguments[i];
+            k++;
+        }
+
+
+        var to = setTimeout(function(){
+            var result = genro.serverCall(rpcmethod,kw);
+            domNode.setAttribute('title',result);
+            domNode.setAttribute('onmouseover','');
+        },1000);
+        domNode.onmouseout = function(){
+            clearTimeout(to);
+        };
+    },
     
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {
