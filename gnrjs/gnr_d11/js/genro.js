@@ -1517,6 +1517,7 @@ dojo.declare('gnr.GenroClient', null, {
         } 
         return this._googleHandler;  
     },
+
     lockScreen:function(locking, reason, options) {
         if (reason) {
             genro.lockingElements[reason] = reason;
@@ -1525,18 +1526,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (!reason) {
                 return;
             }
-            document.createElement("div");
-            var hider = document.createElement("div");
-            hider.id = "mainWindow_hider";
-            dojo.addClass(hider, 'formHider');
-            if (options) {
-                var waiting = document.createElement("div");
-                dojo.addClass(waiting, 'waiting');
-                hider.appendChild(waiting);
-            }
-            if (!genro.domById('mainWindow_hider')) {
-                genro.domById('mainWindow').appendChild(hider);
-            }
+            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:'<div class="form_waiting"></div>'});
         } else {
             if (reason) {
                 objectPop(genro.lockingElements, reason);
@@ -1544,7 +1534,7 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.lockingElements = {};
             }
             if (!objectNotEmpty(genro.lockingElements)) {
-                genro.domById('mainWindow').removeChild(genro.domById('mainWindow_hider'));
+                genro.nodeById('_gnrRoot').setHiderLayer(false);
             }
         }
     }
