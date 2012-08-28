@@ -1283,14 +1283,12 @@ class GnrWebAppHandler(GnrBaseProxy):
                                           limit=limit, order_by=order_by,
                                           identifier=identifier, ignoreCase=ignoreCase,excludeDraft=excludeDraft, **kwargs)
 
-        _attributes = {}
         resultAttrs = {}
         if selection:
             showcols = [tblobj.colToAs(c.lstrip('$')) for c in showcolumns]
 
             result = selection.output('selection', locale=self.page.locale, caption=rowcaption or True)
-
-            colHeaders = [selection.colAttrs[k]['label'] for k in showcols]
+            colHeaders = [selection.colAttrs[k].get('name_short') or selection.colAttrs[k]['label'] for k in showcols]
             colHeaders = [self.page._(c) for c in colHeaders]
             resultAttrs = {'columns': ','.join(showcols), 'headers': ','.join(colHeaders)}
 
