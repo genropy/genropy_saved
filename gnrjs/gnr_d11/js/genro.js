@@ -682,6 +682,7 @@ dojo.declare('gnr.GenroClient', null, {
                 divclass = divclass ? 'class="' + divclass + '"' : '';
                 var event_attrs = '';
                 var events = objectExtract(f, 'on*', true);
+                var title = objectPop(f,'tip','');
                 if (events) {
                     for (var event_type in events) {
                         var cellPars = f['cellPars'] || {};
@@ -689,7 +690,7 @@ dojo.declare('gnr.GenroClient', null, {
                         event_attrs += " on" + event_type + '="' + cleanJsCode(jsCode) + '"';
                     }
                 }
-                v = "<div " + event_attrs + " style='margin:auto;' " + divclass + ">" + '&nbsp;' + "</div>";
+                v = "<div title='"+title+"'" + event_attrs + " style='margin:auto;' " + divclass + ">" + '&nbsp;' + "</div>";
             }
             else if (f['inlineedit'] == true) {
                 v = "<span style='font-family: wingdings; text-decoration: underline;'>&nbsp;&nbsp;&nbsp;&nbsp;&#x270d;&nbsp;&nbsp;&nbsp;&nbsp;</span>";
