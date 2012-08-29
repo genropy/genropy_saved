@@ -754,6 +754,8 @@ class SqlRelatedRecordResolver(BagResolver):
         dbtable = '%s.%s' % (pkg, tbl)
         recordpars = dict()
         recordpars[str(related_field)] = self.relation_value
+        if self.parentNode.attr.get('_storefield'):
+            recordpars['_storename'] = self.parentNode.parentbag[self.parentNode.attr.get('_storefield')]
         record = SqlRecord(self.db.table(dbtable), joinConditions=self.joinConditions,
                            sqlContextName=self.sqlContextName,
                            ignoreMissing=self.ignoreMissing, ignoreDuplicate=self.ignoreDuplicate,
