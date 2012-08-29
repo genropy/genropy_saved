@@ -677,13 +677,13 @@ dojo.declare('gnr.GenroClient', null, {
             v = cb.apply(window, [v]);
         }
         else if (!v) {
-            if (f['isbutton'] === true) {
+            if (f['isbutton']) {
                 var divclass = f['buttonclass'];
                 divclass = divclass ? 'class="' + divclass + '"' : '';
                 var event_attrs = '';
                 var events = objectExtract(f, 'on*', true);
-                var title = objectPop(f,'tip','');
-                var label = objectPop(f,'label','&nbsp;')
+                var title = f['tip'] || '';
+                var label = typeof(f['isbutton'])=='string'?f['isbutton']:'&nbsp;';
                 if (events) {
                     for (var event_type in events) {
                         var cellPars = f['cellPars'] || {};
