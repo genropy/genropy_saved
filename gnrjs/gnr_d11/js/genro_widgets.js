@@ -2834,7 +2834,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.customClasses.push(cellCustomClass);
             }
             opt['cellPars'] = {rowIndex:inRowIndex};
-            var zoomPage = opt['zoomPage'];
+            //var zoomPage = opt['zoomPage'];
             if (typeof(v) == 'number' && v < 0) {
                 this.customClasses.push('negative_number');
             }
@@ -2919,12 +2919,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             if (dtype) {
                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
-            }                            
+            }                       
+            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
             cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
                                             genro.dom.getStyleDict(cell, [ 'width'])));
             var formats = objectExtract(cell, 'format_*');
             var format = objectExtract(cell, 'format');
-            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
 
             var template = objectPop(cell, 'template');
             var js = objectPop(cell, 'js');
@@ -2966,6 +2966,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cell.semaphore){
                 formats['trueclass'] = 'greenLight';
                 formats['falseclass'] = 'redLight';
+                formats['nullclass'] = 'yellowLight';
             }
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
             delete cell.tag;
