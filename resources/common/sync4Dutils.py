@@ -100,7 +100,7 @@ class Pkg4D(BaseComponent):
                         col.value = Bag()
                         col.value.setItem('relation', None, related_column=col.attr['relation'], mode=mode)
                     col.attr = newattrs
-        b.toXml(cnv_file)
+        b.toXml(cnv_file,mode4d=True)
         return cnv_file
 
 def gnr4dNetBag (host4D, method, params=None):
@@ -123,7 +123,7 @@ def gnr4dNetBag (host4D, method, params=None):
     params['NetBag.UserID'] = ''
 
     #xml = params.toXml(encoding='iso-8859-1')
-    xml = unicode(params.toXml(encoding='iso-8859-1'), encoding='iso-8859-1')
+    xml = unicode(params.toXml(encoding='iso-8859-1',mode4d=True), encoding='iso-8859-1')
     result = server.GNT_NetBags_Server(FourD_Arg1=xml)
 
     return Bag(result)
