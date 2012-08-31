@@ -141,10 +141,10 @@ class GnrSqlDb(GnrObject):
         
     def autoRestore(self,path):
         assert os.path.exists(path),'Restore archive %s does not exist' %path
+        extractpath = path.replace('.zip','')
         if not os.path.isdir(path):
             from zipfile import ZipFile
             myzip =  ZipFile(path, 'r')
-            extractpath = path.replace('.zip','')
             myzip.extractall(extractpath)
         mainstorefile = os.path.join(extractpath,'mainstore')
 
