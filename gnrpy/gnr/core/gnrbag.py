@@ -1765,7 +1765,8 @@ class Bag(GnrObject):
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
               addBagTypeAttr=True,onBuildTag=None,
               autocreate=False, translate_cb=None, self_closed_tags=None,
-              omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None):
+              omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None,
+              mode4d=False):
         """Return a complete standard XML version of the Bag, including the encoding
         tag <?xml version=\'1.0\' encoding=\'UTF-8\'?> (the *docHeader* default value)
         
@@ -1804,7 +1805,7 @@ class Bag(GnrObject):
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
-                                docHeader=docHeader)
+                                docHeader=docHeader,mode4d=mode4d)
                                 
     def fillFrom(self, source):
         """Fill a void Bag from a source (basestring, Bag or list)

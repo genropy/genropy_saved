@@ -268,6 +268,13 @@ class BagToXml(object):
         #                           '\n'.join([self.buildTag('C', c) for c in nodeValue]),
         #                           node.attr, cls='A%s' % self.catalog.getClassKey(nodeValue[0]),
         #                           xmlMode=True)
+        
+        elif self.mode4d and (nodeValue and (isinstance(nodeValue, list) or isinstance(nodeValue, tuple))):
+            result = self.buildTag(node.label,
+                       '\n'.join([self.buildTag('C', c) for c in nodeValue]),
+                       node.attr, cls='A%s' % self.catalog.getClassKey(nodeValue[0]),
+                       xmlMode=True)
+
         else:
             result = self.buildTag(node.label, nodeValue, node.attr)
         return result
@@ -292,7 +299,7 @@ class BagToXml(object):
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
               addBagTypeAttr=True,onBuildTag=None,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
-              translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
+              translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None,mode4d=False):
         """Return a complete standard XML version of the Bag, including the encoding tag 
         ``<?xml version=\'1.0\' encoding=\'UTF-8\'?>``; the Bag's content is hierarchically represented 
         as an XML block sub-element of the ``<GenRoBag>`` node.
@@ -332,6 +339,7 @@ class BagToXml(object):
         self.forcedTagAttr = forcedTagAttr
         self.addBagTypeAttr = addBagTypeAttr
         self.onBuildTag = onBuildTag
+        self.mode4d = mode4d
         if not typeattrs:
             self.catalog.addSerializer("asText", bool, lambda b: 'y' * int(b))
             
