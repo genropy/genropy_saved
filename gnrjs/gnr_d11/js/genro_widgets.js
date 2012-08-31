@@ -3675,9 +3675,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                     if (parent_lv == 1 || (parent_lv == 2 && this.datamode == 'bag')) {
                         this.updateRowCount();
                         //fa srotellare in presenza di parametri con ==
-                        if(parent_lv == 1){
-                            this.setSelectedIndex(kw.ind);
-                        }
+                        //(parent_lv == 1){ contrario al meccanismo dei dbevent deve essere esterna la selezione
+                        //    this.setSelectedIndex(kw.ind);
+                        //}
                     } else {
                         //if ((storebag == kw.where) && (parent_lv<1)){
                         //}
@@ -3685,7 +3685,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 } else if (kw.evt == 'del') {
                     if (parent_lv == 1) {
                         this.updateRowCount();
-                        this.setSelectedIndex(kw.ind);
+                        //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
                         //if (parent_lv<1){
                         //}
