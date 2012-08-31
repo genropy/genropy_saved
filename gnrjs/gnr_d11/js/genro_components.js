@@ -1994,6 +1994,13 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             kw._sourceNode = this.storeNode;
             kw._pkeys = insOrUpdKeys;
             kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
+            var if_condition = this.storeNode.attr._if;
+            if(if_condition){
+                var if_result = funcApply(if_condition,this.storeNode.currentAttributes(),this.storeNode);
+                if(!if_result){
+                    return;
+                }
+            }
             genro.rpc.remoteCall('app.getSelection', 
                                 kw,null,'POST',null,
                                 function(result){
