@@ -21,7 +21,7 @@ class View(BaseComponent):
     def th_applymethod(self,selection):
         def fileFinder(row):
             if not row['dl_link']: return dict()
-            link='<a href="%s?download=True">%s</a>'%(row['dl_link'],'Download')
+            link='<a href="%s.zip?download=True">%s</a>'%(row['dl_link'],'Download')
             return dict(dl_link=link)
         selection.apply(fileFinder)
 
