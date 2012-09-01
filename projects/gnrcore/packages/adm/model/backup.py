@@ -8,3 +8,4 @@ class Table(object):
         tbl.column('name' ,name_long='!!Name')
         tbl.column('start_ts',dtype='DH',name_long='!!Backup start ts')
         tbl.column('end_ts',dtype='DH',name_long='!!Backup end ts')
+        tbl.formulaColumn('dl_link',""" '/_site/maintenance/backups/'|| $name """)
