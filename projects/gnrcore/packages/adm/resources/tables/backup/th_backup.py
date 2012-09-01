@@ -15,7 +15,7 @@ class View(BaseComponent):
         return 'start_ts'
 
     def th_query(self):
-        return dict(column='start_ts', op='contains', val='%')
+        return dict(column='start_ts', op='equal', val='this month')
 
     @public_method
     def th_applymethod(self,selection):
