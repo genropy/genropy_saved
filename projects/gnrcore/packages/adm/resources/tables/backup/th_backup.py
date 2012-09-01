@@ -22,7 +22,7 @@ class View(BaseComponent):
         def fileFinder(row):
             if not row['dl_link']: return dict()
             link='<a href="%s?download=True">%s</a>'%(row['dl_link'],'Download')
-            return dict(linkdl=link)
+            return dict(dl_link=link)
         selection.apply(fileFinder)
 
 
