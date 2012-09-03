@@ -3823,6 +3823,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if (n == '*') {
             this.updateRowCount_replaced(0);
+            this.selectionKeeper('save');
             this.selection.unselectAll();
             n = null;
         }
