@@ -469,14 +469,16 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         keeper.appendChild(keeper_in);
         var dn = this._getKeeperRoot(sourceNode);
         dn.appendChild(keeper);
-        var keeppath = sourceNode.attr.value+'?_keep' 
+        var npath = sourceNode.absDatapath(sourceNode.attr.value);
         sourceNode.widget.setKeeper = function(v){
             genro.dom.setClass(dn.parentNode,'keeper_on',v);
-            sourceNode.setRelativeData(keeppath,v);
+            var n = genro.getDataNode(npath);
+            n.attr._keep = v;
         };
         keeper.onclick = function(e){
             dojo.stopEvent(e);
-            var currvalue = sourceNode.getRelativeData(keeppath);
+            var n = genro.getDataNode(npath);
+            var currvalue = n.attr._keep;
             sourceNode.widget.setKeeper(!currvalue);
         }
     },

@@ -415,6 +415,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     doload_store: function(kw) {
+        this.saveKeptData();
+
         if(kw.destPkey=='*dismiss*'){
             for(var k in this.gridEditors){
                 this.gridEditors[k].resetEditor();
@@ -491,7 +493,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        setTimeout(function(){controllerData.fireItem('loaded',loadedPkey)},1);
+        var that = this;
+        setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
@@ -644,7 +647,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     do_save:function(kw){
-        var destPkey = kw.destPkey        
+        var destPkey = kw.destPkey;
         this.setOpStatus('saving');
         this.fireControllerData('saving');
         var saverNode = genro.nodeById(this.formId + '_saver');
@@ -700,7 +703,22 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         }
     },
-    
+    saveKeptData:function(){
+        var keptData = this.keptData || {};
+        var currdata = this.getFormData();
+        currdata.forEach(function(n){
+            if(n.attr._keep==true){
+                keptData[n.label] = n._value;
+            }else{
+                objectPop(keptData,n.label);
+            }
+        },'static');
+        if(objectNotEmpty(keptData)){
+            this.keptData = keptData;
+        }else{
+            this.keptData = null;
+        }
+    },
     
     saved: function(result) {
         this.fireControllerData('saved');
@@ -738,7 +756,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.getControllerData().fireItem(path,value,reason);
     },
     setFormData:function(data){
-        this.sourceNode.setRelativeData(this.formDatapath,data || new gnr.GnrBag());
+        if(data && this.keptData){
+            var newrecord = data.attr._newrecord;
+            var n;
+            var record = data._value;
+            for(var k in this.keptData){
+                n = record.getNode(k);
+                if(newrecord){
+                    n.setValue(this.keptData[k]);
+                }
+                n.attr._keep = true;
+            }
+        }
+        var data = data || new gnr.GnrBag();
+        this.sourceNode.setRelativeData(this.formDatapath,data);
     },
     getDataNodeAttributes:function(){
         var data = this.sourceNode.getRelativeData(this.formDatapath);
@@ -986,7 +1017,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         } else {
             //console.log("remove validation error: "+changekey);
             objectPop(invalidnodes, sourceNode_id);
-            if (!objectNotEmpty()) {
+            if (!objectNotEmpty(invalidnodes)) {
                 invalidfields.pop(changekey);
             }
         }
