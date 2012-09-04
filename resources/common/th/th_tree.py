@@ -429,7 +429,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
                         condition=dbselect_condition,
                         condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=30,caption_field=caption_field)
+                        cacheTime=0,caption_field=caption_field)
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
         

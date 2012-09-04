@@ -452,7 +452,35 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 return isValid;
             };
         }
+        if(sourceNode.attr.keepable){
+            this.setKeepable(sourceNode);
+        }
     },
+
+    _getKeeperRoot:function(sourceNode){
+        return sourceNode.widget.domNode;
+    },
+    setKeepable:function(sourceNode){
+        genro.dom.addClass(sourceNode.widget.focusNode,'iskeepable');
+        var keeper = document.createElement('div');
+        keeper.setAttribute('title','Keep this value');
+        genro.dom.addClass(keeper,'fieldkeeper');
+        var keeper_in = document.createElement('div');
+        keeper.appendChild(keeper_in);
+        var dn = this._getKeeperRoot(sourceNode);
+        dn.appendChild(keeper);
+        var keeppath = sourceNode.attr.value+'?_keep' 
+        sourceNode.widget.setKeeper = function(v){
+            genro.dom.setClass(dn.parentNode,'keeper_on',v);
+            sourceNode.setRelativeData(keeppath,v);
+        };
+        keeper.onclick = function(e){
+            dojo.stopEvent(e);
+            var currvalue = sourceNode.getRelativeData(keeppath);
+            sourceNode.widget.setKeeper(!currvalue);
+        }
+    },
+
     onDragStart:function(dragInfo) {
         var event = dragInfo.event;
         var sourceNode = dragInfo.sourceNode;
@@ -660,6 +688,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         this.setValueInData(sourceNode,value,valueAttr);
     },
+
+
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
     },
@@ -2058,6 +2088,13 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         var label = savedAttrs['label'];
+        var dn = widget.domNode;
+        var pn = widget.domNode.parentNode;
+        var gnrcheckbox_wrapper = document.createElement('div')
+        gnrcheckbox_wrapper.setAttribute('class','gnrcheckbox_wrapper')
+        pn.replaceChild(gnrcheckbox_wrapper,dn);
+        gnrcheckbox_wrapper.appendChild(dn);
+        sourceNode._gnrcheckbox_wrapper = gnrcheckbox_wrapper;
         if (label) {
             var labelattrs = savedAttrs['labelattrs'];
             labelattrs['for'] = widget.id;
@@ -2070,6 +2107,9 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
             //widget.setChecked(value);
             widget.setAttribute('checked', value);
         }
+    },
+    _getKeeperRoot:function(sourceNode){
+        return sourceNode._gnrcheckbox_wrapper;
     },
     mixin_displayMessage:function() {
         //patch

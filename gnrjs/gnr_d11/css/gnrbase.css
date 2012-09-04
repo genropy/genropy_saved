@@ -36,6 +36,43 @@ cursorZoom_plus{
 
 }
 
+.iskeepable{
+    
+}
+.keeper_on .iskeepable{
+    font-weight: bold;
+}
+
+.fieldkeeper{
+    position:absolute;
+    right:-10px;
+    bottom:0px;
+    height:6px;
+    width:6px;
+    border:1px solid silver;
+    border-radius:2px;
+    cursor:pointer;
+}
+
+.fieldkeeper div{
+    position:absolute;
+    top:1px;
+    bottom:1px;
+    left:1px;
+    right:1px;
+    background: white;
+}
+
+.gnrcheckbox_wrapper{
+    position: relative;
+    padding-right: 2px;
+    display: inline-block;
+    white-space: nowrap;
+}
+.keeper_on .fieldkeeper div{
+    background: #666;
+}
+
 /* @group FieldsTree */
 
 .fieldsTreeBox{
