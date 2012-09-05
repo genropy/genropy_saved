@@ -128,12 +128,15 @@ class TableScriptHandler(BaseComponent):
             dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
             dlgoptions.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgoptions.js_widget)  
 
-        immediate = extra_parameters.getItem('batch_immediate') if extra_parameters else batch_dict.get('immediate')
+        extra_parameters = extra_parameters or Bag()
+        immediate = extra_parameters.getItem('batch_immediate') or batch_dict.get('immediate')
         pane.dataController("""
                             dlgpars.hide();
                             dlgoptions.hide();
                             SET #table_script_runner.parameters=pars;
+                            console.log('after confirm')
                             if (immediate){
+                                console.log('IMMEDIATE',immediate)
                                 genro.dom.setClass(dojo.body(),'runningBatch',true);
                             }else{
                                 var modifier = _node.attr.modifier;
