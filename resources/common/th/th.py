@@ -310,7 +310,7 @@ class TableHandler(BaseComponent):
         settingKey = '%s/%s' %(table,th_formResource)
         settingKey = 'thpref.%s' %settingKey.replace('.','_').replace(':','_')
         currset = self.getUserPreference(path=settingKey,pkg='sys') or Bag()
-        widget = currset.getItem('widget') or 'stack'
+        widget = currset.getItem('widget') or kwargs.get('widget')
         kwargs['widget'] = widget
         h = '%spx' %(currset['form.height'] or 400)
         w = '%spx' %(currset['form.width'] or 500)
