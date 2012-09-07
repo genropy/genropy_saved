@@ -680,10 +680,12 @@ function convertFromText(value, t, fromLocale) {
     if (value == null || typeof(value)!='string') {
         return value;
     }
-    if (!t && value.indexOf('::') >= 0) {
-        value = value.split('::');
-        t = value[1];
-        value = value[0];
+    if (!t){
+        var k = value.lastIndexOf('::');
+        if(k>=0){
+            t = value.slice(k).slice(2);
+            value = value.slice(0,k);
+        }
     }
     var t = t || 'T';
     t = t.toUpperCase();
