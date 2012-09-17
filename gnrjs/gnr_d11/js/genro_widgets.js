@@ -452,7 +452,37 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 return isValid;
             };
         }
+        if(sourceNode.attr.keepable){
+            this.setKeepable(sourceNode);
+        }
     },
+
+    _getKeeperRoot:function(sourceNode){
+        return sourceNode.widget.domNode;
+    },
+    setKeepable:function(sourceNode){
+        genro.dom.addClass(sourceNode.widget.focusNode,'iskeepable');
+        var keeper = document.createElement('div');
+        keeper.setAttribute('title','Keep this value');
+        genro.dom.addClass(keeper,'fieldkeeper');
+        var keeper_in = document.createElement('div');
+        keeper.appendChild(keeper_in);
+        var dn = this._getKeeperRoot(sourceNode);
+        dn.appendChild(keeper);
+        var npath = sourceNode.absDatapath(sourceNode.attr.value);
+        sourceNode.widget.setKeeper = function(v){
+            genro.dom.setClass(dn.parentNode,'keeper_on',v);
+            var n = genro.getDataNode(npath);
+            n.attr._keep = v;
+        };
+        keeper.onclick = function(e){
+            dojo.stopEvent(e);
+            var n = genro.getDataNode(npath);
+            var currvalue = n.attr._keep;
+            sourceNode.widget.setKeeper(!currvalue);
+        }
+    },
+
     onDragStart:function(dragInfo) {
         var event = dragInfo.event;
         var sourceNode = dragInfo.sourceNode;
@@ -660,6 +690,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         this.setValueInData(sourceNode,value,valueAttr);
     },
+
+
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
     },
@@ -2058,6 +2090,13 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         var label = savedAttrs['label'];
+        var dn = widget.domNode;
+        var pn = widget.domNode.parentNode;
+        var gnrcheckbox_wrapper = document.createElement('div')
+        gnrcheckbox_wrapper.setAttribute('class','gnrcheckbox_wrapper')
+        pn.replaceChild(gnrcheckbox_wrapper,dn);
+        gnrcheckbox_wrapper.appendChild(dn);
+        sourceNode._gnrcheckbox_wrapper = gnrcheckbox_wrapper;
         if (label) {
             var labelattrs = savedAttrs['labelattrs'];
             labelattrs['for'] = widget.id;
@@ -2070,6 +2109,9 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
             //widget.setChecked(value);
             widget.setAttribute('checked', value);
         }
+    },
+    _getKeeperRoot:function(sourceNode){
+        return sourceNode._gnrcheckbox_wrapper;
     },
     mixin_displayMessage:function() {
         //patch
@@ -2834,7 +2876,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.customClasses.push(cellCustomClass);
             }
             opt['cellPars'] = {rowIndex:inRowIndex};
-            var zoomPage = opt['zoomPage'];
+            //var zoomPage = opt['zoomPage'];
             if (typeof(v) == 'number' && v < 0) {
                 this.customClasses.push('negative_number');
             }
@@ -2919,12 +2961,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             if (dtype) {
                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
-            }                            
+            }                       
+            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
             cell.cellStyles = objectAsStyle(objectUpdate(objectFromStyle(cell.cellStyles),
                                             genro.dom.getStyleDict(cell, [ 'width'])));
             var formats = objectExtract(cell, 'format_*');
             var format = objectExtract(cell, 'format');
-            var zoomAttr = objectExtract(cell,'zoom_*',true,true);
 
             var template = objectPop(cell, 'template');
             var js = objectPop(cell, 'js');
@@ -3675,9 +3717,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                     if (parent_lv == 1 || (parent_lv == 2 && this.datamode == 'bag')) {
                         this.updateRowCount();
                         //fa srotellare in presenza di parametri con ==
-                        if(parent_lv == 1){
-                            this.setSelectedIndex(kw.ind);
-                        }
+                        //(parent_lv == 1){ contrario al meccanismo dei dbevent deve essere esterna la selezione
+                        //    this.setSelectedIndex(kw.ind);
+                        //}
                     } else {
                         //if ((storebag == kw.where) && (parent_lv<1)){
                         //}
@@ -3685,7 +3727,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 } else if (kw.evt == 'del') {
                     if (parent_lv == 1) {
                         this.updateRowCount();
-                        this.setSelectedIndex(kw.ind);
+                        //this.setSelectedIndex(kw.ind); contrario al meccanismo dei dbevent
                     } else {
                         //if (parent_lv<1){
                         //}
@@ -3823,6 +3865,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if (n == '*') {
             this.updateRowCount_replaced(0);
+            this.selectionKeeper('save');
             this.selection.unselectAll();
             n = null;
         }

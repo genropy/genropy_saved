@@ -813,7 +813,8 @@ class GnrWsgiSite(object):
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
-            os.rename(restorepath,self.getStaticPath('site:maintenance','restored',f,autocreate=-1))
+            if os.path.isfile(restorepath):
+                os.rename(restorepath,self.getStaticPath('site:maintenance','restored',f,autocreate=-1))
         return app
         
     def onAuthenticated(self, avatar):

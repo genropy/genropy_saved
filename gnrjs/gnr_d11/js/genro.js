@@ -678,11 +678,13 @@ dojo.declare('gnr.GenroClient', null, {
             v = cb.apply(window, [v]);
         }
         else if (!v) {
-            if (f['isbutton'] === true) {
+            if (f['isbutton']) {
                 var divclass = f['buttonclass'];
                 divclass = divclass ? 'class="' + divclass + '"' : '';
                 var event_attrs = '';
                 var events = objectExtract(f, 'on*', true);
+                var title = f['tip'] || '';
+                var label = typeof(f['isbutton'])=='string'?f['isbutton']:'&nbsp;';
                 if (events) {
                     for (var event_type in events) {
                         var cellPars = f['cellPars'] || {};
@@ -690,7 +692,7 @@ dojo.declare('gnr.GenroClient', null, {
                         event_attrs += " on" + event_type + '="' + cleanJsCode(jsCode) + '"';
                     }
                 }
-                v = "<div " + event_attrs + " style='margin:auto;' " + divclass + ">" + '&nbsp;' + "</div>";
+                v = "<div title='"+title+"'" + event_attrs + " style='margin:auto;' " + divclass + ">" + label + "</div>";
             }
             else if (f['inlineedit'] == true) {
                 v = "<span style='font-family: wingdings; text-decoration: underline;'>&nbsp;&nbsp;&nbsp;&nbsp;&#x270d;&nbsp;&nbsp;&nbsp;&nbsp;</span>";

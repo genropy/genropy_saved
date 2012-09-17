@@ -143,6 +143,8 @@ batch_monitor.btc_result = function(node, sourceNode) {
     }
     var resultNode = sourceNode.thermoSourceNode;
     var resultpane = resultNode.getParentBag();
+    resultNode.freeze()
+
     resultNode.clearValue();
     
     sourceNode.thermoSourceNode = null;
@@ -197,6 +199,8 @@ batch_monitor.btc_result = function(node, sourceNode) {
         }
     }
     tbl._('tr')._('td', {innerHTML:'Execution time:' + batch_value.getItem('time_delta'),colspan:2,font_size:'.9em',font_style:'italic'});
+    resultNode.unfreeze()
+
 };
 
 batch_monitor.on_btc_error = function(node, sourceNode) {

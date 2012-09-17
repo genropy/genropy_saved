@@ -47,11 +47,12 @@ class GnrCustomWebPage(object):
                   #          validate_len_min_error='Too short',
                   #          validate_len_max_error='Too long')
         fb.field('regione')
-        fb.field('nome')
-        fb.field('codice_istat')
+        fb.field('nome',keepable=True)
+        fb.field('codice_istat',keepable=True)
         fb.field('ordine')
         fb.field('ordine_tot')
         fb.field('cap_valido')
+        fb.checkbox(value='^.piero',keepable=True,label='Piero')
         return fb
         
     def onLoading_glbl_provincia(self,record,newrecord,loadingParameters,recInfo):

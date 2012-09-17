@@ -426,6 +426,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }else{
             urlKw['th_pkey'] = kw.pkey;
             urlKw['main_call'] = 'main_form';
+            urlKw['th_from_package'] = genro.getData("gnr.package");
             if(kw.formResource){
                 urlKw['th_formResource'] = kw.formResource;
             }

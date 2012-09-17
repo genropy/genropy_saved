@@ -51,9 +51,11 @@ ct_chat_utils.open_chat = function(roomId, users) {
     genro.setData(roompath, roombag,{'user_room_key':user_room_key});
     var pane = roomsNode._('ContentPane', {title:'^.title',closable:true,datapath:roompath,pageName:roomId,_class:'ct_chatpane',rounded:4,
         onClose:function() {
-            console.log("closing",this.sourceNode.attr.pageName);
             genro.publish("ct_send_message", {"roomId":this.sourceNode.attr.pageName,msg:null,disconnect:true});
+            var rooms = ct_chat_utils.get_rooms()
             this.sourceNode._destroy();
+            rooms.popNode(this.sourceNode.attr.pageName);
+            genro.setData('gnr.chat.selected_room',rooms.len()?rooms.getNode('#0').label:null);
             return false;
         }});
     var newroom = pane._('BorderContainer', {nodeId:roomId + '_room',detachable:true,height:'100%',rounded:4});

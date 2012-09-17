@@ -45,20 +45,21 @@ class ChatComponent(BaseComponent):
 
 
     def ct_chat_form(self, frame):
-        self.ct_controller_main(frame)
+        bar = frame.top.bar
 
-        frame.dataController("ct_chat_utils.read_msg(_node.getValue());", msgbag="^gnr.chat.msg")
+        self.ct_controller_main(bar)
+        bar.dataController("ct_chat_utils.read_msg(_node.getValue());", msgbag="^gnr.chat.msg")
 
         frame.center.tabContainer(nodeId='ct_chat_rooms', margin='5px', _class='chat_rooms_tab',
                         selectedPage='^.selected_room')
-        frame.dataController("""
+        bar.dataController("""
                              var roombag = rooms.getItem(sel_room);
                              roombag.setItem('unread',null);
                              FIRE gnr.chat.calc_unread;
                              ct_chat_utils.fill_title(roombag);
                             """, sel_room='^.selected_room', rooms='=.rooms')
 
-        frame.dataController("""
+        bar.dataController("""
             var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
             var msg = roombag.getItem('current_msg');
             roombag.setItem('current_msg','');
@@ -83,7 +84,7 @@ class ChatComponent(BaseComponent):
 
 
             """,subscribe_ct_typed_message=True)
-        frame.dataRpc('dummy', self.ct_send_message, subscribe_ct_send_message=True,
+        bar.dataRpc('dummy', self.ct_send_message, subscribe_ct_send_message=True,
                     _onCalling="""
                                 var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
                                 if (!msg && !kwargs.disconnect){

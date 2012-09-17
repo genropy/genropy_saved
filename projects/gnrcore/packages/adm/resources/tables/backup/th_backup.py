@@ -9,12 +9,22 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('start_ts')
+        r.fieldcell('dl_link')
 
     def th_order(self):
         return 'start_ts'
 
     def th_query(self):
-        return dict(column='start_ts', op='contains', val='%')
+        return dict(column='start_ts', op='equal', val='this month')
+
+    @public_method
+    def th_applymethod(self,selection):
+        def fileFinder(row):
+            if not row['dl_link']: return dict()
+            link='<a href="%s.zip?download=True">%s</a>'%(row['dl_link'],'Download')
+            return dict(dl_link=link)
+        selection.apply(fileFinder)
+
 
 
 
