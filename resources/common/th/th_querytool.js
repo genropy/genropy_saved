@@ -570,11 +570,18 @@ dojo.declare("gnr.THDatasetManager", null, {
                                    action:function(){that.newSetColumn();}}
                                    );
         var grid = this.grid;
+        var cellmap = grid.cellmap;
         var currentsets = grid.sourceNode._grid_sets;
-        if(currentsets){
+        var currentsets = {};
+        for(var f in cellmap){
+            if(cellmap[f].datasetcolumn){
+                currentsets[f] = true;
+            }
+        }
+        if(objectNotEmpty(currentsets)){
             result.setItem('r_1',null,{caption:'-'});
             for(var fieldname in currentsets){
-                var kw = grid.cellmap[fieldname];
+                var kw = cellmap[fieldname];
                 result.setItem(fieldname,null,{caption:kw['name'],action:function(n,item){
                     that.sourceNode.setRelativeData('.query.pkeys',objectKeys(grid.sourceNode._grid_sets[n.fullpath]).join(','));
                     that.sourceNode.fireEvent('.runQuery');

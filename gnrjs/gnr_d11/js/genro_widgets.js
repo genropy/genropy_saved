@@ -4841,7 +4841,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         celldata['calculated'] = true;
         celldata['checkedId'] = celldata.checkedId || '.sets.'+fieldname;
         var checkedField = celldata.checkedField || '_pkey';
-        celldata['checkedField'] = checkedField
+        celldata['checkedField'] = checkedField;
+        celldata['datasetcolumn'] = true;
         //celldata['action_delay'] = kw.action_delay;
         //if (kw.remoteUpdate && sourceNode.attr.table){
         //    celldata.action = function(changes){
