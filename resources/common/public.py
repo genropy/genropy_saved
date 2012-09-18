@@ -358,7 +358,7 @@ class TableHandlerMain(BaseComponent):
         if hasattr(th,'form') and insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         if th_options.get('filterSlot'):
-            th.view.top.bar.replaceSlots('queryMenu','queryMenu,2,mainFilter')
+            th.view.top.bar.replaceSlots('menuUserSets','menuUserSets,5,mainFilter')
         return th
 
     def __th_moverdrop(self,th):

@@ -2841,8 +2841,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 result.push(this.rowIdByIndex(i));
             }
         }
-
-
         return result;
     },
     mixin_getSelectedRow: function() {
@@ -2923,6 +2921,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cell.original_field = cell.field;
         cell.original_name = cell.name;
         cell._nodelabel = cellNode.label;
+        var setcolumn = objectPop(cell,'setcolumn');
+        if(setcolumn){
+            cellNode.attr['calculated'] = true;
+            cell = this.getNewSetKw(sourceNode,cell);
+            dtype ='B';
+        }
 
         cell = sourceNode.evaluateOnNode(cell);
 
@@ -2958,7 +2962,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
                 this.setCheckedIdSubscription(sourceNode,cell);
                 dtype ='B';
-            }
+            }     
             if (dtype) {
                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
             }                       
@@ -4581,6 +4585,8 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
         },1);
     },
+
+
     setCheckedIdSubscription:function(sourceNode,kw){
         if(kw.checkedId && !sourceNode.attr.checkedId){
             sourceNode.attr.checkedId = kw.checkedId;
@@ -4797,8 +4803,76 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().getGridRowDataByIdx(this,inRowIndex);
     },
     
-     mixin_storeRowCount: function(all) {
+    mixin_rowIdByIndex:function(inRowIndex){
+        if(inRowIndex!==null){
+            return this.rowIdentity(this.collectionStore().getGridRowDataByIdx(this,inRowIndex));
+        }
+    },
+    mixin_storeRowCount: function(all) {
         return this.collectionStore().len(!all);
+    },
+
+    mixin_addNewSetColumn:function(kw) {
+        this.gnr.addNewSetColumn(this.sourceNode,kw);
+    },
+
+    addNewSetColumn:function(sourceNode,kw) {
+        var position = objectPop(kw,'position') || 0;
+        var celldata = this.getNewSetKw(sourceNode,kw);
+        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        genro.callAfter(function(){
+            structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
+        },1);
+    },
+
+
+    getNewSetKw:function(sourceNode,celldata) {
+        var celldata = celldata || {};
+        var fieldname =  celldata['field'] || '_set_'+genro.getCounter();
+        var radioButton = objectPop(celldata,'radioButton') || false;
+        celldata['field'] = fieldname;
+        celldata['name'] =  celldata.name ||  ' ';
+        celldata['dtype'] = 'B';
+        celldata['width'] = celldata.width || '20px';
+        celldata['radioButton'] = radioButton;
+        celldata['format_trueclass'] = objectPop(celldata,'trueclass')|| (radioButton?'radioOn':'checkboxOn'); //mettere classi radio
+        celldata['classes'] = celldata.classes || 'row_checker';
+        celldata['format_falseclass'] = objectPop(celldata,'falseclass')|| (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
+        celldata['calculated'] = true;
+        celldata['checkedId'] = celldata.checkedId || '.sets.'+fieldname;
+        var checkedField = celldata.checkedField || '_pkey';
+        celldata['checkedField'] = checkedField
+        //celldata['action_delay'] = kw.action_delay;
+        //if (kw.remoteUpdate && sourceNode.attr.table){
+        //    celldata.action = function(changes){
+        //        genro.serverCall("app.updateCheckboxPkeys",{table:sourceNode.attr.table,field:fieldname,changesDict:changes});
+        //    };
+        //    celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:500;
+        //}
+        sourceNode._grid_sets = sourceNode._grid_sets || {};
+        sourceNode._grid_sets[fieldname] = {};
+        celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"')";
+        celldata['_customGetter'] = function(row){
+            return (row[checkedField] in this.grid.sourceNode._grid_sets[fieldname]);
+        }
+        return celldata;
+    },
+    mixin_onChangeSetCol:function(rowIndex,fieldname){
+        var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
+        var kw = this.cellmap[fieldname];   
+        var store = this.collectionStore();
+        var rowIndex = this.absIndex(rowIndex);
+        var node = store.itemByIdx(rowIndex);
+        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || {};
+        var checkedElement = node.attr[kw['checkedField']];
+        if(checkedElement in currSet){
+            objectPop(currSet,checkedElement);
+        }else{
+            currSet[checkedElement] = true;
+        }
+        this.sourceNode._grid_sets[fieldname] = currSet;
+        this.sourceNode.setRelativeData(kw['checkedId'],currSet);
+        this.updateRow(rowIndex);
     },
 
     patch_sort: function() {  

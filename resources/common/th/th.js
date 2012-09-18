@@ -5,6 +5,7 @@ var TH = function(th_root){
     }
     return genro.ext.th_instances[th_root];
 };
+
 var th_view_batch_caller = function(kw){
     var grid = genro.wdgById(kw.gridId);
     var store = grid.collectionStore();
@@ -315,3 +316,5 @@ dojo.declare("gnr.IframeFormManager", null, {
         }
     }
 });
+
+

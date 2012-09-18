@@ -58,7 +58,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
+                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
             else:
@@ -148,7 +148,7 @@ class TableHandlerView(BaseComponent):
                             """)
                     
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
-                                
+                                PUT .query.currentQuery = null;
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
@@ -377,7 +377,8 @@ class TableHandlerView(BaseComponent):
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **condPars)
-        store.addCallback('FIRE .queryEnd=true;return result;')        
+        store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
+                            SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
@@ -399,6 +400,47 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_runbtn(self,pane,**kwargs):
         pane.slotButton(label='!!Run query',publish='runbtn',
                                iconClass='iconbox run')
+    @struct_method
+    def th_slotbar_filterSelected(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        btn = pane.slotButton('!!Only highlighted',action="""
+            var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
+            if(highlighted){
+                this.setRelativeData('.query.pkeys',highlighted.join(','));
+                this.fireEvent('.runQuery');
+            }
+            """,th_root_code=inattr['th_root'],iconClass='iconbox bulb_off')
+        pane.dataController("""
+            var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
+            if(highlighted.length>0){
+                btn.widget.setIconClass('iconbox bulb_on');
+                btn.setDisabled(false);
+            }else{
+                btn.widget.setIconClass('iconbox bulb_off');
+                btn.setDisabled(true);
+            }
+        """,btn=btn,selected='^.grid.selectedId',th_root_code=inattr['th_root'],_fired='^.queryEnd')
+
+    @struct_method
+    def th_slotbar_menuUserSets(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        pane.dataController("""
+                                var th = TH(th_root);
+                                th.datasetmanager = new gnr.THDatasetManager(th,this,table);
+                                var cb = function(){
+                                    return th.datasetmanager.datasetsMenu();
+                                }
+
+                                SET .usersets.menu = new gnr.GnrBagCbResolver({method:cb});
+
+                                """,
+                        _onStart=True,th_root = inattr['th_root'],table = inattr['table'])
+
+        pane.div(_class='iconbox heart',tip='!!User sets').menu(storepath='.usersets.menu',
+                                                                _class='smallmenu',modifiers='*')
+
+
+
     
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
@@ -553,7 +595,9 @@ class THViewUtils(BaseComponent):
             for n in pyqueries:
                 querymenu.setItem(n.label,n.value,caption=n.attr.get('description'),_attributes=n.attr)
             querymenu.setItem('r_3',None,caption='-')
-        
+
+
+
         if editor:
             querymenu.setItem('__queryeditor__',None,caption='!!Query editor',action="""
                                                                 var currentQuery = GET .query.currentQuery;

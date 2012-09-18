@@ -177,7 +177,6 @@ dojo.declare("gnr.QueryManager", null, {
             finalize(new gnr.GnrBag());
             return
         }
-        
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
         var queryAttributes= queryBag.getNode(currentQuery).attr;
         //queryAttributes['id'] = queryAttributes['pkey']
@@ -553,3 +552,76 @@ dojo.declare("gnr.QueryManager", null, {
         dlg.show_action();
     }
 });
+
+dojo.declare("gnr.THDatasetManager", null, {
+    constructor: function(th,sourceNode, maintable) {
+        this.th = th;
+        this.sourceNode = sourceNode;
+        this.maintable = maintable;
+        this.tablecode = maintable.replace('.','_');
+        this.th_root = this.th.th_root;
+        this.frameNode = genro.getFrameNode(this.th_root);
+        this.grid = genro.wdgById(this.th_root+'_grid');
+    },
+    datasetsMenu:function(){
+        var result = new gnr.GnrBag();
+        var that = this;
+        result.setItem('r_0',null,{caption:_T('New set column'),
+                                   action:function(){that.newSetColumn();}}
+                                   );
+        var grid = this.grid;
+        var currentsets = grid.sourceNode._grid_sets;
+        if(currentsets){
+            result.setItem('r_1',null,{caption:'-'});
+            for(var fieldname in currentsets){
+                var kw = grid.cellmap[fieldname];
+                result.setItem(fieldname,null,{caption:kw['name'],action:function(n,item){
+                    that.sourceNode.setRelativeData('.query.pkeys',objectKeys(grid.sourceNode._grid_sets[n.fullpath]).join(','));
+                    that.sourceNode.fireEvent('.runQuery');
+                }});
+            }
+            
+            if(objectKeys(currentsets).length>1 && false){
+                result.setItem('r_2',null,{caption:'-'});
+                result.setItem('union',null,{caption:_T('Union'),action:function(){that.unionDataSet()}});
+                result.setItem('intersect',null,{caption:_T('Intersect'),action:function(){that.intersectDataSet()}});
+            }
+//
+        }
+        //result.setItem('r_2',null,{caption:'-'});
+        //result.setItem('r_3',null,{caption:_T('Clear clipboard')});
+
+        return result;
+    },
+
+    unionDataSet:function(){
+        var grid = this.grid;
+        var wdg_values = '';
+        for(var fieldname in currentsets){
+            var kw = grid.cellmap[fieldname];
+            wdg_values+=fieldname;
+            wdg_values += ':'+ kw['name'];
+
+        }
+        //genro.dlg.prompt(_T('New dataset'), {msg:_T('Union between dataset'),
+        //                                wdg:'checkBoxText'
+        //                                action:
+        //                                    function(name){
+        //                                        grid.addNewSetColumn({name:name});
+        //                                    }
+        //                                });
+    },
+    newSetColumn:function(){
+        var grid = this.grid;
+        genro.dlg.prompt(_T('New dataset'), {msg:_T('Add a new dataset column'),
+                                        lbl:'Name',
+                                        action:
+                                            function(name){
+                                                grid.addNewSetColumn({name:name});
+                                            }
+                                        });
+    }
+
+});
+
+

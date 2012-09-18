@@ -24,10 +24,14 @@ class GnrCustomWebPage(object):
         r.fieldcell('codice_comune',width='7em')
         r.fieldcell('prefisso_tel',width='4em')
         r.fieldcell('cap',width='7em')
-        r.checkboxcolumn(checkedId='.checked_localita')
+        r.cell('myset_a',setcolumn=True,name='A')
+
+        r.cell('myset_b',setcolumn=True,name='B')
+
+
 
     def test_0_iv_standard(self,pane):
-        "standard"
+        "standard checkboxcolumn"
         pane = pane.framePane(frameCode='loc_stat',height='250px')
         view = pane.includedView(_newGrid=True,struct=self.mystruct)
         view.selectionStore(table='glbl.localita',where="$provincia='AN'",
@@ -35,12 +39,20 @@ class GnrCustomWebPage(object):
                             externalChanges=True)
 
 
-                
-    def test_1_iv_virtual(self,pane):
-        "virtual"
+#
+    def test_2_iv_virtual(self,pane):
+        "virtual checkboxcolumn"
         pane = pane.framePane(frameCode='loc_virt',height='250px')
+        bar = pane.top.slotToolbar('only_a,only_b,allrows,union')
+        bar.only_a.button('Only A',action='SET .grid.currentfilter = objectKeys(myset_a);',myset_a='=.grid.sets.myset_a')
+        bar.only_b.button('Only B',action='SET .grid.currentfilter = objectKeys(myset_b);',myset_b='=.grid.sets.myset_b')
+        bar.allrows.button('All',action='SET .grid.currentfilter = null;')
+        bar.union.button('Union',action='SET .grid.currentfilter = objectKeys(objectUpdate(myset_a,myset_b));',myset_a='=.grid.sets.myset_a',myset_b='=.grid.sets.myset_b')
         view = pane.includedView(_newGrid=True,struct=self.mystruct)
-        view.selectionStore(table='glbl.localita',#where="$provincia='AN'",
-                            _onStart=True,order_by='$nome',
+        view.selectionStore(table='glbl.localita',where="""^.where""",
+                            _onStart=True,order_by='$nome',currentfilter='=.grid.currentfilter',
                             externalChanges=True,chunkSize=10)
+        pane.dataController("""
+                             SET .where = currentfilter? filtered:allcondition;""",currentfilter='^.grid.currentfilter',
+                            filtered="$id IN :currentfilter",allcondition='$id IS NOT NULL')
                             
