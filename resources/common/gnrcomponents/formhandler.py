@@ -102,7 +102,7 @@ class FormHandler(BaseComponent):
         gridattr['_linkedFormId']=formId
         gridattr['connect_%s' %loadEvent] = """
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                            var selectedRows = this.getSelectedRowidx() || [];
+                                            var selectedRows = this.widget.getSelectedRowidx() || [];
                                             if(rowIndex>-1 && selectedRows.length==1){
                                                 this.publish('editrow',{pkey:this.widget.rowIdByIndex(rowIndex)});
                                             }else{
