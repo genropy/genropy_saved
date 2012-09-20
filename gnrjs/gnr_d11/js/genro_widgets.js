@@ -2939,8 +2939,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cell.original_field = cell.field;
         cell.original_name = cell.name;
         cell._nodelabel = cellNode.label;
-        var datasetcolumn = objectPop(cell,'datasetcolumn');
-        if(datasetcolumn){
+        var userSets = objectPop(cell,'userSets');
+        if(userSets){
             cellNode.attr['calculated'] = true;
             cell = this.getNewSetKw(sourceNode,cell);
             dtype ='B';
@@ -4845,7 +4845,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_setUserSets:function(v,kw){
-        console.log('zumba');
         this.updateRowCount('*');
     },
 
@@ -4865,7 +4864,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         celldata['checkedId'] = sourceNode.attr.userSets+'.'+fieldname;
         var checkedField = '_pkey';
         celldata['checkedField'] = checkedField;
-        celldata['datasetcolumn'] = true;    
+        celldata['userSets'] = true;    
         celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
         celldata['_customGetter'] = function(rowdata,rowIdx){
             return sourceNode._usersetgetter(this.field,rowdata,rowIdx)

@@ -24,8 +24,8 @@ class GnrCustomWebPage(object):
         r.fieldcell('codice_comune',width='7em')
         r.fieldcell('prefisso_tel',width='4em')
         r.fieldcell('cap',width='7em')
-        r.cell('myset_a',datasetcolumn=True,name='A')
-        r.cell('myset_b',datasetcolumn=True,name='B')
+        r.cell('myset_a',userSets=True,name='A')
+        r.cell('myset_b',userSets=True,name='B')
 
 
 
