@@ -2450,6 +2450,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
         sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
+
+        if(sourceNode.attr.userSets){
+            sourceNode.registerDynAttr('userSets');
+            var userSets = new gnr.GnrBag();
+            sourceNode.setRelativeData(sourceNode.attr.userSets,userSets);
+            sourceNode._usersetgetter = function(cellname,row,idx){
+                var currSet = userSets.getItem(cellname);
+                if(currSet){
+                    return dojo.indexOf(currSet.split(','),row['_pkey'])>=0;
+                }else{
+                    return false;
+                }
+            }
+        }
         return savedAttrs;
     },
 
@@ -2837,8 +2851,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 result.push(this.rowIdByIndex(sel[i]));
             }
         } else if (noneIsAll) {
-            for (var i = 0; i < this.rowCount; i++) {
-                result.push(this.rowIdByIndex(i));
+            if(this.selectionStore){
+                return this.selectionStore().currentPkeys();
+            }else{
+                for (var i = 0; i < this.rowCount; i++) {
+                    result.push(this.rowIdByIndex(i));
+                }
             }
         }
         return result;
@@ -2921,8 +2939,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cell.original_field = cell.field;
         cell.original_name = cell.name;
         cell._nodelabel = cellNode.label;
-        var setcolumn = objectPop(cell,'setcolumn');
-        if(setcolumn){
+        var datasetcolumn = objectPop(cell,'datasetcolumn');
+        if(datasetcolumn){
             cellNode.attr['calculated'] = true;
             cell = this.getNewSetKw(sourceNode,cell);
             dtype ='B';
@@ -3528,6 +3546,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var savedAttrs = this.creating_common(attributes, sourceNode);
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
+
     },
 
     created: function(widget, savedAttrs, sourceNode) {
@@ -4813,7 +4832,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_addNewSetColumn:function(kw) {
-        this.gnr.addNewSetColumn(this.sourceNode,kw);
+        this.gnr.addNewSetColumn(this.sourceNode,kw);;
     },
 
     addNewSetColumn:function(sourceNode,kw) {
@@ -4825,6 +4844,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         },1);
     },
 
+    mixin_setUserSets:function(v,kw){
+        console.log('zumba');
+        this.updateRowCount('*');
+    },
 
     getNewSetKw:function(sourceNode,celldata) {
         var celldata = celldata || {};
@@ -4839,41 +4862,49 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         celldata['classes'] = celldata.classes || 'row_checker';
         celldata['format_falseclass'] = objectPop(celldata,'falseclass')|| (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
         celldata['calculated'] = true;
-        celldata['checkedId'] = celldata.checkedId || '.sets.'+fieldname;
-        var checkedField = celldata.checkedField || '_pkey';
+        celldata['checkedId'] = sourceNode.attr.userSets+'.'+fieldname;
+        var checkedField = '_pkey';
         celldata['checkedField'] = checkedField;
-        celldata['datasetcolumn'] = true;
-        //celldata['action_delay'] = kw.action_delay;
-        //if (kw.remoteUpdate && sourceNode.attr.table){
-        //    celldata.action = function(changes){
-        //        genro.serverCall("app.updateCheckboxPkeys",{table:sourceNode.attr.table,field:fieldname,changesDict:changes});
-        //    };
-        //    celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:500;
-        //}
-        sourceNode._grid_sets = sourceNode._grid_sets || {};
-        sourceNode._grid_sets[fieldname] = {};
-        celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"')";
-        celldata['_customGetter'] = function(row){
-            return (row[checkedField] in this.grid.sourceNode._grid_sets[fieldname]);
-        }
+        celldata['datasetcolumn'] = true;    
+        celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
+        celldata['_customGetter'] = function(rowdata,rowIdx){
+            return sourceNode._usersetgetter(this.field,rowdata,rowIdx)
+        };
         return celldata;
     },
-    mixin_onChangeSetCol:function(rowIndex,fieldname){
+
+
+
+    mixin_onChangeSetCol:function(rowIndex,fieldname,e){
+        var modifiers = genro.dom.getEventModifiers(e);
         var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
         var kw = this.cellmap[fieldname];   
         var store = this.collectionStore();
         var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
-        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || {};
+        var currSet = objectFromString(this.sourceNode.getRelativeData(kw['checkedId']),null,true);
         var checkedElement = node.attr[kw['checkedField']];
-        if(checkedElement in currSet){
-            objectPop(currSet,checkedElement);
-        }else{
-            currSet[checkedElement] = true;
+        var ischecked = (checkedElement in currSet);
+        if(modifiers=='Shift'){
+            var pkeys = this.getSelectedPkeys(true); 
+            if(pkeys && pkeys.length>1){
+                dojo.forEach(pkeys,function(pkey){
+                    if(ischecked){
+                        objectPop(currSet,pkey);
+                    }else{
+                        currSet[pkey]=true;
+                    }
+                });
+            }
         }
-        this.sourceNode._grid_sets[fieldname] = currSet;
-        this.sourceNode.setRelativeData(kw['checkedId'],currSet);
-        this.updateRow(rowIndex);
+        else{
+            if(ischecked){
+                objectPop(currSet,checkedElement);
+            }else{
+                currSet[checkedElement] = true;
+            }
+        }
+        this.sourceNode.setRelativeData(kw['checkedId'],objectKeys(currSet).join(','))
     },
 
     patch_sort: function() {  

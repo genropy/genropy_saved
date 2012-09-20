@@ -322,6 +322,7 @@ class TableHandlerView(BaseComponent):
         gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
                         draggable_row=True,
+                        userSets='.sets',
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
@@ -344,6 +345,7 @@ class TableHandlerView(BaseComponent):
         self.subscribeTable(table,True)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
+       
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
@@ -359,6 +361,7 @@ class TableHandlerView(BaseComponent):
                                timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
                                currentFilter = '=.query.currentFilter',
                                unlinkdict=unlinkdict,
+                               userSets='.sets',
                                _onCalling=""" 
                                %s
                               

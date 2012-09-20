@@ -424,6 +424,7 @@ function objectAny(obj,cb) {
     return false;
 }
 
+
 function objectString(obj) {
     var result = [];
     for (var prop in obj) {
@@ -595,7 +596,10 @@ function objectFromStyle(style) {
     return result;
 };
 
-function objectFromString(values,sep){
+function objectFromString(values,sep,keyOnly){
+    if(!values){
+        return {};
+    }
     var ch = sep || values.indexOf('\n')>=0?'\n':',';
     var values = values.split(ch);
     var result = {};
@@ -604,6 +608,8 @@ function objectFromString(values,sep){
         if (val.indexOf(':') > 0) {
             val = val.split(':');
             result[val[0]] = val[1];
+        }else if(keyOnly){
+            result[val] = true;
         } else {
             result['caption_'+i] = val;
         }

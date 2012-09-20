@@ -571,22 +571,18 @@ dojo.declare("gnr.THDatasetManager", null, {
                                    );
         var grid = this.grid;
         var cellmap = grid.cellmap;
-        var currentsets = grid.sourceNode._grid_sets;
-        var currentsets = {};
-        for(var f in cellmap){
-            if(cellmap[f].datasetcolumn){
-                currentsets[f] = true;
-            }
-        }
-        if(objectNotEmpty(currentsets)){
+        var sn = grid.sourceNode;
+        var currentsets = sn.getRelativeData(sn.attr.userSets);
+        if(currentsets.len()){
             result.setItem('r_1',null,{caption:'-'});
-            for(var fieldname in currentsets){
-                var kw = cellmap[fieldname];
-                result.setItem(fieldname,null,{caption:kw['name'],action:function(n,item){
-                    that.sourceNode.setRelativeData('.query.pkeys',objectKeys(grid.sourceNode._grid_sets[n.fullpath]).join(','));
+            currentsets.forEach(function(setNode){
+                var kw = cellmap[setNode.label];
+                result.setItem(setNode.label,null,{caption:kw['name'],action:function(n,item){
+                    that.sourceNode.setRelativeData('.query.pkeys',currentsets.getItem(n.fullpath));
                     that.sourceNode.fireEvent('.runQuery');
                 }});
-            }
+            });
+
             
             if(objectKeys(currentsets).length>1 && false){
                 result.setItem('r_2',null,{caption:'-'});

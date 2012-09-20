@@ -2270,6 +2270,21 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                                           });
     },
 
+    currentPkeys:function(){
+        var parentNodeData = this.getData().getParentNode();
+        if(!parentNodeData){
+            return;
+        }
+        var selectionKw = parentNodeData.attr;
+        var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName}
+
+
+        genro.rpc.remoteCall('app.freezedSelectionPkeys', 
+                                            kw,null,null,null,
+                                         function(result){
+                                             return result;
+                                          });
+    },
     
     clearBagCache:function() {
         var data = this.getData();
