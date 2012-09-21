@@ -4905,9 +4905,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(modifiers=='Shift'){
             pkeys = this.getAllPkeys();   
         }else{
-            pkeys = this.getSelectedPkeys();
-            if(dojo.indexOf(pkeys,checkedElement)<0){
-                pkeys.push(checkedElement);
+            if(dojo.indexOf(pkeys,checkedElement)>=0){
+                pkeys = this.getSelectedPkeys();
+            }else{
+                pkeys = [checkedElement];
             }
         }
         currSet = changeset(currSet,pkeys,ischecked);
