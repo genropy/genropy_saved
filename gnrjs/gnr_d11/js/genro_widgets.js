@@ -4901,17 +4901,16 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         //currSet = ','+currSet+',';
         var checkedElement = node.attr[kw['checkedField']];
         var ischecked = currSet.indexOf(','+checkedElement+',')>=0;
-
+        var pkeys;
         if(modifiers=='Shift'){
-            var pkeys = this.getSelectedPkeys(); 
-            if(pkeys.length<2){
-                pkeys = this.getAllPkeys();
+            pkeys = this.getAllPkeys();   
+        }else{
+            pkeys = this.getSelectedPkeys();
+            if(dojo.indexOf(pkeys,checkedElement)<0){
+                pkeys.push(checkedElement);
             }
-            currSet = changeset(currSet,pkeys,ischecked);
         }
-        else{
-            currSet = changeset(currSet,[checkedElement],ischecked);
-        }
+        currSet = changeset(currSet,pkeys,ischecked);
         this.sourceNode.setRelativeData(kw['checkedId'],currSet);
     },
 

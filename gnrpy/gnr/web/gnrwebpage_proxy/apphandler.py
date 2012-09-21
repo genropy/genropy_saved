@@ -824,7 +824,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
         if pkeys:
             if isinstance(pkeys, basestring):
-                pkeys = pkeys.split(',')
+                pkeys = pkeys.strip(',').split(',')
             if len(pkeys)==0:
                 kwargs['limit'] = 0
             elif len(pkeys)==1:
