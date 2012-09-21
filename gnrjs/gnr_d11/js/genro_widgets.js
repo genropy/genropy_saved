@@ -2458,7 +2458,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode._usersetgetter = function(cellname,row,idx){
                 var currSet = userSets.getItem(cellname);
                 if(currSet){
-                    return dojo.indexOf(currSet.split(','),row['_pkey'])>=0;
+                    currSet = ','+currSet+',';
+                    return currSet.indexOf(','+row['_pkey']+',')>=0;
                 }else{
                     return false;
                 }
@@ -4845,7 +4846,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_setUserSets:function(v,kw){
-        this.updateRowCount('*');
+        this.updateRowCount();
     },
 
     getNewSetKw:function(sourceNode,celldata) {
@@ -4881,29 +4882,31 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var store = this.collectionStore();
         var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
-        var currSet = objectFromString(this.sourceNode.getRelativeData(kw['checkedId']),null,true);
+        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || '';
+        currSet = ','+currSet+',';
         var checkedElement = node.attr[kw['checkedField']];
-        var ischecked = (checkedElement in currSet);
+        var toSearch = ','+checkedElement+',';
+        var ischecked = currSet.indexOf(toSearch)>=0;
         if(modifiers=='Shift'){
             var pkeys = this.getSelectedPkeys(true); 
             if(pkeys && pkeys.length>1){
                 dojo.forEach(pkeys,function(pkey){
                     if(ischecked){
-                        objectPop(currSet,pkey);
+                        currSet.replace((','+pkey+','),',');
                     }else{
-                        currSet[pkey]=true;
+                        currSet+=(pkey+',');
                     }
                 });
             }
         }
         else{
             if(ischecked){
-                objectPop(currSet,checkedElement);
+                currSet.replace(toSearch,',');
             }else{
-                currSet[checkedElement] = true;
+                currSet+=checkedElement+',';
             }
         }
-        this.sourceNode.setRelativeData(kw['checkedId'],objectKeys(currSet).join(','))
+        this.sourceNode.setRelativeData(kw['checkedId'],currSet.slice(1,-1))
     },
 
     patch_sort: function() {  
