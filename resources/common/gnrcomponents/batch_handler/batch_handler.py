@@ -295,7 +295,12 @@ class TableScriptRunner(TableScriptHandler):
         plugin_main.dataRpc('dummy', self.table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
-                            _onResult="""if(kwargs._publishOnResult){genro.publish({topic:kwargs._publishOnResult,iframe:'*'});}""",
+                            _onResult="""
+                                    console.log(kwargs._publishOnResult,sourcepage_id);
+                                    if(kwargs._publishOnResult){
+                                        console.log('publishing');
+                                        genro.publish({topic:kwargs._publishOnResult,iframe:sourcepage_id});
+                                    }""",
                             parameters='=.parameters',
                             resource='=.resource',
                             res_type='=.res_type',
