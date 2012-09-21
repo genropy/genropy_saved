@@ -4880,7 +4880,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
 
     mixin_onChangeSetCol:function(rowIndex,fieldname,e){
-        //dojo.stopEvent(e);
+        dojo.stopEvent(e);
         var changeset=function(currSet,elements,ischecked){
             dojo.forEach(elements,function(element){
                 if(ischecked){
