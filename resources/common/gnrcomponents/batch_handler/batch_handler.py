@@ -168,11 +168,13 @@ class TableScriptHandler(BaseComponent):
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
-        if selectionName:
+        if selectedPkeys and isinstance(selectedPkeys,basestring):
+            selectedPkeys = selectedPkeys.strip(',').split(',')
+        if selectedPkeys:
+            res_obj.selectedPkeys = selectedPkeys
+        elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
-        else:
-            res_obj.selectedPkeys = selectedPkeys
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         if extra_parameters:
@@ -271,7 +273,11 @@ class TableScriptRunner(TableScriptHandler):
                                        if (pkey){
                                             params.selectedPkeys = [pkey];
                                        }
-                                       SET .selectedPkeys = copyArray(objectPop(params,'selectedPkeys') || []);
+                                       var selectedPkeys = objectPop(params,'selectedPkeys') || [];
+                                       if(typeof(selectedPkeys)!='string'){
+                                            selectedPkeys = copyArray(selectedPkeys);
+                                       }
+                                       SET .selectedPkeys = selectedPkeys;
                                        var extra_parameters = objectPop(params,'extra_parameters');
                                        extra_parameters = extra_parameters? extra_parameters.deepCopy() : new gnr.GnrBag();
                                        for(var k in params){
