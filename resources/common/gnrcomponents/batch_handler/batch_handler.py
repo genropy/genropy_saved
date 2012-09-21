@@ -78,13 +78,16 @@ class TableScriptHandler(BaseComponent):
         resource_path = '%s/%s' % (res_type, resource)
         res_obj = self.site.loadTableScript(self, table, resource_path, class_name='Main')
         self._table_script_imports(pane,res_obj)
-        if selectionName:
+        count = 0
+        if selectedPkeys:
+            if isinstance(selectedPkeys,basestring):
+                selectedPkeys = selectedPkeys.strip(',').split(',')
+            res_obj.selectedPkeys = selectedPkeys
+            count = len(selectedPkeys or [])
+        elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
             count = len(res_obj.get_selection_pkeys() or [])
-        else:
-            res_obj.selectedPkeys = selectedPkeys
-            count = len(selectedPkeys or [])
         self.current_batch = res_obj
         self.mixin(res_obj, methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj, 'batch_')
@@ -168,9 +171,9 @@ class TableScriptHandler(BaseComponent):
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
-        if selectedPkeys and isinstance(selectedPkeys,basestring):
-            selectedPkeys = selectedPkeys.strip(',').split(',')
         if selectedPkeys:
+            if isinstance(selectedPkeys,basestring):
+                selectedPkeys = selectedPkeys.strip(',').split(',')
             res_obj.selectedPkeys = selectedPkeys
         elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
