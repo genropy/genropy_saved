@@ -2458,7 +2458,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode._usersetgetter = function(cellname,row,idx){
                 var currSet = userSets.getItem(cellname);
                 if(currSet){
-                    currSet = ','+currSet+',';
                     return currSet.indexOf(','+row['_pkey']+',')>=0;
                 }else{
                     return false;
@@ -2844,24 +2843,29 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         bagnode.setAttr(attributes);
     },
-    mixin_getSelectedPkeys: function(noneIsAll) {
+    mixin_getSelectedPkeys: function() {
         var sel = this.selection.getSelected();
         var result = [];
         if (sel.length > 0) {
             for (var i = 0; i < sel.length; i++) {
                 result.push(this.rowIdByIndex(sel[i]));
             }
-        } else if (noneIsAll) {
-            if(this.selectionStore){
-                return this.selectionStore().currentPkeys();
-            }else{
-                for (var i = 0; i < this.rowCount; i++) {
-                    result.push(this.rowIdByIndex(i));
-                }
-            }
-        }
+        } 
         return result;
     },
+    mixin_getAllPkeys:function(){ 
+        if(this.selectionStore){
+            return this.selectionStore().currentPkeys();
+        }else{
+            var result = [];
+            for (var i = 0; i < this.rowCount; i++) {
+                result.push(this.rowIdByIndex(i));
+            }
+            return result;
+        }
+        
+    },
+
     mixin_getSelectedRow: function() {
         return  this.rowByIndex(this.selection.selectedIndex);
     },
@@ -4876,37 +4880,39 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
 
     mixin_onChangeSetCol:function(rowIndex,fieldname,e){
+        //dojo.stopEvent(e);
+        var changeset=function(currSet,elements,ischecked){
+            dojo.forEach(elements,function(element){
+                if(ischecked){
+                    currSet = currSet.replace((element+','),',');
+                }else{
+                    currSet+=(element+',');
+                }
+            });
+            return currSet;
+        }
         var modifiers = genro.dom.getEventModifiers(e);
         var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
         var kw = this.cellmap[fieldname];   
         var store = this.collectionStore();
         var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
-        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || '';
-        currSet = ','+currSet+',';
+        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || ',';
+        //currSet = ','+currSet+',';
         var checkedElement = node.attr[kw['checkedField']];
-        var toSearch = ','+checkedElement+',';
-        var ischecked = currSet.indexOf(toSearch)>=0;
+        var ischecked = currSet.indexOf(','+checkedElement+',')>=0;
+
         if(modifiers=='Shift'){
-            var pkeys = this.getSelectedPkeys(true); 
-            if(pkeys && pkeys.length>1){
-                dojo.forEach(pkeys,function(pkey){
-                    if(ischecked){
-                        currSet.replace((','+pkey+','),',');
-                    }else{
-                        currSet+=(pkey+',');
-                    }
-                });
+            var pkeys = this.getSelectedPkeys(); 
+            if(pkeys.length<2){
+                pkeys = this.getAllPkeys();
             }
+            currSet = changeset(currSet,pkeys,ischecked);
         }
         else{
-            if(ischecked){
-                currSet.replace(toSearch,',');
-            }else{
-                currSet+=checkedElement+',';
-            }
+            currSet = changeset(currSet,[checkedElement],ischecked);
         }
-        this.sourceNode.setRelativeData(kw['checkedId'],currSet.slice(1,-1))
+        this.sourceNode.setRelativeData(kw['checkedId'],currSet);
     },
 
     patch_sort: function() {  

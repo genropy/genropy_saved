@@ -2282,7 +2282,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         genro.rpc.remoteCall('app.freezedSelectionPkeys', 
                                             kw,null,null,null,
                                          function(result){
-                                             return result;
+                                             return result || [];
                                           });
     },
     

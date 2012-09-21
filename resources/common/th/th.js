@@ -12,7 +12,11 @@ var th_view_batch_caller = function(kw){
     if(store.storeType=='VirtualSelection'){
         kw['selectionName'] = store.selectionName;
     }else{
-        kw['selectedPkeys'] = grid.getSelectedPkeys(true);
+        kw['selectedPkeys'] = grid.getSelectedPkeys() || [];
+        if (kw['selectedPkeys'].length==0){
+            kw['selectedPkeys'] = grid.getAllPkeys();
+        }
+        
     }
     kw['selectedRowidx'] = grid.getSelectedRowidx();
     genro.publish("table_script_run",kw);
