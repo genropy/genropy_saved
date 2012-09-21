@@ -298,8 +298,8 @@ class TableScriptRunner(TableScriptHandler):
                             _onResult="""
                                     console.log(kwargs._publishOnResult,kwargs.sourcepage_id);
                                     if(kwargs._publishOnResult){
-                                        console.log('publishing');
-                                        genro.publish({topic:kwargs._publishOnResult,iframe:kwargs.sourcepage_id});
+                                        console.log('publishing', kwargs._publishOnResult);
+                                        genro.publish({topic:kwargs._publishOnResult,iframe:'*'});
                                     }""",
                             parameters='=.parameters',
                             resource='=.resource',
