@@ -146,7 +146,7 @@ class TemplateEditorBase(BaseComponent):
                 tbody = t.xpath('tbody')[0]
                 tbody_lastrow = tbody.getchildren()[-1]
                 tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
-                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'')
+                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
@@ -294,7 +294,8 @@ class TemplateEditor(TemplateEditorBase):
             varcaption='!!Fields',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
         vartab = tc.contentPane(title='Variables',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
         vartab.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
-                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
+                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='code'
+                )
         if 'flib' in self.db.packages:
             self.mixinComponent('flib:FlibPicker')
             tc.contentPane(title='!!Files').flibPickerPane(viewResource=':ImagesView',preview=False,gridpane_region='center', gridpane_margin='2px',
