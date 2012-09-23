@@ -548,7 +548,7 @@ function objectDifference(objOld, objNew) {
     return result;
 }
 
-function objectAsXmlAttributes(obj, sep) {
+function objectAsXmlAttributes_old(obj, sep) {
     var sep = sep || ' ';
     var val;
     var result = [];
@@ -571,6 +571,28 @@ function objectAsXmlAttributes(obj, sep) {
     }
     return result.join(sep);
 }
+function objectAsXmlAttributes(obj, sep) {
+    var sep = sep || ' ';
+    var val;
+    var result = [];
+    for (var prop in obj) {
+        val = obj[prop];
+        if (typeof(val) != 'string') {
+            val = asTypedTxt(val);
+        }
+        val = val.replace(/\</g, '&lt;');
+        val = val.replace(/\&/g, '&amp;');
+        val = val.replace(/\>/g, '&gt;');
+        val = val.replace(/\"/g, '&quot;');
+        val = val.replace(/\'/g, '&apos;');
+        val = val.replace(/\n/g, '&#10;');
+        val = val.replace(/\r/g, '&#13;');
+        val = val.replace(/\t/g, '&#09;');
+        result.push(prop + "=" + quoted(val));
+    }
+    return result.join(sep);
+}
+
 
 function objectAsStyle(obj) {
     var sep = sep || ' ';
