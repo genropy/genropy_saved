@@ -58,7 +58,7 @@ class ServiceHandlerManager(object):
         for service in service_list:
             service = service[1]
             service_name = self.service_name(service)
-            service_kwargs = self.site.config.getAttr('preferences.services.%s' % service_name) or dict()
+            service_kwargs = self.site.config.getAttr('services.%s' % service_name) or dict()
             self.add(service,service_name=service_name,**service_kwargs)
 
 
