@@ -2450,6 +2450,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
         sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
+
+        if(sourceNode.attr.userSets){
+            sourceNode.registerDynAttr('userSets');
+            var userSets = new gnr.GnrBag();
+            sourceNode.setRelativeData(sourceNode.attr.userSets,userSets);
+            sourceNode._usersetgetter = function(cellname,row,idx){
+                var currSet = userSets.getItem(cellname);
+                if(currSet){
+                    return currSet.indexOf(','+row['_pkey']+',')>=0;
+                }else{
+                    return false;
+                }
+            }
+        }
         return savedAttrs;
     },
 
@@ -2829,22 +2843,29 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         bagnode.setAttr(attributes);
     },
-    mixin_getSelectedPkeys: function(noneIsAll) {
+    mixin_getSelectedPkeys: function() {
         var sel = this.selection.getSelected();
         var result = [];
         if (sel.length > 0) {
             for (var i = 0; i < sel.length; i++) {
                 result.push(this.rowIdByIndex(sel[i]));
             }
-        } else if (noneIsAll) {
+        } 
+        return result;
+    },
+    mixin_getAllPkeys:function(){ 
+        if(this.selectionStore){
+            return this.selectionStore().currentPkeys();
+        }else{
+            var result = [];
             for (var i = 0; i < this.rowCount; i++) {
                 result.push(this.rowIdByIndex(i));
             }
+            return result;
         }
-
-
-        return result;
+        
     },
+
     mixin_getSelectedRow: function() {
         return  this.rowByIndex(this.selection.selectedIndex);
     },
@@ -2923,6 +2944,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cell.original_field = cell.field;
         cell.original_name = cell.name;
         cell._nodelabel = cellNode.label;
+        var userSets = objectPop(cell,'userSets');
+        if(userSets){
+            cellNode.attr['calculated'] = true;
+            cell = this.getNewSetKw(sourceNode,cell);
+            dtype ='B';
+        }
 
         cell = sourceNode.evaluateOnNode(cell);
 
@@ -2958,7 +2985,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell = this.getCheckBoxKw(checkboxPars,sourceNode,cell);
                 this.setCheckedIdSubscription(sourceNode,cell);
                 dtype ='B';
-            }
+            }     
             if (dtype) {
                 cell.cellClasses = (cell.cellClasses || '') + ' cell_' + dtype;
             }                       
@@ -3524,6 +3551,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var savedAttrs = this.creating_common(attributes, sourceNode);
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
+
     },
 
     created: function(widget, savedAttrs, sourceNode) {
@@ -4581,6 +4609,8 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
         },1);
     },
+
+
     setCheckedIdSubscription:function(sourceNode,kw){
         if(kw.checkedId && !sourceNode.attr.checkedId){
             sourceNode.attr.checkedId = kw.checkedId;
@@ -4797,8 +4827,91 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().getGridRowDataByIdx(this,inRowIndex);
     },
     
-     mixin_storeRowCount: function(all) {
+    mixin_rowIdByIndex:function(inRowIndex){
+        if(inRowIndex!==null){
+            return this.rowIdentity(this.collectionStore().getGridRowDataByIdx(this,inRowIndex));
+        }
+    },
+    mixin_storeRowCount: function(all) {
         return this.collectionStore().len(!all);
+    },
+
+    mixin_addNewSetColumn:function(kw) {
+        this.gnr.addNewSetColumn(this.sourceNode,kw);;
+    },
+
+    addNewSetColumn:function(sourceNode,kw) {
+        var position = objectPop(kw,'position') || 0;
+        var celldata = this.getNewSetKw(sourceNode,kw);
+        var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        genro.callAfter(function(){
+            structbag.setItem('view_0.rows_0.cell_'+celldata.field, null, celldata, {_position:position});
+        },1);
+    },
+
+    mixin_setUserSets:function(v,kw){
+        this.updateRowCount();
+    },
+
+    getNewSetKw:function(sourceNode,celldata) {
+        var celldata = celldata || {};
+        var fieldname =  celldata['field'] || '_set_'+genro.getCounter();
+        var radioButton = objectPop(celldata,'radioButton') || false;
+        celldata['field'] = fieldname;
+        celldata['name'] =  celldata.name ||  ' ';
+        celldata['dtype'] = 'B';
+        celldata['width'] = celldata.width || '20px';
+        celldata['radioButton'] = radioButton;
+        celldata['format_trueclass'] = objectPop(celldata,'trueclass')|| (radioButton?'radioOn':'checkboxOn'); //mettere classi radio
+        celldata['classes'] = celldata.classes || 'row_checker';
+        celldata['format_falseclass'] = objectPop(celldata,'falseclass')|| (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
+        celldata['calculated'] = true;
+        celldata['checkedId'] = sourceNode.attr.userSets+'.'+fieldname;
+        var checkedField = '_pkey';
+        celldata['checkedField'] = checkedField;
+        celldata['userSets'] = true;    
+        celldata['format_onclick'] = "this.widget.onChangeSetCol(kw.rowIndex,'"+fieldname+"',e)";
+        celldata['_customGetter'] = function(rowdata,rowIdx){
+            return sourceNode._usersetgetter(this.field,rowdata,rowIdx)
+        };
+        return celldata;
+    },
+
+
+
+    mixin_onChangeSetCol:function(rowIndex,fieldname,e){
+        dojo.stopEvent(e);
+        var changeset=function(currSet,elements,ischecked){
+            dojo.forEach(elements,function(element){
+                if(ischecked){
+                    currSet = currSet.replace((element+','),',');
+                }else{
+                    currSet+=(element+',');
+                }
+            });
+            return currSet;
+        }
+        var modifiers = genro.dom.getEventModifiers(e);
+        var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
+        var kw = this.cellmap[fieldname];   
+        var store = this.collectionStore();
+        var rowIndex = this.absIndex(rowIndex);
+        var node = store.itemByIdx(rowIndex);
+        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || ',';
+        //currSet = ','+currSet+',';
+        var checkedElement = node.attr[kw['checkedField']];
+        var ischecked = currSet.indexOf(','+checkedElement+',')>=0;
+        var pkeys;
+        if(modifiers=='Shift'){
+            pkeys = this.getAllPkeys();   
+        }else{
+            pkeys = this.getSelectedPkeys();
+            if(dojo.indexOf(pkeys,checkedElement)<0){
+                 pkeys = [checkedElement];               
+            }
+        }
+        currSet = changeset(currSet,pkeys,ischecked);
+        this.sourceNode.setRelativeData(kw['checkedId'],currSet);
     },
 
     patch_sort: function() {  

@@ -312,8 +312,8 @@ class GnrWsgiSite(object):
     def addSiteServices(self):
         """TODO"""
         service_names=[]
-        if 'preferences.services' in self.config:
-            service_names=self.config['preferences.services'].digest('#k')
+        if 'services' in self.config:
+            service_names=self.config['services'].digest('#k')
         if service_names:
             self.services.addSiteServices(service_names=service_names)
             

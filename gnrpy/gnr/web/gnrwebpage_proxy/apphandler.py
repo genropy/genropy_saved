@@ -569,6 +569,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if optkwargs:
             result.update(optkwargs)
         return result
+
+    @public_method
+    def freezedSelectionPkeys(self,table=None,selectionName=None):
+        selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
+        return selection.output('pkeylist')
+
     
     @public_method
     def checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
@@ -818,7 +824,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
         if pkeys:
             if isinstance(pkeys, basestring):
-                pkeys = pkeys.split(',')
+                pkeys = pkeys.strip(',').split(',')
             if len(pkeys)==0:
                 kwargs['limit'] = 0
             elif len(pkeys)==1:

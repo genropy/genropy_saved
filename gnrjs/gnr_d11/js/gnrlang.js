@@ -424,6 +424,7 @@ function objectAny(obj,cb) {
     return false;
 }
 
+
 function objectString(obj) {
     var result = [];
     for (var prop in obj) {
@@ -547,7 +548,7 @@ function objectDifference(objOld, objNew) {
     return result;
 }
 
-function objectAsXmlAttributes(obj, sep) {
+function objectAsXmlAttributes_old(obj, sep) {
     var sep = sep || ' ';
     var val;
     var result = [];
@@ -570,6 +571,28 @@ function objectAsXmlAttributes(obj, sep) {
     }
     return result.join(sep);
 }
+function objectAsXmlAttributes(obj, sep) {
+    var sep = sep || ' ';
+    var val;
+    var result = [];
+    for (var prop in obj) {
+        val = obj[prop];
+        if (typeof(val) != 'string') {
+            val = asTypedTxt(val);
+        }
+        val = val.replace(/\</g, '&lt;');
+        val = val.replace(/\&/g, '&amp;');
+        val = val.replace(/\>/g, '&gt;');
+        val = val.replace(/\"/g, '&quot;');
+        val = val.replace(/\'/g, '&apos;');
+        val = val.replace(/\n/g, '&#10;');
+        val = val.replace(/\r/g, '&#13;');
+        val = val.replace(/\t/g, '&#09;');
+        result.push(prop + "=" + quoted(val));
+    }
+    return result.join(sep);
+}
+
 
 function objectAsStyle(obj) {
     var sep = sep || ' ';
@@ -595,7 +618,10 @@ function objectFromStyle(style) {
     return result;
 };
 
-function objectFromString(values,sep){
+function objectFromString(values,sep,keyOnly){
+    if(!values){
+        return {};
+    }
     var ch = sep || values.indexOf('\n')>=0?'\n':',';
     var values = values.split(ch);
     var result = {};
@@ -604,6 +630,8 @@ function objectFromString(values,sep){
         if (val.indexOf(':') > 0) {
             val = val.split(':');
             result[val[0]] = val[1];
+        }else if(keyOnly){
+            result[val] = true;
         } else {
             result['caption_'+i] = val;
         }

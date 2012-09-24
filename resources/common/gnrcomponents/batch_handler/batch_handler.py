@@ -78,13 +78,16 @@ class TableScriptHandler(BaseComponent):
         resource_path = '%s/%s' % (res_type, resource)
         res_obj = self.site.loadTableScript(self, table, resource_path, class_name='Main')
         self._table_script_imports(pane,res_obj)
-        if selectionName:
+        count = 0
+        if selectedPkeys:
+            if isinstance(selectedPkeys,basestring):
+                selectedPkeys = selectedPkeys.strip(',').split(',')
+            res_obj.selectedPkeys = selectedPkeys
+            count = len(selectedPkeys or [])
+        elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
             count = len(res_obj.get_selection_pkeys() or [])
-        else:
-            res_obj.selectedPkeys = selectedPkeys
-            count = len(selectedPkeys or [])
         self.current_batch = res_obj
         self.mixin(res_obj, methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj, 'batch_')
@@ -168,11 +171,13 @@ class TableScriptHandler(BaseComponent):
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
-        if selectionName:
+        if selectedPkeys:
+            if isinstance(selectedPkeys,basestring):
+                selectedPkeys = selectedPkeys.strip(',').split(',')
+            res_obj.selectedPkeys = selectedPkeys
+        elif selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
-        else:
-            res_obj.selectedPkeys = selectedPkeys
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         if extra_parameters:
@@ -271,7 +276,11 @@ class TableScriptRunner(TableScriptHandler):
                                        if (pkey){
                                             params.selectedPkeys = [pkey];
                                        }
-                                       SET .selectedPkeys = copyArray(objectPop(params,'selectedPkeys') || []);
+                                       var selectedPkeys = objectPop(params,'selectedPkeys') || [];
+                                       if(typeof(selectedPkeys)!='string'){
+                                            selectedPkeys = copyArray(selectedPkeys);
+                                       }
+                                       SET .selectedPkeys = selectedPkeys;
                                        var extra_parameters = objectPop(params,'extra_parameters');
                                        extra_parameters = extra_parameters? extra_parameters.deepCopy() : new gnr.GnrBag();
                                        for(var k in params){
@@ -286,7 +295,12 @@ class TableScriptRunner(TableScriptHandler):
         plugin_main.dataRpc('dummy', self.table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
-                            _onResult="""if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}""",
+                            _onResult="""
+                                    console.log(kwargs._publishOnResult,kwargs.sourcepage_id);
+                                    if(kwargs._publishOnResult){
+                                        console.log('publishing', kwargs._publishOnResult);
+                                        genro.publish({topic:kwargs._publishOnResult,iframe:'*'});
+                                    }""",
                             parameters='=.parameters',
                             resource='=.resource',
                             res_type='=.res_type',
