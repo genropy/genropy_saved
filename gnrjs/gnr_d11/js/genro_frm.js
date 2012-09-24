@@ -366,7 +366,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     waitingStatus:function(waiting){
-        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>'});
+        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
     },
     
     openPendingChangesDlg:function(kw){
