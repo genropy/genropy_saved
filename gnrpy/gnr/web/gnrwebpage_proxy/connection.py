@@ -38,6 +38,7 @@ class GnrWebConnection(GnrBaseProxy):
         self.cookie = self.read_cookie()
         self._cookie_data = None
         self.connection_item = None
+        self.avatar_extra = dict()
         if connection_id:
             self.validate_connection(connection_id=connection_id, user=user)
 
