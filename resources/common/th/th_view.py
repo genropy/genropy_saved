@@ -417,10 +417,10 @@ class TableHandlerView(BaseComponent):
             var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
             if(highlighted.length>0){
                 btn.widget.setIconClass('iconbox bulb_on');
-                btn.setDisabled(false);
+                btn.setAttribute('disabled',false);
             }else{
                 btn.widget.setIconClass('iconbox bulb_off');
-                btn.setDisabled(true);
+                btn.setAttribute('disabled',true);
             }
         """,btn=btn,selected='^.grid.selectedId',th_root_code=inattr['th_root'],_fired='^.queryEnd')
 
