@@ -119,7 +119,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             var parentForm = this.getParentForm();
             if(parentForm){
-                dojo.connect(parentForm,'load',this,'abort');
+                //dojo.connect(parentForm,'load',this,'abort');
+                parentForm.subscribe('onLoaded',function(){
+                    that.abort();
+                    that.publish('changedParent');
+                });
             }
             
             var parentStore = this.store.parentStore;
@@ -238,6 +242,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     load: function(kw) {
         if(this.opStatus=='loading'){
             return;
+        }
+        if(!kw && this.store.base_handler_type=='subform'){
+            kw = {destPkey:"*subform*"};
         }
         if(this.store && this.changed && this.saveOnChange && this.isValid()){
             var deferred = this.store.save();
@@ -1064,8 +1071,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.status=status;
             this.publish('onStatusChange',{'status':this.status});
             var formDomNode = this.formDomNode;
+            var side;
+            var formNodeWdg = this.sourceNode.widget;
             dojo.forEach(this._status_list,function(st){
                 genro.dom.setClass(formDomNode,'form_'+st,st==status);
+                for(var sidename in {'top':true,'bottom':true,'left':true,'right':true}){
+                    side = formNodeWdg['_'+sidename];
+                    if(side){
+                        genro.dom.setClass(side,'formside_'+st,st==status);
+                    }
+                }
             });
         }
     },
@@ -1457,6 +1472,7 @@ dojo.declare("gnr.formstores.Base", null, {
         //this.onSaved = kw.onSaved;
         ;
         var base_handler_type = objectPop(kw,'handler');
+        this.base_handler_type = base_handler_type;
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks,defaultCb;
         var that = this;
@@ -1774,7 +1790,32 @@ dojo.declare("gnr.formstores.Base", null, {
 });
 
 dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
-
+    load_subform:function(){
+        var form= this.form;
+        var parentForm = form.getParentForm();
+        var subRecordKeys = form.getFormData().keys();
+        var r = new gnr.GnrBag();
+        var parentRecord = parentForm.getFormData();
+        dojo.forEach(subRecordKeys,function(field){
+            var n = parentRecord.getNode(field);
+            r.setItem(field,n.getValue());
+        });
+        this.loaded('*subform*',r);
+    },
+    save_subform:function(destPkey){
+        var form= this.form;
+        var parentForm = form.getParentForm();
+        var subRecord = form.getFormData();
+        var parentRecord = parentForm.getFormData();
+        subRecord.forEach(function(n){
+            parentRecord.setItem(n.label,n.getValue());
+        });
+        this.saved({});
+        this.load_subform();
+        if(destPkey){
+            form.load({destPkey:destPkey});
+        }
+    }
 });
 
 dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
