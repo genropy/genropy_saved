@@ -243,9 +243,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.opStatus=='loading'){
             return;
         }
-        if(!kw && this.store.base_handler_type=='subform'){
-            kw = {destPkey:"*subform*"};
-        }
         if(this.store && this.changed && this.saveOnChange && this.isValid()){
             var deferred = this.store.save();
             var that = this;
@@ -257,6 +254,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         var kw = kw || {};
         if (this.store){
+            if(!kw.destPkey && this.store.base_handler_type=='subform'){
+                kw.destPkey="*subform*";
+            }
             kw.destPkey = kw.destPkey || '*norecord*';
             if(kw['destPkey']=='*norecord*'){
                 kw['destPkey'] = null;
