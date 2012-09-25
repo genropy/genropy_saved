@@ -321,7 +321,6 @@ class TableHandlerView(BaseComponent):
         gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
                         draggable_row=True,
-                        userSets='.sets',
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
@@ -330,6 +329,7 @@ class TableHandlerView(BaseComponent):
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
+        gridattr.setdefault('userSets','.sets')
 
                         #onDrop=""" for (var k in data){
                         #                this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
