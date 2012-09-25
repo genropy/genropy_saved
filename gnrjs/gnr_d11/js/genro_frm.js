@@ -908,6 +908,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return result;
         }
     },
+
     triggerUPD: function(kw) {
         //var path = this._dataLogger.path;
 
@@ -918,7 +919,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
             return;
         }
-        if(kw.value==="" && kw.oldvalue==null){
+        if( kw.value==kw.oldvalue || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
             return;
         }
         ;
@@ -934,7 +935,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     kw.node.attr._loadedValue = kw.oldvalue;
                     changed = true;
                     //console.log('dataChangeLogger NEWCHANGE: ' + path);
-                } else if (kw.node.attr._loadedValue == kw.value) {//value = _loadedValue
+                } else if (kw.node.attr._loadedValue == kw.value || ( isNullOrBlank(kw.value) && isNullOrBlank(kw.node.attr._loadedValue) )) {//value = _loadedValue
                     delete kw.node.attr._loadedValue;
                     changed = false;
                     //console.log('dataChangeLogger UNCHANGED: ' + path);
@@ -1798,7 +1799,9 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var parentRecord = parentForm.getFormData();
         dojo.forEach(subRecordKeys,function(field){
             var n = parentRecord.getNode(field);
-            r.setItem(field,n.getValue());
+            if(n){
+                r.setItem(field,n.getValue());
+            }
         });
         this.loaded('*subform*',r);
     },
