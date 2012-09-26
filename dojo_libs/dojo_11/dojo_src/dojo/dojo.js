@@ -1014,6 +1014,7 @@ dojo.global = {
 		//		network hits normally required to load these resources.
 
 		d.require("dojo.i18n");
+		// console.log('d.hostenv',d.hostenv,'arguments',arguments)
 		d.i18n._requireLocalization.apply(d.hostenv, arguments);
 	};
 

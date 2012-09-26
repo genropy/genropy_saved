@@ -182,6 +182,7 @@ class TableScriptToHtml(BagToHtml):
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
+        self.cached=False
         self.record = None
         
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
@@ -199,8 +200,8 @@ class TableScriptToHtml(BagToHtml):
             return False
         if not pdf:
             return html
-        docname = os.path.splitext(os.path.basename(self.filepath))[0]
-        self.writePdf(docname=docname)
+        
+        self.writePdf(docname=self.getDocName())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -209,6 +210,9 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
+
+    def getDocName(self):
+        return os.path.splitext(os.path.basename(self.filepath))[0]
 
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):

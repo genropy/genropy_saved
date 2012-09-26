@@ -40,7 +40,8 @@ class PrinterConnection(GnrBaseService):
         """TODO
         
         :param printerParams: TODO. """
-        self.zipped = printerParams.pop('zipped')
+        printerParams = printerParams or dict()
+        self.zipped = printerParams.pop('zipped',None)
         self.printAgent = self.printPdf
         
     def printPdf(self, pdf_list, jobname, outputFilePath=None):
@@ -211,7 +212,7 @@ class PrintHandler(object):
         
         :param printer_name: TODO
         :param printerParams: TODO"""
-        return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams, **kwargs)
+        return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams or dict(), **kwargs)
         
     def joinPdf(self, pdf_list, output_filepath):
         """TODO

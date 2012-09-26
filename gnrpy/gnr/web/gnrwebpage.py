@@ -1646,7 +1646,7 @@ class GnrWebPage(GnrBaseWebPage):
         if print_handler:
             return print_handler.getPrinters()
             
-    def rpc_getPrinterAttributes(self, printer_name):
+    def rpc_getPrinterAttributes(self, printer_name,**kwargs):
         """TODO
         
         :param printer_name: TODO"""

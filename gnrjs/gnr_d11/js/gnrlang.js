@@ -363,6 +363,10 @@ function objectKeyByIdx(obj, idx) {
 function isEqual(a,b){
     return (a==b)||((a+'')==(b+''));
 };
+function isNullOrBlank(elem){
+    return elem==null || elem==undefined || elem == '';
+}
+
 function localType(dtype){
     return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}}[dtype];
 };

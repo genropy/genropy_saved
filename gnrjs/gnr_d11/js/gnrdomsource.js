@@ -1621,7 +1621,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             }
             
         });
-        return node;
+        return node===true?null:node;
     }
 });
 

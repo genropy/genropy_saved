@@ -4482,7 +4482,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         for(var k in cellmap){
             var cell = cellmap[k];
-            var bagcellattr = struct.getNode(cell._nodelabel).attr;
+            var structNode = struct.getNode(cell._nodelabel);
+            if(!structNode){
+                continue;
+            }
+            var bagcellattr = structNode.attr;
             for(var p in bagcellattr){
                 if(typeof(bagcellattr[p])=='string' && bagcellattr[p].indexOf('^') == 0){
                     getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
