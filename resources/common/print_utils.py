@@ -113,7 +113,7 @@ class PrintUtils(BaseComponent):
         if print_handler:
             return print_handler.getPrinters()
 
-    def rpc_getPrinterAttributes(self, printer_name):
+    def rpc_getPrinterAttributes(self, printer_name=None,**kwargs):
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes

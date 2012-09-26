@@ -32,7 +32,7 @@ class PrinterOption(BaseComponent):
                     _no_printer='!!No printer',datapath=datapath)
         ddb.menu(storepath='gnr.server_print.serverPrinters',
                  action="""SET gnr.server_print.selected_printer = $1.fullpath;
-                                SET .printer_name=$1.name;""",datapath=datapath)
+                                SET .printer_name=$1.name;""",datapath=datapath,modifiers='*')
         fb.filteringselect(value='^.printer_option.paper', lbl='!!Paper',
                            storepath='gnr.server_print.printer_attributes.paper_supported',datapath=datapath)
         fb.filteringselect(value='^.printer_option.tray', lbl='!!Tray',
