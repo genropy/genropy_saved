@@ -4889,7 +4889,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var changeset=function(currSet,elements,ischecked){
             dojo.forEach(elements,function(element){
                 if(ischecked){
-                    currSet = currSet.replace((element+','),',');
+                    currSet = currSet.replace((','+element+','),',');
                 }else{
                     currSet+=(element+',');
                 }
