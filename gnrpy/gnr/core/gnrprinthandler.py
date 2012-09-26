@@ -41,7 +41,7 @@ class PrinterConnection(GnrBaseService):
         
         :param printerParams: TODO. """
         printerParams = printerParams or dict()
-        self.zipped = printerParams.pop('zipped')
+        self.zipped = printerParams.pop('zipped',None)
         self.printAgent = self.printPdf
         
     def printPdf(self, pdf_list, jobname, outputFilePath=None):
