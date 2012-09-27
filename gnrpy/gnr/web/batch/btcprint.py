@@ -160,10 +160,10 @@ class BaseResourcePrint(BaseResourceBatch):
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.simpleTextArea(value='^#table_script_runner.data.batch_note',colspan=5,lbl='!!Notes',height='20px',lbl_vertical_align='top')
 
-    def table_script_options_server_print(self, pane,resource=None,**kwargs):
+    def table_script_options_server_print(self, pane,resource_name=None,**kwargs):
         pane.attributes.update(title='!!Server Print')
         fb = self.table_script_fboptions(pane)
-        self.server_print_option_fb(fb, resource=resource)
+        self.server_print_option_fb(fb, resource=resource_name)
 
     def table_script_options_pdf(self, pane,**kwargs):
         pane.attributes.update(title='!!Pdf')
