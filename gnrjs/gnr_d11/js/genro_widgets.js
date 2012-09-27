@@ -2456,7 +2456,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var userSets = new gnr.GnrBag();
             sourceNode.setRelativeData(sourceNode.attr.userSets,userSets);
             sourceNode._usersetgetter = function(cellname,row,idx){
-                var currSet = userSets.getItem(cellname);
+                //var currSet = userSets.getItem(cellname);
+                var currSet = sourceNode.getRelativeData(sourceNode.attr.userSets+'.'+cellname);
                 if(currSet){
                     return currSet.indexOf(','+row['_pkey']+',')>=0;
                 }else{
@@ -4888,7 +4889,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var changeset=function(currSet,elements,ischecked){
             dojo.forEach(elements,function(element){
                 if(ischecked){
-                    currSet = currSet.replace((element+','),',');
+                    currSet = currSet.replace((','+element+','),',');
                 }else{
                     currSet+=(element+',');
                 }
