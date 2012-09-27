@@ -198,6 +198,7 @@ class PrintHandler(object):
         :param printer_name: TODO"""
         cups_connection = cups.Connection()
         printer_attributes = cups_connection.getPrinterAttributes(printer_name)
+        print x
         attributesBag = Bag()
         for i, (media, description) in enumerate(self.paper_size.items()):
             if media in printer_attributes['media-supported']:
