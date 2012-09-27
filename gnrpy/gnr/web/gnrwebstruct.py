@@ -2070,7 +2070,7 @@ class GnrGridStruct(GnrStructData):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
                 cellpars['zoom_page'] = zoomPage
             cellpars['zoom_table'] = zoomtbl.dbtable.fullname
-        return self.cell(field=field,**cellpars)
+        return self.cell(field=_as or field,**cellpars)
 
     def fields(self, columns, unit='em', totalWidth=None):
         """TODO
