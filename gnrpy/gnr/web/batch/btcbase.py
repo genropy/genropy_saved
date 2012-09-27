@@ -64,6 +64,13 @@ class BaseResourceBatch(object):
     def pre_process(self):
         """Hook method on initing of the batch execution"""
         pass
+        
+    def _post_process(self):
+        self.post_process()
+
+    def post_process(self):
+        """Hook method after the batch execution"""
+        pass
 
     def run(self):
         """Run the :ref:`batch`"""
@@ -77,6 +84,7 @@ class BaseResourceBatch(object):
             self.call_steps()
         else:
             self.do()
+        self._post_process()
     
     def call_steps(self,offset=1):
         for step in self.btc.thermo_wrapper(self.batch_steps, 'btc_steps', message=self.get_step_caption,
