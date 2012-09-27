@@ -171,6 +171,8 @@ class TableScriptToHtml(BagToHtml):
     virtual_columns = None
     html_folder = 'page:html'
     pdf_folder = 'page:pdf'
+    cached = None
+
         
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -182,7 +184,6 @@ class TableScriptToHtml(BagToHtml):
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
-        self.cached=False
         self.record = None
         
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):

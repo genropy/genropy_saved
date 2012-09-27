@@ -134,7 +134,7 @@ class PrintHandler(object):
             pdf_kwargs['quiet'] = True
         args = ['wkhtmltopdf']
         for k,v in pdf_kwargs.items():
-            if v is not False and v is not None:
+            if v is not False and v is not None and v!='':
                 args.append('--%s' %k.replace('_','-'))
                 if v is not True:
                     args.append(str(v))

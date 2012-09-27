@@ -61,7 +61,9 @@ class BaseResourcePrint(BaseResourceBatch):
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
         result = None
         if self.htmlMaker.cached:
+            self.htmlMaker.record = record
             result = self.htmlMaker.getPdfPath()
+            self.htmlMaker.filepath = result
             if not os.path.isfile(result):
                 result = None
         if not result:
