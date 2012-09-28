@@ -791,6 +791,9 @@ var gnrformatter = {
         }
         var dtype = valueAttr.dtype || guessDtype(value);
         var format = valueAttr.format;
+        if(format && dtype=='L' && format.indexOf('.')>=0){
+            dtype='N';
+        }
         var formatKw = objectExtract(valueAttr,'format_*',true);
         var handler = this['format_'+dtype];
         var mask = valueAttr.mask;
