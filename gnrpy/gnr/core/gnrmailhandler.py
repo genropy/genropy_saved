@@ -299,7 +299,8 @@ class MailHandler(GnrBaseService):
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, bcc_address=None, attachments=None,
                  account=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,
-                 ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
+                 ssl=False, tls=False, html=False, charset='utf-8', async=False, 
+                 cb=None, cb_args=None, cb_kwargs=None, **kwargs):
         """Send mail is a function called from the postoffice object to send an email.
         
         :param to_address: the email receiver
@@ -345,11 +346,27 @@ class MailHandler(GnrBaseService):
         #else:
         #    msg['Bcc'] = bcc_address
         msg_string = msg.as_string()
+        sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async:
-            self._sendmail(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
+            self._sendmail(*sendmail_args)
+            if cb:
+                cb_args = cb_args or ()
+                cb_kwargs = cb_kwargs or {}
+                cb(*cb_args, **cb_kwargs)
+            
         else:
-            thread.start_new_thread(self._sendmail,
-                                    (account_params, from_address, to_address, cc_address, bcc_address, msg_string))
+            thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=None, cb_kwargs=None)
+            thread.start_new_thread(self._send_with_cb,(),thread_params)
+
+
+    def _send_with_cb(self, call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None):
+        call_args = call_args or ()
+        call_kwargs = call_kwargs or {}
+        call(*call_args, **call_kwargs)
+        if cb:
+            cb_args = cb_args or ()
+            cb_kwargs = cb_kwargs or {}
+            cb(*cb_args, **cb_kwargs)
                                     
     def _sendmail(self, account_params, from_address, to_address, cc_address, bcc_address, msg_string):
         print 'getting connection',account_params
