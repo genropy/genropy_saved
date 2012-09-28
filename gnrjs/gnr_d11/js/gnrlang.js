@@ -38,6 +38,10 @@ function _px(v){
 function _T(str){
   return str.replace('!!','');  
 };
+
+function _F(val,format,dtype){
+    return gnrformatter.asText(val,{format:format,dtype:dtype});
+};
 function isBag(value){
     return value &&(value.htraverse!=null);
 };
