@@ -10,84 +10,102 @@
 # --------------------------- BaseWebtool subclass ---------------------------
 
 
-from gnr.web.gnrbaseclasses import BaseWebtool
-import urllib,urllib2
-import time
-import hashlib
+from urllib import urlencode
+import urllib2
+import httplib2
+
 from gnr.core.gnrbaseservice import GnrBaseService
-from gnr.core.gnrstring import templateReplace
-import thread
-import os
 
 class SmsMobyt(GnrBaseService):
-
-    def __init__(self, parent, username=None, password=None, url=None, auth=None, sender=None):
+    def __init__(self, parent, username=None, password=None, url=None, sender=None,quality=None):
         self.parent = parent
-        self.username=username
-        self.password=password
-        self.url=url
-        self.auth=auth
-        self.sender=sender
+        self.username = username
+        self.password = password
+        self.url = 'http://client.mobyt.it/sms/send.php'
+        self.sender = sender
+        self.quality = quality or 'n'
+        self.http = httplib2.Http()
 
-    def sendsms_template(self, receiver=None,sender=None,
-                       opcode=None, data=None, quality=None, messageId=None, batchId=None,
-                       urlbatch=None, async=False, **kwargs):
-        def get_templated(field):
-            value = datasource.get(field)
+    def sendsms(self,receiver=None,sender=None,data=None, quality=None,**kwargs):
+        data = {'user':self.username,'pass':self.password,'data':data,'rcpt':receiver,
+                'sender':sender or self.sender,'qty':quality or self.quality}
+        #data.update(kwargs)
+        #response,content=self.http.request(self.url, 'GET', body=urlencode(data))
+        url= urllib2.urlopen(self.url,urlencode(data))
+        return url.read()
+        #return response,content
 
-            if value:
-                return templateReplace(value, datasource)
-        receiver = receiver or get_templated('receiver')
-        sender = sender or get_templated('sender')
-        opcode = opcode or get_templated('opcode')
-        sender = sender or get_templated('sender')
-        quality = quality or get_templated('quality')
-        messageId = messageId or get_templated('messageId')
-        urlbatch = urlbatch or get_templated('urlbatch')
-        data = data or get_templated('data')
-        data = templateReplace(data, datasource)
-        self.sendsms(receiver=receiver, sender=sender, opcode=opcode,data=data, quality=quality, messageId=messageId,
-                     batchId=batchId, urlbatch=urlbatch, async=async)
 
-    def sendsms(self, receiver=None,sender=None,
-                       opcode=None, data=None, quality=None, messageId=None, batchId=None,
-                       urlbatch=None, async=None,**kwargs):
-        parameters=dict()
-        parameters['id']=self.username
-        parameters['operation']=opcode or 'TEXT'
-        sender = sender or self.sender
-        if ',' in receiver:
-            parameters['rcptbatch']=receiver  
-        else:
-            parameters['rcpt']=receiver  
-        parameters['from']=sender    
-        parameters['data']=data 
-        if quality:
-            parameters['qty']=quality
-        parameters['act']=str(messageId or int(time.time()*1000000))
-        if batchId:
-            parameters['idbatch']=batchId   
-        if  urlbatch:
-            parameters['urlbatch']=urlbatch     
-        if self.auth=='md5':
-            ticket=[]
-            for k in ['id', 'operation', 'rcpt', 'from', 'data']:
-                if parameters.get(k):
-                    ticket.append(parameters[k])
-                else:
-                    parameters.pop(k,None)
-            ticket.append(self.password)
-            parameters['ticket'] = hashlib.md5(''.join(ticket)).hexdigest().strip()
-        else:
-            parameters['password'] = password
-        parameters=urllib.urlencode(parameters)
-        print parameters
-        if not async:
-            url= urllib2.urlopen(self.url,parameters)
-            print url.read()
-        else:
-            thread.start_new_thread(urllib2.urlopen,(self.url,parameters))
 
+#class SmsMobyt_Old(GnrBaseService):
+#
+#    def __init__(self, parent, username=None, password=None, url=None, auth=None, sender=None):
+#        self.parent = parent
+#        self.username=username
+#        self.password=password
+#        self.url=url
+#        self.auth=auth
+#        self.sender=sender
+#
+#    def sendsms_template(self, receiver=None,sender=None,
+#                       opcode=None, data=None, quality=None, messageId=None, batchId=None,
+#                       urlbatch=None, async=False, **kwargs):
+#        def get_templated(field):
+#            value = datasource.get(field)
+#
+#            if value:
+#                return templateReplace(value, datasource)
+#        receiver = receiver or get_templated('receiver')
+#        sender = sender or get_templated('sender')
+#        opcode = opcode or get_templated('opcode')
+#        sender = sender or get_templated('sender')
+#        quality = quality or get_templated('quality')
+#        messageId = messageId or get_templated('messageId')
+#        urlbatch = urlbatch or get_templated('urlbatch')
+#        data = data or get_templated('data')
+#        data = templateReplace(data, datasource)
+#        self.sendsms(receiver=receiver, sender=sender, opcode=opcode,data=data, quality=quality, messageId=messageId,
+#                     batchId=batchId, urlbatch=urlbatch, async=async)
+#
+#    def sendsms(self, receiver=None,sender=None,
+#                       opcode=None, data=None, quality=None, messageId=None, batchId=None,
+#                       urlbatch=None, async=None,**kwargs):
+#        parameters=dict()
+#        parameters['id']=self.username
+#        parameters['operation']=opcode or 'TEXT'
+#        sender = sender or self.sender
+#        if ',' in receiver:
+#            parameters['rcptbatch']=receiver  
+#        else:
+#            parameters['rcpt']=receiver  
+#        parameters['from']=sender    
+#        parameters['data']=data 
+#        if quality:
+#            parameters['qty']=quality
+#        parameters['act']=str(messageId or int(time.time()*1000000))
+#        if batchId:
+#            parameters['idbatch']=batchId   
+#        if  urlbatch:
+#            parameters['urlbatch']=urlbatch     
+#        if self.auth=='md5':
+#            ticket=[]
+#            for k in ['id', 'operation', 'rcpt', 'from', 'data']:
+#                if parameters.get(k):
+#                    ticket.append(parameters[k])
+#                else:
+#                    parameters.pop(k,None)
+#            ticket.append(self.password)
+#            parameters['ticket'] = hashlib.md5(''.join(ticket)).hexdigest().strip()
+#        else:
+#            parameters['password'] = password
+#        parameters=urllib.urlencode(parameters)
+#        print parameters
+#        if not async:
+#            url= urllib2.urlopen(self.url,parameters)
+#            print url.read()
+#        else:
+#            thread.start_new_thread(urllib2.urlopen,(self.url,parameters))
+#
         
     """
 2.1 ticket

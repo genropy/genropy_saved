@@ -2726,23 +2726,23 @@ body *{
     -webkit-box-shadow: none;
 }
 
-.form_ok .fh_semaphore{
+.formside_ok .fh_semaphore {
     background: url(icons/base16/semaphore_green.png) no-repeat center center;
 }
 
-.form_error .fh_semaphore{
+.formside_error .fh_semaphore{
     background: url(icons/base16/semaphore_red.png) no-repeat center center;
 }
 
-.form_changed .fh_semaphore{
+.formside_changed .fh_semaphore{
     background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
 }
 
-.form_readOnly .fh_semaphore{
+.formside_readOnly .fh_semaphore{
     background: url(icons/base16/readonly.gif) no-repeat center center;
 }
 
-.form_noItem .fh_semaphore{
+.formside_noItem .fh_semaphore{
     background: url(icons/base16/semaphore_gray.png) no-repeat center center;
 }
 

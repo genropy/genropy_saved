@@ -7,10 +7,8 @@
 #Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
-from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import slugify
-from gnr.core.gnrstring import templateReplace
-from gnr.web.gnrbaseclasses import TableScriptToHtml
+import os
 
 
 class BaseResourcePrint(BaseResourceBatch):
@@ -61,7 +59,15 @@ class BaseResourcePrint(BaseResourceBatch):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield],idx=k)
 
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
-        result = self.htmlMaker(record=record,record_idx=idx, thermo=thermo, pdf=self.pdf_make,
+        result = None
+        if self.htmlMaker.cached:
+            self.htmlMaker.record = record
+            result = self.htmlMaker.getPdfPath()
+            self.htmlMaker.filepath = result
+            if not os.path.isfile(result):
+                result = None
+        if not result:
+            result = self.htmlMaker(record=record,record_idx=idx, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         self.onRecordExit(record)
         if result:
@@ -156,10 +162,10 @@ class BaseResourcePrint(BaseResourceBatch):
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.simpleTextArea(value='^#table_script_runner.data.batch_note',colspan=5,lbl='!!Notes',height='20px',lbl_vertical_align='top')
 
-    def table_script_options_server_print(self, pane,resource=None,**kwargs):
+    def table_script_options_server_print(self, pane,resource_name=None,**kwargs):
         pane.attributes.update(title='!!Server Print')
         fb = self.table_script_fboptions(pane)
-        self.server_print_option_fb(fb, resource=resource)
+        self.server_print_option_fb(fb, resource=resource_name)
 
     def table_script_options_pdf(self, pane,**kwargs):
         pane.attributes.update(title='!!Pdf')
@@ -213,3 +219,9 @@ class BaseResourcePrint(BaseResourceBatch):
             bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
             bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
         return bar
+
+    def get_template(self,template_address):
+        if not ':' in template_address:
+            template_address = 'adm.userobject.data:%s' %template_address
+        return self.page.loadTemplate(template_address,asSource=True)[0]
+

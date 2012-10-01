@@ -38,6 +38,10 @@ function _px(v){
 function _T(str){
   return str.replace('!!','');  
 };
+
+function _F(val,format,dtype){
+    return gnrformatter.asText(val,{format:format,dtype:dtype});
+};
 function isBag(value){
     return value &&(value.htraverse!=null);
 };
@@ -363,6 +367,10 @@ function objectKeyByIdx(obj, idx) {
 function isEqual(a,b){
     return (a==b)||((a+'')==(b+''));
 };
+function isNullOrBlank(elem){
+    return elem==null || elem==undefined || elem == '';
+}
+
 function localType(dtype){
     return {'R':{places:2},'L':{places:0},'I':{places:0},'D':{date:'short'},'H':{time:'short'},'DH':{datetime:'short'}}[dtype];
 };
@@ -783,6 +791,9 @@ var gnrformatter = {
         }
         var dtype = valueAttr.dtype || guessDtype(value);
         var format = valueAttr.format;
+        if(format && dtype=='L' && format.indexOf('.')>=0){
+            dtype='N';
+        }
         var formatKw = objectExtract(valueAttr,'format_*',true);
         var handler = this['format_'+dtype];
         var mask = valueAttr.mask;

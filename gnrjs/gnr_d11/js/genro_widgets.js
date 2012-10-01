@@ -2456,7 +2456,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var userSets = new gnr.GnrBag();
             sourceNode.setRelativeData(sourceNode.attr.userSets,userSets);
             sourceNode._usersetgetter = function(cellname,row,idx){
-                var currSet = userSets.getItem(cellname);
+                //var currSet = userSets.getItem(cellname);
+                var currSet = sourceNode.getRelativeData(sourceNode.attr.userSets+'.'+cellname);
                 if(currSet){
                     return currSet.indexOf(','+row['_pkey']+',')>=0;
                 }else{
@@ -4481,7 +4482,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
         for(var k in cellmap){
             var cell = cellmap[k];
-            var bagcellattr = struct.getNode(cell._nodelabel).attr;
+            var structNode = struct.getNode(cell._nodelabel);
+            if(!structNode){
+                continue;
+            }
+            var bagcellattr = structNode.attr;
             for(var p in bagcellattr){
                 if(typeof(bagcellattr[p])=='string' && bagcellattr[p].indexOf('^') == 0){
                     getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
@@ -4884,7 +4889,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var changeset=function(currSet,elements,ischecked){
             dojo.forEach(elements,function(element){
                 if(ischecked){
-                    currSet = currSet.replace((element+','),',');
+                    currSet = currSet.replace((','+element+','),',');
                 }else{
                     currSet+=(element+',');
                 }

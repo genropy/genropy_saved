@@ -19,7 +19,11 @@ class BaseResourceMail(BaseResourceBatch):
         applicationpref = self.page.getPreference('mail', pkg='adm') 
         self.mail_preference = userpref or applicationpref or instancepref
 
-                                            
+                                  
+    def send_one_template(self,record=None,to_address=None,cc_address=None,subject=None,body=None,attachments=None,**kwargs):
+        self.mail_handler.sendmail_template(record,body=body,to_address=to_address,attachments=attachments,
+                                            cc_address=cc_address,subject=subject,**kwargs)
+
     def send_one_email(self,to_address=None,cc_address=None,subject=None,body=None,attachments=None):
         mp = self.mail_preference
         self.mail_handler.sendmail(to_address=to_address,
@@ -30,6 +34,10 @@ class BaseResourceMail(BaseResourceBatch):
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                     ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+    def get_template(self,template_address):
+        if not ':' in template_address:
+            template_address = 'adm.userobject.data:%s' %template_address
+        return self.page.loadTemplate(template_address,asSource=True)[0]
                                             
 
 class TemplateMail(BaseResourceMail):
@@ -119,6 +127,8 @@ class TemplateMail(BaseResourceMail):
         self.RichTextEditor(editpane.contentPane(region='center'),
                             config_contentsCss=self.getResourceUri('doctemplate.css', add_mtime=True),
                             value='^.doctemplate.content', toolbar=self.rte_toolbar_standard())
+
+
 
         #INSIDE BATCHHANDLER
         # def rpc_table_script_renderTemplate(self,record_id=None,doctemplate_id=None,htmltemplate=None):

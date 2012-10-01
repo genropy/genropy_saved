@@ -148,7 +148,6 @@ class TableHandlerView(BaseComponent):
                             """)
                     
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
-                                PUT .query.currentQuery = null;
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
@@ -322,7 +321,6 @@ class TableHandlerView(BaseComponent):
         gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
                         draggable_row=True,
-                        userSets='.sets',
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
@@ -331,6 +329,7 @@ class TableHandlerView(BaseComponent):
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
+        gridattr.setdefault('userSets','.sets')
 
                         #onDrop=""" for (var k in data){
                         #                this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
@@ -417,10 +416,10 @@ class TableHandlerView(BaseComponent):
             var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
             if(highlighted.length>0){
                 btn.widget.setIconClass('iconbox bulb_on');
-                btn.setDisabled(false);
+                btn.widget.setAttribute('disabled',false);
             }else{
                 btn.widget.setIconClass('iconbox bulb_off');
-                btn.setDisabled(true);
+                btn.widget.setAttribute('disabled',true);
             }
         """,btn=btn,selected='^.grid.selectedId',th_root_code=inattr['th_root'],_fired='^.queryEnd')
 

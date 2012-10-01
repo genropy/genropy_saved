@@ -18,11 +18,6 @@ class Main(BaseResourcePrint):
     batch_title = None
     print_mode = 'pdf'
     
-    def get_template(self,template_address):
-        if not ':' in template_address:
-            template_address = 'adm.userobject.data:%s' %template_address
-        return self.page.loadTemplate(template_address,asSource=True)[0]
-    
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
         self.maintable = extra_parameters['table']

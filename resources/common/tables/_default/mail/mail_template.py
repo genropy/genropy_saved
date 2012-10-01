@@ -18,11 +18,6 @@ class Main(BaseResourceMail):
     batch_immediate = True
     batch_title = None
     templates = ''
-
-    def get_template(self,template_address):
-        if not ':' in template_address:
-            template_address = 'adm.userobject.data:%s' %template_address
-        return self.page.loadTemplate(template_address,asSource=True)[0]
         
     def do(self):
         self.sendmail_selection()

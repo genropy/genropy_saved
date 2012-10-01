@@ -1529,7 +1529,7 @@ dojo.declare('gnr.GenroClient', null, {
             if (!reason) {
                 return;
             }
-            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:'<div class="form_waiting"></div>'});
+            genro.nodeById('_gnrRoot').setHiderLayer(true,{message:'<div class="form_waiting"></div>',z_index:999998});
         } else {
             if (reason) {
                 objectPop(genro.lockingElements, reason);

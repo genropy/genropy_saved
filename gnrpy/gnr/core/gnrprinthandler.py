@@ -40,7 +40,8 @@ class PrinterConnection(GnrBaseService):
         """TODO
         
         :param printerParams: TODO. """
-        self.zipped = printerParams.pop('zipped')
+        printerParams = printerParams or dict()
+        self.zipped = printerParams.pop('zipped',None)
         self.printAgent = self.printPdf
         
     def printPdf(self, pdf_list, jobname, outputFilePath=None):
@@ -133,7 +134,7 @@ class PrintHandler(object):
             pdf_kwargs['quiet'] = True
         args = ['wkhtmltopdf']
         for k,v in pdf_kwargs.items():
-            if v is not False and v is not None:
+            if v is not False and v is not None and v!='':
                 args.append('--%s' %k.replace('_','-'))
                 if v is not True:
                     args.append(str(v))
@@ -211,7 +212,7 @@ class PrintHandler(object):
         
         :param printer_name: TODO
         :param printerParams: TODO"""
-        return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams, **kwargs)
+        return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams or dict(), **kwargs)
         
     def joinPdf(self, pdf_list, output_filepath):
         """TODO

@@ -171,6 +171,8 @@ class TableScriptToHtml(BagToHtml):
     virtual_columns = None
     html_folder = 'page:html'
     pdf_folder = 'page:pdf'
+    cached = None
+
         
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -199,8 +201,8 @@ class TableScriptToHtml(BagToHtml):
             return False
         if not pdf:
             return html
-        docname = os.path.splitext(os.path.basename(self.filepath))[0]
-        self.writePdf(docname=docname)
+        
+        self.writePdf(docname=self.getDocName())
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
@@ -209,6 +211,9 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
+
+    def getDocName(self):
+        return os.path.splitext(os.path.basename(self.filepath))[0]
 
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):

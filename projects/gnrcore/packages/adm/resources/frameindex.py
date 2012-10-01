@@ -360,11 +360,11 @@ class FramedIndexLogin(BaseComponent):
 
         footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
         footer.dataController("""
-        btn.widget.setDisabled(true);
+        btn.setAttribute('disabled',true);
         genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
-                btn.widget.setDisabled(false);
+                btn.setAttribute('disabled',false);
             }else{
                 dlg.hide();
                 if(result['rootpage']){
@@ -376,7 +376,7 @@ class FramedIndexLogin(BaseComponent):
         })
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn,_delay=1)  
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  
         return dlg
 
     @public_method
