@@ -191,7 +191,8 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         } 
         var path = '#'+r;
         var editedNode = data.getNode(path);
-        var is_main = editedNode._value.getItem('is_main');
+        var databag = editedNode.getValue();
+        var is_main = databag.getItem('is_main');
         if(!resultvalue){
             data.popNode(path);
             if(is_main && data.len()>0){
@@ -200,7 +201,11 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
                 genro.setData(kw.valuepath,newmain.getItem('mv_value'));
             }
         }else{
-            editedNode.setValue(result);
+            var v = result.getItem('mv_value');
+            databag.setItem('mv_label',result.getItem('mv_label'));
+            databag.setItem('mv_value',v);
+            databag.setItem('mv_note',result.getItem('mv_note'));
+            genro.setData(kw.valuepath,v);
         }
     },
 
