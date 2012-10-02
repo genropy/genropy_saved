@@ -52,18 +52,15 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var modifiers = objectPop(kw,'modifiers') || '*';
         var onOpening = objectPop(kw,'onOpening');
         if (onOpening){
-            onOpening = funcCreate(onOpening,'e,sourceNode',sourceNode);
+            onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
-        
-        var parentDomNode = sourceNode.getParentNode().getDomNode();
-        dojo.connect(parentDomNode,evt,function(e){
-            if(genro.wdg.filterEvent(e,modifiers)){
-                if(!onOpening || onOpening(e,e.target.sourceNode)!==false){
-                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
-                }
-            } 
-        });
+        var parentDomNode;
+        var sn = sourceNode;
+        while(!parentDomNode){
+            sn = sn.getParentNode();
+            parentDomNode = sn.getDomNode();
+        }
         
         var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,
                                 selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
@@ -74,8 +71,173 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                 wdg.resize();
             },1)
         };
-        return  ddb._('TooltipDialog',kw);
+        var tdialog =  ddb._('TooltipDialog',kw);
+        dojo.connect(parentDomNode,evt,function(e){
+            if(genro.wdg.filterEvent(e,modifiers)){
+                if(!onOpening || onOpening(e,e.target.sourceNode,tdialog.getParentNode())!==false){
+                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target});
+                }
+            } 
+        });
+        return tdialog;
     }
+});
+
+dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
+    createContent:function(sourceNode, kw, children){
+        var that = this;
+        var textboxNode = sourceNode.getParentNode();
+        //textboxNode.attr.format = '## ###';
+        var valuepath = textboxNode.absDatapath(textboxNode.attr.value);
+        var sourcepath = valuepath+'_mv';
+        var labels = textboxNode.attr.multivalue;
+
+        textboxNode._mvhandler = this;
+        textboxNode._onSettingValueInData = function(tn,value){that.onSetMainValue(tn,value);};
+        var arrowNode = sourceNode._('comboArrow',{_class:'',iconClass:'mv_button'});
+        var tooltipPars = objectExtract(kw,'tooltip_*');
+        tooltipPars.onOpening=function(e,sourceNode,dialogNode){
+            that.multivalueTable(dialogNode,textboxNode,{sourcepath:sourcepath,valuepath:valuepath});
+        };
+        var tt = arrowNode._('tooltipPane',tooltipPars);
+        tt._('div','tooltipContent',{padding:'5px',connect_onclick:function(e){
+            if(!sourceNode.form.isDisabled()){
+                that.onSelectedRow(e,this,{sourcepath:sourcepath,valuepath:valuepath});
+            }
+        }, connect_ondblclick:function(e){
+            if(!sourceNode.form.isDisabled()){
+                that.openMultiValueEditor(e,textboxNode,{sourcepath:sourcepath,valuepath:valuepath,labels:labels});
+            }
+        }});
+        return tt;
+    },
+    openMultiValueEditor:function(e,sourceNode,kw){
+        var that = this;
+        var r = e.target.parentElement.getAttribute('r');
+        var title = sourceNode.attr.field_name_long;
+        var data = genro.getData(kw.sourcepath);
+        var editedNode;
+        if(r=='new'){
+            editedRow = new gnr.GnrBag({mv_label:kw.labels.split(',')[0]});
+        }else{
+            editedRow = data.getItem('#'+r).deepCopy();
+        }
+        genro.setData('gnr.multivalue.data',editedRow);
+        var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.multivalue.data'});
+        var bar = dlg.bottom._('slotBar',{slots:'2,deletebtn,*,cancel,confirm,2',action:function(){
+                                                    dlg.close_action();
+                                                    if(this.attr.command=='confirm'){
+                                                        var result = genro.getData('gnr.multivalue').popNode('data').getValue();
+                                                        that.changeMultivalueRow(sourceNode,objectUpdate({result:result,r:r},kw));
+                                                    }else if(this.attr.command=='delete' && r!='new'){
+                                                        var n = data.popNode('#'+r);
+                                                        if(n._value.getItem('mv_main')){
+                                                            if(data.len()>0){
+                                                                var newmain = data.getItem('#0')
+                                                                newmain.setItem('mv_main',true);
+                                                                genro.setData(kw.valuepath,newmain.getItem('mv_value'));
+                                                            }else{
+                                                                genro.setData(kw.valuepath,null);
+                                                            }
+                                                            
+                                                        }
+                                                    }
+                                                }});
+        bar._('button','deletebtn',{'label':_T('Delete'),command:'delete'});
+        bar._('button','cancel',{'label':_T('Cancel'),command:'cancel'});
+        bar._('button','confirm',{'label':_T('Confirm'),command:'confirm'});
+        var box = dlg.center._('div',{padding:'5px'});
+        var fb = genro.dev.formbuilder(box,2,{border_spacing:'3px',width:'270px'});
+        var b = fb.addField('div',{text_align:'right'})
+        b._('div',{innerHTML:'^.mv_label',_class:'mv_labels'})
+        b._('menu',{values:kw.labels,action:'SET .mv_label=$1.label',modifiers:'*',_class:'smallmenu'});
+        fb.addField('TextBox',{value:'^.mv_value',width:'13em'});
+        fb.addField('div',{innerHTML:_T('Notes'),td_vertical_align:'top',text_align:'right'})
+        fb.addField('SimpleTextArea',{value:'^.mv_note',width:'13em',colspan:2});
+        dlg.show_action();
+    },
+    changeMultivalueRow:function(sourceNode,kw){
+        var result = kw.result;
+        var r = kw.r;
+        var resultvalue = result.getItem('mv_value');
+        var data = genro.getData(kw.sourcepath);
+        if(r=='new' && resultvalue){
+            data.setItem('#id',result);
+            return;
+        } 
+        var path = '#'+r;
+        var editedNode = data.getNode(path);
+        var is_main = editedNode._value.getItem('is_main');
+        if(!resultvalue){
+            data.popNode(path);
+            if(is_main && data.len()>0){
+                var newmain = data.getItem('#0')
+                newmain.setItem('mv_main',true);
+                genro.setData(kw.valuepath,newmain.getItem('mv_value'));
+            }
+        }else{
+            editedNode.setValue(result);
+        }
+    },
+
+    multivalueTable:function(sourceNode,textboxNode,kw){
+        var currmainvalue = textboxNode.widget.getValue();
+        textboxNode.setRelativeData(kw.valuepath,currmainvalue);
+        var data = genro.getData(kw.sourcepath);
+
+        var contentDomNode = sourceNode._value.getNode('tooltipContent').domNode; 
+        contentDomNode.innerHTML = this.multivalueHtmlFromData(data);
+        return;
+    },
+    multivalueHtmlFromData:function(data){
+        var tbody = [];
+        var path,mv_main;
+        var r =0;
+        if(data){
+            data.forEach(function(n){
+                mv_main = n._value.getItem('mv_main')?'true':'false';
+                tbody.push(dataTemplate('<tr r="'+r+'"><td mv_main="'+mv_main+'"></td><td>$mv_label</td><td>$mv_value</td><td>$mv_note</td><tr>',n._value));
+                r++;
+            });
+        }
+        tbody.push('<tr r="new"><td colspan="4"></td></tr>');
+        return '<table class="mv_table"><tbody>'+tbody.join('')+'</tbody></table>';
+    },
+
+    onSetMainValue:function(textboxNode,value){
+        var labels = textboxNode.attr.multivalue;
+        var multivalues = textboxNode.getRelativeData(textboxNode.attr.value+'_mv');
+        if (!multivalues){
+            multivalues = new gnr.GnrBag();
+            textboxNode.setRelativeData(textboxNode.attr.value+'_mv',multivalues);
+        }
+        var mainNode = multivalues.getNodeByValue('mv_main',true);
+        if(mainNode){
+            mainNode._value.setItem('mv_value',value);
+        }else{
+            var r = new gnr.GnrBag();
+            r.setItem('mv_value',value);
+            r.setItem('mv_label',labels.split(',')[0]);
+            r.setItem('mv_main',true);
+            multivalues.setItem('#id',r);
+        }
+    },
+    onSelectedRow:function(e,sourceNode,kw){
+        if(e.target.getAttribute('mv_main')=='false'){
+            var data = genro.getData(kw.sourcepath);
+            var r = e.target.parentElement.getAttribute('r');
+            if(r=='new'){
+                return;
+            }
+            data.getNodeByValue('mv_main',true)._value.setItem('mv_main',false)
+            var newmain = data.getItem('#'+r);
+            newmain.setItem('mv_main',true);
+            genro.setData(kw.valuepath,newmain.getItem('mv_value'));
+            sourceNode.domNode.innerHTML = this.multivalueHtmlFromData(data);
+        }
+    },
+
+
 });
 
 dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
@@ -292,8 +454,12 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
         var storeNode = children.popNode('store');
-        var contentNode = children.getNode('center.#0');
+        var contentNode = children.getNode('center');
         genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        if(contentNode.attr.tag=='autoslot'){
+            var contentNode = children.getNode('center.#0');
+            genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        }
         contentNode.attr['_class'] =  contentNode.attr['_class'] + ' fh_content';
         var store = this.createStore(storeNode);
         var frameCode = kw.frameCode;

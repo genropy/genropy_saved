@@ -626,11 +626,11 @@ function objectFromStyle(style) {
     return result;
 };
 
-function objectFromString(values,sep,keyOnly){
+function objectFromString(values,sep,mode){
     if(!values){
         return {};
     }
-    var ch = sep || values.indexOf('\n')>=0?'\n':',';
+    var ch = sep || (values.indexOf('\n')>=0?'\n':',');
     var values = values.split(ch);
     var result = {};
     for (var i = 0; i < values.length; i++) {
@@ -638,9 +638,11 @@ function objectFromString(values,sep,keyOnly){
         if (val.indexOf(':') > 0) {
             val = val.split(':');
             result[val[0]] = val[1];
-        }else if(keyOnly){
+        }else if(mode=='k'){
             result[val] = true;
-        } else {
+        }else if(mode=='kv'){
+            result[val]=val;
+        }else {
             result['caption_'+i] = val;
         }
     }

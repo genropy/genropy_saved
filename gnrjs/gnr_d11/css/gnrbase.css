@@ -3224,3 +3224,58 @@ p {
     background:#555;
     color:white;
 }
+
+
+.mv_table{
+    cursor:pointer;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    min-width: 10em;
+}
+.mv_table tr{
+    opacity:1!important;
+    border:1px solid #ccc;
+}
+.mv_table tr td{
+    height:13px;
+    padding:1px;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size:.8em;
+    color:#333;
+}
+.mv_table tr:hover{
+    background-color: #bfb6ae;
+    color:#403b3b;
+}
+
+.mv_table td[mv_main="true"]{
+    background: url(icons/base10/tick.gif) no-repeat center center;
+    width: 10px;
+    height: 10px;
+}
+
+.mv_table td[mv_main="false"]{
+    width: 10px;
+    height: 10px;
+}
+.mv_table tr td[mv_main="false"]:hover{
+    width: 10px;
+    height: 10px;
+    background:lightyellow;
+}
+.mv_labels{
+    padding-left: 10px;
+    background: url(icons/base12/smallpopup.gif) no-repeat left;
+    cursor: pointer;
+}
+.mv_button{
+    background: url(icons/base12/booksmall.gif) no-repeat center center;
+    cursor: pointer;
+    height: 15px;
+    width: 20px;
+    opacity: .8;
+}
+.dijitDisabled .mv_button{
+    opacity: .5;
+}

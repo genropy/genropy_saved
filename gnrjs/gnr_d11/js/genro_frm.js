@@ -1580,11 +1580,11 @@ dojo.declare("gnr.formstores.Base", null, {
     
     save_memory:function(destPkey){
         var form = this.form;
-        var sourceBag = form.sourceNode.getRelativeData(this.locationpath)
+        var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         var data = form.getFormData().deepCopy();
         var currPkey = form.getCurrentPkey();
         if(currPkey=='*newrecord*'){
-            currPkey = this.newPkeyCb?funcApply(this.newPkeyCb,{record:data}):'#id'
+            currPkey = this.newPkeyCb?funcApply(this.newPkeyCb,{record:data},form):'#id'
         }
         sourceBag.setItem(currPkey,data);
         var loadedRecordNode = data.getParentNode();
@@ -1592,8 +1592,11 @@ dojo.declare("gnr.formstores.Base", null, {
         this.saved(result);
         this.form.loaded(data);
     },
-    delete_memory:function(){
-        
+    del_memory:function(){
+        var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
+        var currPkey = form.getCurrentPkey();
+        sourceBag.popNode(currPkey);
+        this.deleted();
     },
     _load_prepareDefaults:function(pkey,default_kw,kw){
         var form = this.form;
