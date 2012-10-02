@@ -2230,6 +2230,7 @@ body *{
 
 .tundra .formattedTextBox input{
     width:1px !important;
+    opacity:0;
 }
 .tundra .comboArrowTextbox{
     margin-right:22px;
@@ -2237,11 +2238,17 @@ body *{
 
 
 .tundra .dijitTextBoxFocused .formattedTextBox input{
-    width:100% !important;
+    min-width:90% !important;
+    opacity:1;
 }
+.tundra .formattedViewer{
+    white-space: nowrap;
+}
+
 .tundra .dijitTextBoxFocused .formattedViewer{
     display:none;
 }
+
 
 .textAreaWrapper{
     position: relative;
@@ -3265,17 +3272,28 @@ p {
     background:lightyellow;
 }
 .mv_labels{
-    padding-left: 10px;
-    background: url(icons/base12/smallpopup.gif) no-repeat left;
+    padding-left: 2px;
+    background: url(icons/base12/smallpopup.gif) no-repeat center left;
     cursor: pointer;
 }
-.mv_button{
-    background: url(icons/base12/booksmall.gif) no-repeat center center;
+.mv_mask{
+    color: #999;
+    position: absolute;
+    right: 13px;
+    top: 2px;
+    font-size: .8em;
+}
+.mv_iconbox{
     cursor: pointer;
     height: 15px;
-    width: 20px;
-    opacity: .8;
+    width: 12px;
+    opacity: .8;  
+    background: url(icons/base12/smallpopup_empty.png) no-repeat center center;
 }
-.dijitDisabled .mv_button{
+.dijitDisabled .mv_iconbox{
     opacity: .5;
 }
+.mv_is_multi.mv_iconbox{
+    background: url(icons/base12/smallpopup.gif) no-repeat center center;
+}
+

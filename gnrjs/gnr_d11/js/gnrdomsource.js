@@ -442,7 +442,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var value = this.attr[attrname];
         value = this.currentFromDatasource(value, autocreate, dflt);
         if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format)) {
-            value = genro.formatter.asText(value, this.attr);
+            value = genro.formatter.asText(value, this.currentAttributes());
         }
         return value;
     },
@@ -1227,7 +1227,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                     valueAttr['_displayedValue'] = valueToFormat;
                                 }
                             }
-                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.attr)},this);
+                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.currentAttributes())},this);
                         }
 
                     }

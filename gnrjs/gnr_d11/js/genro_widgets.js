@@ -178,7 +178,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         value = this.onSettingValueInData(sourceNode,value,valueAttr);
         if (sourceNode.attr.mask || sourceNode.attr.format) {
             var valueToFormat = (typeof(value)=='string' && '_displayedValue' in valueAttr)? valueAttr['_displayedValue'] : value;
-            var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.attr);
+            var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.currentAttributes());
             this.setFormattedValue(sourceNode,formattedValue);
             valueAttr['_formattedValue'] = formattedValue;
         }

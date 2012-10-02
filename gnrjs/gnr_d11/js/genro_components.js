@@ -87,16 +87,40 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     createContent:function(sourceNode, kw, children){
         var that = this;
         var textboxNode = sourceNode.getParentNode();
-        //textboxNode.attr.format = '## ###';
+        textboxNode.attr.mask = '==this._getCurrentMask();';
+
+
+        textboxNode._('span',{'innerHTML':textboxNode.attr.value+'?_formattedValue',_class:'formattedViewer',
+                               _attachPoint:'focusNode.parentNode'});
+        dojo.addClass(textboxNode.widget.focusNode.parentNode,'formattedTextBox');
+       
+
         var valuepath = textboxNode.absDatapath(textboxNode.attr.value);
         var sourcepath = valuepath+'_mv';
         var labels = textboxNode.attr.multivalue;
 
+
+        textboxNode._getCurrentMask = function(){
+            var data = genro.getData(sourcepath);
+            var mainNode = data.getNodeByValue('mv_main',true);
+            if(!mainNode){
+                return '';
+            }
+            return '%s<div class="mv_mask" >'+mainNode.getValue().getItem('mv_label')+'<div>';
+        };
         textboxNode._mvhandler = this;
         textboxNode._onSettingValueInData = function(tn,value){that.onSetMainValue(tn,value);};
-        var arrowNode = sourceNode._('comboArrow',{_class:'',iconClass:'mv_button'});
+        var arrowNode = sourceNode._('comboArrow','arrowNode',{_class:'',iconClass:'mv_iconbox',width:'12px'});
+        arrowNode._('dataController',{script:'genro.dom.setClass( this.getParentNode()._value.getNode("iconNode"),"mv_is_multi",data.len()>1);',data:'^'+sourcepath});
+
         var tooltipPars = objectExtract(kw,'tooltip_*');
         tooltipPars.onOpening=function(e,sourceNode,dialogNode){
+            var data = genro.getData(sourcepath);
+            that.onSetMainValue(textboxNode,textboxNode.widget.getValue());
+            if(genro.dom.getEventModifiers(e)=='Shift'){
+                that.openMultiValueEditor('new',textboxNode,{sourcepath:sourcepath,valuepath:valuepath,labels:labels});
+                return false;
+            }
             that.multivalueTable(dialogNode,textboxNode,{sourcepath:sourcepath,valuepath:valuepath});
         };
         var tt = arrowNode._('tooltipPane',tooltipPars);
@@ -106,14 +130,14 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
             }
         }, connect_ondblclick:function(e){
             if(!sourceNode.form.isDisabled()){
-                that.openMultiValueEditor(e,textboxNode,{sourcepath:sourcepath,valuepath:valuepath,labels:labels});
+                var r = e.target.parentElement.getAttribute('r');
+                that.openMultiValueEditor(r,textboxNode,{sourcepath:sourcepath,valuepath:valuepath,labels:labels});
             }
         }});
         return tt;
     },
-    openMultiValueEditor:function(e,sourceNode,kw){
+    openMultiValueEditor:function(r,sourceNode,kw){
         var that = this;
-        var r = e.target.parentElement.getAttribute('r');
         var title = sourceNode.attr.field_name_long;
         var data = genro.getData(kw.sourcepath);
         var editedNode;
@@ -1249,9 +1273,10 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
         }
         genro.dom.addClass(focusNode.parentNode,'comboArrowTextbox')
         var iconClass = objectPop(kw,'iconClass') || 'dijitArrowButtonInner';
+        console.log('rrrrr',kw)
         var box= sourceNode._('div',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
                                 position:'absolute',top:0,bottom:0,right:0},kw))
-        box._('div',{_class:iconClass,position:'absolute',top:0,bottom:0,left:0,right:0})
+        box._('div','iconNode',{_class:iconClass,position:'absolute',top:0,bottom:0,left:0,right:0})
         return box;
     }
     
