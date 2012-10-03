@@ -743,7 +743,7 @@ dojo.declare("gnr.GridEditor", null, {
                     //},1)
                 }
             }if('values' in colattr){
-                colattr['tag'] = colattr.values.indexOf(':')?'filteringselect':'combobox';
+                colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
             }
         }
         if(colattr['tag'].toLowerCase()=='simpletextarea'){

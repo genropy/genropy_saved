@@ -152,8 +152,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);
-            tr._('td',{colspan:colspan})._(tag, kw);
+            var res = tr._('td',objectUpdate({colspan:colspan},objectExtract(kw,'td_*')))._(tag, kw);
             this.col_count = this.col_count + colspan;
+            return res;
         };
         return tbl;
     },

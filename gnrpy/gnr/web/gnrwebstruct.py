@@ -1482,7 +1482,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param fieldobj: TODO
         """
-        result = {'lbl': fieldobj.name_long, 'dbfield': fieldobj.fullname}
+        result = {'lbl': fieldobj.name_long,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         if dtype in ('A', 'C'):
             size = fieldobj.attributes.get('size', '20')
@@ -1543,8 +1543,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #elif attr.get('mode')=='M':
         #    result['tag']='bagfilteringtable'
         elif dtype in ('A', 'T') and fieldobj.attributes.get('values', False):
-            result['tag'] = 'filteringselect'
-            result['values'] = fieldobj.attributes.get('values', [])
+            values = fieldobj.attributes['values']
+            result['tag'] = 'filteringselect' if ':' in values else 'combobox'
+            result['values'] = values
         elif dtype == 'A':
             result['maxLength'] = size
             result['tag'] = 'textBox'

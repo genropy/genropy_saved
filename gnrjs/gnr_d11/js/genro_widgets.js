@@ -178,7 +178,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         value = this.onSettingValueInData(sourceNode,value,valueAttr);
         if (sourceNode.attr.mask || sourceNode.attr.format) {
             var valueToFormat = (typeof(value)=='string' && '_displayedValue' in valueAttr)? valueAttr['_displayedValue'] : value;
-            var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.attr);
+            var formattedValue = genro.formatter.asText(valueToFormat, sourceNode.currentAttributes());
             this.setFormattedValue(sourceNode,formattedValue);
             valueAttr['_formattedValue'] = formattedValue;
         }
@@ -1623,7 +1623,7 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(savedAttrs.values){
-            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values));
+            var contentBag = new gnr.GnrBag(objectFromString(savedAttrs.values,',','kv'));
             var menubag = new gnr.GnrDomSource();
             gnr.menuFromBag(contentBag, menubag, sourceNode.attr._class);
             sourceNode.setValue(menubag, false);
@@ -2169,11 +2169,27 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
      genro.setData('_pbl.errorMessage', message)
      },*/
     creating: function(attributes, sourceNode) {
-        var savedAttrs = {};
+        objectPop(attributes,'multivalue');
         attributes.trim = (attributes.trim == false) ? false : true;
-        return savedAttrs;
+        return {};
+    },
+    onBuilding:function(sourceNode){
+        var attr = sourceNode.attr;
+        var multivalue = attr.multivalue;
+        if(multivalue){     
+            sourceNode.freeze();
+            sourceNode._('tooltipMultivalue',{});
+            sourceNode.unfreeze(true);
+        }
+    },
+    onSettingValueInData: function(sourceNode, value,valueAttr) {
+        if(sourceNode._onSettingValueInData){
+            sourceNode._onSettingValueInData(sourceNode,value,valueAttr);
+        }
+        return value;
     },
     created: function(widget, savedAttrs, sourceNode) {
+
         this.connectFocus(widget, savedAttrs, sourceNode);
     },
     connectFocus: function(widget, savedAttrs, sourceNode) {
