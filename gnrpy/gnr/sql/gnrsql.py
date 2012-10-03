@@ -48,6 +48,23 @@ import locale
 IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sIN\s\(\)')
 NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sNOT\s+IN\s\(\)')
 
+
+def in_triggerstack(func):
+    """TODO"""
+    funcname = func.__name__
+    def decore(self, *args, **kwargs):
+        currentEnv = self.currentEnv
+        trigger_stack = currentEnv.get('_trigger_stack')
+        if not trigger_stack:
+            trigger_stack = TriggerStack()
+            currentEnv['_trigger_stack'] = trigger_stack
+        trigger_stack.push(funcname,*args,**kwargs)
+        result = func(self,*args,**kwargs)
+        trigger_stack.pop()
+        return result
+        
+    return decore
+
 class GnrSqlException(GnrException):
     """Standard Gnr Sql Base Exception
     
@@ -114,8 +131,8 @@ class GnrSqlDb(GnrObject):
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
         
-    #------------------------Configure and Startup-----------------------------
-    
+    #-----------------------Configure and Startup-----------------------------
+
     @property
     def debug(self):
         """TODO"""
@@ -383,6 +400,7 @@ class GnrSqlDb(GnrObject):
                 self.commit()
         return cursor
         
+    @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
         """Insert a record in a :ref:`table`
         
@@ -405,7 +423,8 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
-        
+
+    @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
         
@@ -433,7 +452,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
 
-
+    @in_triggerstack
     def delete(self, tblobj, record, **kwargs):
         """Delete a record from the :ref:`table`
         
@@ -448,7 +467,6 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)
-
         
     def commit(self):
         """Commit a transaction"""
@@ -672,6 +690,45 @@ class TempEnv(object):
                     currentEnv.pop(k,None)
             currentEnv.update(self.savedValues)
             
+
+class TriggerStack(object):
+    def __init__(self):
+        self.stack = []
+
+    def push(self,event,tblobj,record=None,old_record=None,**kwargs):
+        self.stack.append(TriggerStackItem(self,event,tblobj,record=record,old_record=old_record))
+
+    def pop(self):
+        self.stack.pop()
+
+    def __len__(self):
+        return len(self.stack)
+
+    @property
+    def parentItem(self):
+        return self.stack[-1] if len(self)>1 else None
+
+    def item(self,n):
+        try:
+            return self.stack[n]
+        except Exception:
+            return None
+
+class TriggerStackItem(object):
+    def __init__(self,trigger_stack, event,tblobj,record=None,old_record=None):
+        self.trigger_stack = trigger_stack
+        lastItem = trigger_stack.stack[-1] if trigger_stack.stack else None
+        self.parent = lastItem
+        self.event = event
+        self.table = tblobj.fullname
+        self.record = record
+        self.old_record = old_record
+
+
+
+
+
+
 class DbStoresHandler(object):
     """Handler for using multi-database"""
         

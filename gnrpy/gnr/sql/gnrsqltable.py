@@ -966,6 +966,12 @@ class SqlTable(GnrObject):
     def onInited(self):
         """Hook method called on... TODO"""
         pass
+
+    @property
+    def parentTrigger(self):
+        trigger_stack =  self.db.currentEnv.get('_trigger_stack')
+        if trigger_stack:
+            return trigger_stack.parentItem
         
     def trigger_onInserting(self, record):
         """Hook method. Allow to act on *record* during the record insertion

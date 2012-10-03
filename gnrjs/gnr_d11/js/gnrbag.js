@@ -1352,6 +1352,18 @@ dojo.declare("gnr.GnrBag", null, {
         return this.walk(f, 'static');
     },
 
+    getNodeByValue:function(path,value){
+        var nodes = this._nodes;
+        var n;
+        for(var i =0; i<nodes.length; i++){
+            n = nodes[i];
+            if(n.getValue().getItem(path)==value){
+                break;
+            };
+        }
+        return n;
+    },
+
     /**
      * @id getNode
      * @method
