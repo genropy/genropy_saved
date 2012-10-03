@@ -1395,14 +1395,12 @@ function makeLink(href, title,dl,target) {
     if (dl){
         href = href+'?download=True';
     }
-    if (target)
-        {
+    if (target){
         return "<a href='" + href + "' target=\"+target+\">" + title + "</a>";
-        }
-    else
-        {
+    }
+    else{
         return "<a href='" + href + "'>" + title + "</a>";
-        }
+    }
 }
 
 function highlightLinks(text) {
