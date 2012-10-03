@@ -441,8 +441,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var attrname = attrname || 'value';
         var value = this.attr[attrname];
         value = this.currentFromDatasource(value, autocreate, dflt);
-        if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format)) {
-            value = genro.formatter.asText(value, this.currentAttributes());
+        if (((attrname == 'innerHTML')) && (this.attr.mask || this.attr.format || (value instanceof gnr.GnrBag)) ) {
+            var kw = objectUpdate({},this.attr);
+            objectPop(kw,attrname)
+            value = genro.formatter.asText(value, this.evaluateOnNode(kw));
         }
         return value;
     },

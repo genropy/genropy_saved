@@ -964,7 +964,19 @@ var gnrformatter = {
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){
-        return value.toXml();
+        return value.getFormattedValue(format);
+        //var tpl = formatKw.tpl;
+        //var rowtpl = formatKw.rowtpl;
+        //if(!tpl){
+        //    
+        //}else if (tpl){
+        //    return dataTemplate(value,tpl);
+        //}else if(rowtpl){
+        //    var r = [];
+        //    value.forEach(function(n),{
+        //        r.push(dataTemplate(n._value));
+        //    });
+        //}
     },
     format_AR:function(value,format,formatKw){
         value = dojo.map(value,this.asText);

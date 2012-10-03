@@ -3297,3 +3297,18 @@ p {
     background: url(icons/base12/smallpopup.gif) no-repeat center center;
 }
 
+.formattedBagTable{
+    border-collapse: collapse;
+}
+
+.dojoxGrid-cell .formattedBagTable{
+    width: 100%;
+} 
+
+.formattedBagTable tr td{
+    border:1px dotted silver;
+    padding-left:2px;
+    padding-right:2px;
+    color:#666;
+    font-size: .9em;
+}
