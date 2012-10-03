@@ -648,7 +648,11 @@ dojo.declare('gnr.GenroClient', null, {
                 var parser = new DOMParser();
                 var xmlDoc = parser.parseFromString(v,"text/xml");
                 b.fromXmlDoc(xmlDoc,genro.clsdict);
-                v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                if(b.keys().length>0){
+                    v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                }else{
+                    v='';
+                }
             }catch(e){
                 v = '';
             }
