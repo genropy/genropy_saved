@@ -835,6 +835,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 if(dropTargetCbExtra){
                     for(var k in dropTargetCbExtra){
                         continueDrop = dropTargetCbExtra[k](info,genro.dom.getFromDataTransfer(info.event.dataTransfer,k));
+                        console.log(k,continueDrop)
                         if (!continueDrop){
                             break
                         }
@@ -1041,12 +1042,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return false;
         }
         var inherited = sourceNode.getInheritedAttributes();
+        var onDragCbDict = objectExtract(inherited,'onDrag_*');
+        var doDrag;
         if ('onDrag' in inherited) {
-            var doDrag = funcCreate(inherited['onDrag'], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
-            if (doDrag === false) {
-                return;
-            }
+            doDrag = funcCreate(inherited['onDrag'], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
         }
+        if(objectNotEmpty(onDragCbDict)){
+            for (var c in onDragCbDict){
+                funcCreate(onDragCbDict[c], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
+            }
+        }else if(doDrag===false){
+            return;
+        }
+
         var domnode = dragInfo.target;
         var widget = dragInfo.widget;
         objectPopAll(genro.dom._datatransfer());        

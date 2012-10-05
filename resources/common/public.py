@@ -378,12 +378,19 @@ class TableHandlerMain(BaseComponent):
                                             #         %(onSelfDragRows)s
                                             #   }""" %selfDragRowsOpt
             selfDragRowsOpt.setdefault('canBeDropped','return true;')
-            gridattr['dropTargetCb_selfdragrow'] = """function(dropInfo){
+            gridattr['dropTargetCb_selfdragrows'] = """function(dropInfo){
                 var modifiers = genro.dom.getEventModifiers(dropInfo.event);
                 var dragInfo = genro.dom.getFromDataTransfer(dropInfo.event.dataTransfer,'gridrow');
+                if(!dragInfo){
+                    return true;
+                }
                 var targetRowData = dropInfo.targetRowData;
                 var dragRowData = dragInfo.rowdata;
-                console.log(modifiers,dragRowData)
+                if(!targetRowData){
+                    console.log('no targetRowData')
+                    return true
+                }
+                console.log('dragRowData',dragRowData,'targetRowData',targetRowData,dropInfo,'dropInfo')
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }
@@ -433,7 +440,7 @@ class TableHandlerMain(BaseComponent):
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('s_count',count_source)
                 rowdata.setItem('d_count',count_dest)
-                if count_source and count_dest:
+                if True or count_source and count_dest:
                     tabledata.setItem('r_%i' %i,rowdata)
                 i+=1
         return result

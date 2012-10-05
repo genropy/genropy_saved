@@ -442,6 +442,8 @@ class SqlTable(GnrObject):
                 fldlist = joiner['many_relation'].split('.')
                 tblname = '.'.join(fldlist[0:2])
                 tblobj = self.db.table(tblname)
+                if tblobj.attributes.get('ignoreUnify'):
+                    continue
                 fkey = fldlist[-1]
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()

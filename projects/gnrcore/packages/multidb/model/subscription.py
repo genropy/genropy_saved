@@ -5,7 +5,7 @@ from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
-                      name_plural='!!Subscriptions',broadcast='tablename,dbstore')
+                      name_plural='!!Subscriptions',broadcast='tablename,dbstore',ignoreUnify=True)
         self.sysFields(tbl)
         tbl.column('tablename',name_long='!!Tablename') #table fullname 
         #tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
@@ -29,7 +29,7 @@ class Table(object):
             queryargs = dict(where='$pkey IN :pkeys',pkeys=pkeys)
         if tblobj.attributes.get('hierarchical'):
             queryargs.setdefault('order_by','$hierarchical_pkey')
-        records = tblobj.query(addPkeyColumn=False,bagFields=True,**queryargs).fetch()
+        records = tblobj.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
@@ -70,6 +70,7 @@ class Table(object):
         self.syncStore(record,'I')
     
     def trigger_onUpdated(self,record,old_record=None):
+        print x
         self.syncStore(record,'U')
 
     def trigger_onDeleted(self,record):        
@@ -83,13 +84,13 @@ class Table(object):
             storename = subscription_record['dbstore']
         if not self.db.dbstores.get(storename):
             return
-        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True).fetch()
+        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
         if data_record:
             data_record = data_record[0]
         else:
             return
         with self.db.tempEnv(storename=storename,_systemDbEvent=True):
-            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False).fetch()
+            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False,excludeLogicalDeleted=False).fetch()
             if event == 'I':
                 if not f:
                     tblobj.insert(data_record)
