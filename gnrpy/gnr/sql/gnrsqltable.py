@@ -32,6 +32,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
 from gnr.sql.gnrsql import GnrSqlException
+from datetime import datetime
 import logging
 
 gnrlogger = logging.getLogger(__name__)
@@ -421,6 +422,26 @@ class SqlTable(GnrObject):
         else:
             return record
 
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        moved_relations = {}
+
+        for n in self.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                fldlist = joiner['many_relation'].split('.')
+                tblname = fldlist[0:2]
+                tblobj = self.db.table('.'.join(tblname))
+                fkey = fldlist[-1]
+                updater = dict()
+                updater[fkey] = destPkey
+                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourcePkey)
+                moved_relations[tblname] = ','.join(updatedpkeys)
+            if self.column('__moved_related'):
+                self.batchUpdate(dict(__del_ts=datetime.now(),__moved_related=Bag(moved_relations)),_pkeys=[sourcePkey])
+            else:
+                self.delete(sourcePkey)
+                
+
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
@@ -555,15 +576,19 @@ class SqlTable(GnrObject):
             _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
         pkeycol = self.pkey
+        updatedKeys = []
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
                 updater(new_row)
             elif isinstance(updater, dict):
                 new_row.update(updater)
-            self.update(new_row, row,pkey=row[pkeycol])
+            record_pkey = row[pkeycol]
+            updatedKeys.append(record_pkey)
+            self.update(new_row, row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
+        return updatedKeys
         
     def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where

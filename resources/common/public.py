@@ -359,6 +359,46 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('menuUserSets','menuUserSets,5,mainFilter')
+
+        gridattr = th.view.grid.attributes
+        selfDragRowsOpt = self._th_hook('selfDragRows',mangler=th.view,defaultCb=False) or {}
+
+        unifyTag = self.tblobj.attributes.get('unifyRecordsTag')
+        allowUnify = self.application.checkResourcePermission(unifyTag,self.userTags) if unifyTag else False
+        if selfDragRowsOpt or allowUnify:
+            selfDragRowsOpt['allowUnifyCb']=allowUnify and selfDragRowsOpt.get('allowUnifyCb',allowUnify)
+            if selfDragRowsOpt['allowUnifyCb'] in (True,False):
+                selfDragRowsOpt['allowUnifyCb'] = 'return true;' if selfDragRowsOpt['allowUnifyCb'] is True else 'return false'
+            selfDragRowsOpt.setdefault('onSelfDragRows','return false;')
+            gridattr['selfDragRows'] = True #"""var modifiers = genro.dom.getEventModifiers($1.event);
+                                            #   if(modifiers=='Shift,Alt'){
+                                            #         %(allowUnifyCb)s
+                                            #   }else{
+                                            #         %(onSelfDragRows)s
+                                            #   }""" %selfDragRowsOpt
+            selfDragRowsOpt.setdefault('canBeDropped','return true;')
+            gridattr['dropTargetCb_selfdragrow'] = """function(dropInfo){
+                var modifiers = genro.dom.getEventModifiers(dropInfo.event);
+                var dragInfo = genro.dom.getFromDataTransfer(dropInfo.event.dataTransfer,'gridrow');
+                var targetRowData = dropInfo.targetRowData;
+                var dragRowData = dragInfo.rowdata;
+                console.log(modifiers,dragRowData)
+                if(modifiers=='Shift,Meta'){
+                    return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
+                }else{
+                    return funcApply("%(onSelfDragRows)s",{targetRowData:targetRowData,dragRowData:dragRowData});
+                }
+            }
+            """%selfDragRowsOpt
+            gridattr['onSelfDropRows'] = """function(rows,dropInfo){
+                var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
+                kw['table'] = this.attr.table;
+                //genro.dlg.ask('Warning',"you are going to unify lin")
+                genro.serverCall("app.unifyRecords",kw,function(result){console.log(result)});
+            }
+            """
+
+
         return th
 
     def __th_moverdrop(self,th):
