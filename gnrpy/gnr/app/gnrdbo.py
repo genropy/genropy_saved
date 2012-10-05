@@ -332,7 +332,7 @@ class TableBase(object):
             if hasattr(self,'protect_draft'):
                 record[self.draftField] = self.protect_draft(record)
         logicalDeletionField =self.logicalDeletionField
-        if old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
+        if old_record and old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
             self.restoreUnifiedRecord(record)
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
