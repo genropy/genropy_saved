@@ -173,8 +173,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.wdgById('_dlg_alert').show();
     },
 
-    ask: function(title, msg, buttons, resultPathOrActions) {
+    ask: function(title, msg, buttons, resultPathOrActions,kw) {
         genro.src.getNode()._('div', '_dlg_ask');
+        var kw = kw || {};
         var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
         var action;
         var node = genro.src.getNode('_dlg_ask').clearValue().freeze();
@@ -188,7 +189,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             action = "genro.wdgById('_dlg_ask').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
         var dlg = node._('dialog', {nodeId:'_dlg_ask',title:title,centerOn:'_pageRoot'})._('div', {_class:'dlg_ask','action':action});
-        dlg._('div', {'content':msg,'_class':'dlg_ask_msg'});
+        dlg._('div', {'content':msg,'_class':'dlg_ask_msg',width:kw.width});
         //var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
 
         for (var btn in buttons) {

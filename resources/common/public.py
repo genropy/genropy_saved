@@ -12,6 +12,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrbag import Bag
 import os
 
 class PublicBase(BaseComponent):
@@ -383,6 +384,9 @@ class TableHandlerMain(BaseComponent):
                 var targetRowData = dropInfo.targetRowData;
                 var dragRowData = dragInfo.rowdata;
                 console.log(modifiers,dragRowData)
+                if(targetRowData['_pkey']==dragRowData['_pkey']){
+                    return false;
+                }
                 if(modifiers=='Shift,Meta'){
                     return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
                 }else{
@@ -393,13 +397,46 @@ class TableHandlerMain(BaseComponent):
             gridattr['onSelfDropRows'] = """function(rows,dropInfo){
                 var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
                 kw['table'] = this.attr.table;
-                //genro.dlg.ask('Warning',"you are going to unify lin")
-                genro.serverCall("app.unifyRecords",kw,function(result){console.log(result)});
+                th_unifyrecord(kw);
             }
             """
 
 
         return th
+
+    @public_method
+    def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):
+        tblobj = self.db.table(table)
+        destRecord,destRecordAttr = self.app.getRecord(pkey=destPkey,table=table)
+        sourceRecord,sourceRecordAttr = self.app.getRecord(pkey=sourcePkey,table=table)
+        result = Bag()
+        result.setItem('title','Merging %s' %(tblobj.attributes.get('name_long',tblobj.name).replace('!!','')))
+        tabledata = Bag()
+        destCaption = destRecordAttr.get('caption','') 
+        sourceCaption = sourceRecordAttr.get('caption','') 
+        result.setItem('tabledata', tabledata,format_bag_cells='linktbl,s_count,d_count',format_bag_headers=',From<br/>%s,To<br/>%s' %(sourceCaption,destCaption))
+
+
+        i = 0
+        for n in tblobj.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                rowdata = Bag()
+                fldlist = joiner['many_relation'].split('.')
+                tblname = fldlist[0:2]
+                linktblobj = self.db.table('.'.join(tblname))
+                fkey = fldlist[-1]
+                count_source = linktblobj.query(where='$%s=:spkey' %fkey,spkey=sourcePkey).count()
+                count_dest = linktblobj.query(where='$%s=:dpkey' %fkey,dpkey=destPkey).count()
+                linktblobj_name = linktblobj.attributes.get('name_plural',linktblobj.name_long).replace('!!','')
+                rowdata.setItem('linktbl',linktblobj_name)
+                rowdata.setItem('s_count',count_source)
+                rowdata.setItem('d_count',count_dest)
+                if count_source and count_dest:
+                    tabledata.setItem('r_%i' %i,rowdata)
+                i+=1
+        return result
+
 
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes

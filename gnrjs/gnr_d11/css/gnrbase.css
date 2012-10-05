@@ -3304,7 +3304,16 @@ p {
 .dojoxGrid-cell .formattedBagTable{
     width: 100%;
 } 
-
+.formattedBagTable th{
+    font-size: .9em;
+    border:1px dotted silver;
+    color:#555;
+    text-align: center;
+    padding-left:2px;
+    padding-right:2px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
+    background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
+}
 .formattedBagTable tr td{
     border:1px dotted silver;
     padding-left:2px;

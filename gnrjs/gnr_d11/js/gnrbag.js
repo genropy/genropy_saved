@@ -610,6 +610,7 @@ dojo.declare("gnr.GnrBag", null, {
             r ='';
             b = n._value;
             dojo.forEach(cells,function(cell){
+                var align = 'left'
                 vnode = b.getNode(cell);
                 if(vnode){
                     v = vnode._value;
@@ -622,11 +623,14 @@ dojo.declare("gnr.GnrBag", null, {
                         }else{
                             v = vnode.attr._formattedValue || vnode.attr._displayedValue || v;
                         }
+                        if(typeof(v)=='number'){
+                            align ='right';
+                        }
                     }
                 }else{
                     v = '';
                 }
-                r+='<td>'+v+'</td>';
+                r+='<td style="text-align:'+align+'">'+v+'</td>';
             });
             rows+='<tr>'+r+'</tr>';
         },'static');

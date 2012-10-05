@@ -422,25 +422,33 @@ class SqlTable(GnrObject):
         else:
             return record
 
-    def unifyRecords(self,sourcePkey=None,destPkey=None):
-        moved_relations = {}
+    def restoreUnifiedRecord(self,record=None):
+        for n in record['__moved_related']:
+            tblobj = self.db.table(n.attr['tblname'])
+            updater = dict()
+            updater[n.attr['fkey']] = record['id']
+            tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
+        record['__moved_related'] = None
 
+
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        moved_relations = Bag()
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
                 fldlist = joiner['many_relation'].split('.')
-                tblname = fldlist[0:2]
-                tblobj = self.db.table('.'.join(tblname))
+                tblname = '.'.join(fldlist[0:2])
+                tblobj = self.db.table(tblname)
                 fkey = fldlist[-1]
                 updater = dict()
                 updater[fkey] = destPkey
                 updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourcePkey)
-                moved_relations[tblname] = ','.join(updatedpkeys)
-            if self.column('__moved_related'):
-                self.batchUpdate(dict(__del_ts=datetime.now(),__moved_related=Bag(moved_relations)),_pkeys=[sourcePkey])
-            else:
-                self.delete(sourcePkey)
-                
+                moved_relations.setItem(tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
+        if self.model.column('__moved_related') is not None:
+            self.batchUpdate(dict(__del_ts=datetime.now(),__moved_related=moved_relations),_pkeys=[sourcePkey])
+        else:
+            self.delete(sourcePkey)
+            
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
