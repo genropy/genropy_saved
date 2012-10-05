@@ -861,7 +861,7 @@ var gnrformatter = {
             return value;
         }
         if(format=='autolink'){
-            return highlightLinks(v);
+            return highlightLinks(value);
         }
         if(format=='mailto'){
             return makeLink('mailto:'+value,value);
@@ -964,7 +964,19 @@ var gnrformatter = {
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){
-        return value.toXml();
+        return value.getFormattedValue(format);
+        //var tpl = formatKw.tpl;
+        //var rowtpl = formatKw.rowtpl;
+        //if(!tpl){
+        //    
+        //}else if (tpl){
+        //    return dataTemplate(value,tpl);
+        //}else if(rowtpl){
+        //    var r = [];
+        //    value.forEach(function(n),{
+        //        r.push(dataTemplate(n._value));
+        //    });
+        //}
     },
     format_AR:function(value,format,formatKw){
         value = dojo.map(value,this.asText);
@@ -1377,18 +1389,26 @@ function funcCreate(fnc, pars, scope,showError) {
         return fnc;
     }
 }
-function makeLink(href, title,dl) {
+function makeLink(href, title,dl,target) {
+    var target = target || '';
+    var dl = dl || false;
     if (dl){
         href = href+'?download=True';
     }
-    return "<a href='" + href + "'>" + title + "</a>";
-};
+    if (target){
+        return "<a href='" + href + "' target=\"+target+\">" + title + "</a>";
+    }
+    else{
+        return "<a href='" + href + "'>" + title + "</a>";
+    }
+}
+
 function highlightLinks(text) {
     text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) {
         return makeLink('mailto:' + address, address);
     });
     text = text.replace(/((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)/g, function(link) {
-        return makeLink(link, link);
+        return makeLink(link, link,false,'_blank');
     });
     return text;
 

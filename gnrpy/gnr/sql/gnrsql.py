@@ -437,15 +437,8 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onUpdating', record,old_record=old_record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdating', record, old_record=old_record)
-        if tblobj.attributes.get('diagnostic'):
-            errors = tblobj.diagnostic_errors(record)
-            warnings = tblobj.diagnostic_warnings(record)
-            record['__errors'] = '\n'.join(errors) if errors else None
-            record['__warnings'] = '\n'.join(warnings) if warnings else None
-        if tblobj.draftField:
-            if hasattr(tblobj,'protect_draft'):
-                record[tblobj.draftField] = tblobj.protect_draft(record)
-        
+        if hasattr(tblobj,'dbo_onUpdating'):
+            tblobj.dbo_onUpdating(record,old_record=old_record,pkey=pkey,**kwargs)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)

@@ -1473,6 +1473,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
            
         if wdgattr['tag']in ('div', 'span'):
             wdgattr['innerHTML'] = '^.%s' % fld
+        elif wdgattr['tag'] == 'tree':
+            wdgattr['storepath'] = '.%s' % fld
+            wdgattr['_fired'] ='^.%s' % fld
         else:
             wdgattr['value'] = '^.%s' % fld
         return wdgattr
@@ -1574,6 +1577,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif dtype == 'H':
             result['tag'] = 'timeTextBox'
             result['_guess_width'] = '7em'
+        elif dtype =='X':
+            result['tag'] = 'tree'         
         else:
             result['tag'] = 'textBox'
         if kwargs:

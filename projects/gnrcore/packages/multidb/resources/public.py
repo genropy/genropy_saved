@@ -26,9 +26,10 @@ class TableHandlerMain(BaseComponent):
     
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']
-        dragCode = 'multidb_%s' %table.replace('.','_')
+        
         
         if self.dbstore:
+            dragCode = 'multidb_%s_%s' %(table.replace('.','_'),self.dbstore)
             bar = view.top.bar
             if 'delrow' in bar.keys():
                 bar.replaceSlots('delrow','unsubscriberow')
@@ -43,10 +44,10 @@ class TableHandlerMain(BaseComponent):
                 urlist = self.site.get_path_list(self.request.path_info)
                 urlist.pop(0)
                 palette.iframe(src='/%s' %'/'.join(urlist),height='100%',width='100%',border=0,
-                              main_th_public=False,main_env_target_store=self.dbstore,nodeId='subscriber_palette')
+                              main_th_public=False,main_env_target_store=self.dbstore,
+                              nodeId='subscriber_palette')
                 gridattr = view.grid.attributes
-                gridattr.update(dropTypes='dbrecords',
-                                    onDrop_dbrecords="""function(dropInfo,data){
+                gridattr.update({'onDrop_%s' %dragCode:"""function(dropInfo,data){
                                                 if(data.table!='%s'){
                                                     return false;
                                                 }
@@ -55,13 +56,11 @@ class TableHandlerMain(BaseComponent):
                                                                 function(){
                                                                     genro.publish({topic:'ping',iframe:'subscriber_palette'});
                                                                 });
-                                            }""" %(self.maintable,self.dbstore))
+                                            }""" %(self.maintable,self.dbstore)})
                 currCodes = gridattr.get('dropTarget_grid')
                 currCodes = currCodes.split(',') if currCodes else []
-                if not 'dbrecords' in currCodes:
-                    currCodes.append('dbrecords')
-                gridattr['dropTarget_grid'] = ','.join(currCodes)
-                
+                currCodes.append(dragCode)
+                gridattr['dropTarget_grid'] = ','.join(currCodes)                
                 view.onDbChanges(action="""
                 if(dojo.some(dbChanges,function(c){return (c['tablename']==tablename) && (c['dbstore']==dbstore);})){
                     store.fireNode();
@@ -70,9 +69,9 @@ class TableHandlerMain(BaseComponent):
             """,table='multidb.subscription',tablename=self.maintable,dbstore=self.dbstore,store=view.store)
             
         elif 'env_target_store' in self._call_kwargs:
+            dragCode = 'multidb_%s_%s' %(table.replace('.','_'),self._call_kwargs['env_target_store'])
             target_store = self._call_kwargs.get('env_target_store')
             gridattr = view.grid.attributes
-            gridattr['dragTags'] = dragCode
             
             hiddencolumns = gridattr.pop('hiddencolumns',None)
             hiddencolumns = '%s,$__multidb_subscribed' if hiddencolumns else '$__multidb_subscribed'
@@ -80,11 +79,10 @@ class TableHandlerMain(BaseComponent):
             gridattr['rowCustomClassesCb']="""function(row){
                                                 return row['__multidb_subscribed']?'dimmed':'';
                                             }"""
-            
-            
-            store = view.store
-            storeattr = store.attributes
-            condition = storeattr.pop('condition',None)
+            gridattr['onDrag_%s' %dragCode] = "dragValues['%s']=dragValues['dbrecords'];" %dragCode
+            store = view.store 
+           #storeattr = store.attributes
+           #condition = storeattr.pop('condition',None)
             #condition = '%s AND $__multidb_subscribed IS NOT TRUE' %condition if condition else '$__multidb_subscribed IS NOT TRUE'
             #storeattr['condition'] = condition
             view.onDbChanges(action="""
