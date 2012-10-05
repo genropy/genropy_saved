@@ -426,8 +426,9 @@ class TableHandlerMain(BaseComponent):
                 tblname = fldlist[0:2]
                 linktblobj = self.db.table('.'.join(tblname))
                 fkey = fldlist[-1]
-                count_source = linktblobj.query(where='$%s=:spkey' %fkey,spkey=sourcePkey).count()
-                count_dest = linktblobj.query(where='$%s=:dpkey' %fkey,dpkey=destPkey).count()
+                joinkey = joiner['one_relation'].split('.')[-1]
+                count_source = linktblobj.query(where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey]).count()
+                count_dest = linktblobj.query(where='$%s=:dpkey' %fkey,dpkey=destRecord[joinkey]).count()
                 linktblobj_name = linktblobj.attributes.get('name_plural',linktblobj.name_long).replace('!!','')
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('s_count',count_source)

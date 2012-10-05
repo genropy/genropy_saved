@@ -433,6 +433,9 @@ class SqlTable(GnrObject):
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
         moved_relations = Bag()
+        sourceRecord = self.recordAs(sourcePkey)
+        destRecord = self.recordAs(destPkey)
+
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
@@ -440,9 +443,10 @@ class SqlTable(GnrObject):
                 tblname = '.'.join(fldlist[0:2])
                 tblobj = self.db.table(tblname)
                 fkey = fldlist[-1]
+                joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
-                updater[fkey] = destPkey
-                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourcePkey)
+                updater[fkey] = destRecord[joinkey]
+                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey])
                 moved_relations.setItem(tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
         if self.model.column('__moved_related') is not None:
             self.batchUpdate(dict(__del_ts=datetime.now(),__moved_related=moved_relations),_pkeys=[sourcePkey])
