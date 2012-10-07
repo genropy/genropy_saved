@@ -9,6 +9,10 @@ var th_unifyrecord = function(kw){
     genro.serverCall('th_getUnifierWarningBag',kw,function(messagebag){
         messagebag.setBackRef();
         var title = messagebag.getItem('title');
+        if(messagebag.getItem('error')){
+            genro.dlg.alert(messagebag.getItem('error'),title);
+            return;
+        }
         var message = messagebag.getItem('tabledata').getFormattedValue();
         message = '<div style="margin:auto;">' +message+'</div>';
         genro.dlg.ask(title,message,null,{confirm:function(){
