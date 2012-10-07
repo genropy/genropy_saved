@@ -4184,7 +4184,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return idx;        
     },
     mixin_editBagRow: function(r, delay) {
-        var r = r || this.selection.selectedIndex;
+        if(r==null){
+            var r = this.selection.selectedIndex;
+        }
         var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         var grid = this;
         if (rc) {
@@ -4813,11 +4815,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt){
+        var lenrows = this.storebag().len();
         var r = this.selection.selectedIndex;
-        if(r>=0){
+        if(r>=0 && lenrows>0){
             r = r+1;
         }else{
-            r = this.storebag().len();
+            r = lenrows;
         }
         for(var i=0;i<counter;i++){
             this.addBagRow('#id', '*', this.newBagRow(),evt);
