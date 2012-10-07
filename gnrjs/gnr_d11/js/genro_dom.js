@@ -835,7 +835,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 if(dropTargetCbExtra){
                     for(var k in dropTargetCbExtra){
                         continueDrop = dropTargetCbExtra[k](info,genro.dom.getFromDataTransfer(info.event.dataTransfer,k));
-                        console.log(k,continueDrop)
                         if (!continueDrop){
                             break
                         }
@@ -863,7 +862,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dropInfo = this.getDragDropInfo(event);
 
         if (!dropInfo) {
-            //console.log('not drag_info')
             return;
         }
         event.stopPropagation();
@@ -1317,17 +1315,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return false;
     },
     autoSize:function(widget){
-        console.log(widget);
         var box;
         var maxHeight=0;
         var maxWidth=0;
         dojo.forEach(widget.getChildren(),function(child){
-            console.log(child.containerNode);
             box = child.containerNode.firstChild;
             maxHeight = Math.max(box.clientHeight,maxHeight);
             maxWidth = Math.max(box.clientWidth,maxWidth);
         });
-        console.log(maxHeight,maxWidth); 
         widget.resize({h:maxHeight+27,w:maxWidth+3});
     },
     preventGestureBackForward:function(pane){

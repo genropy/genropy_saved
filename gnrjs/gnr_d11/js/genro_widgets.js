@@ -3299,7 +3299,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             ;
         }
-        console.log('DROPMODE',dropmode,'dropModes',dropModes,'draggedTypes',draggedTypes)
         //dropmode = dropmode || dragSourceInfo.dragmode;
         if (!dropmode && (dojo.indexOf(draggedTypes, 'selfdragrow_' + dropInfo.sourceNode._id) >= 0)) {
             var selfDragRows = dropInfo.sourceNode.attr.selfDragRows;

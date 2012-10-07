@@ -435,7 +435,8 @@ class SqlTable(GnrObject):
         moved_relations = Bag()
         sourceRecord = self.recordAs(sourcePkey)
         destRecord = self.recordAs(destPkey)
-
+        if hasattr(self,'onUnifying'):
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord)
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
