@@ -1051,7 +1051,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method
     def unifyRecords(self,sourcePkey=None,destPkey=None,table=None,**kwargs):
         tblobj = self.db.table(table)
-        tblobj.unifyRecords(destPkey=destPkey,sourcePkey=sourcePkey)
+        tblobj.unifyRecords(sourcePkey=sourcePkey,destPkey=destPkey)
         self.db.commit()
         return 
         

@@ -423,20 +423,24 @@ class SqlTable(GnrObject):
             return record
 
     def restoreUnifiedRecord(self,record=None):
-        for n in record['__moved_related']:
-            tblobj = self.db.table(n.attr['tblname'])
-            updater = dict()
-            updater[n.attr['fkey']] = record['id']
-            tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
+        relations = record['__moved_related'].getItem('relations')
+        if hasattr(self,'onRestoring'):
+            self.onRestoring(record=record)
+        if relations:
+            for n in relations:
+                tblobj = self.db.table(n.attr['tblname'])
+                updater = dict()
+                updater[n.attr['fkey']] = record['id']
+                tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
         record['__moved_related'] = None
 
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
         moved_relations = Bag()
-        sourceRecord = self.recordAs(sourcePkey)
-        destRecord = self.recordAs(destPkey)
+        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
         if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord)
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
@@ -450,9 +454,11 @@ class SqlTable(GnrObject):
                 updater = dict()
                 updater[fkey] = destRecord[joinkey]
                 updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey])
-                moved_relations.setItem(tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
+                moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
         if self.model.column('__moved_related') is not None:
-            self.batchUpdate(dict(__del_ts=datetime.now(),__moved_related=moved_relations),_pkeys=[sourcePkey])
+            oldsource = dict(sourceRecord)
+            sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
+            self.update(sourceRecord,oldsource)
         else:
             self.delete(sourcePkey)
             

@@ -445,7 +445,7 @@ class TableHandlerMain(BaseComponent):
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('s_count',count_source)
                 rowdata.setItem('d_count',count_dest)
-                if True or count_source and count_dest:
+                if count_source and count_dest:
                     tabledata.setItem('r_%i' %i,rowdata)
                 i+=1
         return result
