@@ -5548,7 +5548,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             if (priorityChange) {
                 this._updateSelect(item);
             }else{
-                console.log('no updateselect (!priorityChange)',item)
+                //console.log('no updateselect (!priorityChange)',item)
             }
         }
     },
