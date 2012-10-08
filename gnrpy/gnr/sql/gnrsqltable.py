@@ -444,7 +444,7 @@ class SqlTable(GnrObject):
         relations = self.model.relations
         self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
         if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
         for n in relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
