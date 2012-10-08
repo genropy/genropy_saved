@@ -3299,9 +3299,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             ;
         }
-        console.log('DROPMODE',dropmode,'dropModes',dropModes,'draggedTypes',draggedTypes)
         //dropmode = dropmode || dragSourceInfo.dragmode;
-        if (!dropmode && (dojo.indexOf(draggedTypes, 'selfdragrow_' + dropInfo.sourceNode._id) >= 0)) {
+        if (!dropmode && dragSourceInfo.dragmode=='row' && (dojo.indexOf(draggedTypes, 'selfdragrow_' + dropInfo.sourceNode._id) >= 0)) {
             var selfDragRows = dropInfo.sourceNode.attr.selfDragRows;
             if (typeof(selfDragRows) == 'function') {
                 selfDragRows = selfDragRows(dropInfo);
@@ -3310,7 +3309,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 dropmode = 'row';
             }
         }
-        if (!dropmode && (dojo.indexOf(draggedTypes, 'selfdracolumn_' + dropInfo.sourceNode._id) >= 0)) {
+        if (!dropmode && dragSourceInfo.dragmode=='column' && (dojo.indexOf(draggedTypes, 'selfdragcolumn_' + dropInfo.sourceNode._id) >= 0)) {
             var selfDragColumns = dropInfo.sourceNode.attr.selfDragColumns;
             if (typeof(selfDragColumns) == 'function') {
                 selfDragColumns = selfDragColumns(dropInfo);
@@ -4185,7 +4184,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return idx;        
     },
     mixin_editBagRow: function(r, delay) {
-        var r = r || this.selection.selectedIndex;
+        if(r==null){
+            var r = this.selection.selectedIndex;
+        }
         var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         var grid = this;
         if (rc) {
@@ -4814,11 +4815,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt){
+        var lenrows = this.storebag().len();
         var r = this.selection.selectedIndex;
-        if(r>=0){
+        if(r>=0 && lenrows>0){
             r = r+1;
         }else{
-            r = this.storebag().len();
+            r = lenrows;
         }
         for(var i=0;i<counter;i++){
             this.addBagRow('#id', '*', this.newBagRow(),evt);
@@ -5545,6 +5547,8 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         else {
             if (priorityChange) {
                 this._updateSelect(item);
+            }else{
+                //console.log('no updateselect (!priorityChange)',item)
             }
         }
     },
@@ -5652,7 +5656,10 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             // the value
             var displayedValue=this.getDisplayedValue();
             var lastValueReported=this._lastValueReported;
-            var value=this.getValue();
+            var value;
+            if(this._lastDisplayedValue==displayedValue){
+                value=this.getValue();
+            }
             var pw = this._popupWidget;
             if(pw && (
                 displayedValue == pw._messages["previousMessage"] ||
@@ -5667,7 +5674,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                 }else{
                     if ( (value=='') || (value==null) || (value==undefined) ){
                         this.setValue(null, true);
-                        this.setDisplayedValue(displayedValue);
+                        this.setDisplayedValue(displayedValue,true);
                         
                     }else //if(value!=lastValueReported){
                         {

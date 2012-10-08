@@ -131,7 +131,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',font_size='.9',line_height='20px')
+        pane.div('^.title',style='line-height:20px;color:#666;')
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):

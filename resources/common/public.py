@@ -416,14 +416,19 @@ class TableHandlerMain(BaseComponent):
         tblobj = self.db.table(table)
         destRecord,destRecordAttr = self.app.getRecord(pkey=destPkey,table=table)
         sourceRecord,sourceRecordAttr = self.app.getRecord(pkey=sourcePkey,table=table)
-        result = Bag()
-        result.setItem('title','Merging %s' %(tblobj.attributes.get('name_long',tblobj.name).replace('!!','')))
-        tabledata = Bag()
         destCaption = destRecordAttr.get('caption','') 
         sourceCaption = sourceRecordAttr.get('caption','') 
+        error = None
+        if hasattr(tblobj,'checkUnify'):
+            error = tblobj.checkUnify(sourceRecord=sourceRecord,destRecord=destRecord)
+
+        result = Bag()
+        result.setItem('title','Merging %s' %(tblobj.attributes.get('name_long',tblobj.name).replace('!!','')))
+        if error:
+            result['error'] = 'Merging %s in %s failed:<br/>%s' %(sourceCaption,destCaption,error)
+            return result
+        tabledata = Bag()
         result.setItem('tabledata', tabledata,format_bag_cells='linktbl,s_count,d_count',format_bag_headers=',From<br/>%s,To<br/>%s' %(sourceCaption,destCaption))
-
-
         i = 0
         for n in tblobj.model.relations:
             joiner =  n.attr.get('joiner')
@@ -440,7 +445,7 @@ class TableHandlerMain(BaseComponent):
                 rowdata.setItem('linktbl',linktblobj_name)
                 rowdata.setItem('s_count',count_source)
                 rowdata.setItem('d_count',count_dest)
-                if True or count_source and count_dest:
+                if count_source and count_dest:
                     tabledata.setItem('r_%i' %i,rowdata)
                 i+=1
         return result

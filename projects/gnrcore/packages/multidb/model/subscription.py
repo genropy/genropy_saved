@@ -19,7 +19,6 @@ class Table(object):
         sub_record['dbstore'] = dbstore
         if self.checkDuplicate(**sub_record):
             return
-        print 'inserisco', sub_record
         self.insert(sub_record)
         
     def copyRecords(self,table,dbstore=None,pkeys=None):
@@ -62,6 +61,7 @@ class Table(object):
     def delSubscription(self,table=None,pkey=None,dbstore=None):
         fkey = self.tableFkey(table)        
         f = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
+                            excludeLogicalDeleted=False,
                             dbstore=dbstore,tablename=table,fkey=pkey,addPkeyColumn=False).fetch()
         if f:
             self.delete(f[0])
@@ -70,11 +70,15 @@ class Table(object):
         self.syncStore(record,'I')
     
     def trigger_onUpdated(self,record,old_record=None):
-        print x
         self.syncStore(record,'U')
 
     def trigger_onDeleted(self,record):        
         self.syncStore(record,'D')
+
+    def cloneSubscriptions(self,table,sourcePkey,destPkey):
+        sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
+        for store in sourcestores:
+            self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
 
     def syncStore(self,subscription_record=None,event=None,storename=None,tblobj=None,pkey=None):
         if subscription_record:
