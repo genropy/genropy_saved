@@ -62,6 +62,7 @@ class Table(object):
     def delSubscription(self,table=None,pkey=None,dbstore=None):
         fkey = self.tableFkey(table)        
         f = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
+                            excludeLogicalDeleted=False,
                             dbstore=dbstore,tablename=table,fkey=pkey,addPkeyColumn=False).fetch()
         if f:
             self.delete(f[0])
@@ -70,7 +71,6 @@ class Table(object):
         self.syncStore(record,'I')
     
     def trigger_onUpdated(self,record,old_record=None):
-        print x
         self.syncStore(record,'U')
 
     def trigger_onDeleted(self,record):        
