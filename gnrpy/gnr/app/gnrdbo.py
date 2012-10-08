@@ -410,6 +410,13 @@ class TableBase(object):
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
+    def hasMultidbSubscription(self):
+        return self.attributes.get('multidb')==True
+
+    def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
+        if self.hasMultidbSubscription():
+            relations.pop('@subscriptions')
+            self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')

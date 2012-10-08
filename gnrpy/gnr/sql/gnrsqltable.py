@@ -434,21 +434,23 @@ class SqlTable(GnrObject):
                 tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
         record['__moved_related'] = None
 
+    def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
+        pass
 
     def unifyRecords(self,sourcePkey=None,destPkey=None):
         moved_relations = Bag()
         sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
         destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+        relations = self.model.relations
+        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
         if hasattr(self,'onUnifying'):
-            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
-        for n in self.model.relations:
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
+        for n in relations:
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
                 fldlist = joiner['many_relation'].split('.')
                 tblname = '.'.join(fldlist[0:2])
                 tblobj = self.db.table(tblname)
-                if tblobj.attributes.get('ignoreUnify'):
-                    continue
                 fkey = fldlist[-1]
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
