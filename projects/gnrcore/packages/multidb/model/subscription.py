@@ -19,7 +19,6 @@ class Table(object):
         sub_record['dbstore'] = dbstore
         if self.checkDuplicate(**sub_record):
             return
-        print 'inserisco', sub_record
         self.insert(sub_record)
         
     def copyRecords(self,table,dbstore=None,pkeys=None):

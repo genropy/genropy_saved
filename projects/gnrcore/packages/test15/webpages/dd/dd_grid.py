@@ -38,7 +38,7 @@ class GnrCustomWebPage(object):
         dropboxes.div('only foo AND bar', width='100px', height='50px', margin='3px', background_color='#a7cffb',
                       float='left', dropTags='foo AND bar', dropTarget=True)
                       
-    def _test_1_grid(self, pane):
+    def test_1_grid(self, pane):
         """test"""
         pane = pane.div(height='150px')
         pane.data('.data', self.aux_test_1_grid_data())
@@ -56,18 +56,20 @@ class GnrCustomWebPage(object):
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date', format_date='short')
         
-    def _test_2_grid(self, pane):
+    def test_2_grid(self, pane):
         pane = pane.div(height='250px')
         pane.data('.data', self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns='trashable',
-                                 selfDragRows=True,
+        pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns='trashable',
+                                 #selfDragRows=True,
+                                    struct=self.inputgrid_struct,
                                  afterSelfDropRows="console.log('dragged')",
                                  datamode='bag', editorEnabled=True)
                                  
-    def _test_3_grid(self, pane):
+    def test_3_grid(self, pane):
         pane = pane.div(height='250px')
         pane.data('.data', self.aux_test_1_grid_data())
-        grid = pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns=True,
+        pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns=True,
+            struct=self.inputgrid_struct,
                                  selfDragRows="""var odd= info.row%2;if (info.drag){return odd?false: true}else{return odd?true: false;}"""
                                  ,
                                  datamode='bag', editorEnabled=True)
