@@ -182,6 +182,9 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     },
     changeMultivalueRow:function(sourceNode,kw){
         var result = kw.result;
+        result.forEach(function(n){
+            n.attr = {};
+        });
         var r = kw.r;
         var resultvalue = result.getItem('mv_value');
         var data = genro.getData(kw.sourcepath);
@@ -233,12 +236,13 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
         return '<table class="mv_table"><tbody>'+tbody.join('')+'</tbody></table>';
     },
 
+
     onSetMainValue:function(textboxNode,value){
         var labels = textboxNode.attr.multivalue;
         var multivalues = textboxNode.getRelativeData(textboxNode.attr.value+'_mv');
         if (!multivalues){
             multivalues = new gnr.GnrBag();
-            textboxNode.setRelativeData(textboxNode.attr.value+'_mv',multivalues);
+            textboxNode.setRelativeData(textboxNode.attr.value+'_mv',multivalues,{});
         }
         var mainNode = multivalues.getNodeByValue('mv_main',true);
         if(mainNode){
@@ -1278,7 +1282,6 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
         }
         genro.dom.addClass(focusNode.parentNode,'comboArrowTextbox')
         var iconClass = objectPop(kw,'iconClass') || 'dijitArrowButtonInner';
-        console.log('rrrrr',kw)
         var box= sourceNode._('div',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
                                 position:'absolute',top:0,bottom:0,right:0},kw))
         box._('div','iconNode',{_class:iconClass,position:'absolute',top:0,bottom:0,left:0,right:0})

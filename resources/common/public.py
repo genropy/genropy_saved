@@ -12,6 +12,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrbag import Bag
 import os
 
 class PublicBase(BaseComponent):
@@ -359,7 +360,96 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('menuUserSets','menuUserSets,5,mainFilter')
+
+        gridattr = th.view.grid.attributes
+        selfDragRowsOpt = self._th_hook('selfDragRows',mangler=th.view,defaultCb=False) or {}
+
+        unifyTag = self.tblobj.attributes.get('unifyRecordsTag')
+        allowUnify = self.application.checkResourcePermission(unifyTag,self.userTags) if unifyTag else False
+        if selfDragRowsOpt or allowUnify:
+            selfDragRowsOpt['allowUnifyCb']=allowUnify and selfDragRowsOpt.get('allowUnifyCb',allowUnify)
+            if selfDragRowsOpt['allowUnifyCb'] in (True,False):
+                selfDragRowsOpt['allowUnifyCb'] = 'return true;' if selfDragRowsOpt['allowUnifyCb'] is True else 'return false'
+            selfDragRowsOpt.setdefault('onSelfDragRows','return false;')
+            gridattr['selfDragRows'] = True #"""var modifiers = genro.dom.getEventModifiers($1.event);
+                                            #   if(modifiers=='Shift,Alt'){
+                                            #         %(allowUnifyCb)s
+                                            #   }else{
+                                            #         %(onSelfDragRows)s
+                                            #   }""" %selfDragRowsOpt
+            selfDragRowsOpt.setdefault('canBeDropped','return true;')
+            gridattr['dropTargetCb_selfdragrows'] = """function(dropInfo){
+                var modifiers = genro.dom.getEventModifiers(dropInfo.event);
+                var dragInfo = genro.dom.getFromDataTransfer(dropInfo.event.dataTransfer,'gridrow');
+                if(!dragInfo){
+                    return true;
+                }
+                var targetRowData = dropInfo.targetRowData;
+                var dragRowData = dragInfo.rowdata;
+                if(!targetRowData){
+                    console.log('no targetRowData')
+                    return true
+                }
+                console.log('dragRowData',dragRowData,'targetRowData',targetRowData,dropInfo,'dropInfo')
+                if(targetRowData['_pkey']==dragRowData['_pkey']){
+                    return false;
+                }
+                if(modifiers=='Shift,Meta'){
+                    return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
+                }else{
+                    return funcApply("%(onSelfDragRows)s",{targetRowData:targetRowData,dragRowData:dragRowData});
+                }
+            }
+            """%selfDragRowsOpt
+            gridattr['onSelfDropRows'] = """function(rows,dropInfo){
+                var kw = {sourcePkey:this.widget.rowIdByIndex(rows[0]),destPkey:this.widget.rowIdByIndex(dropInfo.row)};
+                kw['table'] = this.attr.table;
+                th_unifyrecord(kw);
+            }
+            """
+
+
         return th
+
+    @public_method
+    def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):
+        tblobj = self.db.table(table)
+        destRecord,destRecordAttr = self.app.getRecord(pkey=destPkey,table=table)
+        sourceRecord,sourceRecordAttr = self.app.getRecord(pkey=sourcePkey,table=table)
+        destCaption = destRecordAttr.get('caption','') 
+        sourceCaption = sourceRecordAttr.get('caption','') 
+        error = None
+        if hasattr(tblobj,'checkUnify'):
+            error = tblobj.checkUnify(sourceRecord=sourceRecord,destRecord=destRecord)
+
+        result = Bag()
+        result.setItem('title','Merging %s' %(tblobj.attributes.get('name_long',tblobj.name).replace('!!','')))
+        if error:
+            result['error'] = 'Merging %s in %s failed:<br/>%s' %(sourceCaption,destCaption,error)
+            return result
+        tabledata = Bag()
+        result.setItem('tabledata', tabledata,format_bag_cells='linktbl,s_count,d_count',format_bag_headers=',From<br/>%s,To<br/>%s' %(sourceCaption,destCaption))
+        i = 0
+        for n in tblobj.model.relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                rowdata = Bag()
+                fldlist = joiner['many_relation'].split('.')
+                tblname = fldlist[0:2]
+                linktblobj = self.db.table('.'.join(tblname))
+                fkey = fldlist[-1]
+                joinkey = joiner['one_relation'].split('.')[-1]
+                count_source = linktblobj.query(where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey]).count()
+                count_dest = linktblobj.query(where='$%s=:dpkey' %fkey,dpkey=destRecord[joinkey]).count()
+                linktblobj_name = linktblobj.attributes.get('name_plural',linktblobj.name_long).replace('!!','')
+                rowdata.setItem('linktbl',linktblobj_name)
+                rowdata.setItem('s_count',count_source)
+                rowdata.setItem('d_count',count_dest)
+                if count_source and count_dest:
+                    tabledata.setItem('r_%i' %i,rowdata)
+                i+=1
+        return result
+
 
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes

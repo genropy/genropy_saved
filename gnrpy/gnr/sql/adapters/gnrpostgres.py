@@ -156,7 +156,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param filename: db name"""
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
-        return call(['psql', dbname, '-U', self.dbroot.user, '-f', filename])
+        return call(['psql', "dbname=%s user=%s password=%s" % (dbname, self.dbroot.user, self.dbroot.password), '-f', filename])
         
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)

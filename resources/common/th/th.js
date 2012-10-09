@@ -5,6 +5,21 @@ var TH = function(th_root){
     }
     return genro.ext.th_instances[th_root];
 };
+var th_unifyrecord = function(kw){
+    genro.serverCall('th_getUnifierWarningBag',kw,function(messagebag){
+        messagebag.setBackRef();
+        var title = messagebag.getItem('title');
+        if(messagebag.getItem('error')){
+            genro.dlg.alert(messagebag.getItem('error'),title);
+            return;
+        }
+        var message = messagebag.getItem('tabledata').getFormattedValue();
+        message = '<div style="margin:auto;">' +message+'</div>';
+        genro.dlg.ask(title,message,null,{confirm:function(){
+            genro.serverCall('app.unifyRecords',kw,function(result){console.log('ok')});}
+        });
+    });
+};
 
 var th_view_batch_caller = function(kw){
     var grid = genro.wdgById(kw.gridId);

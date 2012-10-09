@@ -1047,6 +1047,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         record = tblobj.duplicateRecord(pkey,**kwargs)
         self.db.commit()
         return record[tblobj.pkey]
+
+    @public_method
+    def unifyRecords(self,sourcePkey=None,destPkey=None,table=None,**kwargs):
+        tblobj = self.db.table(table)
+        tblobj.unifyRecords(sourcePkey=sourcePkey,destPkey=destPkey)
+        self.db.commit()
+        return 
+        
         
     @public_method
     @extract_kwargs(default=True,sample=True)

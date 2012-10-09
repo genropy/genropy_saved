@@ -32,6 +32,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
 from gnr.sql.gnrsql import GnrSqlException
+from datetime import datetime
 import logging
 
 gnrlogger = logging.getLogger(__name__)
@@ -421,6 +422,49 @@ class SqlTable(GnrObject):
         else:
             return record
 
+    def restoreUnifiedRecord(self,record=None):
+        relations = record['__moved_related'].getItem('relations')
+        if hasattr(self,'onRestoring'):
+            self.onRestoring(record=record)
+        if relations:
+            for n in relations:
+                tblobj = self.db.table(n.attr['tblname'])
+                updater = dict()
+                updater[n.attr['fkey']] = record['id']
+                tblobj.batchUpdate(updater,_pkeys=n.value.split(','))
+        record['__moved_related'] = None
+
+    def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
+        pass
+
+    def unifyRecords(self,sourcePkey=None,destPkey=None):
+        moved_relations = Bag()
+        sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
+        destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
+        relations = self.model.relations
+        self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
+        if hasattr(self,'onUnifying'):
+            self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
+        for n in relations:
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M':
+                fldlist = joiner['many_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                tblobj = self.db.table(tblname)
+                fkey = fldlist[-1]
+                joinkey = joiner['one_relation'].split('.')[-1]
+                updater = dict()
+                updater[fkey] = destRecord[joinkey]
+                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey])
+                moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
+        if self.model.column('__moved_related') is not None:
+            oldsource = dict(sourceRecord)
+            sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
+            self.update(sourceRecord,oldsource)
+        else:
+            self.delete(sourcePkey)
+            
+
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
@@ -555,15 +599,19 @@ class SqlTable(GnrObject):
             _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
         pkeycol = self.pkey
+        updatedKeys = []
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
                 updater(new_row)
             elif isinstance(updater, dict):
                 new_row.update(updater)
-            self.update(new_row, row,pkey=row[pkeycol])
+            record_pkey = row[pkeycol]
+            updatedKeys.append(record_pkey)
+            self.update(new_row, row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
+        return updatedKeys
         
     def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where

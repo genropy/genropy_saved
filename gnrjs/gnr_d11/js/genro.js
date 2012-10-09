@@ -643,6 +643,20 @@ dojo.declare('gnr.GenroClient', null, {
             if(f['joiner']){
                 v = v.join(f['joiner']);
             }
+        }else if (v && f.dtype=='X'){
+            var b = new gnr.GnrBag();
+            try{
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(v,"text/xml");
+                b.fromXmlDoc(xmlDoc,genro.clsdict);
+                if(b.keys().length>0){
+                    v = genro.formatter.asText(b,objectUpdate({format:objectExtract(f,'bag_*',true)}) );
+                }else{
+                    v='';
+                }
+            }catch(e){
+                v = '';
+            }
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             var divcontent,divclass;

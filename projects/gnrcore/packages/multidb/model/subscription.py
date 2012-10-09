@@ -5,7 +5,7 @@ from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
-                      name_plural='!!Subscriptions',broadcast='tablename,dbstore')
+                      name_plural='!!Subscriptions',broadcast='tablename,dbstore',ignoreUnify=True)
         self.sysFields(tbl)
         tbl.column('tablename',name_long='!!Tablename') #table fullname 
         #tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
@@ -19,7 +19,6 @@ class Table(object):
         sub_record['dbstore'] = dbstore
         if self.checkDuplicate(**sub_record):
             return
-        print 'inserisco', sub_record
         self.insert(sub_record)
         
     def copyRecords(self,table,dbstore=None,pkeys=None):
@@ -29,7 +28,7 @@ class Table(object):
             queryargs = dict(where='$pkey IN :pkeys',pkeys=pkeys)
         if tblobj.attributes.get('hierarchical'):
             queryargs.setdefault('order_by','$hierarchical_pkey')
-        records = tblobj.query(addPkeyColumn=False,bagFields=True,**queryargs).fetch()
+        records = tblobj.query(addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
@@ -62,6 +61,7 @@ class Table(object):
     def delSubscription(self,table=None,pkey=None,dbstore=None):
         fkey = self.tableFkey(table)        
         f = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
+                            excludeLogicalDeleted=False,
                             dbstore=dbstore,tablename=table,fkey=pkey,addPkeyColumn=False).fetch()
         if f:
             self.delete(f[0])
@@ -75,6 +75,11 @@ class Table(object):
     def trigger_onDeleted(self,record):        
         self.syncStore(record,'D')
 
+    def cloneSubscriptions(self,table,sourcePkey,destPkey):
+        sourcestores = self.query(where="""$tablename=:t AND $%s =:fkey""" %self.tableFkey(table),t=table,fkey=sourcePkey,columns='$dbstore').fetch()
+        for store in sourcestores:
+            self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
+
     def syncStore(self,subscription_record=None,event=None,storename=None,tblobj=None,pkey=None):
         if subscription_record:
             table = subscription_record['tablename']
@@ -83,13 +88,13 @@ class Table(object):
             storename = subscription_record['dbstore']
         if not self.db.dbstores.get(storename):
             return
-        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True).fetch()
+        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
         if data_record:
             data_record = data_record[0]
         else:
             return
         with self.db.tempEnv(storename=storename,_systemDbEvent=True):
-            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False).fetch()
+            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False,excludeLogicalDeleted=False).fetch()
             if event == 'I':
                 if not f:
                     tblobj.insert(data_record)

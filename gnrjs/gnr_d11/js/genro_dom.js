@@ -862,7 +862,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dropInfo = this.getDragDropInfo(event);
 
         if (!dropInfo) {
-            //console.log('not drag_info')
             return;
         }
         event.stopPropagation();
@@ -1041,12 +1040,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return false;
         }
         var inherited = sourceNode.getInheritedAttributes();
+        var onDragCbDict = objectExtract(inherited,'onDrag_*');
+        var doDrag;
         if ('onDrag' in inherited) {
-            var doDrag = funcCreate(inherited['onDrag'], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
-            if (doDrag === false) {
-                return;
-            }
+            doDrag = funcCreate(inherited['onDrag'], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
         }
+        if(objectNotEmpty(onDragCbDict)){
+            for (var c in onDragCbDict){
+                funcCreate(onDragCbDict[c], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
+            }
+        }else if(doDrag===false){
+            return;
+        }
+
         var domnode = dragInfo.target;
         var widget = dragInfo.widget;
         objectPopAll(genro.dom._datatransfer());        
@@ -1309,17 +1315,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return false;
     },
     autoSize:function(widget){
-        console.log(widget);
         var box;
         var maxHeight=0;
         var maxWidth=0;
         dojo.forEach(widget.getChildren(),function(child){
-            console.log(child.containerNode);
             box = child.containerNode.firstChild;
             maxHeight = Math.max(box.clientHeight,maxHeight);
             maxWidth = Math.max(box.clientWidth,maxWidth);
         });
-        console.log(maxHeight,maxWidth); 
         widget.resize({h:maxHeight+27,w:maxWidth+3});
     },
     preventGestureBackForward:function(pane){

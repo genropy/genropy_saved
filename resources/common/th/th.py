@@ -74,6 +74,7 @@ class TableHandler(BaseComponent):
             picker_kwargs['relation_field'] = picker
         if lockable:
             top_slots.append('viewlocker')
+
         top_slots = ','.join(top_slots)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
@@ -97,7 +98,6 @@ class TableHandler(BaseComponent):
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
-            wdg.view.top.bar.replaceSlots('vtitle','vtitle')
             wdg.view.top.bar.replaceSlots('count','')
 
         return wdg

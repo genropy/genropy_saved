@@ -198,6 +198,9 @@ class TableBase(object):
             tbl.column('__version','L',name_long='Audit version',
                         onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns',_sysfield=True)
         diagnostic = tbl.attributes.get('diagnostic')
+        unifyRecordsTag = tbl.attributes.get('unifyRecordsTag')
+        if unifyRecordsTag:
+            tbl.column('__moved_related','X',group=group,_sysfield=True)
         if diagnostic:
             tbl.column('__warnings',name_long='!!Warnings',group=group,_sysfield=True)
             tbl.column('__errors',name_long='!!Errors',group=group,_sysfield=True)
@@ -318,6 +321,20 @@ class TableBase(object):
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
+
+    def dbo_onUpdating(self,record=None,old_record=None,pkey=None,**kwargs):
+        if self.attributes.get('diagnostic'):
+            errors = self.diagnostic_errors(record)
+            warnings = self.diagnostic_warnings(record)
+            record['__errors'] = '\n'.join(errors) if errors else None
+            record['__warnings'] = '\n'.join(warnings) if warnings else None
+        if self.draftField:
+            if hasattr(self,'protect_draft'):
+                record[self.draftField] = self.protect_draft(record)
+        logicalDeletionField =self.logicalDeletionField
+        if old_record and old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
+            self.restoreUnifiedRecord(record)
+
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         where="$maintable_id=:p"
@@ -393,6 +410,13 @@ class TableBase(object):
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
+    def hasMultidbSubscription(self):
+        return self.attributes.get('multidb')==True
+
+    def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
+        if self.hasMultidbSubscription():
+            relations.pop('@subscriptions')
+            self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')

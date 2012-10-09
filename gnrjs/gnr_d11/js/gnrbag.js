@@ -583,8 +583,67 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id getItem
      */
+    asHtmlTable:function(kw){
+        var headers = kw.headers;
+        var h ='';
+        
+        if(headers){
+            if(headers===true){
+                headers = '';
+                this.getItem('#0').forEach(function(n){
+                    headers+=','+(n.attr._valuelabel || n.attr.name_long || stringCapitalize(n.label));
+                })
+            }
+            h = '<thead>';
+            headers = headers.split(',');
+            dojo.forEach(headers,function(th){
+               h+='<th>'+th+'</th>';
+            });
+            h+='</thead>';
+        }
+        var rows =''
+        var r,b,v,vnode,format;
+        var cells = kw.cells.split(',');
+        //var cellformats = objectExtract
+
+        this.forEach(function(n){
+            r ='';
+            b = n._value;
+            dojo.forEach(cells,function(cell){
+                var align = 'left'
+                vnode = b.getNode(cell);
+                if(vnode){
+                    v = vnode._value;
+                    if(v instanceof gnr.GnrBag){
+                        v = v.getFormattedValue(kw,mode);
+                    }else{
+                        format = kw[cell];
+                        if(format){
+                            v = _F(v,format,vnode.attr.dtype);
+                        }else{
+                            v = vnode.attr._formattedValue || vnode.attr._displayedValue || v;
+                        }
+                        if(typeof(v)=='number'){
+                            align ='right';
+                        }
+                    }
+                }else{
+                    v = '';
+                }
+                r+='<td style="text-align:'+align+'">'+v+'</td>';
+            });
+            rows+='<tr>'+r+'</tr>';
+        },'static');
+        return '<table class="formattedBagTable">'+h+'<tbody>'+rows+'</tbody></table>';
+    },
      
     getFormattedValue:function(kw,mode){
+        var kw = kw || {};
+        if(this._parentnode && this._parentnode.attr.format_bag_cells){
+            return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
+        }else if(kw.cells){
+            return this.asHtmlTable(kw);
+        }
         var r = [];
         var kw = kw || {};
         kw.joiner = kw.joiner || '<br/>';
