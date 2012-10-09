@@ -794,7 +794,8 @@ class GnrWsgiSite(object):
             smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
             if 'smtp_use_tls' in smtp_kwargs:
                 smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
-            self.smtp_kwargs = smtp_kwargs
+            self.smtp_kwargs = dict(smtp_kwargs)
+            self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
             wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
         return wsgiapp
         
