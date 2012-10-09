@@ -374,6 +374,11 @@ class GnrWebPage(GnrBaseWebPage):
             try:
                 result = self.rpc(method=method, _auth=auth, **parameters)
             except Exception,e:
+                if self.site.smtp_kwargs:
+                    import sys
+                    from paste.exceptions.errormiddleware import handle_exception
+                    handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **self.site.smtp_kwargs)
+                    #handle_exception(sys.exc_info(), sys.stderr, html=False, ...other config...)
                 self.rpc.error = str(e)
                 result = None
                 
