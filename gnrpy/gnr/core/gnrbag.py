@@ -1904,7 +1904,7 @@ class Bag(GnrObject):
                 return originalsource, False, 'unknown' #short string of unknown type
         urlobj = urllib.urlopen(source)
         info = urlobj.info()
-        contentType = info.gettype()
+        contentType = info.gettype().lower()
         if 'xml' in contentType or 'html' in contentType:
             return urlobj.read(), False, 'xml' #it is an url of type xml
         return source, False, 'direct' #urlresolver
@@ -2555,6 +2555,47 @@ class GeoCoderBag(Bag):
             answer.walk(setData)
         self[key] = result
         
+        
+class VObjectBag(Bag):
+    def fillFrom(self,source):
+        if isinstance(source,basestring):
+            source, fromFile, mode = self._sourcePrepare(source)
+            if fromFile:
+                urlobj = urllib.urlopen(source)
+                info = urlobj.info()
+                contentType = info.gettype().lower()
+                source= urlobj.read()
+            source=source.split('\r\n')
+        current=Bag()
+        self._vparse(source,current)
+        self._nodes[:] = current._nodes[:]
+        
+    def _vparse(self,rows,current):
+        counters={}
+        while rows:
+            r=rows.pop(0)
+            if not ':' in r:
+                if r:
+                    if label:
+                        value='%s%s'%(value,r)
+                    current.setItem(label,value)
+            else:
+                vtag,value=r.split(':',1)
+                if vtag=='BEGIN':
+                    vtag=value
+                    value=VObjectBag(rows)
+                    
+                elif vtag=='END':
+                    return 
+                if not vtag in counters:                    
+                    counters[vtag]=0
+                    label=vtag
+                else:
+                    label=('%s_%s'%(vtag,counters[vtag])).lower()
+                current.setItem(label,value,vtag=vtag)
+                counters[vtag]=counters[vtag]+1       
+                
+                
 class GeoCoderBagNew(Bag):
     def setGeocode(self, key, address, language='it'):
         """TODO
