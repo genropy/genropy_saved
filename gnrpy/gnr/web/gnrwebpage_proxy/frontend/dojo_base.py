@@ -38,7 +38,7 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         self.dojofolder = dojofolder
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s' ,noFirebugLite:true" % (
-                   self.page.isDeveloper() and 'true' or 'false', self.page.locale)
+                   self.page.isDeveloper() and 'true' or 'false', self.page.locale.lower())
         
     def _get_theme(self):
         return self._theme

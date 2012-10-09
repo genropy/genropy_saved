@@ -3300,7 +3300,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             ;
         }
         //dropmode = dropmode || dragSourceInfo.dragmode;
-        if (!dropmode && (dojo.indexOf(draggedTypes, 'selfdragrow_' + dropInfo.sourceNode._id) >= 0)) {
+        if (!dropmode && dragSourceInfo.dragmode=='row' && (dojo.indexOf(draggedTypes, 'selfdragrow_' + dropInfo.sourceNode._id) >= 0)) {
             var selfDragRows = dropInfo.sourceNode.attr.selfDragRows;
             if (typeof(selfDragRows) == 'function') {
                 selfDragRows = selfDragRows(dropInfo);
@@ -3309,7 +3309,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 dropmode = 'row';
             }
         }
-        if (!dropmode && (dojo.indexOf(draggedTypes, 'selfdracolumn_' + dropInfo.sourceNode._id) >= 0)) {
+        if (!dropmode && dragSourceInfo.dragmode=='column' && (dojo.indexOf(draggedTypes, 'selfdragcolumn_' + dropInfo.sourceNode._id) >= 0)) {
             var selfDragColumns = dropInfo.sourceNode.attr.selfDragColumns;
             if (typeof(selfDragColumns) == 'function') {
                 selfDragColumns = selfDragColumns(dropInfo);
@@ -5547,6 +5547,8 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         else {
             if (priorityChange) {
                 this._updateSelect(item);
+            }else{
+                //console.log('no updateselect (!priorityChange)',item)
             }
         }
     },
@@ -5654,7 +5656,10 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             // the value
             var displayedValue=this.getDisplayedValue();
             var lastValueReported=this._lastValueReported;
-            var value=this.getValue();
+            var value;
+            if(this._lastDisplayedValue==displayedValue){
+                value=this.getValue();
+            }
             var pw = this._popupWidget;
             if(pw && (
                 displayedValue == pw._messages["previousMessage"] ||
@@ -5669,7 +5674,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                 }else{
                     if ( (value=='') || (value==null) || (value==undefined) ){
                         this.setValue(null, true);
-                        this.setDisplayedValue(displayedValue);
+                        this.setDisplayedValue(displayedValue,true);
                         
                     }else //if(value!=lastValueReported){
                         {

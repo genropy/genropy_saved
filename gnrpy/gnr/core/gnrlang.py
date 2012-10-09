@@ -39,8 +39,14 @@ class BaseProxy(object):
 
 class FilterList(list):
     """TODO"""
-    def __contains__(self, item):
+    def __contains__old(self, item):
         return len([k for k in self if k == item or k.endswith('*') and item.startswith(k[0:-1])]) > 0
+
+    def __contains__(self, item):
+        for my_item in self:
+            if my_item == item or my_item.endswith('*') and item.startswith(my_item[0:-1]):
+                return True
+        return False
 
 def thlocal():
     """TODO"""
@@ -243,8 +249,6 @@ def gnrImport(source, importAs=None, avoidDup=False):
                 module_file.close()
             if imp.lock_held():
                 imp.release_lock()
-            if error:
-                raise
     return module
     
 class GnrException(Exception):
@@ -794,6 +798,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     :param exclude: TODO
     :param prefix: TODO
     :param mangling_kwargs: TODO"""
+    
     if _mixined is None:
         _mixined=[]
     if isinstance(methods, basestring):
@@ -815,13 +820,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             classes = [clsname]
         for clsname in classes:
             source = getattr(m, clsname, None)
-            instanceMixin(obj, source, methods=methods, only_callables=only_callables, exclude=exclude, 
+            if source:
+                instanceMixin(obj, source, methods=methods, only_callables=only_callables, exclude=exclude, 
                          prefix=prefix, suffix=suffix,_mixined=_mixined, **kwargs)
         return _mixined
     if source is None:
         return
-        
-    mlist = [k for k in dir(source) if
+    source_dir = dir(source)
+    mlist = [k for k in source_dir if
              callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']]
     instmethod = type(obj.__init__)
     if methods:
@@ -853,7 +859,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         setattr(obj, name_as, k)
         _mixined.append(name_as)
     if not only_callables:
-        attributes = [k for k in dir(source) if
+        attributes = [k for k in source_dir if
                       not callable(getattr(source, k)) and not k.startswith('_') and not k in exclude]
     if attributes:
         if isinstance(attributes, basestring):

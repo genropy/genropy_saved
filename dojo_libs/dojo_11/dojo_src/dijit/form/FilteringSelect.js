@@ -132,6 +132,7 @@ dojo.declare(
 			this.store.fetchItemByIdentity({
 				identity: value, 
 				onItem: function(item){
+
 					handleFetchByIdentity(item, priorityChange);
 				}
 			});

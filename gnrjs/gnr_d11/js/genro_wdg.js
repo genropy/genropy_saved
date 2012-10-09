@@ -716,44 +716,53 @@ dojo.declare("gnr.GridEditor", null, {
             if('related_table' in colattr){
                 colattr['tag'] = 'dbselect';
                 colattr['dbtable'] = colattr['related_table'];
-                var cellmap = this.grid.cellmap;
-                var related_setter = {};
-                var grid = this.grid;
-                //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
-                var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
-                for(var k in cellmap){
-                    if(cellmap[k].relating_column == colname){
-                        hiddencol.push(cellmap[k].related_column);
-                        related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
-                    }
-                }
-                colattr['hiddenColumns'] = hiddencol.join(',');
-                colattr.selectedCb = function(item){
-                    if(!item){
-                        return;
-                    }
-                    var selectRow = objectUpdate({},item.attr);
-                    var rowNode = this.getRelativeData().getParentNode();
-                    var newAttr = objectUpdate({},rowNode.attr);
-                    for (var k in related_setter){
-                        newAttr[related_setter[k]] = selectRow[k];
-                    }
-                    //setTimeout(function(){
-                    rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
-                    //},1)
-                }
             }if('values' in colattr){
                 colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
             }
         }
-        if(colattr['tag'].toLowerCase()=='simpletextarea'){
-            colattr['z_index']= 1;
-            colattr['position'] = 'fixed';
-            colattr['height'] = colattr['height'] || '100px';
-        }else if(colattr['tag'].toLowerCase()=='checkbox'){
-            colattr['margin'] = 'auto'
+        var lowertag = colattr['tag'].toLowerCase();
+        if(this['tag_'+lowertag]){
+            this['tag_'+lowertag].call(this,colname,colattr);
         }
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
+    },
+    tag_simpletextarea:function(colname,colattr){
+        colattr['z_index']= 1;
+        colattr['position'] = 'fixed';
+        colattr['height'] = colattr['height'] || '100px';
+    },
+    tag_checkbox:function(colname,colattr){
+        colattr['margin'] = 'auto';
+    },
+
+    tag_dbselect:function(colname,colattr){
+        var cellmap = this.grid.cellmap;
+        var related_setter = {};
+        var grid = this.grid;
+        colattr['dbtable'] = colattr['dbtable'] || colattr['related_table'];
+        //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
+        var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
+        for(var k in cellmap){
+            if(cellmap[k].relating_column == colname){
+                hiddencol.push(cellmap[k].related_column);
+                related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
+            }
+        }
+        colattr['hiddenColumns'] = hiddencol.join(',');
+        colattr.selectedCb = function(item){
+            if(!item){
+                return;
+            }
+            var selectRow = objectUpdate({},item.attr);
+            var rowNode = this.getRelativeData().getParentNode();
+            var newAttr = objectUpdate({},rowNode.attr);
+            for (var k in related_setter){
+                newAttr[related_setter[k]] = selectRow[k];
+            }
+            //setTimeout(function(){
+            rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
+            //},1)
+        }
     },
     delEditColumn:function(colname){
         objectPop(this.columns,colname.replace(/\W/g, '_'));
@@ -993,6 +1002,24 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
     },
 
+    setCellValue:function(rowIdx,cellname,value,valueCaption){
+        var rowNode = this.grid.dataNodeByIndex(rowIdx);
+        var rowEditor = this.rowEditors[rowNode.attr._pkey];
+        if (!rowEditor){
+            rowEditor = this.newRowEditor(rowNode);
+        }
+        var cellmap = this.grid.cellmap;
+        genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
+        var cell = cellmap[cellname];
+        if(cell.edit){
+            rowEditor.data.setItem(cellname,value,{_loadedValue:rowNode.attr[cellname]});
+        }
+        var newAttr = objectUpdate({},rowNode.attr);
+        newAttr[cellname] = value;
+        newAttr[cell.field_getter] = valueCaption || value;
+        rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
+    },
+
     updateCounterColumn:function(rowNode,k,counterField){
         if(rowNode.attr[counterField]!=k){
             var kw = {};
@@ -1123,6 +1150,10 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,rowDataNode.attr._pkey, attr).getParentNode();
+        editWidgetNode.setCellValue = function(cellname,value){
+            console.log(this,cellname,value);
+            gridEditor.setCellValue(this.editedRowIndex,cellname,value);
+        };
         editWidgetNode.editedRowIndex = row;
         this.onEditCell(true);
         if (cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings) {
