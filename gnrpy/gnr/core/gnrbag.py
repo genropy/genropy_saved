@@ -1167,6 +1167,14 @@ class Bag(GnrObject):
                 path.extend(nl)
                 return n
 
+    def getNodeByValue(self,label,value):
+        result = None
+        for n in self:
+            if n.value and n.value[label] == value:
+                result = n
+                break
+        return result
+
     def getDeepestNode(self, path=None):
         """Return the deepest matching node in the bag and the remaining path of the path.
         bag.getDeepestNode('foo.bar.baz') returns:
