@@ -27,6 +27,8 @@ class Utils4D(BaseComponent):
         result = []
         if 'New' in b:
             b = b['New']
+        if 'new' in b:
+            b = b['new']
         if b:
             keys = b.keys()
             values = b.values()
