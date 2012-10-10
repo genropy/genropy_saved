@@ -240,7 +240,7 @@ class MailHandler(GnrBaseService):
             msg.attach(email_attachment)
             attachment_file.close()
         
-    def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None,
+    def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, reply_to=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,
                           smtp_host=None, port=None, user=None, password=None,
                           ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
@@ -288,15 +288,16 @@ class MailHandler(GnrBaseService):
         cc_address = cc_address or get_templated('cc_address')
         bcc_address = bcc_address or get_templated('bcc_address')
         from_address = from_address or get_templated('from_address')
+        reply_to = reply_to or get_templated('reply_to')
         subject = subject or get_templated('subject')
         body = body or get_templated('body')
         body = templateReplace(body, datasource)
-        self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, bcc_address=bcc_address,
+        self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
                       attachments=attachments, account=account,
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
                       ssl=ssl, tls=tls, html=html, charset=charset, async=async)
                       
-    def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, bcc_address=None, attachments=None,
+    def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async=False, 
@@ -337,6 +338,8 @@ class MailHandler(GnrBaseService):
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        if reply_to:
+            msg.add_header('reply-to', reply_to)
         if  type(cc_address).__name__ in ['list', 'tuple']:
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
