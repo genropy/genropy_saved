@@ -749,6 +749,13 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         colattr['hiddenColumns'] = hiddencol.join(',');
+        colattr.selectedSetter = function(path,value){
+            if(path.indexOf('.')>=0){
+                path = path.split('.');
+                path = path[path.length-1];
+            }
+            this.setCellValue(path,value);
+        }
         colattr.selectedCb = function(item){
             if(!item){
                 return;
@@ -1016,6 +1023,24 @@ dojo.declare("gnr.GridEditor", null, {
         }
         var newAttr = objectUpdate({},rowNode.attr);
         newAttr[cellname] = value;
+        var rtable = cell.related_table;
+        if(cell.field!=cell.field_getter && rtable){
+            var queries = new gnr.GnrBag();
+            var hcols = [cell.related_column];
+            var selectedKw = objectExtract(cell.edit,'selected_*',true);
+            if(objectNotEmpty(selectedKw)){
+                hcols = hcols.concat(objectKeys(selectedKw));
+            }
+            queries.setItem(cellname,null,{table:rtable,columns:hcols.join(','),pkey:value,where:'$pkey =:pkey'});
+            var r = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
+            var kw = r.getNode('#0.#0').attr;
+            valueCaption = objectPop(kw,cell.related_column);
+            for(var selected in selectedKw){
+                var p = selectedKw[selected].split('.');
+                p = p[p.length-1];
+                this.setCellValue(rowIdx,p,kw[selected]);
+            }
+        }
         newAttr[cell.field_getter] = valueCaption || value;
         rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
     },
@@ -1151,7 +1176,6 @@ dojo.declare("gnr.GridEditor", null, {
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,rowDataNode.attr._pkey, attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value){
-            console.log(this,cellname,value);
             gridEditor.setCellValue(this.editedRowIndex,cellname,value);
         };
         editWidgetNode.editedRowIndex = row;
