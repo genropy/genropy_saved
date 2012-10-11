@@ -115,7 +115,7 @@ class MailHandler(GnrBaseService):
         self.default_imap_account = name
         
     def get_account_params(self, account=None, from_address=None, smtp_host=None, port=None,
-                           user=None, password=None, ssl=False, tls=False, **kwargs):
+                           user=None, password=None, ssl=False, tls=False,timeout=None, **kwargs):
         """Set the account parameters and return them
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
@@ -138,7 +138,7 @@ class MailHandler(GnrBaseService):
             account_params = self.smtp_accounts[account]
         else:
             account_params = dict(smtp_host=smtp_host, port=port, user=user, password=password,
-                                  ssl=ssl, tls=tls, from_address=from_address)
+                                  ssl=ssl, tls=tls, from_address=from_address,timeout=timeout)
         return account_params
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
