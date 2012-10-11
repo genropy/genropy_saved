@@ -170,7 +170,7 @@ class MailHandler(GnrBaseService):
         if tls:
             smtp_connection.starttls()
         if user:
-            smtp_connection.login(user, password)
+            smtp_connection.login(str(user), str(password))
         return smtp_connection
         
     def handle_addresses(self, from_address=None, to_address=None, multiple_mode=None):
