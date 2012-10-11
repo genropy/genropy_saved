@@ -142,7 +142,7 @@ class MailHandler(GnrBaseService):
         return account_params
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
-                            user=None, password=None, ssl=False, tls=False, **kwargs):
+                            user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
         """Get the smtp connection and return it
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
@@ -164,9 +164,9 @@ class MailHandler(GnrBaseService):
         else:
             smtp = getattr(smtplib, 'SMTP')
         if port:
-            smtp_connection = smtp(host=str(smtp_host), port=str(port))
+            smtp_connection = smtp(host=str(smtp_host), port=str(port),timeout=timeout)
         else:
-            smtp_connection = smtp(host=smtp_host)
+            smtp_connection = smtp(host=smtp_host,timeout=timeout)
         if tls:
             smtp_connection.starttls()
         if user:
@@ -298,7 +298,7 @@ class MailHandler(GnrBaseService):
                       ssl=ssl, tls=tls, html=html, charset=charset, async=async)
                       
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
-                 account=None,
+                 account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async=False, 
                  cb=None, cb_args=None, cb_kwargs=None, **kwargs):
@@ -349,7 +349,7 @@ class MailHandler(GnrBaseService):
         #else:
         #    msg['Bcc'] = bcc_address
         msg_string = msg.as_string()
-        sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
+        sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string,timeout)
         if not async:
             self._sendmail(*sendmail_args)
             if cb:
@@ -382,7 +382,7 @@ class MailHandler(GnrBaseService):
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
                       from_address=None, smtp_host=None, port=None, user=None, password=None,
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
-                      async=False):
+                      async=False,timeout=None):
         """TODO
         
         :param to_address: the email receiver
@@ -416,6 +416,7 @@ class MailHandler(GnrBaseService):
         :param charset: a different charser may be defined by its standard name"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
+                                                 timeout=timeout,
                                                  tls=tls)
         smtp_connection = self.get_smtp_connection(**account_params)
         to, cc, bcc = self.handle_addresses(from_address=account_params['from_address'],
