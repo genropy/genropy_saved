@@ -333,7 +333,7 @@ class MailHandler(GnrBaseService):
                       is returned immediately to the calling function"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
-                                                 tls=tls)
+                                                 tls=tls,timeout=timeout)
         from_address = account_params['from_address']
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
@@ -349,7 +349,7 @@ class MailHandler(GnrBaseService):
         #else:
         #    msg['Bcc'] = bcc_address
         msg_string = msg.as_string()
-        sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string,timeout)
+        sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async:
             self._sendmail(*sendmail_args)
             if cb:
