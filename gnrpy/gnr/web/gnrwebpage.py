@@ -517,20 +517,16 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.application.getAvatar(login['user'], password=login.get('password'),
                                                 authenticate=authenticate, page=self, **kwargs)
         if avatar:
-            print '520 trovato avatar',avatar
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))
-            print '527'
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
-            print '530'
             self.btc.cleanUserBatches(self.user)
-            print '531'
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)
