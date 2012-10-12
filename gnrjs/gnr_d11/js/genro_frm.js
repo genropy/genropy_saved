@@ -713,6 +713,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     saveKeptData:function(){
         var keptData = this.keptData || {};
         var currdata = this.getFormData();
+        this.keptData = null;
+        if(!currdata){
+            return;
+        }
         currdata.forEach(function(n){
             if(n.attr._keep==true){
                 keptData[n.label] = n._value;
@@ -722,8 +726,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         },'static');
         if(objectNotEmpty(keptData)){
             this.keptData = keptData;
-        }else{
-            this.keptData = null;
         }
     },
     
