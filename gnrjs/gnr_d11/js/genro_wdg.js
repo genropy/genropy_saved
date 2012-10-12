@@ -1024,7 +1024,7 @@ dojo.declare("gnr.GridEditor", null, {
         var newAttr = objectUpdate({},rowNode.attr);
         newAttr[cellname] = value;
         var rtable = cell.related_table;
-        if(cell.field!=cell.field_getter && rtable){
+        if(!valueCaption && cell.field!=cell.field_getter && rtable){
             var queries = new gnr.GnrBag();
             var hcols = [cell.related_column];
             var selectedKw = objectExtract(cell.edit,'selected_*',true);
@@ -1175,8 +1175,8 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,rowDataNode.attr._pkey, attr).getParentNode();
-        editWidgetNode.setCellValue = function(cellname,value){
-            gridEditor.setCellValue(this.editedRowIndex,cellname,value);
+        editWidgetNode.setCellValue = function(cellname,value,valueCaption){
+            gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
         editWidgetNode.editedRowIndex = row;
         this.onEditCell(true);

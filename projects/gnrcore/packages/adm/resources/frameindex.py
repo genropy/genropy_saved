@@ -381,7 +381,6 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs): 
-        print 'prima login'
         self.doLogin(login=login,guestName=guestName,**kwargs)
         if self.avatar:
             rootenv['user'] = self.avatar.user
