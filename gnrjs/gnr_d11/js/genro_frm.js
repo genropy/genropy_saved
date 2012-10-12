@@ -1497,8 +1497,10 @@ dojo.declare("gnr.formstores.Base", null, {
         for (k in kw){
             this[k] = kw[k];
         }
-        this.onSaved = this.onSaved == null ? 'reload':this.onSaved;
-        
+        if(!this.onSaved){
+            var handler_onSaved = this.handlers.save.kw.onSaved;
+            this.onSaved = handler_onSaved==null? 'reload':handler_onSaved;
+        }        
     },
     
     init:function(form){

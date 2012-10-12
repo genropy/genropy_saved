@@ -327,7 +327,7 @@ class FramedIndexLogin(BaseComponent):
                                     currenv.update(newenv);
                                     SET gnr.rootenv = currenv;
                                     SET gnr.avatar = result.getItem('avatar');
-                                """,sync=True)
+                                """,sync=True,_POST=True)
             rpcmethod = self.login_doLogin    
         
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
@@ -373,7 +373,7 @@ class FramedIndexLogin(BaseComponent):
                 sc.switchPage('dashboard');
                 genro.publish('logged');
             }
-        })
+        },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  

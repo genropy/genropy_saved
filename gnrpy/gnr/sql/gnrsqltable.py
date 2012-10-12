@@ -459,6 +459,7 @@ class SqlTable(GnrObject):
                 moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
         if self.model.column('__moved_related') is not None:
             oldsource = dict(sourceRecord)
+            moved_relations.setItem('destPkey',destPkey)
             sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
             self.update(sourceRecord,oldsource)
         else:
