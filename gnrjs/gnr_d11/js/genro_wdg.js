@@ -736,6 +736,9 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     tag_dbselect:function(colname,colattr){
+        if(!this.editorPars){
+            return;
+        }
         var cellmap = this.grid.cellmap;
         var related_setter = {};
         var grid = this.grid;
