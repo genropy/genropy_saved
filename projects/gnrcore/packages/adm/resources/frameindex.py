@@ -210,7 +210,7 @@ class FrameIndex(BaseComponent):
                                subscribe__menutree__selected=True)
                        
     def prepareLeft(self,pane):
-        pane.attributes.update(dict(splitter=True,width='230px',datapath='left',
+        pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins))
         bc = pane.borderContainer()
         
