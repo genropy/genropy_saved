@@ -3320,6 +3320,6 @@ p {
     color:#666;
     font-size: .9em;
 }
-.dojoxGrid-cell formattedBagTable tr td{
+.dojoxGrid-cell .formattedBagTable tr td{
     border:1px dotted silver;
 }
