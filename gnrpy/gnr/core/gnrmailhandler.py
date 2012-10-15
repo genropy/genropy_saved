@@ -245,7 +245,10 @@ class MailHandler(GnrBaseService):
         
     def _attachments(self, msg, attachments):
         for attachment_path in attachments:
-            mime_type = mimetypes.guess_type(attachment_path)[0]
+            if isinstance(attachment_path,tuple):
+                attachment_path,mime_type = attachment_path
+            else:
+                mime_type = mimetypes.guess_type(attachment_path)[0]
             mime_family, mime_subtype = mime_type.split('/')
             attachment_file = open(attachment_path, 'rb')
             email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
