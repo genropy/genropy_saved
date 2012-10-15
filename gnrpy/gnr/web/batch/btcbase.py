@@ -33,7 +33,7 @@ class BaseResourceBatch(object):
         self.result_info = dict()
         self._pkeys = None
         self.selectedPkeys = None
-        self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
+        #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
 
     def __call__(self, batch_note=None, **kwargs):
         parameters = kwargs.get('parameters',dict())
