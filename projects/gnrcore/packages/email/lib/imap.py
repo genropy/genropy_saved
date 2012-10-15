@@ -55,7 +55,8 @@ class ImapReceiver(object):
         new_mail['bcc_address'] = unicode(mail['Bcc'])
         new_mail['subject'] = mail['Subject']
         datetuple = email.Utils.parsedate(mail['Date'])
-        new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
+        if datetuple:
+            new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
