@@ -16,7 +16,7 @@ import httplib2
 
 from gnr.core.gnrbaseservice import GnrBaseService
 
-class SmsMobyt(GnrBaseService):
+class Main(GnrBaseService):
     def __init__(self, parent, username=None, password=None, url=None, sender=None,quality=None):
         self.parent = parent
         self.username = username
@@ -26,8 +26,8 @@ class SmsMobyt(GnrBaseService):
         self.quality = quality or 'n'
         self.http = httplib2.Http()
 
-    def sendsms(self,receiver=None,sender=None,data=None, quality=None,**kwargs):
-        data = {'user':self.username,'pass':self.password,'data':data,'rcpt':receiver,
+    def sendsms(self,receivers=None,sender=None,data=None, quality=None,**kwargs):
+        data = {'user':self.username,'pass':self.password,'data':data,'rcpt':receivers,
                 'sender':sender or self.sender,'qty':quality or self.quality}
         #data.update(kwargs)
         #response,content=self.http.request(self.url, 'GET', body=urlencode(data))

@@ -35,16 +35,19 @@ class AppPref(object):
 
     def _pr_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
-                                                tdl_width='10em')
+                                                    tdl_width='10em')
+        if 'email' in self.db.packages:
+            fb.dbselect(value='^.email_account_id',lbl='Account',dbtable='email.account',hasDownArrow=True)
+        
         fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',
-               lbl_color='#7e5849')
-        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T', colspan=1)
-        fb.textbox(value='^.from_address', lbl='From address', dtype='T', colspan=1)
-        fb.textbox(value='^.user', lbl='Username', dtype='T', colspan=1)
-        fb.textbox(value='^.password', lbl='Password', dtype='T', colspan=1, type='password')
-        fb.textbox(value='^.port', lbl='Port', dtype='T', colspan=1)
-        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', colspan=1)
-        fb.checkbox(value='^.ssl', lbl='SSL', dtype='B', colspan=1)
+               lbl_color='#7e5849',disabled='^.email_account_id')
+        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T',disabled='^.email_account_id')
+        fb.textbox(value='^.from_address', lbl='From address', dtype='T',disabled='^.email_account_id')
+        fb.textbox(value='^.user', lbl='Username', dtype='T',disabled='^.email_account_id')
+        fb.textbox(value='^.password', lbl='Password', disabled='^.email_account_id', type='password')
+        fb.textbox(value='^.port', lbl='Port', disabled='^.email_account_id')
+        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', disabled='^.email_account_id')
+        fb.checkbox(value='^.ssl', lbl='SSL', dtype='B', disabled='^.email_account_id')
 
 
     def _pr_instance_data(self, pane):
@@ -62,13 +65,15 @@ class UserPref(object):
 
     def _pr_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%')
+        if 'email' in self.db.packages:
+            fb.dbselect(value='^.email_account_id',lbl='Account',dbtable='email.account',hasDownArrow=True)
         fb.div(lbl='Mail Settings', colspan=2, lbl_font_style='italic', lbl_margin_top='1em', margin_top='1em',
                lbl_color='#7e5849')
-        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T', colspan=1)
-        fb.textbox(value='^.from_address', lbl='From address', dtype='T', colspan=1)
-        fb.textbox(value='^.user', lbl='Username', dtype='T', colspan=1)
-        fb.textbox(value='^.password', lbl='Password', dtype='T', colspan=1, type='password')
-        fb.textbox(value='^.port', lbl='Port', dtype='T', colspan=1)
-        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', colspan=1)
-        
+        fb.textbox(value='^.smtp_host', lbl='SMTP Host', dtype='T', disabled='^.email_account_id')
+        fb.textbox(value='^.from_address', lbl='From address', dtype='T', disabled='^.email_account_id')
+        fb.textbox(value='^.user', lbl='Username', dtype='T', disabled='^.email_account_id')
+        fb.textbox(value='^.password', lbl='Password', dtype='T', disabled='^.email_account_id', type='password')
+        fb.textbox(value='^.port', lbl='Port', dtype='T', disabled='^.email_account_id')
+        fb.checkbox(value='^.tls', lbl='TLS', dtype='B', disabled='^.email_account_id')
+            
         

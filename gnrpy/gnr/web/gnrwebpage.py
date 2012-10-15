@@ -1425,6 +1425,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
+                page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True)
+
                 page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
                 page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
@@ -1673,7 +1675,19 @@ class GnrWebPage(GnrBaseWebPage):
                               fullcaption='%s/%s' %(prevCaption,caption))
             
         return subfields
-        
+
+    @public_method    
+    def quickCommunication(self,message=None,email=None,fax=None,mobile=None):
+        if email:
+            subject = message.split('\n')[0]
+            self.getService('mail').sendmail(to_address=email,
+                                    body=message, subject=subject,
+                                    async=False)
+        if mobile:
+            self.getService('sms').sendsms(receivers=mobile,data=message)
+        if fax:
+            self.getService('fax').sendfax(receivers=fax,message=message)
+
     @public_method    
     def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
                              omit='', **kwargs):

@@ -7,17 +7,13 @@
 #Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
-from gnr.core.gnrbag import Bag
 
 
 class BaseResourceMail(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourceMail, self).__init__(**kwargs)
         self.mail_handler = self.page.getService('mail')
-        instancepref =  Bag(self.page.application.config.getNode('mail').attr)
-        userpref = self.page.getUserPreference('mail', pkg='adm') 
-        applicationpref = self.page.getPreference('mail', pkg='adm') 
-        self.mail_preference = userpref or applicationpref or instancepref
+        self.mail_preference = self.mail_handler.getDefaultMailAccount()
 
                                   
     def send_one_template(self,record=None,to_address=None,cc_address=None,subject=None,body=None,attachments=None,**kwargs):
@@ -34,6 +30,7 @@ class BaseResourceMail(BaseResourceBatch):
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                     ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+        
     def get_template(self,template_address):
         if not ':' in template_address:
             template_address = 'adm.userobject.data:%s' %template_address

@@ -33,9 +33,7 @@ class BaseResourceBatch(object):
         self.result_info = dict()
         self._pkeys = None
         self.selectedPkeys = None
-        self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or \
-                              self.page.getPreference('mail',pkg='adm') or \
-                              Bag(self.page.application.config.getNode('mail').attr)
+        self.mail_preference = self.mail_handler.getDefaultMailAccount()
 
     def __call__(self, batch_note=None, **kwargs):
         parameters = kwargs.get('parameters',dict())

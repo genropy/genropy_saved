@@ -3315,9 +3315,11 @@ p {
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
 }
 .formattedBagTable tr td{
-    border:1px dotted silver;
     padding-left:2px;
     padding-right:2px;
     color:#666;
     font-size: .9em;
+}
+.dojoxGrid-cell formattedBagTable tr td{
+    border:1px dotted silver;
 }

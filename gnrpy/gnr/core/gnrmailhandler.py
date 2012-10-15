@@ -136,10 +136,23 @@ class MailHandler(GnrBaseService):
         account = account or self.default_smtp_account
         if account:
             account_params = self.smtp_accounts[account]
-        else:
+        elif smtp_host:
             account_params = dict(smtp_host=smtp_host, port=port, user=user, password=password,
                                   ssl=ssl, tls=tls, from_address=from_address,timeout=timeout)
+        else:
+            account_params = dict(self.getDefaultMailAccount())
+            account_params['from_address'] = from_address or account_params.get('from_address')
         return account_params
+
+    def getDefaultMailAccount(self):
+        mp = self.parent.getUserPreference('mail', pkg='adm') 
+        if not mp['smtp_host'] and not mp['email_account_id']:
+            mp = self.parent.getPreference('mail', pkg='adm')
+        if not mp['smtp_host'] and not mp['email_account_id']:
+            mp = self.parent.application.config.getNode('mail').attr
+        if mp.get('email_account_id'):
+            return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
+        return mp
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
@@ -413,7 +426,7 @@ class MailHandler(GnrBaseService):
                               * ``to, To, TO`` - a mail sent to all recipient in to field
                               * ``bcc, Bcc, BCC`` - a mail sent to ourself with all recipient in bcc address
                               
-        :param charset: a different charser may be defined by its standard name"""
+        :param charset: a differnet charser may be defined by its standard name"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
                                                  timeout=timeout,

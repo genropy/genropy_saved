@@ -28,6 +28,8 @@ class BaseResourcePrint(BaseResourceBatch):
         if self.html_res:
             self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
                                                         respath=self.html_res, class_name='Main')
+        else:
+            self.htmlMaker = None
         if not hasattr(self, 'mail_tags'):
             self.mail_tags = 'mail'
 
