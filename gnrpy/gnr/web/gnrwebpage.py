@@ -1425,7 +1425,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
-                page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True)
+                page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
+                            _onResult='genro.publish("quick_comunication_sent",result);')
 
                 page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
@@ -1687,6 +1688,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.getService('sms').sendsms(receivers=mobile,data=message)
         if fax:
             self.getService('fax').sendfax(receivers=fax,message=message)
+        return True
 
     @public_method    
     def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
