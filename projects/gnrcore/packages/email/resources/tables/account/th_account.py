@@ -74,7 +74,8 @@ class Form(BaseComponent):
         fb.field('smtp_tls')
         fb.field('smtp_ssl')
         fb.field('smtp_timeout')
-        
+        fb.field('system_bcc')
+
     def account_messages(self,bottom):
         th = bottom.dialogTableHandler(relation='@messages',
                                    dialog_height='600px',

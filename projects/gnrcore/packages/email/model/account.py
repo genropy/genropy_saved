@@ -27,6 +27,9 @@ class Table(object):
         tbl.column('smtp_tls',name_long='!!Smtp tls',dtype='B')
         tbl.column('smtp_ssl',name_long='!!Smtp ssl',dtype='B')
 
+        tbl.column('system_bcc',name_long='!!System bcc')
+
+
     
     def getSmtpAccountPref(self,account):
         account = self.recordAs(account)
@@ -38,6 +41,8 @@ class Table(object):
         mp['port'] = account['smtp_port']
         mp['ssl'] = account['smtp_ssl']
         mp['tls'] = account['smtp_tls']
+        mp['system_bcc'] = account['system_bcc']
+
         return mp
         
     def standardMailboxes(self):
