@@ -15,12 +15,21 @@ from gnr.core.gnrbag import Bag
 import httplib2
 from gnr.core.gnrbaseservice import GnrBaseService
 
-class M4u(GnrBaseService):
+class Main(GnrBaseService):
     
-    def __init__(self,userId=None,password=None,url='http://xml.m4u.com.au',sender=None,**kwargs):
-        self.userId=userId
-        self.password=password
-        self.sender=sender
+    def __init__(self, userId=None,password=None, url='http://xml.m4u.com.au',**kwargs): #
+        if 'username' in kwargs:
+            self.userId=kwargs['username']
+        else:
+            self.userId=userId
+        if 'passwd' in kwargs:
+            self.password=kwargs['passwd']
+        else:
+            self.password=password
+        if 'sendername' in kwargs:
+            self.sender=kwargs['sendername']
+        else:
+            self.sender=None
         self.url=url
         self.http = httplib2.Http()
 
@@ -37,23 +46,28 @@ class M4u(GnrBaseService):
         result=Bag()
         result['response']=response
         result['content']=Bag(content)
+        print result
         return result
 
-    def sendMessage(self,sendMode='normal',messageFormat='SMS',receivers=None,data=None,scheduled=None,deliveryReport=None,validityPeriod=None):
+    def sendsms(self,sendMode='normal',messageFormat='SMS',receivers=None,data=None,sender=None,scheduled=None,deliveryReport=None,validityPeriod=None):
+
+        if sender:
+            self.sender=sender
         client = Bag()
         self.createHeader(client,tranType='sendMessages')
         requestBody = Bag()
         recipients = Bag()
         messages = Bag()
         message = Bag()
-        if type(receivers) is str:
-            recipients.addItem('recipient',receivers,uid='1')
-        else:
+        if type(receivers) is list or tuple:
             for i,recipient in enumerate(receivers):
                 count=str(i+1)
                 recipients.addItem('recipient',recipient,uid=count)
+        else:
+            recipients.addItem('recipient',receivers,uid='1')
 
-        message.setItem('origin',self.sender)
+        if self.sender:
+            message.setItem('origin',self.sender)
         message.setItem('recipients',recipients)
         if scheduled:
             message.setItem('scheduled',scheduled)
@@ -77,10 +91,10 @@ class M4u(GnrBaseService):
 
 
 if __name__ == '__main__':
-    sp = M4u(userId='SoftwellPtyLt003',password='p8DDMP6T',sender='Jim')
+    sp = Main(userId='SoftwellPtyLt003',password='p8DDMP6T')
     #print sp.checkUser()
-    print sp.sendMessage(receivers='61423373242',data='This is a message for you from Jeffs code')
-    #print sp.sendMessage(receivers=['39335290194','393386611042'],data='This is a message for you from Jeffs code')
-    #print sp.sendMessage(receivers=['61411232239'],data='This is a message for you from Jeffs code')
+    print sp.sendsms(receivers='61411232239',data='This is a message for you from Jeffs code')#61423373242
+    #print sp.sendsms(receivers=['39335290194','393386611042'],data='This is a message for you from Jeffs code')
+    #print sp.sendsms(receivers=['61411232239'],data='This is a message for you from Jeffs code')
     
-    # self.getService('sms').sendsms(receivers='mobile str or list',data=message)
+    # self.getService('sms').sendsms(receivers='mobile str or list',data=message) # sender='phonenumber' is optional
