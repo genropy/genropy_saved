@@ -2098,20 +2098,29 @@ class SqlRecord(object):
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
         info['_relation_value'] = sqlresult['t0_%s' %ofld]
+        target_fld = info['_target_fld']
+        mpkg, mtbl, mrelated_field = target_fld.split('.')
+        many_table = self.db.table('%s.%s' % (mpkg, mtbl))
+        order_by = joiner.get('many_order_by') or many_table.attributes.get('order_by')
+        sqlparams = dict()
+        if order_by:
+            sqlparams['order_by'] = order_by
+
         #if True or resolver_many is True:
         value = SqlRelatedSelectionResolver(
                 columns='*', db=self.db, cacheTime=-1,
-                target_fld=info['_target_fld'],
+                target_fld=target_fld,
                 relation_value=info['_relation_value'],
                 mode='grid', joinConditions=self.joinConditions,
                 sqlContextName=self.sqlContextName,
-                virtual_columns=virtual_columns
+                virtual_columns=virtual_columns,
+                sqlparams = sqlparams,
                 )
         #else:
+        info['_many_order_by'] = order_by
         info['_sqlContextName'] = self.sqlContextName
         info['_resolver_name'] = resolver_many
         info['_virtual_columns'] = virtual_columns
-
         return value,info
 
     def _loadRecord_DynItemOneOne(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):

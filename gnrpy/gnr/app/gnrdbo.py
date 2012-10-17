@@ -192,7 +192,7 @@ class TableBase(object):
         if counter:
             tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
             _counter_fkey=counter,group=group,_sysfield=True)
-            tbl.attributes.setdefault('order_by','_row_count')
+            tbl.attributes.setdefault('order_by','$_row_count')
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
