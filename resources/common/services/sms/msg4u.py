@@ -40,19 +40,19 @@ class Main(GnrBaseService):
 
     def sendRpc(self,client):
         body = client.toXml(omitRoot=True,docHeader='XMLDATA=')
-        print body
+        # print body
         headers = {'Content-type': 'application/x-www-form-urlencoded'} 
         response,content=self.http.request(self.url, 'POST', headers=headers, body=body)
         result=Bag()
         result['response']=response
         result['content']=Bag(content)
-        print result
+        # print result
         return result
 
     def sendsms(self,sendMode='normal',messageFormat='SMS',receivers=None,data=None,sender=None,scheduled=None,deliveryReport=None,validityPeriod=None):
-        print 'receivers: ',type(receivers), receivers
-        print 'data: ', data
-        print 'sender: ',sender
+        # print 'receivers: ',type(receivers), receivers
+        # print 'data: ', data
+        # print 'sender: ',sender
         
         if sender:
             self.sender=sender
