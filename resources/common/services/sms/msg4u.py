@@ -50,7 +50,10 @@ class Main(GnrBaseService):
         return result
 
     def sendsms(self,sendMode='normal',messageFormat='SMS',receivers=None,data=None,sender=None,scheduled=None,deliveryReport=None,validityPeriod=None):
-
+        print 'receivers: ',type(receivers), receivers
+        print 'data: ', data
+        print 'sender: ',sender
+        
         if sender:
             self.sender=sender
         client = Bag()
@@ -59,7 +62,7 @@ class Main(GnrBaseService):
         recipients = Bag()
         messages = Bag()
         message = Bag()
-        if type(receivers) is list or tuple:
+        if type(receivers) is list or type(receivers) is tuple:
             for i,recipient in enumerate(receivers):
                 count=str(i+1)
                 recipients.addItem('recipient',recipient,uid=count)
