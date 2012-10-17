@@ -364,6 +364,12 @@ class MailHandler(GnrBaseService):
         #    msg['Bcc'] = bcc_address and ','.join(bcc_address)
         #else:
         #    msg['Bcc'] = bcc_address
+        system_bcc = account_params.pop('system_bcc',None)
+        if system_bcc:
+            bcc_address = bcc_address or []
+            bcc_address.append(system_bcc)
+            bcc_address = ','.join(bcc_address)
+
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async:
