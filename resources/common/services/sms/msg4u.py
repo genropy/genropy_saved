@@ -77,10 +77,10 @@ class M4u(GnrBaseService):
 
 
 if __name__ == '__main__':
-    sp = M4u(userId='SoftwellPtyLt003',password='p8DDMP6T',sender='61411232239')
+    sp = M4u(userId='SoftwellPtyLt003',password='p8DDMP6T',sender='Jim')
     #print sp.checkUser()
-    #print sp.sendMessage(receivers='393386611042',data='This is a message for you from Jeffs code')
-    print sp.sendMessage(receivers=['39335290194','393386611042'],data='This is a message for you from Jeffs code')
+    print sp.sendMessage(receivers='61423373242',data='This is a message for you from Jeffs code')
+    #print sp.sendMessage(receivers=['39335290194','393386611042'],data='This is a message for you from Jeffs code')
     #print sp.sendMessage(receivers=['61411232239'],data='This is a message for you from Jeffs code')
     
     # self.getService('sms').sendsms(receivers='mobile str or list',data=message)
