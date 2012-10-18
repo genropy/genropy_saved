@@ -338,7 +338,7 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def workdate_timestamp(self):
         now = datetime.datetime.now()
-        return datetime(self.workdate.year, self.workdate.month, self.workdate.day, now.hour, now.minute, now.second)
+        return datetime.datetime(self.workdate.year, self.workdate.month, self.workdate.day, now.hour, now.minute, now.second)
 
 
     @public_method
