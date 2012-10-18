@@ -334,6 +334,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.db.workdate = workdate
         
     workdate = property(_get_workdate, _set_workdate)
+    
+    @property
+    def workdate_timestamp(self):
+        now = datetime.now()
+        return datetime(self.workdate.year, self.workdate.month, self.workdate.day, now.hour, now.minute, now.second)
+
 
     @public_method
     def setWorkdate(self,workdate=None):
