@@ -2599,7 +2599,8 @@ class VObjectBag(Bag):
                     counters[vtag]=0
                     label=vtag
                 else:
-                    label=('%s_%s'%(vtag,counters[vtag])).lower()
+                    label=('%s_%s'%(vtag,counters[vtag]))
+                label=label.lower()
                 current.setItem(label,value,vtag=vtag)
                 counters[vtag]=counters[vtag]+1       
                 
