@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+from gnr.core.gnrbag import Bag
 class Table(object):
 
     def config_db(self, pkg):
@@ -17,7 +17,34 @@ class Table(object):
         tbl.column('username',size=':80',name_long='!!Username')
         tbl.column('password',size=':80',name_long='!!Password')
         tbl.column('last_uid',name_long='!!Last UID')
+
+        tbl.column('smtp_host',name_long='!!SMTP host')
+        tbl.column('smtp_from_address',name_long='!!From address')
+        tbl.column('smtp_username',name_long='!!Smtp username')
+        tbl.column('smtp_password',name_long='!!Smtp password')
+        tbl.column('smtp_port',name_long='!!Smtp port',dtype='L')
+        tbl.column('smtp_timeout',name_long='!!Smtp timeout',dtype='L')
+        tbl.column('smtp_tls',name_long='!!Smtp tls',dtype='B')
+        tbl.column('smtp_ssl',name_long='!!Smtp ssl',dtype='B')
+
+        tbl.column('system_bcc',name_long='!!System bcc')
+
+
     
+    def getSmtpAccountPref(self,account):
+        account = self.recordAs(account)
+        mp = Bag()
+        mp['smtp_host'] = account['smtp_host']
+        mp['from_address'] = account['smtp_from_address']
+        mp['user'] = account['smtp_username']
+        mp['password'] = account['smtp_password']
+        mp['port'] = account['smtp_port']
+        mp['ssl'] = account['smtp_ssl']
+        mp['tls'] = account['smtp_tls']
+        mp['system_bcc'] = account['system_bcc']
+
+        return mp
+        
     def standardMailboxes(self):
         return ('Inbox','Outbox','Draft','Trash')
         

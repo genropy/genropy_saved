@@ -304,18 +304,18 @@ class GnrWsgiSite(object):
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(MailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
-        self.addSiteServices()
+        self.services.addSiteServices()
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
             
-    def addSiteServices(self):
-        """TODO"""
-        service_names=[]
-        if 'services' in self.config:
-            service_names=self.config['services'].digest('#k')
-        if service_names:
-            self.services.addSiteServices(service_names=service_names)
+    #def addSiteServices(self):
+    #    """TODO"""
+    #    service_names=[]
+    #    if 'services' in self.config:
+    #        service_names=self.config['services'].digest('#k')
+    #    if service_names:
+    #        self.services.addSiteServices(service_names=service_names)
             
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
@@ -773,6 +773,7 @@ class GnrWsgiSite(object):
     def build_wsgiapp(self):
         """Build the wsgiapp callable wrapping self.dispatcher with WSGI middlewares"""
         wsgiapp = self.dispatcher
+        self.smtp_kwargs = None
         if self.profile:
             from repoze.profile.profiler import AccumulatingProfileMiddleware
             wsgiapp = AccumulatingProfileMiddleware(
@@ -793,6 +794,8 @@ class GnrWsgiSite(object):
             smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
             if 'smtp_use_tls' in smtp_kwargs:
                 smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
+            self.smtp_kwargs = dict(smtp_kwargs)
+            self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
             wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
         return wsgiapp
         

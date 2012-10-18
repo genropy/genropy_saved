@@ -614,9 +614,13 @@ dojo.declare("gnr.GnrBag", null, {
                 vnode = b.getNode(cell);
                 if(vnode){
                     v = vnode._value;
+
                     if(v instanceof gnr.GnrBag){
                         v = v.getFormattedValue(kw,mode);
-                    }else{
+                    }else if(v==null){
+                        v='';
+                    }
+                    else{
                         format = kw[cell];
                         if(format){
                             v = _F(v,format,vnode.attr.dtype);

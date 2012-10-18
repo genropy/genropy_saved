@@ -659,7 +659,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kwargs = {'sync':true,
             'columns':'==gnr.getGridColumns(_destFullpath);',
             'from_fld':params._from_fld, 'target_fld':params._target_fld, 'relation_value':params._relation_value,
-            'sqlContextName':params._sqlContextName,order_by:params.many_order_by};
+            'sqlContextName':params._sqlContextName,order_by:params._many_order_by};
         
         kwargs.method = 'app.getRelatedSelection';
 

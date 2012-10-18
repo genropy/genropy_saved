@@ -22,6 +22,12 @@ class ChatComponent(BaseComponent):
         self.ct_chat_grid(bar.userselect.div(_class='iconbox man',tip='!!Connected users'))
         self.ct_chat_form(frame)
 
+    def btn_chat_plugin(self,pane,**kwargs):
+        """CALLED BY FRAMEDINDEX"""
+        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
+                    connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
+                    nodeId='plugin_block_chat_plugin')
+    
 
     def ct_controller_main(self, pane):
         pane.dataRpc('dummy', 'setStoreSubscription', subscribe_chat_plugin_on=True,

@@ -42,7 +42,8 @@ class ViewSmall(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        bc = form.center.borderContainer()
+        tc = form.center.tabContainer()
+        bc = tc.borderContainer(title='In')
         top = bc.contentPane(region='top',height='50%', datapath='.record')
         bottom = bc.contentPane(region='center')
         fb = top.formbuilder(cols=2,border_spacing='4px')
@@ -63,6 +64,18 @@ class Form(BaseComponent):
 
         bottom.inlineTableHandler(relation='@account_users',viewResource=':ViewFromAccount',picker='user_id',title='!!Users')
         
+        out = tc.contentPane(title='Out',datapath='.record')
+        fb = out.div(padding='10px').formbuilder(cols=2,border_spacing='4px')
+        fb.field('smtp_host')
+        fb.field('smtp_from_address')
+        fb.field('smtp_username')
+        fb.field('smtp_password')
+        fb.field('smtp_port')
+        fb.field('smtp_tls')
+        fb.field('smtp_ssl')
+        fb.field('smtp_timeout')
+        fb.field('system_bcc')
+
     def account_messages(self,bottom):
         th = bottom.dialogTableHandler(relation='@messages',
                                    dialog_height='600px',

@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
 
     @public_method
     def sendsms(self,sms_text=None,sms_from=None,sms_to=None):
-        smsservice = self.site.getService('smsmobyt')
+        smsservice = self.site.getService('sms')
         assert smsservice,'set in siteconfig the service smsmobyt'
         result = smsservice.sendsms(receiver=sms_to,sender=sms_from,data=sms_text)
         print result

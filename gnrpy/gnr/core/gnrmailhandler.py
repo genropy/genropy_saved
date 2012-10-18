@@ -115,7 +115,7 @@ class MailHandler(GnrBaseService):
         self.default_imap_account = name
         
     def get_account_params(self, account=None, from_address=None, smtp_host=None, port=None,
-                           user=None, password=None, ssl=False, tls=False, **kwargs):
+                           user=None, password=None, ssl=False, tls=False,timeout=None, **kwargs):
         """Set the account parameters and return them
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
@@ -136,13 +136,26 @@ class MailHandler(GnrBaseService):
         account = account or self.default_smtp_account
         if account:
             account_params = self.smtp_accounts[account]
-        else:
+        elif smtp_host:
             account_params = dict(smtp_host=smtp_host, port=port, user=user, password=password,
-                                  ssl=ssl, tls=tls, from_address=from_address)
+                                  ssl=ssl, tls=tls, from_address=from_address,timeout=timeout)
+        else:
+            account_params = dict(self.getDefaultMailAccount())
+            account_params['from_address'] = from_address or account_params.get('from_address')
         return account_params
+
+    def getDefaultMailAccount(self):
+        mp = self.parent.getUserPreference('mail', pkg='adm') 
+        if not mp['smtp_host'] and not mp['email_account_id']:
+            mp = self.parent.getPreference('mail', pkg='adm')
+        if not mp['smtp_host'] and not mp['email_account_id']:
+            mp = self.parent.db.application.config.getNode('mail').attr
+        if mp.get('email_account_id'):
+            return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
+        return mp
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
-                            user=None, password=None, ssl=False, tls=False, **kwargs):
+                            user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
         """Get the smtp connection and return it
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
@@ -164,13 +177,13 @@ class MailHandler(GnrBaseService):
         else:
             smtp = getattr(smtplib, 'SMTP')
         if port:
-            smtp_connection = smtp(host=str(smtp_host), port=str(port))
+            smtp_connection = smtp(host=str(smtp_host), port=str(port),timeout=timeout)
         else:
-            smtp_connection = smtp(host=smtp_host)
+            smtp_connection = smtp(host=smtp_host,timeout=timeout)
         if tls:
             smtp_connection.starttls()
         if user:
-            smtp_connection.login(user, password)
+            smtp_connection.login(str(user), str(password))
         return smtp_connection
         
     def handle_addresses(self, from_address=None, to_address=None, multiple_mode=None):
@@ -232,7 +245,10 @@ class MailHandler(GnrBaseService):
         
     def _attachments(self, msg, attachments):
         for attachment_path in attachments:
-            mime_type = mimetypes.guess_type(attachment_path)[0]
+            if isinstance(attachment_path,tuple):
+                attachment_path,mime_type = attachment_path
+            else:
+                mime_type = mimetypes.guess_type(attachment_path)[0]
             mime_family, mime_subtype = mime_type.split('/')
             attachment_file = open(attachment_path, 'rb')
             email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
@@ -240,7 +256,7 @@ class MailHandler(GnrBaseService):
             msg.attach(email_attachment)
             attachment_file.close()
         
-    def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None,
+    def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, reply_to=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,
                           smtp_host=None, port=None, user=None, password=None,
                           ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
@@ -288,16 +304,17 @@ class MailHandler(GnrBaseService):
         cc_address = cc_address or get_templated('cc_address')
         bcc_address = bcc_address or get_templated('bcc_address')
         from_address = from_address or get_templated('from_address')
+        reply_to = reply_to or get_templated('reply_to')
         subject = subject or get_templated('subject')
         body = body or get_templated('body')
         body = templateReplace(body, datasource)
-        self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, bcc_address=bcc_address,
+        self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
                       attachments=attachments, account=account,
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
                       ssl=ssl, tls=tls, html=html, charset=charset, async=async)
                       
-    def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, bcc_address=None, attachments=None,
-                 account=None,
+    def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
+                 account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async=False, 
                  cb=None, cb_args=None, cb_kwargs=None, **kwargs):
@@ -332,11 +349,13 @@ class MailHandler(GnrBaseService):
                       is returned immediately to the calling function"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
-                                                 tls=tls)
+                                                 tls=tls,timeout=timeout)
         from_address = account_params['from_address']
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        if reply_to:
+            msg.add_header('reply-to', reply_to)
         if  type(cc_address).__name__ in ['list', 'tuple']:
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
@@ -345,6 +364,12 @@ class MailHandler(GnrBaseService):
         #    msg['Bcc'] = bcc_address and ','.join(bcc_address)
         #else:
         #    msg['Bcc'] = bcc_address
+        system_bcc = account_params.pop('system_bcc',None)
+        if system_bcc:
+            bcc_address = bcc_address or []
+            bcc_address.append(system_bcc)
+            bcc_address = ','.join(bcc_address)
+
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async:
@@ -379,7 +404,7 @@ class MailHandler(GnrBaseService):
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
                       from_address=None, smtp_host=None, port=None, user=None, password=None,
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
-                      async=False):
+                      async=False,timeout=None):
         """TODO
         
         :param to_address: the email receiver
@@ -410,9 +435,10 @@ class MailHandler(GnrBaseService):
                               * ``to, To, TO`` - a mail sent to all recipient in to field
                               * ``bcc, Bcc, BCC`` - a mail sent to ourself with all recipient in bcc address
                               
-        :param charset: a different charser may be defined by its standard name"""
+        :param charset: a differnet charser may be defined by its standard name"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
+                                                 timeout=timeout,
                                                  tls=tls)
         smtp_connection = self.get_smtp_connection(**account_params)
         to, cc, bcc = self.handle_addresses(from_address=account_params['from_address'],

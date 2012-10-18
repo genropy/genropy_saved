@@ -36,7 +36,27 @@ class ServiceHandlerManager(object):
     def service_name(self, service):
         return getattr(service,'service_name', service.__name__.lower())
 
-    def addSiteServices(self, service_names=None):
+    def addSiteServices(self):
+        services = self.site.config['services']
+        if not services:
+            return
+        for service in services:
+            kw = dict(service.attr)
+            resource = kw.pop('resource')
+            service_name = service.label
+            resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
+            modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_name,resmodule))
+            assert modules,'Missing module %s for service %s '  %(resmodule,service_name)    
+            module = modules[0]
+            try:
+                module = gnrImport(module)
+                service_class = getattr(module,resclass)
+                self.add(service_class,service_name=service_name,**kw)
+            except ImportError, import_error:
+                log.exception("Could not import %s"%module)
+                log.exception(str(import_error))
+
+    def addSiteServices_old(self, service_names=None):
         service_list = []
         if isinstance(service_names, basestring):
             service_names = service_names.replace(';',',').split(',')

@@ -268,7 +268,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
             genro.setData(kw.valuepath,newmain.getItem('mv_value'));
             sourceNode.domNode.innerHTML = this.multivalueHtmlFromData(data);
         }
-    },
+    }
 
 
 });

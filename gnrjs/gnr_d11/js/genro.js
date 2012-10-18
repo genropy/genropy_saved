@@ -598,6 +598,11 @@ dojo.declare('gnr.GenroClient', null, {
         return genro._('gnr.user_preference.'+pref);
     },
 
+    appPreference:function(pref){
+        return genro._('gnr.app_preference.'+pref);
+    },
+
+
     chat:function(){
         return this.mainGenroWindow.ct_chat_utils;
     },

@@ -210,7 +210,7 @@ class FrameIndex(BaseComponent):
                                subscribe__menutree__selected=True)
                        
     def prepareLeft(self,pane):
-        pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
+        pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
                                     margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins))
         bc = pane.borderContainer()
         
@@ -239,28 +239,6 @@ class FrameIndex(BaseComponent):
                  connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                  nodeId='plugin_block_iframemenu_plugin')
                  
-    def btn_batch_monitor(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tip='!!Batch monitor',
-                 connect_onclick="""genro.publish('open_batch');""",
-                 nodeId='plugin_block_batch_monitor')
-        pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
-        
-    def btn_chat_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
-                    connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
-                    nodeId='plugin_block_chat_plugin')
-    
-    def btn_datamover(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='case',tip='!!Mover plug-in',
-                    connect_onclick="""SET left.selected='datamover';PUBLISH gnrdatamover_loadCurrent;genro.getFrameNode('standard_index').publish('showLeft');""",
-                    nodeId='plugin_block_datamover')
-
-    def btn_maintenance(self,pane,**kwargs):
-        if 'admin' in self.userTags:
-            pane.div(_class='button_block iframetab').div(_class='gear',tip='!!Maintenance',
-                        connect_onclick="""SET left.selected='maintenance';genro.getFrameNode('standard_index').publish('showLeft');""",
-                        nodeId='plugin_block_maintenance')
-                    
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',
                                                       connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
@@ -327,7 +305,7 @@ class FramedIndexLogin(BaseComponent):
                                     currenv.update(newenv);
                                     SET gnr.rootenv = currenv;
                                     SET gnr.avatar = result.getItem('avatar');
-                                """,sync=True)
+                                """,sync=True,_POST=True)
             rpcmethod = self.login_doLogin    
         
         fb.dateTextBox(value='^.workdate',lbl='!!Workdate')
@@ -373,7 +351,7 @@ class FramedIndexLogin(BaseComponent):
                 sc.switchPage('dashboard');
                 genro.publish('logged');
             }
-        })
+        },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  

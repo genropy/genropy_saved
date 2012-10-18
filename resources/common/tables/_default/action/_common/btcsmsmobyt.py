@@ -21,7 +21,7 @@ class Main(BaseResourceBatch):
 
     def __init__(self, *args, **kwargs):
         super(BaseResourceBatch, self).__init__(**kwargs)
-        self.sms_handler = self.page.getService('smsmobyt')
+        self.sms_handler = self.page.getService('sms')
         self.sms_preference = self.page.getUserPreference('sms', pkg='adm') or Bag(
                 self.page.application.config.getNode('sms').attr)
 

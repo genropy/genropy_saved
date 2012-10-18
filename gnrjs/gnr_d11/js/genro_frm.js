@@ -713,6 +713,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     saveKeptData:function(){
         var keptData = this.keptData || {};
         var currdata = this.getFormData();
+        this.keptData = null;
+        if(!currdata){
+            return;
+        }
         currdata.forEach(function(n){
             if(n.attr._keep==true){
                 keptData[n.label] = n._value;
@@ -722,8 +726,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         },'static');
         if(objectNotEmpty(keptData)){
             this.keptData = keptData;
-        }else{
-            this.keptData = null;
         }
     },
     
@@ -1497,8 +1499,10 @@ dojo.declare("gnr.formstores.Base", null, {
         for (k in kw){
             this[k] = kw[k];
         }
-        this.onSaved = this.onSaved == null ? 'reload':this.onSaved;
-        
+        if(!this.onSaved){
+            var handler_onSaved = this.handlers.save.kw.onSaved;
+            this.onSaved = handler_onSaved==null? 'reload':handler_onSaved;
+        }        
     },
     
     init:function(form){

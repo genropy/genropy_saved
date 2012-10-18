@@ -5212,7 +5212,12 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         for (var sel in selattr) {
             var path = this.sourceNode.attrDatapath('selected_' + sel);
             val = row[sel];
-            this.sourceNode.setRelativeData(path, val, null, false, 'selected_');
+            if(this.sourceNode._selectedSetter){
+                this.sourceNode._selectedSetter(path, val);
+            }
+            else{
+                this.sourceNode.setRelativeData(path, val, null, false, 'selected_');
+            }
         }
         if(this.sourceNode._selectedCb){
             this.sourceNode._selectedCb(item);
@@ -5467,6 +5472,10 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         var selectedCb = objectPop(attributes,'selectedCb');
         if(selectedCb){
             sourceNode._selectedCb = funcCreate(selectedCb,'item',sourceNode);
+        }
+        var selectedSetter = objectPop(attributes,'selectedSetter');
+        if(selectedSetter){
+            sourceNode._selectedSetter = funcCreate(selectedSetter,'path,value',sourceNode);
         }
         if (objectNotEmpty(selectedColumns)) {
             var hiddenColumns;
