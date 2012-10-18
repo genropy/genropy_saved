@@ -4,6 +4,7 @@
 import email, imaplib,datetime
 from gnr.core.gnrlang import getUuid
 import chardet
+import StringIO
 detach_dir = '.'
 import os
 wait = 600
@@ -77,10 +78,13 @@ class ImapReceiver(object):
         if not filename:
             filename = 'part-%03d%s' % (counter, 'bin')
             counter += 1
-        att_data = part.get_payload(decode=True)
+        if part.get_content_type().startswith('message/'):
+            att_data = self.getMessagePayload(part)
+        else:
+            att_data = part.get_payload(decode=True)
         new_attachment['filename'] = filename
         date = new_mail['send_date']
-        attachment_path =  self.atc_getAttachmentPath(date,filename)
+        attachment_path =  self.getAttachmentPath(date,filename)
         year = str(date.year)
         month = '%02i' %date.month
         new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
@@ -88,7 +92,13 @@ class ImapReceiver(object):
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
     
-    def atc_getAttachmentPath(self,date,filename):
+    def getMessagePayload(self,part):
+        fp = StringIO.StringIO()
+        g = email.generator.Generator(fp, mangle_from_=False)
+        g.flatten(part, unixfrom=False)
+        return fp.getvalue()
+
+    def getAttachmentPath(self,date,filename):
         year = str(date.year)
         month = '%02i' %date.month
         return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
@@ -114,7 +124,8 @@ class ImapReceiver(object):
                 part_content_type = part.get_content_type()
                 if part_content_type.startswith('multipart'):
                     continue
-                if part.get('Content-Disposition') is None: 
+                content_disposition = part.get('Content-Disposition')
+                if content_disposition is None: 
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
