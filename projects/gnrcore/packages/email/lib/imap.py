@@ -39,15 +39,18 @@ class ImapReceiver(object):
             searchString = '(ALL)'
         resp, items = self.imap.uid('search',None, searchString)
         items = items[0].split()
+        if not items:
+            return
         if self.last_uid:
             items = items[1:]
         for emailid in items:
             msgrec = self.createMessageRecord(emailid)
+            if not msgrec:
+                continue
             msgrec['mailbox_id'] = mailbox_id
             self.messages_table.insert(msgrec)
-        if items:
-            self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
-            self.db.commit()
+        self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
+        self.db.commit()
     
     def fillHeaders(self, mail, new_mail):
         new_mail['from_address'] = unicode(mail['From'])
@@ -68,7 +71,7 @@ class ImapReceiver(object):
         elif part_content_type == 'text/plain':
             content = part.get_payload(decode=True)
             #encoding = chardet.detect(content)['encoding']
-            encoding = part.get_content_charset()
+            encoding = part.get_content_charset() or 'utf8'
             new_mail['body_plain'] = unicode(content.decode(encoding).encode('utf8'))
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
@@ -104,7 +107,6 @@ class ImapReceiver(object):
         return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
                                                        autocreate=-1)
         
-        
     def createMessageRecord(self, emailid):
         new_mail = dict(account_id=self.account_id)
         new_mail['id'] = getUuid()
@@ -112,6 +114,13 @@ class ImapReceiver(object):
         resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
         email_body = data[0][1]
         mail = email.message_from_string(email_body)
+        onCreatingCallbacs = [fname for fname in dir(self.messages_table) if fname.startswith('onCreatingMessage_')]
+        if onCreatingCallbacs:
+            make_message = False
+            for fname in onCreatingCallbacs:
+                make_message = make_message or getattr(self.messages_table,fname)(mail) is not False
+            if make_message is False:
+                return False
         self.fillHeaders(mail, new_mail)
         if mail.get_content_maintype() != 'multipart':
             content = mail.get_payload(decode=True)
@@ -131,7 +140,6 @@ class ImapReceiver(object):
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if not new_mail.get('body'):
             new_mail['body'] = new_mail.get('body_plain')
-        
         return new_mail
             
 if __name__=='__main__':

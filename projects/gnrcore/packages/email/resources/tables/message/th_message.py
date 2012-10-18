@@ -14,7 +14,7 @@ class View(BaseComponent):
         r.fieldcell('cc_address',width='7em')
         r.fieldcell('bcc_address',width='7em')
         r.fieldcell('uid',width='7em')
-        r.fieldcell('body',width='7em')
+       # r.fieldcell('body',width='7em')
         r.fieldcell('body_plain',width='7em')
         r.fieldcell('html',width='7em')
         r.fieldcell('subject',width='7em')
@@ -64,20 +64,20 @@ class ViewFromDashboard(View):
 
 class Form(BaseComponent):
     def th_form(self, form):
-        fb = form.record.formbuilder(cols=2,border_spacing='3px')
-        fb.field('to_address',width='7em')
-        fb.field('from_address',width='7em')
-        fb.field('cc_address',width='7em')
-        fb.field('bcc_address',width='7em')
-        fb.field('uid',width='7em')
-        fb.field('body',width='7em')
-        fb.field('body_plain',width='7em')
-        fb.field('html',width='7em')
-        fb.field('subject',width='7em')
-        fb.field('send_date',width='7em')
-        fb.field('sent',width='7em')
-        fb.field('user_id',width='35em')
-        fb.field('account_id',width='35em')
+        fb = form.record.formbuilder(cols=1,border_spacing='3px',fld_width='100%',width='100%',tdl_width='5em')
+        fb.field('to_address')
+        fb.field('from_address')
+        fb.field('cc_address')
+        fb.field('bcc_address')
+        fb.field('uid')
+        fb.field('body')
+        fb.field('body_plain')
+        fb.field('html')
+        fb.field('subject')
+        fb.field('send_date')
+        fb.field('sent')
+        fb.field('user_id')
+        fb.field('account_id')
 
 class FormFromDashboard(Form):
 

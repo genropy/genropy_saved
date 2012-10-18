@@ -99,5 +99,5 @@ class Table(object):
         subject = subject or get_templated('subject')
         body = body or get_templated('body')
         body = templateReplace(body, datasource) if datasource else body
-        
+
     
