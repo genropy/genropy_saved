@@ -48,6 +48,7 @@ class AppPref(object):
         fb.textbox(value='^.port', lbl='Port', disabled='^.email_account_id')
         fb.checkbox(value='^.tls', lbl='TLS', dtype='B', disabled='^.email_account_id')
         fb.checkbox(value='^.ssl', lbl='SSL', dtype='B', disabled='^.email_account_id')
+        fb.checkbox(value='^.system_bcc', lbl='System bcc',disabled='^.email_account_id')
 
 
     def _pr_instance_data(self, pane):
