@@ -14,7 +14,7 @@ class TableScriptHandlerCaller(BaseComponent):
     def onMain_table_script_caller(self):
         if self.root_page_id and not ('table_script_caller' in self._register_nodeId):
             self.pageSource().dataController("""
-                                        var kw = table_script_run[0];
+                                        var kw = objectUpdate({},_subscription_kwargs);
                                         kw['sourcepage_id'] = page_id;
                                         genro.mainGenroWindow.genro.publish("table_script_run",kw);
                                     """, 
@@ -144,9 +144,7 @@ class TableScriptHandler(BaseComponent):
                             dlgpars.hide();
                             dlgoptions.hide();
                             SET #table_script_runner.parameters=pars;
-                            console.log('after confirm')
                             if (immediate){
-                                console.log('IMMEDIATE',immediate)
                                 genro.dom.setClass(dojo.body(),'runningBatch',true);
                             }else{
                                 var modifier = _node.attr.modifier;
@@ -260,7 +258,6 @@ class TableScriptRunner(TableScriptHandler):
         pane.dataController("""
                             var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
                             var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
-                            console.log(pars);
                             PUBLISH table_script_run=pars;""",
                             _fired="^.run_table_script", selectionName=selectionName, table=table,
                             gridId=gridId, res_type=res_type, resource='=.resource')
@@ -268,7 +265,7 @@ class TableScriptRunner(TableScriptHandler):
     
     def table_script_controllers(self,page):
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
-        plugin_main.dataController(""" var params = table_script_run[0];
+        plugin_main.dataController(""" var params = objectUpdate({},_subscription_kwargs);
                                        SET .res_type= objectPop(params,'res_type');
                                        SET .table =  objectPop(params,'table');
                                        SET .resource =  objectPop(params,'resource');
@@ -293,9 +290,7 @@ class TableScriptRunner(TableScriptHandler):
                                        for(var k in params){
                                             extra_parameters.setItem(k,params[k]);
                                        }
-                                       if(extra_parameters.len()>0){
-                                            SET .extra_parameters = extra_parameters;
-                                       }
+                                       SET .extra_parameters = extra_parameters.len()==0?null: extra_parameters;
                                        FIRE .build_pars_dialog;
                                     """, subscribe_table_script_run=True)
 
