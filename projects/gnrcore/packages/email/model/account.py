@@ -33,10 +33,10 @@ class Table(object):
     
     def getSmtpAccountPref(self,account=None,account_name=None):
         if account:
-            account = self.recordAs(account)
+            account = self.recordAs(account,mode='dict')
         elif account_name:
             account = self.record(where='$account_name=:an',an=account_name).output('dict')
-        mp = Bag()
+        mp = dict()
         mp['smtp_host'] = account['smtp_host']
         mp['from_address'] = account['smtp_from_address']
         mp['user'] = account['smtp_username']

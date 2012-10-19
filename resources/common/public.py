@@ -233,6 +233,8 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
+
+
     def mainLeftContent(self,pane,**kwargs):
         return
     
