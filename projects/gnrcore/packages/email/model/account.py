@@ -45,7 +45,6 @@ class Table(object):
         mp['ssl'] = account['smtp_ssl']
         mp['tls'] = account['smtp_tls']
         mp['system_bcc'] = account['system_bcc']
-
         return mp
         
     def standardMailboxes(self):
