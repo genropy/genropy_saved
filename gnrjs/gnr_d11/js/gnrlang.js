@@ -203,7 +203,7 @@ function dataTemplate(str, data, path, showAlways) {
 
     }
     var auxattr = {};
-    var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
+    var regexpr = /\$(\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
     var result;
     var is_empty = true;
     var has_field = false;
