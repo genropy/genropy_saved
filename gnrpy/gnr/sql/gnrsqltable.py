@@ -593,7 +593,7 @@ class SqlTable(GnrObject):
         if not 'where' in kwargs and _pkeys:
             kwargs['where'] = '$%s IN :_pkeys' %self.pkey
             if isinstance(_pkeys,basestring):
-                _pkeys = _pkeys.split(',')
+                _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:

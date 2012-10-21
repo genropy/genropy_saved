@@ -2475,7 +2475,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 //var currSet = userSets.getItem(cellname);
                 var currSet = sourceNode.getRelativeData(sourceNode.attr.userSets+'.'+cellname);
                 if(currSet){
-                    return currSet.indexOf(','+row['_pkey']+',')>=0;
+                    return currSet.match(new RegExp('(^|,)'+row._pkey+'($|,)'))!=null;
                 }else{
                     return false;
                 }
@@ -4907,10 +4907,13 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         dojo.stopEvent(e);
         var changeset=function(currSet,elements,ischecked){
             dojo.forEach(elements,function(element){
+                var m = currSet.match(new RegExp('(^|,)'+element+'($|,)'));
                 if(ischecked){
-                    currSet = currSet.replace((','+element+','),',');
-                }else{
-                    currSet+=(element+',');
+                    if(m){
+                        currSet = currSet.replace(m[0],(m[1]+m[2])==',,'?',':'');
+                    }
+                }else if(!m){
+                    currSet = currSet?currSet+','+element:element;
                 }
             });
             return currSet;
@@ -4921,10 +4924,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var store = this.collectionStore();
         var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
-        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || ',';
+        var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || '';
+
         //currSet = ','+currSet+',';
         var checkedElement = node.attr[kw['checkedField']];
-        var ischecked = currSet.indexOf(','+checkedElement+',')>=0;
+        var ischecked = currSet.match(new RegExp('(^|,)'+checkedElement+'($|,)'))!=null;
         var pkeys;
         if(modifiers=='Shift'){
             pkeys = this.getAllPkeys();   
