@@ -6,7 +6,7 @@ class Table(object):
         tbl =  pkg.table('account', rowcaption='$account_name', caption_field='account_name',
                             pkey='id', name_long='!!Account', name_plural='!!Account')
         self.sysFields(tbl)
-        tbl.column('account_name',name_long='!!Account Name')
+        tbl.column('account_name',name_long='!!Account Name',unique=True)
         tbl.column('address',name_long='!!Address')
         tbl.column('full_name',size=':80',name_long='!!Full Name')
         tbl.column('host',size=':80',name_long='!!Host')
@@ -31,9 +31,12 @@ class Table(object):
 
 
     
-    def getSmtpAccountPref(self,account):
-        account = self.recordAs(account)
-        mp = Bag()
+    def getSmtpAccountPref(self,account=None,account_name=None):
+        if account:
+            account = self.recordAs(account,mode='dict')
+        elif account_name:
+            account = self.record(where='$account_name=:an',an=account_name).output('dict')
+        mp = dict()
         mp['smtp_host'] = account['smtp_host']
         mp['from_address'] = account['smtp_from_address']
         mp['user'] = account['smtp_username']
@@ -42,7 +45,6 @@ class Table(object):
         mp['ssl'] = account['smtp_ssl']
         mp['tls'] = account['smtp_tls']
         mp['system_bcc'] = account['system_bcc']
-
         return mp
         
     def standardMailboxes(self):

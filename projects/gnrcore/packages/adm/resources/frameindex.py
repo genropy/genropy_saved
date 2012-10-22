@@ -233,12 +233,8 @@ class FrameIndex(BaseComponent):
             sc.dataController("""PUBLISH main_left_set_status = true;
                                  SET .selected=plugin;
                                  """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-    
-    def btn_iframemenu_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tip='!!Menu',
-                 connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
-                 nodeId='plugin_block_iframemenu_plugin')
-                 
+
+
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',
                                                       connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")

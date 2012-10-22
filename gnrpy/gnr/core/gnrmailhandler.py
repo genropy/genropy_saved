@@ -25,12 +25,15 @@ from email.mime.text import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
+from email.utils import formatdate
 import re, htmlentitydefs
 import mimetypes
 from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrstring import templateReplace
 import thread
 import os
+import datetime
+import time
 
 mimetypes.init() # Required for python 2.6 (fixes a multithread bug)
 TAG_SELECTOR = '<[^>]*>'
@@ -315,8 +318,8 @@ class MailHandler(GnrBaseService):
                       
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,timeout=None,
-                 from_address=None, smtp_host=None, port=None, user=None, password=None,
-                 ssl=False, tls=False, html=False, charset='utf-8', async=False, 
+                 from_address=None, smtp_host=None, port=None, user=None, password=None,message_id=None,message_date=None,
+                 ssl=False, tls=False, html=False, charset='utf-8', async=False,
                  cb=None, cb_args=None, cb_kwargs=None, **kwargs):
         """Send mail is a function called from the postoffice object to send an email.
         
@@ -354,8 +357,17 @@ class MailHandler(GnrBaseService):
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        message_date = message_date or datetime.datetime.now()
+        if isinstance(message_date,datetime.datetime):
+            message_date = formatdate(time.mktime(message_date.timetuple()))
+        msg['Date'] = message_date
         if reply_to:
             msg.add_header('reply-to', reply_to)
+        if message_id:
+            domain = from_address.split('@')[1]
+            unique ='%012i' %int(time.time())
+            message_id = "<%s_%s@%s>" %(message_id,unique,domain)
+            msg['Message-ID'] = message_id
         if  type(cc_address).__name__ in ['list', 'tuple']:
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:

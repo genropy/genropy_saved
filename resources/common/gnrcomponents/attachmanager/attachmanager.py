@@ -85,8 +85,21 @@ class AttachManagerView(BaseComponent):
 
 
 class Form(BaseComponent):
-    pass
+    def th_form(self, form):
+        form.center.contentPane(datapath='.record',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',width='100%',border='0px')
 
+    def th_options(self):
+        return dict(showtoolbar=False,showfooter=False)
+
+class ViewPalette(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('description',width='100%',name='!!Attachment')
+    def th_view(self,view):
+        view.top.popNode('bar')
+
+class FormPalette(Form):
+    pass
 
 class AttachManager(BaseComponent):
     js_requires='gnrcomponents/attachmanager/attachmanager'

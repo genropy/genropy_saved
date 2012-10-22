@@ -5,8 +5,6 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 
-from gnr.core.gnrdict import dictExtract
-
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
     
