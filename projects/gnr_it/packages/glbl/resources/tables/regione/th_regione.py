@@ -41,9 +41,7 @@ class FormConProvince(BaseComponent):
         fb.field('zona')
         fb.checkbox(value='^piero')
 
-        th = bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                               viewResource=':EditableView',autoSave=True,searchOn=False ,
-                                                                )
+        bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',viewResource=':EditableView',searchOn=False)
                                                                 
 class View(BaseComponent):
     
