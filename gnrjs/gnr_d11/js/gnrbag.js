@@ -274,6 +274,11 @@ dojo.declare("gnr.GnrBagNode", null, {
             this._onChangedValue(this, value, oldvalue);
         }
         if (this._parentbag && this._parentbag._backref) {
+            if (oldvalue!==value){
+                if(isBag(oldvalue)){
+                    oldvalue.clearBackRef();
+                }
+            }
             if (isBag(value)) {
                 value.setBackRef(this, this._parentbag);
             }
@@ -1381,7 +1386,7 @@ dojo.declare("gnr.GnrBag", null, {
         }
         var that = this;
         dojo.forEach(b._nodes,function(n){
-            n._parentbag = that;
+            n.setParentBag(that);
             that._nodes.push(n);
         });
     },
