@@ -2170,12 +2170,17 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
      },*/
     creating: function(attributes, sourceNode) {
         objectPop(attributes,'multivalue');
+        objectPop(attributes,'multivalueCb');
+
         attributes.trim = (attributes.trim == false) ? false : true;
         return {};
     },
     onBuilding:function(sourceNode){
         var attr = sourceNode.attr;
-        var multivalue = attr.multivalue;
+        var multivalue = attr.multivalue || attr.multivalueCb;
+        if(attr.multivalueCb){
+            sourceNode._getMultiValue = funcCreate('return '+attr.multivalueCb,null,sourceNode);
+        }
         if(multivalue){     
             sourceNode.freeze();
             sourceNode._('tooltipMultivalue',{});

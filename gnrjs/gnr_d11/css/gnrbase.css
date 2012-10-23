@@ -2237,7 +2237,7 @@ body *{
 }
 
 
-.tundra .dijitTextBoxFocused .formattedTextBox input{
+.tundra .dijitTextBoxFocused .formattedTextBox input, .tundra .dijitTextBoxActive .formattedTextBox input{
     min-width:90% !important;
     opacity:1;
 }
@@ -2245,7 +2245,7 @@ body *{
     white-space: nowrap;
 }
 
-.tundra .dijitTextBoxFocused .formattedViewer{
+.tundra .dijitTextBoxFocused .formattedViewer, .tundra .dijitTextBoxActive .formattedViewer{
     display:none;
 }
 
