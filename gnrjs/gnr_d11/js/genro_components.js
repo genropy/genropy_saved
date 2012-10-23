@@ -1636,7 +1636,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             slotKw = objectExtract(kw,slot+'_*');
             if(slotKw.width){
-                console.log('zumbo')
                 cell.getParentNode().attr['width'] = slotKw.width;
                 slotKw.width = '100%';
             }

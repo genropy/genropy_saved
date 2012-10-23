@@ -623,8 +623,27 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     clearClipboard:function(){
         this.getControllerData().setItem('clipboard',new gnr.GnrBag());
     },
-
+    checkPendingGridEditor:function(){
+        var pendingEditor;
+        for(var k in this.gridEditors){
+            if(this.gridEditors[k]._exitCellTimeout){
+                pendingEditor = this.gridEditors[k];
+                break;
+            }
+        }
+        return pendingEditor;
+        
+    },
     save: function(kw,modifiers) {
+        var pendingEditor = this.checkPendingGridEditor(kw,modifiers);
+        if(pendingEditor){
+            var that = this;
+            this.sourceNode.watch('pendingEditor',function(){return pendingEditor._exitCellTimeout==null;},
+                                    function(){
+                                        that.save(kw,modifiers);
+                                    });
+            return;
+        }
         var kw = kw || {};
         var always;
         if (typeof(kw)=='object'){
@@ -653,6 +672,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return false;
         }
     },
+
     do_save:function(kw){
         var destPkey = kw.destPkey;
         this.setOpStatus('saving');

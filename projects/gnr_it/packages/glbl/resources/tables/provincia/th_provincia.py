@@ -38,8 +38,8 @@ class View(BaseComponent):
 class EditableView(View):    
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('regione',edit=dict(selected_nome='.nome',tag='dbselect',dbtable='glbl.regione'))
-        r.fieldcell('@regione.nome')
+        #r.fieldcell('regione',edit=dict(selected_nome='.nome',tag='dbselect',dbtable='glbl.regione'))
+        #r.fieldcell('@regione.nome')
         r.fieldcell('nome', width='20em',edit=True,name='Nome')
         r.fieldcell('sigla',width='3em',edit=True)
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)

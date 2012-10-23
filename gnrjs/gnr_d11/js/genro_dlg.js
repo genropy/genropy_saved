@@ -497,11 +497,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         //paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         var palette = node._('palettePane',paletteCode,paletteAttr);
+        var paletteNode = palette.getParentNode();
         var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
             var palette_height = this._genro.getData('gnr.rootform.size.height');
             var palette_width = this._genro.getData('gnr.rootform.size.width');
-            var wdg = palette.getParentNode().getWidget();
+            var wdg = paletteNode.getWidget();
             wdg.setBoxAttributes({height:palette_height,width:palette_width});
             this._genro._rootForm.subscribe('onDismissed',function(){wdg.hide();})
             this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
