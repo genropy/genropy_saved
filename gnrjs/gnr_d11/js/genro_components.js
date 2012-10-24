@@ -19,7 +19,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         }
         sourceNode.freeze();
         var children = sourceNode.getValue();
-        sourceNode.clearValue();
+        sourceNode._value = null; // remove content that will be used in the inner construction
         var content = this.createContent(sourceNode, contentKwargs,children);
         genro.assert(content,'create content must return');
         content.concat(children);
