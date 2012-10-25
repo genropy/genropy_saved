@@ -1426,8 +1426,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.watches[watchId] = setInterval(
                 function(){
                     if (conditionCb()){
-                        clearInterval(that.watches[watchId]);
-                        that.watches[watchId] =null;
+                        var timer = that.watches[watchId];
+                        if(timer){
+                            that.watches[watchId] =null;
+                            clearInterval(timer);
+                        }
                         action();
                     }
             },delay);
