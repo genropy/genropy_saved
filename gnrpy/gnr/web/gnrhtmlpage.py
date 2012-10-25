@@ -58,7 +58,7 @@ class GnrHtmlPage(GnrWebPage):
             self.theme = kwargs.pop('pagetemplate')
         js_requires = getattr(self, 'js_requires', [])
         for js_require in js_requires:
-             urls =self.getResourceExternalUriList(js_require,'js') or []
+             urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
              for url in urls:
                 self.body.script(src=url)
         css_import_statements_list=[]
