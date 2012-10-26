@@ -359,7 +359,7 @@ class TableHandlerView(BaseComponent):
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
                                currentFilter = '=.query.currentFilter',
-                               #currSelectedBag = '.query.currSelectedBag',
+                               prevSelectedDict = '=.query.prevSelectedDict',
                                unlinkdict=unlinkdict,
                                userSets='.sets',
                                _onCalling=""" 
@@ -413,6 +413,7 @@ class TableHandlerView(BaseComponent):
                 this.fireEvent('.runQuery');
             }
             """,th_root_code=inattr['th_root'],iconClass='iconbox bulb_off')
+        
         pane.dataController("""
             var highlighted = genro.wdgById(th_root_code+'_grid').getSelectedPkeys();
             if(highlighted.length>0){

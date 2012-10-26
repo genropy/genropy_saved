@@ -2516,6 +2516,16 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.rowtotal = resultattr.rowcount;
         this.totalRowCount = resultattr.totalRowCount;
         this.selectionName = resultattr.selectionName;
+        if(resultattr.prevSelectedIdx){
+            var pagetoload = {};
+            var cs = this.chunkSize;
+            dojo.forEach(resultattr.prevSelectedIdx,function(idx){
+                pagetoload[(idx - idx % cs) / cs]=true;
+            });
+            for(var page in pagetoload){
+                this.loadBagPageFromServer(page,true,data);
+            }
+        }
         this.storeNode.setRelativeData(this.storepath,data,resultattr);
         return result;
     },
@@ -2526,15 +2536,14 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             dojo.forEach(changelist,function(n){
                 that.externalChangedKeys[n.pkey] = true;
             });
-           //var prevSelected = {};
-           //dojo.forEach(this.linkedGrids(),function(grid){
-           //    var ps = [];
-           //    dojo.forEach(grid.selection.getSelected(), function(idx) {
-           //        ps.push(grid.rowIdByIndex(idx));
-           //    });
-           //    prevSelected[grid.sourceNode.attr.nodeId] = ps;
-           //});
-
+            var prevSelected = {};
+            dojo.forEach(this.linkedGrids(),function(grid){
+                dojo.forEach(grid.selection.getSelected(), function(idx) {
+                    prevSelected[grid.rowIdByIndex(idx)] = true;
+                });
+                grid.selectionKeeper('save');
+            });
+            this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
             this.storeNode.fireNode();
         }
     },
@@ -2669,8 +2678,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         return data;
     },
 
-    loadBagPageFromServer:function(pageIdx,sync) {
-        console.log('loadBagPageFromServer components',pageIdx,sync)
+    loadBagPageFromServer:function(pageIdx,sync,buffer) {
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;
@@ -2685,7 +2693,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             null,
             sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){
-            return this.onChunkLoaded(result,pageIdx);
+            if(buffer){
+                buffer.setItem('P_' + pageIdx, result.getValue());
+            }else{
+                return this.onChunkLoaded(result,pageIdx);
+            }
         }else{
             this.pendingPages[pageIdx] = result;
         }
@@ -2718,7 +2730,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             for(var i = 0; i< n; i++){
                 var k_i = backward?n-i:i;
                 if(cb(grid.rowFromBagNode(rowNodes[i],this.externalChangedKeys))){
-                    return k_p*this.chunkSize+k_i;
+                    return parseInt(pages[k_p].label.slice(2))*this.chunkSize+k_i;
                 }
             }
         }

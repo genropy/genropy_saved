@@ -39,7 +39,6 @@ gnr.setOrConnectCb = function(widget, name, cb) {
 
 gnr.getGridColumns = function(storeNode) {
     var storeNodeId,destFullpath;
-    
     if(typeof(storeNode)=='string'){
         destFullpath=storeNode;
         console.warn('*DEPRECATION* gnr.getGridColumns with storeNode as string')
@@ -52,7 +51,7 @@ gnr.getGridColumns = function(storeNode) {
         if(n.widget && n.widget.selectionKeeper){
             storeCode = n.attr.store || n.attr.nodeId;
             if((storeCode+'_store'==storeNodeId)||(destFullpath == n.widget.absStorepath())){
-                n.widget.selectionKeeper('save');
+                //n.widget.selectionKeeper('save');
                 var cols = n.widget.query_columns.split(',');
                 dojo.forEach(cols,function(c){
                     columns[c] = c;
@@ -68,7 +67,6 @@ gnr.getGridColumns = function(storeNode) {
     if(storeNodeId){
         storeNode._currentColumns=result;
     }
-    
     return result;
 };
 gnr.columnsFromStruct = function(struct, columns) {
@@ -2512,6 +2510,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.setDraggable_row(true, view);
         }
     },
+
     created_common:function(widget, savedAttrs, sourceNode) {
         var nodeId = sourceNode.attr.nodeId;
         var gridContent = sourceNode.getValue();
@@ -2621,6 +2620,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         });
 
     },
+
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
         var countBoxNode = genro.nodeById(countBoxCode);
@@ -3999,7 +3999,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.reload(true);
     },
-    
+
     mixin_selectionKeeper:function(flag) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
@@ -4009,16 +4009,16 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                 prevSelectedIdentifiers.push(that.rowIdByIndex(idx));
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
-            this.prevScrollTop = this.scrollTop;
+            this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
         } else if (flag == 'load') {
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
                 this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
                 this.prevSelectedIdentifiers = null;
-                if (this.prevScrollTop) {
-                    this.setScrollTop(this.prevScrollTop);
-                    this.prevScrollTop = null;
+                if (this.prevFirstVisibleRow) {
+                    this.scrollToRow(this.prevFirstVisibleRow);
+                    this.prevFirstVisibleRow = null; 
                 }
             }
         }
