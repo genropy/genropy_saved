@@ -4964,7 +4964,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
             sortedBy = sortedBy + '*';
         }
-        this.setSortedBy(sortedBy);
+        this.sourceNode.publish('setSortedBy',sortedBy);
+        //this.setSortedBy(sortedBy);
 
         //else {
         //    var path = this.sourceNode.attrDatapath('sortedBy');

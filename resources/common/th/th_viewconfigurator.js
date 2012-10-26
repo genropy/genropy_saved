@@ -76,7 +76,7 @@ var genro_plugin_grid_configurator = {
                 grid.addColumn(data, dropInfo.column,fieldcellattr);
                 if (grid.rowCount > 0) {
                     setTimeout(function() {
-                        grid.reload();
+                        grid.reload(true);
                     }, 1);
                 }
             };
@@ -94,7 +94,7 @@ var genro_plugin_grid_configurator = {
         var finalize = function(struct){
              gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
              if(gridSourceNode.widget && gridSourceNode.widget.storeRowCount()>0){
-                 gridSourceNode.widget.reload();
+                 gridSourceNode.widget.reload(true);
              }
         }
         
