@@ -381,9 +381,9 @@ dojo.declare('gnr.GenroClient', null, {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
             }
-            genro._pageStarted = true;
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
+            genro._pageStarted = true;
         }, 100);
     },
     

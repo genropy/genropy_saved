@@ -499,6 +499,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
+            console.log('inizio iframe');
             var palette_height = this._genro.getData('gnr.rootform.size.height');
             var palette_width = this._genro.getData('gnr.rootform.size.width');
             var paletteNode = palette.getParentNode();

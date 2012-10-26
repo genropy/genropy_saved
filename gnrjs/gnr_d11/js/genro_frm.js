@@ -115,7 +115,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
             if(startKey){
                 var that = this;
-                setTimeout(function(){that.load({destPkey:startKey});},1);
+                this.sourceNode.watch('pageStarted',function(){return genro._pageStarted},function(){
+                    console.log('inizio form')
+                    that.load({destPkey:startKey});
+                });
             }
             var parentForm = this.getParentForm();
             if(parentForm){
