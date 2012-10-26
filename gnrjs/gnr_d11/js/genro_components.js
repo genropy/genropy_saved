@@ -2007,6 +2007,17 @@ dojo.declare("gnr.stores._Collection",null,{
         return this.getItems().length;
     },
     
+    indexByCb:function(grid,cb,backward){
+        var n = this.len(true);
+        for (var i = 0; i < n; i++) {
+            var k_i = backward?n-i:i;
+            if (cb(this.getGridRowDataByIdx(grid,k_i))) {
+                return k_i;
+            }
+        }
+        return -1;
+    },
+
     sort:function(sortedBy){
         this.sortedBy = sortedBy || this.sortedBy;
         var data = this.getData();
@@ -2515,9 +2526,15 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             dojo.forEach(changelist,function(n){
                 that.externalChangedKeys[n.pkey] = true;
             });
-            dojo.forEach(this.linkedGrids(),function(grid){
-                grid.selectionKeeper('save');
-            });
+           //var prevSelected = {};
+           //dojo.forEach(this.linkedGrids(),function(grid){
+           //    var ps = [];
+           //    dojo.forEach(grid.selection.getSelected(), function(idx) {
+           //        ps.push(grid.rowIdByIndex(idx));
+           //    });
+           //    prevSelected[grid.sourceNode.attr.nodeId] = ps;
+           //});
+
             this.storeNode.fireNode();
         }
     },
@@ -2687,7 +2704,26 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var dataNode = this.itemByIdx(idx,true);
         //var dataNode = this.getData().getNodeByAttr('rowidx',idx);
         return this.keyGetter(dataNode);
-    }
+    },
+
+    indexByCb:function(grid,cb,backward){
+        var n = this.len(true);
+        var pages = this.getData().getNodes();
+        var n_pages = pages.length;
+        for (var p = 0; p<n_pages; p++){
+            var k_p = backward?n_pages-p:p;
+            var page = pages[k_p].getValue();
+            var rowNodes = page.getNodes();
+            var n = rowNodes.length;
+            for(var i = 0; i< n; i++){
+                var k_i = backward?n-i:i;
+                if(cb(grid.rowFromBagNode(rowNodes[i],this.externalChangedKeys))){
+                    return k_p*this.chunkSize+k_i;
+                }
+            }
+        }
+        return -1;
+    },
     
 });
 

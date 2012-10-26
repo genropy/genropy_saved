@@ -359,6 +359,7 @@ class TableHandlerView(BaseComponent):
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod= selectmethod or '=.query.queryAttributes.selectmethod',
                                currentFilter = '=.query.currentFilter',
+                               #currSelectedBag = '.query.currSelectedBag',
                                unlinkdict=unlinkdict,
                                userSets='.sets',
                                _onCalling=""" 
