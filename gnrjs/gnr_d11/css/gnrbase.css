@@ -2199,6 +2199,10 @@ div.cellContent{
     background-color:transparent;
 }
 
+.externalChangedRow .cellContent{
+    background-color:#C7FFB4;
+}
+
 .dj_ie6 .tundra .dojoxGrid-cell {
 	border: 1px solid white;
 	border-right: 1px solid #D5CDB5;
@@ -2794,11 +2798,6 @@ img.cannotBeDropped {
 .dojoxGrid-header .cannotBeDropped {
     background: #ffa997 !important;
 }
-.selectionLocalChange .dojoxGrid-cell{
-    background:#F9FFBC !important;
-    color:black;
-}
-
 
 .rowsetdragging {
     /*font-size: 0.8em;*/

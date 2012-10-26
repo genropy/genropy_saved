@@ -4129,15 +4129,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return storebag.columns(col)[0];
     },
 
-    mixin_rowFromBagNode:function(node,externalChangedKeys) {
+    mixin_rowFromBagNode:function(node) {
         var result = objectUpdate({}, node.attr);
-        if(externalChangedKeys && false){
-            var pkey = result[this._identifier];
-            var change = externalChangedKeys[pkey];
-            if(change && this.sourceNode.highlightExternalChanges){
-                result._customClasses= result._customClasses? result._customClasses+' selectionLocalChange':'selectionLocalChange';
-            }
-        }
         if (this.datamode == 'bag') {
             var value = node.getValue();
             if (value) {
@@ -4850,7 +4843,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     
     mixin_rowIdByIndex:function(inRowIndex){
         if(inRowIndex!==null){
-            return this.rowIdentity(this.collectionStore().getGridRowDataByIdx(this,inRowIndex));
+            return this.rowIdentity(this.rowByIndex(inRowIndex));
         }
     },
     mixin_storeRowCount: function(all) {

@@ -2097,7 +2097,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var rowdata={};
         var node=this.itemByIdx(idx);
         if (node){
-            rowdata= grid.rowFromBagNode(node,this.externalChangedKeys);
+            rowdata= grid.rowFromBagNode(node);
         }
         return rowdata;
     },
@@ -2330,7 +2330,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);
             }
-            
         });
         var changedRows = {};
         var wasInSelection;
@@ -2338,6 +2337,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         var data = this.getData();
         var that = this;
         var toUpdate = false;
+        var isExternalChange;
         var pkeys,wasInSelection,wasInSelectionNode,willBeInSelectionNode,pkey;
         this.externalChangedKeys = this.externalChangedKeys || {};
         var wasInSelectionCb = function(pkeys){
@@ -2359,51 +2359,54 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(insOrUpdKeys.length>0){
             wasInSelection = wasInSelectionCb(insOrUpdKeys);
             dojo.forEach(insOrUpdKeys,function(pkey){
-                    wasInSelectionNode = wasInSelection[pkey];
-                    willBeInSelectionNode = willBeInSelection[pkey];
-                    if(wasInSelectionNode){
-                        toUpdate=true;
-                        if (willBeInSelectionNode) {
-                            that.externalChangedKeys[pkey] = true;
-                            var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
-                            var rowValue = rowNode.getValue('static');
-                            var newattr = objectUpdate({},willBeInSelectionNode.attr);
-                            if(pkey in isExternalDict){
-                                for(var attrname in willBeInSelectionNode.attr){
-                                    changedRows[rowNode.attr._pkey] = rowNode;
-                                    if(!isEqual(rowNode.attr[attrname],willBeInSelectionNode.attr[attrname])){
-                                        if(rowValue instanceof gnr.GnrBag){
-                                            var editedNode = rowValue.getNode(attrname);
-                                            if(editedNode){
-                                                editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)},false);
-                                            }
-                                        }
-                                        if(attrname in newattr){
-                                            newattr['_customClass_'+attrname] = 'externalChangedCell';
-                                        }
-                                     }else if(rowValue instanceof gnr.GnrBag){
-                                         var editedNode = rowValue.getNode(attrname);
-                                         if(editedNode){
+                isExternalChange = pkey in isExternalDict;
+                wasInSelectionNode = wasInSelection[pkey];
+                willBeInSelectionNode = willBeInSelection[pkey];
+                if(wasInSelectionNode){
+                    toUpdate=true;
+                    if (willBeInSelectionNode) {
+                        var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
+                        var rowValue = rowNode.getValue('static');
+                        var newattr = objectUpdate({},willBeInSelectionNode.attr);
+                        if(isExternalChange){
+                            //that.externalChangedKeys[pkey] = true;
+                            for(var attrname in willBeInSelectionNode.attr){
+                                changedRows[rowNode.attr._pkey] = rowNode;
+                                if(!isEqual(rowNode.attr[attrname],willBeInSelectionNode.attr[attrname])){
+                                    if(rowValue instanceof gnr.GnrBag){
+                                        var editedNode = rowValue.getNode(attrname);
+                                        if(editedNode){
                                             editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)},false);
-                                         }
+                                        }
+                                    }
+                                    if(attrname in newattr){
+                                        newattr['_customClass_'+attrname] = 'externalChangedCell';
+                                    }
+                                 }else if(rowValue instanceof gnr.GnrBag){
+                                     var editedNode = rowValue.getNode(attrname);
+                                     if(editedNode){
+                                        editedNode.updAttributes({'_loadedValue':objectPop(newattr,attrname)},false);
                                      }
-                                }
+                                 }
                             }
-                            rowNode.updAttributes(newattr,true);
-                            if(selectedPkeysDict[pkey]){
-                                dojo.forEach(selectedPkeysDict[pkey],function(grid){
-                                    grid.sourceNode.publish('updatedSelectedRow');
-                                });
-                            }
-                        }else{
-                            data.popNode(wasInSelectionNode.label);
                         }
-                    }else if(willBeInSelectionNode){
-                        toUpdate = true;
-                        that.externalChangedKeys[pkey] = true;
-                        data.setItem('#id',willBeInSelectionNode);
+                        rowNode.updAttributes(newattr,true);
+                        if(selectedPkeysDict[pkey]){
+                            dojo.forEach(selectedPkeysDict[pkey],function(grid){
+                                grid.sourceNode.publish('updatedSelectedRow');
+                            });
+                        }
+                    }else{
+                        data.popNode(wasInSelectionNode.label);
                     }
-                });
+                }else if(willBeInSelectionNode){
+                    toUpdate = true;
+                    //if(isExternalChange){
+                    //    that.externalChangedKeys[pkey] = true;
+                    //}
+                    data.setItem('#id',willBeInSelectionNode);
+                }
+            });
         }
         if(toUpdate && this.sortedBy){
             this.mustBeSorted = true;
@@ -2502,9 +2505,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     
     onLoaded:function(result,_isFiredNode){
-        if(!_isFiredNode){
-            this.externalChangedKeys = null;
-        }
+       //if(!_isFiredNode){
+       //    this.externalChangedKeys = null;
+       //}
         if(result.error){
             return;
         }
@@ -2534,7 +2537,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             var that = this;
             this.externalChangedKeys = this.externalChangedKeys || {};
             dojo.forEach(changelist,function(n){
-                that.externalChangedKeys[n.pkey] = true;
+                if(n._isExternal){
+                    that.externalChangedKeys[n.pkey] = true;
+                }
             });
             var prevSelected = {};
             dojo.forEach(this.linkedGrids(),function(grid){
@@ -2613,7 +2618,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             if (dataPage){
                 this.currCachedPageIdx = pageIdx;
                 this.currCachedPage=dataPage;
-                return this.currCachedPage.getNodes()[rowIdx];
             }else{
                 this.currCachedPageIdx=-1;
                 this.currCachedPage=null;
@@ -2627,11 +2631,25 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                         this.guessPage = guessPage;
                     }
                 }
-                
-               
             }
-            return this.currCachedPage.getNodes()[rowIdx];
         }
+        if(this.currCachedPage){
+            var rowNode = this.currCachedPage.getNodes()[rowIdx];
+            var externalChangedKeys = this.externalChangedKeys || {};
+            var row = rowNode.attr;
+            var pkey = row['_pkey'];
+            if(pkey in externalChangedKeys){
+                console.log('setting customClasses');
+                row['_customClasses'] = row._customClasses? row._customClasses+' externalChangedRow':'externalChangedRow';
+                row['_externalChangedRowTS'] = new Date();
+                objectPop(externalChangedKeys,pkey);
+            }else if(row['_customClasses'] && row['_externalChangedRowTS'] && (new Date()-row['_externalChangedRowTS']>1000)){
+                console.log('removing customClasses');
+                delete row['_externalChangedRowTS'];
+                row['_customClasses'] = row['_customClasses'].replace('externalChangedRow','');
+            }
+            return rowNode;      
+        }            
     },
 
     getDataChunk:function(pageIdx){
