@@ -2097,9 +2097,14 @@ dojo.declare("gnr.stores._Collection",null,{
         var rowdata={};
         var node=this.itemByIdx(idx);
         if (node){
-            rowdata= grid.rowFromBagNode(node);
+            this.setExternalChangeClasses(node);
+            rowdata = grid.rowFromBagNode(node);
         }
         return rowdata;
+    },
+
+    setExternalChangeClasses:function(node){
+
     },
     
     filterToRebuild: function(value) {
@@ -2634,22 +2639,22 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             }
         }
         if(this.currCachedPage){
-            var rowNode = this.currCachedPage.getNodes()[rowIdx];
-            var externalChangedKeys = this.externalChangedKeys || {};
-            var row = rowNode.attr;
-            var pkey = row['_pkey'];
-            if(pkey in externalChangedKeys){
-                console.log('setting customClasses');
-                row['_customClasses'] = row._customClasses? row._customClasses+' externalChangedRow':'externalChangedRow';
-                row['_externalChangedRowTS'] = new Date();
-                objectPop(externalChangedKeys,pkey);
-            }else if(row['_customClasses'] && row['_externalChangedRowTS'] && (new Date()-row['_externalChangedRowTS']>1000)){
-                console.log('removing customClasses');
-                delete row['_externalChangedRowTS'];
-                row['_customClasses'] = row['_customClasses'].replace('externalChangedRow','');
-            }
-            return rowNode;      
+            return this.currCachedPage.getNodes()[rowIdx];
         }            
+    },
+
+    setExternalChangeClasses:function(item){
+        var externalChangedKeys = this.externalChangedKeys || {};
+        var row = item.attr;
+        var pkey = row['_pkey'];
+        if(pkey in externalChangedKeys){
+            row['_customClasses'] = row._customClasses? row._customClasses+' externalChangedRow':'externalChangedRow';
+            row['_externalChangedRowTS'] = new Date();
+            objectPop(externalChangedKeys,pkey);
+        }else if(row['_customClasses'] && row['_externalChangedRowTS'] && (new Date()-row['_externalChangedRowTS']>1000)){
+            delete row['_externalChangedRowTS'];
+            row['_customClasses'] = row['_customClasses'].replace('externalChangedRow','');
+        }
     },
 
     getDataChunk:function(pageIdx){
