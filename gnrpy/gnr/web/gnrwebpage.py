@@ -1060,41 +1060,41 @@ class GnrWebPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
-        
+
     def getResourceList(self, path, ext=None):
         """TODO
-        
+
         :param path: TODO
         :param ext: TODO"""
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
-        
+
     def getResourceUriList(self, path, ext=None, add_mtime=False):
         """TODO
-        
+
         :param path: TODO
         :param ext: TODO
         :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
-        
+
     def getResourceExternalUriList(self, path, ext=None, add_mtime=False):
         """TODO
-        
+
         :param path: TODO
         :param ext: TODO
         :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
         return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
-        
+
     def onServingCss(self, css_requires):
         """TODO
-        
+
         :param css_requires: the :ref:`"css_requires" webpage variable <css_requires>`"""
         pass
-        
+
     def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
         """TODO
-        
+
         :param path: MANDATORY. A string with the path of the uri
         :param ext: TODO
         :param add_mtime: TODO
@@ -1103,10 +1103,11 @@ class GnrWebPage(GnrBaseWebPage):
         if not fpath:
             return
         return self.resolveResourceUri(fpath, add_mtime=add_mtime,pkg=pkg)
-        
+
+
     def resolveResourceUri(self, fpath, add_mtime=False, pkg=None):
         """TODO
-        
+
         :param fpath: TODO
         :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
