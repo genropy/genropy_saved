@@ -2364,7 +2364,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(insOrUpdKeys.length>0){
             wasInSelection = wasInSelectionCb(insOrUpdKeys);
             dojo.forEach(insOrUpdKeys,function(pkey){
-                isExternalChange = pkey in isExternalDict;
                 wasInSelectionNode = wasInSelection[pkey];
                 willBeInSelectionNode = willBeInSelection[pkey];
                 if(wasInSelectionNode){
@@ -2373,8 +2372,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
                         var rowValue = rowNode.getValue('static');
                         var newattr = objectUpdate({},willBeInSelectionNode.attr);
-                        if(isExternalChange){
-                            //that.externalChangedKeys[pkey] = true;
+                        if(pkey in isExternalDict){
                             for(var attrname in willBeInSelectionNode.attr){
                                 changedRows[rowNode.attr._pkey] = rowNode;
                                 if(!isEqual(rowNode.attr[attrname],willBeInSelectionNode.attr[attrname])){
