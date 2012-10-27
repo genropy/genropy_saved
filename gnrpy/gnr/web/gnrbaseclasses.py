@@ -296,7 +296,7 @@ class TableTemplateToHtml(BagToHtml):
         htmlContent = templateReplace(template,record, safeMode=True,noneIsBlank=False,
                         localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
                         **tplkwargs)
-        super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
+        return super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
 
     @extract_kwargs(pdf=True)
     def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
