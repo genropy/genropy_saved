@@ -39,9 +39,9 @@ gnr.setOrConnectCb = function(widget, name, cb) {
 
 gnr.getGridColumns = function(storeNode) {
     var storeNodeId,destFullpath;
-    
     if(typeof(storeNode)=='string'){
         destFullpath=storeNode;
+        console.warn('*DEPRECATION* gnr.getGridColumns with storeNode as string')
     }else{
         storeNodeId=storeNode.attr.nodeId;
     }
@@ -51,7 +51,7 @@ gnr.getGridColumns = function(storeNode) {
         if(n.widget && n.widget.selectionKeeper){
             storeCode = n.attr.store || n.attr.nodeId;
             if((storeCode+'_store'==storeNodeId)||(destFullpath == n.widget.absStorepath())){
-                n.widget.selectionKeeper('save');
+                //n.widget.selectionKeeper('save');
                 var cols = n.widget.query_columns.split(',');
                 dojo.forEach(cols,function(c){
                     columns[c] = c;
@@ -67,7 +67,6 @@ gnr.getGridColumns = function(storeNode) {
     if(storeNodeId){
         storeNode._currentColumns=result;
     }
-    
     return result;
 };
 gnr.columnsFromStruct = function(struct, columns) {
@@ -2170,12 +2169,17 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
      },*/
     creating: function(attributes, sourceNode) {
         objectPop(attributes,'multivalue');
+        objectPop(attributes,'multivalueCb');
+
         attributes.trim = (attributes.trim == false) ? false : true;
         return {};
     },
     onBuilding:function(sourceNode){
         var attr = sourceNode.attr;
-        var multivalue = attr.multivalue;
+        var multivalue = attr.multivalue || attr.multivalueCb;
+        if(attr.multivalueCb){
+            sourceNode._getMultiValue = funcCreate('return '+attr.multivalueCb,null,sourceNode);
+        }
         if(multivalue){     
             sourceNode.freeze();
             sourceNode._('tooltipMultivalue',{});
@@ -2506,6 +2510,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.setDraggable_row(true, view);
         }
     },
+
     created_common:function(widget, savedAttrs, sourceNode) {
         var nodeId = sourceNode.attr.nodeId;
         var gridContent = sourceNode.getValue();
@@ -2615,6 +2620,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         });
 
     },
+
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
         var countBoxNode = genro.nodeById(countBoxCode);
@@ -2710,10 +2716,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }else{
             if(row>(this.scroller.lastVisibleRow)){
                  this.scrollToRow(row);
-                 console.log('row >last',row,this.scroller.lastVisibleRow,this.scroller.firstVisibleRow);
+                 //console.log('row >last',row,this.scroller.lastVisibleRow,this.scroller.firstVisibleRow);
             }else if(row<this.scroller.firstVisibleRow){
                 this.scrollToRow(row);
-                console.log('row <first',row,this.scroller.firstVisibleRow);
+                //console.log('row <first',row,this.scroller.firstVisibleRow);
             }
             this.selection.select(row);
         }
@@ -2782,45 +2788,29 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':idx>=0?this.rowIdentity(this.rowByIndex(idx)):null,
                                                 'grid':this});
     },
-    mixin_indexByRowAttr:function(attrName, attrValue, op, backward) {
+
+    mixin_indexByRowAttr:function(attrName, attrValue, op,backward) {
         var op = op || '==';
-        if (backward) {
-            for (var i = this.rowCount - 1; i >= 0; i--) {
-                var row = this.rowByIndex(i);
-                if (genro.compareDict[op].call(this, row[attrName], attrValue, op)) {
-                    return i;
-                }
-            }
-            ;
-        }
-        else {
-            for (var i = 0; i < this.rowCount; i++) {
-                var row = this.rowByIndex(i);
-                if (genro.compareDict[op].call(this, row[attrName], attrValue, op)) {
-                    return i;
-                }
-            }
-        }
-        return -1;
+        var that = this;
+        var cmp = genro.compareDict[op];
+        var cb = function(row){
+            return cmp.call(that, row[attrName], attrValue);
+        };
+        var result = this.indexByCb(cb,backward);
+        return result;
     },
+
     mixin_indexByCb:function(cb, backward) {
-        if (backward) {
-            for (var i = this.rowCount - 1; i >= 0; i--) {
-                if (cb(this.rowByIndex(i))) {
-                    return i;
-                }
-            }
-            ;
-        }
-        else {
-            for (var i = 0; i < this.rowCount; i++) {
-                if (cb(this.rowByIndex(i))) {
-                    return i;
-                }
+        var n = this.rowCount;
+        for (var i = 0; i < n; i++) {
+            var k_i = backward?n-i:i;
+            if (cb(this.rowByIndex(k_i))) {
+                return k_i;
             }
         }
         return -1;
     },
+
     mixin_hasRow:function(attr, value) {
         if (typeof(attr) == 'function') {
             cb = attr;
@@ -2833,16 +2823,21 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     mixin_selectByRowAttr:function(attrName, attrValue, op) {
         var selection = this.selection;
-        if (typeof (attrValue) == 'object') {
+        if (attrValue instanceof Array) {
             selection.unselectAll();
             var grid = this;
             dojo.forEach(attrValue, function(v) {
-                selection.addToSelection(grid.indexByRowAttr(attrName, v));
+                var idx = grid.indexByRowAttr(attrName, v);
+                if(idx>=0){
+                    selection.addToSelection(idx);
+                }
             });
         } else {
-            selection.select(this.indexByRowAttr(attrName, attrValue, op));
+            var idx = this.indexByRowAttr(attrName, attrValue, op);
+            if(idx>=0){
+                selection.select(idx);
+            }
         }
-
     },
 
     mixin_rowBagNode: function(idx) {
@@ -4002,31 +3997,31 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.reload(true);
     },
+
     mixin_selectionKeeper:function(flag) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
             var identifier = this._identifier;
-            dojo.forEach(this.getSelectedNodes(), function(node) {
-                if (node) {
-                    prevSelectedIdentifiers.push(node.attr[identifier]);
-                }
-                ;
+            var that = this;
+            dojo.forEach(this.selection.getSelected(), function(idx) {
+                prevSelectedIdentifiers.push(that.rowIdByIndex(idx));
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
-            this.prevScrollTop = this.scrollTop;
+            this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
         } else if (flag == 'load') {
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
                 this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
                 this.prevSelectedIdentifiers = null;
-                if (this.prevScrollTop) {
-                    this.setScrollTop(this.prevScrollTop);
-                    this.prevScrollTop = null;
+                if (this.prevFirstVisibleRow) {
+                    this.scrollToRow(this.prevFirstVisibleRow);
+                    this.prevFirstVisibleRow = null; 
                 }
             }
         }
     },
+
     mixin_reload:function(keep_selection) {
         this.selectionKeeper(keep_selection ? 'save' : 'clear');
         var nodeId = this.sourceNode.attr.nodeId;
@@ -4132,15 +4127,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return storebag.columns(col)[0];
     },
 
-    mixin_rowFromBagNode:function(node,externalChangedKeys) {
+    mixin_rowFromBagNode:function(node) {
         var result = objectUpdate({}, node.attr);
-        if(externalChangedKeys && false){
-            var pkey = result[this._identifier];
-            var change = externalChangedKeys[pkey];
-            if(change && this.sourceNode.highlightExternalChanges){
-                result._customClasses= result._customClasses? result._customClasses+' selectionLocalChange':'selectionLocalChange';
-            }
-        }
         if (this.datamode == 'bag') {
             var value = node.getValue();
             if (value) {
@@ -4853,7 +4841,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     
     mixin_rowIdByIndex:function(inRowIndex){
         if(inRowIndex!==null){
-            return this.rowIdentity(this.collectionStore().getGridRowDataByIdx(this,inRowIndex));
+            return this.rowIdentity(this.rowByIndex(inRowIndex));
         }
     },
     mixin_storeRowCount: function(all) {
@@ -4862,6 +4850,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
     mixin_addNewSetColumn:function(kw) {
         this.gnr.addNewSetColumn(this.sourceNode,kw);;
+    },
+
+    mixin_indexByCb:function(cb, backward) {
+        return this.collectionStore().indexByCb(this,cb, backward);
     },
 
     addNewSetColumn:function(sourceNode,kw) {
@@ -4900,8 +4892,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         };
         return celldata;
     },
-
-
 
     mixin_onChangeSetCol:function(rowIndex,fieldname,e){
         dojo.stopEvent(e);
@@ -4965,7 +4955,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
             sortedBy = sortedBy + '*';
         }
-        this.setSortedBy(sortedBy);
+        this.sourceNode.publish('setSortedBy',sortedBy);
+        //this.setSortedBy(sortedBy);
 
         //else {
         //    var path = this.sourceNode.attrDatapath('sortedBy');
@@ -5117,6 +5108,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_absIndex:function(idx,reverse){
          return this.collectionStore().absIndex(idx,reverse);
     }
+
 });
 
 
@@ -6466,9 +6458,6 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         };
         var url=widget.getAttribute('src')
         //widget.setAttribute('src',null)
-        setTimeout(function(){
-            widget.setAttribute('src',url)
-            },1000)
     },
     setPlaceHolder:function(sourceNode){
         var domnode = sourceNode.domNode;

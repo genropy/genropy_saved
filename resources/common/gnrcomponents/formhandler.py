@@ -66,6 +66,7 @@ class FormHandler(BaseComponent):
                 handlerType = 'dialog'
             elif palette_kwargs:
                 handlerType = 'palette'
+        form_kwargs['form_handlerType'] = handlerType
         if formRoot:
             if form_kwargs.get('pageName'):
                 formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
@@ -123,7 +124,7 @@ class FormHandler(BaseComponent):
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if(!(($1.pkey=='*newrecord*') || ($1.pkey=='*norecord*'))){
                                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
-                                                                if(!selectedRows.length>1){
+                                                                if(!(selectedRows.length>1)){
                                                                     this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                                 }
                                                             }

@@ -1168,6 +1168,7 @@ class GnrWsgiSite(object):
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes', None)
             if serverstore_changes:
+                serverstore_changes = self.parse_kwargs(serverstore_changes)
                 with self.register.pageStore(page_id, triggered=False) as store:
                     if store:
                         for k, v in serverstore_changes.items():

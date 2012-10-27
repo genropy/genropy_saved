@@ -636,7 +636,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,
-                         savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+                         savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -762,6 +762,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             for col in sum_columns.split(','):
                 col = col.strip()
                 resultAttributes['sum_%s' % col] = data.sum('#a.%s' % col)
+        if prevSelectedDict:
+            keys = prevSelectedDict.keys()
+            resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))
         return (result, resultAttributes)
 
 

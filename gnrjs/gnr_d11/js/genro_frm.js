@@ -115,7 +115,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
             if(startKey){
                 var that = this;
-                setTimeout(function(){that.load({destPkey:startKey});},1);
+                this.sourceNode.watch('pageStarted',function(){return genro._pageStarted},function(){
+                    console.log('inizio form')
+                    that.load({destPkey:startKey});
+                });
             }
             var parentForm = this.getParentForm();
             if(parentForm){
@@ -430,6 +433,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             this.reset();
             this.setCurrentPkey(null);
+            if(this.store.parentStore){
+                this.store.parentStore.onEndEditItem(this);
+            };
             this.publish('onDismissed');
             return;
         }else if(kw['destPkey'] == '*duplicate*'){
@@ -509,6 +515,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //if(this.status=='readOnly'){
             //    this.setLocked(true);
             //}
+            if(this.store.parentStore){
+                this.store.parentStore.onStartEditItem(this);
+            };
             this.applyDisabledStatus();
             //this.focus()
             setTimeout(function(){
@@ -1864,7 +1873,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         }
         else if(currIdx==0){
             kw.first = true;
-        }else if(currIdx>=this.parentStore.len()-1){
+        }else if(currIdx>=this.parentStore.len(true)-1){
             kw.last = true;
         }
         this.form.publish('navigationStatus',kw);

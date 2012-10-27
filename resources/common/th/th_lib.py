@@ -59,6 +59,8 @@ class TableHandlerCommon(BaseComponent):
                 self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
             except GnrMixinError:
                 project_mainpackage = self.package.attributes.get('mainpackage')
+                if not project_mainpackage:
+                    raise GnrMixinError
                 self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=project_mainpackage,mangling_th=rootCode, pkgOnly=True)
         except GnrMixinError:
             tableObj = self.db.table(table)
