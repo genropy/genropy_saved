@@ -595,6 +595,7 @@ class SqlTable(GnrObject):
             if isinstance(_pkeys,basestring):
                 _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
+            kwargs.setdefault('excludeDraft',False)
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()

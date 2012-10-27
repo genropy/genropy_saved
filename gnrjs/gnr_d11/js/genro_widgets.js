@@ -632,6 +632,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                     d.src = url;
                 }
             }, sourceNode.attr.delay || 1, domnode, v);
+        }else{
+            domnode.src = null;
         }
     }
     

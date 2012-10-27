@@ -285,18 +285,25 @@ class TableTemplateToHtml(BagToHtml):
         self.print_handler = self.site.getService('print')
         self.record = None
 
-    def __call__(self,record=None, template=None, locale=None,**kwargs):
-        tplkwargs = dict()
-        if isinstance(template,Bag):
-            tplkwargs['locale'] = locale or template.getItem('main?locale')
-            tplkwargs['masks'] = template.getItem('main?masks')
-            tplkwargs['formats'] = template.getItem('main?formats')
-            tplkwargs['df_templates'] = template.getItem('main?df_templates')
-            tplkwargs['dtypes'] = template.getItem('main?dtypes')
-        htmlContent = templateReplace(template,record, safeMode=True,noneIsBlank=False,
-                        localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
-                        **tplkwargs)
+    def __call__(self,record=None,template=None, htmlContent=None, locale=None,**kwargs):
+        if not htmlContent:
+            htmlContent = self.contentFromTemplate(record,template,locale=locale)
         return super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
+
+    def contentFromTemplate(self,record,template,locale=None,**kwargs):
+        if isinstance(template,Bag):
+            kwargs['locale'] = locale or template.getItem('main?locale')
+            kwargs['masks'] = template.getItem('main?masks')
+            kwargs['formats'] = template.getItem('main?formats')
+            kwargs['df_templates'] = template.getItem('main?df_templates')
+            kwargs['dtypes'] = template.getItem('main?dtypes')
+        virtual_columns = template.getItem('main?virtual_columns')
+        record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
+        return templateReplace(template,record, safeMode=True,noneIsBlank=False,
+                    localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
+                    **kwargs)
+
+
 
     @extract_kwargs(pdf=True)
     def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
