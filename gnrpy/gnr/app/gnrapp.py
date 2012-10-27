@@ -757,7 +757,25 @@ class GnrApp(object):
                 pkglocbag.setItem(lbl, None, _key=k, it=k, en='', fr='', de='')
             pkglocbag.setAttr(lbl, {locale: v})
         pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
+    
+    def localizeText(self, txt,pkg=None,localelang=None):
+        """Translate the *txt* string following the browser's locale
         
+        :param txt: the text to be translated"""
+        loc = None
+        txtlower = txt.lower()
+        if pkg:
+            key = '%s|%s' % (pkg, txtlower)
+            loc = self.localization.get(key)
+        if not loc:
+            loc = self.localization.get(txtlower)
+        if loc:
+            loctxt = loc.get(localelang)
+            if loctxt:
+                txt = loctxt
+        return txt
+    
+
     def getResource(self, path, pkg=None, locale=None):
         """TODO
 

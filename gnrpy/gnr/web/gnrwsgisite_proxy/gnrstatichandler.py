@@ -1,6 +1,7 @@
 
 # -*- coding: UTF-8 -*-
 from gnr.core.gnrbag import Bag
+from gnr.core import gnrstring
 import inspect
 import os
 import sys
@@ -42,7 +43,9 @@ class StaticHandlerManager(object):
     def static_dispatcher(self, path_list, environ, start_response, download=False, **kwargs):
         handler = self.get(path_list[0][1:])
         if handler:
-            return handler.serve(path_list, environ, start_response, download=download, **kwargs)
+            result = handler.serve(path_list, environ, start_response, download=download, **kwargs)
+
+            return result
         else:
             return self.site.not_found_exception(environ, start_response)
 
@@ -72,13 +75,24 @@ class StaticHandler(object):
     def absolute_url(self, external=True, *args):
         pass
 
+    def build_lazydoc(self,lazydoc):
+        table,pkey,method = gnrstring.splitAndStrip(lazydoc,sep=',',fixed=3)
+        m = getattr(self.site.db.table(table),(method or 'lazydocHandler'),None)
+        if m:
+            m(pkey)
+            return True
+
     def serve(self, path_list, environ, start_response, download=False, **kwargs):
         fullpath = self.path(*path_list[1:])
         if not fullpath:
             return self.site.not_found_exception(environ, start_response)
         if not os.path.isabs(fullpath):
             fullpath = os.path.normpath(os.path.join(self.site_path, fullpath))
-        if not os.path.exists(fullpath):
+        existing_doc = os.path.exists(fullpath)
+        if not existing_doc and '_lazydoc' in kwargs:
+            print fullpath
+            existing_doc = self.build_lazydoc(kwargs['_lazydoc'])
+        if not existing_doc:
             return self.site.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:

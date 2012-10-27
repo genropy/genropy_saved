@@ -799,14 +799,8 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO
         
         :param path: TODO"""
-        params = urllib.urlencode(kwargs)
-        #path = os.path.join(self.homeUrl(), path)
-        if path == '': path = self.siteUri
-        path = self._request.relative_url(path)
-        if params:
-            path = '%s?%s' % (path, params)
-        return path
-        
+        return self.site.externalUrl(path, **kwargs)
+
     def externalUrlToken(self, path, _expiry=None, _host=None, method='root', **kwargs):
         """TODO
         
