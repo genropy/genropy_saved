@@ -1206,7 +1206,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
-                     notnull=None, weakCondition=False, _storename=None,**kwargs):
+                     notnull=None, weakCondition=False, _storename=None,preferred=None,**kwargs):
         """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
         database: user can choose between all the values contained into the linked :ref:`table` (the
         table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
@@ -1289,6 +1289,16 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selectHandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
                 selectHandler = self.dbSelect_default
+            order_list = []
+            preferred = preferred or tblobj.attributes.get('preferred')
+            if preferred:
+                order_list.append('%s desc' %preferred)
+                resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses""" %preferred)
+            order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
+            if order_by:
+                order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
+            if order_list:
+                order_by = ', '.join(order_list)
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=condition, exclude=exclude,
                                       limit=limit, order_by=order_by,
