@@ -185,6 +185,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             valueAttr['_valuelabel'] = sourceNode.attr['_valuelabel'];
         }
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
+        sourceNode.publish('onSetValueInData',value);
     },
     onSettingValueInData: function(sourceNode, value,valueAttr) {
         return value;
@@ -473,6 +474,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             genro.dom.setClass(dn.parentNode,'keeper_on',v);
             var n = genro.getDataNode(npath);
             n.attr._keep = v;
+            if(sourceNode.form){
+                sourceNode.form.setKeptData(npath.replace(sourceNode.absDatapath()+'.',''),n._value,n.attr._keep);
+            }
         };
         keeper.onclick = function(e){
             dojo.stopEvent(e);
@@ -480,6 +484,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var currvalue = n.attr._keep;
             sourceNode.widget.setKeeper(!currvalue);
         }
+        sourceNode.subscribe('onSetValueInData',function(value){
+            var n = genro.getDataNode(npath);
+            if(sourceNode.form){
+                console.log('onSetValueInData',value)
+                sourceNode.form.setKeptData(npath.replace(sourceNode.absDatapath()+'.',''),value,n.attr._keep);
+            }
+        });
+
     },
 
     onDragStart:function(dragInfo) {
