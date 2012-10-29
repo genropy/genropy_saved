@@ -116,8 +116,10 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-
-
+      
+        window.onerror = function(error){
+            alert('Error in page:' +error)
+        }
         if (dojo_version == '1.1') {
             if (dojo.isSafari) {
                 dojo.keys.DOWN_ARROW = 40;

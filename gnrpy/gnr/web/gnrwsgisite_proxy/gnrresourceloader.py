@@ -183,7 +183,11 @@ class ResourceLoader(object):
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         mainPkg = pkg
         if hasattr(custom_class,'getMainPackage'):
-            mainPkg = custom_class.getMainPackage(request_args=request_args,request_kwargs=request_kwargs)
+            kw = dict()
+            if 'page_id' in request_kwargs:
+                kw = self.site.register.pageStore(request_kwargs['page_id']).getItem('pageArgs') or dict()
+                kw.update(request_kwargs)
+            mainPkg = custom_class.getMainPackage(request_args=request_args,request_kwargs=kw)
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', ''), ',')
         plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=mainPkg)
         for plugin_webpage_class in plugin_webpage_classes:

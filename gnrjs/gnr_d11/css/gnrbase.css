@@ -754,6 +754,10 @@ table.formbuilder {
     font-style: italic;
 }
 
+.multiColumnSelect tr.not_preferred_row{
+    opacity: .5;
+    font-style: italic;
+}
 /* @end */
 
 /* @group BagAttributesTable */
