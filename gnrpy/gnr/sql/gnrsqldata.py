@@ -277,10 +277,12 @@ class SqlQueryCompiler(object):
                 if one_one:
                     manyrelation = False # if in the model a relation is defined as one_one 
                     # it is used like a one relation in both ways
-        env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %target_tbl.fullname.replace('.','_'))
-        if env_conditions:
-            pass
-            #print x
+
+        #ENV
+        #env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %target_tbl.fullname.replace('.','_'))
+        #if env_conditions:
+        #    pass
+        #    #print x
         #    wherelist = [where] if where else []
         #    for condition in env_conditions.values():
         #        wherelist.append('( %s )' %condition)
