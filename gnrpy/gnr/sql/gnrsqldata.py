@@ -28,7 +28,7 @@ import cPickle
 import itertools
 import hashlib
 from xml.sax import saxutils
-from gnr.core.gnrdict import GnrDict
+from gnr.core.gnrdict import GnrDict,dictExtract
 from gnr.core.gnrlang import deprecated, uniquify
 import tempfile
 from gnr.core.gnrdate import decodeDatePeriod
@@ -277,6 +277,15 @@ class SqlQueryCompiler(object):
                 if one_one:
                     manyrelation = False # if in the model a relation is defined as one_one 
                     # it is used like a one relation in both ways
+        env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %target_tbl.fullname.replace('.','_'))
+        if env_conditions:
+            pass
+            #print x
+        #    wherelist = [where] if where else []
+        #    for condition in env_conditions.values():
+        #        wherelist.append('( %s )' %condition)
+        #    where = ' AND '.join(wherelist)
+
         self.cpl.joins.append('LEFT JOIN %s.%s AS %s ON %s' %
                               (target_sqlschema, target_sqltable, alias, cnd))
         #raise str('LEFT JOIN %s.%s AS %s ON %s' % (target_sqlschema, target_sqltable, alias, cnd))
@@ -451,6 +460,14 @@ class SqlQueryCompiler(object):
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
+
+        env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        if env_conditions:
+            wherelist = [where] if where else []
+            for condition in env_conditions.values():
+                wherelist.append('( %s )' %condition)
+            where = ' AND '.join(wherelist)
+
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')

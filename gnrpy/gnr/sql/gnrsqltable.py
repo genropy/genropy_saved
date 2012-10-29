@@ -1414,6 +1414,9 @@ class SqlTable(GnrObject):
             return newresult
         else:
             return result
-            
+
+    def setQueryCondition(self,condition_name,condition):
+        self.db.currentEnv['env_%s_condition_%s' %(self.fullname.replace('.','_'),condition_name)] = condition
+                    
 if __name__ == '__main__':
     pass
