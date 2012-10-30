@@ -1420,7 +1420,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var delay=delay || 200;
         if (conditionCb()){
             action();
-        }else{
+        }else if(!this.watches || !(watchId in this.watches)){
             this.watches=this.watches || {};
             var that = this;
             this.watches[watchId] = setInterval(
@@ -1428,7 +1428,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     if (conditionCb()){
                         var timer = that.watches[watchId];
                         if(timer){
-                            that.watches[watchId] =null;
+                            //that.watches[watchId] =null;
+                            objectPop(this.watches,watchId);
                             clearInterval(timer);
                         }
                         action();
