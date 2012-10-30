@@ -81,7 +81,7 @@ class PublicBase(BaseComponent):
                             **kwargs)
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        slots = slots or '5,dock,*,messageBox,*,devBtn,locBtn,5'
+        slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
@@ -222,6 +222,11 @@ class PublicSlots(BaseComponent):
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         else:
             pane.div()
+
+    @struct_method
+    def public_publicRoot_countErrors(self,pane,**kwargs):
+        pane.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
+                    _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',margin_left='4px',margin_right='4px',margin_top='3px')
 
 
 class TableHandlerMain(BaseComponent):
