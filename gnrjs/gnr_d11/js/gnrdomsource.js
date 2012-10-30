@@ -1409,29 +1409,27 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     unwatch:function(watchId){
-        var wasWatched = this.watches && this.watches[watchId];
-        if (wasWatched){
-            clearInterval(wasWatched);
-            delete this.watches.watchId;
+        if (this.watches && this.watches[watchId]){
+            console.log('pulisco interval',watchId,this.attr.nodeId)
+            clearInterval(this.watches[watchId]);
+            delete this.watches[watchId];
         }
     },
     
     watch: function(watchId,conditionCb,action,delay){
         var delay=delay || 200;
+        if(this.watches && (watchId in this.watches)){
+            return
+        }
         if (conditionCb()){
             action();
-        }else if(!this.watches || !(watchId in this.watches)){
+        }else{
             this.watches=this.watches || {};
             var that = this;
             this.watches[watchId] = setInterval(
                 function(){
                     if (conditionCb()){
-                        var timer = that.watches[watchId];
-                        if(timer){
-                            //that.watches[watchId] =null;
-                            objectPop(this.watches,watchId);
-                            clearInterval(timer);
-                        }
+                        that.unwatch(watchId);
                         action();
                     }
             },delay);

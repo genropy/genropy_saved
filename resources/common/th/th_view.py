@@ -347,7 +347,8 @@ class TableHandlerView(BaseComponent):
        
         condPars.setdefault('_if',condPars.pop('if',None))
         condPars.setdefault('_onStart',condPars.pop('onStart',None))
-        condPars['_else'] = "return this.store.voidSelection();"
+        if condPars['_if']:
+            condPars['_else'] = "return this.store.voidSelection();"
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
