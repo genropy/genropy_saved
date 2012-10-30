@@ -153,7 +153,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('5,appName,*,messageBox,*,devlink,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
                         messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
@@ -161,6 +161,9 @@ class FrameIndex(BaseComponent):
                                connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
+        
+        sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
+                            _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',

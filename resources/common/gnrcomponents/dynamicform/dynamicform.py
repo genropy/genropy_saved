@@ -69,6 +69,7 @@ class Form(BaseComponent):
         fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
         fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
         fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.checkbox(value='^.wdg_kwargs.keepable',label='!!Keepable value', row_class='df_row field_enterable')
         fb.checkbox(value='^.wdg_kwargs.speech',label='!!Vocal input', row_class='df_row field_enterable')
         fb.br()
         fb.checkbox(value='^.wdg_kwargs.editor',label='!!Full text editor', row_class='df_row field_simpletextarea')
@@ -90,10 +91,6 @@ class Form(BaseComponent):
         fb.field('validate_case',row_class='df_row field_textbox',width='100%')
         fb.br()
         
-        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-
-        fb.br()
         fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
         fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
         fb.br()

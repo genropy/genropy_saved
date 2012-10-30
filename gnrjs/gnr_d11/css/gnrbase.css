@@ -1759,15 +1759,13 @@ div.dojoxDock {
 }
 
 .dijitToasterWarning .dijitToasterContent {
-    padding: 1em;
-    padding-top: 0.25em;
+    padding: 5px;
     background: #d4d943;
 }
 
 .dijitToasterError .dijitToasterContent {
-    padding: 1em;
-    padding-top: 0.25em;
-    background: #c46600;
+    padding: 5px;
+    background: darkred;
 }
 
 .dijitToasterClip {
@@ -1777,11 +1775,10 @@ div.dojoxDock {
 }
 
 .dijitToasterContainer {
-    display: block;
+    display: inline-block;
     position: absolute;
-    width: 17.5em;
     margin: 0px;
-    font: 0.75em Tahoma, Helvetica, Verdana, Arial;
+    font: 0.9em Tahoma, Helvetica, Verdana, Arial;
 }
 
 /* @end */
@@ -2029,6 +2026,18 @@ textarea:disabled {
     text-align: center;
     padding-right: 5px;
 }
+
+.countBoxErrors{
+    border-radius: 12px;
+    border: 1px solid #AEB6BD;
+    background: darkred;
+    color:white;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: .9em;
+    cursor: pointer;
+}
+
 .searchInputBox {
     border-radius: 12px;
     padding-left: 5px;

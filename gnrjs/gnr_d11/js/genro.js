@@ -116,10 +116,13 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-      
-        window.onerror = function(error){
-            alert('Error in page:' +error)
-        }
+        var onerrorcb = function(errorMsg,url,linenumber){
+            genro.onError(errorMsg,url,linenumber);
+        };
+        window.onerror = onerrorcb;
+
+        dojo.connect(console.err,onerrorcb);
+
         if (dojo_version == '1.1') {
             if (dojo.isSafari) {
                 dojo.keys.DOWN_ARROW = 40;
@@ -182,6 +185,12 @@ dojo.declare('gnr.GenroClient', null, {
             console.log('debugEvent ',e.keyCode,keyName(e.keyCode),e.type);
         }
     },
+
+    onError:function(errorMsg,url,linenumber){
+        var msg = "<div style='white-space:nowrap;'>"+url+' line:'+linenumber+'</div>'+errorMsg;
+        genro.dev.addError(msg,'js',true);
+    },
+
     onWindowUnload:function(e) {
         this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
