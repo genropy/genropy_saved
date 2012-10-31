@@ -473,12 +473,23 @@ class TableHandlerMain(BaseComponent):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
-                th.dataController("""var title = (selectedPage!='form'?viewtitle:formtitle)||currTitle;
-                                     genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                th.dataController("""
+                    var title;
+                    if(selectedPage=='form'){
+                        title = formtitle;
+                    }else{
+                        title = viewtitle;
+                        if(totalRowCount!==null){
+                            title = title +' ('+totalrows+'/'+totalRowCount+')';
+                        }
+                    }
+                    genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
                             """,
-                            formtitle='^.form.controller.title',viewtitle='^.view.title',
-                            selectionName='^.view.store?selectionName',table='=.view.table',
-                            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle') 
+                formtitle='^.form.controller.title',viewtitle='^.view.title',
+                selectionName='^.view.store?selectionName',table='=.view.table',
+                totalRowCount = '^.view.store?totalRowCount',
+                totalrows = '^.view.store?totalrows',
+                selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',_delay=100) 
                 if not extendedQuery:
                     th.view.top.bar.replaceSlots('count','')
                     th.view.top.bar.replaceSlots('searchOn','')

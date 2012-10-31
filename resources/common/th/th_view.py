@@ -58,7 +58,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
+                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
             else:
