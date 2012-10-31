@@ -1123,6 +1123,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     templateHandler.dataInfo = resultNode.attr;
                     templateHandler.data = r.popNode('template_data').getValue();
                 },null,'POST');
+            }else{
+                sourceNode.domNode.innerHTML = '';
+                templateHandler.dataInfo = {};
+                templateHandler.data = new gnr.GnrBag();
             }
         }
         templateHandler.setNewData = function(result){
