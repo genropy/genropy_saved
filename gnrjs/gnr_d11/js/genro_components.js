@@ -1229,6 +1229,10 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             }
         },_class:'multibutton_container'},kw);
         var tabButtonsNode = sourceNode._('div',kw);
+        stackNode._n_children = 0
+        if(children && children.len()>0){
+            stackNode._n_children = children.len();
+        }
         stackNode._stackButtonsNodes = stackNode._stackButtonsNodes || [];
         stackNode._stackButtonsNodes.push(tabButtonsNode.getParentNode());
         dojo.connect(stackNode,'onNodeBuilt',function(widget){
@@ -1251,7 +1255,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var that = this;
         sn.delayedCall(function(){
             dojo.forEach(controllerNodes,function(c){
-                that.makeTabButton(c,child.sourceNode);
+                that.makeTabButton(c,child.sourceNode,sn);
             });
         },100);
     },
@@ -1291,17 +1295,34 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         stackNode._value.forEach(function(n){
             if(n.getWidget()){
                 dojo.forEach(controllerNodes,function(c){
-                    that.makeTabButton(c,n);
+                    that.makeTabButton(c,n,stackNode);
                 });
             }
         });
     },
-    makeTabButton:function(sourceNode,childSourceNode){
+    makeTabButton:function(sourceNode,childSourceNode,stackNode){
         var widget = childSourceNode.getWidget();
         var childSourceNode = widget.sourceNode;
         if(childSourceNode.attr.title){
-            var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:widget.selected? 'multibutton multibutton_selected' :'multibutton',_childSourceNode:childSourceNode})
+            var btn_class = widget.selected? 'multibutton multibutton_selected' :'multibutton';
+            if(childSourceNode.attr.closable){
+                btn_class+=' multibutton_closable'
+            }
+            var stackbag = stackNode.getValue();
+            var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:btn_class,_childSourceNode:childSourceNode},{_position:stackbag.len()-stackNode._n_children});
             btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+            if(childSourceNode.attr.closable){
+                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
+                    var stack = stackNode.widget;
+                    if(widget.selected){
+                        stack.switchPage(stack.getSelectedIndex()-1);
+                    }
+                    genro.callAfter(function(){
+                        stackbag.popNode(childSourceNode.label);
+                    },1);
+                    
+                }});
+            }
         }
     }
 });
@@ -1786,7 +1807,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             var stackNodeId = objectPop(slotKw,'stackNodeId');
             scNode = stackNodeId?genro.nodeById(stackNodeId):genro.getFrameNode(frameCode,'center');
         }
-        slotKw['height'] = slotKw['height'] || '20px'
         pane._('StackButtons',objectUpdate({stack:scNode},slotKw));
     },
     slot_parentStackButtons:function(pane,slotValue,slotKw,frameCode){

@@ -393,7 +393,8 @@ class TableHandlerView(BaseComponent):
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
-                         excludeDraft='=.excludeDraft',_if='&&(_updateCount || _showCount)',
+                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %_if,
+                         _else='return 0;',
                          **condPars)
         
         frame.dataController("""

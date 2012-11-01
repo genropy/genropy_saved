@@ -70,6 +70,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.workInProgress){
             urlPars.workInProgress = true;
         }
+        if(kw.multipage || kw.modifiers=='Meta'){
+            urlPars.multipage = kw.multipage;
+        }
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
         return genro.addParamsToUrl(url,urlPars);
     },
