@@ -107,14 +107,13 @@ class MenuIframes(MenuBase):
                   getIconClass='return node.attr.iconClass || "treeNoIcon"',
                   getLabelClass="return node.attr.labelClass;",
                   openOnClick=True,
-                  connect_onClick="""   genro.bp();
-                                        var labelClass= $1.attr.labelClass;
-                                        if(labelClass.indexOf('menu_existing_page')<0){
-                                            $1.setAttribute('labelClass',labelClass+' menu_existing_page');
-                                        }                                        
-                                        this.publish("selected",
-                                                  objectUpdate({name:$1.label,"file":null,table:null,formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),modifiers:$2.__eventmodifier},
-                                                  $1.attr));
+                  connect_onClick="""var labelClass= $1.attr.labelClass;
+                                    if(labelClass.indexOf('menu_existing_page')<0){
+                                        $1.setAttribute('labelClass',labelClass+' menu_existing_page');
+                                    }                                        
+                                    this.publish("selected",
+                                              objectUpdate({name:$1.label,"file":null,table:null,formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),modifiers:$2.__eventmodifier},
+                                              $1.attr));
                                         """,
                   autoCollapse=True,
                   nodeId='_menutree_')

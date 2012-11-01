@@ -1223,7 +1223,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
         var that = this;
         kw = objectUpdate({connect_onclick:function(e){
-            var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
+            var childSourceNode =  e.target.sourceNode?e.target.sourceNode.getInheritedAttributes()['_childSourceNode']:null;
             if(childSourceNode){
                 stackNode.widget.selectChild(childSourceNode.widget);
             }
@@ -1312,12 +1312,10 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:btn_class,_childSourceNode:childSourceNode},{_position:stackbag.len()-stackNode._n_children});
             btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
             if(childSourceNode.attr.closable){
+                var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
-                    var stack = stackNode.widget;
-                    if(widget.selected){
-                        stack.switchPage(stack.getSelectedIndex()-1);
-                    }
                     genro.callAfter(function(){
+                        stack.switchPage(stack.getSelectedIndex()-1);
                         stackbag.popNode(childSourceNode.label);
                     },1);
                     
