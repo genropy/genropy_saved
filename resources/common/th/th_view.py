@@ -345,6 +345,11 @@ class TableHandlerView(BaseComponent):
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
        
+        _if = condPars.pop('_if',None) or condPars.pop('if',None)
+        _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
+        _else = None
+        if _if:
+            _else = "SET .store = this.store.voidSelection();"
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
@@ -361,7 +366,8 @@ class TableHandlerView(BaseComponent):
                                currentFilter = '=.query.currentFilter',
                                prevSelectedDict = '=.query.prevSelectedDict',
                                unlinkdict=unlinkdict,
-                               userSets='.sets',
+                               userSets='.sets',_if=_if,_else=_else,
+                               _onStart=_onStart,
                                _onCalling=""" 
                                %s
                               
@@ -387,7 +393,7 @@ class TableHandlerView(BaseComponent):
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
-                         excludeDraft='=.excludeDraft',_if='_updateCount || _showCount',
+                         excludeDraft='=.excludeDraft',_if='&&(_updateCount || _showCount)',
                          **condPars)
         
         frame.dataController("""

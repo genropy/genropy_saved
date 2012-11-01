@@ -36,6 +36,7 @@ class TableHandlerCommon(BaseComponent):
         condition_kwargs['_fkey_name'] = fkey
         condition_kwargs['fkey'] = '=#FORM.pkey'
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
+        condition_kwargs['if'] = 'fkey'
         basecondition = '$%s=:fkey' %fkey       
         condition = basecondition if not condition else '(%s) AND (%s)' %(basecondition,condition)  
         default_kwargs[fkey] = original_kwargs.get('foreignKeyGetter','=#FORM/parent/#FORM.pkey')
@@ -58,7 +59,7 @@ class TableHandlerCommon(BaseComponent):
             try:
                 self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
             except GnrMixinError:
-                project_mainpackage = self.package.attributes.get('mainpackage')
+                project_mainpackage = self.package.attributes.get('mainpkg')
                 if not project_mainpackage:
                     raise GnrMixinError
                 self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=project_mainpackage,mangling_th=rootCode, pkgOnly=True)

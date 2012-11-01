@@ -10,6 +10,8 @@ import glob
 import re
 import logging
 import subprocess
+import urllib
+
 
 from time import time
 from datetime import datetime
@@ -248,6 +250,7 @@ class GnrWsgiSite(object):
         GNRSITE = self
         counter = int(counter or '0')
         self._currentPages = {}
+        self._currentRequests = {}
         abs_script_path = os.path.abspath(script_path)
         if os.path.isfile(abs_script_path):
             self.site_path = os.path.dirname(abs_script_path)
@@ -560,7 +563,7 @@ class GnrWsgiSite(object):
         :param start_response: TODO"""
         t = time()
         request = Request(environ)
-
+        self.currentRequest = request
         response = Response()
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
@@ -1010,6 +1013,17 @@ class GnrWsgiSite(object):
         self._currentPages[thread.get_ident()] = page
         
     currentPage = property(_get_currentPage, _set_currentPage)
+
+
+    def _get_currentRequest(self):
+        """property currentRequest it returns the request currently used in this thread"""
+        return self._currentRequests[thread.get_ident()]
+        
+    def _set_currentRequest(self, request):
+        """set currentRequest for this thread"""
+        self._currentRequests[thread.get_ident()] = request
+        
+    currentRequest = property(_get_currentRequest, _set_currentRequest)
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
@@ -1179,8 +1193,9 @@ class GnrWsgiSite(object):
         :param kwargs: the kw arguments
         """
         catalog = self.gnrapp.catalog
-        result = dict(kwargs)
+        result = dict()
         for k, v in kwargs.items():
+            k = k.strip()
             if isinstance(v, basestring):
                 try:
                     v = catalog.fromTypedText(v)
@@ -1189,6 +1204,8 @@ class GnrWsgiSite(object):
                     result[k] = v
                 except Exception, e:
                     raise e
+            else:
+                result[k] = v
         return result
         
     @deprecated
@@ -1224,7 +1241,6 @@ class GnrWsgiSite(object):
         os.remove(txtname)
         return result
 
-
     def zipFiles(self, file_list=None, zipPath=None):
         """Allow to zip one or more files
         
@@ -1238,3 +1254,18 @@ class GnrWsgiSite(object):
             zip_archive.write(fname, os.path.basename(fname))
         zip_archive.close()
         zipresult.close()
+
+    def externalUrl(self, path, **kwargs):
+        """TODO
+        
+        :param path: TODO"""
+        params = urllib.urlencode(kwargs)
+        #path = os.path.join(self.homeUrl(), path)
+        if path == '': path = self.home_uri
+        path = self.currentRequest.relative_url(path)
+        if params:
+            path = '%s?%s' % (path, params)
+        return path
+
+
+        

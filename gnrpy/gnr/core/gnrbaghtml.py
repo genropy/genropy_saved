@@ -10,6 +10,7 @@ import os
 from gnr.core.gnrstring import toText
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
+import tempfile
 
 class BagToHtml(object):
     """A class that transforms a :ref:`bag` into HTML. It can be used to make a :ref:`print`"""
@@ -103,10 +104,10 @@ class BagToHtml(object):
         self.setData('record', record) #compatibility
         for k, v in kwargs.items():
             self.setData(k, v)
-        if folder and not filepath:
+        if not filepath:
+            folder = folder or tempfile.mkdtemp()
             filepath = os.path.join(folder, filename or self.outputDocName(ext='html'))
-        self.filepath = filepath
-        
+        self.filepath = filepath        
         if not rebuild:
             with open(self.filepath, 'r') as f:
                 result = f.read()

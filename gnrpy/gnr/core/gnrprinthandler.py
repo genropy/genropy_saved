@@ -129,6 +129,13 @@ class PrintHandler(object):
         :param src_path: TODO
         :param destPath: TODO
         :param orientation: TODO"""
+
+        pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys')
+        if pdf_pref:
+            pdf_pref = pdf_pref.asDict(ascii=True)
+            pdf_kwargs = pdf_kwargs or dict()
+            pdf_pref.update(pdf_kwargs)
+            pdf_kwargs = pdf_pref
         pdf_kwargs['orientation'] = orientation or 'Portrait'
         if not 'quiet' in pdf_kwargs:
             pdf_kwargs['quiet'] = True

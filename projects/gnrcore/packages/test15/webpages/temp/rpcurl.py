@@ -13,6 +13,10 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
+
+    def test_1_errordebug(self,pane):
+        pane.button('test',action='3+pino;');
+
     def test_0_firsttest(self,pane):
         """First test description"""
         pane.button('Action',action="""genro.rpcDownload('oraCorrente',{title:'sono le ore',_download_name_:'pippone'});""")

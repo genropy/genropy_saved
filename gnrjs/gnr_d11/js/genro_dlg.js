@@ -486,7 +486,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.freeze();
         var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+pkey,
                                                     overflow:'hidden',
-                                                      dockTo:'dummyDock:open',
+                                                      dockTo: false,//'dummyDock:open',
                                                       width:'1px',height:'1px',
                                                       fixedPosition:true
                                                      // palette_transition:'all .7s'
@@ -496,16 +496,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             paletteAttr.left=_px(evt.clientX);
         }
         //paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
+        var paletteKwargs = objectExtract(kw,'palette_*');
+        objectUpdate(paletteAttr,paletteKwargs);
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
-            console.log('inizio iframe');
             var palette_height = this._genro.getData('gnr.rootform.size.height');
             var palette_width = this._genro.getData('gnr.rootform.size.width');
             var paletteNode = palette.getParentNode();
             var wdg = paletteNode.getWidget();
             wdg.setBoxAttributes({height:palette_height,width:palette_width});
-            this._genro._rootForm.subscribe('onDismissed',function(){wdg.hide();})
+            this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
             this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
             if(onSavedCb){
                 this._genro._rootForm.subscribe('onSaved',function(kw){

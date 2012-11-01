@@ -595,8 +595,48 @@ dojo.declare("gnr.GnrDevHandler", null, {
         bottom._('button', saveattr);
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});
         dlg.show_action();
-    }
+    },
 
+    addError:function(error,error_type,show){
+        var msg = "<div style='text-align:center;font-size:1em;font-weight:bold;'>"+error_type.toUpperCase()+" Error "+_F(new Date(),'short')+"</div>"+error;
+        if(show){
+            genro.dlg.message(msg,null,'error',3000);
+        }
+        var errorbag = genro.getData('gnr.errors');
+        if(!errorbag){
+            errorbag = new gnr.GnrBag();
+            genro.setData('gnr.errors',errorbag);
+        }
+        errorbag.setItem(error_type+'.#id',msg,{ts:new Date()});
+        var toterr = 0;
+        errorbag.forEach(function(n){
+            toterr+=n.getValue().len();
+        });
+        errorbag.getParentNode().setAttribute('counter',toterr,true);
+    },
+
+    errorPalette:function(parent){
+        if(!parent){
+            var root = genro.src.newRoot();
+            genro.src.getNode()._('div', '_devErrors_');
+            var parent = genro.src.getNode('_devErrors_').clearValue();
+        }
+        parent.freeze();
+        var pane = parent._('palettePane',{'paletteCode':'gnrerrors','dockTo':false,
+                                        title:'Current errors'});
+        pane._('div',{innerHTML:'==genro.dev.formatErrors(_errors)',_errors:'^gnr.errors',padding:'5px',
+                    border:'1px solid silver',background:'whitesmoke',rounded:6,margin:'5px'});
+        parent.unfreeze();
+    },
+    formatErrors:function(errorbag){
+        var errors = [];
+        errorbag.forEach(function(n){
+            n.getValue().forEach(function(errorNode){
+                errors.push(errorNode.getValue())
+            })
+        })
+        return errors.join('<br/><hr/>');
+    }
 });
 //dojo.declare("gnr.GnrViewEditor",null,{
 //      constructor: function(widget){

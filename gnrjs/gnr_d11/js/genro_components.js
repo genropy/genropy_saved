@@ -1123,6 +1123,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     templateHandler.dataInfo = resultNode.attr;
                     templateHandler.data = r.popNode('template_data').getValue();
                 },null,'POST');
+            }else{
+                sourceNode.domNode.innerHTML = '';
+                templateHandler.dataInfo = {};
+                templateHandler.data = new gnr.GnrBag();
             }
         }
         templateHandler.setNewData = function(result){
@@ -2207,37 +2211,58 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             var that = this;
             this.pendingChanges = [];
             this._externalChangesDisabled = false;
-            var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
-                var isExternal = kw.changeattr.from_page_id!=genro.page_id;
-                dojo.forEach(kw.changelist,function(c){
-                    c._isExternal = isExternal;
-                    that.pendingChanges.push(c);
-                });
-                that.storeNode.watch('externalChangesDisabled',function(){
-                    if(that._externalChangesDisabled){
-                        return false;
+            var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
+                function(kw){
+                    if(that.freezedStore()){
+                        return;
                     }
-                    var gridVisible = false;
-                    dojo.forEach(that.linkedGrids(),function(grid){
-                        gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
+                    var isExternal = kw.changeattr.from_page_id!=genro.page_id;
+                    dojo.forEach(kw.changelist,function(c){
+                        c._isExternal = isExternal;
+                        that.pendingChanges.push(c);
                     });
-                    return gridVisible;
-                },function(){
-                    var changelist = that.pendingChanges;
-                    that.pendingChanges = [];
-                    if(changelist.length>0){
-                        that.onExternalChange(changelist);    
-                    }
-                });
-            });};
+                    that.storeNode.watch('externalChangesDisabled',function(){
+                        if(that._externalChangesDisabled){
+                            return false;
+                        }
+                        var gridVisible = false;
+                        dojo.forEach(that.linkedGrids(),function(grid){
+                            gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
+                        });
+                        return gridVisible;
+                    },function(){
+                        var changelist = that.pendingChanges;
+                        that.pendingChanges = [];
+                        if(changelist.length>0){
+                            that.onExternalChange(changelist);    
+                        }
+                    });
+                });};
             genro.src.afterBuildCalls.push(cb);
         }
+    },
+    voidSelection:function(){
+        return new gnr.GnrBag();
     },
     currentPkeys:function(){
         var data = this.getData();
         var result = [];
         data.forEach(function(n){result.push(n.attr._pkey)});
         return result;
+    },
+
+    freezedStore:function(){
+        var if_condition = this.storeNode.attr._if;
+        if(if_condition){
+            var if_result = funcApply(if_condition,this.storeNode.currentAttributes(),this.storeNode);
+            if(!if_result){
+                return true;
+            }
+        }
+        if(this.storeNode.form && this.storeNode.form.status=='noItem'){
+            return true;
+        }
+        return false;
     },
     
     onExternalChange:function(changelist){
@@ -2275,12 +2300,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             kw._sourceNode = this.storeNode;
             kw._chpkeys = insOrUpdKeys;
             kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
-            var if_condition = this.storeNode.attr._if;
-            if(if_condition){
-                var if_result = funcApply(if_condition,this.storeNode.currentAttributes(),this.storeNode);
-                if(!if_result){
-                    return;
-                }
+            if(this.freezedStore()){
+                return;
             }
             genro.rpc.remoteCall('app.getSelection', 
                                 kw,null,'POST',null,
@@ -2295,7 +2316,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         }else if (delKeys.length>0) {
             this.checkExternalChange(delKeys,[],[],isExternalDict);
         }
-
     },
     
     onCounterChanges:function(counterField,changes){
@@ -2364,7 +2384,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(insOrUpdKeys.length>0){
             wasInSelection = wasInSelectionCb(insOrUpdKeys);
             dojo.forEach(insOrUpdKeys,function(pkey){
-                isExternalChange = pkey in isExternalDict;
                 wasInSelectionNode = wasInSelection[pkey];
                 willBeInSelectionNode = willBeInSelection[pkey];
                 if(wasInSelectionNode){
@@ -2373,8 +2392,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         var rowNode = data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey);
                         var rowValue = rowNode.getValue('static');
                         var newattr = objectUpdate({},willBeInSelectionNode.attr);
-                        if(isExternalChange){
-                            //that.externalChangedKeys[pkey] = true;
+                        if(pkey in isExternalDict){
                             for(var attrname in willBeInSelectionNode.attr){
                                 changedRows[rowNode.attr._pkey] = rowNode;
                                 if(!isEqual(rowNode.attr[attrname],willBeInSelectionNode.attr[attrname])){

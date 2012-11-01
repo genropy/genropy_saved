@@ -26,7 +26,7 @@
 import os,sys
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs
-from gnr.core.gnrstring import  splitAndStrip, slugify
+from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
 
@@ -165,6 +165,7 @@ class BaseWebtool(object):
     """TODO"""
     pass
         
+
 class TableScriptToHtml(BagToHtml):
     """TODO"""
     rows_table = None
@@ -173,10 +174,10 @@ class TableScriptToHtml(BagToHtml):
     pdf_folder = 'page:pdf'
     cached = None
 
-        
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
+        self.site = page.site
         self.db = page.db
         self.locale = self.page.locale
         self.tblobj = resource_table
@@ -218,12 +219,6 @@ class TableScriptToHtml(BagToHtml):
     @extract_kwargs(pdf=True)
     def writePdf(self,filepath=None, pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
         self.pdfpath = pdfpath or self.getPdfPath('%s.pdf' % docname, autocreate=-1)
-        pdf_pref = self.page.getPreference('.pdf_render',pkg='sys')
-        if pdf_pref:
-            pdf_pref = pdf_pref.asDict(ascii=True)
-            pdf_kwargs = pdf_kwargs or dict()
-            pdf_pref.update(pdf_kwargs)
-            pdf_kwargs = pdf_pref
         self.print_handler.htmlToPdf(filepath or self.filepath, self.pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
 
     def get_css_requires(self):
@@ -251,23 +246,22 @@ class TableScriptToHtml(BagToHtml):
         
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticPath(self.html_folder, *args, **kwargs)
+        return self.site.getStaticPath(self.html_folder, *args, **kwargs)
         
     def getPdfPath(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticPath(self.pdf_folder, *args, **kwargs)
+        return self.site.getStaticPath(self.pdf_folder, *args, **kwargs)
         
     def getHtmlUrl(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticUrl(self.html_folder, *args, **kwargs)
+        return self.site.getStaticUrl(self.html_folder, *args, **kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
         """TODO"""
-        return self.page.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
+        return self.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
         
     def outputDocName(self, ext=''):
         """TODO
-        
         :param ext: TODO"""
         if ext and not ext[0] == '.':
             ext = '.%s' % ext
@@ -279,3 +273,41 @@ class TableScriptToHtml(BagToHtml):
                 caption = '%s_%i' %(caption,idx)
         doc_name = '%s_%s%s' % (self.tblobj.name, caption, ext)
         return doc_name
+
+class TableTemplateToHtml(BagToHtml):
+    def __init__(self, table=None, **kwargs):
+        super(TableTemplateToHtml, self).__init__(**kwargs)
+        self.db = table.db
+        self.site = self.db.application.site
+        self.tblobj = table
+        self.maintable = table.fullname
+        self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
+        self.print_handler = self.site.getService('print')
+        self.record = None
+
+    def __call__(self,record=None,template=None, htmlContent=None, locale=None,**kwargs):
+        if not htmlContent:
+            htmlContent = self.contentFromTemplate(record,template,locale=locale)
+        return super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
+
+    def contentFromTemplate(self,record,template,locale=None,**kwargs):
+        if isinstance(template,Bag):
+            kwargs['locale'] = locale or template.getItem('main?locale')
+            kwargs['masks'] = template.getItem('main?masks')
+            kwargs['formats'] = template.getItem('main?formats')
+            kwargs['df_templates'] = template.getItem('main?df_templates')
+            kwargs['dtypes'] = template.getItem('main?dtypes')
+        virtual_columns = template.getItem('main?virtual_columns')
+        record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
+        return templateReplace(template,record, safeMode=True,noneIsBlank=False,
+                    localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
+                    **kwargs)
+
+
+
+    @extract_kwargs(pdf=True)
+    def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
+        self.print_handler.htmlToPdf(self.filepath,pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
+
+        
+

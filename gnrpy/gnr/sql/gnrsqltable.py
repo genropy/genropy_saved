@@ -595,6 +595,7 @@ class SqlTable(GnrObject):
             if isinstance(_pkeys,basestring):
                 _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
+            kwargs.setdefault('excludeDraft',False)
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
@@ -1413,6 +1414,9 @@ class SqlTable(GnrObject):
             return newresult
         else:
             return result
-            
+
+    def setQueryCondition(self,condition_name,condition):
+        self.db.currentEnv['env_%s_condition_%s' %(self.fullname.replace('.','_'),condition_name)] = condition
+                    
 if __name__ == '__main__':
     pass

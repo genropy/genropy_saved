@@ -1186,7 +1186,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         for (var i = 0; i < nodes.length; i++) {
             r = "";
             item = nodes[i].attr;
-            _customClasses = objectPop(item,'_customClasses');
+            _customClasses = objectPop(item,'_customclasses');
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';

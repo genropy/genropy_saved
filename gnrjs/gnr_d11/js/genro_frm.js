@@ -425,8 +425,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     doload_store: function(kw) {
-        this.saveKeptData();
-
         if(kw.destPkey=='*dismiss*'){
             for(var k in this.gridEditors){
                 this.gridEditors[k].resetEditor();
@@ -739,25 +737,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         }
     },
-    saveKeptData:function(){
+
+    setKeptData:function(valuepath,value,set){
         var keptData = this.keptData || {};
-        var currdata = this.getFormData();
-        this.keptData = null;
-        if(!currdata){
-            return;
+        if(set){
+            keptData[valuepath] = value;
+        }else{
+            objectPop(keptData,valuepath); 
         }
-        currdata.forEach(function(n){
-            if(n.attr._keep==true){
-                keptData[n.label] = n._value;
-            }else{
-                objectPop(keptData,n.label);
-            }
-        },'static');
-        if(objectNotEmpty(keptData)){
-            this.keptData = keptData;
-        }
+        this.keptData = objectNotEmpty(keptData)?keptData:null;
     },
-    
+
     saved: function(result) {
         this.fireControllerData('saved');
         this.setOpStatus('saved');
