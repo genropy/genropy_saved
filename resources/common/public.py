@@ -165,6 +165,7 @@ class PublicSlots(BaseComponent):
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
         if title:
             pane.data('gnr.publicTitle',title) 
+        pane.dataController('genro.publish("gnr_public_title",public_title);',public_title='^gnr.publicTitle')
         pane.div('^gnr.publicTitle', _class='pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
                     childname='captionbox',**kwargs)
