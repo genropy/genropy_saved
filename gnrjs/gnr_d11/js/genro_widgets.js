@@ -388,7 +388,8 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
         var parentNode = sourceNode.getParentNode();
         if (parentNode.attr.tag) {
-            if (parentNode.attr.tag.toLowerCase() == 'tabcontainer') {
+            var parentTagLower = parentNode.attr.tag.toLowerCase()
+            if (parentTagLower== 'tabcontainer') {
                 objectFuncReplace(newobj, 'setTitle', function(title) {
                     if (title) {
                         if (this.controlButton) {
@@ -397,11 +398,15 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                     }
                 });
             }
-            else if (parentNode.attr.tag.toLowerCase() == 'accordioncontainer') {
+            else if (parentTagLower == 'accordioncontainer') {
                 objectFuncReplace(newobj, 'setTitle', function(title) {
                     this.titleTextNode.innerHTML = title;
-
                 });
+            }
+            else if(parentTagLower =='stackcontainer'){
+                newobj.setTitle = function(title){
+                    console.log('cambio title del pane')
+                }
             }
         }
         if (savedAttrs.onEnter) {

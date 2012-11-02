@@ -140,7 +140,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
     },
     makeDomNode:function(tag, destination, ind) {
-        var ind = ind || -1;
+        var ind = ind==null? -1:ind;
         var domnode = document.createElement(tag);
         if (destination.containerNode) {
             destination.containerNode.appendChild(domnode);
@@ -151,7 +151,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         else {
             if (typeof(ind) == 'object') {
                 destination.replaceChild(domnode, ind);
-            } else if (ind <= 0 || ind >= destination.childNodes.length) {
+            } else if (ind < 0 || ind >= destination.childNodes.length) {
                 destination.appendChild(domnode);
             } else {
                 destination.insertBefore(domnode, destination.childNodes[ind]);

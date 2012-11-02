@@ -151,8 +151,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetChanges();
         this.resetInvalidFields();
     },
-    publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent,iframe:'*'};
+    publish: function(command,kw,topic_kw){
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope,subscriberNode){
@@ -1861,10 +1861,13 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             kw.first = true;
             kw.last = true;
         }
-        else if(currIdx==0){
-            kw.first = true;
-        }else if(currIdx>=this.parentStore.len(true)-1){
-            kw.last = true;
+        else{
+            if(currIdx==0){
+                kw.first = true;
+            }
+            if(currIdx>=this.parentStore.len(true)-1){
+                kw.last = true;
+            }
         }
         this.form.publish('navigationStatus',kw);
         return;

@@ -39,21 +39,39 @@ class PublicBase(BaseComponent):
         return 'adm.user'
         
     def rootWidget(self, root, **kwargs):
-        return root.contentPane(_class='pbl_root', **kwargs)
-        
-    def _pbl_dialogs(self, pane):
-        self._pbl_dialogs_waiting(pane)
-        
-    def _pbl_dialogs_waiting(self, pane):
-        def cb_bottom(*args, **kwargs):
-            pass
+        multipage = self._call_kwargs.get('multipage')
+        multipage_child= self._call_kwargs.get('multipage_child')
+        if multipage_child:
+            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title);",
+                                    title='^gnr.publicTitle',child_id=multipage_child)
+        elif multipage:
+            root.data('gnr.publicTitle','Main Page')
+            frame = root.framePane(frameCode='multipage_root',**kwargs)
+            sc = frame.center.StackContainer(selectedPage='gnr.multipage.currentPage',nodeId='multipage_stack')
+            bar = frame.top.slotToolbar('4,multipageButtons,*',closable='close',
+                                    closable_background='white',
+                                    _class='pbl_multipage_bar',gradient_from='#666',gradient_to='#444')
+            cont = bar.multipageButtons.stackButtons(stackNodeId='multipage_stack')
             
-        def cb_center(parentBc, **kwargs):
-            parentBc.contentPane(**kwargs).div(_class='waiting')
-        
-        self.simpleDialog(pane, title='!!Waiting', dlgId='pbl_waiting', height='200px', width='300px',
-                          cb_center=cb_center,
-                          datapath='gnr.tools.waitingdialog', cb_bottom=cb_bottom)
+            cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new;""",_class='multibutton')
+
+
+            root.dataController("""var child_id = 'm_'+genro.getCounter();
+                var titlepath = 'gnr.multipage.pages.' +child_id;
+                genro.setData(titlepath,temp_title);
+                var currPars = genro.rpc.getURLParams()
+                var url = window.location.href.replace(window.location.search,'');
+                currPars['multipage_child'] = child_id;
+                objectPop(currPars,'multipage');
+                objectPop(currPars,'_root_page_id');
+                url = genro.addParamsToUrl(url,currPars);
+                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,pageName:child_id,closable:true});
+                pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
+                setTimeout(function(){sc.widget.switchPage(child_id);},100);
+                """,_fired='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
+            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',pageName='m_main')
+
+        return root.contentPane(_class='pbl_root', **kwargs)
                           
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
@@ -109,7 +127,6 @@ class PublicBase(BaseComponent):
         frame = self._pbl_frameroot(root, title, height=height, width=width, **kwargs) 
         return frame
 
-
     def app_logo_url(self):
         logo_url = self.custom_logo_url()
         if not logo_url:
@@ -148,7 +165,9 @@ class Public(PublicBase):
                      public:PublicSlots,
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                      gnrcomponents/chat_component/chat_component:ChatComponent"""
-                     
+
+    def mainLeftContent(self,pane,**kwargs):
+        return
 
 class PublicSlots(BaseComponent):
         
@@ -160,11 +179,18 @@ class PublicSlots(BaseComponent):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
 
 
+    @struct_method
+    def public_publicRoot_countErrors(self,pane,**kwargs):
+        pane.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
+                    _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',margin_left='4px',margin_right='4px',margin_top='3px')
+
+
             
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
         if title:
             pane.data('gnr.publicTitle',title) 
+        pane.dataController('genro.publish("gnr_public_title",public_title);',public_title='^gnr.publicTitle')
         pane.div('^gnr.publicTitle', _class='pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
                     childname='captionbox',**kwargs)
@@ -223,12 +249,6 @@ class PublicSlots(BaseComponent):
         else:
             pane.div()
 
-    @struct_method
-    def public_publicRoot_countErrors(self,pane,**kwargs):
-        pane.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
-                    _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',margin_left='4px',margin_right='4px',margin_top='3px')
-
-
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,th/th:TableHandler"""
     plugin_list=''
@@ -237,11 +257,6 @@ class TableHandlerMain(BaseComponent):
     formInIframe = False
     th_readOnly = False
     maintable = None
-    
-
-
-    def mainLeftContent(self,pane,**kwargs):
-        return
     
     #DA RIVEDERE
     @struct_method
@@ -268,24 +283,6 @@ class TableHandlerMain(BaseComponent):
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
     
-    def rootWidget(self, root, **kwargs):
-        return root.contentPane(_class='pbl_root', **kwargs)
-
-
-            
-    #@struct_method
-    #def public_publicRoot_caption(self,pane,title='',**kwargs):  
-    #    if title:
-    #        pane.data('gnr.publicTitle',title) 
-    #    pane.div('^gnr.publicTitle', _class='pbl_title_caption',
-    #                draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
-    #                connect_onclick="""var mod = genro.dom.getEventModifiers($1);
-    #                                    if(mod=='Shift'){
-    #                                        th_usersettings($1.target);
-    #                                    }
-    #                                    """,
-    #                **kwargs)
-        
     @extract_kwargs(th=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
@@ -473,18 +470,31 @@ class TableHandlerMain(BaseComponent):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
-                th.dataController("""var title = (selectedPage!='form'?viewtitle:formtitle)||currTitle;
-                                     genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                th.dataController("""
+                    var title;
+                    if(selectedPage=='form'){
+                        title = formtitle;
+                    }else{
+                        title = viewtitle;
+                        if(totalRowCount!==null){
+                            title = title +' ('+totalrows+'/'+totalRowCount+')';
+                        }
+                    }
+                    if(title){
+                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                    }
                             """,
-                            formtitle='^.form.controller.title',viewtitle='^.view.title',
-                            selectionName='^.view.store?selectionName',table='=.view.table',
-                            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle') 
+                formtitle='^.form.controller.title',viewtitle='^.view.title',
+                selectionName='^.view.store?selectionName',table='=.view.table',
+                totalRowCount = '^.view.store?totalRowCount',
+                totalrows = '^.view.store?totalrows',
+                selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',_delay=100) 
                 if not extendedQuery:
                     th.view.top.bar.replaceSlots('count','')
                     th.view.top.bar.replaceSlots('searchOn','')
                     th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
             else:
-                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_onStart=True)        
+                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_if='viewtitle',_onStart=True)        
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
@@ -507,7 +517,7 @@ class TableHandlerMain(BaseComponent):
         if public:
             form.dataController("""
                             SET gnr.publicTitle = title;
-                            """,title='^#FORM.controller.title')  
+                            """,title='^#FORM.controller.title',_if='title')  
 
         if th_kwargs.get('showfooter',True):
             self._usePublicBottomMessage(form)

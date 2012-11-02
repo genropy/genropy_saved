@@ -3170,6 +3170,7 @@ p {
     line-height:3ex;
     font-size: 9pt;
     font-variant:small-caps;
+    height: 20px;
 }
 .multibutton:hover{
 	text-decoration: underline;
@@ -3192,7 +3193,6 @@ p {
 	 background:#888;
 	-moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
-	
 }
 .multibutton_selected.multibutton:hover{
 	text-decoration:none;
@@ -3213,21 +3213,77 @@ p {
     font-size: 9pt;
     font-variant:small-caps;*/
 }
+.multibutton.multibutton_closable{
+    padding-right: 18px;
+}
 
 .multibuttonsub.multibutton{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#A6CAEE), to(#467399));
     background-image: -moz-linear-gradient(-90deg, #A6CAEE, #467399);
 }
-.footer_block {
-	font-weight: 1.1;
-	color: #4c4c4c;
-	cursor: pointer;
+
+.multibutton_closer{
+    position: absolute;
+    top:4px;
+    right:2px;
 }
 
-.footer_block:hover{
-	text-decoration: underline;
-}
 /* @end */
+
+
+/* @group multibutton multipages */
+.pbl_multipage_bar{
+    height: 20px;
+}
+
+.pbl_multipage_bar .multibutton{
+}
+.pbl_multipage_bar .multibutton_container{
+    padding-top:0;
+    padding-bottom:0;
+    font-size: 8pt;
+    font-variant:small-caps;
+    height: 18px;
+    line-height: 2.5ex;
+    padding-top: 2px;
+}
+
+.pbl_multipage_bar .multibutton:last-child{
+
+}
+.pbl_multipage_bar .multibutton:first-child{
+
+}
+.pbl_multipage_bar .multibutton:hover{
+    text-decoration: none;
+}
+.multibutton_closer{
+    position: absolute;
+    top:1px;
+    right:2px;
+}
+.multipage_add{
+    background: url(icons/base10/smalladd.png) no-repeat center center;
+    opacity: .5;
+    width: 10px;
+}
+.pbl_multipage_bar .multibutton_selected.multibutton{
+
+}
+
+
+/* @end */
+
+
+.footer_block {
+    font-weight: 1.1;
+    color: #4c4c4c;
+    cursor: pointer;
+}
+.footer_block:hover{
+    text-decoration: underline;
+}
+
 .chunkeditor_emptytemplate{
     border-radius:6px;
     margin:10px;

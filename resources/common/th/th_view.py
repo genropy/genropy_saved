@@ -58,7 +58,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
+                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
             else:
@@ -393,7 +393,8 @@ class TableHandlerView(BaseComponent):
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
-                         excludeDraft='=.excludeDraft',_if='&&(_updateCount || _showCount)',
+                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %_if,
+                         _else='return 0;',
                          **condPars)
         
         frame.dataController("""

@@ -280,6 +280,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         if(mainpkey==this.mainpkey){
             return;
         }
+        this.mainpkey = mainpkey;
         this.destroyPages();
     },
     destroyPages:function(){

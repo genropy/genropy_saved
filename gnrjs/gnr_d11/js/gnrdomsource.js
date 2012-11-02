@@ -1410,7 +1410,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     unwatch:function(watchId){
         if (this.watches && this.watches[watchId]){
-            console.log('pulisco interval',watchId,this.attr.nodeId)
             clearInterval(this.watches[watchId]);
             delete this.watches[watchId];
         }
