@@ -554,8 +554,7 @@ class GnrWhereTranslator(object):
                 jc = ''
             negate = attr.get('not') == 'not'
             if isinstance(value, Bag):
-                onecondition = '<br/>'.join(self.toHtml(tblobj, value, level + 1))
-                onecondition =  '<div class="slqnested"> %s </div>' %(onecondition)#'(\n' + '    ' * level + onecondition + '\n' + '    ' * level + ')'
+                onecondition =  '<div class="slqnested"> %s </div>' %(self.toHtml(tblobj, value, level + 1))#'(\n' + '    ' * level + onecondition + '\n' + '    ' * level + ')'
             else:
                 op = attr.get('op_caption')
                 column = attr.get('column_caption')
@@ -570,8 +569,9 @@ class GnrWhereTranslator(object):
             if onecondition:
                 if negate:
                     onecondition = ' <span class="sqlnot">%s</span> %s  ' % (attr.get('not_caption', ''), onecondition)
-                result.append(' <span class="sqljc">%s</span> %s' % (jc, onecondition ))
-        return result
+                result.append('<div class="sqlcondition"> <span class="sqljc">%s</span> %s </div>' % (jc, onecondition ))
+
+        return ''.join(result)
 
 
     def innerFromBag(self, tblobj, wherebag, sqlArgs, level):

@@ -53,7 +53,7 @@ class PublicBase(BaseComponent):
                                     _class='pbl_multipage_bar',gradient_from='#666',gradient_to='#444')
             cont = bar.multipageButtons.stackButtons(stackNodeId='multipage_stack')
             
-            cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new;""",_class='multibutton')
+            cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new = genro.dom.getEventModifiers($1);""",_class='multibutton')
 
             root.dataController("""var child_id = 'm_'+genro.getCounter();
                 var titlepath = 'gnr.multipage.pages.' +child_id;
@@ -64,11 +64,12 @@ class PublicBase(BaseComponent):
                 objectPop(currPars,'multipage');
                 objectPop(currPars,'_root_page_id');
                 url = genro.addParamsToUrl(url,currPars);
+
                 var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?titleFullDesc',
                                                 pageName:child_id,closable:true});
                 pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
                 setTimeout(function(){sc.widget.switchPage(child_id);},100);
-                """,_fired='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
+                """,evtMod='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
             return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',stackbutton_tooltip='^gnr.publicTitle?titleFullDesc',pageName='m_main')
 
         return root.contentPane(_class='pbl_root', **kwargs)
