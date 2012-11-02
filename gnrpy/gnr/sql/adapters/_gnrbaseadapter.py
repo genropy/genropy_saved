@@ -535,11 +535,42 @@ class GnrWhereTranslator(object):
                     if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
                         value, op = self.decodeDates(value, op, 'D')
                         op = self.opCaption(op, localize=True)
+                op = op.lower()
                 onecondition = '%s %s %s' % (column, op, value)
             if onecondition:
                 if negate:
                     onecondition = ' %s %s  ' % (attr.get('not_caption', ''), onecondition)
                 result.append(' %s %s' % (jc, onecondition ))
+        return result
+
+    def toHtml(self, tblobj, wherebag, level=0, decodeDate=False):
+        result = []
+        for k, node in enumerate(wherebag.getNodes()):
+            attr = node.getAttr()
+            value = node.getValue()
+            if k:
+                jc = attr.get('jc_caption', '')
+            else:
+                jc = ''
+            negate = attr.get('not') == 'not'
+            if isinstance(value, Bag):
+                onecondition = '<br/>'.join(self.toHtml(tblobj, value, level + 1))
+                onecondition =  '<div class="slqnested"> %s </div>' %(onecondition)#'(\n' + '    ' * level + onecondition + '\n' + '    ' * level + ')'
+            else:
+                op = attr.get('op_caption')
+                column = attr.get('column_caption')
+                if not op or not column:
+                    continue
+                if decodeDate:
+                    if tblobj.column(attr.get('column')).dtype in('D', 'DH'):
+                        value, op = self.decodeDates(value, op, 'D')
+                        op = self.opCaption(op, localize=True)
+                op = op.lower()
+                onecondition = '<span class="sqlcol">%s</span> <span class="sqlop">%s</span> <span class="sqlvalue">%s</span>' % (column, op, value)
+            if onecondition:
+                if negate:
+                    onecondition = ' <span class="sqlnot">%s</span> %s  ' % (attr.get('not_caption', ''), onecondition)
+                result.append(' <span class="sqljc">%s</span> %s' % (jc, onecondition ))
         return result
 
 

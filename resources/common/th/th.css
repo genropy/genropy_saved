@@ -1,6 +1,17 @@
 .logicalDeleted .gnrfield * {
     color: #f00;
 }
+.th_whereDescriptorBar{
+    min-height: 40px;
+    padding: 2px;
+    border-top: 1px solid silver;
+}
+.th_whereDescriptor{
+	font-family: "Courier New", Courier, mono;
+    line-height: 20px;
+    text-align:left;
+    width: 100%;
+}
 
 /* @group toolbarbuttons */
 .th_filterActive .th_filterButton {
@@ -220,11 +231,9 @@
 .qb_div {
     border:1px solid silver;
     color:#555;
-    font-size:9px;
     border-radius: 4px;
     padding-left: 6px;
     min-height: 14px;
-
     line-height:15px;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#F7F7F7), to(#E4E4E4));    
     background-image: -moz-linear-gradient(-90deg, #F7F7F7, to(#E4E4E4));

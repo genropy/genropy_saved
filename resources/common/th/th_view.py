@@ -83,8 +83,11 @@ class TableHandlerView(BaseComponent):
                                **kwargs)   
         if configurable:
             frame.right.viewConfigurator(table,frameCode)     
-        if False:
-            frame.left.viewLeftDrawer(table,frameCode)             
+        if extendedQuery=='*':
+            bottom = frame.bottom
+            bottom.attributes.update(background='#fcfde5')
+            footer = bottom.slotBar('2,whereDescriptor,2',closable='close',_class='th_whereDescriptorBar',splitter=True,whereDescriptor_width='100%')      
+            footer.whereDescriptor.div('^.store?whereAsPlainText',_class='th_whereDescriptor')   
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
@@ -451,8 +454,6 @@ class TableHandlerView(BaseComponent):
                                                                 _class='smallmenu',modifiers='*')
 
 
-
-    
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
         inattr = pane.getInheritedAttributes()

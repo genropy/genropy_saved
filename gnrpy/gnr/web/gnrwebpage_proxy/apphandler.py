@@ -686,6 +686,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_count = int(row_count)
         newSelection = True
         formats = {}
+        wherebag = where if isinstance(where,Bag) else None
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
@@ -765,6 +766,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         if prevSelectedDict:
             keys = prevSelectedDict.keys()
             resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))
+        if wherebag:
+            resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         return (result, resultAttributes)
 
 

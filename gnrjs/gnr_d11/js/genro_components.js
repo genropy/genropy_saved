@@ -1309,8 +1309,11 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                 btn_class+=' multibutton_closable'
             }
             var stackbag = stackNode.getValue();
-            var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:btn_class,_childSourceNode:childSourceNode},{_position:stackbag.len()-stackNode._n_children});
-            btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+            var childattr = childSourceNode.attr;
+            var multibutton_kw = objectExtract(childattr,'stackbutton_*')
+            var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
+            var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
+            btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
