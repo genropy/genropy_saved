@@ -11,7 +11,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var url = this.getPageUrl(kw);
         var stackSourceNode = this.stackSourceNode;
         var sc = stackSourceNode.getValue();
-        var pageName = kw.pageName || url.replace(/\W/g,'_');
+        var pageName = kw.pageName;
         var stackWidget=this.stackSourceNode.widget;
         if(stackWidget.hasPageName(pageName)){
             stackWidget.switchPage(pageName);
@@ -70,11 +70,14 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.workInProgress){
             urlPars.workInProgress = true;
         }
-        if(kw.multipage || kw.modifiers=='Meta'){
-            urlPars.multipage = kw.multipage;
-        }
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
-        return genro.addParamsToUrl(url,urlPars);
+        var result = genro.addParamsToUrl(url,urlPars);
+        kw.pageName = kw.pageName || result.replace(/\W/g,'_');
+        if(kw.multipage || kw.modifiers=='Meta'){
+            urlPars.multipage = true;
+            var result = genro.addParamsToUrl(url,urlPars);
+        }
+        return result;
     },
     
     createTablist:function(sourceNode,data,onCreatingTablist){
