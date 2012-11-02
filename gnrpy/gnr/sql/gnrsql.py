@@ -699,7 +699,7 @@ class TriggerStack(object):
 
     @property
     def parentItem(self):
-        return self.stack[-1] if len(self)>1 else None
+        return self.stack[-1] if len(self)>0 else None
 
     def item(self,n):
         try:
