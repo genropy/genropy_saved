@@ -42,8 +42,8 @@ class PublicBase(BaseComponent):
         multipage = self._call_kwargs.get('multipage')
         multipage_child= self._call_kwargs.get('multipage_child')
         if multipage_child:
-            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title);",
-                                    title='^gnr.publicTitle',child_id=multipage_child)
+            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title,{whereAsPlainText:whereAsPlainText});",
+                                    title='^gnr.publicTitle',whereAsPlainText='^gnr.publicTitle?whereAsPlainText',child_id=multipage_child,_delay=1)
         elif multipage:
             root.data('gnr.publicTitle','Main Page')
             frame = root.framePane(frameCode='multipage_root',**kwargs)
@@ -55,7 +55,6 @@ class PublicBase(BaseComponent):
             
             cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new;""",_class='multibutton')
 
-
             root.dataController("""var child_id = 'm_'+genro.getCounter();
                 var titlepath = 'gnr.multipage.pages.' +child_id;
                 genro.setData(titlepath,temp_title);
@@ -65,11 +64,12 @@ class PublicBase(BaseComponent):
                 objectPop(currPars,'multipage');
                 objectPop(currPars,'_root_page_id');
                 url = genro.addParamsToUrl(url,currPars);
-                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,pageName:child_id,closable:true});
+                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?whereAsPlainText',
+                                                pageName:child_id,closable:true});
                 pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
                 setTimeout(function(){sc.widget.switchPage(child_id);},100);
                 """,_fired='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
-            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',pageName='m_main')
+            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',stackbutton_tooltip='^gnr.publicTitle?whereAsPlainText',pageName='m_main')
 
         return root.contentPane(_class='pbl_root', **kwargs)
                           
@@ -481,13 +481,15 @@ class TableHandlerMain(BaseComponent):
                         }
                     }
                     if(title){
-                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                        whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
+                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',whereAsPlainText:whereAsPlainText});
                     }
                             """,
                 formtitle='^.form.controller.title',viewtitle='^.view.title',
                 selectionName='^.view.store?selectionName',table='=.view.table',
                 totalRowCount = '^.view.store?totalRowCount',
                 totalrows = '^.view.store?totalrows',
+                whereAsPlainText='^.view.store?whereAsPlainText',
                 selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',_delay=100) 
                 if not extendedQuery:
                     th.view.top.bar.replaceSlots('count','')
