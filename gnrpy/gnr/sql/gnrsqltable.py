@@ -1018,7 +1018,7 @@ class SqlTable(GnrObject):
         pass
 
     @property
-    def parentTrigger(self):
+    def currentTrigger(self):
         trigger_stack =  self.db.currentEnv.get('_trigger_stack')
         if trigger_stack:
             return trigger_stack.parentItem
