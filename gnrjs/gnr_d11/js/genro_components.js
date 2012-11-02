@@ -2272,7 +2272,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     freezedStore:function(){
         var if_condition = this.storeNode.attr._if;
         if(if_condition){
-            var if_result = funcApply(if_condition,this.storeNode.currentAttributes(),this.storeNode);
+            var if_result = funcApply('return '+if_condition,this.storeNode.currentAttributes(),this.storeNode);
             if(!if_result){
                 return true;
             }

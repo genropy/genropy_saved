@@ -48,7 +48,9 @@ class PublicBase(BaseComponent):
             root.data('gnr.publicTitle','Main Page')
             frame = root.framePane(frameCode='multipage_root',**kwargs)
             sc = frame.center.StackContainer(selectedPage='gnr.multipage.currentPage',nodeId='multipage_stack')
-            bar = frame.bottom.slotToolbar('4,multipageButtons,*',closable='close',closable_left='2px',closable_background='white',_class='pbl_multipage_bar')
+            bar = frame.top.slotToolbar('4,multipageButtons,*',closable='close',
+                                    closable_background='white',
+                                    _class='pbl_multipage_bar',gradient_from='#666',gradient_to='#444')
             cont = bar.multipageButtons.stackButtons(stackNodeId='multipage_stack')
             
             cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new;""",_class='multibutton')
