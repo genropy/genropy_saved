@@ -3399,10 +3399,14 @@ p {
 .sqlop{
     font-style: italic;
 }
+
 .sqlvalue{
 	background: white;
     border:1px solid silver;
+    padding-left: 4px;
+    padding-right: 4px;
 }
+
 .sqlnot{
 	
 }

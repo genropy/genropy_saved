@@ -42,8 +42,8 @@ class PublicBase(BaseComponent):
         multipage = self._call_kwargs.get('multipage')
         multipage_child= self._call_kwargs.get('multipage_child')
         if multipage_child:
-            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title,{whereAsPlainText:whereAsPlainText});",
-                                    title='^gnr.publicTitle',whereAsPlainText='^gnr.publicTitle?whereAsPlainText',child_id=multipage_child,_delay=1)
+            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title,{titleFullDesc:titleFullDesc});",
+                                    title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',child_id=multipage_child,_delay=1)
         elif multipage:
             root.data('gnr.publicTitle','Main Page')
             frame = root.framePane(frameCode='multipage_root',**kwargs)
@@ -64,12 +64,12 @@ class PublicBase(BaseComponent):
                 objectPop(currPars,'multipage');
                 objectPop(currPars,'_root_page_id');
                 url = genro.addParamsToUrl(url,currPars);
-                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?whereAsPlainText',
+                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?titleFullDesc',
                                                 pageName:child_id,closable:true});
                 pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
                 setTimeout(function(){sc.widget.switchPage(child_id);},100);
                 """,_fired='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
-            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',stackbutton_tooltip='^gnr.publicTitle?whereAsPlainText',pageName='m_main')
+            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',stackbutton_tooltip='^gnr.publicTitle?titleFullDesc',pageName='m_main')
 
         return root.contentPane(_class='pbl_root', **kwargs)
                           
@@ -482,7 +482,7 @@ class TableHandlerMain(BaseComponent):
                     }
                     if(title){
                         whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
-                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',whereAsPlainText:whereAsPlainText});
+                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',titleFullDesc:whereAsPlainText});
                     }
                             """,
                 formtitle='^.form.controller.title',viewtitle='^.view.title',

@@ -82,7 +82,7 @@ class Table(object):
         if not metadata:
             return
         record = dict(data=data,objtype=objtype,
-                    pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=metadata['id'],
+                    pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=metadata['pkey'],
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
                     notes=metadata['notes'],flags=metadata['flags'])
         self.insertOrUpdate(record)
