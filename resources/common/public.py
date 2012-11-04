@@ -39,12 +39,11 @@ class PublicBase(BaseComponent):
         return 'adm.user'
         
     def rootWidget(self, root, **kwargs):
-        multipage = self._call_kwargs.get('multipage')
         multipage_child= self._call_kwargs.get('multipage_child')
         if multipage_child:
             root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title,{titleFullDesc:titleFullDesc});",
                                     title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',child_id=multipage_child,_delay=1)
-        elif multipage:
+        if getattr(self,'multipage',True):
             root.data('gnr.publicTitle','Main Page')
             frame = root.framePane(frameCode='multipage_root',**kwargs)
             sc = frame.center.StackContainer(selectedPage='gnr.multipage.currentPage',nodeId='multipage_stack')
@@ -61,10 +60,8 @@ class PublicBase(BaseComponent):
                 var currPars = genro.rpc.getURLParams()
                 var url = window.location.href.replace(window.location.search,'');
                 currPars['multipage_child'] = child_id;
-                objectPop(currPars,'multipage');
                 objectPop(currPars,'_root_page_id');
                 url = genro.addParamsToUrl(url,currPars);
-
                 var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?titleFullDesc',
                                                 pageName:child_id,closable:true});
                 pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
@@ -470,34 +467,31 @@ class TableHandlerMain(BaseComponent):
     def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
-            if widget=='stack' or widget=='dialog':
-                th.dataController("""
-                    var title;
-                    if(selectedPage=='form'){
-                        title = formtitle;
-                    }else{
-                        title = viewtitle;
-                        if(totalRowCount!==null){
-                            title = title +' ('+totalrows+'/'+totalRowCount+')';
-                        }
+            th.dataController("""
+                var title;
+                if(selectedPage=='form' && widget=='stack'){
+                    title = formtitle;
+                }else{
+                    title = viewtitle;
+                    if(totalRowCount!==null){
+                        title = title +' ('+totalrows+'/'+totalRowCount+')';
                     }
-                    if(title){
-                        whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
-                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',titleFullDesc:whereAsPlainText});
-                    }
-                            """,
-                formtitle='^.form.controller.title',viewtitle='^.view.title',
-                selectionName='^.view.store?selectionName',table='=.view.table',
-                totalRowCount = '^.view.store?totalRowCount',
-                totalrows = '^.view.store?totalrows',
-                whereAsPlainText='^.view.store?whereAsPlainText',
-                selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',_delay=100) 
-                if not extendedQuery:
-                    th.view.top.bar.replaceSlots('count','')
-                    th.view.top.bar.replaceSlots('searchOn','')
-                    th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
-            else:
-                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_if='viewtitle',_onStart=True)        
+                }
+                if(title){
+                    whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
+                    genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',titleFullDesc:whereAsPlainText});
+                }
+                        """,
+            formtitle='^.form.controller.title',viewtitle='^.view.title',
+            selectionName='^.view.store?selectionName',table='=.view.table',
+            totalRowCount = '^.view.store?totalRowCount',
+            totalrows = '^.view.store?totalrows',
+            whereAsPlainText='^.view.store?whereAsPlainText',
+            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100) 
+            if not extendedQuery:
+                th.view.top.bar.replaceSlots('count','')
+                th.view.top.bar.replaceSlots('searchOn','')
+                th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

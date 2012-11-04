@@ -1248,13 +1248,14 @@ dojo.declare("gnr.GridEditor", null, {
         var statusClass = 'rowEditorStatus_noedit';
         var rowId = this.grid.rowIdentity(rowdata);
         var rowEditor = this.rowEditors[rowId];
-        if(rowEditor && rowEditor.data.len()==0){
-            genro.assert(!rowEditor,'xxx')
-            rowEditor = null;
-        }
         if(rowEditor){
-            statusClass = rowEditor.sendingStatus?'waiting16':(rowEditor.getErrors()?'redLight':'yellowLight');
-
+            if(rowEditor.sendingStatus){
+                statusClass = 'waiting16';
+            }else if(rowEditor.getErrors()){
+                statusClass = 'redLight';
+            }else if(rowEditor.hasChanges()){
+                statusClass = 'yellowLight';
+            }
         }
         return '<div class="'+statusClass+'"></div>'
     },
