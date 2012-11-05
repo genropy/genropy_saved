@@ -46,7 +46,7 @@ class PublicBase(BaseComponent):
                     genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
                 }
             """,
-            title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1)
+            title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1,_onStart=True)
         return root.contentPane(_class='pbl_root', **kwargs)   
 
     @extract_kwargs(top=True,bottom=True)
