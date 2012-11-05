@@ -29,7 +29,9 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         return false;
     },
     onStructChild:function(attributes,source) {
-        if (source.getParentNode().attr.datapath==null && attributes.datapath==null) {
+        var parentNode = source.getParentNode();
+        var attr = parentNode?parentNode.attr:{};
+        if (attr.datapath==null && attributes.datapath==null) {
             var defaultDatapath = this.defaultDatapath(attributes);
             if (defaultDatapath) {
                 attributes.datapath = defaultDatapath;

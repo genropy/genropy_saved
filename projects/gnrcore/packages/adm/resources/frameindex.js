@@ -22,25 +22,26 @@ dojo.declare("gnr.FramedIndexManager", null, {
             this.iframesbag = new gnr.GnrBag();
             genro._data.setItem('iframes',this.iframesbag);
         }
-        var label = kw.label;
-        if(kw.subtab){
-            var sc = stackSourceNode.getValue();
-            var node = this.createIframePage(kw);
-
+        var sc = stackSourceNode.getValue();
+        if(!kw.subtab){
+            var sc = this.makeMultiPageStack(sc,kw);
         }
-        else{
-            this.stackSourceNode.freeze();
-            var fp = this.stackSourceNode._('framePane',rootPageName,{frameCode:label+'_#',pageName:rootPageName,title:label});
-            this.framePageTop(fp,kw);
-            var sc = fp._('StackContainer',{side:'center',nodeId:rootPageName+'_multipage',selectedPage:'^iframes.'+rootPageName+'?selectedPage'}); 
-            this.stackSourceNode.unfreeze();
-            var node = this.createIframePage(kw);
-        }
-        
+        var node = this.createIframePage(kw);
         sc.setItem(node.label,node);
         this.iframesbag.setItem(rootPageName,null,{'fullname':kw.label,pageName:rootPageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab,selectedPage:node.attr.pageName});
-
         return rootPageName;
+    },
+
+    makeMultiPageStack:function(parentStack,kw){
+        var root = genro.src.newRoot();
+        var rootPageName = kw.rootPageName;
+        var label = kw.label;
+        var fp = root._('framePane',rootPageName,{frameCode:label+'_#',pageName:rootPageName,title:label});
+        this.framePageTop(fp,kw);
+        var sc = fp._('StackContainer',{side:'center',nodeId:rootPageName+'_multipage',selectedPage:'^iframes.'+rootPageName+'?selectedPage'}); 
+        var frameNode = root.popNode('#0');
+        parentStack.setItem(frameNode.label,frameNode._value,frameNode.attr);
+        return sc;
     },
 
     createIframePage:function(kw){
