@@ -100,3 +100,34 @@
 	text-decoration: underline;
 }
 /* @end */
+
+
+
+.iframeroot_bar{
+    height: 20px;
+}
+
+.iframeroot_bar .multibutton{
+}
+.iframeroot_bar .multibutton_container{
+    padding-top:0;
+    padding-bottom:0;
+    font-size: 8pt;
+    font-variant:small-caps;
+    height: 18px;
+    line-height: 2.5ex;
+    padding-top: 2px;
+}
+
+.iframeroot_bar .multibutton:last-child{
+
+}
+.iframeroot_bar .multibutton:first-child{
+
+}
+.iframeroot_bar .multibutton:hover{
+    text-decoration: none;
+}
+.iframeroot_bar .multibutton_selected.multibutton{
+    border-color: #444;
+}

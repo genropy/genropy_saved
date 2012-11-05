@@ -1318,7 +1318,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                 var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
                     genro.callAfter(function(){
-                        stack.switchPage(stack.getSelectedIndex()-1);
+                        if(stackbag.len()>1){
+                            stack.switchPage(stack.getSelectedIndex()-1);
+                        }
                         stackbag.popNode(childSourceNode.label);
                     },1);
                     

@@ -3227,36 +3227,6 @@ p {
     top:4px;
     right:2px;
 }
-
-/* @end */
-
-
-/* @group multibutton multipages */
-.pbl_multipage_bar{
-    height: 20px;
-}
-
-.pbl_multipage_bar .multibutton{
-}
-.pbl_multipage_bar .multibutton_container{
-    padding-top:0;
-    padding-bottom:0;
-    font-size: 8pt;
-    font-variant:small-caps;
-    height: 18px;
-    line-height: 2.5ex;
-    padding-top: 2px;
-}
-
-.pbl_multipage_bar .multibutton:last-child{
-
-}
-.pbl_multipage_bar .multibutton:first-child{
-
-}
-.pbl_multipage_bar .multibutton:hover{
-    text-decoration: none;
-}
 .multibutton_closer{
     position: absolute;
     top:1px;
@@ -3267,9 +3237,9 @@ p {
     opacity: .5;
     width: 10px;
 }
-.pbl_multipage_bar .multibutton_selected.multibutton{
 
-}
+/* @end */
+
 
 
 /* @end */

@@ -7,26 +7,64 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
     },
     
-    createIframePage:function(kw){
-        var url = this.getPageUrl(kw);
+    createIframeRootPage:function(kw){
+        this.makePageUrl(kw);
+        var url = kw.url;
         var stackSourceNode = this.stackSourceNode;
-        var sc = stackSourceNode.getValue();
-        var pageName = kw.pageName;
+        var rootPageName = kw.rootPageName;
         var stackWidget=this.stackSourceNode.widget;
-        if(stackWidget.hasPageName(pageName)){
-            stackWidget.switchPage(pageName);
+        if(stackWidget.hasPageName(rootPageName)){
+            stackWidget.switchPage(rootPageName);
             return;
         }
+        this.iframesbag = genro.getData('iframes');
+        if(!this.iframesbag){
+            this.iframesbag = new gnr.GnrBag();
+            genro._data.setItem('iframes',this.iframesbag);
+        }
+        var label = kw.label;
+        if(kw.subtab){
+            var sc = stackSourceNode.getValue();
+            var node = this.createIframePage(kw);
+
+        }
+        else{
+            this.stackSourceNode.freeze();
+            var fp = this.stackSourceNode._('framePane',rootPageName,{frameCode:label+'_#',pageName:rootPageName,title:label});
+            this.framePageTop(fp,kw);
+            var sc = fp._('StackContainer',{side:'center',nodeId:rootPageName+'_multipage',selectedPage:'^iframes.'+rootPageName+'?selectedPage'}); 
+            this.stackSourceNode.unfreeze();
+            var node = this.createIframePage(kw);
+        }
+        
+        sc.setItem(node.label,node);
+        this.iframesbag.setItem(rootPageName,null,{'fullname':kw.label,pageName:rootPageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab,selectedPage:node.attr.pageName});
+
+        return rootPageName;
+    },
+
+    createIframePage:function(kw){
         var label = kw.label;
         var that = this;
         var root = genro.src.newRoot();
-        var center = root._('ContentPane',pageName,{'region':'center','overflow':'hidden',pageName:pageName,title:label,_lazyBuild:true});
-        var iframeattr = {'height':'100%','width':'100%','border':0,'id':'iframe_'+pageName,frameName:pageName,src:url};
-        this.iframesbag = genro.getData('iframes');
-        if(!this.iframesbag){
-         this.iframesbag = new gnr.GnrBag();
-         genro._data.setItem('iframes',this.iframesbag);
+        var rootPageName = kw.rootPageName;
+        var url = kw.url;
+        var iframePageName,pane_kw;
+        var iframeattr = {'height':'100%','width':'100%','border':0,src:url};
+        if(kw.subtab){
+            iframePageName = rootPageName;
+            pane_kw = {_lazyBuild:true,overflow:'hidden',title:kw.title,pageName:rootPageName}
+            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName,frameName:rootPageName})
+        }else{
+            var iframePageName = 'm_'+genro.getCounter();
+            var multipageIframePagePath = 'iframes.'+rootPageName+'.'+iframePageName;
+            pane_kw = {_lazyBuild:true,overflow:'hidden',title:'^'+multipageIframePagePath+'.title',
+                      pageName:iframePageName,closable:true,stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'}
+            genro.setData(multipageIframePagePath+'.title',label+'...');
+            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,
+                            frameName:rootPageName+'_'+iframePageName,multipage_childpath:multipageIframePagePath})
         }
+        var center = root._('ContentPane',iframePageName,pane_kw);
         var that = this;
         var onStartCallbacks = objectPop(kw,'onStartCallbacks');
         if(onStartCallbacks){
@@ -37,20 +75,37 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }
         }
         var iframe = center._('div',{'height':'100%','width':'100%',overflow:'hidden'})._('iframe',iframeattr);
-        var node = root.popNode('#0');
-        sc.setItem(node.label,node);
-        this.iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab});
-        return pageName;
+        return root.popNode('#0');
+    },
+
+
+    framePageTop:function(fp,kw){
+        var bar = fp._('SlotBar',{slots:'multipageButtons,*',gradient_from:'#666',side:'top',toolbar:true,
+                                        gradient_to:'#444',_class:'iframeroot_bar',
+                                        closable:'close',closable_background:'white'});
+        var stackNodeId = kw.rootPageName+'_multipage';
+        var sbuttons = bar._('StackButtons','multipageButtons',{stackNodeId:stackNodeId,margin_left:'4px'});
+        var that = this;
+        sbuttons._('div',{innerHTML:'<div class="multipage_add">&nbsp;</div>',_class:'multibutton',
+                         connect_onclick:function(){
+                            var sc = genro.nodeById(stackNodeId);
+                            var node = that.createIframePage(kw);
+                            var iframePageName = node.attr.pageName;
+                            sc._value.setItem(node.label,node);
+                            setTimeout(function(){sc.widget.switchPage(iframePageName);},100);
+                         }
+                     });
+        //div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new = genro.dom.getEventModifiers($1);""",_class='multibutton')
     },
 
     selectIframePage:function(kw){
-        var pageName = this.createIframePage(kw);
-        this.stackSourceNode.setRelativeData('selectedFrame',pageName);
+        var rootPageName = this.createIframeRootPage(kw);
+        this.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
     
     
-    getPageUrl:function(kw){
+    makePageUrl:function(kw){
         var url = kw.file;
         var table = kw.table;
         var urlPars = {};
@@ -71,13 +126,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
             urlPars.workInProgress = true;
         }
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
-        var result = genro.addParamsToUrl(url,urlPars);
-        kw.pageName = kw.pageName || result.replace(/\W/g,'_');
-        if(kw.multipage || kw.modifiers=='Meta'){
-            urlPars.multipage = true;
-            var result = genro.addParamsToUrl(url,urlPars);
-        }
-        return result;
+        kw.url = genro.addParamsToUrl(url,urlPars);
+        kw.rootPageName = kw.pageName || kw.url.replace(/\W/g,'_');
     },
     
     createTablist:function(sourceNode,data,onCreatingTablist){
@@ -112,9 +162,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
     selectedFrame:function(){
         return genro.getData('selectedFrame');
     },
+
+
     changeFrameLabel:function(kw){
         this.iframesbag.getNode(kw.pageName).updAttributes({fullname:kw.title});
     },
+
     deleteFramePage:function(pageName){
         var sc = this.stackSourceNode.widget;
         var selected = sc.getSelectedIndex();
@@ -140,6 +193,14 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
     },
+
+    reloadSelectedIframe:function(rootPageName){
+        var iframesbag= genro.getData('iframes');
+        var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');
+        var iframe = dojo.byId("iframe_"+rootPageName+'_'+iframePageId);
+        iframe.sourceNode._genro.pageReload();
+    },
+
     menuAction:function(menuitem,ctxSourceNode,event){
         var action = menuitem.code;
         var pageattr = ctxSourceNode.getParentNode().attr;

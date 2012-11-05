@@ -405,7 +405,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             }
             else if(parentTagLower =='stackcontainer'){
                 newobj.setTitle = function(title){
-                    console.log('cambio title del pane')
+                    return;
                 }
             }
         }
