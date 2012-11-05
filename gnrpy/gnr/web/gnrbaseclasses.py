@@ -288,6 +288,7 @@ class TableTemplateToHtml(BagToHtml):
     def __call__(self,record=None,template=None, htmlContent=None, locale=None,**kwargs):
         if not htmlContent:
             htmlContent = self.contentFromTemplate(record,template,locale=locale)
+            record = self.record
         return super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
 
     def contentFromTemplate(self,record,template,locale=None,**kwargs):
@@ -298,8 +299,8 @@ class TableTemplateToHtml(BagToHtml):
             kwargs['df_templates'] = template.getItem('main?df_templates')
             kwargs['dtypes'] = template.getItem('main?dtypes')
         virtual_columns = template.getItem('main?virtual_columns')
-        record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
-        return templateReplace(template,record, safeMode=True,noneIsBlank=False,
+        self.record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
+        return templateReplace(template,self.record, safeMode=True,noneIsBlank=False,
                     localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
                     **kwargs)
 
