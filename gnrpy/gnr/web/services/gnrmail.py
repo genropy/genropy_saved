@@ -39,10 +39,10 @@ class WebMailHandler(MailHandler):
             return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
         return mp
 
-    def sendUserTemplateMail(self,table=None,record_id=None,letterhead_id=None,template_id=None,template_code=None,**kwargs):
+    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,**kwargs):
         if template_id:
-            tpl = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data',bagFields=True)
-        elif template_code:
+            tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
+        elif template_code and table:
             tpl = self.parent.db.table('adm.userobject').readColumns(where='$tbl=:tb AND $code=:tc AND $objtype=:ot',
                                                              ot='template',tc=template_code,tb=table,
                                                              columns='$data',bagFields=True)
