@@ -130,7 +130,9 @@ class FormHandler(BaseComponent):
                 if(!(selectedRows.length>1)){
                     this.widget.selectByRowAttr('_pkey',currentPkey,null,frm.store.loadedIndex==-1);
                 }
-                frm.store.setNavigationStatus(currentPkey);
+                if(this.widget.collectionStore().getIdxFromPkey(currentPkey)>=0){
+                    frm.store.setNavigationStatus(currentPkey);
+                }
             }
         """
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if(!(($1.pkey=='*newrecord*') || ($1.pkey=='*norecord*'))){
