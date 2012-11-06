@@ -82,12 +82,7 @@ class TableHandlerView(BaseComponent):
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
                                **kwargs)   
         if configurable:
-            frame.right.viewConfigurator(table,frameCode)     
-        if extendedQuery=='*':
-            bottom = frame.bottom
-            bottom.attributes.update(background='#fcfde5')
-            footer = bottom.slotBar('2,whereDescriptor,2',closable='close',_class='th_whereDescriptorBar',splitter=True,whereDescriptor_width='100%')      
-            footer.whereDescriptor.div('^.store?whereAsPlainText',_class='th_whereDescriptor')   
+            frame.right.viewConfigurator(table,frameCode)   
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
