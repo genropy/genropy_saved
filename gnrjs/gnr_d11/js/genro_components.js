@@ -2801,7 +2801,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             }
         }
         return -1;
-    },
+    }
     
 });
 

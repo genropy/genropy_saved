@@ -25,7 +25,8 @@ class Table(object):
         tbl.column('user_id',size='22',name_long='!!User id').relation('adm.user.id', mode='foreignkey', relation_name='messages')
         tbl.column('account_id',size='22',name_long='!!Account id').relation('email.account.id', mode='foreignkey', relation_name='messages')
         tbl.column('mailbox_id',size='22',name_long='!!Mailbox id').relation('email.mailbox.id', mode='foreignkey', relation_name='messages')
-        
+        tbl.column('email_bag',dtype='X',name_long='!!Email bag')
+
     def trigger_onInserting(self, record_data):
         self.explodeAddressRelations(record_data)
     

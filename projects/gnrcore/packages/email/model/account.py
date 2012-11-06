@@ -29,7 +29,7 @@ class Table(object):
 
         tbl.column('system_bcc',name_long='!!System bcc')
 
-
+        tbl.column('schedulable',dtype='B',name_long='!!Schedulable',name_short='Sched')
     
     def getSmtpAccountPref(self,account=None,account_name=None):
         if account:
