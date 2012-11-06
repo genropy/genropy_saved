@@ -10,6 +10,9 @@ detach_dir = '.'
 import os
 wait = 600
 
+class GnrImapException(Exception):
+    pass
+
 class ImapReceiver(object):
     def __init__(self, db=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.host = account['host']
@@ -39,6 +42,8 @@ class ImapReceiver(object):
         else:
             searchString = '(ALL)'
         resp, items = self.imap.uid('search',None, searchString)
+        if resp == 'NO':
+            raise GnrImapException(items)
         items = items[0].split()
         if not items:
             return
