@@ -4,6 +4,7 @@
 import email, imaplib,datetime
 from gnr.core.gnrlang import getUuid
 import chardet
+from gnr.core.gnrbag import Bag
 import StringIO
 detach_dir = '.'
 import os
@@ -114,6 +115,7 @@ class ImapReceiver(object):
         resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
         email_body = data[0][1]
         mail = email.message_from_string(email_body)
+
         onCreatingCallbacs = [fname for fname in dir(self.messages_table) if fname.startswith('onCreatingMessage_')]
         if onCreatingCallbacs:
             make_message = False
@@ -121,6 +123,7 @@ class ImapReceiver(object):
                 make_message = make_message or getattr(self.messages_table,fname)(mail) is not False
             if make_message is False:
                 return False
+        new_mail['email_bag'] = Bag(mail)
         self.fillHeaders(mail, new_mail)
         if mail.get_content_maintype() != 'multipart':
             content = mail.get_payload(decode=True)
