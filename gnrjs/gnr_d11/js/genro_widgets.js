@@ -2539,6 +2539,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (genro.grid_configurator) {
             if(sourceNode.attr.configurable){
                 genro.src.onBuiltCall(function(){
+                    var structBag = widget.structbag();
                     sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
                     genro.grid_configurator.addGridConfigurator(sourceNode);
                     genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
