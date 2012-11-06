@@ -1943,9 +1943,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     onStartEditItem:function(form){
-        if(form.handlerType=='dialog'){
-            this._externalChangesDisabled = true;
-        }
+        //if(form.handlerType=='dialog'){
+        //    this._externalChangesDisabled = true;
+        //}
     },
     onEndEditItem:function(form){
         this._externalChangesDisabled = false;
@@ -2077,20 +2077,6 @@ dojo.declare("gnr.stores._Collection",null,{
             return grid.rowFromBagNode(item);
         }
         return item;
-    },
-    getNavigationPkey:function(nav,currentPkey){
-        var idx = nav == parseInt(nav) && nav;
-        if(!idx){
-            if(nav=='first'){
-                idx = 0;
-            }else if(nav=='last'){
-                idx = this.len(true)-1;
-            }else{
-                idx = this.getIdxFromPkey(currentPkey);
-                idx = nav=='next'? idx+1:idx-1;
-            }
-        }
-        return this.getKeyFromIdx(idx);
     },
     
     getKeyFromIdx:function(idx){
