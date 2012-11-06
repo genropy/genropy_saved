@@ -405,7 +405,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             }
             else if(parentTagLower =='stackcontainer'){
                 newobj.setTitle = function(title){
-                    console.log('cambio title del pane')
+                    return;
                 }
             }
         }
@@ -1377,6 +1377,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
     },
+    creating:function(attributes,sourceNode){
+        objectPop(attributes,'persist')
+    },
     created: function(widget, savedAttrs, sourceNode) {
         widget._startZ = 700;
         var nodeId = sourceNode.attr.nodeId;
@@ -1431,7 +1434,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }     
     },
     mixin_restoreRect:function(){
-        if(this.sourceNode.attr.nodeId){
+        if(this.sourceNode.attr.nodeId && (this.sourceNode.attr.persist!==false)){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             if(this.sourceNode.attr.fixedPosition){
                 return;
@@ -1443,7 +1446,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }     
     },
     mixin_saveRect:function(){
-        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode) && !this._maximized){
+        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode) && !this._maximized && (this.sourceNode.attr.persist!==false)){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
         }     

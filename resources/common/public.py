@@ -37,42 +37,18 @@ class PublicBase(BaseComponent):
                               
     def pbl_userTable(self):
         return 'adm.user'
-        
+                    
     def rootWidget(self, root, **kwargs):
-        multipage = self._call_kwargs.get('multipage')
-        multipage_child= self._call_kwargs.get('multipage_child')
-        if multipage_child:
-            root.dataController("window.parent.genro.setData('gnr.multipage.pages.' +child_id,title,{titleFullDesc:titleFullDesc});",
-                                    title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',child_id=multipage_child,_delay=1)
-        elif multipage:
-            root.data('gnr.publicTitle','Main Page')
-            frame = root.framePane(frameCode='multipage_root',**kwargs)
-            sc = frame.center.StackContainer(selectedPage='gnr.multipage.currentPage',nodeId='multipage_stack')
-            bar = frame.top.slotToolbar('4,multipageButtons,*',closable='close',
-                                    closable_background='white',
-                                    _class='pbl_multipage_bar',gradient_from='#666',gradient_to='#444')
-            cont = bar.multipageButtons.stackButtons(stackNodeId='multipage_stack')
-            
-            cont.div('<div class="multipage_add">&nbsp;</div>',connect_onclick="""FIRE gnr.multipage.new;""",_class='multibutton')
+        root.dataController("""
+                if(window.frameElement){
+                    var parentIframeSourceNode = window.frameElement.sourceNode;
+                    var multipage_childpath = parentIframeSourceNode.attr.multipage_childpath;
+                    genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
+                }
+            """,
+            title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1,_onStart=True)
+        return root.contentPane(_class='pbl_root', **kwargs)   
 
-            root.dataController("""var child_id = 'm_'+genro.getCounter();
-                var titlepath = 'gnr.multipage.pages.' +child_id;
-                genro.setData(titlepath,temp_title);
-                var currPars = genro.rpc.getURLParams()
-                var url = window.location.href.replace(window.location.search,'');
-                currPars['multipage_child'] = child_id;
-                objectPop(currPars,'multipage');
-                objectPop(currPars,'_root_page_id');
-                url = genro.addParamsToUrl(url,currPars);
-                var pane = sc._('ContentPane',{title:'^'+titlepath,overflow:'hidden',_lazyBuild:true,stackbutton_tooltip:'^'+titlepath+'?titleFullDesc',
-                                                pageName:child_id,closable:true});
-                pane._('iframe',{src:url,height:'100%',width:'100%',border:0});
-                setTimeout(function(){sc.widget.switchPage(child_id);},100);
-                """,_fired='^gnr.multipage.new',sc=sc,temp_title="!!Loading...")
-            return sc.contentPane(_class='pbl_root', title='^gnr.publicTitle',stackbutton_tooltip='^gnr.publicTitle?titleFullDesc',pageName='m_main')
-
-        return root.contentPane(_class='pbl_root', **kwargs)
-                          
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
@@ -310,7 +286,7 @@ class TableHandlerMain(BaseComponent):
         extendedQuery = kwargs.pop('extendedQuery','*') 
         lockable = kwargs.pop('lockable',True)           
         if insidePublic:
-            pbl_root = root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
+            pbl_root = root = root.rootContentPane(datapath=tablecode)
         else:
             root.attributes.update(_class=None,datapath=tablecode)
         extras = []
@@ -469,34 +445,31 @@ class TableHandlerMain(BaseComponent):
     def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
-            if widget=='stack' or widget=='dialog':
-                th.dataController("""
-                    var title;
-                    if(selectedPage=='form'){
-                        title = formtitle;
-                    }else{
-                        title = viewtitle;
-                        if(totalRowCount!==null){
-                            title = title +' ('+totalrows+'/'+totalRowCount+')';
-                        }
+            th.dataController("""
+                var title;
+                if(selectedPage=='form' && widget=='stack'){
+                    title = formtitle;
+                }else{
+                    title = viewtitle;
+                    if(totalRowCount!==null){
+                        title = title +' ('+totalrows+'/'+totalRowCount+')';
                     }
-                    if(title){
-                        whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
-                        genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',titleFullDesc:whereAsPlainText});
-                    }
-                            """,
-                formtitle='^.form.controller.title',viewtitle='^.view.title',
-                selectionName='^.view.store?selectionName',table='=.view.table',
-                totalRowCount = '^.view.store?totalRowCount',
-                totalrows = '^.view.store?totalrows',
-                whereAsPlainText='^.view.store?whereAsPlainText',
-                selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',_delay=100) 
-                if not extendedQuery:
-                    th.view.top.bar.replaceSlots('count','')
-                    th.view.top.bar.replaceSlots('searchOn','')
-                    th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
-            else:
-                th.dataFormula('gnr.publicTitle','viewtitle',viewtitle='^.view.title',_if='viewtitle',_onStart=True)        
+                }
+                if(title){
+                    whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
+                    genro.setData("gnr.publicTitle",title,{selectionName:selectionName,table:table,objtype:'record',titleFullDesc:whereAsPlainText});
+                }
+                        """,
+            formtitle='^.form.controller.title',viewtitle='^.view.title',
+            selectionName='^.view.store?selectionName',table='=.view.table',
+            totalRowCount = '^.view.store?totalRowCount',
+            totalrows = '^.view.store?totalrows',
+            whereAsPlainText='^.view.store?whereAsPlainText',
+            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True) 
+            if not extendedQuery:
+                th.view.top.bar.replaceSlots('count','')
+                th.view.top.bar.replaceSlots('searchOn','')
+                th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

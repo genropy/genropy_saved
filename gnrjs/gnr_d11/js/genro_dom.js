@@ -906,10 +906,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             'left':dropInfo.event.pageX + 'px',resizable:true,
             dockable:true,closable:false,dockTo:detached_id});
 
-        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeher',id:detached_id});
+        floating._('div', {height:coords.h + 'px',width:coords.w + 'px',_class:'detatched_placeher',id:detached_id,persist:false});
         floating = floating.getParentNode().widget;
         var placeholder = floating.containerNode.firstElementChild;
         var currentParent = domnode.parentNode;
+        var extra_height = dojo.coords(floating.domNode).h;
         currentParent.replaceChild(placeholder, domnode);
         floating.containerNode.appendChild(domnode);
         sourceNode.attr.isDetached = true;
@@ -921,7 +922,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             floating.close();
         });
         floating.show();
-        coords.h = coords.h + dojo.coords(floating.domNode).h;
+        floating.bringToTop();
+        coords.h = coords.h + extra_height;
         floating.resize(coords);
     },
     onDrop:function(event) {

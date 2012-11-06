@@ -190,8 +190,7 @@ class FrameIndex(BaseComponent):
                                                 genro.pageReload();
                                                 return;
                                             }
-                                            var frame = dojo.byId("iframe_"+$1);
-                                            frame.sourceNode._genro.pageReload();
+                                            genro.framedIndexManager.reloadSelectedIframe($1);
                                             """
         scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"        
         scattr['subscribe_destroyFrames'] = """

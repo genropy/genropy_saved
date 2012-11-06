@@ -51,6 +51,7 @@ class Table(object):
             record = self.record(objtype=objtype, mode='record', ignoreMissing=True, **kwargs)
         data = record.pop('data')
         metadata = record.asDict(ascii=True)
+        metadata['pkey'] = metadata['id']
         return data, metadata
     
     
@@ -79,10 +80,11 @@ class Table(object):
     @public_method
     def saveUserObject(self, table=None,objtype=None,data=None,metadata=None,**kwargs):
         pkg,tbl = table.split('.')
-        if not metadata:
+        pkey = metadata['pkey'] or metadata['id']
+        if not metadata or not (metadata['code'] or pkey):
             return
         record = dict(data=data,objtype=objtype,
-                    pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=metadata['pkey'],
+                    pkg=pkg,tbl=table,userid=self.db.currentPage.user,id=pkey,
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
                     notes=metadata['notes'],flags=metadata['flags'])
         self.insertOrUpdate(record)

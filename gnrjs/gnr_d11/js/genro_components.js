@@ -29,7 +29,9 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         return false;
     },
     onStructChild:function(attributes,source) {
-        if (source.getParentNode().attr.datapath==null && attributes.datapath==null) {
+        var parentNode = source.getParentNode();
+        var attr = parentNode?parentNode.attr:{};
+        if (attr.datapath==null && attributes.datapath==null) {
             var defaultDatapath = this.defaultDatapath(attributes);
             if (defaultDatapath) {
                 attributes.datapath = defaultDatapath;
@@ -1318,7 +1320,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                 var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
                     genro.callAfter(function(){
-                        stack.switchPage(stack.getSelectedIndex()-1);
+                        if(stackbag.len()>1){
+                            stack.switchPage(stack.getSelectedIndex()-1);
+                        }
                         stackbag.popNode(childSourceNode.label);
                     },1);
                     

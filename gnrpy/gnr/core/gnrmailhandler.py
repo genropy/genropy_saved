@@ -148,14 +148,7 @@ class MailHandler(GnrBaseService):
         return account_params
 
     def getDefaultMailAccount(self):
-        mp = self.parent.getUserPreference('mail', pkg='adm') 
-        if not mp['smtp_host'] and not mp['email_account_id']:
-            mp = self.parent.getPreference('mail', pkg='adm')
-        if not mp['smtp_host'] and not mp['email_account_id']:
-            mp = self.parent.db.application.config.getNode('mail').attr
-        if mp.get('email_account_id'):
-            return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
-        return mp
+        dict()
         
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
@@ -351,7 +344,7 @@ class MailHandler(GnrBaseService):
         :param async: if set to true, then a separate process is spawned to send the email and control
                       is returned immediately to the calling function"""
         account_params = self.get_account_params(account=account, from_address=from_address,
-                                                 smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
+                                                 smtp_host=smtp_host, port=str(port) if port else None, user=user, password=password, ssl=ssl,
                                                  tls=tls,timeout=timeout)
         from_address = account_params['from_address']
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)

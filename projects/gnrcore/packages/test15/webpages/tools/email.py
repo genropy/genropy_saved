@@ -33,3 +33,15 @@ class GnrCustomWebPage(object):
             print "Successfully sent email"
         except Exception:
             print "Error: unable to send email"
+
+    def test_2_email_tpl(self, pane):
+        fb = pane.div(margin='5px').formbuilder(cols=2, border_spacing='6px', width='100%', fld_width='100%',
+                                                tdl_width='10em')
+        fb.dbSelect(value='^.medico_id',dbtable='polimed.medico',lbl='Medico')
+        fb.dbSelect(value='^.template_id',dbtable='adm.userobject',lbl='Lettera',condition="$tbl='polimed.medico' AND $objtype='template' ")
+        fb.button('Spedisci',fire='.run')
+        fb.dataRpc('dummy',self.send_email_tpl,record_id='=.medico_id',template_id='=.template_id',_fired='^.run')
+
+    @public_method
+    def send_email_tpl(self,record_id=None,template_id=None):
+        self.getService('mail').sendUserTemplateMail(table='polimed.medico',record_id=record_id,template_id=template_id)
