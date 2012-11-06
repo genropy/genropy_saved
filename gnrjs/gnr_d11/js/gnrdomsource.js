@@ -165,7 +165,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     fireNode: function() {
-        this.setDataNodeValue();
+        return this.setDataNodeValue();
     },
     setDataNodeValue:function(node, kw, trigger_reason, subscription_args) {
         var delay = this.attr._delay;
@@ -178,7 +178,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason,subscription_args),delay);
         } else {
-            this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
+            return this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
         }
     },
 
@@ -345,6 +345,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             });
                         }
                     }
+                    return deferred;
                 }
             }
             else {
