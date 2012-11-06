@@ -2512,14 +2512,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     creating_structure: function(attributes, sourceNode) {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
-        if (structBag) {
-            sourceNode.baseStructBag = structBag.deepCopy();
-            if (genro.grid_configurator && sourceNode.attr.configurable) {
-                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
-                genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
-            }
-        
-        }
+       // if (structBag) {
+       //     sourceNode.baseStructBag = structBag.deepCopy();
+       //     if (genro.grid_configurator && sourceNode.attr.configurable) {
+       //         sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
+       //         genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
+       //     }
+       // 
+       // }
        
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
@@ -2537,9 +2537,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var nodeId = sourceNode.attr.nodeId;
         var gridContent = sourceNode.getValue();
         if (genro.grid_configurator) {
-           if(sourceNode.attr.configurable){
-               genro.src.afterBuildCalls.push(function(){genro.grid_configurator.addGridConfigurator(sourceNode);});
-           }            
+            if(sourceNode.attr.configurable){
+                genro.src.onBuiltCall(function(){
+                    sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
+                    genro.grid_configurator.addGridConfigurator(sourceNode);
+                    genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
+                },1);
+            }            
         }
         if(sourceNode._useStore){
             widget.setEditableColumns();

@@ -189,7 +189,7 @@ class TableHandlerView(BaseComponent):
                     color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
         pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",
-                            gridId=gridId,th_root=th_root,_onStart=True)
+                            gridId=gridId,th_root=th_root)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
