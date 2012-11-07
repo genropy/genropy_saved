@@ -2844,8 +2844,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return this.indexByCb(cb) >= 0;
     },
-    mixin_selectByRowAttr:function(attrName, attrValue, op) {
+    mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo) {
         var selection = this.selection;
+        var idx = null;
         if (attrValue instanceof Array) {
             selection.unselectAll();
             var grid = this;
@@ -2860,6 +2861,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(idx>=0){
                 selection.select(idx);
             }
+        }
+        if(scrollTo && typeof(idx)=='number' && idx>=0){
+            this.scrollToRow(idx);
         }
     },
 

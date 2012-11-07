@@ -122,6 +122,19 @@ class FormHandler(BaseComponent):
                                     genro.publish(topic,kw);
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
+        gridattr['selfsubscribe_onExternalChanged'] = """
+            var frm = genro.formById(this.attr._linkedFormId);
+            var currentPkey =  frm.getCurrentPkey();
+            if(currentPkey && currentPkey!='*newrecord*' && currentPkey!='*norecord*'){
+                var selectedRows = this.widget.getSelectedRowidx() || [];
+                if(!(selectedRows.length>1)){
+                    this.widget.selectByRowAttr('_pkey',currentPkey,null,frm.store.loadedIndex==-1);
+                }
+                if(this.widget.collectionStore().getIdxFromPkey(currentPkey)>=0){
+                    frm.store.setNavigationStatus(currentPkey);
+                }
+            }
+        """
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if(!(($1.pkey=='*newrecord*') || ($1.pkey=='*norecord*'))){
                                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
                                                                 if(!(selectedRows.length>1)){

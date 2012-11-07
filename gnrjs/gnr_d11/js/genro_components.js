@@ -1943,12 +1943,12 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     onStartEditItem:function(form){
-        if(form.handlerType=='dialog'){
-            this._externalChangesDisabled = true;
+        if(form.handlerType=='stack'){
+            this._externalChangesForced = true;
         }
     },
     onEndEditItem:function(form){
-        this._externalChangesDisabled = false;
+        this._externalChangesForced = false;
     },
     currentPkeys:function(){
         console.warn('currentPkeys not implemented in this store',this);
@@ -2077,20 +2077,6 @@ dojo.declare("gnr.stores._Collection",null,{
             return grid.rowFromBagNode(item);
         }
         return item;
-    },
-    getNavigationPkey:function(nav,currentPkey){
-        var idx = nav == parseInt(nav) && nav;
-        if(!idx){
-            if(nav=='first'){
-                idx = 0;
-            }else if(nav=='last'){
-                idx = this.len(true)-1;
-            }else{
-                idx = this.getIdxFromPkey(currentPkey);
-                idx = nav=='next'? idx+1:idx-1;
-            }
-        }
-        return this.getKeyFromIdx(idx);
     },
     
     getKeyFromIdx:function(idx){
@@ -2235,7 +2221,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(this.storeNode.attr.externalChanges){
             var that = this;
             this.pendingChanges = [];
-            this._externalChangesDisabled = false;
+            this._externalChangesForced = false;
             var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
                 function(kw){
                     if(that.freezedStore()){
@@ -2247,8 +2233,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         that.pendingChanges.push(c);
                     });
                     that.storeNode.watch('externalChangesDisabled',function(){
-                        if(that._externalChangesDisabled){
-                            return false;
+                        if(that._externalChangesForced){
+                            return true;
                         }
                         var gridVisible = false;
                         dojo.forEach(that.linkedGrids(),function(grid){
@@ -2597,7 +2583,14 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 grid.selectionKeeper('save');
             });
             this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
-            this.storeNode.fireNode();
+            var deferred = this.storeNode.fireNode();
+            var that = this;
+            deferred.addCallback(function(result){
+                dojo.forEach(that.linkedGrids(),function(grid){
+                    grid.sourceNode.publish('onExternalChanged');
+                });
+                return result;
+            })
         }
     },
     

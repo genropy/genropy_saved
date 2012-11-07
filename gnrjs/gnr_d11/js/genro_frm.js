@@ -1869,13 +1869,38 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
                 kw.last = true;
             }
         }
+        this.loadedIndex = currIdx;
         this.form.publish('navigationStatus',kw);
         return;
     },
 
     navigationEvent:function(kw){
         var command = kw.command;
-        return this.parentStore.getNavigationPkey(command,this.form.getCurrentPkey());
+        return this.getNavigationPkey(command,this.form.getCurrentPkey());
+    },
+
+    getNavigationPkey:function(nav,currentPkey){
+        var idx = nav == parseInt(nav) && nav;
+        if(!idx){
+            if(nav=='first'){
+                idx = 0;
+            }else if(nav=='last'){
+                idx = this.parentStore.len(true)-1;
+            }else{
+                idx = this.parentStore.getIdxFromPkey(currentPkey);
+                if(idx<0){
+                    if(this.loadedIndex>=0){
+                        idx = nav=='next'?this.loadedIndex:this.loadedIndex-1;
+                    }else{
+                        console.log('out of selection');
+                    }
+                }else{
+                    idx = nav=='next'? idx+1:idx-1;
+                }
+            }
+        }
+
+        return this.parentStore.getKeyFromIdx(idx);
     }
     
 });

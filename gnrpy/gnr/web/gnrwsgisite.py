@@ -1250,7 +1250,7 @@ class GnrWsgiSite(object):
         import zipfile
         
         zipresult = open(zipPath, 'wb')
-        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
+        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
         for fname in file_list:
             zip_archive.write(fname, os.path.basename(fname))
         zip_archive.close()
