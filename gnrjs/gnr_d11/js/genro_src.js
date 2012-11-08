@@ -193,7 +193,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     _trigger_del:function(kw) {//da rivedere
         //console.log('trigger_del',kw);
         var deletingNode = kw.node;
-        deletingNode = deletingNode._isComponentNode?deletingNode.getWidget().sourceNode:deletingNode;
+        deletingNode = deletingNode._isComponentNode?(deletingNode.getWidget()?deletingNode.getWidget().sourceNode:deletingNode):deletingNode;
         deletingNode._onDeleting();
         this._onDeletingContent(deletingNode._value);
         //var domNode = kw.node.getDomNode();

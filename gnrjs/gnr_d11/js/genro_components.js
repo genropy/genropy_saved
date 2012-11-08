@@ -1943,13 +1943,13 @@ dojo.declare("gnr.stores._Collection",null,{
     },
 
     onStartEditItem:function(form){
-        if(form.handlerType=='stack'){
-            this._externalChangesForced = true;
-        }
+        this._editingForm = form;
     },
+
     onEndEditItem:function(form){
-        this._externalChangesForced = false;
+        this._editingForm = false;
     },
+
     currentPkeys:function(){
         console.warn('currentPkeys not implemented in this store',this);
         return null;
@@ -2221,7 +2221,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(this.storeNode.attr.externalChanges){
             var that = this;
             this.pendingChanges = [];
-            this._externalChangesForced = false;
+            this._editingForm = false;
             var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
                 function(kw){
                     if(that.freezedStore()){
@@ -2233,7 +2233,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         that.pendingChanges.push(c);
                     });
                     that.storeNode.watch('externalChangesDisabled',function(){
-                        if(that._externalChangesForced){
+                        if(that._editingForm){
                             return true;
                         }
                         var gridVisible = false;
