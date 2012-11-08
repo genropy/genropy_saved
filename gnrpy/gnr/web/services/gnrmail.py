@@ -30,7 +30,7 @@ from gnr.core.gnrstring import templateReplace
 
 class WebMailHandler(MailHandler):
     def getDefaultMailAccount(self):
-        mp = self.parent.getUserPreference('mail', pkg='adm') 
+        mp = self.parent.getUserPreference('mail', pkg='adm') or Bag()
         if not mp['smtp_host'] and not mp['email_account_id']:
             mp = self.parent.getPreference('mail', pkg='adm')
         if not mp['smtp_host'] and not mp['email_account_id']:

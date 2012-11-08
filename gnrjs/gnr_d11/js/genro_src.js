@@ -192,16 +192,19 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     _trigger_del:function(kw) {//da rivedere
         //console.log('trigger_del',kw);
-        kw.node._onDeleting();
-        this._onDeletingContent(kw.node._value);
+        var deletingNode = kw.node;
+        deletingNode = deletingNode._isComponentNode?(deletingNode.getWidget()?deletingNode.getWidget().sourceNode:deletingNode):deletingNode;
+        deletingNode._onDeleting();
+        this._onDeletingContent(deletingNode._value);
         //var domNode = kw.node.getDomNode();
         //if (!domNode) {
         //    return;
         //}
-        var widget = kw.node.widget;
-        var domNode = kw.node.domNode;
+
+        var widget = deletingNode.widget;
+        var domNode = deletingNode.domNode;
         if (widget) {
-            var parentWdg = widget.sourceNode.getParentBuiltObj();
+            var parentWdg = widget.getParent?widget.getParent():null;
             if(parentWdg && parentWdg.onDestroyingChild){
                 parentWdg.onDestroyingChild(widget);
             }
@@ -214,7 +217,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             });
             dojo._destroyElement(domNode);
         }
-        var parentNode = kw.node.getParentNode();
+        var parentNode = deletingNode.getParentNode();
         var lastComponentLabel;
         while(parentNode && parentNode._isComponentNode){
             lastComponentLabel = parentNode.label;
@@ -224,7 +227,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
              parentNode.getValue().popNode(lastComponentLabel);
          }
         this.refreshSourceIndexAndSubscribers();
-        var node = kw.node;
     },
     
     
