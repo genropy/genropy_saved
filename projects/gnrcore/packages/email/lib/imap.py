@@ -47,7 +47,9 @@ class ImapReceiver(object):
         items = items[0].split()
         if not items:
             return
-        if self.last_uid:
+        if self.last_uid and items[0]== self.last_uid:
+            if len(items) == 1:
+                return
             items = items[1:]
         for emailid in items:
             msgrec = self.createMessageRecord(emailid)
@@ -55,6 +57,7 @@ class ImapReceiver(object):
                 continue
             msgrec['mailbox_id'] = mailbox_id
             self.messages_table.insert(msgrec)
+
         self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
         self.db.commit()
     
