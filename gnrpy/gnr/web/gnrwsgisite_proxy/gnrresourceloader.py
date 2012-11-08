@@ -181,7 +181,7 @@ class ResourceLoader(object):
         page_module = gnrImport(module_path, avoidDup=True)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
-        mainPkg = pkg
+        mainPkg = self.site.db.package(pkg).attributes.get('mainpkg') or pkg
         if hasattr(custom_class,'getMainPackage'):
             kw = dict()
             if 'page_id' in request_kwargs:
