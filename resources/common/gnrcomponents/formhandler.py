@@ -124,6 +124,9 @@ class FormHandler(BaseComponent):
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['selfsubscribe_onExternalChanged'] = """
             var frm = genro.formById(this.attr._linkedFormId);
+            if(!frm){
+                return;
+            }
             var currentPkey =  frm.getCurrentPkey();
             if(currentPkey && currentPkey!='*newrecord*' && currentPkey!='*norecord*'){
                 var selectedRows = this.widget.getSelectedRowidx() || [];
