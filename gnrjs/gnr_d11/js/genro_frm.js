@@ -1855,6 +1855,9 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         var currIdx=-1;
         if(pkey!='*norecord*' && pkey!='*newrecord*'){
             var currIdx = this.parentStore.getIdxFromPkey(pkey);
+            if(this.loadedIndex && this.loadedIndex>=0 && currIdx<0){
+                return;
+            }
         }
         var kw = {};
         if(currIdx<0){
