@@ -317,6 +317,8 @@ class TableHandlerHierarchicalView(BaseComponent):
                                      THEN $%s IS NULL 
                                      ELSE (( :showInherited AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
                                  END )""" %(fkey_name,fkey_name,fkey_name)) 
+            vstoreattr['_if'] = None #remove the default _if
+            vstoreattr['_else'] = None
         if relation_table:
             mainjoiner = maintableobj.model.getJoiner(relation_table)
             relatedjoiner = self.db.table(dragTable).model.getJoiner(relation_table)
@@ -334,6 +336,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
         
         vstoreattr['condition'] = ' OR '.join(condlist)
+
         vstoreattr.update(condpars)
         
         dragCode = 'hrows_%s' %dragTable.replace('.','_')
