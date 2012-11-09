@@ -441,11 +441,12 @@ class SqlTable(GnrObject):
         moved_relations = Bag()
         sourceRecord = self.record(pkey=sourcePkey,for_update=True).output('dict')
         destRecord = self.record(pkey=destPkey,for_update=True).output('dict')
-        relations = self.model.relations
+        relations = self.model.relations.keys()
         self._onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations,relations=relations)
         if hasattr(self,'onUnifying'):
             self.onUnifying(sourceRecord=sourceRecord,destRecord=destRecord,moved_relations=moved_relations)
-        for n in relations:
+        for k in relations:
+            n = self.relations.getNode(k)
             joiner =  n.attr.get('joiner')
             if joiner and joiner['mode'] == 'M':
                 fldlist = joiner['many_relation'].split('.')
