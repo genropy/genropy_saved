@@ -215,7 +215,7 @@ class TableHandler(BaseComponent):
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            hider=False,picker=None,addrow=None,delrow=None,**kwargs):
+                            hider=False,picker=None,addrow=None,delrow=None,height=None,width=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         if picker:
             hider=True
@@ -224,6 +224,7 @@ class TableHandler(BaseComponent):
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
                                         viewResource=viewResource,hider=hider,
                                         picker=picker,addrow=addrow,delrow=delrow,**kwargs)
+        wdg.view.attributes.update(height=height,width=width)
         return wdg
 
     @extract_kwargs(default=True,page=True)     
