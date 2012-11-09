@@ -8,6 +8,7 @@ from gnr.core.gnrbag import Bag
 import StringIO
 detach_dir = '.'
 import os
+import re
 wait = 600
 
 class GnrImapException(Exception):
@@ -149,8 +150,10 @@ class ImapReceiver(object):
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
-        if not new_mail.get('body'):
-            new_mail['body'] = new_mail.get('body_plain')
+        if new_mail.get('body'):
+            new_mail['body'] = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
+        else:
+            new_mail['body'] = new_mail.get('body_plain')     
         return new_mail
             
 if __name__=='__main__':

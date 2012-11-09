@@ -412,7 +412,14 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO
         
         :param pkg: the :ref:`package <packages>` object"""
-        self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+        safeMode = kwargs.pop('safeMode',None)
+        if safeMode:
+            try:
+                self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+            except Exception:
+                pass
+        else:
+            self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
     
     
     @public_method

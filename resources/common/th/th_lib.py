@@ -57,20 +57,12 @@ class TableHandlerCommon(BaseComponent):
         resourcePath = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         tableObj = self.db.table(table)
         pluginId = getattr(tableObj, '_pluginId', None)
-        try:
-            self.mixinComponent('tables',tablename,resourcePath,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True)
-        except GnrMixinError:
-            self.mixinComponent(resourcePath,mangling_th=rootCode)
+        self.mixinComponent(resourcePath,mangling_th=rootCode,safeMode=True)
+        self.mixinComponent('tables',tablename,resourcePath,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True,safeMode=True)
         project_mainpackage = self.package.attributes.get('mainpkg')
         if project_mainpackage:
-            try:
-                self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=project_mainpackage,mangling_th=rootCode, pkgOnly=True)
-            except GnrMixinError:
-                pass
-        try :
-            self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
-        except GnrMixinError:
-            pass
+            self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=project_mainpackage,mangling_th=rootCode, pkgOnly=True,safeMode=True)
+        self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True,safeMode=True)
         return
             
     
