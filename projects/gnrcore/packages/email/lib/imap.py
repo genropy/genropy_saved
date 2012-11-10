@@ -107,7 +107,7 @@ class ImapReceiver(object):
     
     def getMessagePayload(self,part):
         fp = StringIO.StringIO()
-        g = email.generator.Generator(fp, mangle_from_=False)
+        g = email.Generator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
