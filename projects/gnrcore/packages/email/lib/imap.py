@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import email, imaplib,datetime
+from email.generator import Generator as EmailGenerator
 from gnr.core.gnrlang import getUuid
 import chardet
 from gnr.core.gnrbag import Bag
@@ -107,7 +108,7 @@ class ImapReceiver(object):
     
     def getMessagePayload(self,part):
         fp = StringIO.StringIO()
-        g = email.generator.Generator(fp, mangle_from_=False)
+        g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
@@ -151,7 +152,7 @@ class ImapReceiver(object):
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if new_mail.get('body'):
-            new_mail['body'] = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
+            new_mail['body'] = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL).group(2)
         else:
             new_mail['body'] = new_mail.get('body_plain')     
         return new_mail
