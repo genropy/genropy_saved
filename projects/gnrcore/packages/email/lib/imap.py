@@ -152,7 +152,7 @@ class ImapReceiver(object):
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if new_mail.get('body'):
-            new_mail['body'] = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
+            new_mail['body'] = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL).group(2)
         else:
             new_mail['body'] = new_mail.get('body_plain')     
         return new_mail
