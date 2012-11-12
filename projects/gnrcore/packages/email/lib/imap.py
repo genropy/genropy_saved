@@ -135,7 +135,7 @@ class ImapReceiver(object):
                 return False
         new_mail['email_bag'] = Bag(mail)
         self.fillHeaders(mail, new_mail)
-        if mail.get_content_maintype() != 'multipart':
+        if mail.get_content_maintype() not in ('multipart','image'):
             content = mail.get_payload(decode=True)
             encoding = mail.get_content_charset()
             #encoding = chardet.detect(content)['encoding']
