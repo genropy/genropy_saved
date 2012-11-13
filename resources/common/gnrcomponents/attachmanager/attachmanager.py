@@ -107,10 +107,11 @@ class AttachManager(BaseComponent):
     @struct_method
     def at_attachmentGrid(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
         bc = pane.borderContainer()
-        th = bc.contentPane(region='left',width='400px',margin='2px',splitter=True).inlineTableHandler(relation='@atc_attachments',
+
+        th = bc.contentPane(region='left',width='400px',splitter=True).inlineTableHandler(relation='@atc_attachments',
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
-                                        addrow=False,pbl_classes=pbl_classes,margin='2px',
+                                        addrow=False,pbl_classes=pbl_classes,
                                      semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
@@ -120,6 +121,25 @@ class AttachManager(BaseComponent):
                                                                 height='100%',width='100%',border=0)
         return th
 
+    @struct_method
+    def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
+        frame = pane.framePane(frameCode='attachmentPane_#')
+        bc = frame.center.borderContainer()
+        th = bc.contentPane(region='left',width='400px',splitter=True,childname='atcgrid').inlineTableHandler(relation='@atc_attachments',
+                                        viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
+                                        hider=True,autoSave=True,statusColumn=True,
+                                        addrow=False,delrow=False,pbl_classes=pbl_classes,
+                                     semaphore=False, searchOn=False,datapath=datapath,**kwargs)
+        th.view.top.popNode('bar')
+        th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
+                                        dropTypes='Files',_uploader_fkey='=#FORM.pkey',
+                                        _uploader_onUploadingMethod=self.onUploadingAttachment)
+
+        bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer').iframe(src='^.view.grid.selectedId?fileurl',
+                                                                height='100%',width='100%',border=0)
+        bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
+        bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
+        return frame
 
     @public_method
     def onUploadingAttachment(self,kwargs):
