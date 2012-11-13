@@ -5866,7 +5866,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             labelCb:labelCb,sourceNode:sourceNode});
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
         attributes['model'] = model;
-        attributes['showRoot'] = false;
+        attributes['showRoot'] = attributes['showRoot'] || (attributes.label? true:false);
         attributes['persist'] = attributes['persist'] || false;
         if (attributes['getLabel']) {
             var labelGetter = funcCreate(attributes['getLabel'], 'node');
@@ -6167,7 +6167,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
        //if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
        //    return;
        //}
-        if (nodeWidget == nodeWidget.tree.rootNode) {
+        if (!this.showRoot && nodeWidget == nodeWidget.tree.rootNode) {
             return;
         }
         nodeWidget.__eventmodifier = eventToString(e);
@@ -6263,6 +6263,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
             //this.model.store._triggerUpd(kw);
         } else if (kw.evt == 'ins') {
+
             this.model.store._triggerIns(kw);
         } else if (kw.evt == 'del') {
             this._onItemChildrenChange(/*dojo.data.Item*/ kw.where.getParentNode(), /*dojo.data.Item[]*/ kw.where.getNodes());
