@@ -181,7 +181,7 @@ class ResourceLoader(object):
         page_module = gnrImport(module_path, avoidDup=True)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
-        mainPkg = self.site.db.package(pkg).attributes.get('mainpkg') or pkg
+        mainPkg = pkg
         if hasattr(custom_class,'getMainPackage'):
             kw = dict()
             if 'page_id' in request_kwargs:
@@ -369,17 +369,6 @@ class ResourceLoader(object):
     def site_resources(self):
         """TODO"""
         resources = Bag()
-        for pkg in self.site.gnrapp.packages.values():
-            rsrc_path = os.path.join(pkg.packageFolder, 'resources')
-            label = 'pkg_%s' % (pkg.id)
-            if os.path.isdir(rsrc_path):
-                resources[label] = rsrc_path
-            plugins = [p for p in pkg.getPlugins() if p.resources_path]
-            for plugin in plugins:
-                label = 'pkg_%s_%s' % (pkg.id,plugin.id)
-                if os.path.isdir(plugin.resources_path):
-                    resources[label] = plugin.resources_path
-                
         resources_list = [(resource.label, resource.attr.get('path')) for resource in
                           self.site.config['resources'] or []]
         for label, rsrc_path in resources_list:
@@ -391,6 +380,17 @@ class ResourceLoader(object):
         auto_resource_path = self.resource_name_to_path(self.site_name, safe=False)
         if auto_resource_path:
             resources[self.site_name] = os.path.realpath(auto_resource_path)
+
+        for pkg in self.site.gnrapp.packages.values():
+            rsrc_path = os.path.join(pkg.packageFolder, 'resources')
+            label = 'pkg_%s' % (pkg.id)
+            if os.path.isdir(rsrc_path):
+                resources[label] = rsrc_path
+            plugins = [p for p in pkg.getPlugins() if p.resources_path]
+            for plugin in plugins:
+                label = 'pkg_%s_%s' % (pkg.id,plugin.id)
+                if os.path.isdir(plugin.resources_path):
+                    resources[label] = plugin.resources_path
         return resources
         
     def resource_name_to_path(self, res_id, safe=True):

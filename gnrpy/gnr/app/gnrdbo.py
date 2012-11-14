@@ -415,7 +415,7 @@ class TableBase(object):
 
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
         if self.hasMultidbSubscription():
-            relations.pop('@subscriptions')
+            relations.remove('@subscriptions')
             self.db.table('multidb.subscription').cloneSubscriptions(self.fullname,sourceRecord[self.pkey],destRecord[self.pkey])
 
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):

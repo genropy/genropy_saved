@@ -2,12 +2,14 @@
 # encoding: utf-8
 
 import email, imaplib,datetime
+from email.generator import Generator as EmailGenerator
 from gnr.core.gnrlang import getUuid
 import chardet
 from gnr.core.gnrbag import Bag
 import StringIO
 detach_dir = '.'
 import os
+import re
 wait = 600
 
 class GnrImapException(Exception):
@@ -106,7 +108,7 @@ class ImapReceiver(object):
     
     def getMessagePayload(self,part):
         fp = StringIO.StringIO()
-        g = email.generator.Generator(fp, mangle_from_=False)
+        g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
@@ -133,7 +135,7 @@ class ImapReceiver(object):
                 return False
         new_mail['email_bag'] = Bag(mail)
         self.fillHeaders(mail, new_mail)
-        if mail.get_content_maintype() != 'multipart':
+        if mail.get_content_maintype() not in ('multipart','image'):
             content = mail.get_payload(decode=True)
             encoding = mail.get_content_charset()
             #encoding = chardet.detect(content)['encoding']
@@ -149,8 +151,11 @@ class ImapReceiver(object):
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
-        if not new_mail.get('body'):
-            new_mail['body'] = new_mail.get('body_plain')
+        if new_mail.get('body'):
+            g = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
+            new_mail['body'] = g.group(2) if g else new_mail['body']
+        else:
+            new_mail['body'] = new_mail.get('body_plain')     
         return new_mail
             
 if __name__=='__main__':

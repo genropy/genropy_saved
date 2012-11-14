@@ -123,6 +123,7 @@ class FormHandler(BaseComponent):
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['selfsubscribe_onExternalChanged'] = """
+            genro.bp(true);
             var selectionStore = this.widget.collectionStore();
             var frm = selectionStore._editingForm;
             if(!frm){
@@ -134,9 +135,7 @@ class FormHandler(BaseComponent):
                 if(!(selectedRows.length>1)){
                     this.widget.selectByRowAttr('_pkey',currentPkey,null,frm.store.loadedIndex==-1);
                 }
-                if(selectionStore.getIdxFromPkey(currentPkey)>=0){
-                    frm.store.setNavigationStatus(currentPkey);
-                }
+                frm.store.setNavigationStatus(currentPkey);
             }
         """
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if(!(($1.pkey=='*newrecord*') || ($1.pkey=='*norecord*'))){
