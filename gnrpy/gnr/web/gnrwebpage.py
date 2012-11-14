@@ -745,6 +745,11 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
+        favicon = self.site.config['favicon?name']
+        if favicon:
+            arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)
+            arg_dict['favicon_ext'] = favicon.split('.')[1]
+
         if self.debugopt:
             kwargs['debugopt'] = self.debugopt
         if self.isDeveloper():
@@ -1433,6 +1438,9 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
+                page.dataController("""
+                        genro.playUrl(url);
+                    """,url='^gnr.playUrl')
                 page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
                             _onResult='genro.publish("quick_comunication_sent",result);')
 
