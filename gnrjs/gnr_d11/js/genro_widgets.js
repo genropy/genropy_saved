@@ -5866,7 +5866,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             labelCb:labelCb,sourceNode:sourceNode});
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
         attributes['model'] = model;
-        attributes['showRoot'] = attributes['showRoot'] || (attributes.label? true:false);
+        attributes['showRoot'] = false;
         attributes['persist'] = attributes['persist'] || false;
         if (attributes['getLabel']) {
             var labelGetter = funcCreate(attributes['getLabel'], 'node');
@@ -6167,7 +6167,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
        //if (nodeWidget.htmlLabel && (!dojo.hasClass(e.target, 'dijitTreeExpando'))) {
        //    return;
        //}
-        if (!this.showRoot && nodeWidget == nodeWidget.tree.rootNode) {
+        if (nodeWidget == nodeWidget.tree.rootNode) {
             return;
         }
         nodeWidget.__eventmodifier = eventToString(e);
@@ -6254,7 +6254,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (kw.evt == 'upd') {
             if (kw.updvalue) {
                 if (kw.value instanceof gnr.GnrBag) {
-                    this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
+                    if(this.sourceNode.absDatapath(this.sourceNode.attr.storepath)== kw.pathlist.join('.').slice(5)){
+                        this.sourceNode.rebuild();
+                    }else{
+                        this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
+                    }
                 } else {
                     this._onItemChange({id:kw.node._id + 'c',label:kw.value});
                 }

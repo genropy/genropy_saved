@@ -14,6 +14,7 @@ class TableHandlerTreeResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
                    'table':None,
                    'parent_id': None,
+                   'root_id':None,
                    'caption_field':None,
                    'condition':None,
                    'condition_kwargs':None,
@@ -52,7 +53,9 @@ class TableHandlerTreeResolver(BagResolver):
         tblobj = page.db.table(self.table)
         pkeyfield = tblobj.pkey
         where = '$parent_id IS NULL'
-        if self.parent_id:
+        if self.root_id:
+            where = '$id=:r_id'
+        elif self.parent_id:
             where='$parent_id=:p_id' #sottopratiche
         caption_field = self.caption_field
         if not caption_field:
@@ -68,7 +71,7 @@ class TableHandlerTreeResolver(BagResolver):
             condition_pkeys = self.getConditionPkeys()
             # ($parent_id=:p_id) AND (($zzz=:condizione_zzz AND ($child_count=0)) OR ( $id IN :condition_pkeys ) ) 
             where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
-        q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
+        q = tblobj.query(where=where,p_id=self.parent_id,r_id=self.root_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
                          order_by='$%s' %caption_field,_storename=self.dbstore,**condition_kwargs)
         result = Bag()
@@ -107,6 +110,24 @@ class HTableTree(BaseComponent):
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
         
+    #@struct_method
+    #def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
+    #    b = Bag()
+    #    tblobj = self.db.table(table)
+    #    caption = caption or tblobj.name_plural
+    #    if condition:
+    #        pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+    #                    table=table,
+    #                    caption_field=caption_field,
+    #                    condition=condition,
+    #                    childname='store',caption=caption,dbstore=dbstore,
+    #                    **kwargs)
+    #    else:
+    #        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,parent_id=root_id),caption=tblobj.name_long,
+    #                                                child_count=1,pkey='',treeIdentifier='_root_')
+    #        pane.data(storepath,b,childname='store',caption=caption,table=table) 
+#
+
     @struct_method
     def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
         b = Bag()
@@ -120,9 +141,16 @@ class HTableTree(BaseComponent):
                         childname='store',caption=caption,dbstore=dbstore,
                         **kwargs)
         else:
-            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,parent_id=root_id),caption=tblobj.name_long,
+            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id),caption=tblobj.name_long,
                                                     child_count=1,pkey='',treeIdentifier='_root_')
             pane.data(storepath,b,childname='store',caption=caption,table=table) 
+            if root_id:
+                pane.dataController("""
+                    var rootNode = storebag.getNode("root");
+                    if(rootNode && rootNode._value){
+                        rootNode.getValue('reload',{root_id:root_id});
+                    }
+                    """,root_id=root_id,storebag='=%s' %storepath,_delay=1)
 
     @public_method
     def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
