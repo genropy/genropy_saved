@@ -59,7 +59,7 @@ var THTree = {
         var dataTransfer = dropInfo.event.dataTransfer;
         var nodeattr = genro.dom.getFromDataTransfer(dataTransfer,'nodeattr');
         var dragged_record = convertFromText(nodeattr);
-        var draggedNode = sourceNode.getRelativeData('.store').getNodeByAttr('pkey',dragged_record.pkey);
+        var draggedNode = sourceNode.widget.storebag().getNodeByAttr('pkey',dragged_record.pkey);
         var dropNode = dropInfo.treeItem;
         if(!draggedNode){
             console.log('Resolver damaged')

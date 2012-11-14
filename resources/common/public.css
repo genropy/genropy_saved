@@ -230,14 +230,6 @@ element.style {
 
 /* @group Widgets&Components */
 
-/* @group Tree */
-.selectedTreeNode {
-    color: red;
-    font-weight: bold;
-}
-
-/* @end */
-
 /* @group components */
 
 /* @group htablehandler */

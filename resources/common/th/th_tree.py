@@ -110,47 +110,27 @@ class HTableTree(BaseComponent):
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
         
         
-    #@struct_method
-    #def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
-    #    b = Bag()
-    #    tblobj = self.db.table(table)
-    #    caption = caption or tblobj.name_plural
-    #    if condition:
-    #        pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
-    #                    table=table,
-    #                    caption_field=caption_field,
-    #                    condition=condition,
-    #                    childname='store',caption=caption,dbstore=dbstore,
-    #                    **kwargs)
-    #    else:
-    #        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,parent_id=root_id),caption=tblobj.name_long,
-    #                                                child_count=1,pkey='',treeIdentifier='_root_')
-    #        pane.data(storepath,b,childname='store',caption=caption,table=table) 
-#
-
     @struct_method
     def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         if condition:
-            pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+            d = pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
                         childname='store',caption=caption,dbstore=dbstore,
                         **kwargs)
-        else:
-            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id),caption=tblobj.name_long,
-                                                    child_count=1,pkey='',treeIdentifier='_root_')
-            pane.data(storepath,b,childname='store',caption=caption,table=table) 
-            if root_id:
-                pane.dataController("""
-                    var rootNode = storebag.getNode("root");
-                    if(rootNode && rootNode._value){
-                        rootNode.getValue('reload',{root_id:root_id});
-                    }
-                    """,root_id=root_id,storebag='=%s' %storepath,_delay=1)
+            return d
+
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id),caption=tblobj.name_long,
+                                                child_count=1,pkey='',treeIdentifier='_root_')
+        d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
+
+        return d
+
+
 
     @public_method
     def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
@@ -186,7 +166,7 @@ class HTableTree(BaseComponent):
     @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,
-                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,**kwargs):
+                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,root_id_delay=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
@@ -201,6 +181,17 @@ class HTableTree(BaseComponent):
                                                 });""" %table
         treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
         tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        if root_id:
+            pane.dataController("""
+                var rootNode = storebag.getNode("root");
+                if(rootNode){
+                    if(rootNode._value){
+                        rootNode.getValue('reload',{root_id:root_id});
+                    }
+                    tree.publish('onChangedRoot',{root_id:root_id});                    
+                }
+            """,root_id=root_id,storebag='=%s' %storepath,
+            _delay=root_id_delay or 100,tree=tree)
         return tree
 
 

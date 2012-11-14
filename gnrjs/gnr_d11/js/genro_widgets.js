@@ -6105,6 +6105,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
         
     },
+    mixin_storebag:function(){
+        return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+    },
 
     mixin_clickOnCheckbox:function(bagnode, e) {
         var checked = bagnode.attr.checked ? false : true;
