@@ -135,8 +135,10 @@ class AttachManager(BaseComponent):
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
 
-        bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer').iframe(src='^.view.grid.selectedId?fileurl',
-                                                                height='100%',width='100%',border=0)
+
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer')
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0)
+        readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
         return frame

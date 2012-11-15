@@ -522,6 +522,15 @@ dojo.declare('gnr.GenroClient', null, {
             });
         }
     },
+    playUrl:function(url,onEnd){
+        var sound = new Audio(url);
+        if(onEnd){
+            sound.addEventListener('ended', function() {
+                onEnd.call();
+            }, false);
+        }
+        sound.play();
+    },
     
     playSound:function(name, path, ext) {
         if(name.indexOf('$')==0){
@@ -632,7 +641,6 @@ dojo.declare('gnr.GenroClient', null, {
     format: function (v, f, m) {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});
-
         }
         if (v instanceof Date) {
             var opt = objectUpdate({}, f);
@@ -745,6 +753,9 @@ dojo.declare('gnr.GenroClient', null, {
                 v=v.join(f['joiner'] || ',')
             }
             v = highlightLinks(v);
+        }
+        if(f.format){
+            v = genro.formatter.asText(v,{format:f.format.format,mask:f.mask});
         }
         return v;
     },

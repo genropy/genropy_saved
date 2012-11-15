@@ -857,6 +857,9 @@ var gnrformatter = {
     },
     
     format_T:function(value,format,formatKw){
+        if(value==''){
+            return value;
+        }
         if(!format){
             return value;
         }
@@ -871,6 +874,9 @@ var gnrformatter = {
         }
         if(format=='download'){
             return makeLink(value,'Download',true);
+        }
+        if(format=='playsound'){
+            return makeLink('javascript:genro.lockScreen(true,"sound"); genro.playUrl("'+value+'",function(){genro.lockScreen(false,"sound")});','<div class="iconbox sound"></div>')
         }
         if(format.indexOf('#')>=0){
             format = format.split('');

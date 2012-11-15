@@ -6105,6 +6105,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
         
     },
+    mixin_storebag:function(){
+        return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+    },
 
     mixin_clickOnCheckbox:function(bagnode, e) {
         var checked = bagnode.attr.checked ? false : true;
@@ -6254,7 +6257,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (kw.evt == 'upd') {
             if (kw.updvalue) {
                 if (kw.value instanceof gnr.GnrBag) {
-                    this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
+                    if(this.sourceNode.absDatapath(this.sourceNode.attr.storepath)== kw.pathlist.join('.').slice(5)){
+                        this.sourceNode.rebuild();
+                    }else{
+                        this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
+                    }
                 } else {
                     this._onItemChange({id:kw.node._id + 'c',label:kw.value});
                 }
@@ -6263,6 +6270,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
             //this.model.store._triggerUpd(kw);
         } else if (kw.evt == 'ins') {
+
             this.model.store._triggerIns(kw);
         } else if (kw.evt == 'del') {
             this._onItemChildrenChange(/*dojo.data.Item*/ kw.where.getParentNode(), /*dojo.data.Item[]*/ kw.where.getNodes());

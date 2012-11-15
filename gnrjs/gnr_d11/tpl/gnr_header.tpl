@@ -1,6 +1,9 @@
 <!-- ================  Genropy Headers ================ -->
 <script type="text/javascript" src="${dojolib}" djConfig="${djConfig}"> </script>
 <script type="text/javascript">dojo.registerModulePath('gnr','${gnrModulePath}');</script>
+% if favicon:
+     <link rel="icon" href="${favicon}" type="image/${favicon_ext}" />
+% endif
 % if dijitImport:
     % for single in dijitImport:
         <script type="text/javascript" src="${single}"></script>

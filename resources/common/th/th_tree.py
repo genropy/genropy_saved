@@ -7,13 +7,14 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 
 class TableHandlerTreeResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
                    'table':None,
                    'parent_id': None,
+                   'root_id':None,
                    'caption_field':None,
                    'condition':None,
                    'condition_kwargs':None,
@@ -29,29 +30,36 @@ class TableHandlerTreeResolver(BagResolver):
 
     def getConditionPkeys(self):
         if self._condition_id:
-            condition_pkeys = self._page.pageStore().getItem('th_hresolver.%s' %self._condition_id)
+            condition_pkeys = self._page.pageStore().getItem('hresolver.%s' %self._condition_id)
         else:
             self._condition_id = self._page.getUuid()
             db = self._page.db
             tblobj = db.table(self.table)
             condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$id,$parent_id',
-                                 _storename=self.dbstore,**condition_kwargs).fetchAsBag('parent_id')
-            condition_pkeys = valid.getIndexList()
+            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$hierarchical_pkey',
+                                 _storename=self.dbstore,addPkeyColumn=False,**condition_kwargs).fetch()
+            condition_pkeys = set()
+            for r in valid:
+                for pk in r['hierarchical_pkey'].split('/'):
+                    condition_pkeys.add(pk)
+            condition_pkeys = list(condition_pkeys)
             with self._page.pageStore() as store:
                 store.setItem('hresolver.%s' %self._condition_id,condition_pkeys)
         return condition_pkeys
+
 
     def load(self):
         page = self._page
         tblobj = page.db.table(self.table)
         pkeyfield = tblobj.pkey
         where = '$parent_id IS NULL'
-        if self.parent_id:
+        if self.root_id:
+            where = '$id=:r_id'
+        elif self.parent_id:
             where='$parent_id=:p_id' #sottopratiche
         caption_field = self.caption_field
         if not caption_field:
-            if tblobj.attributes['hierarchical'] is not True:
+            if tblobj.attributes['hierarchical'] != 'pkey':
                 caption_field = tblobj.attributes['hierarchical'].split(',')[0]
             else:
                 caption_field = tblobj.attributes.get('caption_field')
@@ -61,8 +69,9 @@ class TableHandlerTreeResolver(BagResolver):
         condition_pkeys = None
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
-            where = ' ( %s ) AND ( ( ( %s ) AND ($child_count=0) ) OR ( $id IN :condition_pkeys ) ) ' %(where,self.condition)
-        q = tblobj.query(where=where,p_id=self.parent_id,columns='*,$child_count,$%s' %caption_field,
+            # ($parent_id=:p_id) AND (($zzz=:condizione_zzz AND ($child_count=0)) OR ( $id IN :condition_pkeys ) ) 
+            where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
+        q = tblobj.query(where=where,p_id=self.parent_id,r_id=self.root_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
                          order_by='$%s' %caption_field,_storename=self.dbstore,**condition_kwargs)
         result = Bag()
@@ -72,7 +81,7 @@ class TableHandlerTreeResolver(BagResolver):
             caption = r[caption_field]
             pkey = record[pkeyfield]
             child_count=record['child_count']
-            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field,dbstore=self.dbstore) if child_count else None
+            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field,dbstore=self.dbstore,condition=self.condition,_condition_id=self._condition_id) if child_count else None
             result.setItem(pkey,value,
                             caption=caption,
                             child_count=child_count,pkey=pkey or '_all_',
@@ -81,70 +90,45 @@ class TableHandlerTreeResolver(BagResolver):
                             treeIdentifier=pkey,_record=record)
         return result
 
-class TableHandlerHierarchicalView(BaseComponent):
+
+class HTableTree(BaseComponent):
     js_requires='th/th_tree'
-    py_requires='th/th_picker:THPicker'
-
-    @public_method    
-    def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None):
-        into_pkey = into_pkey or None
-        self.db.table(table).batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
-        self.db.commit()
-        
-    @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,**kwargs):
-        pane.attributes['height'] = '100%'
-        pane.attributes['overflow'] = 'hidden'
-        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
-        formNode = pane.parentNode.attributeOwnerNode('formId')
-        form = formNode.value
-        form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
-        table = formNode.attr['table']
-        
-        hviewTree = box.hviewTree(table=table,**kwargs)
-        form.htree = hviewTree
-        hviewTree.connectToStore(table=table,caption_field=caption_field)
-        hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
-        hviewTree.dataController("""
-            if(pkey==null){
-                tree.widget.setSelectedPath(null,{value:'root'});
-            }
-            if(!pkey || pkey=='*newrecord*'){
-                return;
-            }
-            if(pkey==currSelectedPkey){
-                return;
-            }
-            PUT .tree.pkey = pkey;
-            var selectedPath = currHierarchicalPkey?'root.'+currHierarchicalPkey.replace(/\//g,'.'):'root';
-            tree.widget.setSelectedPath(null,{value:selectedPath});                        
-        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey',currHierarchicalPkey='=#FORM.record.hierarchical_pkey')
-        
-
-        
-        form.dataController("""var currpkey = this.form.getCurrentPkey();
-                            if(currpkey!='*newrecord*'){
-                                treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
-                            }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)    
-        return hviewTree
-    
 
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,**kwargs):
+    def ht_hdbselect(self,pane,caption_field=None,**kwargs):
+        dbselect = pane.dbselect(**kwargs)
+        attr = dbselect.attributes
+        menupath = 'gnr.htablestores.%(dbtable)s' %attr
+        attr['hasDownArrow'] = True
+        dbselect_condition = attr.get('condition')
+        dbselect_condition_kwargs = dictExtract(attr,'condition_')
+        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
+        pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
+                        condition=dbselect_condition,
+                        condition_kwargs=dbselect_condition_kwargs,
+                        cacheTime=0,caption_field=caption_field)
+        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
+        
+        
+    @struct_method
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         if condition:
-            pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+            d = pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
                         childname='store',caption=caption,dbstore=dbstore,
                         **kwargs)
-        else:
-            b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore),caption=tblobj.name_long,
-                                                    child_count=1,pkey='',treeIdentifier='_root_')
-            pane.data(storepath,b,childname='store',caption=caption,table=table) 
+            return d
+
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id),caption=tblobj.name_long,
+                                                child_count=1,pkey='',treeIdentifier='_root_')
+        d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
+
+        return d
 
 
 
@@ -160,34 +144,104 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
         return b
 
+    @public_method    
+    def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None):
+        into_pkey = into_pkey or None
+        self.db.table(table).batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
+        self.db.commit()
+
+    @public_method
+    def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
+        tblobj = self.db.table(table)
+        if not hfield:
+            hierarchical = tblobj.attributes['hierarchical']
+            hfield = hierarchical.split(',')[0]
+        hdescription = tblobj.readColumns(columns='$hierarchical_%s' %hfield,pkey=pkey)
+        where = " ( :hdescription = $hierarchical_%s ) OR ( :hdescription ILIKE $hierarchical_%s || :suffix) " %(hfield,hfield)
+        f = tblobj.query(where=where,hdescription=hdescription,suffix='/%%',order_by='$hierarchical_%s' %hfield).fetch()
+        if f:
+            return '.'.join([r['pkey'] for r in f])
+        
+    
+    @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
-    def ht_connectToStore(self,tree,table=None,caption_field=None):
-        tree.htableViewStore(table=table,caption_field=caption_field)
+    def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,
+                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,root_id_delay=None,**kwargs):
+        
+        treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
+                            labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
+        treeattr.update(kwargs)
+        tree = pane.tree(**treeattr)
+        tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,**condition_kwargs)
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                var pkey = data.pkey;
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,into_pkey:into_pkey},
                                                 function(result){
                                                 });""" %table
-        treeattr['dropTargetCb']="""return this.form.locked?false:THTree.dropTargetCb(this,dropInfo);"""  
-        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=.store',treeNode=tree) 
+        treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
+        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        if root_id:
+            pane.dataController("""
+                var rootNode = storebag.getNode("root");
+                if(rootNode){
+                    if(rootNode._value){
+                        rootNode.getValue('reload',{root_id:root_id});
+                    }
+                    tree.publish('onChangedRoot',{root_id:root_id});                    
+                }
+            """,root_id=root_id,storebag='=%s' %storepath,
+            _delay=root_id_delay or 100,tree=tree)
+        return tree
+
+
+class TableHandlerHierarchicalView(BaseComponent):
+    py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
+
+    @struct_method
+    def ht_treeViewer(self,pane,caption_field=None,**kwargs):
+        pane.attributes['height'] = '100%'
+        pane.attributes['overflow'] = 'hidden'
+        box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
+        formNode = pane.parentNode.attributeOwnerNode('formId')
+        form = formNode.value
+        form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
+        table = formNode.attr['table']
         
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,**kwargs)
+        form.htree = hviewTree
+        hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
+        hviewTree.dataController("""
+            if(pkey==null){
+                tree.widget.setSelectedPath(null,{value:'root'});
+            }
+            if(!pkey || pkey=='*newrecord*'){
+                return;
+            }
+            if(pkey==currSelectedPkey){
+                return;
+            }
+            PUT .tree.pkey = pkey;
+            var selectedPath = currHierarchicalPkey?'root.'+currHierarchicalPkey.replace(/\//g,'.'):'root';
+            tree.widget.setSelectedPath(null,{value:selectedPath});                        
+        """,formsubscribe_onLoaded=True,tree=hviewTree,table=table,currSelectedPkey='=.tree.pkey',currHierarchicalPkey='=#FORM.record.hierarchical_pkey')        
+        form.dataController("""var currpkey = this.form.getCurrentPkey();
+                            if(currpkey!='*newrecord*'){
+                                treeWdg.setSelected(treeWdg._itemNodeMap[currpkey]);
+                            }""",formsubscribe_onCancel=True,treeWdg=hviewTree.js_widget)    
+        return hviewTree
+    
     @struct_method
     def ht_hviewTree(self,box,table=None,picker=None,**kwargs):  
         if picker: 
             bar = box.slotToolbar('*,treePicker,2',height='20px')
         pane = box.div(position='relative',height='100%',padding='2px')
-        tree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
-                            draggable=True,childname='htree',
-                            onDrag="""var sn = dragInfo.sourceNode;
+        tree = pane.hTableTree(table=table,childname='htree',
+                          onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
-                            selectedLabelClass='selectedTreeNode',
-                            labelAttribute='caption',
-                            dropTarget=True,
-                            selected_pkey='.tree.pkey',
-                            selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
-                            selectedPath='.tree.path',  
-                            identifier='treeIdentifier',margin='2px')
+                          selected_pkey='.tree.pkey',
+                          selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
+                          selectedPath='.tree.path',margin='2px')
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
@@ -224,18 +278,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                 tblobj.insert(record)
         self.db.commit()
     
-    @public_method
-    def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
-        tblobj = self.db.table(table)
-        if not hfield:
-            hierarchical = tblobj.attributes['hierarchical']
-            hfield = hierarchical.split(',')[0]
-        hdescription = tblobj.readColumns(columns='$hierarchical_%s' %hfield,pkey=pkey)
-        where = " ( :hdescription = $hierarchical_%s ) OR ( :hdescription ILIKE $hierarchical_%s || :suffix) " %(hfield,hfield)
-        f = tblobj.query(where=where,hdescription=hdescription,suffix='/%%',order_by='$hierarchical_%s' %hfield).fetch()
-        if f:
-            return '.'.join([r['pkey'] for r in f])
-        
+
     @struct_method
     def ht_slotbar_form_hbreadcrumb(self,pane,**kwargs):
         table = pane.getInheritedAttributes().get('table')
@@ -420,22 +463,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragtblobj.touchRecords(_pkeys=fkeys)
         self.db.commit()
 
-    @struct_method
-    def ht_hdbselect(self,pane,caption_field=None,**kwargs):
-        dbselect = pane.dbselect(**kwargs)
-        attr = dbselect.attributes
-        menupath = 'gnr.htablestores.%(dbtable)s' %attr
-        attr['hasDownArrow'] = True
-        dbselect_condition = attr.get('condition')
-        dbselect_condition_kwargs = dictExtract(attr,'condition_')
-        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-        pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
-                        condition=dbselect_condition,
-                        condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=0,caption_field=caption_field)
-        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
-        
-        
+
 
 
    #@public_method

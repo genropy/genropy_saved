@@ -106,6 +106,9 @@ cursorZoom_plus{
 	opacity: .5;
 	background: #e5e5e5 url(icons/base64/trash_64.png) no-repeat center center;
 }
+.selectedTreeNode {
+    font-weight: bold;
+}
 
 .fieldsTree .dijitTreeContent {
     cursor: move;
