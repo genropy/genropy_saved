@@ -96,9 +96,13 @@ class ImapReceiver(object):
             att_data = self.getMessagePayload(part)
         else:
             att_data = part.get_payload(decode=True)
+        fname,ext = os.path.splitext(filename)
+        fname = fname.replace('.','_').replace('~','_').replace('#','_')
+        filename = fname+ext
         new_attachment['filename'] = filename
         date = new_mail['send_date']
         attachment_path =  self.getAttachmentPath(date,filename)
+        print attachment_path
         year = str(date.year)
         month = '%02i' %date.month
         new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
@@ -148,8 +152,10 @@ class ImapReceiver(object):
                     continue
                 content_disposition = part.get('Content-Disposition')
                 if content_disposition is None: 
+                    print 'aaaa'
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
+                    print 'bbb'
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
         if new_mail.get('body'):
             g = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
