@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import datetime
+import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrdecorator import public_method
@@ -495,7 +496,7 @@ class AttachmentTable(GnrDboTable):
 
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
         tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('filepath' ,name_long='!!Filepath')
+        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc')
         tbl.column('description' ,name_long='!!Description')
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
@@ -517,6 +518,12 @@ class AttachmentTable(GnrDboTable):
             self.update(record,old_record=old_record)
             self.db.commit()
         
+    def trigger_onDeletedAtc(self,record,**kwargs):
+        site = self.db.application.site
+        fpath = site.getStaticPath('vol:%s' %record['filepath'])
+        if os.path.exists(fpath):
+            os.remove(fpath)
+
 
 class DynamicFieldsTable(GnrDboTable):
     """CustomFieldsTable"""
