@@ -56,6 +56,7 @@ class TableHandler(BaseComponent):
                         nodeId=th_root,
                         table=table,
                         context_dbstore=dbstore,
+                        overflow='hidden',
                         **kwargs) 
         top_slots = ['#']     
         if readOnly:
@@ -231,7 +232,7 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
                             readOnly=False,hider=False,saveMethod=None,autoSave=False,statusColumn=None,
-                            default_kwargs=None,semaphore=None,saveButton=None,configurable=False,**kwargs):
+                            default_kwargs=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
         if autoSave:
@@ -248,6 +249,8 @@ class TableHandler(BaseComponent):
                                         foreignKeyGetter='=#FORM.pkey',**kwargs)
         wdg.view.store.attributes.update(recordResolver=False)
         wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs,autoSave=autoSave,statusColumn=statusColumn))
+        wdg.view.attributes.update(height=height,width=width)
+
         if saveButton:
             wdg.view.top.bar.replaceSlots('#','#,gridsave')
         if semaphore:
