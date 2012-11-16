@@ -1854,7 +1854,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
     setNavigationStatus:function(pkey){
         var currIdx=-1;
         if(pkey!='*norecord*' && pkey!='*newrecord*'){
-            var currIdx = this.parentStore.getIdxFromPkey(pkey);
+            var currIdx = this.parentStore.getIdxFromPkey(pkey,true);
             if(this.loadedIndex!=null && this.loadedIndex>=0 && currIdx<0){
                 return;
             }
@@ -1890,7 +1890,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             }else if(nav=='last'){
                 idx = this.parentStore.len(true)-1;
             }else{
-                idx = this.parentStore.getIdxFromPkey(currentPkey);
+                idx = this.parentStore.getIdxFromPkey(currentPkey,true);
                 if(idx<0){
                     if(this.loadedIndex>=0){
                         idx = nav=='next'?this.loadedIndex:this.loadedIndex-1;
@@ -1903,7 +1903,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             }
         }
 
-        return this.parentStore.getKeyFromIdx(idx);
+        return this.parentStore.getKeyFromIdx(idx,true);
     }
     
 });
