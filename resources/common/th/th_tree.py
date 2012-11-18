@@ -98,7 +98,7 @@ class HTableTree(BaseComponent):
     def ht_hdbselect(self,pane,caption_field=None,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
-        menupath = 'gnr.htablestores.%(dbtable)s' %attr
+        menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(pane))
         attr['hasDownArrow'] = True
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
