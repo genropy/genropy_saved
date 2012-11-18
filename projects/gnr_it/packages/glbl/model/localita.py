@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import time
 
 class Table(object):
     def config_db(self, pkg):
@@ -17,9 +16,3 @@ class Table(object):
         
     def baseView_min(self):
         return "nome:80%,prefisso_tel:20%"
-        
-    def trigger_onInserting(self, record):
-        return
-        print 'dormo per 10'
-        time.sleep(10)
-        print 'dormito'

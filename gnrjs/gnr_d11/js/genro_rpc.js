@@ -471,7 +471,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     remoteResolver: function(methodname, params, kw /*readOnly, cacheTime*/) {
         var kw = kw || {};
-        var cacheTime = kw.cacheTime || -1;
+        var cacheTime = kw.cacheTime==null?-1:kw.cacheTime;
         var isGetter = kw.isGetter || null;
 
         var kwargs = objectUpdate({'sync':true}, params);

@@ -56,7 +56,6 @@ class TableHandler(BaseComponent):
                         nodeId=th_root,
                         table=table,
                         context_dbstore=dbstore,
-                        overflow='hidden',
                         **kwargs) 
         top_slots = ['#']     
         if readOnly:

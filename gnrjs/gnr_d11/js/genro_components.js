@@ -454,7 +454,6 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         sourceNode.attr.nodeId = frameId;
         sourceNode._registerNodeId();
         objectPop(kw,'datapath');
-        kw['overflow'] = 'hidden';
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true));
         var centerPars = objectExtract(kw,'center_*');
         var bc = sourceNode._('BorderContainer', kw);
