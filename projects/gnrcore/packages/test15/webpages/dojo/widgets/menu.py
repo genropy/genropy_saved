@@ -4,6 +4,7 @@
 
 import datetime
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
     dojo_version = '11'
@@ -62,6 +63,21 @@ class GnrCustomWebPage(object):
         ddm.menu(action='alert($1.code)', modifiers='*', storepath='.menudata', _class='smallmenu',
                         id='test3menu')
         pane.dataRemote('.menudata', 'connection.connected_users_bag', cacheTime=5)
+
+    def test_6_resolver(self, pane):
+        """From resolver user"""
+        ddm = pane.div(height='50px', width='50px', background='lime')
+        ddm.menu(action='alert($1.code)', modifiers='*', storepath='.menudata', _class='smallmenu',
+                        id='test3menu')
+        pane.textbox(value='^.pippo')
+        pane.dataRemote('.menudata', self.testcb,cacheTime=0,zzz='=.pippo')
+
+    @public_method
+    def testcb(self,zzz=None):
+        print 'mmmm'
+        menudata = self.menudata()
+        menudata.setItem('r_6', None, code=zzz or 'zzz', caption=zzz)
+        return menudata
 
     def rpc_menudata(self):
         menudata = self.menudata()

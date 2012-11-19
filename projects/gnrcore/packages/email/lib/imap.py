@@ -96,6 +96,9 @@ class ImapReceiver(object):
             att_data = self.getMessagePayload(part)
         else:
             att_data = part.get_payload(decode=True)
+        fname,ext = os.path.splitext(filename)
+        fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','')
+        filename = fname+ext
         new_attachment['filename'] = filename
         date = new_mail['send_date']
         attachment_path =  self.getAttachmentPath(date,filename)
@@ -147,7 +150,7 @@ class ImapReceiver(object):
                 if part_content_type.startswith('multipart'):
                     continue
                 content_disposition = part.get('Content-Disposition')
-                if content_disposition is None: 
+                if content_disposition is None and part_content_type in ('text/html','text/plain'): 
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)

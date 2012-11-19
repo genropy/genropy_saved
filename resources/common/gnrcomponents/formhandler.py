@@ -123,7 +123,6 @@ class FormHandler(BaseComponent):
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['selfsubscribe_onExternalChanged'] = """
-            genro.bp(true);
             var selectionStore = this.widget.collectionStore();
             var frm = selectionStore._editingForm;
             if(!frm){

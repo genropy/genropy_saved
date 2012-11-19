@@ -2079,7 +2079,7 @@ dojo.declare("gnr.stores._Collection",null,{
         return item;
     },
     
-    getKeyFromIdx:function(idx){
+    getKeyFromIdx:function(idx,filtered){
         var data = this.getData();
         if(!data){
             return;
@@ -2088,10 +2088,13 @@ dojo.declare("gnr.stores._Collection",null,{
         data=data.getNodes();
         if ((idx<0)||( idx>(data.length-1))){
             return null;
-        }    
+        } 
+        if(filtered && this._filtered){
+            idx = this._filtered[idx];
+        }   
         return this.keyGetter(data[idx]);
     },
-    getIdxFromPkey:function(pkey){
+    getIdxFromPkey:function(pkey,fiteredIndex){
         var result = -1;
         var data = this.getData();
         var that = this;
@@ -2105,6 +2108,9 @@ dojo.declare("gnr.stores._Collection",null,{
                     return true;
                 }
             });
+            if(fiteredIndex && result>=0 && this._filtered){
+                return this._filtered.indexOf(result);
+            }
             return result;
         }
     },

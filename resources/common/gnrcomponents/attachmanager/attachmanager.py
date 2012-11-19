@@ -112,6 +112,7 @@ class AttachManager(BaseComponent):
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
+                                        autoSelect=True,
                                      semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
@@ -129,6 +130,7 @@ class AttachManager(BaseComponent):
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,delrow=False,pbl_classes=pbl_classes,
+                                        autoSelect=True,
                                      semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.top.popNode('bar')
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',

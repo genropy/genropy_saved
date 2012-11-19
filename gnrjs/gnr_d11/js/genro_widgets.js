@@ -1721,13 +1721,21 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         this.destroy_replaced.call(this);
     },
     
-    versionpatch_11__contextMouse: function (e) {
+versionpatch_11__contextMouse: function (e) {
         this.originalContextTarget = e.target;
         var sourceNode = this.sourceNode;
+        var wdg = sourceNode.widget;
+        if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
+            return;
+        }
+
         if (sourceNode) {
             var resolver = sourceNode.getResolver();
             if (resolver && resolver.expired()) {
-                var result = sourceNode.getValue('notrigger');
+                if(sourceNode.attr.onOpeningMenu){
+                    var optkwargs = funcApply(sourceNode.attr.onOpeningMenu,{evt:e},sourceNode);
+                }
+                var result = sourceNode.getValue('notrigger',optkwargs);
                 if (result instanceof gnr.GnrBag) {
                     var menubag = new gnr.GnrDomSource();
                     var old_bindings = [];
@@ -1750,17 +1758,16 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }
             }
         }
-        var wdg = sourceNode.widget;
+        wdg = sourceNode.widget;
         if ((e.button == 2) && (!wdg.modifiers)) {
             wdg._contextMouse_replaced.call(wdg, e);
         }
-        else if (wdg.modifiers && genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) {
-            
+        else{
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
-
         }
     },
+    
     versionpatch_15__openMyself: function (e) {
         this.originalContextTarget = e.target;
         var sourceNode = this.sourceNode;

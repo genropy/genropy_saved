@@ -98,7 +98,7 @@ class HTableTree(BaseComponent):
     def ht_hdbselect(self,pane,caption_field=None,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
-        menupath = 'gnr.htablestores.%(dbtable)s' %attr
+        menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(dbselect))
         attr['hasDownArrow'] = True
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
@@ -191,7 +191,7 @@ class HTableTree(BaseComponent):
                     tree.publish('onChangedRoot',{root_id:root_id});                    
                 }
             """,root_id=root_id,storebag='=%s' %storepath,
-            _delay=root_id_delay or 100,tree=tree)
+            _delay=root_id_delay if root_id_delay is not None else 100,tree=tree)
         return tree
 
 
