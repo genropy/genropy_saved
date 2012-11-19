@@ -30,12 +30,12 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,picker=True)
+    @extract_kwargs(condition=True,grid=True,picker=True,hider=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
-                            picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,**kwargs):
+                            picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -89,12 +89,20 @@ class TableHandler(BaseComponent):
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
+                                sourceNode._autoaddrow = autoinsert;
                                 sourceNode.setHiderLayer(true,{message:message,button:'this.getFormHandler().save();'});
                             }else{
                                 sourceNode.setHiderLayer(false);
+                                if(sourceNode._autoaddrow){
+                                    delete sourceNode._autoaddrow;
+                                    grid.publish('addrow');
+                                }
                             }
-                            """,sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
-                                pkey='^#FORM.controller.loaded')    
+                            """,sourceNode=hiderRoot,
+                                message=hider_kwargs.get('message') or False,
+                                autoinsert=hider_kwargs.get('autoinsert') or False,
+                                    msg_prefix='!!Save',msg_suffix='',
+                                pkey='^#FORM.controller.loaded',grid=wdg.view.grid)    
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
