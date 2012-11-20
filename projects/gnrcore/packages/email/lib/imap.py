@@ -28,6 +28,7 @@ class ImapReceiver(object):
         self.messages_table = self.db.table('email.message')
         self.attachments_table = self.db.table('email.attachment')
         self.account_table = self.db.table('email.account')
+        self.atc_counter = 0
         if self.ssl:
             imap_class = imaplib.IMAP4_SSL
         else:
@@ -98,6 +99,8 @@ class ImapReceiver(object):
             att_data = part.get_payload(decode=True)
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','')
+        fname = '%s_%i' %(fname,self.atc_counter)
+        self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
         date = new_mail['send_date']

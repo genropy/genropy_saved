@@ -510,7 +510,14 @@ class TableHandlerMain(BaseComponent):
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,pkey=pkey,**kwargs)
     
-        
+    @struct_method
+    def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
+        if title:
+            pane.data('gnr.publicTitle',title) 
+        pane.dataController('genro.publish("gnr_public_title",public_title);',public_title='^gnr.publicTitle')
+        pane.div('^gnr.publicTitle', _class='pbl_title_caption',
+                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id; dragValues["dbrecords"] = objectUpdate({},genro.getDataNode("gnr.publicTitle").attr);',
+                    childname='captionbox',**kwargs)
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
     py_requires = 'foundation/thermo'
