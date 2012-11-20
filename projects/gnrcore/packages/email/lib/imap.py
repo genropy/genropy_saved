@@ -99,7 +99,7 @@ class ImapReceiver(object):
             att_data = part.get_payload(decode=True)
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','')
-        fname = '%s_%i' %(fname,self.atc_counter)
+        fname = '%i_%s' %(self.atc_counter,fname)
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
