@@ -15,23 +15,5 @@ class Table(object):
         tbl.column('ordine', 'L', name_long='!!Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='!!Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='!!CAP Valido')
-        tbl.column('auxdata','X',name_long='!!test')
-        
-        
-        tbl.column('dimensione',name_long='!!Dimensione',values='P:Piccola,M:Media,G:Grande')
-        
-        tbl.aliasColumn('regione_nome',relation_path='@regione.nome',name_long='Region nome')
-
-    def baseView_cap(self):
-        return "nome,cap_valido"
-        
-    def baseView_regione(self):
-        return "nome:60%,@regione.nome/Regione:40%"
-        
-    def baseView_full(self):
-        return "sigla:10%,@regione.nome/Regione:40%,nome:20%,@regione.zona:30%"
-
-    #def protect_update(self, record, old_record=None):
-    #    if record['sigla'] == 'AO':
-    #        record.setAttr('regione',wdg_disabled=True,wdg_color='red')
-        
+            
+        tbl.column('nuts',name_long='!!NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise')
