@@ -1905,6 +1905,22 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      }
 });
 
+dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
+     createContent:function(sourceNode, kw,children) {
+         var store = sourceNode._('dataController',kw);
+         var storeNode = store.getParentNode();
+         var identifier = objectPop(kw,'_identifier') || '_pkey';
+         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows'
+         storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
+         return store;
+     }
+});
+
+
+
+
+
+
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
         delete_one : "You are about to delete the selected record.<br/>You can't undo this",
@@ -2023,7 +2039,12 @@ dojo.declare("gnr.stores._Collection",null,{
     onCounterChanges:function(counterField,changes){},
     
     getData:function(){
-        return this.storeNode.getRelativeData(this.storepath) || new gnr.GnrBag();
+        var result = this.storeNode.getRelativeData(this.storepath);
+        if(!result){
+            result = new gnr.GnrBag();
+            this.storeNode.setRelativeData(this.storepath,result);
+        }
+        return result;
     },
     
     getItems:function(){
@@ -2036,11 +2057,11 @@ dojo.declare("gnr.stores._Collection",null,{
         return this.getItems().length;
     },
     
-    indexByCb:function(grid,cb,backward){
+    indexByCb:function(cb,backward){
         var n = this.len(true);
         for (var i = 0; i < n; i++) {
             var k_i = backward?n-i:i;
-            if (cb(this.getGridRowDataByIdx(grid,k_i))) {
+            if (cb(this.rowByIndex(k_i))) {
                 return k_i;
             }
         }
@@ -2070,13 +2091,6 @@ dojo.declare("gnr.stores._Collection",null,{
         }
 
         return reverse ? dojo.indexOf(this._filtered,idx):this._filtered[idx];
-    },
-  
-    rowFromItem:function(item,grid){
-        if(grid){
-            return grid.rowFromBagNode(item);
-        }
-        return item;
     },
     
     getKeyFromIdx:function(idx,filtered){
@@ -2114,12 +2128,12 @@ dojo.declare("gnr.stores._Collection",null,{
             return result;
         }
     },
-    getGridRowDataByIdx:function(grid,idx){
+    rowByIndex:function(idx){
         var rowdata={};
         var node=this.itemByIdx(idx);
         if (node){
             this.setExternalChangeClasses(node);
-            rowdata = grid.rowFromBagNode(node);
+            return this.rowFromItem(node);
         }
         return rowdata;
     },
@@ -2188,9 +2202,10 @@ dojo.declare("gnr.stores._Collection",null,{
         if (grid.excludeListCb) {
             excludeList = grid.excludeListCb.call(this.sourceNode);
         }
+        var that = this;
         dojo.forEach(this.getItems(), 
                     function(n,index,array){
-                        var rowdata = grid.rowFromBagNode(n);
+                        var rowdata = that.rowFromItem(n);
                         var result = cb? cb(rowdata,index,array):true; 
                         if(result){
                             if ((!excludeList)||(dojo.indexOf(excludeList, rowdata[grid.excludeCol]) == -1)) {
@@ -2214,15 +2229,45 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         var data=this.getData();
         return data?data.getNodes():[];
     },
-    rowFromItem:function(n,grid){
-        if(grid){
-            return grid.rowFromBagNode(n);
+
+    
+    keyGetter :function(n){
+        return n.attr[this.identifier];
+    },
+    
+    itemByIdx:function(idx){
+        var item=null;
+        if (idx >= 0) {
+            idx = this.absIndex(idx);
+            var nodes=this.getItems();
+            if (idx <= this.len()) {
+                item=nodes[idx];
+            }
         }
-        return n.getValue();
+        return item;
     }
 });
 
-dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
+dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
+    rowFromItem:function(item){
+        var result = objectUpdate({},item.attr);
+        var value = item.getValue();
+        if (value) {
+            value.forEach(function(n){
+                result[n.label] = n.getValue();
+            })
+        }
+        return result;
+    }
+});
+
+dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
+    rowFromItem:function(item){
+        return objectUpdate({},item.attr);
+    }
+});
+
+dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){
         if(this.storeNode.attr.externalChanges){
             var that = this;
@@ -2481,29 +2526,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             grid.sourceNode.publish('onExternalChanged');
         });
 
-    },
-
-    
-    keyGetter :function(n){
-        return n.attr[this.identifier];
-    },
-    
-    rowFromItem:function(n,grid){
-        if(grid){
-            return grid.rowFromBagNode(n);
-        }
-        return n.attr();
-    },
-    itemByIdx:function(idx){
-        var item=null;
-        if (idx >= 0) {
-            idx = this.absIndex(idx);
-            var nodes=this.getItems();
-            if (idx <= this.len()) {
-                item=nodes[idx];
-            }
-        }
-        return item;
     },
 
     deleteRows:function(pkeys){
@@ -2783,7 +2805,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         return this.keyGetter(dataNode);
     },
 
-    indexByCb:function(grid,cb,backward){
+    indexByCb:function(cb,backward){
         var n = this.len(true);
         var pages = this.getData().getNodes();
         var n_pages = pages.length;
@@ -2794,7 +2816,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             var n = rowNodes.length;
             for(var i = 0; i< n; i++){
                 var k_i = backward?n-i:i;
-                if(cb(grid.rowFromBagNode(rowNodes[i],this.externalChangedKeys))){
+                if(cb(this.rowFromItem(rowNodes[i]))){
                     return parseInt(pages[k_p].label.slice(2))*this.chunkSize+k_i;
                 }
             }
