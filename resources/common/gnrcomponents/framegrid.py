@@ -81,5 +81,5 @@ class BagGrid(BaseComponent):
         frame = pane.frameGrid(_newGrid=True,grid_gridEditor=dict(saveMethod=False),datamode='bag',**kwargs)
         frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
         frame.grid.bagStore(storepath=storepath)
-
+        return frame
         

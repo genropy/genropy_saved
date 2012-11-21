@@ -2084,8 +2084,20 @@ class GnrGridStruct(GnrStructData):
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,**kwargs):
+                   zoom=False,table=None,**kwargs):
         tableobj = self.tblobj
+        if table:
+            tableobj = self.page.db.table(table)
+            _as = field
+            field = tableobj.pkey
+            tbl_caption_field = tableobj.attributes.get('caption_field')
+            caption_field = kwargs.get('caption_field') or '%s_caption' %_as
+            kwargs['related_table'] = table
+            kwargs['caption_field'] = caption_field
+            kwargs['rowcaption'] = tbl_caption_field
+            kwargs['relating_column'] = _as
+            kwargs['related_column'] = tbl_caption_field
+
         if not tableobj:
             self.root._missing_table = True
             return
