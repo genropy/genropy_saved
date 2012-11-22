@@ -76,7 +76,7 @@ class BaseResourceExport(BaseResourceBatch):
                 for cell in row:
                     if cell.getAttr('hidden'):
                         continue
-                    col = self.db.colToAs(cell.getAttr('field'))
+                    col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
                     self.coltypes[col] = cell.getAttr('dtype')
