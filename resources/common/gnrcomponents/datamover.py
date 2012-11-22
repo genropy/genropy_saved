@@ -58,8 +58,9 @@ class MoverPlugin(BaseComponent):
         
         bar = frame.bottom.slotToolbar('*,trashlines')
         bar.trashlines.div(_class='iconbox trash',dropTarget=True,
-                    onDrop_moverlines="FIRE .drop_moverlines = data.rows;",
-                    onDrop_recordlines="FIRE .drop_recordlines = data.rows;")
+                    onDrop_moverlines="FIRE .drop_moverlines = data;",
+                    onDrop_recordlines="FIRE .drop_recordlines = data;",
+                    connect_ondblclick='FIRE .drop_allmovers')
         bar = frame.top.slotToolbar('3,mvtitle,*,btnsave,btndl',mvtitle='!!Data Mover',mvtitle_font_weight='bold')
         bar.btnsave.slotButton("!!Save",iconClass='iconbox save',action="genro.serverCall('developer.saveCurrentMover',{data:data});",data='=.tablesgrid.data')
         bar.btndl.slotButton("!!Download",iconClass='iconbox inbox',
@@ -75,6 +76,7 @@ class MoverPlugin(BaseComponent):
                             }
                             var table = rowset[0].reftable;
                             dragValues['mover_'+table.replace('.','_')] =  {table:table,pkeys:rowset[0].pkeys,objtype:rowset[0].objtype};
+                            dragValues['moverlines'] = rowset;
                         };""",
                         drop_ext='gnrz',
                         dropTarget_grid='dbrecords,nodeattr,dbselection,Files',dropTarget=True,dropTypes='dbrecords,nodeattr,Files',
@@ -136,6 +138,8 @@ class MoverPlugin(BaseComponent):
                                                 var pkeys = {};
                                                 dojo.forEach(rowset,function(r){pkeys[r['_pkey']]=true});
                                                 dragValues['mover_'+table.replace('.','_')] =  {table:table,pkeys:pkeys,objtype:rowset[0].objtype};
+                                                dragValues['recordlines'] = rowset;
+
                                             };""",
                                     relativeWorkspace=True,struct=self.__recordsgrid_struct)
                                     
