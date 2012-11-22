@@ -839,7 +839,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var data = this._getRecordCluster(this.getFormData(), true);
         for(var k in this.gridEditors){
             var changeset = this.gridEditors[k].getChangeset();
-            if(changeset.len()>0){
+            if(this.gridEditors[k].table && changeset.len()>0){
                 data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
             }
         }
