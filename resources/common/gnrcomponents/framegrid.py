@@ -72,4 +72,14 @@ class FrameGrid(BaseComponent):
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
         return frame
+
+class BagGrid(BaseComponent):
+    py_requires='gnrcomponents/framegrid:FrameGrid'
+    @extract_kwargs(top=True,grid=True)
+    @struct_method
+    def fgr_bagGrid(self,pane,storepath=None,title=None,**kwargs):
+        frame = pane.frameGrid(_newGrid=True,grid_gridEditor=dict(saveMethod=False),datamode='bag',**kwargs)
+        frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
+        frame.grid.bagStore(storepath=storepath)
+        return frame
         

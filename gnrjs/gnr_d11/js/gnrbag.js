@@ -1907,7 +1907,7 @@ dojo.declare("gnr.GnrBag", null, {
                     }
                 }
 
-                if (istxtnode) {
+                if (istxtnode && convertAs!='BAG') {
                     var itemValue = textContent;
                     if (convertAs != 'T') {
                         itemValue = convertFromText(itemValue, convertAs);

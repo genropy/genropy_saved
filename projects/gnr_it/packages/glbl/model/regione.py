@@ -6,8 +6,11 @@ class Table(object):
         tbl = pkg.table('regione', pkey='sigla', 
         	name_long='!!Regione', rowcaption='sigla,nome',caption_field='nome_completo')
         tbl.column('sigla', size='3', group='_', readOnly=True, name_long='!!Sigla', indexed=True)
-        tbl.column('nome', size=':22', name_long='!!Nome', indexed=True)
+        tbl.column('nome', name_long='!!Nome', indexed=True)
         tbl.column('codice_istat', size='2', name_long='!!Codice Istat')
         tbl.column('ordine', size='6', name_long='!!Ordine Gnr')
-        tbl.column('zona', size=':6', name_long='!!Zona')
+        tbl.column('zona', name_long='!!Zona')
+        tbl.column('zona_numero', 'I', name_long='!!Zona n.')
+
+        tbl.column('nuts',name_long='!!NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise')
         tbl.formulaColumn('nome_completo',""" $nome ||'(' || $sigla || ')' """,name_long='Nome completo')	

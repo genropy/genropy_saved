@@ -925,6 +925,43 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
+
+    def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
+        """TODO
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param storeCode: TODO
+        :param storepath: TODO
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        """
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        #columns = columns or '==gnr.getGridColumns(this);'
+        parent = self
+        if parentTag:
+            parentTag = parentTag.lower()
+        #storepath = storepath or attr.get('storepath') or '.grid.store'
+
+        if parentTag =='includedview' or  parentTag =='newincludedview':
+            attr['table'] = table
+            storepath = storepath or attr.get('storepath') or '.store'
+            
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+            parent = self.parent
+              
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
+            attr['store'] = storeCode
+            attr['table'] = table
+            storepath = storepath or attr.get('storepath') or '.store'
+        nodeId = '%s_store' %storeCode
+        return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
+
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
         
@@ -2047,8 +2084,20 @@ class GnrGridStruct(GnrStructData):
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,**kwargs):
+                   zoom=False,table=None,**kwargs):
         tableobj = self.tblobj
+        if table:
+            tableobj = self.page.db.table(table)
+            _as = field
+            field = tableobj.pkey
+            tbl_caption_field = tableobj.attributes.get('caption_field')
+            caption_field = kwargs.get('caption_field') or '%s_caption' %_as
+            kwargs['related_table'] = table
+            kwargs['caption_field'] = caption_field
+            kwargs['rowcaption'] = tbl_caption_field
+            kwargs['relating_column'] = _as
+            kwargs['related_column'] = tbl_caption_field
+
         if not tableobj:
             self.root._missing_table = True
             return
