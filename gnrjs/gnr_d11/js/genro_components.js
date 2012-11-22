@@ -2064,20 +2064,6 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return -1;
     },
-
-    sort:function(sortedBy){
-        this.sortedBy = sortedBy || this.sortedBy;
-        var data = this.getData();
-        var sl = [];
-        dojo.forEach(this.sortedBy.split(','),function(n){
-            if(n.slice(0,3)!='#a.'){
-                n = '#a.'+n;
-            }
-            sl.push(n);
-        });
-        sl = sl.join(',');
-        data.sort(sl);
-    },
     
     absIndex:function(idx,reverse){
         if (this.filterToRebuild()) {
@@ -2271,6 +2257,18 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
     keyGetter :function(n){
         return this.rowFromItem(n)[this.identifier];
+    },
+
+
+    sort:function(sortedBy){
+        this.sortedBy = sortedBy || this.sortedBy;
+        var data = this.getData();
+        var sl = [];
+        dojo.forEach(this.sortedBy.split(','),function(n){
+            sl.push(n);
+        });
+        sl = sl.join(',');
+        data.sort(sl);
     }
 });
 
@@ -2284,6 +2282,20 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     },
     keyGetter :function(n){
         return n.attr[this.identifier];
+    },
+
+    sort:function(sortedBy){
+        this.sortedBy = sortedBy || this.sortedBy;
+        var data = this.getData();
+        var sl = [];
+        dojo.forEach(this.sortedBy.split(','),function(n){
+            if(n.slice(0,3)!='#a.'){
+                n = '#a.'+n;
+            }
+            sl.push(n);
+        });
+        sl = sl.join(',');
+        data.sort(sl);
     }
     
 });
