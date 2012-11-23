@@ -4900,9 +4900,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_storeRowCount: function(all) {
         return this.collectionStore().len(!all);
     },
-    mixin_storebag:function(){
-        return this.collectionStore().getData();
-    },
+   // mixin_storebag:function(){
+   //     return this.collectionStore().getData();
+   // },
     mixin_addNewSetColumn:function(kw) {
         this.gnr.addNewSetColumn(this.sourceNode,kw);;
     },
