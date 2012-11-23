@@ -317,7 +317,7 @@ class TableHandlerMain(BaseComponent):
             th.view.attributes.update(_class='pbl_root')
             viewbar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_root_top',height='22px')
             if not hasattr(th.view.bottom,'bar'):
-                self.public_frameBottomBar(th.view.bottom)
+                self.public_frameBottomBar(th.view.bottom,slots='*,messageBox,*')
             else:
                 th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
             viewbar.replaceSlots('#','#,avatarslot,10')

@@ -1759,12 +1759,12 @@ versionpatch_11__contextMouse: function (e) {
             }
         }
         wdg = sourceNode.widget;
-        if ((e.button == 2) && (!wdg.modifiers)) {
-            wdg._contextMouse_replaced.call(wdg, e);
-        }
-        else{
+        if(wdg.modifiers){
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
+        }
+        else if (e.button == 2) {
+            wdg._contextMouse_replaced.call(wdg, e);
         }
     },
     
