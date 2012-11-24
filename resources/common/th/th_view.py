@@ -83,7 +83,7 @@ class TableHandlerView(BaseComponent):
                                **kwargs)  
         sections = self._th_hook('sections',mangler=frameCode)()
         if sections:
-            frame.top.slotBar('2,sections,*',_position=0,sections_sections=sections,childname='sectionbar')
+            frame.top.slotToolbar('2,sections,*',_position=0,sections_sections=sections,childname='sectionbar',gradient_to='#777',gradient_from='#999')
         if configurable:
             frame.right.viewConfigurator(table,frameCode)   
         self._th_viewController(frame,table=table)
