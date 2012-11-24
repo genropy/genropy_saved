@@ -457,33 +457,43 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true));
         var centerPars = objectExtract(kw,'center_*');
         var bc = sourceNode._('BorderContainer', kw);
-        var slot,v,sideKw;
+        var slot,slotcontent,v,sidepane,sideKw;
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right'];
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']};
         dojo.forEach(sides,function(side){
-             slot = children.popNode(side);
-             if(slot){
-                 node = slot.getValue().getNode('#0');
-                 if(slot.attr.tag=='autoslot'){
-                     objectPop(slot.attr,'tag');
-                 }
-             }else{
-                 node = children.popNode('#side='+side);
-             }
-             if(node){                 
-                 node.attr['frameCode'] = frameCode;
-                 sideKw = slot?objectUpdate(slot.attr,{'region':side}):{'region':side};
-                 sideKw.splitter = sideKw.splitter || objectPop(node.attr,'splitter');
-                 objectPop(node.attr,'side');
-                 dojo.forEach(corners[side],function(c){
-                     v=objectPop(rounded_corners,c);
-                     if(v){
-                         node.attr['rounded_'+c] = v;
-                     }
-                 });
-                 node.attr['_childname'] = node.attr['_childname'] || side;
-                 bc._('ContentPane',sideKw).setItem('#id',node._value,node.attr);
-             }
+            slot = children.popNode(side);
+            slotcontent = null;
+            sidepane = null;
+            if(slot){
+               slotcontent = slot.getValue();
+               node = slotcontent.popNode('#0');
+               if(slot.attr.tag=='autoslot'){
+                    objectPop(slot.attr,'tag');
+               }
+            }else{
+                node = children.popNode('#side='+side);
+            }
+            if(node){                 
+                node.attr['frameCode'] = frameCode;
+                sideKw = slot?objectUpdate(slot.attr,{'region':side}):{'region':side};
+                sideKw.splitter = sideKw.splitter || objectPop(node.attr,'splitter');
+                objectPop(node.attr,'side');
+                dojo.forEach(corners[side],function(c){
+                    v=objectPop(rounded_corners,c);
+                    if(v){
+                        node.attr['rounded_'+c] = v;
+                    }
+                });
+                node.attr['_childname'] = node.attr['_childname'] || side;
+                sidepane = bc._('ContentPane',sideKw);
+                sidepane.setItem('#id',node._value,node.attr);
+            }
+            if(sidepane && slotcontent && slotcontent.len()>0){
+                dojo.forEach(slotcontent.getNodes(),function(n){
+                    n.attr['frameCode'] = frameCode;
+                    sidepane.setItem('#id',n._value,n.attr);
+                });
+            }
         });
         slot = children.popNode('center');
         var centerNode = slot? slot.getValue().getNode('#0'):children.popNode('#side=center');
@@ -1212,6 +1222,82 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
+
+dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        var values = objectPop(kw,'values');
+        var storepath = objectPop(kw,'storepath');
+
+        sourceNode.attr.value = value;
+        sourceNode.attr.values = values;
+        sourceNode.attr.storepath = storepath;
+        sourceNode.registerDynAttr('storepath');
+        var containerKw = {_class:'multibutton_container'};
+        containerKw.connect_onclick = function(evt){
+            var sn = evt.target?evt.target.sourceNode:null;
+            if(sn){
+                var mcode = sn.getInheritedAttributes()['multibutton_code'];
+                if(mcode){
+                    sourceNode.setRelativeData(value,mcode);
+                }
+            }
+        };
+        var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
+        if(values){
+            this.makeButtons(sourceNode,values);
+        }else if(storepath){
+            this.makeButtons(sourceNode,this.valuesFromBag(sourceNode.getRelativeData(storepath)));
+        }
+        return multibutton;
+    },
+    gnrwdg_setValue:function(value,kw){
+        var mb = this._value.getItem('multibutton');
+        if (mb){
+            mb.forEach(function(n){
+                genro.dom.setClass(n,'multibutton_selected',n.label==value);
+            });
+        }
+    },
+    gnrwdg_setValues:function(values,kw){
+        this.gnrwdg.gnr.makeButtons(this,values);
+    },
+
+    gnrwdg_setStorepath:function(storebag,kw){
+        if(storebag && storebag.len()>0){
+            this.gnrwdg.gnr.makeButtons(this,this.valuesFromBag(storebag));
+        }
+    },
+
+    valuesFromBag:function(storebag){
+        var d = storebag.digest('#k,#a.caption');
+        var r = [];
+        dojo.forEach(d,function(n){
+            r.push((n[0]+':'+n[1]));
+        });
+        return r.join(',');
+    },
+
+    makeButtons:function(sourceNode,values){
+        if(!values){
+            return;
+        }
+        var mb = sourceNode._value.getItem('multibutton');
+        values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        if (mb && values){
+            var values = splitStrip(values,',');
+            var vl,btn_class;
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
+            mb.clear(true);
+            dojo.forEach(values,function(n){
+                vl = n.split(':');
+                mb._('div',vl[0],{multibutton_code:vl[0],_class:vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton'})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+            });
+            sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
+        }
+    }
+});
+
 dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
@@ -1954,6 +2040,9 @@ dojo.declare("gnr.stores._Collection",null,{
         };
         genro.src.afterBuildCalls.push(cb);
     },
+    clear:function(){
+        this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());
+    },
 
     onStartEditItem:function(form){
         this._editingForm = form;
@@ -2336,9 +2425,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             genro.src.afterBuildCalls.push(cb);
         }
     },
-    voidSelection:function(){
-        return new gnr.GnrBag();
-    },
+
     currentPkeys:function(){
         var data = this.getData();
         var result = [];

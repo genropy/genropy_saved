@@ -80,7 +80,10 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               **kwargs)   
+                               **kwargs)  
+        sections = self._th_hook('sections',mangler=frameCode)()
+        if sections:
+            frame.top.slotBar('2,sections,*',_position=0,sections_sections=sections,childname='sectionbar')
         if configurable:
             frame.right.viewConfigurator(table,frameCode)   
         self._th_viewController(frame,table=table)
@@ -130,6 +133,30 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
+
+    @struct_method
+    def th_slotbar_sections(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        sections = self._th_hook('sections',mangler=th_root)()
+        sectionsBag = Bag()
+        for i,kw in enumerate(sections):
+            sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
+        pane.data('.sections',sectionsBag)
+        pane.multiButton(storepath='.sections',value='^.currentSection')
+        #pane.dataController('FIRE .runQuery;',section='^.currentSection',selectionName='=.store?selectionName',_if='selectionName')
+        pane.dataController("""
+            if(!currentSection){
+                currentSection = sectionbag.getNode('#0').label
+                PUT .currentSection = currentSection;
+            }            
+            var sectionNode = sectionbag.getNode(currentSection);
+            FIRE .clearStore;
+            SET .grid.currViewPath = sectionNode.attr.struct;
+            FIRE .runQueryDo;
+            """,currentSection='^.currentSection',sectionbag='=.sections',_init=True)
+        
+
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -183,7 +210,8 @@ class TableHandlerView(BaseComponent):
                     margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
                     color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
-        pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",
+        pane.dataController("genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);",currentView="^.grid.currViewPath",
+                            favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId,th_root=th_root)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
@@ -302,11 +330,15 @@ class TableHandlerView(BaseComponent):
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
 
-        frame.dataFormula('.title','custom_title || view_title || name_plural || name_long',
+        frame.dataFormula('.title','custom_title || section_title || view_title || name_plural || name_long',
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
                         name_long='=.table?name_long',
-                        view_title='=.title',_init=True)
+                        view_title='=.title',
+                        _currentSection='^.currentSection',
+                        _sections='=.sections',
+                        section_title='==_currentSection?_sections.getItem(_currentSection+"?title"):null;',
+                        _onStart=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
@@ -347,11 +379,12 @@ class TableHandlerView(BaseComponent):
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
         _else = None
         if _if:
-            _else = "SET .store = this.store.voidSelection();"
+            _else = "this.store.clear();"
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                               _cleared='^.clearStore',
                                _onResult='SET .queryRunning=false;',
                                _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});SET .queryRunning=false;return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
@@ -365,10 +398,31 @@ class TableHandlerView(BaseComponent):
                                prevSelectedDict = '=.query.prevSelectedDict',
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
+                               _sections='=.sections',
+                               _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _onCalling=""" 
+                               if(_cleared){
+                                    this.store.clear();
+                                    return false;
+                               }
+
                                %s
-                              
+
+
+                               if(_sections){
+                                    var sectionNode = _sections.getNode(_currentSection);
+                                    var sectionkw = objectUpdate({},sectionNode.attr);
+                                    var condition=objectPop(sectionkw,'condition');
+                                    var original_condition = kwargs['condition'];
+                                    if(condition && original_condition){
+                                        condition = ' ( '+condition+' ) AND ( '+original_condition+' )';
+                                    }else{
+                                        condition = condition || original_condition;
+                                    }
+                                    kwargs['condition'] =condition;
+                               }
+
                                if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();
                                     kwargs['where'].walk(function(n){
