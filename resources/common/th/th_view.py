@@ -80,14 +80,14 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               **kwargs)   
+                               **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode)   
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
         return frame
-    
+
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
         
@@ -130,6 +130,41 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
+
+    @struct_method
+    def th_slotbar_sections(self,pane,sections=None,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        pane = pane.div(datapath='.sections.%s' %sections)
+        m = self._th_hook('sections_%s' %sections,mangler=th_root)
+        sectionslist = m()
+        sectionsBag = Bag()
+        for i,kw in enumerate(sectionslist):
+            sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
+        pane.data('.data',sectionsBag)
+        dflt = getattr(m,'default',None)
+        if dflt:
+            pane.data('.current',dflt)
+        pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
+                        mandatory=getattr(m,'mandatory',True))
+
+        pane.dataController("""
+            if(!currentSection){
+                currentSection = sectionbag.getNode('#0').label
+                PUT .currentSection = currentSection;
+            }            
+            var sectionNode = sectionbag.getNode(currentSection);
+            FIRE .#parent.#parent.clearStore;
+            if(variable_struct){
+                SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
+            }
+            if(storeServerTime!=null){
+                genro.bp(true);
+                FIRE .#parent.#parent.runQueryDo;
+            }
+            """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
+            storeServerTime='=.#parent.#parent.store?servertime',
+            _init=True)
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -183,7 +218,8 @@ class TableHandlerView(BaseComponent):
                     margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
                     color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
-        pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",
+        pane.dataController("genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);",currentView="^.grid.currViewPath",
+                            favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId,th_root=th_root)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
@@ -302,11 +338,14 @@ class TableHandlerView(BaseComponent):
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
 
-        frame.dataFormula('.title','custom_title || view_title || name_plural || name_long',
+        frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
                         name_long='=.table?name_long',
-                        view_title='=.title',_init=True)
+                        #view_title='=.title',
+                        _sections='^.sections',
+                        sub_title='==_sections?th_sections_manager.getSectionTitle(_sections):"";',
+                        _onStart=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
@@ -347,11 +386,12 @@ class TableHandlerView(BaseComponent):
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
         _else = None
         if _if:
-            _else = "SET .store = this.store.voidSelection();"
+            _else = "this.store.clear();"
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                               _cleared='^.clearStore',
                                _onResult='SET .queryRunning=false;',
                                _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});SET .queryRunning=false;return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
@@ -365,10 +405,19 @@ class TableHandlerView(BaseComponent):
                                prevSelectedDict = '=.query.prevSelectedDict',
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
+                               _sections='=.sections',
+                               _currentSection='=.currentSection',
                                _onStart=_onStart,
-                               _onCalling=""" 
+                               _th_root =th_root,
+                               _onCalling="""
+                               if(_cleared){
+                                    this.store.clear();
+                                    return false;
+                               }
                                %s
-                              
+                               if(_sections){
+                                    th_sections_manager.onCalling(_sections,kwargs);
+                               }
                                if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();
                                     kwargs['where'].walk(function(n){

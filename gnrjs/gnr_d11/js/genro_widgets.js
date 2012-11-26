@@ -1759,12 +1759,12 @@ versionpatch_11__contextMouse: function (e) {
             }
         }
         wdg = sourceNode.widget;
-        if ((e.button == 2) && (!wdg.modifiers)) {
-            wdg._contextMouse_replaced.call(wdg, e);
-        }
-        else{
+        if(wdg.modifiers){
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
+        }
+        else if (e.button == 2) {
+            wdg._contextMouse_replaced.call(wdg, e);
         }
     },
     
@@ -4900,9 +4900,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_storeRowCount: function(all) {
         return this.collectionStore().len(!all);
     },
-    mixin_storebag:function(){
-        return this.collectionStore().getData();
-    },
+   // mixin_storebag:function(){
+   //     return this.collectionStore().getData();
+   // },
     mixin_addNewSetColumn:function(kw) {
         this.gnr.addNewSetColumn(this.sourceNode,kw);;
     },

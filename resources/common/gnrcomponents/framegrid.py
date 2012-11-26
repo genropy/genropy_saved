@@ -62,7 +62,8 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
-        grid_kwargs['selfsubscribe_setSortedBy'] = "this.setRelativeData(this.attr.sortedBy,$1);"
+        grid_kwargs['selfsubscribe_setSortedBy'] = """genro.bp(true);
+                                                        this.setRelativeData(this.attr.sortedBy,$1);"""
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           datapath='.grid',selectedId='.selectedId',
@@ -75,10 +76,10 @@ class FrameGrid(BaseComponent):
 
 class BagGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGrid'
-    @extract_kwargs(top=True,grid=True)
+    @extract_kwargs(default=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,**kwargs):
-        frame = pane.frameGrid(_newGrid=True,grid_gridEditor=dict(saveMethod=False),datamode='bag',**kwargs)
+    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,**kwargs):
+        frame = pane.frameGrid(_newGrid=True,grid_gridEditor=dict(default_kwargs=default_kwargs),datamode='bag',**kwargs)
         frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
         frame.grid.bagStore(storepath=storepath)
         return frame

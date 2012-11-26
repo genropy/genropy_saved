@@ -783,7 +783,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane','PaletteMap','GeoCoderField','StaticMap','ImgUploader','TooltipPane', 'BagNodeEditor',
+             'tinyMCE', 'protovis','MultiButton','PaletteGroup', 'PalettePane','PaletteMap','GeoCoderField','StaticMap','ImgUploader','TooltipPane', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -885,7 +885,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
-    def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
+    def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,handler=None,**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -921,7 +921,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
-        return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,**kwargs)
+        return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,handler=handler,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
@@ -1280,6 +1280,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def _addSlot(self,slot,prefix=None,frame=None,frameCode=None,namespace=None,toolbarArgs=None):
         s=self.child('slot',childname=slot)
         s.frame = frame
+        parameter = None
+        if '@' in slot:
+            slot,parameter = slot.split('@')
         slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
         if not slothandle:
             if namespace:
@@ -1288,7 +1291,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 slothandle = getattr(s,'slotbar_%s' %slot,None)
         if slothandle:
             kw = dict()
-            kw[slot] = toolbarArgs.pop(slot,None)
+            kw[slot] = toolbarArgs.pop(slot,parameter)
             kw.update(dictExtract(toolbarArgs,'%s_' %slot,True))
             kw['frameCode'] = frameCode
             slothandle(**kw)

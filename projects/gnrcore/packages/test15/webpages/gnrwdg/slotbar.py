@@ -68,4 +68,29 @@ class GnrCustomWebPage(object):
     @struct_method
     def myslot(self,pane):
         pane.button(label='Bar',iconClass='icnBaseAdd',showLabel=False,lbl='hello')
-        
+
+    def test_5_slotToolbar_multiline(self,pane):
+        """Multiline"""
+        frame = pane.framePane(frameCode='frameMultiline',height='100px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',rounded_top=10,margin='10px')
+
+        upperbar = frame.top.slotToolbar(slots='*,xxx,*',
+                                    gradient_deg='90',gradient_from='#fff',gradient_to='lime',
+                                    border_bottom='1px solid #bbb',
+                                    lbl_position='T',lbl_color='red',lbl_font_size='7px',childname='topupper')
+        upperbar.xxx.multibutton(values='^.multibutton_values',value='^.abx',multivalue=True)
+        upperbar.dataController('SET .multibutton_values = v',v ='pippo:Pippo,pluto:Pluto,paperino:Paperino',_onStart=1000)
+
+        top = frame.top.slotToolbar(slots='*,|,foo,bar,|,*,xx',
+                                    gradient_deg='90',gradient_from='#fff',gradient_to='#bbb',
+                                    border_bottom='1px solid #bbb',splitter=True,
+                                    lbl_position='T',lbl_color='red',lbl_font_size='7px')
+
+
+        top.foo.div('foo',width='100px',color='white',background='teal',lbl='labelFoo')
+        top.bar.myslot()
+        top.xx.div(width='1px')     
+
+
+        center = frame.center.contentPane()
+        center.textbox(value='^.abx')

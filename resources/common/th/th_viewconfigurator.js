@@ -19,7 +19,7 @@ var genro_plugin_grid_configurator = {
     setFavoriteView:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
         var favoritePath = genro.getFromStorage("local", this.storeKey(gridId)) || '__baseview__';        
-        gridSourceNode.setRelativeData('.currViewPath',favoritePath);
+        gridSourceNode.setRelativeData('.favoriteViewPath',favoritePath);
         //this.setCurrentAsDefault(gridId);
     },
     
@@ -87,8 +87,8 @@ var genro_plugin_grid_configurator = {
     },
     
     loadView:function(gridId,currPath,frameCode){
-        currPath = currPath || '__baseview__';
         var gridSourceNode = genro.nodeById(gridId);
+        currPath = currPath || gridSourceNode.getRelativeData('.favoriteViewPath') || '__baseview__';
         var resource_structs = gridSourceNode.getRelativeData('.resource_structs');
         var structbag,structnode,viewAttr;
         var finalize = function(struct){
