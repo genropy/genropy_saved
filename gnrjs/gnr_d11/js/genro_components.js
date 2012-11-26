@@ -2765,6 +2765,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             return;
         }
         var selectionKw = parentNodeData.attr;
+        if(!selectionKw.selectionName){
+            return;
+        }
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectExtract(rpc_attr,'_*');
