@@ -63,6 +63,63 @@ var th_usersettings = function(th){
 
     dlg.show_action()
 };
+
+var th_sections_manager = {
+    onCalling:function(sections,kwargs){
+        var currentSections = [];
+
+        var original_condition = kwargs['condition'];
+        var andlist = [];
+
+        sections.forEach(function(n){
+            var sectionsbag = n.getValue();
+            var currents = sectionsbag.getItem('current').split(',');
+            var orlist = [];
+            var conditions = sectionsbag.getItem('data');
+            currents.forEach(function(current){
+                var cn = conditions.getNode(current);
+                var cond = cn.attr.condition;
+                if(cond){
+                    var condpars = objectExtract(cn.attr,'condition_*',true);
+                    for(var k in condpars){
+                        var newcondkey = k+'_'+cn.attr.code;
+                        kwargs[newcondkey] = condpars[k];
+                        cond = cond.replace(':'+k,':'+newcondkey);
+                    }
+                    orlist.push(' ('+cond+') ');
+                }
+            });
+            if(orlist.length>0){
+                andlist.push(' (' +orlist.join(' OR ')+') ');
+            }
+            
+        });
+        var sections_condition = andlist.join(' AND ');
+        if(sections_condition && original_condition){
+            condition = ' ( '+sections_condition+' ) AND ( '+original_condition+' )';
+        }else{
+            condition = sections_condition || original_condition;
+        }
+        kwargs['condition'] =condition;
+    },
+    getSectionTitle:function(sections){
+        var captions = [];
+        sections.forEach(function(n){
+            var sectionsbag = n.getValue();
+            var currents = sectionsbag.getItem('current').split(',');
+            var orlist = [];
+            var titles = sectionsbag.getItem('data');
+            currents.forEach(function(current){
+                orlist.push(titles.getNode(current).attr.caption || '');
+            });
+            if(orlist.length>0){
+                captions.push(orlist.join(' | '))
+            }
+        });
+        return ' '+captions.join(' - ');
+    }
+};
+
 dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){
         var table = objectPop(kw,'table');

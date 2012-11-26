@@ -25,6 +25,10 @@
 Some useful operations on lists.
 """
 
+class FakeList(list):
+    pass
+
+
 def findByAttr(l, **kwargs):
     """Find elements in the ``l`` list having attributes with names and values as
     kwargs items. Return the list's attributes

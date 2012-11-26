@@ -78,7 +78,7 @@ class GnrCustomWebPage(object):
                                     gradient_deg='90',gradient_from='#fff',gradient_to='lime',
                                     border_bottom='1px solid #bbb',
                                     lbl_position='T',lbl_color='red',lbl_font_size='7px',childname='topupper')
-        upperbar.xxx.multibutton(values='^.multibutton_values',value='^.abx')
+        upperbar.xxx.multibutton(values='^.multibutton_values',value='^.abx',multivalue=True)
         upperbar.dataController('SET .multibutton_values = v',v ='pippo:Pippo,pluto:Pluto,paperino:Paperino',_onStart=1000)
 
         top = frame.top.slotToolbar(slots='*,|,foo,bar,|,*,xx',
@@ -90,3 +90,7 @@ class GnrCustomWebPage(object):
         top.foo.div('foo',width='100px',color='white',background='teal',lbl='labelFoo')
         top.bar.myslot()
         top.xx.div(width='1px')     
+
+
+        center = frame.center.contentPane()
+        center.textbox(value='^.abx')

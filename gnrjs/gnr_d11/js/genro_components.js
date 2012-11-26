@@ -1228,17 +1228,33 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var value = objectPop(kw,'value');
         var values = objectPop(kw,'values');
         var storepath = objectPop(kw,'storepath');
+        var mandatory = objectPop(kw,'mandatory',true);
+        var multivalue = objectPop(kw,'multivalue');
 
         sourceNode.attr.value = value;
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
         sourceNode.registerDynAttr('storepath');
+
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
             var sn = evt.target?evt.target.sourceNode:null;
             if(sn){
                 var mcode = sn.getInheritedAttributes()['multibutton_code'];
                 if(mcode){
+                    if(evt.shiftKey && multivalue){
+                        var prevmcode = sourceNode.getRelativeData(value);
+                        if(prevmcode){
+                            prevmcode = prevmcode.split(',');
+                            var j = prevmcode.indexOf(mcode);
+                            if(j<0){
+                                prevmcode.push(mcode);
+                            }else if(prevmcode.length>1 || !mandatory){
+                                prevmcode.splice(j,1);
+                            }
+                            mcode = prevmcode.join(',');
+                        }
+                    }
                     sourceNode.setRelativeData(value,mcode);
                 }
             }
@@ -1253,9 +1269,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     },
     gnrwdg_setValue:function(value,kw){
         var mb = this._value.getItem('multibutton');
+        value = value.split(',');
         if (mb){
             mb.forEach(function(n){
-                genro.dom.setClass(n,'multibutton_selected',n.label==value);
+                genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
             });
         }
     },
