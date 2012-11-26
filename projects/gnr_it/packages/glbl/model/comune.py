@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
@@ -20,3 +21,8 @@ class Table(object):
         tbl.column('csl','I',name_long='!!Codice sistema lavoro (2001)')
         tbl.column('superficie','I',name_long='!!Superficie (kmq)')
         tbl.column('popolazione_residente','I',name_long='!!Popolazione residente (2010)')
+
+
+    @public_method
+    def pkeyFromCaption(self,caption=None):
+        return self.readColumns(where='$denominazione ILIKE :comune_denominazione',comune_denominazione=caption,columns='$id')

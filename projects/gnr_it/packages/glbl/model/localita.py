@@ -13,6 +13,17 @@ class Table(object):
         tbl.column('codice_comune', size='4', name_long='Codice Comune')
         tbl.column('prefisso_tel', size='4', name_long='Prefisso Tel')
         tbl.column('cap', size='5', name_long='CAP', indexed=True)
+        tbl.column('comune_id' ,size='22',name_long='!!Comune').relation('glbl.comune.id', mode='foreignkey',relation_name='localita')
         
     def baseView_min(self):
         return "nome:80%,prefisso_tel:20%"
+
+
+    def allineaComune(self):
+        comuni = self.db.table('glbl.comune').query(columns='*,lower(denominazione) AS den_low').fetchAsDict('den_low')
+        def cb(row):
+            if row['nome']:
+                comune = comuni.get(row['nome'].lower())
+                if comune:
+                    row['comune_id'] = comune['id']
+        self.batchUpdate(cb,where='$id IS NOT NULL')
