@@ -159,7 +159,6 @@ class TableHandlerView(BaseComponent):
                 SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
             if(storeServerTime!=null){
-                genro.bp(true);
                 FIRE .#parent.#parent.runQueryDo;
             }
             """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),

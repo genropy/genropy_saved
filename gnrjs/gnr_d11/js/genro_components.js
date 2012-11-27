@@ -2765,6 +2765,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             return;
         }
         var selectionKw = parentNodeData.attr;
+        if(!selectionKw.selectionName){
+            return;
+        }
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectExtract(rpc_attr,'_*');
@@ -2781,9 +2784,12 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     currentPkeys:function(){
         var parentNodeData = this.getData().getParentNode();
         if(!parentNodeData){
-            return;
+            return [];
         }
         var selectionKw = parentNodeData.attr;
+        if(!selectionKw.selectionName){
+            return [];
+        }
         var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName}
 
 

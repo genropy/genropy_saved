@@ -347,7 +347,7 @@ class GnrWsgiSite(object):
         autocreate = kwargs.get('autocreate', False)
         if not ':' in static:
             return static
-        static_name, static_path = static.split(':')
+        static_name, static_path = static.split(':',1)
         args = self.adaptStaticArgs(static_name, static_path, args)
         dest_path = self.getStatic(static_name).path(*args)
         if autocreate:
@@ -367,7 +367,7 @@ class GnrWsgiSite(object):
         :param static: TODO"""
         if not ':' in static:
             return static
-        static_name, static_url = static.split(':')
+        static_name, static_url = static.split(':',1)
         args = self.adaptStaticArgs(static_name, static_url, args)
         if kwargs:
             return self.getStatic(static_name).kwargs_url(*args, **kwargs)
