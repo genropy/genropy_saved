@@ -15,6 +15,6 @@ def importXlsComuni(db,docname):
 
 if __name__ == '__main__':
     db = GnrApp('autosped').db
-    d = importXlsComuni(db, '/Users/fporcari/Desktop/comuni.xls')
+    d = importXlsComuni(db, '/Users/ale/Desktop/Archivio 2/comuni.xls')
     db.commit()
     print 'OK'

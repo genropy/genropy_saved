@@ -45,7 +45,7 @@ from gnr.sql.gnrsql_exceptions import SelectionExecutionError, RecordDuplicateEr
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
-PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
+PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
@@ -462,6 +462,7 @@ class SqlQueryCompiler(object):
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
+            
 
         env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
         if env_conditions:
