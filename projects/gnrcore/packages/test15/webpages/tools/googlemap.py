@@ -99,8 +99,10 @@ class GnrCustomWebPage(object):
     def test_5_staticmap_simple(self,pane):
         fb = pane.formbuilder(cols=2, border_spacing='3px')
         fb.geoCoderField(value='^.addr',lbl='Addr',selected_position='.addr_position')
+        fb.textbox(value='^.addr_position')
         fb.staticMap(map_center='^.addr',centerMarker=True,height='150px',width='200px')
-        
+        fb.staticMap(map_center='^.addr_position',centerMarker=True,height='150px',width='200px')
+
     def test_6_dynamicmap_simple(self,pane):
         fb = pane.formbuilder(cols=2, border_spacing='3px')
        # fb.data('.addr','via omboni 10 abbiategrasso')

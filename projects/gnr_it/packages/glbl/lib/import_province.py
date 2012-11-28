@@ -31,6 +31,6 @@ def importXlsProvince(db,docname):
 
 if __name__ == '__main__':
     db = GnrApp('autosped').db
-    d = importXlsProvince(db, '/Users/ale/Desktop/Archivio 2/province.xls')
+    d = importXlsProvince(db, '../../../data/province.xls')
     db.commit()
     print 'OK'
