@@ -2624,7 +2624,8 @@ class GeoCoderBagNew(Bag):
                     self._result[n.label]=n.value
                 elif n.label == 'address_component':
                     self._parseAddressComponent(n.value)
-
+                elif n.label=='geometry':
+                    self._result.setItem('details.geometry',n.value)
         self[key] = self._result
         self.result=None
 
