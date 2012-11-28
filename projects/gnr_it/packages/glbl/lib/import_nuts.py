@@ -21,6 +21,6 @@ def importXlsNuts(db,docname):
 
 if __name__ == '__main__':
     db = GnrApp('autosped').db
-    d = importXlsNuts(db, '/Users/fporcari/Desktop/nuts.xls')
+    d = importXlsNuts(db, '/Users/ale/Desktop/Archivio 2/nuts.xls')
     db.commit()
     print 'OK'
