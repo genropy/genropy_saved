@@ -20,7 +20,7 @@ class Main(BaseResourceAction):
             try:
                 tblmessage.receive_imap(account=r)
             except:
-                print 'not allowed'
+                print 'ERROR IN RECEIVING IMAP receive_email batch'
     
     def table_script_parameters_pane(self, pane, **kwargs):
         pass
