@@ -62,9 +62,15 @@ class AppPref(object):
 class UserPref(object):
     def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
-        self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+        self._adm_general(tc.contentPane(title='!!General options', datapath='.general'))
 
-    def _pr_mail(self, pane):
+        self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
+
+    def _adm_general(self, pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.numberTextBox(value='^.screenlock_timeout',label='!!Screenlock timeout (minutes)')
+
+    def _adm_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%')
         if 'email' in self.db.packages:
             fb.dbselect(value='^.email_account_id',lbl='Account',dbtable='email.account',hasDownArrow=True)

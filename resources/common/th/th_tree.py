@@ -71,9 +71,10 @@ class TableHandlerTreeResolver(BagResolver):
             condition_pkeys = self.getConditionPkeys()
             # ($parent_id=:p_id) AND (($zzz=:condizione_zzz AND ($child_count=0)) OR ( $id IN :condition_pkeys ) ) 
             where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
+        order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
         q = tblobj.query(where=where,p_id=self.parent_id,r_id=self.root_id,columns='*,$child_count,$%s' %caption_field,
                          condition_pkeys=condition_pkeys,
-                         order_by='$%s' %caption_field,_storename=self.dbstore,**condition_kwargs)
+                         order_by=order_by,_storename=self.dbstore,**condition_kwargs)
         result = Bag()
         f = q.fetch()
         for r in f:

@@ -68,11 +68,11 @@ class UserPref(object):
     def pref_sound(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
         fb.filteringSelect(value='^.onsaving', lbl='On saving', values=self._allSounds(),
-                           validate_onAccept='genro.playSound(value);')
+                           validate_onAccept='if(value){genro.playSound(value);}')
         fb.filteringSelect(value='^.onsaved', lbl='On saved', values=self._allSounds(),
-                           validate_onAccept='genro.playSound(value);')
+                           validate_onAccept='if(value){genro.playSound(value);}')
         fb.filteringSelect(value='^.error', lbl='On error', values=self._allSounds(),
-                           validate_onAccept='genro.playSound(value);')
+                           validate_onAccept='if(value){genro.playSound(value);}')
 
     def pref_cache(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
