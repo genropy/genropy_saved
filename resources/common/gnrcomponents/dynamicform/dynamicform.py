@@ -191,7 +191,8 @@ class DynamicForm(BaseComponent):
                                             dragValues['text/plain'] = '$'+dragValues['text/plain'];
                                         }
                                         """,
-                                        grid_selfsubscribe_onExternalChanged='FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();',
+                                        grid_selfsubscribe_onExternalChanged="""
+                                                        FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();""",
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)

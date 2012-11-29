@@ -41,7 +41,8 @@ gnr.getGridColumns = function(storeNode) {
     var storeNodeId,destFullpath;
     if(typeof(storeNode)=='string'){
         destFullpath=storeNode;
-        console.warn('*DEPRECATION* gnr.getGridColumns with storeNode as string')
+        //console.warn('*DEPRECATION* gnr.getGridColumns with storeNode as string')
+        //usa i resolver js sulle selection (esempio i template risolti lato client)
     }else{
         storeNodeId=storeNode.attr.nodeId;
     }
@@ -196,6 +197,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     
     _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
         this.setValueInData(sourceNode,value,valueAttr);
+        this.doChangeInData(sourceNode, value, valueAttr)
+    },
+    doChangeInData:function(sourceNode, value, valueAttr){
+
     },
     
     _makeInteger: function(attributes, proplist) {
@@ -668,6 +673,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         return new factory(attributes, domnode);
     },
+
     _doChangeInData:function(domnode, sourceNode, value, valueAttr) {
         /*if(value==undefined){
          sourceNode.widget._isvalid = false;
@@ -681,6 +687,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         if (datanode.getValue() === value) {
             return;
         }
+        objectExtract(valueAttr,'_displayedValue,_formattedValue')
         var validateresult;
         valueAttr = objectUpdate(objectUpdate({}, datanode.attr), valueAttr);
         if (sourceNode.hasValidations()) {
@@ -703,9 +710,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             }
 
         }
-        if(sourceNode.widget.getDisplayedValue){
-            valueAttr['_displayedValue'] = sourceNode.widget.getDisplayedValue();
-        }
+        this.doChangeInData(sourceNode,value,valueAttr);
         this.setValueInData(sourceNode,value,valueAttr);
     },
 
@@ -5272,6 +5277,12 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
                 this._updateSelect(this.item);
             });
         }
+    },
+    doChangeInData:function(sourceNode, value, valueAttr){
+        var displayedValue = sourceNode.widget.getDisplayedValue();
+        if(value!=displayedValue){
+            valueAttr['_displayedValue'] = value;
+        }       
     }
 });
 

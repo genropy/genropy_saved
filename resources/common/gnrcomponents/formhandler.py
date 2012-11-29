@@ -101,6 +101,7 @@ class FormHandler(BaseComponent):
     def __linkToParentGrid(self,grid,formId=None,iframe=None,loadEvent=None):
         gridattr = grid.attributes
         gridattr['_linkedFormId']=formId
+        gridsubscribers = dict()
         gridattr['connect_%s' %loadEvent] = """
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                             genro.callAfter(function(){
@@ -112,8 +113,8 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-        gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
-        gridattr['selfsubscribe_editrow'] = """
+        gridsubscribers['addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
+        gridsubscribers['editrow'] = """
                                     var topic = 'form_'+this.attr._linkedFormId+'_load';
                                     var kw = {destPkey:$1.pkey};
                                     if($1.default_kw){
@@ -121,8 +122,8 @@ class FormHandler(BaseComponent):
                                     }
                                     genro.publish(topic,kw);
                                     """
-        gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
-        gridattr['selfsubscribe_onExternalChanged'] = """
+        gridsubscribers['viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
+        gridsubscribers['onExternalChanged']= """
             var selectionStore = this.widget.collectionStore();
             var frm = selectionStore._editingForm;
             if(!frm){
@@ -144,6 +145,10 @@ class FormHandler(BaseComponent):
                                                                 }
                                                             }
                                                               """
+        subpref = 'subscribe_%(nodeId)s' %gridattr
+        for k,v in gridsubscribers.items():
+            gridattr['%s_%s' %(subpref,k)] = v
+
     @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False),default=True)
     @struct_method
     def fh_formInIframe(self,pane,table=None,
