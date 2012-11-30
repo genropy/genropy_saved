@@ -608,7 +608,7 @@ class GnrWhereTranslator(object):
             if onecondition:
                 if negate:
                     onecondition = ' NOT %s  ' % onecondition
-                result.append(' %s %s' % (jc, onecondition ))
+                result.append(' %s ( %s )' % (jc, onecondition ))
         return result
 
     def prepareCondition(self, column, op, value, dtype, sqlArgs):
