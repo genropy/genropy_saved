@@ -802,6 +802,7 @@ class GnrWsgiSite(object):
             self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
             print 'smtp_kwargs',self.smtp_kwargs
             if smtp_kwargs.get('smtp_password'):
+                print 'SISTEMO PWD'
                 smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
             if smtp_kwargs.get('smtp_username'):
                 smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
