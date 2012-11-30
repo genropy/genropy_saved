@@ -113,8 +113,8 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-        gridsubscribers['addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
-        gridsubscribers['editrow'] = """
+        gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
+        gridattr['selfsubscribe_editrow'] = """
                                     var topic = 'form_'+this.attr._linkedFormId+'_load';
                                     var kw = {destPkey:$1.pkey};
                                     if($1.default_kw){
@@ -122,7 +122,7 @@ class FormHandler(BaseComponent):
                                     }
                                     genro.publish(topic,kw);
                                     """
-        gridsubscribers['viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
+        gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridsubscribers['onExternalChanged']= """
             var selectionStore = this.widget.collectionStore();
             var frm = selectionStore._editingForm;
