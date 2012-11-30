@@ -322,13 +322,21 @@ class TableBase(object):
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
-
-    def dbo_onUpdating(self,record=None,old_record=None,pkey=None,**kwargs):
+    
+    def checkDiagnostic(self,record):
         if self.attributes.get('diagnostic'):
             errors = self.diagnostic_errors(record)
             warnings = self.diagnostic_warnings(record)
+            print 'errors',errors,'warnings',warnings
             record['__errors'] = '\n'.join(errors) if errors else None
             record['__warnings'] = '\n'.join(warnings) if warnings else None
+
+    def dbo_onInserting(self,record=None,**kwargs):
+        self.checkDiagnostic(record)
+
+
+    def dbo_onUpdating(self,record=None,old_record=None,pkey=None,**kwargs):
+        self.checkDiagnostic(record)
         if self.draftField:
             if hasattr(self,'protect_draft'):
                 record[self.draftField] = self.protect_draft(record)

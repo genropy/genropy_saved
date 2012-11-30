@@ -593,7 +593,7 @@ class GnrWsgiSite(object):
                     return result
                 response = self.setResultInResponse(result, response, totaltime=time() - t)
                 self.cleanup()
-            except Exception:
+            except Exception,exc:
                 raise
             finally:
                 self.cleanup()
