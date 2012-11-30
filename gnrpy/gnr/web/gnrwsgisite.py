@@ -793,6 +793,10 @@ class GnrWsgiSite(object):
             wsgiapp = EvalException(wsgiapp, debug=True)
         elif 'debug_email' in self.config:
             smtp_kwargs = self.config.getAttr('debug_email')
+            if smtp_kwargs.get('smtp_password'):
+                smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
+            if smtp_kwargs.get('smtp_username'):
+                smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
             if 'error_subject_prefix' not in smtp_kwargs:
                 smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
             smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
@@ -800,13 +804,6 @@ class GnrWsgiSite(object):
                 smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
             self.smtp_kwargs = dict(smtp_kwargs)
             self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
-            print 'smtp_kwargs',self.smtp_kwargs
-            if smtp_kwargs.get('smtp_password'):
-                print 'SISTEMO PWD'
-                smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
-            if smtp_kwargs.get('smtp_username'):
-                smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
-            print 'dopomagia',self.smtp_kwargs
             wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
         return wsgiapp
         
