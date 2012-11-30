@@ -46,8 +46,43 @@ class FrameIndex(BaseComponent):
             sc = root.stackContainer(selectedPage='^indexStack')
             sc.loginPage(new_window=new_window)
             sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,**kwargs)
+            root.screenLockDialog()
         
-            
+    @struct_method
+    def frm_screenLockDialog(self,pane):
+        dlg = pane.dialog(_class='lightboxDialog',subscribe_screenlock="this.widget.show();this.setRelativeData('.password',null);",datapath='_screenlock')
+        box = dlg.div(**self.loginboxPars())
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        wtitle = '!!Screenlock'
+        topbar.wtitle.div(wtitle)  
+        box.div('!!Insert password',text_align='center',font_size='.9em',font_style='italic')
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE .checkPwd;',
+                                width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.textbox(value='^.password',lbl='!!Password',type='password',row_hidden=False)
+        btn=fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE .checkPwd;this.widget.setAttribute("disabled",true);',position='absolute',right='-5px',top='8px')
+        box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_screenout',height='18px',width='100%',tdl_width='6em')
+        fb.dataRpc('.result',self.frm_checkPwd,password='=.password',user='=gnr.avatar.user',_fired='^.checkPwd')
+        fb.dataController("""if(!authResult){
+                                genro.publish('failed_screenout',{'message':error_msg});
+                            }else{
+                                dlg.hide();
+                            }
+                            btn.setAttribute('disabled',false);
+                            
+                            """,authResult='^.result',btn=btn,dlg=dlg.js_widget,error_msg='!!Wrong password')
+
+    @public_method  
+    def frm_checkPwd(self,user=None,password=None):
+        validpwd = self.application.getAvatar(user, password=password,authenticate=True)
+        if not validpwd:
+            return False
+        return True
+
+
+
+
     @public_method  
     def remoteFrameRoot(self,pane,**kwargs):
         pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
@@ -153,7 +188,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
                         messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
@@ -165,6 +200,8 @@ class FrameIndex(BaseComponent):
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
+        
+        sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox app_lock',tip='!!Lock screen')
         appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'});""",
