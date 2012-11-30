@@ -333,8 +333,7 @@ class TableBase(object):
 
     def dbo_onInserting(self,record=None,**kwargs):
         self.checkDiagnostic(record)
-
-
+        
     def dbo_onUpdating(self,record=None,old_record=None,pkey=None,**kwargs):
         self.checkDiagnostic(record)
         if self.draftField:

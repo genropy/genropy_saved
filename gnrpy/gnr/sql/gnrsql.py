@@ -411,11 +411,8 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
         tblobj._doExternalPkgTriggers('onInserting', record)
-        if tblobj.attributes.get('diagnostic'):
-            errors = tblobj.diagnostic_errors(record)
-            warnings = tblobj.diagnostic_warnings(record)
-            record['__errors'] = '\n'.join(errors) if errors else None
-            record['__warnings'] = '\n'.join(warnings) if warnings else None
+        if hasattr(tblobj,'dbo_onInserting'):
+            tblobj.dbo_onInserting(record,**kwargs)
         if tblobj.draftField:
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
