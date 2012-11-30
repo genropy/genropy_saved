@@ -805,6 +805,7 @@ class GnrWsgiSite(object):
                 smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
             if smtp_kwargs.get('smtp_username'):
                 smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
+            print 'dopomagia',self.smtp_kwargs
             wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
         return wsgiapp
         
