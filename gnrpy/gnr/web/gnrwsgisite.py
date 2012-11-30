@@ -800,6 +800,7 @@ class GnrWsgiSite(object):
                 smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
             self.smtp_kwargs = dict(smtp_kwargs)
             self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
+            print 'smtp_kwargs',self.smtp_kwargs
             if smtp_kwargs.get('smtp_password'):
                 smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
             if smtp_kwargs.get('smtp_username'):
