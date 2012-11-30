@@ -24,9 +24,15 @@ class AppPref(object):
 
     def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
+        self._adm_general(tc.contentPane(title='!!General', datapath='.general'))
         self._pr_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
         self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
         self._pr_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
+
+
+    def _adm_general(self, pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
 
     def _pr_backups(self, pane):
         fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')
@@ -67,8 +73,8 @@ class UserPref(object):
         self._adm_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
 
     def _adm_general(self, pane):
-        fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.numberTextBox(value='^.screenlock_timeout',label='!!Screenlock timeout (minutes)')
+        fb = pane.formbuilder(cols=1,border_spacing='3px',margin='10px')
+        fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
 
     def _adm_mail(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%')
