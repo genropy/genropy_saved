@@ -251,6 +251,13 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.rpc.ping({'reason':'user'});
             }
         }
+        if(genro.screenlock_timeout>0){
+            genro.callAfter(function(){
+                 genro.publish('screenlock');
+            },genro.screenlock_timeout*1000*60,this,
+            'screenlock');
+        }
+
     },
     
     loginDialog:function(loginUrl){
@@ -357,7 +364,6 @@ dojo.declare('gnr.GenroClient', null, {
                     genro.rpc.ping({'reason':'auto'});
                 }
             },genro.auto_polling * 1000);
-
         }
 
         dojo.subscribe('/dnd/move/start',function(mover){
@@ -398,6 +404,7 @@ dojo.declare('gnr.GenroClient', null, {
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
         }
+        genro.screenlock_timeout = genro.userPreference('adm.general.screenlock_timeout') || genro.appPreference('adm.general.screenlock_timeout') || -1;
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
