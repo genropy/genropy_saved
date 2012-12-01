@@ -112,10 +112,23 @@ dojo.declare("gnr.GnrDevHandler", null, {
             console.log('handleRpcHttpError');
             debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
             if (!debug_url) {
-                genro.dlg.message("An HTTP error occurred: " + response.message, null, 'error');
+                console.log('RESPONSE',response,'ioArgs',ioArgs,responseText)
+                if (genro.isDeveloper){
+                    var title = 'Server error ' +ioArgs.content.method || '';
+                    genro.dlg.quickPalette('error_palette_'+genro.getCounter(),{height:'500px',width:'700px',maxable:true,title:title},
+                        {innerHTML:responseText,position:'absolute',top:0,left:0,right:0,bottom:0,overflow:'auto'});
+                }else{
+                    genro.dev.addError("An HTTP error occurred: " + response.message,'SERVER',true);
+                }
             }
             else {
-                genro.openWindow(debug_url, 'Internal Server Error', {scrollbars:'yes'});
+                if(genro.isDeveloper){
+                    genro.openWindow(debug_url, 'Internal Server Error', {scrollbars:'yes'});
+                }else{
+                    genro.dlg.ask('Server error',
+                        '<h2 align="">Sorry. There was a server error</h2>. <br/> <i>For more details see</i> <br/>'+_F(debug_url,'autolink'),
+                        {confirm:'Reload',cancel:'Ignore'},{confirm:function(){genro.pageReload();}});
+                }
             }
         }
     },

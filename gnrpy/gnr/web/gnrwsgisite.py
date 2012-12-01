@@ -594,7 +594,7 @@ class GnrWsgiSite(object):
                 response = self.setResultInResponse(result, response, totaltime=time() - t)
                 self.cleanup()
             except Exception,exc:
-                raise
+                raise 
             finally:
                 self.cleanup()
             return response(environ, start_response)
@@ -643,6 +643,7 @@ class GnrWsgiSite(object):
             
             return response(environ, start_response)
             
+
     def setResultInResponse(self, result, response, totaltime=None):
         """TODO
         
@@ -791,20 +792,23 @@ class GnrWsgiSite(object):
 
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
-        elif 'debug_email' in self.config:
-            smtp_kwargs = self.config.getAttr('debug_email')
-            if smtp_kwargs.get('smtp_password'):
-                smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
-            if smtp_kwargs.get('smtp_username'):
-                smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
-            if 'error_subject_prefix' not in smtp_kwargs:
-                smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
-            smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
-            if 'smtp_use_tls' in smtp_kwargs:
-                smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
-            self.smtp_kwargs = dict(smtp_kwargs)
-            self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
-            wsgiapp = ErrorMiddleware(wsgiapp, **smtp_kwargs)
+        else:
+            err_kwargs = dict(debug=True)
+            if 'debug_email' in self.config:
+                smtp_kwargs = self.config.getAttr('debug_email')
+                if smtp_kwargs.get('smtp_password'):
+                    smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
+                if smtp_kwargs.get('smtp_username'):
+                    smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
+                if 'error_subject_prefix' not in smtp_kwargs:
+                    smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
+                smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
+                if 'smtp_use_tls' in smtp_kwargs:
+                    smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
+                self.smtp_kwargs = dict(smtp_kwargs)
+                self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
+                err_kwargs.update(smtp_kwargs)
+            wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         return wsgiapp
         
     def build_gnrapp(self):

@@ -517,7 +517,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.unfreeze(); 
     },
 
-    quickPalette:function(paletteCode,kw,contentNode){
+    quickPalette:function(paletteCode,kw,content){
         var kw = kw || {};
         kw = objectUpdate({paletteCode:paletteCode,dockTo:'dummyDock:open'},kw);
         var wdg = genro.wdgById(paletteCode+'_floating');
@@ -535,8 +535,16 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kw.left=_px(evt.clientX);
         }
         var palette = node._('palettePane',paletteCode,kw);
-        if(contentNode){
-            palette.setItem(contentNode.label,contentNode._value,contentNode.attr);
+        if(content){
+            if(typeof(content)=='string'){
+                palette._('div',{innerHTML:content});
+            }else if(content instanceof gnr.GnrDomSourceNode){
+                palette.setItem(content.label,content._value,content.attr);
+            }else{
+                var tag = objectPop(content,'tag') || 'div';
+                palette._(tag,content);
+            }
+            
         }
         node.unfreeze();
         return palette.getParentNode();

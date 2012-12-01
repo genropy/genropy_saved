@@ -249,6 +249,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     },
     _serverCall_execute: function(httpMethod, kw, callKwargs) {
+        if (this.debug){
+            console.log('_serverCall_execute:start --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs)
+        }
         if (httpMethod == 'GET') {
             xhrResult = dojo.xhrGet(kw);
         }
@@ -268,6 +271,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             } else {
                 xhrResult = dojo.xhrPut(kw);
             }
+        }
+        if (this.debug){
+            console.log('_serverCall_execute:end --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs,'result',xhrResult)
         }
         return xhrResult;
     },
