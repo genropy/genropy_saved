@@ -697,6 +697,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 destination = destination[_attachPoint.shift()];
             }
         }
+        if(this.attr._notallowed){
+            this._value = null
+            this.attr = {tag:'div',innerHTML:'NOT ALLOWED'}
+        }
         if (!this.attr.tag) {
             //console.warn('notag in build domsource',arguments.callee);
             this._buildChildren(destination);

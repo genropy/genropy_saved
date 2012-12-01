@@ -107,9 +107,18 @@ class TableHandler(BaseComponent):
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
             wdg.view.top.bar.replaceSlots('count','')
-
+        if not self.th_checkPermission(wdg.view):
+            wdg.attributes['_notallowed'] = True
         return wdg
-    
+
+
+    def th_checkPermission(self,pane):
+        tags = self._th_hook('tags',mangler=pane,dflt='user')()
+        if tags:
+            if not self.application.checkResourcePermission(tags, self.userTags):
+                return False
+        return True
+
     @extract_kwargs(dialog=True,default=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
@@ -219,7 +228,7 @@ class TableHandler(BaseComponent):
            dbname=dbname or False,viewStore=th.view.store,
            recyclablePages=recyclablePages or False,public=public,main_call=main_call or False
            )
-        return th    
+        return th
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
