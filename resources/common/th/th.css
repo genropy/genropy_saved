@@ -407,8 +407,11 @@
     background-color: whitesmoke;
 }
 
-/* x   x */
 
+/* x   x */
+.th_form_not_allowed .add_row,.th_form_not_allowed .delete_row{
+    display: none;
+}
 
 
 

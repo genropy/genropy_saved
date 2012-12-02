@@ -53,6 +53,7 @@ class GnrWebRpc(GnrBaseProxy):
             envelope['error'] = error
         if isinstance(result, page.domSrcFactory):
             resultAttrs['__cls'] = 'domsource'
+            self.checkNotAllowed(result)
         if page.isLocalizer():
             envelope['_localizerStatus'] = '*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
@@ -67,6 +68,14 @@ class GnrWebRpc(GnrBaseProxy):
             xmlresult = xmlresult.replace('*_localizerStatus*', page.localizer.status)
 
         return xmlresult
+
+    def checkNotAllowed(self,src):
+        node = True
+        while node:
+            node = src.getNodeByAttr('_notallowed',True)
+            if node:
+                node.parentbag.popNode(node.label)
+
 
     def result_xml(self, result):
         self.page.response.content_type = "text/xml"
