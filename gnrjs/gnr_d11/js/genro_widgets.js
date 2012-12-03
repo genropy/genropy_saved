@@ -5281,7 +5281,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
     doChangeInData:function(sourceNode, value, valueAttr){
         var displayedValue = sourceNode.widget.getDisplayedValue();
         if(value!=displayedValue){
-            valueAttr['_displayedValue'] = value;
+            valueAttr['_displayedValue'] = displayedValue;
         }       
     }
 });
