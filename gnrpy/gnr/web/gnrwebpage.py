@@ -1443,7 +1443,7 @@ class GnrWebPage(GnrBaseWebPage):
                         genro.playUrl(url);
                     """,url='^gnr.playUrl')
                 page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
-                            _onResult='genro.publish("quick_comunication_sent",result);')
+                            _onResult='genro.publish("quick_comunication_sent",{info:result});')
 
                 page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
@@ -1699,16 +1699,17 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method    
     def quickCommunication(self,message=None,email=None,fax=None,mobile=None):
+        result = 'Communication not supported'
         if email:
             subject = message.split('\n')[0]
-            self.getService('mail').sendmail(to_address=email,
+            result = self.getService('mail').sendmail(to_address=email,
                                     body=message, subject=subject,
                                     async=False)
-        if mobile:
-            self.getService('sms').sendsms(receivers=mobile,data=message)
-        if fax:
-            self.getService('fax').sendfax(receivers=fax,message=message)
-        return True
+        elif mobile:
+            result = self.getService('sms').sendsms(receivers=mobile,data=message)
+        elif fax:
+            result = self.getService('fax').sendfax(receivers=fax,message=message)
+        return result or True
 
     @public_method    
     def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
