@@ -138,7 +138,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
             genro.dlg.ask('Expired session',
                         '<h2 align="">Sorry. The session is expired</h2>.<br/>',
-                        {confirm:'Reload'},{confirm:function(){genro.pageReload();}});
+                        {confirm:'Reload'},{confirm:function(){
+                            genro.mainGenroWindow.genro.pageReload();
+                        }});
             //genro.pageReload();
         }
         else if (error == 'clientError') {

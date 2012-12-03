@@ -33,9 +33,7 @@ class GnrWebBatch(GnrBaseProxy):
             already_registered_batch = [dc.path.split('.')[2] for dc in store.datachanges if
                                         dc.path.startswith('gnr.batch')]
             for res_doc_name in batch_results:
-                print 'res_doc_name',res_doc_name
                 result_doc = Bag(self.page.userDocument('_batch_result', res_doc_name))
-                print 'preso'
                 resultNode = result_doc.getNode('result')
                 batch_id = result_doc['batch_id']
                 if not resultNode or not 'url' in resultNode.attr:

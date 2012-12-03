@@ -411,7 +411,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     @property
     def defaultAuthTags(self):
-        return ''
+        return self.package.attributes.get('auth_default','')
         
     def mixinComponent(self, *path,**kwargs):
         """TODO
