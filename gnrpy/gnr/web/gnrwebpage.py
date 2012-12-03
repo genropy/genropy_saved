@@ -52,6 +52,7 @@ import datetime
 
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
+AUTH_EXPIRED = 2
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
@@ -399,14 +400,18 @@ class GnrWebPage(GnrBaseWebPage):
             return AUTH_OK
         if not self.connection.loggedUser:
             if method != 'main':
-                return 'EXPIRED'
+                return AUTH_EXPIRED
             return AUTH_NOT_LOGGED
         if not self.application.checkResourcePermission(pageTags, self.userTags):
             return AUTH_FORBIDDEN
         return AUTH_OK
         
     def pageAuthTags(self,method=None,**kwargs):
-        return getattr(self,'auth_%s' %method,'')
+        return getattr(self,'auth_%s' %method,self.defaultAuthTags)
+
+    @property
+    def defaultAuthTags(self):
+        return ''
         
     def mixinComponent(self, *path,**kwargs):
         """TODO
@@ -1300,8 +1305,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object
         :param dflt: TODO"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
-        
-    def getUserPreference(self, path, pkg='', dflt='', username=''):
+       
+    @public_method 
+    def getUserPreference(self, path='*', pkg='', dflt='', username=''):
         """TODO
         
         :param path: TODO
@@ -1310,13 +1316,8 @@ class GnrWebPage(GnrBaseWebPage):
         :param username: TODO"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
-    def rpc_getUserPreference(self, path='*'):
-        """TODO
-        
-        :param path: TODO"""
-        return self.getUserPreference(path)
-        
-    def rpc_getAppPreference(self, path='*'):
+    @public_method
+    def getAppPreference(self, path='*'):
         """TODO
         
         :param path: TODO"""
@@ -1522,8 +1523,10 @@ class GnrWebPage(GnrBaseWebPage):
                             store.subscribe_path(serverpath)
                 if self.user:
                     self.site.pageLog('open')
-                    
-            elif _auth == AUTH_NOT_LOGGED:
+
+            if hasattr(self,'deferredMainPageAuthTags'):
+                _auth = AUTH_OK if self.deferredMainPageAuthTags(page) else AUTH_FORBIDDEN
+            if _auth == AUTH_NOT_LOGGED:
                 loginUrl = self.application.loginUrl()
                 if not loginUrl.startswith('/'):
                     loginUrl = self.site.home_uri + loginUrl
@@ -1532,7 +1535,8 @@ class GnrWebPage(GnrBaseWebPage):
                     pageattr['redirect'] = loginUrl
                 else:
                     pageattr['redirect'] = self.resolvePathAsUrl('simplelogin.py', folder='*common')
-            else:
+            elif _auth == AUTH_FORBIDDEN:
+                page.clear()
                 self.forbiddenPage(page, **kwargs)
             return (page, pageattr)
             #except Exception,err:

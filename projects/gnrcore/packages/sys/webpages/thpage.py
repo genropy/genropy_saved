@@ -17,6 +17,11 @@ class GnrCustomWebPage(object):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')
         return '%(th_pkg)s.%(th_table)s' %callArgs
 
+    def deferredMainPageAuthTags(self,page):
+        if self.root_tablehandler.view.attributes.get('_notallowed'):
+            return False
+        return True
+        
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,th_pkey=None,**kwargs):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')    

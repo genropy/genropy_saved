@@ -47,3 +47,11 @@ class GnrCustomWebPage(object):
         fb.div('^.combo_1',mask='Masked value:%s')
         fb.comboBox(lbl='Autocomplete=True',value='^.combo_2',autocomplete=True,values='Foo,Bar,Baz,Egg,Spam boy')
         fb.div('^.combo_2',mask='Masked value:%s')
+
+
+    def test_6_filteringSelect(self, pane):
+        """ComboBox"""
+        fb=pane.formbuilder(cols=2)
+        fb.filteringSelect(lbl='Filtering',value='^.filtering',values='pippo:Pippo,pluto:Pluto,paperino:Paperino')
+        fb.div('^.filtering?_displayedValue')
+

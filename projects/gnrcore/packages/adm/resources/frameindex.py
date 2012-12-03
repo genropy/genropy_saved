@@ -35,8 +35,11 @@ class FrameIndex(BaseComponent):
 
     
     def mainLeftContent(self,*args,**kwargs):
-        pass
-            
+        pass 
+
+    @property
+    def defaultAuthTags(self):
+        return ''
     
     def main(self,root,new_window=None,**kwargs):
         root.attributes['overflow'] = 'hidden'

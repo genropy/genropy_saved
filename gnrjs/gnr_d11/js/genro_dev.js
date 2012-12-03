@@ -135,7 +135,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
     handleRpcError:function(error, envNode) {
         if (error == 'expired') {
             genro.dlg.message('expired session');
-            genro.pageReload();
+
+            genro.dlg.ask('Expired session',
+                        '<h2 align="">Sorry. The session is expired</h2>.<br/>',
+                        {confirm:'Reload'},{confirm:function(){genro.pageReload();}});
+            //genro.pageReload();
         }
         else if (error == 'clientError') {
             genro.dlg.alert('clientError');

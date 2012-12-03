@@ -13,6 +13,7 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import os
 
 AUTH_FORBIDDEN = -1
+AUTH_EXPIRED = 2
 
 class GnrWebRpc(GnrBaseProxy):
     def __call__(self, method=None, _auth=AUTH_FORBIDDEN, **kwargs):
@@ -20,7 +21,7 @@ class GnrWebRpc(GnrBaseProxy):
         if _auth == AUTH_FORBIDDEN and method != 'main':
             result = None
             error = 'forbidden call'
-        elif _auth == 'EXPIRED':
+        elif _auth == AUTH_EXPIRED:
             result = None
             error = 'expired'
         else:
