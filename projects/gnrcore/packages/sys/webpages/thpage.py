@@ -18,7 +18,9 @@ class GnrCustomWebPage(object):
         return '%(th_pkg)s.%(th_table)s' %callArgs
 
     def deferredMainPageAuthTags(self,page):
-        if self.root_tablehandler.view.attributes.get('_notallowed'):
+        if hasattr(self,'root_tablehandler') and self.root_tablehandler.view.attributes.get('_notallowed'):
+            return False
+        if hasattr(self,'root_form') and self.root_form.attributes.get('_notallowed'):
             return False
         return True
         

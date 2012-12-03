@@ -509,6 +509,7 @@ class TableHandlerMain(BaseComponent):
         pkey = callArgs.pop('th_pkey',None)
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,pkey=pkey,**kwargs)
+        self.root_form = form
     
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
