@@ -508,7 +508,7 @@ class TableHandlerMain(BaseComponent):
         callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
         pkey = callArgs.pop('th_pkey',None)
         formCb = self.th_form if hasattr(self,'th_form') else None
-        self._th_prepareForm(root,formCb=formCb,pkey=pkey,**kwargs)
+        form = self._th_prepareForm(root,formCb=formCb,pkey=pkey,**kwargs)
         self.root_form = form
     
     @struct_method
