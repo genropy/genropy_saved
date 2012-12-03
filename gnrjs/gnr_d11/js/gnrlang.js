@@ -788,6 +788,7 @@ function convertFromText(value, t, fromLocale) {
 var gnrformatter = {
     asText :function (value,valueAttr){
         var valueAttr = valueAttr || {};
+        var formattedValue;
         if(value==null || value==undefined){
             return '';
         }

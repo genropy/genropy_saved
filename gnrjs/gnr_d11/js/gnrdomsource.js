@@ -1227,7 +1227,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             if(this.widget.getDisplayedValue){
                                 valueToFormat = this.widget.getDisplayedValue();
                                 if(valueToFormat!=value){
-                                    valueAttr['_displayedValue'] = valueToFormat;
+                                    if(isNullOrBlank(valueToFormat) && isNullOrBlank(value)){
+                                        delete valueAttr._displayedValue;
+                                    }else{
+                                        valueAttr['_displayedValue'] = valueToFormat;
+                                    }
                                 }
                             }
                             valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.currentAttributes())},this);
