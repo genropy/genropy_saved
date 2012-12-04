@@ -211,7 +211,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
             textboxNode.setRelativeData(textboxNode.attr.value+'_mv',multivalues,{});
         }
         var mainNode = multivalues.getNodeByValue('mv_main',true);
-        var m = value.match(/(\d+)(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
+        var m = value.match(/([\d\s]+)(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
         var label,notes,r;
         if(m){
             value = m[1];
