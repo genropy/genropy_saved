@@ -84,11 +84,21 @@ class PublicBase(BaseComponent):
                             **kwargs)
 
     @struct_method
-    def public_roundedBlock(self, container, title=None,**kwargs):
+    def public_roundedGroup(self, container, title=None,frame=False,**kwargs):
         pane = container.contentPane(**kwargs)
         rb = pane.div(_class='pbl_roundedBlock')
-        rb.div(title,_class='pbl_roundedGroupLabel')
+        if title:
+            rb.div(title,_class='pbl_roundedGroupLabel')
         return rb
+
+    @struct_method
+    def public_roundedGroupFrame(self, container, title=None,frameCode=None,**kwargs):
+        kwargs['overflow'] = 'hidden'
+        pane = container.contentPane(**kwargs)
+        frame = pane.framePane(frameCode=frameCode,margin='2px',_class='pbl_roundedGroup')
+        if title:
+            frame.top.slotBar('5,blocktitle,*',_class='pbl_roundedGroupLabel',blocktitle=title)
+        return frame
 
 
     @struct_method

@@ -33,7 +33,11 @@ var th_view_batch_caller = function(kw){
         }
         
     }
-    kw['selectedRowidx'] = grid.getSelectedRowidx();
+    if(grid.cellmap._selected){
+        kw['selectedPkeys'] = grid.sourceNode.getRelativeData('.sets._selected');
+    }else{
+        kw['selectedRowidx'] = grid.getSelectedRowidx();
+    }
     genro.publish("table_script_run",kw);
 }
 
