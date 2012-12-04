@@ -2774,7 +2774,7 @@ body *{
 }
 
 .fh_content{
-    overflow: auto;
+    overflow: hidden;
 }
 .form_noItem .fh_content > *{
     opacity: .5;

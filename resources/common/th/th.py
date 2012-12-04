@@ -56,6 +56,7 @@ class TableHandler(BaseComponent):
                         nodeId=th_root,
                         table=table,
                         context_dbstore=dbstore,
+                        overflow='hidden',
                         **kwargs) 
         top_slots = ['#']     
         if readOnly:
@@ -415,9 +416,9 @@ class ThLinker(BaseComponent):
     @extract_kwargs(template=True)
     @struct_method 
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
-                    _class='pbl_roundedGroup',label=None,template_kwargs=None,**kwargs):
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
-        frame = pane.framePane(frameCode=frameCode,_class=_class)
+        frame = pane.framePane(frameCode=frameCode,_class=_class,margin=margin)
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field

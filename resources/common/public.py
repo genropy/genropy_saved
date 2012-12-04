@@ -82,7 +82,15 @@ class PublicBase(BaseComponent):
         return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',
                             **kwargs)
-            
+
+    @struct_method
+    def public_roundedBlock(self, container, title=None,**kwargs):
+        pane = container.contentPane(**kwargs)
+        rb = pane.div(_class='pbl_roundedBlock')
+        rb.div(title,_class='pbl_roundedGroupLabel')
+        return rb
+
+
     @struct_method
     def public_rootStackContainer(self, root, title=None, height=None, width=None,selectedPage=None,**kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='StackContainer',**kwargs) 

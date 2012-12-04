@@ -5672,22 +5672,35 @@ dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
                     });
                 }
             }else{
-                self._isvalid=false;
-                // prevent errors from Tooltip not being created yet
-                self.validate(false);
+                //self._isvalid=false;
+                //self.validate(false);
+                self.valueNode.value = null;
+                self.setDisplayedValue('')
             }
+
         };
         this.store.fetchItemByIdentity({
             identity: value, 
             onItem: function(item){
                 handleFetchByIdentity(item, priorityChange);
+
             }
         });
-        if (!this._isvalid) {
-            this.valueNode.value = null;
-            this.setDisplayedValue('');
-        }
-    }
+    },
+
+   //patch__setValueFromItem: function(/*item*/ item, /*Boolean?*/ priorityChange){
+   //    //  summary:
+   //    //      Set the displayed valued in the input box, based on a
+   //    //      selected item.
+   //    //  description:
+   //    //      Users shouldn't call this function; they should be calling
+   //    //      setDisplayedValue() instead
+   //    this._isvalid=true;
+   //    this._setValue( this.store.getIdentity(item), 
+   //                    this.labelFunc(item, this.store), 
+   //                    priorityChange);
+   //}
+
 });
 dojo.declare("gnr.widgets.ComboBox", gnr.widgets.BaseCombo, {
     constructor: function(application) {

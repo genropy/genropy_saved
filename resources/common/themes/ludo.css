@@ -200,6 +200,17 @@
 /* @end */
 
 /* @group Form group */
+
+.pbl_roundedBlock{
+    border-radius: 6px;
+    position: absolute;
+    top:2px;
+    bottom:2px;
+    left:2px;
+    right: 2px;
+    border:1px solid #ddd;
+}
+
 .pbl_roundedGroup {
     border-radius: 6px;
     border:1px solid #ddd;
