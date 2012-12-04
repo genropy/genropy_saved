@@ -48,6 +48,10 @@ class TableHandler(BaseComponent):
         defaultModule = 'th_%s' %tableCode
         
         unlinkdict = kwargs.pop('store_unlinkdict',None)
+
+        if pane.attributes.get('tag') == 'ContentPane':
+            pane.attributes['overflow'] = 'hidden'
+
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
@@ -418,6 +422,8 @@ class ThLinker(BaseComponent):
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
+        if pane.attributes.get('tag') == 'ContentPane':
+            pane.attributes['overflow'] = 'hidden'
         frame = pane.framePane(frameCode=frameCode,_class=_class,margin=margin)
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
