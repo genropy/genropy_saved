@@ -20,6 +20,7 @@ class TableHandlerTreeResolver(BagResolver):
                    'condition_kwargs':None,
                    '_condition_id':None,
                    'dbstore':None,
+                   'columns':None,
                    '_page':None}
     classArgs = ['parent_id']
 
@@ -66,13 +67,17 @@ class TableHandlerTreeResolver(BagResolver):
             self.caption_field = caption_field
 
         condition_kwargs = self.condition_kwargs or dict()
+        for k,v in condition_kwargs.items():
+            condition_kwargs.pop(k)
+            condition_kwargs[str(k)] = v
         condition_pkeys = None
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             # ($parent_id=:p_id) AND (($zzz=:condizione_zzz AND ($child_count=0)) OR ( $id IN :condition_pkeys ) ) 
             where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
         order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
-        q = tblobj.query(where=where,p_id=self.parent_id,r_id=self.root_id,columns='*,$child_count,$%s' %caption_field,
+        columns = self.columns or '*'
+        q = tblobj.query(where=where,p_id=self.parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
                          condition_pkeys=condition_pkeys,
                          order_by=order_by,_storename=self.dbstore,**condition_kwargs)
         result = Bag()
@@ -82,7 +87,7 @@ class TableHandlerTreeResolver(BagResolver):
             caption = r[caption_field]
             pkey = record[pkeyfield]
             child_count=record['child_count']
-            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field,dbstore=self.dbstore,condition=self.condition,_condition_id=self._condition_id) if child_count else None
+            value = TableHandlerTreeResolver(_page=page,table=self.table,parent_id=pkey,caption_field=self.caption_field,dbstore=self.dbstore,condition=self.condition,_condition_id=self._condition_id,columns=self.columns) if child_count else None
             result.setItem(pkey,value,
                             caption=caption,
                             child_count=child_count,pkey=pkey or '_all_',
@@ -112,7 +117,7 @@ class HTableTree(BaseComponent):
         
         
     @struct_method
-    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,**kwargs):
+    def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,dbstore=None,root_id=None,columns=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
@@ -122,10 +127,11 @@ class HTableTree(BaseComponent):
                         caption_field=caption_field,
                         condition=condition,
                         childname='store',caption=caption,dbstore=dbstore,
+                        columns=columns,
                         **kwargs)
             return d
 
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id),caption=tblobj.name_long,
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,root_id=root_id,columns=columns),caption=tblobj.name_long,
                                                 child_count=1,pkey='',treeIdentifier='_root_')
         d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
 
@@ -135,13 +141,13 @@ class HTableTree(BaseComponent):
 
     @public_method
     def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
-                                    condition_kwargs=None,caption=None,dbstore=None,**kwargs):
+                                    condition_kwargs=None,caption=None,dbstore=None,columns=None,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,dbstore=dbstore,
+        b.setItem('root',TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,
                                                 condition_kwargs=condition_kwargs),caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
         return b
 
@@ -166,14 +172,14 @@ class HTableTree(BaseComponent):
     
     @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
-    def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,
+    def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,root_id_delay=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
         treeattr.update(kwargs)
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,**condition_kwargs)
+        tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,**condition_kwargs)
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                var pkey = data.pkey;
