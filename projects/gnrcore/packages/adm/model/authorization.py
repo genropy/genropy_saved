@@ -40,3 +40,11 @@ class Table(object):
         if remaining_usages <= 0:
             return False
         return True
+        
+    def trigger_onInserting(self, record_data):
+        record_data['user_id'] = self.db.currentEnv['user_id']
+        toassign=True
+        while toassign:
+            record_data['code'] = self.generate_code()
+            toassign = self.existsRecord(record_data)
+            
