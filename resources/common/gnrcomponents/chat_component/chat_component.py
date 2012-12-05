@@ -33,12 +33,12 @@ class ChatComponent(BaseComponent):
         pane.dataRpc('dummy', 'setStoreSubscription', subscribe_chat_plugin_on=True,
                      storename='user', client_path='gnr.chat.msg', active=True,
                     _onResult='genro.rpc.setPolling(2,2);')
-        pane.dataRpc('dummy', 'setStoreSubscription', active=False, subscribe_chat_plugin_off=True, storename='user',
+        pane.dataRpc('dummy', 'setStoreSubscription', active=False, client_path='gnr.chat.msg',
+                    subscribe_chat_plugin_off=True, storename='user',
                     _onCalling='genro.rpc.setPolling();')
 
         pane.dataController(""" var roomId = pars.getItem('roomId');
                                 var priority = pars.getItem('priority');
-                                alert('zio');
                                 if (priority=='H'){
                                     PUBLISH open_plugin = "chat_plugin";
                                     SET gnr.chat.selected_room = roomId;
@@ -66,11 +66,12 @@ class ChatComponent(BaseComponent):
         frame.center.tabContainer(nodeId='ct_chat_rooms', margin='5px', _class='chat_rooms_tab',
                         selectedPage='^.selected_room')
         bar.dataController("""
+
                              var roombag = rooms.getItem(sel_room);
                              roombag.setItem('unread',null);
                              FIRE gnr.chat.calc_unread;
                              ct_chat_utils.fill_title(roombag);
-                            """, sel_room='^.selected_room', rooms='=.rooms')
+                            """, sel_room='^.selected_room', rooms='=.rooms',_if='sel_room')
 
         bar.dataController("""
             var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
@@ -171,6 +172,7 @@ class ChatComponent(BaseComponent):
                                      in_out=in_out, ts=ts, disconnect=disconnect))
                     store.set_datachange(path, value, fired=True, reason='chat_out')
             if user != self.user:
+                print 'SENDING MESSAGE'
                 self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority)),
                                      filters='user:%s' % user, fired=True, reason='chat_open',
                                      public=True, replace=True)
