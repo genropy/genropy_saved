@@ -25,7 +25,7 @@ class ChatComponent(BaseComponent):
     def btn_chat_plugin(self,pane,**kwargs):
         """CALLED BY FRAMEDINDEX"""
         pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
-                    connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
+                    connect_onclick="""PUBLISH open_plugin = "chat_plugin";""",
                     nodeId='plugin_block_chat_plugin')
     
 
@@ -36,13 +36,20 @@ class ChatComponent(BaseComponent):
         pane.dataRpc('dummy', 'setStoreSubscription', active=False, subscribe_chat_plugin_off=True, storename='user',
                     _onCalling='genro.rpc.setPolling();')
 
-        pane.dataController("""genro.playSound('NewMessage'); 
+        pane.dataController(""" var roomId = pars.getItem('roomId');
+                                var priority = pars.getItem('priority');
+                                alert('zio');
+                                if (priority=='H'){
+                                    PUBLISH open_plugin = "chat_plugin";
+                                    SET gnr.chat.selected_room = roomId;
+                                }
+                                genro.playSound('NewMessage'); 
                                 setTimeout(function(){
                                     genro.dom.setClass(dojo.body(),'newMessage',true);
 
                                 },1)
                             """,
-                            roomId="^gnr.chat.room_alert", selectedTab='=#gnr_main_left_center.selected',
+                            pars="^gnr.chat.room_alert", selectedTab='=#gnr_main_left_center.selected',
                             sel_room='=gnr.chat.selected_room',rooms='=gnr.chat.rooms')
         pane.dataController("""
                               var unread = rooms.sum('unread');
@@ -144,8 +151,12 @@ class ChatComponent(BaseComponent):
                             gridId='ct_connected_user_grid')
 
     @public_method
-    def ct_send_message(self, msg=None, roomId=None, users=None, disconnect=False):
+    def ct_send_message(self, msg=None, roomId=None, users=None, disconnect=False, priority='L'):
         ts = self.toText(datetime.now(), format='HH:mm:ss')
+        if msg and msg.startswith('!'):
+            priority='H'
+            msg=msg[1:]
+            
         if disconnect:
             msg = '<i>User %s left the room</i>' % self.user
         path = 'gnr.chat.msg.%s' % roomId
@@ -160,6 +171,6 @@ class ChatComponent(BaseComponent):
                                      in_out=in_out, ts=ts, disconnect=disconnect))
                     store.set_datachange(path, value, fired=True, reason='chat_out')
             if user != self.user:
-                self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users)),
+                self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority)),
                                      filters='user:%s' % user, fired=True, reason='chat_open',
                                      public=True, replace=True)

@@ -166,9 +166,9 @@ ct_chat_utils.prepare_usersbag = function(userstring){
     return users;
 };
 
-ct_chat_utils.send_message = function(userstring,message){
+ct_chat_utils.send_message = function(userstring,message, priority){
     var roomId = this.select_room(userstring);
-    genro.publish("ct_send_message", {roomId:roomId,msg:message});
+    genro.publish("ct_send_message", {roomId:roomId,msg:message,priority:priority});
 
 };
 

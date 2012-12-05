@@ -258,7 +258,11 @@ class FrameIndex(BaseComponent):
         
         #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
         
-        sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden',region='center')
+        
+        sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
+                                subscribe_open_plugin="""SET .selected=$1;
+                                                         genro.getFrameNode('standard_index').publish('showLeft');""",
+                                overflow='hidden',region='center')
         sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
                              genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'iframetab_selected',selected);

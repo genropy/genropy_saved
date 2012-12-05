@@ -2,6 +2,7 @@
 import random
 import string
 from datetime import datetime, date
+from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
@@ -21,7 +22,14 @@ class Table(object):
         for c in (('0', 'M'), ('1', 'N'), ('O', 'X'), ('L', 'Y'), ('I', 'Z')):
             code = code.replace(c[0], c[1])
         return code
-
+    
+    @public_method
+    def authorize(self, reason=None):
+        record = dict(note=reason)
+        self.insert(record)
+        self.db.commit()
+        return record['code']
+        
     def use_auth(self, code, username):
         record = self.record(pkey=code, for_update=True).output('bag')
         record['use_ts'] = datetime.now()
@@ -43,6 +51,10 @@ class Table(object):
         
     def trigger_onInserting(self, record_data):
         record_data['user_id'] = self.db.currentEnv['user_id']
+        if not record_data.get('remaining_usages'):
+            record_data['remaining_usages']=1
+        if not record_data.get('expiry_date'):
+            record_data['expiry_date']=self.db.workdate
         toassign=True
         while toassign:
             record_data['code'] = self.generate_code()
