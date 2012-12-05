@@ -1161,6 +1161,11 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
     },
 
     onAddChild:function(widget, child) {
+        if(!child.getParent){
+            child.getParent = function(){
+                return widget;
+            };
+        }
         gnr.setOrConnectCb(child, 'onShow', dojo.hitch(this, 'onShowHideChild', widget, child, true));
         gnr.setOrConnectCb(child, 'onHide', dojo.hitch(this, 'onShowHideChild', widget, child, false));
         var pageName = child.sourceNode.attr.pageName;
@@ -1176,6 +1181,17 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         var pageName = child.sourceNode.attr.pageName;
         if (pageName) {
             objectPop(widget.gnrPageDict, pageName);
+        }
+        if(child.selected && widget.getChildren().length==0){
+            var sourceNode = widget.sourceNode;
+            var selpath = sourceNode.attr['selected'];
+            var selpage = sourceNode.attr['selectedPage'];
+            if(selpath){
+                sourceNode.setRelativeData(selpath,null);
+            }
+            if(selpage){
+                sourceNode.setRelativeData(selpage,null);
+            }
         }
     }
 

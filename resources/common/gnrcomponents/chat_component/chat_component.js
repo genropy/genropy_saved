@@ -24,7 +24,6 @@ ct_chat_utils.fill_title = function(roombag) {
             title = title + '(' + unread + ')';
         }
     }
-
     roombag.setItem('title', title);
 };
 ct_chat_utils.key_from_users = function(users){
@@ -53,10 +52,8 @@ ct_chat_utils.open_chat = function(roomId, users) {
         onClose:function() {
             genro.publish("ct_send_message", {"roomId":this.sourceNode.attr.pageName,msg:null,disconnect:true});
             var rooms = ct_chat_utils.get_rooms()
-            this.sourceNode._destroy();
             rooms.popNode(this.sourceNode.attr.pageName);
-            genro.setData('gnr.chat.selected_room',rooms.len()?rooms.getNode('#0').label:null);
-            return false;
+            return true;
         }});
     var newroom = pane._('BorderContainer', {nodeId:roomId + '_room',detachable:true,height:'100%',rounded:4});
     var sourceNode = newroom.getParentNode();

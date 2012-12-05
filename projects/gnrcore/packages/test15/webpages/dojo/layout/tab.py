@@ -14,6 +14,16 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
         
+    def test_0_tabcontainer_closable(self, pane):
+
+        tc = pane.tabContainer(height='300px',selectedPage='^.pippo',selected='^.pluto')
+        pane.button('Distruggi alfio',action="""tc._value.popNode('#0');""",tc=tc)
+        pane.textbox(value='^.pippo')
+        pane.numbertextbox(value='^.pluto')
+
+        pane = tc.contentPane(title='Alfio',closable=True,pageName='alfio').div('ciao')
+        tc.contentPane(title='Bieto',closable=True,pageName='bieto')
+        #
 
     def test_4_tab_hidden(self, pane):
         bc = pane.borderContainer(height='400px')

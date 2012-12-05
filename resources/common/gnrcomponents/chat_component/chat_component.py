@@ -39,15 +39,13 @@ class ChatComponent(BaseComponent):
 
         pane.dataController(""" var roomId = pars.getItem('roomId');
                                 var priority = pars.getItem('priority');
+                                console.log(roomId,priority);
                                 if (priority=='H'){
                                     PUBLISH open_plugin = "chat_plugin";
                                     SET gnr.chat.selected_room = roomId;
                                 }
                                 genro.playSound('NewMessage'); 
-                                setTimeout(function(){
-                                    genro.dom.setClass(dojo.body(),'newMessage',true);
-
-                                },1)
+                                genro.dom.setClass(dojo.body(),'newMessage',true);
                             """,
                             pars="^gnr.chat.room_alert", selectedTab='=#gnr_main_left_center.selected',
                             sel_room='=gnr.chat.selected_room',rooms='=gnr.chat.rooms')
