@@ -1,6 +1,15 @@
 
 
 var genropatches = {};
+genropatches.setStateClass=function(){
+    dojo.require('dijit.form._FormWidget');
+    dijit.form._FormWidget.prototype._setStateClass_original = dijit.form._FormWidget.prototype._setStateClass;
+    dijit.form._FormWidget.prototype._setStateClass = function(){
+        if(this.stateNode || this.domNode){
+            this._setStateClass_original();
+        }
+    }
+}
 genropatches.sendAsBinary=function(){
     if(!XMLHttpRequest.prototype.sendAsBinary){
             XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
