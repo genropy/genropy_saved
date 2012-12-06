@@ -2,8 +2,13 @@ var ct_chat_utils = {
 };
 
 ct_chat_utils.processors = {};
+ct_chat_utils.replacers = {};
 ct_chat_utils.addProcessor = function(command,cb){
     this.processors[command] = cb;
+};
+
+ct_chat_utils.addReplacer = function(pattern,cb){
+    this.replacers[pattern] = cb;
 };
 
 ct_chat_utils.fill_title = function(roombag) {
@@ -116,7 +121,9 @@ ct_chat_utils.read_msg = function(msgbag) {
     }
     var msgrow = document.createElement('div');
     dojo.addClass(msgrow, 'ct_msgrow');
-    msgrow.innerHTML = highlightLinks(msgtxt);
+    msgtxt = highlightLinks(msgtxt);
+    msgrow.innerHTML = msgtxt;
+    roombag.setItem('last_message',msgtxt);
     message.lastElementChild.appendChild(msgrow);
     chatNode.scrollTop = chatNode.scrollHeight;
 };
@@ -174,6 +181,19 @@ ct_chat_utils.processCommand = function(command,message,roomId){
     var processor = this.processors[command];
     return processor? processor.call(this,message,room):'*error: unknown command "'+command+'"';
 };
+
+ct_chat_utils.callReplacer = function(replacer,path,roomId,msg){
+    var cb = this.replacers[replacer];
+    var room = genro.getData('gnr.chat.rooms.' +roomId);
+    if(typeof(cb)=='function'){
+        return cb.call(this,room,msg);
+    }else{
+        return cb;
+    }
+};
+ct_chat_utils.addReplacer('(#q)\\b',function(room,message){
+    return '<i>'+room.getItem('last_message')+'</i>';
+});
 
 ct_chat_utils.addProcessor('me',function(msg,room){
     return msg?"<i>"+room.getItem('user_name')+ ' '+ msg+"</i>":false;

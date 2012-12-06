@@ -75,6 +75,7 @@ class ChatComponent(BaseComponent):
             var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
             var msg = roombag.getItem('current_msg');
             roombag.setItem('current_msg','');
+            var chat = genro.chat();
             var textbox = dojo.byId("ct_msgtextbox_"+roomId);
             if(textbox){
                 textbox.focus();
@@ -83,12 +84,19 @@ class ChatComponent(BaseComponent):
                 msg = msg.slice(1).split(' ');
                 var command = msg[0];
                 msg = msg.slice(1).join(' ');
-                var msg = genro.chat().processCommand(command,msg,roomId);
+                var msg = chat.processCommand(command,msg,roomId);
                 if(msg && msg.indexOf('*error:')==0){
                     alert(msg.slice(1));
                     msg=false;
                 }
 
+            }
+            for(var rpcl in chat.replacers){
+                genro.bp(true);
+                msg = msg.replace(new RegExp(rpcl),
+                            function(path) {
+                                return chat.callReplacer(rpcl,path,roomId,msg);
+                            });
             }
             if(msg!==false){
                 PUBLISH ct_send_message = {roomId:roomId,msg:msg};
