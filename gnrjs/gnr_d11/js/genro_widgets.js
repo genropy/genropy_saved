@@ -1182,7 +1182,8 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         if (pageName) {
             objectPop(widget.gnrPageDict, pageName);
         }
-        if(child.selected && widget.getChildren().length==0){
+        setTimeout(function(){
+            if(child.selected && widget.getChildren().length==0){
             var sourceNode = widget.sourceNode;
             var selpath = sourceNode.attr['selected'];
             var selpage = sourceNode.attr['selectedPage'];
@@ -1193,6 +1194,9 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
                 sourceNode.setRelativeData(selpage,null);
             }
         }
+
+        },1);
+        
     }
 
 });
