@@ -155,7 +155,6 @@ class ChatComponent(BaseComponent):
         if msg and msg.startswith('!'):
             priority='H'
             msg=msg[1:]
-            
         if disconnect:
             msg = '<i>User %s left the room</i>' % self.user
         path = 'gnr.chat.msg.%s' % roomId
@@ -170,7 +169,6 @@ class ChatComponent(BaseComponent):
                                      in_out=in_out, ts=ts, disconnect=disconnect))
                     store.set_datachange(path, value, fired=True, reason='chat_out')
             if user != self.user:
-                print 'SENDING MESSAGE'
                 self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority)),
                                      filters='user:%s' % user, fired=True, reason='chat_open',
                                      public=True, replace=True)
