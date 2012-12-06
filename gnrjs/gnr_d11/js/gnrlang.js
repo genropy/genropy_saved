@@ -203,10 +203,11 @@ function dataTemplate(str, data, path, showAlways) {
 
     }
     var auxattr = {};
-    var regexpr = /\$(\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
+    var regexpr = /\$(\#?\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
     var result;
     var is_empty = true;
     var has_field = false;
+    var scopeSourceNode = null;
     if (!data && !showAlways) {
         return '';
     }
@@ -215,6 +216,7 @@ function dataTemplate(str, data, path, showAlways) {
     }
     else if (data instanceof gnr.GnrDomSourceNode) {
         auxattr = data.currentAttributes();
+        scopeSourceNode = data;
         data = genro._data.getItem(data.absDatapath(path));
     }
     if (data instanceof gnr.GnrBag) {
@@ -225,6 +227,7 @@ function dataTemplate(str, data, path, showAlways) {
                             function(path) {
                                 has_field=true;
                                 var path=path.slice(1);
+                                var value,valueNode;
                                 var as_name = path;
                                 var valueattr = {};
                                 if(path.indexOf('^')>=0){
@@ -232,9 +235,12 @@ function dataTemplate(str, data, path, showAlways) {
                                     as_name = path[1];
                                     path = path[0];
                                 }
-                                var valueNode = data.getNode(path);
                                 var dtype = dtypes[as_name];
-                                var value;
+                                if(scopeSourceNode && stringStartsWith(path,'#')){
+                                    valueNode = genro.getDataNode(scopeSourceNode.absDatapath(path));
+                                }else{
+                                    valueNode = data.getNode(path);
+                                }
                                 if (valueNode){
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
@@ -283,7 +289,7 @@ function dataTemplate(str, data, path, showAlways) {
         result = str.replace(regexpr,
                           function(path) {
                               has_field=true;
-                              var value = data[path.slice(1)];
+                               var value = data[path.slice(1)];                               
                               if (value != null) {
                                   is_empty = false;
                                   if (value instanceof Date) {

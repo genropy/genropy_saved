@@ -1118,7 +1118,12 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         };
         sourceNode.updateTemplate = function(){
             this._templateHandler.template = null;
-            this.domNode.innerHTML = dataTemplate(this._templateHandler, this, this.attr.datasource);
+            var result = dataTemplate(this._templateHandler, this, this.attr.datasource);
+            if(this.isPointerPath(this.attr.innerHTML)){
+                this.setRelativeData(this.attr.innerHTML,result);
+            }else{
+                this.domNode.innerHTML = result;
+            }
         }
         sourceNode.attr.template = templateHandler;
         sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate();",_fired:tplpars.template});

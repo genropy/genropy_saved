@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><metadata _T="BAG"></metadata>
+<GenRoBag><metadata><email><subject></subject>
+<to_address></to_address>
+<cc_address></cc_address></email></metadata>
 <varsbag><n_472><fieldpath>nome</fieldpath>
 <fieldname>Nome</fieldname>
 <varname>nome</varname>
@@ -18,7 +20,7 @@
 <virtual_column _T="NN"></virtual_column></n_541></varsbag>
 <parameters></parameters>
 <content>&lt;p&gt;
-$nome&lt;/p&gt;
+$nome $tpl_test $#DATA.gnr.workdate&lt;/p&gt;
 &lt;p&gt;
 &amp;nbsp;&lt;/p&gt;
 &lt;table cellpadding="1" cellspacing="1" row_datasource="@province" style="border-collapse: collapse; width: 500px;"&gt;
@@ -51,8 +53,8 @@ $nome&lt;/td&gt;
 &lt;td&gt;
 $cap_valido&lt;/td&gt;
 &lt;/tr&gt;</_province>
-<main virtual_columns="" locale="it-it" masks='{"@province.cap_valido": null, "@province.nome": null, "@province.sigla": null, "nome": null}::JS' maintable="glbl.regione" formats='{"@province.cap_valido": null, "@province.nome": null, "@province.sigla": null, "nome": null}::JS' columns="nome,@province.nome,@province.cap_valido,@province.sigla">&lt;html&gt;&lt;body&gt;&lt;p&gt;
-$nome&lt;/p&gt;
+<main virtual_columns="" locale="it-IT" masks="{}::JS" dtypes="{}::JS" maintable="glbl.regione" columns="nome,@province.nome,@province.cap_valido,@province.sigla" formats="{}::JS" df_templates="{}::JS">&lt;html&gt;&lt;body&gt;&lt;p&gt;
+$nome $tpl_test $#DATA.gnr.workdate&lt;/p&gt;
 &lt;p&gt;
 &amp;#160;&lt;/p&gt;
 &lt;table cellpadding="1" cellspacing="1" row_datasource="@province" style="border-collapse: collapse; width: 500px;"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;
@@ -64,4 +66,5 @@ $nome&lt;/p&gt;
 &lt;/tr&gt;
 $@province
 &lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;
-&amp;#160;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>
+&amp;#160;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</main></compiled>
+<parametersbag _T="NN"></parametersbag></GenRoBag>

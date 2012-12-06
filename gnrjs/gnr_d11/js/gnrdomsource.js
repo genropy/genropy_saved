@@ -517,11 +517,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var attachpath;
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
+        var relpath = pathlist.slice(1).join('.');
+        if(nodeId=='DATA'){
+            return relpath;
+        }
         var currNode = this.nodeById(nodeId); 
         if (!currNode) {
             console.error('not existing nodeId:' + nodeId);
         }
-        var relpath = pathlist.slice(1).join('.');
+       
         if(relpath=='*S'){
             return currNode.getFullpath().replace('main.','*S.');
         }
@@ -1271,11 +1275,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     //genro.debug('unable to use datasource for node:'+this.getFullpath());
                 }
             }
-            else if (('template' in this.attr)&&((attr == 'datasource')||(this.attr.template.indexOf('$'+attr)>=0))) {
-                domnode.innerHTML = dataTemplate(this.getAttributeFromDatasource('template'), this, this.attr.datasource);
-            }
             else if (attr == 'innerHTML') {
                 domnode.innerHTML = value;
+            }
+            else if ( ('template' in this.attr) && ( (attr == 'datasource') || attr.indexOf('tpl_')==0 )) {
+                var ih = dataTemplate(this.getAttributeFromDatasource('template'), this, this.attr.datasource);
+                if(this.isPointerPath(this.attr.innerHTML)){
+                    this.setRelativeData(this.attr.innerHTML,ih);
+                }else{
+                    this.domNode.innerHTML = ih;
+                }
             }
             else if (genro.dom.isStyleAttr(attr)) {
                 domnode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));

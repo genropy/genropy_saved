@@ -43,9 +43,13 @@ class GnrCustomWebPage(object):
     def test_5_templateChunk(self,pane):
         pane.dbSelect(dbtable='glbl.regione',value='^.pkey',_class='gnrfield')
         rpc = pane.dataRecord('.record','glbl.regione',pkey='^.pkey')
-        pane.templateChunk(template='custom',table='glbl.regione',datasource='^.record',
+        pane.textbox(value='^ggg')
+        pane.div(nodeId='zzz')
+
+        pane.templateChunk(innerHTML='^.piero',template='custom',table='glbl.regione',datasource='^.record',
+                        tpl_test='^ggg',tpl_root='^*D',
                     height='100px',dataProvider=rpc,editable=True)
-                    
+
     def test_6_templateChunkNoResource(self,pane):
         pane.dataRecord('.tipo_protocollo','studio.pt_tipo',pkey='PiWA-zDGMhSbDKS5AYRR5g',_onStart=True)
         
