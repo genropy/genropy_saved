@@ -94,7 +94,6 @@ class Table(object):
     def importOld(self):
         currpkeys = self.query().selection().output('pkeylist')
         where = ' $id NOT IN :currpkeys '  if currpkeys else None
-        print currpkeys
         for pkg in self.db.packages.values():
             if pkg.name=='adm':
                 continue

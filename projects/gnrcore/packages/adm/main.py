@@ -61,7 +61,8 @@ class Package(GnrDboPackage):
 
     def onSiteInited(self):
         db = self.application.db
-        db.table('adm.userobject').importOld()
+        #db.table('adm.userobject').importOld()
+        db.table('adm.htag').adaptToNewHtable()
 
 
 class Table(GnrDboTable):
