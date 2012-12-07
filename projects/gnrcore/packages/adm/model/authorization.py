@@ -23,7 +23,7 @@ class Table(object):
             code = code.replace(c[0], c[1])
         return code
     
-    @public_method
+    @public_method(tags='admin')
     def authorize(self, reason=None):
         record = dict(note=reason)
         self.insert(record)

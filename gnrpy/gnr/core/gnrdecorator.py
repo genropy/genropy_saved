@@ -34,12 +34,22 @@ def metadata(**kwargs):
         
     return decore
     
-def public_method(func):
+def public_method(*args,**metadata):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
     
     :param func: the function to set as public method"""
-    func.is_rpc = True
-    return func
+    if metadata:
+        def decore(func):
+            prefix = metadata.pop('prefix',None)
+            func.is_rpc = True
+            for k, v in metadata.items():
+                setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
+            return func
+        return decore
+    else:
+        func = args[0]
+        func.is_rpc = True # @public_method
+        return func
     
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
     """A decorator. Allow to extract some **kwargs creating some kwargs sub-families
