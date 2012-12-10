@@ -61,6 +61,12 @@ class GnrWebPageException(GnrException):
     pass
 class GnrMissingResourceException(GnrException):
     pass
+
+class GnrUserNotAllowed(GnrException):
+    code = 'AUTH-001'
+    description = '!!Genro Not Allowed Public call'
+    caption = "!!User %(user)s is not allowed to call method %(method)s"    
+
 class GnrWebPage(GnrBaseWebPage):
     """Standard class for :ref:`webpages <webpage>`
     
@@ -380,6 +386,9 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             try:
                 result = self.rpc(method=method, _auth=auth, **parameters)
+            except GnrException,e:
+                self.rpc.error = 'gnrexception'
+                result = str(e)
             except Exception,e:
                 if self.site.smtp_kwargs:
                     import sys
@@ -728,13 +737,32 @@ class GnrWebPage(GnrBaseWebPage):
             if proxy_object:
                 handler = getattr(proxy_object, submethod, None)
                 if not handler or not getattr(handler, 'is_rpc', False):
-                    handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)
+                    handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)                    
         else:
             handler = getattr(self, method, None)
             if not handler or not getattr(handler, 'is_rpc', False):
                 handler = getattr(self, '%s_%s' % (prefix, method))
+        
+        if handler and getattr(handler, 'tags',None):
+            if not self.application.checkResourcePermission(handler.tags, self.userTags):
+                raise self.exception(GnrUserNotAllowed,method=method)
         return handler
         
+
+    def exception(self, exception, **kwargs):
+         """TODO
+
+         :param exception: the exception raised.
+         :param record: TODO.
+         :param msg: TODO."""
+         if isinstance(exception,basestring):
+             exception = EXCEPTIONS.get(exception)
+             if not exception:
+                 raise exception
+         e = exception(user=self.user,**kwargs)
+         e.setLocalizer(self.localizer)
+         return e
+
     def build_arg_dict(self, _nodebug=False, _clocomp=False, **kwargs):
         """TODO
         

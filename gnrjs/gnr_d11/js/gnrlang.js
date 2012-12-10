@@ -224,17 +224,16 @@ function dataTemplate(str, data, path, showAlways) {
             return '';
         }
         result = str.replace(regexpr,
-                            function(path) {
+                            function() {
+                                var l = arguments.length;
                                 has_field=true;
-                                var path=path.slice(1);
+                                var path=arguments[0].slice(1);
                                 var value,valueNode;
-                                var as_name = path;
+                                var as_name = arguments[l-3];
+                                as_name = as_name? as_name.slice(1):path;
+                                var attrname = arguments[l-4];
+                                attrname = attrname?attrname.slice(1):null;
                                 var valueattr = {};
-                                if(path.indexOf('^')>=0){
-                                    path = path.split('^');
-                                    as_name = path[1];
-                                    path = path[0];
-                                }
                                 var dtype = dtypes[as_name];
                                 if(scopeSourceNode && stringStartsWith(path,'#')){
                                     valueNode = genro.getDataNode(scopeSourceNode.absDatapath(path));
@@ -244,7 +243,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 if (valueNode){
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
-                                   value = valueNode.getValue();
+                                   value = attrname?valueattr[attrname]:valueNode.getValue();
                                 }else{
                                     value = auxattr[as_name]
                                 }
