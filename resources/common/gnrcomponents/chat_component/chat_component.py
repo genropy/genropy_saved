@@ -158,7 +158,7 @@ class ChatComponent(BaseComponent):
                             gridId='ct_connected_user_grid')
 
     @public_method
-    def ct_send_message(self, msg=None, roomId=None, users=None, disconnect=False, priority='L'):
+    def ct_send_message(self, msg=None, roomId=None, users=None, disconnect=False, priority='L',**kwargs):
         ts = self.toText(datetime.now(), format='HH:mm:ss')
         if msg and msg.startswith('!'):
             priority='H'
@@ -173,8 +173,10 @@ class ChatComponent(BaseComponent):
                     store.drop_datachanges(path)
                 else:
                     in_out = 'in' if user != self.user else 'out'
-                    value = Bag(dict(msg=msg, roomId=roomId, users=users, from_user=self.user,
-                                     in_out=in_out, ts=ts, disconnect=disconnect))
+                    kw = dict(msg=msg, roomId=roomId, users=users, from_user=self.user,
+                                     in_out=in_out, ts=ts, disconnect=disconnect)
+                    kw.update(kwargs)
+                    value = Bag(kw)
                     store.set_datachange(path, value, fired=True, reason='chat_out')
             if user != self.user:
                 self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority)),
