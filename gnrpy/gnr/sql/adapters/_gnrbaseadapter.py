@@ -427,6 +427,31 @@ class SqlDbAdapter(object):
         sqlcol = self.columnSqlDefinition(sqlname, dtype=dtype, size=size, notnull=notnull, pkey=pkey, unique=unique)
         self.dbroot.execute('ALTER TABLE %s ADD COLUMN %s' % (sqltable, sqlcol))
 
+    def renameColumn(self, sqltable, sqlname,sqlnewname):
+        #automag_deposito_sede_id_idx
+        kwargs = dict(sqltable=sqltable,sqlname=sqlname,sqlnewname=sqlnewname)
+        tbl_flatname = sqltable.split('.')[1]
+        kwargs['old_index_name'] = '%s_%s_idx' %(sqltable,sqlname)
+        kwargs['new_index_name'] = '%s_%s_idx' %(tbl_flatname,sqlnewname)
+
+        kwargs['old_fkey_name'] = 'fk_%s_%s' %(tbl_flatname,sqlname)
+        kwargs['new_fkey_name'] = 'fk_%s_%s' %(tbl_flatname,sqlnewname)
+
+        command = """
+            ALTER TABLE %(sqltable)s RENAME COLUMN %(sqlname)s TO %(sqlnewname)s;
+            DROP INDEX IF EXISTS %(old_index_name)s;
+            ALTER TABLE %(sqltable)s DROP CONSTRAINT IF EXISTS %(old_fkey_name)s;
+        """
+        self.dbroot.execute(command %kwargs)
+
+
+    def dropColumn(self, sqltable,sqlname,cascade=False):
+        """Drop column"""
+        command = 'ALTER TABLE %s DROP COLUMN %s;'
+        if cascade:
+            command = 'ALTER TABLE %s DROP COLUMN %s CASCADE;'
+        self.dbroot.execute(command % (sqltable,sqlname))
+
     def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
         """Return the statement string for creating a table's column
         """

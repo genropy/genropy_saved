@@ -230,6 +230,10 @@ class DbModel(object):
             self.applyModelChanges()
         return bool(self.modelChanges)
         
+    @property
+    def checker(self):
+        return SqlModelChecker(self.db)
+
     def applyModelChanges(self):
         """TODO"""
         if self.modelChanges[0].startswith('CREATE DATABASE'):
@@ -1117,6 +1121,9 @@ class DbColumnObj(DbBaseColumnObj):
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
             return r['joiner']
+
+    def rename(self,newname):
+        self.db.adapter.renameColumn(self.table.sqlname,self.sqlname,newname)
             
 class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'

@@ -461,6 +461,25 @@ class SqlModelChecker(object):
                                                    dtype=col.dtype, size=col.getAttr('size'),
                                                    notnull=col.getAttr('notnull', False),
                                                    pkey=(col.name == col.table.pkey),unique=col.getAttr('unique'))
+
+    def changeRelations(self,table,column,old_colname):
+        tblobj = self.db.table(table)
+        pkeyname = '%s.%s' %(table,tblobj.pkey)
+        db = self.db
+        for n in tblobj.relations:
+            joiner = n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M' and joiner.get('one_relation') == pkeyname:
+                fldlist = joiner['many_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                if fldlist[2] == column:
+                    try:
+                        db.adapter.renameColumn(db.table(tblname).model.sqlfullname,old_colname,column)
+                        print joiner['many_relation'],' fixed'
+                        db.commit()
+                    except Exception,e:
+                        #print joiner['many_relation'],' error'
+                        db.rollback()
+
                                                    
 if __name__ == '__main__':
     db = GnrSqlDb(implementation='postgres', dbname='pforce',
