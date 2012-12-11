@@ -1885,7 +1885,9 @@ class GnrWebPage(GnrBaseWebPage):
         return self.hasTag('_DEV_')
 
     def hasTag(self,tag):
-        return (self.userTags and (tag in self.userTags))
+        if not self.userTags:
+            return False
+        return tag in self.userTags.split(',')
         
   # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
   #     """TODO
