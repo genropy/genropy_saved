@@ -646,10 +646,10 @@ dojo.declare('gnr.GenroClient', null, {
         return this.mainGenroWindow.ct_chat_utils;
     },
 
-    chatMessage:function(users,message,priority,metadata){
-        var metadata = metadata || {};
-        metadata['from_page_id'] = this.page_id
-        genro.chat().send_message(users,message,priority,metadata)
+    chatMessage:function(users,message,kw){
+        var kw = kw || {};
+        kw['from_page_id'] = this.page_id
+        genro.chat().send_message(users,message,kw)
     },
 
 

@@ -171,7 +171,7 @@ ct_chat_utils.prepare_usersbag = function(userstring){
 };
 
 ct_chat_utils.send_message = function(users,message,kw){
-    var roomId = this.select_room(userstring);
+    var roomId = this.select_room(users);
     kw = kw || {};
     genro.publish("ct_send_message", objectUpdate({roomId:roomId,msg:message},kw));
 
