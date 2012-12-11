@@ -92,7 +92,6 @@ class ChatComponent(BaseComponent):
 
             }
             for(var rpcl in chat.replacers){
-                genro.bp(true);
                 msg = msg.replace(new RegExp(rpcl),
                             function(path) {
                                 return chat.callReplacer(rpcl,path,roomId,msg);

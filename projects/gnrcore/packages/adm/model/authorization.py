@@ -36,7 +36,11 @@ class Table(object):
         record['used_by'] = username
         record['remaining_usages'] = record['remaining_usages'] - 1
         self.update(record)
-
+    
+    @public_method     
+    def validate_auth_code(self, value=None, **kwargs):
+        return self.check_auth(value)
+        
     def check_auth(self, code):
         exists = self.query(where='$code=:code', code=code).fetch()
         if not exists:
