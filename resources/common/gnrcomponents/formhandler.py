@@ -113,7 +113,21 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-        gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
+        gridattr['selfsubscribe_addrow'] = """  if(this.form && this.form.isNewRecord()){
+                                                    if(this.attr._saveNewRecordOnAdd){
+                                                        this._autoinsert = true;
+                                                        var that = this;
+                                                        this.form.subscribe('onLoaded',function(){
+                                                                delete that._autoinsert;
+                                                                that.publish('editrow',{pkey:"*newrecord*"});
+                                                            });
+                                                        this.form.save();
+                                                    }else{
+                                                        return;
+                                                    }
+                                                }else{
+                                                    this.publish('editrow',{pkey:"*newrecord*"});
+                                                }"""
         gridattr['selfsubscribe_editrow'] = """
                                     var topic = 'form_'+this.attr._linkedFormId+'_load';
                                     var kw = {destPkey:$1.pkey};

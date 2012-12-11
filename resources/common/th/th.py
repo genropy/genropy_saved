@@ -74,6 +74,9 @@ class TableHandler(BaseComponent):
             top_slots.append('delrow')
         if addrow:
             top_slots.append('addrow')
+            if isinstance(addrow,basestring):
+                grid_kwargs['_saveNewRecordOnAdd'] = True
+                hider_kwargs['message'] = addrow
         if picker:
             top_slots.append('thpicker')
             picker_kwargs['relation_field'] = picker
@@ -94,20 +97,22 @@ class TableHandler(BaseComponent):
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
-                                sourceNode._autoaddrow = autoinsert;
-                                sourceNode.setHiderLayer(true,{message:message,button:'this.getFormHandler().save();'});
+                                sourceNode.setHiderLayer(true,{message:message,button:function(){grid.publish('onClickHider');}});
                             }else{
                                 sourceNode.setHiderLayer(false);
-                                if(sourceNode._autoaddrow){
-                                    delete sourceNode._autoaddrow;
-                                    grid.publish('addrow');
-                                }
                             }
                             """,sourceNode=hiderRoot,
                                 message=hider_kwargs.get('message') or False,
-                                autoinsert=hider_kwargs.get('autoinsert') or False,
                                     msg_prefix='!!Save',msg_suffix='',
-                                pkey='^#FORM.controller.loaded',grid=wdg.view.grid)    
+                                pkey='^#FORM.controller.loaded',grid=wdg.view.grid)   
+
+            wdg.view.grid.attributes.update(selfsubscribe_onClickHider="""
+                    if(this.attr._saveNewRecordOnAdd){
+                        this.publish('addrow');
+                    }else{
+                        this.form.save()
+                    }
+                """)
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
