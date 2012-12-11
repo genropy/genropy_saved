@@ -35,6 +35,7 @@ class TableHandler(BaseComponent):
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
+                            parentFormSave=None,
                             picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
@@ -74,9 +75,6 @@ class TableHandler(BaseComponent):
             top_slots.append('delrow')
         if addrow:
             top_slots.append('addrow')
-            if isinstance(addrow,basestring):
-                grid_kwargs['_saveNewRecordOnAdd'] = True
-                hider_kwargs['message'] = addrow
         if picker:
             top_slots.append('thpicker')
             picker_kwargs['relation_field'] = picker
@@ -84,6 +82,10 @@ class TableHandler(BaseComponent):
             top_slots.append('viewlocker')
 
         top_slots = ','.join(top_slots)
+        if parentFormSave:
+            grid_kwargs['_saveNewRecordOnAdd'] = True
+            if isinstance(parentFormSave,basestring):
+                hider_kwargs.setdefault('message',parentFormSave)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,
