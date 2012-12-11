@@ -173,10 +173,8 @@ class ChatComponent(BaseComponent):
                     store.drop_datachanges(path)
                 else:
                     in_out = 'in' if user != self.user else 'out'
-                    kw = dict(msg=msg, roomId=roomId, users=users, from_user=self.user,
-                                     in_out=in_out, ts=ts, disconnect=disconnect)
-                    kw.update(kwargs)
-                    value = Bag(kw)
+                    value = Bag(dict(msg=msg, roomId=roomId, users=users, from_user=self.user,
+                                     in_out=in_out, ts=ts, disconnect=disconnect))
                     store.set_datachange(path, value, fired=True, reason='chat_out')
             if user != self.user:
                 self.setInClientData(path='gnr.chat.room_alert', value=Bag(dict(roomId=roomId, users=users, priority=priority)),

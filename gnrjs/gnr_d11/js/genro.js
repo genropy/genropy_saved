@@ -645,14 +645,6 @@ dojo.declare('gnr.GenroClient', null, {
     chat:function(){
         return this.mainGenroWindow.ct_chat_utils;
     },
-
-    chatMessage:function(users,message,kw){
-        var kw = kw || {};
-        kw['from_page_id'] = this.page_id
-        genro.chat().send_message(users,message,kw)
-    },
-
-
     format: function (v, f, m) {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,{dtype:'P',format:f.format.format,mask:f.mask});

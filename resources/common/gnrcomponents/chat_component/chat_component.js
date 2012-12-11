@@ -170,11 +170,9 @@ ct_chat_utils.prepare_usersbag = function(userstring){
     return users;
 };
 
-ct_chat_utils.send_message = function(users,message,kw){
+ct_chat_utils.send_message = function(users,message,priority){
     var roomId = this.select_room(users);
-    kw = kw || {};
-    genro.publish("ct_send_message", objectUpdate({roomId:roomId,msg:message},kw));
-
+    genro.publish("ct_send_message", {roomId:roomId,msg:message,priority:priority});
 };
 
 ct_chat_utils.processCommand = function(command,message,roomId){
