@@ -1878,11 +1878,14 @@ class GnrWebPage(GnrBaseWebPage):
 
     def isLocalizer(self):
         """TODO"""
-        return (self.userTags and ('_TRD_' in self.userTags))
+        return self.hasTag('_TRD_')
     
     def isDeveloper(self):
         """TODO"""
-        return (self.userTags and ('_DEV_' in self.userTags))
+        return self.hasTag('_DEV_')
+
+    def hasTag(self,tag):
+        return (self.userTags and (tag in self.userTags))
         
   # def addToContext_old(self, value=None, serverpath=None, clientpath=None):
   #     """TODO
