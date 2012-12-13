@@ -73,8 +73,6 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         return frame
 
-class BagGrid(BaseComponent):
-    py_requires='gnrcomponents/framegrid:FrameGrid'
     @extract_kwargs(default=True)
     @struct_method
     def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,**kwargs):
@@ -82,4 +80,8 @@ class BagGrid(BaseComponent):
         frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
         frame.grid.bagStore(storepath=storepath)
         return frame
+
+class BagGrid(BaseComponent):
+    pass
+
         
