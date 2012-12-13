@@ -173,6 +173,7 @@ class TableBase(object):
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
+            tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
             hfields = hierarchical.split(',')
             for fld in hfields:
                 if fld=='pkey':
@@ -347,16 +348,34 @@ class TableBase(object):
             self.restoreUnifiedRecord(record)
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
-        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        fieldstable = self.attributes.get('df_fieldstable')
         if fieldstable:
             return self.df_getFieldsRows_table(fieldstable,pkey=pkey,**kwargs)
         else:
             return self.df_getFieldsRows_bag(pkey,**kwargs)
 
     def df_getFieldsRows_bag(self,pkey=None,**kwargs):
-        pass
+        hierarchical = self.attributes.get('hierarchical')
+        where="$id=:p"
+        p = pkey
+        order_by = '$__ins_ts'
+        columns='*,$df_fields'
+
+        if hierarchical:
+            hpkey = self.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
+            p = hpkey
+            where =  " ( :p = $hierarchical_pkey ) OR ( :p ILIKE $hierarchical_pkey || :suffix) "
+            order_by='$hlevel'
+        result = []
+        f = self.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
+        result = Bag()
+        for r in f:
+            for v in Bag(r['df_fields']).values():
+                result.setItem(v['code'],v)
+        return [v.asDict(ascii=True) for v in result.values()]
 
     def df_getFieldsRows_table(self,fieldstable,pkey=None,**kwargs):
+        fieldstable = self.db.table(fieldstable)
         where="$maintable_id=:p"
         columns='*,$wdg_kwargs'
         hierarchical = self.attributes.get('hierarchical')

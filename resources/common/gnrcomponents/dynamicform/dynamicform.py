@@ -113,6 +113,7 @@ class Form(BaseComponent):
         return dict(dialog_height='450px',dialog_width='600px')
 
 
+
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -126,10 +127,93 @@ class View(BaseComponent):
     def th_order(self):
         return '_row_count'
 
+class DynamicFormBagManager(BaseComponent):
+
+    def df_fieldsBagStruct(self,struct):
+        r = struct.view().rows()
+        r.cell('_row_count',counter=True,hidden=True)
+        r.cell('code', name='!!Code', width='5em',draggable=True)
+        r.cell('description', name='!!Description', width='15em')
+        r.cell('data_type', name='!!Type', width='10em')
+        r.cell('wdg_tag',name='!!Widget',width='10em')
+        r.cell('mandatory', name='!!Mandatory',width='7em') 
+
+    def df_fieldsBagForm(self,form):
+        form.top.slotToolbar('navigation,*,delete,add,save,semaphore')
+        form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
+        bc = form.center.borderContainer(datapath='.record')
+        bottom = bc.contentPane(region='bottom',border_top='1px solid silver')
+        pane = bc.contentPane(region='center')
+        box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
+        fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
+        #tbl = pane.getInheritedAttributes()['table']
+        fb.textbox(value='^.code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
+                validate_regex='!\.', 
+                validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
+                validate_case='l',lbl='!!Code',
+                ghost='!!Field code')
+        fb.textbox(value='^.description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
+                    ghost='!!Field description',lbl='!!Description')
+
+        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',lbl='!!Type')
+        fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
+
+        fb.checkbox(value='^.calculated',lbl='',label='!!Calculated')
+        fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
+
+        fb.br()
+        
+        fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+        
+        fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
+        fb.br()
+        fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
+        
+        fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.textbox(value='^.wdg_kwargs.width',lbl='!!Width', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.textbox(value='^.wdg_kwargs.height',lbl='!!Height', row_class='df_row field_enterable field_calculated',width='100%')
+        fb.checkbox(value='^.wdg_kwargs.keepable',label='!!Keepable value', row_class='df_row field_enterable')
+        fb.checkbox(value='^.wdg_kwargs.speech',label='!!Vocal input', row_class='df_row field_enterable')
+        fb.br()
+        fb.checkbox(value='^.wdg_kwargs.editor',label='!!Full text editor', row_class='df_row field_simpletextarea')
+        fb.br()
+        fb.simpleTextArea(value='^.source_filteringselect',lbl='!!Source',colspan=3,row_class='df_row field_filteringselect',
+                width='100%',lbl_vertical_align='top',height='60px',
+                ghost='!!c1:description1\n c2:description2')
+        fb.simpleTextArea(value='^.source_combobox',lbl='!!Source',colspan=3,row_class='df_row field_combobox',
+                width='100%',lbl_vertical_align='top',height='60px',
+                 ghost='!!description1\n description2')
+        fb.simpleTextArea(value='^.source_checkboxtext',lbl='!!Source',colspan=3,row_class='df_row field_checkboxtext field_checkboxtext_nopopup',
+                width='100%',lbl_vertical_align='top',height='60px',
+                ghost='!!description1\n description2')
+        fb.textbox(value='^.source_dbselect',lbl='!!Source',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
+        
+        
+        fb.filteringSelect(value='^.validate_case',lbl='!!Case',row_class='df_row field_textbox',width='100%',values='u:Uppercase,l:Lowercase,c:Capitalize,t:Title')
+        fb.br()
+        
+        fb.textbox(value='^.validate_range',lbl='!!Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.textbox(value='^.standard_range',lbl='!!Std.Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.br()
+        fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
+        fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
+        fb.br()
+        
+        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
+        footer.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
+        footer.textbox(value='^.default_value',lbl='Dflt.Value')
+        footer.combobox(value='^.field_format',lbl='!!Format',values='^#FORM.allowedFormat',lbl_width='4em')
+        footer.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
+        footer.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',height='60px')
+        footer.simpleTextArea(value='^.field_style',lbl='!!Widget style',lbl_vertical_align='top',height='60px')
+        footer.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px')
+        footer.simpleTextArea(value='^.field_mask',lbl='!!Mask',lbl_vertical_align='top',height='60px')
+    
 class DynamicForm(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
     js_requires='gnrcomponents/dynamicform/dynamicform'
-    py_requires='th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase,foundation/macrowidgets:RichTextEditor'
+    py_requires="""th/th:TableHandler,gnrcomponents/dynamicform/dynamicform:DynamicFormBagManager,
+                    foundation/macrowidgets:RichTextEditor"""
     
     def __df_tpl_struct(self,struct):
         r = struct.view().rows()
@@ -187,13 +271,32 @@ class DynamicForm(BaseComponent):
         if mastertblobj.attributes.get('df_fieldstable'):
             th = self.df_fieldsTableGrid(center,title=title,searchOn=searchOn)
         else:
-            th = self.df_fieldsBagGrid(center,title=title)
+            th = self.df_fieldsBagGrid(center,title=title,mastertable=mastertable)
 
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
         fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
+
+
+    def df_fieldsBagGrid(self,pane,title=None,mastertable=None,**kwargs):
+        rootcode = '%s_df' %mastertable.replace('.','_')
+        bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode)
+        view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
+                    childname='view',struct=self.df_fieldsBagStruct,
+                               datapath='.view',_class='frameGrid',
+                               **kwargs)
+        form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
+                                 datapath='.form',loadEvent='onRowDblClick',
+                                 dialog_height='450px',dialog_width='600px',
+                                 dialog_title='^.form.ftitle',handlerType='dialog',
+                                 childname='form',attachTo=bh,store='memory',
+                                 store_pkeyField='code')
+        view.dataController("FIRE #FORM.dynamicFormTester._refresh_fields=genro.getCounter();",_fired='^#FORM.record.df_fields',_delay=1)
+        self.df_fieldsBagForm(form)
+        return bh
+
 
     def df_fieldsTableGrid(self,pane,title=None,searchOn=None,**kwargs):
         return pane.dialogTableHandler(relation='@dynamicfields',
@@ -206,8 +309,8 @@ class DynamicForm(BaseComponent):
                                         }
                                         """,
                                         grid_selfsubscribe_onExternalChanged="""
-                                                        console.log('baobao')
-                                                        FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();""",
+                                                        FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();
+                                                """,
                                         searchOn=searchOn,title=title,**kwargs)
 
 
@@ -274,9 +377,9 @@ class DynamicForm(BaseComponent):
     @struct_method
     def df_dynamicField(self,fb,r,fields=None,datapath=None,dbstore_kwargs=None):
         attr = dict(r)
-        attr.pop('id')
-        attr.pop('pkey')
-        attr.pop('maintable_id')
+        attr.pop('id',None)
+        attr.pop('pkey',None)
+        attr.pop('maintable_id',None)
         attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]

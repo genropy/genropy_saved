@@ -2327,6 +2327,13 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         return data?data.getNodes():[];
     },
 
+    deleteRows:function(pkeys){
+        var data = this.getData()
+        pkeys.forEach(function(n){
+            data.popNode(n);
+        });
+    },
+
     itemByIdx:function(idx){
         var item=null;
         if (idx >= 0) {

@@ -1535,6 +1535,9 @@ dojo.declare("gnr.formstores.Base", null, {
         this.form = form;
         if(this.parentStoreCode){
             this.parentStore = genro.getStore(this.parentStoreCode);
+            if(this.base_handler_type=='memory'){
+                this.locationpath = this.parentStore.storeNode.absDatapath(this.parentStore.storepath)
+            }
         }
     },
     
@@ -1600,7 +1603,11 @@ dojo.declare("gnr.formstores.Base", null, {
             var dataNode = sourceBag.getNode(currPkey);
             genro.assert(dataNode,'Missing data for currentPath',currPkey);
             var kw = objectExtract(dataNode.attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
-            envelope.setItem('record',dataNode.getValue().deepCopy(),kw);
+            var recordLoaded = new gnr.GnrBag();
+            dataNode.getValue().forEach(function(n){
+                recordLoaded.setItem(n.label,n.getValue());
+            });
+            envelope.setItem('record',recordLoaded,kw);
         }
         var result = envelope.getNode('record');    
         this.loaded(currPkey,result);
@@ -1611,16 +1618,35 @@ dojo.declare("gnr.formstores.Base", null, {
     save_memory:function(destPkey){
         var form = this.form;
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
-        var data = form.getFormData().deepCopy();
+        var formData = form.getFormData();
         var currPkey = form.getCurrentPkey();
+        var pkeyField = this.pkeyField;
+        var newPkey = formData.getItem(pkeyField);
+        var data;
         if(currPkey=='*newrecord*'){
-            currPkey = this.newPkeyCb?funcApply(this.newPkeyCb,{record:data},form):'#id'
+            data = new gnr.GnrBag();
+            if (!newPkey){
+                if(this.newPkeyCb){
+                    newPkey = funcApply(this.newPkeyCb,{record:formData},form);
+                }else{
+                    newPkey = 'r_'+genro.getCounter();
+                }
+                data.setItem(pkeyField,newPkey);
+            }
+            sourceBag.setItem(newPkey,data);
+        }else{
+            data = sourceBag.getItem(currPkey);
+            if(currPkey != newPkey){
+                data.getParentNode().label = newPkey;
+            }
         }
-        sourceBag.setItem(currPkey,data);
-        var loadedRecordNode = data.getParentNode();
+        form.setCurrentPkey(newPkey);
+        formData.forEach(function(n){
+            data.setItem(n.label,n.getValue());
+        });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
-        this.form.loaded(data);
+        this.form.load({destPkey:newPkey});
     },
     del_memory:function(){
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);

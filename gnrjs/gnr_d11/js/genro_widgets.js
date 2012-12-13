@@ -4476,12 +4476,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     patch_dokeydown:function(e) {
-        if (this.gnrediting) {
-
-        } else if (dijit.getEnclosingWidget(e.target) == this) {
-            this.onKeyDown(e);
-        }
+        //prevent dojo onKeyDown
     },
+
     patch_doclick: function(e) {
         if (this.gnrediting) {
             dojo.stopEvent(e);
