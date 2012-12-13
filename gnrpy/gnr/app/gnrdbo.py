@@ -120,7 +120,7 @@ class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
                   counter=False,hierarchical=False,
-                  group='zzz', group_name='!!System',multidb=None):
+                  group='zzz', group_name='!!System',multidb=None,df=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -222,7 +222,11 @@ class TableBase(object):
                         onUpdated='syncRecordUpdated',
                         onDeleting='syncRecordDeleting',
                         onInserted='syncRecordInserted',_sysfield=True)
-    
+        if df:
+            tbl.column('df_fields',dtype='X',group='_',_sysfield=True)
+            tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
+            tbl.column('df_custom_templates','X',group='_',_sysfield=True)
+
             
     def trigger_hierarchical_before(self,record,fldname,**kwargs):
         pkeyfield = self.pkey
@@ -345,7 +349,7 @@ class TableBase(object):
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
         if fieldstable:
-            return self.df_getFieldsRows_table(fieldstable,pkey=None,**kwargs)
+            return self.df_getFieldsRows_table(fieldstable,pkey=pkey,**kwargs)
         else:
             return self.df_getFieldsRows_bag(pkey,**kwargs)
 
@@ -761,7 +765,7 @@ class Table_sync_event(TableBase):
         tsfield = tblobj.lastTs
         if tsfield and event != 'I':
             event_check_ts = old_record[tsfield] if event=='U' else record[tsfield]
-        print x
+        print 'TABLE TRIGGER SYNC'
         event_record = dict(tablename=tblobj.fullname,event_type=event,
                     event_pkey=record[tblobj.pkey],
                     event_data=Bag(record),

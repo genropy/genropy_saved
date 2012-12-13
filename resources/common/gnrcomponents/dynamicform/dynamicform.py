@@ -179,10 +179,24 @@ class DynamicForm(BaseComponent):
     def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
         bc = pane.borderContainer()
         mastertable = pane.getInheritedAttributes()['table']
+        mastertblobj = self.db.table(mastertable)
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        th = bc.contentPane(region='center').dialogTableHandler(relation='@dynamicfields',
+        center = bc.contentPane(region='center')
+        if mastertblobj.attributes.get('df_fieldstable'):
+            th = self.df_fieldsTableGrid(center,title=title,searchOn=searchOn)
+        else:
+            th = self.df_fieldsBagGrid(center,title=title)
+
+        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
+        bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
+        bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
+        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
+        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
+
+    def df_fieldsTableGrid(self,pane,title=None,searchOn=None,**kwargs):
+        return pane.dialogTableHandler(relation='@dynamicfields',
                                         formResource='gnrcomponents/dynamicform/dynamicform:Form',
                                         viewResource='gnrcomponents/dynamicform/dynamicform:View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
@@ -192,42 +206,10 @@ class DynamicForm(BaseComponent):
                                         }
                                         """,
                                         grid_selfsubscribe_onExternalChanged="""
+                                                        console.log('baobao')
                                                         FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();""",
-                                        searchOn=searchOn,**kwargs)
-        if title:
-            th.view.data('.title',title)
-        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
-        bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
-        bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
-        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
-        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
-        return th
+                                        searchOn=searchOn,title=title,**kwargs)
 
-    @struct_method
-    def df_fieldsBagGrid(self,pane,storepath='',title=None,searchOn=False,**kwargs):
-        bc = pane.borderContainer()
-        mastertable = pane.getInheritedAttributes()['table']
-        tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
-        self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
-        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        th = bc.contentPane(region='center').paletteBagHandler(relation='',
-                                        formResource='gnrcomponents/dynamicform/dynamicform:Form',
-                                        viewResource='gnrcomponents/dynamicform/dynamicform:View',
-                                        grid_selfDragRows=True,configurable=False,default_data_type='T',
-                                        grid_onDrag="""
-                                        if(dragInfo.dragmode=='cell' && dragInfo.colStruct.field=='code'){
-                                            dragValues['text/plain'] = '$'+dragValues['text/plain'];
-                                        }
-                                        """,
-                                        searchOn=searchOn,**kwargs)
-        if title:
-            th.view.data('.title',title)
-        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
-        bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
-        bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
-        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
-        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
-        return th
 
     def df_previewForm(self,frame,mastertable=None):
         bar = frame.top.slotToolbar('parentStackButtons,*,tplmenu,3')
