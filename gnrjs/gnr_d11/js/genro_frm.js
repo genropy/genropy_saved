@@ -452,7 +452,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
             this.setOpStatus('loading',pkey);
-            this.store.load(kw.default_kw);
+            var deferredOrResult = this.store.load(kw.default_kw);
+            if(kw.onReload){
+                if(deferredOrResult instanceof dojo.Deferred){
+                    deferredOrResult.addCallback(kw.onReload);
+                }else{
+                    kw.onReload(deferredOrResult);
+                }
+            }
         }else{
             this.updateStatus();
             this.applyDisabledStatus();
@@ -713,7 +720,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }else{
                         that.setCurrentPkey(destPkey);
                         if(that.store){
-                            that.doload_store({'destPkey':destPkey});
+                            that.doload_store({'destPkey':destPkey,'onReload':kw.onReload});
                         }else{
                             that.doload_loader({'destPkey':destPkey});
                         }

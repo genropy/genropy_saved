@@ -115,13 +115,10 @@ class FormHandler(BaseComponent):
                                             """
         gridattr['selfsubscribe_addrow'] = """  if(this.form && this.form.isNewRecord()){
                                                     if(this.attr._saveNewRecordOnAdd){
-                                                        this._autoinsert = true;
                                                         var that = this;
-                                                        this.form.subscribe('onLoaded',function(){
-                                                                delete that._autoinsert;
+                                                        this.form.save({onReload:function(result){
                                                                 that.publish('editrow',{pkey:"*newrecord*"});
-                                                            });
-                                                        this.form.save();
+                                                            }});
                                                     }else{
                                                         return;
                                                     }
