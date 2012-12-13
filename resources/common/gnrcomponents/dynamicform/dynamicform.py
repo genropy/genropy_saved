@@ -110,7 +110,7 @@ class Form(BaseComponent):
     
 
     def th_options(self):
-        return dict(palette_height='450px',palette_width='600px')
+        return dict(dialog_height='450px',dialog_width='600px')
 
 
 class View(BaseComponent):
@@ -182,7 +182,7 @@ class DynamicForm(BaseComponent):
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        th = bc.contentPane(region='center').paletteTableHandler(relation='@dynamicfields',
+        th = bc.contentPane(region='center').dialogTableHandler(relation='@dynamicfields',
                                         formResource='gnrcomponents/dynamicform/dynamicform:Form',
                                         viewResource='gnrcomponents/dynamicform/dynamicform:View',
                                         grid_selfDragRows=True,configurable=False,default_data_type='T',
@@ -193,6 +193,32 @@ class DynamicForm(BaseComponent):
                                         """,
                                         grid_selfsubscribe_onExternalChanged="""
                                                         FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();""",
+                                        searchOn=searchOn,**kwargs)
+        if title:
+            th.view.data('.title',title)
+        bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
+        bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
+        bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
+        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
+        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
+        return th
+
+    @struct_method
+    def df_fieldsBagGrid(self,pane,storepath='',title=None,searchOn=False,**kwargs):
+        bc = pane.borderContainer()
+        mastertable = pane.getInheritedAttributes()['table']
+        tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
+        self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
+        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
+        th = bc.contentPane(region='center').paletteBagHandler(relation='',
+                                        formResource='gnrcomponents/dynamicform/dynamicform:Form',
+                                        viewResource='gnrcomponents/dynamicform/dynamicform:View',
+                                        grid_selfDragRows=True,configurable=False,default_data_type='T',
+                                        grid_onDrag="""
+                                        if(dragInfo.dragmode=='cell' && dragInfo.colStruct.field=='code'){
+                                            dragValues['text/plain'] = '$'+dragValues['text/plain'];
+                                        }
+                                        """,
                                         searchOn=searchOn,**kwargs)
         if title:
             th.view.data('.title',title)

@@ -344,6 +344,15 @@ class TableBase(object):
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
         fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        if fieldstable:
+            return self.df_getFieldsRows_table(fieldstable,pkey=None,**kwargs)
+        else:
+            return self.df_getFieldsRows_bag(pkey,**kwargs)
+
+    def df_getFieldsRows_bag(self,pkey=None,**kwargs):
+        pass
+
+    def df_getFieldsRows_table(self,fieldstable,pkey=None,**kwargs):
         where="$maintable_id=:p"
         columns='*,$wdg_kwargs'
         hierarchical = self.attributes.get('hierarchical')
