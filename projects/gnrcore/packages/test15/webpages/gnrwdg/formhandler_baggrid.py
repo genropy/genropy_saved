@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
         top.data('.dati',self.getDati())
 
         top.dataController('SET gridstore = dati.deepCopy();',dati='=.dati',_fired='^zzz',_onStart=True)
-        frame = top.bagGrid(frameCode='test_view',title='Test',struct=self.gridstruct,height='300px',
+        frame = top.bagGrid(frameCode='test_view',title='Test',struct=self.gridstruct,height='300px',gridEditor=False,
                             table='glbl.localita',storepath='gridstore',pbl_classes=True,grid_selfDragRows=True)
         myform = frame.grid.linkedForm(frameCode='test_form',
                                  datapath='.form',loadEvent='onRowDblClick',

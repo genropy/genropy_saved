@@ -131,8 +131,7 @@ class DynamicFormBagManager(BaseComponent):
 
     def df_fieldsBagStruct(self,struct):
         r = struct.view().rows()
-        r.cell('_row_count',counter=True,hidden=True)
-        r.cell('code', name='!!Code', width='5em',draggable=True)
+        r.cell('code', name='!!Code', width='5em')
         r.cell('description', name='!!Description', width='15em')
         r.cell('data_type', name='!!Type', width='10em')
         r.cell('wdg_tag',name='!!Widget',width='10em')
@@ -278,22 +277,25 @@ class DynamicForm(BaseComponent):
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
         fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
         fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
-
+        return th
 
     def df_fieldsBagGrid(self,pane,title=None,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
         bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode)
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
-                               datapath='.view',_class='frameGrid',
+                                grid_selfDragRows=True,
+                               datapath='.view',_class='frameGrid',gridEditor=False,
                                **kwargs)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='450px',dialog_width='600px',
                                  dialog_title='^.form.ftitle',handlerType='dialog',
-                                 childname='form',attachTo=bh,store='memory',
+                                 childname='form',attachTo=bh,store='memory',default_data_type='T',
                                  store_pkeyField='code')
-        view.dataController("FIRE #FORM.dynamicFormTester._refresh_fields=genro.getCounter();",_fired='^#FORM.record.df_fields',_delay=1)
+        view.dataController(""" 
+            FIRE #FORM.dynamicFormTester._refresh_fields=genro.getCounter();
+                                """,_fired='^#FORM.controller.loaded',_delay=1)
         self.df_fieldsBagForm(form)
         return bh
 

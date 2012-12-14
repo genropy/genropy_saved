@@ -75,10 +75,12 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,**kwargs):
+    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,gridEditor=True,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
-        frame = pane.frameGrid(_newGrid=True,grid_gridEditor=dict(default_kwargs=default_kwargs),datamode='bag',title=title,**kwargs)
+        if gridEditor:
+            kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
+        frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
         if pbl_classes:
             frame.top.slotBar('5,vtitle,*,delrow,addrow,2',vtitle=title,_class='pbl_roundedGroupLabel')
         else:

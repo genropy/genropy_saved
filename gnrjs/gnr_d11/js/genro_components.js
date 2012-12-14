@@ -2354,12 +2354,17 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 });
 
 dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
-    rowFromItem:function(item){
+    rowFromItem:function(item,bagFields){
         var result = objectUpdate({},item.attr);
         var value = item.getValue();
         if (value) {
+            var v;
             value.forEach(function(n){
-                result[n.label] = n.getValue();
+                v = n.getValue();
+                if(v instanceof gnr.GnrBag){
+                    v = bagFields?v:null;
+                }
+                result[n.label] = v;
             })
         }
         result['_pkey'] = result['_pkey'] || item.label;
