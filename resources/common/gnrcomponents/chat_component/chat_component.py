@@ -69,7 +69,7 @@ class ChatComponent(BaseComponent):
                              roombag.setItem('unread',null);
                              FIRE gnr.chat.calc_unread;
                              ct_chat_utils.fill_title(roombag);
-                            """, sel_room='^.selected_room', rooms='=.rooms',_if='sel_room')
+                            """, sel_room='^.selected_room', rooms='=.rooms',_if='rooms&&sel_room')
 
         bar.dataController("""
             var roombag =this.getRelativeData("gnr.chat.rooms."+roomId);
