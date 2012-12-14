@@ -1058,6 +1058,8 @@ dojo.declare("gnr.GridEditor", null, {
         var cell = cellmap[cellname];
         if(cell.edit){
             rowEditor.data.setItem(cellname,value,{_loadedValue:row[cellname]});
+            this.updateStatus();
+            this.lastEditTs = new Date();
         }
         var newAttr = {};
         newAttr[cellname] = value;
@@ -1086,9 +1088,7 @@ dojo.declare("gnr.GridEditor", null, {
     updateCounterColumn:function(rowNode,k,counterField){
         var row = this.grid.rowFromBagNode(rowNode);
         if(row[counterField]!=k){
-            var kw = {};
-            kw[counterField] = k;
-            this.grid.collectionStore().updateRowNode(rowNode,kw);
+            this.setCellValue(k-1,counterField,k);
         }
     },
     startEdit:function(row, col) {

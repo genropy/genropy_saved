@@ -562,10 +562,10 @@ class SqlQueryCompiler(object):
                 if not aggregate:              # if there is not yet a group_by
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if order_by:
-                        xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(' ')
-                        colsplit =col
+                        xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
                         for xrd in xorderby:
                             if not xrd in columns:
+                                print 'adding ',xrd,' to columns ',columns
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
@@ -1421,7 +1421,15 @@ class SqlSelection(object):
         :param values: TODO
         """
         self._data.insert(i, self.newRow(values))
+
+    def append(self, values):
+        """TODO
         
+        :param i: TODO
+        :param values: TODO
+        """
+        self._data.append(self.newRow(values))
+
     def newRow(self, values):
         """Add a new row and return it
         
