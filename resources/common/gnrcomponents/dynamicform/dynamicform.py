@@ -259,7 +259,7 @@ class DynamicForm(BaseComponent):
         self.RichTextEditor(center,value='^.tpl',toolbar='standard')
         
     @struct_method
-    def df_fieldsGrid(self,pane,title=None,searchOn=False,**kwargs):
+    def df_fieldsGrid(self,pane,**kwargs):
         bc = pane.borderContainer()
         mastertable = pane.getInheritedAttributes()['table']
         mastertblobj = self.db.table(mastertable)
@@ -268,9 +268,9 @@ class DynamicForm(BaseComponent):
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
         center = bc.contentPane(region='center')
         if mastertblobj.attributes.get('df_fieldstable'):
-            th = self.df_fieldsTableGrid(center,title=title,searchOn=searchOn)
+            th = self.df_fieldsTableGrid(center,**kwargs)
         else:
-            th = self.df_fieldsBagGrid(center,title=title,mastertable=mastertable)
+            th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
 
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
@@ -279,14 +279,16 @@ class DynamicForm(BaseComponent):
         fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
         return th
 
-    def df_fieldsBagGrid(self,pane,title=None,mastertable=None,**kwargs):
+    def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
         bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode)
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
                                datapath='.view',_class='frameGrid',gridEditor=False,
+                                grid_connect_moveRow='FIRE .movedRow;',                               
                                **kwargs)
+        view.grid.dataController("this.form.save();",_fired='^.movedRow',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='450px',dialog_width='600px',
@@ -296,11 +298,17 @@ class DynamicForm(BaseComponent):
         view.dataController(""" 
             FIRE #FORM.dynamicFormTester._refresh_fields=genro.getCounter();
                                 """,_fired='^#FORM.controller.loaded',_delay=1)
+        view.dataController("this.form.save();",_delay=500,_fired='^#FORM.dynamicFormTester.counterChanges')
+        form.dataController(""" 
+            var parentForm = this.form.getParentForm();
+            if(parentForm.changed){
+                parentForm.save()
+            }""",formsubscribe_onDismissed=True,_delay=1)
         self.df_fieldsBagForm(form)
         return bh
 
 
-    def df_fieldsTableGrid(self,pane,title=None,searchOn=None,**kwargs):
+    def df_fieldsTableGrid(self,pane,title=None,searchOn=False,**kwargs):
         return pane.dialogTableHandler(relation='@dynamicfields',
                                         formResource='gnrcomponents/dynamicform/dynamicform:Form',
                                         viewResource='gnrcomponents/dynamicform/dynamicform:View',

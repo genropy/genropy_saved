@@ -82,10 +82,12 @@ class FrameGrid(BaseComponent):
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
         if pbl_classes:
-            frame.top.slotBar('5,vtitle,*,delrow,addrow,2',vtitle=title,_class='pbl_roundedGroupLabel')
+            frame.top.slotBar('5,gridtitle,*,delrow,addrow,2',gridtitle=title,_class='pbl_roundedGroupLabel')
         else:
-            frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
-        frame.grid.bagStore(storepath=storepath)
+            frame.top.slotToolbar('5,gridtitle,*,delrow,addrow,2',gridtitle=title)
+
+        store = frame.grid.bagStore(storepath=storepath)
+        frame.store = store
         return frame
 
 class BagGrid(BaseComponent):

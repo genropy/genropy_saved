@@ -2015,12 +2015,12 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
      createContent:function(sourceNode, kw,children) {
-         var store = sourceNode._('dataController',kw);
-         var storeNode = store.getParentNode();
-         var identifier = objectPop(kw,'_identifier') || '_pkey';
-         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows'
-         storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
-         return store;
+        var store = sourceNode._('dataController',kw);
+        var storeNode = store.getParentNode();
+        var identifier = objectPop(kw,'_identifier') || '_pkey';
+        var storeType = objectPop(kw,'storeType') || 'ValuesBagRows';
+        storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
+        return store;
      }
 });
 
@@ -2392,7 +2392,10 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
         });
         sl = sl.join(',');
         data.sort(sl);
-    }
+    },
+
+    onCounterChanges:function(counterField,changes){}
+
 });
 
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
