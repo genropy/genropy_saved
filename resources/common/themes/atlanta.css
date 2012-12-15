@@ -6,6 +6,16 @@
 .frameindexcenter{
     background:#f6f6f6;
 }
+
+.index_loginbox{
+    border-radius:4px;
+    border:2px solid darkred;
+    background-color:white;
+}
+.index_loginbox .gnrfieldlabel{
+    color: darkred;
+}
+
 /* @group Floating pane */
 
 ._common_d11 .dojoxDockRestoreButton {
