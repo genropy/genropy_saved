@@ -373,7 +373,7 @@ function isEqual(a,b){
     return (a==b)||((a+'')==(b+''));
 };
 function isNullOrBlank(elem){
-    return elem==null || elem==undefined || elem == '';
+    return elem === null || elem===undefined || elem === '';
 }
 
 function localType(dtype){
