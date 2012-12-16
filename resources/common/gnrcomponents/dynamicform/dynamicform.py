@@ -286,9 +286,9 @@ class DynamicForm(BaseComponent):
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
                                datapath='.view',_class='frameGrid',gridEditor=False,
-                                grid_connect_moveRow='FIRE .movedRow;',                               
+                                grid_connect_moveRow='FIRE .changedBagFields;',                               
                                **kwargs)
-        view.grid.dataController("this.form.save();",_fired='^.movedRow',_delay=1500)
+        view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='450px',dialog_width='600px',
