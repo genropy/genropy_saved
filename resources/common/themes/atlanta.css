@@ -333,8 +333,8 @@
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
-    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    background-image:  -webkit-gradient(linear, 0% 0%, 0% 90%, from(#8D5B5B), to(#722222));
+    background-image: -moz-linear-gradient(-90deg, #8D5B5B, #722222);
     color: #ffffff;
     vertical-align: middle;
     border-top-left-radius: 4px;
