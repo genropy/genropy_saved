@@ -675,8 +675,9 @@ def dotEsc(txt):
     return txt.replace('.', '\\.')
     
 #encoding and conversion functions
-    
-def encode(number, base='/16', nChars=None):
+
+
+def baseEncode(number, base='/16', nChars=None):
     """Return a string that contains the given number in the specified base
        
     :param number: number to encode
@@ -696,7 +697,24 @@ def encode(number, base='/16', nChars=None):
         for x in range(nChars - len(result)):
             result.insert(0, base[0])
     return ''.join(result)
-    
+
+def encode36(number, nChars=1):
+    return baseEncode(number,'/36',nChars=nChars)
+
+
+def baseDecode(s, base='/16'):
+    if base in BASE_ENCODE: base = BASE_ENCODE[base]
+    result = 0
+    n = len(base)
+    for v in s:
+        result = result*n + base.index(v)
+
+    return result
+
+def decode36(s):
+    return baseDecode(s,'/36')
+
+
 def fromIsoDate(datestring):
     """TODO
         

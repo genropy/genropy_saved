@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrstring import splitAndStrip,encode36,decode36
 from gnr.core.gnrdecorator import public_method
 
 class GnrDboPackage(object):
@@ -160,6 +160,7 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
+        
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
@@ -185,16 +186,26 @@ class TableBase(object):
                     tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,_sysfield=True)
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
             tbl.attributes['hierarchical'] = hierarchical  
-            tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0])
+            if not counter:
+                tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
             broadcast = tbl.attributes.get('broadcast')
             broadcast = broadcast.split(',') if broadcast else []
             if not 'parent_id' in broadcast:
                 broadcast.append('parent_id')
             tbl.attributes['broadcast'] = ','.join(broadcast)
+
         if counter:
-            tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
-            _counter_fkey=counter,group=group,_sysfield=True)
-            tbl.attributes.setdefault('order_by','$_row_count')
+            if hierarchical:
+                assert counter is True, 'in hierarchical counter is not relative to a foreignkey'
+                tbl.column('_h_count',group=group,_sysfield=True)
+                tbl.column('_parent_h_count',group=group,_sysfield=True) 
+                tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
+                tbl.attributes.setdefault('order_by','$_h_count')
+            else:
+                tbl.attributes.setdefault('order_by','$_row_count')
+                tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
+                            _counter_fkey=counter,group=group,_sysfield=True)
+
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
@@ -229,7 +240,7 @@ class TableBase(object):
             tbl.column('df_custom_templates','X',group='_',_sysfield=True)
 
             
-    def trigger_hierarchical_before(self,record,fldname,**kwargs):
+    def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         pkeyfield = self.pkey
 
         parent_id=record.get('parent_id')
@@ -246,16 +257,36 @@ class TableBase(object):
             parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0]
             record[parent_h_fld] = parent_v = parent_record[h_fld]
             record[h_fld] = '%s/%s'%( parent_v, v)
+        if self.column('_row_count') is None:
+            return 
+        if old_record is None and record.get('_row_count') is None:
+            #has counter and inserting a new record without '_row_count'
+            where = '$parent_id IS NULL' if not record['parent_id'] else '$parent_id =:p_id' 
+            last_counter = self.readColumns(columns='$_row_count',where=where,
+                                        order_by='$_row_count desc',limit=1,p_id=parent_id)
+            record['_row_count'] = (last_counter or 0)+1
+        if old_record is None or record['_row_count'] != old_record['_row_count']:
+            record['_h_count'] = '%s%s' %(record['_parent_h_count'] or '',encode36(record['_row_count'],2))
 
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')
         changed_hfields=[fld for fld in hfields if record.get('hierarchical_%s'%fld) != old_record.get('hierarchical_%s'%fld)]
-        if changed_hfields:
-            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[self.pkey]).fetch()
-            for row in fetch:
+        order_by = None
+        changed_counter = False
+        if '_row_count' in record:
+            order_by = '$_row_count'
+            changed_counter = record['_row_count'] != old_record['_row_count']
+        if changed_hfields or changed_counter:
+            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[self.pkey],order_by=order_by).fetch()
+            for k,row in enumerate(fetch):
                 new_row = dict(row)
                 for fld in changed_hfields:
                     new_row['_parent_h_%s'%fld]=record['hierarchical_%s'%fld]
+                if changed_counter:
+                    if new_row.get('_row_count') is None:
+                        new_row['_row_count'] = k+1
+                    new_row['_parent_h_count'] = record['_h_count']
+                    new_row['_h_count'] = '%s%s' %(new_row['_parent_h_count'] or '',encode36(new_row['_row_count'],2))
                 self.update(new_row, row)
 
     def trigger_setCounter(self,record,fldname,**kwargs):
@@ -503,6 +534,8 @@ class TableBase(object):
     #FUNCTIONS SQL
     def normalizeText(self,text):
         return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
+
+
 
 class GnrDboTable(TableBase):
     """TODO"""
