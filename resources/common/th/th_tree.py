@@ -153,7 +153,6 @@ class HTableTree(BaseComponent):
 
     @public_method    
     def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None,parent_id=None,into_parent_id=None,modifiers=None):
-        print modifiers
         tblobj = self.db.table(table)
         if not modifiers:
             into_pkey = into_pkey or None

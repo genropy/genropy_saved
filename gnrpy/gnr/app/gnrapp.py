@@ -600,7 +600,7 @@ class GnrApp(object):
                     self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
                 else:
                     self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid)})
+                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)

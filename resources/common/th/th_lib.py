@@ -62,7 +62,18 @@ class TableHandlerCommon(BaseComponent):
         project_mainpackage = self.package.attributes.get('mainpkg')
         if project_mainpackage:
             self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=project_mainpackage,mangling_th=rootCode, pkgOnly=True,safeMode=True)
+        
+        enabled_packages = self._call_kwargs.get('enabled_packages','*')
+        if enabled_packages=='*':
+            enabled_packages = self.application.packages.keys() 
+        else:
+            enabled_packages = enabled_packages.split(',')
+        for refpkg in enabled_packages:
+            if refpkg!=self.package.name:
+                self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=refpkg,mangling_th=rootCode, pkgOnly=True,safeMode=True)
         self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True,safeMode=True)
+        
+
         return
             
     
