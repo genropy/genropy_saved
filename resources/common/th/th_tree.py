@@ -152,10 +152,26 @@ class HTableTree(BaseComponent):
         return b
 
     @public_method    
-    def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None):
-        into_pkey = into_pkey or None
-        self.db.table(table).batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
-        self.db.commit()
+    def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None,parent_id=None,into_parent_id=None,modifiers=None):
+        print modifiers
+        tblobj = self.db.table(table)
+        if not modifiers:
+            into_pkey = into_pkey or None
+            tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
+            self.db.commit()
+        elif (modifiers == 'Meta' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
+            where='$parent_id=:p_id' if parent_id else '$parent_id IS NULL'
+            f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',addPkeyColumn=False).fetch()
+            b = Bag([(r['id'],dict(r)) for r in f])
+            pref = '>' if modifiers == 'Meta' else '<'
+            b.setItem(pkey,b.pop(pkey),_position='%s%s' %(pref,into_pkey))
+            for k,r in enumerate(b.values()):
+                counter = k+1
+                if r['_row_count'] != counter:
+                    old_rec = dict(r)
+                    r['_row_count'] = counter
+                    tblobj.update(r,old_rec)
+            self.db.commit()
 
     @public_method
     def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
@@ -182,8 +198,15 @@ class HTableTree(BaseComponent):
         tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,**condition_kwargs)
         treeattr = tree.attributes
         treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
-                               var pkey = data.pkey;
-                               genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,into_pkey:into_pkey},
+                                       var into_parent_id = dropInfo.treeItem.attr.parent_id;
+                                        var pkey = data.pkey;
+                                        var parent_id = data.parent_id;
+                                        genro.bp(true);
+                               genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
+                                                                        into_pkey:into_pkey,
+                                                                        parent_id:parent_id,
+                                                                        into_parent_id:into_parent_id,
+                                                                        modifiers:genro.dom.getEventModifiers(dropInfo.event)},
                                                 function(result){
                                                 });""" %table
         treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
