@@ -55,11 +55,9 @@ class ImapReceiver(object):
                 return
             items = items[1:]
         for emailid in items:
-            print emailid
             if self.messages_table.checkDuplicate(account_id=self.account_id,uid=emailid):
                 continue
             msgrec = self.createMessageRecord(emailid)
-            print msgrec
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
