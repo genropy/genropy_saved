@@ -211,7 +211,10 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
             textboxNode.setRelativeData(textboxNode.attr.value+'_mv',multivalues,{});
         }
         var mainNode = multivalues.getNodeByValue('mv_main',true);
-        var m = value.match(/([\d\s\.\-\/]+)(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
+        var m = value.match(/(\s*\d+[\d\s\.\-\/]+)(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
+        if (!m){
+             var m = value.match(/(\s*[A-Za-z\_\-\.]+@[A-Za-z\_\-]+\.[A-Za-z]{2,3})(\s+)?([A-Za-z]+)?(\s+)?([\w\s]+)?/);
+        }
         var label,notes,r;
         if(m){
             value = m[1];
@@ -242,7 +245,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
             r.setItem('mv_note',notes);
         }
         this.cleanMultivalueData(multivalues);
-        if(original_value!=value){
+        if(currvalue!=value){
             setTimeout(function(){
                 textboxNode.setRelativeData(textboxNode.attr.value,value);
             },1)
