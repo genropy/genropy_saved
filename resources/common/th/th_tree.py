@@ -188,19 +188,20 @@ class HTableTree(BaseComponent):
     @extract_kwargs(condition=dict(slice_prefix=False))
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
-                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,root_id_delay=None,**kwargs):
+                        caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,root_id_delay=None,
+                        moveTreeNode=True,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
         treeattr.update(kwargs)
         tree = pane.tree(**treeattr)
         tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,**condition_kwargs)
-        treeattr = tree.attributes
-        treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
+        if moveTreeNode:
+            treeattr = tree.attributes
+            treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
-                                        genro.bp(true);
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,
@@ -208,7 +209,7 @@ class HTableTree(BaseComponent):
                                                                         modifiers:genro.dom.getEventModifiers(dropInfo.event)},
                                                 function(result){
                                                 });""" %table
-        treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
+            treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
         tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
         if root_id:
             pane.dataController("""
