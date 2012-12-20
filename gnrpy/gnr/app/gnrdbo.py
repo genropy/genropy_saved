@@ -266,7 +266,7 @@ class TableBase(object):
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
         if old_record is None or record['_row_count'] != old_record['_row_count']:
-            record['_h_count'] = '%s%s' %(record['_parent_h_count'] or '',encode36(record['_row_count'],2))
+            record['_h_count'] = '%s%s' %(record.get('_parent_h_count') or '',encode36(record['_row_count'],2))
 
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
         hfields=self.attributes.get('hierarchical').split(',')
