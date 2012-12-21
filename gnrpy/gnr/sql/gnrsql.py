@@ -420,6 +420,9 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
+        
+    def raw_insert(self, tblobj, record, **kwargs):
+        self.adapter.insert(tblobj, record,**kwargs)
 
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
