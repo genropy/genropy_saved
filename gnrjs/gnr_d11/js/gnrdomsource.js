@@ -197,7 +197,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         objectPop(attributes, '_onStart');
         objectPop(attributes, '_onBuilt');
         objectPop(attributes, '_fired_onStart');
-
+        objectPop(attributes, 'datapath');
         var destinationPath, dataNode;
         if (path) { // if it has a result path set it to the returned value
             destinationPath = this.absDatapath(path);
@@ -274,6 +274,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 expr = _else;
             }
+
             if (tag == 'datarpc' && (expr != _else)) {
                 var doCall = true;
                 var domsource_id = this.getStringId();
