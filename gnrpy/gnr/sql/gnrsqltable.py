@@ -1248,8 +1248,8 @@ class SqlTable(GnrObject):
                 record.pop('_isdeleted')
                 self.insert(record)
                 
-    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, excludeDraft=True,
-                 source_records=None, bagFields=True, **querykwargs):
+    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
+                 source_records=None, bagFields=True,source_tbl_name=None, **querykwargs):
         """TODO
         
         :param dbsource: sourcedb
@@ -1260,7 +1260,7 @@ class SqlTable(GnrObject):
         :param excludeDraft: TODO
         :param source_records: TODO"""
         tbl_name = self.fullname
-        source_tbl = dbsource.table(tbl_name)
+        source_tbl = dbsource.table(source_tbl_name or tbl_name)
         dest_tbl = dbdest.table(tbl_name)
         querykwargs['addPkeyColumn'] = False
         querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
@@ -1306,12 +1306,11 @@ class SqlTable(GnrObject):
         self.copyToDb(self.db,dest_db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                         excludeDraft=True,source_records=source_records,**querykwargs)
                         
-    def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, excludeLogicalDeleted=True,
-                              excludeDraft=True, source_records=None, **querykwargs):
+    def importFromAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=False,
+                              excludeDraft=False, source_records=None,source_tbl_name=None, **querykwargs):
         """TODO
         
         :param instance: the name of the instance
-        :param tbl_name: the name of the database :ref:`table`
         :param empty_before: boolean. TODO
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
@@ -1321,7 +1320,7 @@ class SqlTable(GnrObject):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
-                      source_records=source_records,excludeDraft=excludeDraft,**querykwargs)
+                      source_records=source_records,excludeDraft=excludeDraft,source_tbl_name=source_tbl_name,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """TODO
