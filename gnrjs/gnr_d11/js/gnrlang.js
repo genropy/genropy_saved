@@ -228,6 +228,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 var l = arguments.length;
                                 has_field=true;
                                 var path=arguments[0].slice(1);
+                                path = path.indexOf('^')>=0?path.split('^')[0]:path;
                                 var value,valueNode;
                                 var as_name = arguments[l-3];
                                 as_name = as_name? as_name.slice(1):path;

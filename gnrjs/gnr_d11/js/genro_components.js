@@ -974,7 +974,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
-        paletteNode.setRelativeData('.data',templateHandler.data.deepCopy()); 
+        paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
         var respath = templateHandler.dataInfo.respath;
         if(respath && respath.indexOf('_custom')>=0){
             paletteNode.setRelativeData('.data.metadata.custom',true);
