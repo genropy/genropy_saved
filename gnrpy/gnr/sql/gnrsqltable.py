@@ -790,6 +790,12 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary representing the record that must be inserted"""
         self.db.insert(self, record, **kwargs)
+        
+    def raw_insert(self, record, **kwargs):
+        """Insert a single record without triggers
+        
+        :param record: a dictionary representing the record that must be inserted"""
+        self.db.raw_insert(self, record, **kwargs)
             
         
     def delete(self, record, **kwargs):
@@ -1249,7 +1255,7 @@ class SqlTable(GnrObject):
                 self.insert(record)
                 
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
-                 source_records=None, bagFields=True,source_tbl_name=None, **querykwargs):
+                 source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None, **querykwargs):
         """TODO
         
         :param dbsource: sourcedb
@@ -1270,7 +1276,10 @@ class SqlTable(GnrObject):
             dest_tbl.empty()
         for record in source_records:
             if empty_before:
-                dest_tbl.insert(record)
+                if raw_insert:
+                    dest_tbl.raw_insert(record)
+                else:
+                    dest_tbl.insert(record)
             else:
                 dest_tbl.insertOrUpdate(record)
                 
@@ -1307,7 +1316,7 @@ class SqlTable(GnrObject):
                         excludeDraft=True,source_records=source_records,**querykwargs)
                         
     def importFromAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=False,
-                              excludeDraft=False, source_records=None,source_tbl_name=None, **querykwargs):
+                              excludeDraft=False, source_records=None,source_tbl_name=None, raw_insert=None, **querykwargs):
         """TODO
         
         :param instance: the name of the instance
@@ -1320,7 +1329,9 @@ class SqlTable(GnrObject):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
-                      source_records=source_records,excludeDraft=excludeDraft,source_tbl_name=source_tbl_name,**querykwargs)
+                      source_records=source_records,excludeDraft=excludeDraft,
+                      raw_insert=raw_insert,
+                      source_tbl_name=source_tbl_name,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """TODO

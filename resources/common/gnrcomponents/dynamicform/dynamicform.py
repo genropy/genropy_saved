@@ -23,7 +23,8 @@ Component for thermo:
 """
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrstring import asDict
+from gnr.core.gnrdecorator import public_method,customizable
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
 
@@ -138,10 +139,10 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('mandatory', name='!!Mandatory',width='7em') 
 
     def df_fieldsBagForm(self,form):
-        form.top.slotToolbar('navigation,*,delete,add,save,semaphore')
+        form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
         bc = form.center.borderContainer(datapath='.record')
-        bottom = bc.contentPane(region='bottom',border_top='1px solid silver')
+        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
         pane = bc.contentPane(region='center')
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
@@ -198,16 +199,42 @@ class DynamicFormBagManager(BaseComponent):
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
         fb.br()
         
-        footer = bottom.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
-        footer.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
-        footer.textbox(value='^.default_value',lbl='Dflt.Value')
-        footer.combobox(value='^.field_format',lbl='!!Format',values='^#FORM.allowedFormat',lbl_width='4em')
-        footer.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
-        footer.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',height='60px')
-        footer.simpleTextArea(value='^.field_style',lbl='!!Widget style',lbl_vertical_align='top',height='60px')
-        footer.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px')
-        footer.simpleTextArea(value='^.field_mask',lbl='!!Mask',lbl_vertical_align='top',height='60px')
+
+
+    @customizable
+    def df_customTabs(self,tc):
+        accesspane = tc.contentPane(title='!!Access')
+
+        accesspane = accesspane.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
+
+        accesspane.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
+        accesspane.textbox(value='^.default_value',lbl='Dflt.Value')
+        accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',height='60px')
+        accesspane.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px')
+        accesspane.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
+
+
+        formatpane = tc.contentPane(title='!!Format and Mask')
+
+        formatpane = formatpane.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
+        formatpane.combobox(value='^.field_format',lbl='!!Format',values='^#FORM.allowedFormat',lbl_width='4em')
+        formatpane.simpleTextArea(value='^.field_mask',lbl='!!Mask',lbl_vertical_align='top',height='60px')
     
+
+        stylespane = tc.contentPane(title='!!Styles')
+
+        stylespane = stylespane.div(margin='5px',margin_right='15px').formbuilder(cols=1, border_spacing='4px',width='100%')
+
+        stylespane.simpleTextarea(value='^.field_style',title='!!Styles',height='100px',lbl='!!Styles',tdl_width='5em',width='100%')
+        datagetter = tc.contentPane(title='!!Data getter',datapath='.getter')
+        datagetter = datagetter.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
+        datagetter.textbox(value='^.table',lbl='Table')
+        datagetter.simpletextarea(value='^.where',lbl='Where',lbl_vertical_align='top',height='60px',rowspan=3,width='100%')
+        datagetter.textbox(value='^.column',lbl='Column')
+        datagetter.textbox(value='^.innerpath',lbl='Column')
+
+
+
 class DynamicForm(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
     js_requires='gnrcomponents/dynamicform/dynamicform'
@@ -291,7 +318,7 @@ class DynamicForm(BaseComponent):
         view.grid.dataController("this.form.save();",_fired='^.changedBagFields',_delay=1500)
         form = view.grid.linkedForm(frameCode='F_%s' %rootcode,
                                  datapath='.form',loadEvent='onRowDblClick',
-                                 dialog_height='450px',dialog_width='600px',
+                                 dialog_height='450px',dialog_width='620px',
                                  dialog_title='^.form.ftitle',handlerType='dialog',
                                  childname='form',attachTo=bh,store='memory',default_data_type='T',
                                  store_pkeyField='code')
@@ -416,7 +443,8 @@ class DynamicForm(BaseComponent):
         attr['colspan'] = 1
         wdg_kwargs = attr.pop('wdg_kwargs',None)
         if wdg_kwargs:
-            wdg_kwargs = Bag(wdg_kwargs)
+            if isinstance(wdg_kwargs,basestring):
+                wdg_kwargs = Bag(wdg_kwargs)
             attr.update(wdg_kwargs)
             for dim in ('height','width','crop_height','crop_width'):
                 c = attr.pop(dim, None)
@@ -436,8 +464,17 @@ class DynamicForm(BaseComponent):
         dictExtract(attr,'source_',pop=True)
         self._df_handleFieldFormula(attr,fb=fb,fields=fields)
         self._df_handleFieldValidation(attr,fields=fields)
-        attr.pop('code')
-        fb.child(**attr)
+        code = attr.pop('code')
+        getter = attr.pop('getter',None)
+        wdg = fb.child(**attr)
+        if not getter:
+            return wdg
+
+                    
+        if isinstance(getter,basestring):
+            getter = Bag(getter)
+        self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
+
 
     def df_filteringselect(self,attr,**kwargs):
         attr['values'] = attr.get('source_filteringselect')
@@ -480,6 +517,20 @@ class DynamicForm(BaseComponent):
         fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
     
+
+    def _df_handleGetter(self,fb,code=None,datapath=None,getter=None):
+        kw = asDict(getter['where'].replace('\n',','))
+        _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]
+        if _iflist:
+            kw['_if'] = ' && '.join(_iflist)
+        fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],datapath=datapath,**kw)
+
+    @public_method
+    def _df_remoteGetter(self,table=None,column=None,innerpath=None,**kwargs):
+        rec = self.db.table(table).record(ignoreDuplicate=True,ignoreMissing=True,**kwargs).output('dict')
+        if rec:
+            return rec[column][innerpath] if innerpath else rec[column]
+
     def _df_handleFieldValidation(self,attr,fields):
         if attr.get('validate_range'):
             r = attr.pop('validate_range')

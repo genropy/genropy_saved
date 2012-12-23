@@ -419,6 +419,7 @@ class TableBase(object):
             columns='*,$wdg_kwargs,@maintable_id.hierarchical_pkey AS type_hpkey'
             order_by = '$hlevel,$_row_count'
         result = fieldstable.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
+        
         return result
     
     @public_method
