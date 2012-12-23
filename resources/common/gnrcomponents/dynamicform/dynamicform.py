@@ -473,7 +473,8 @@ class DynamicForm(BaseComponent):
                     
         if isinstance(getter,basestring):
             getter = Bag(getter)
-        self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
+        if getter['table']:
+            self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
 
 
     def df_filteringselect(self,attr,**kwargs):
