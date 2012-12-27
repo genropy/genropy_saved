@@ -1212,9 +1212,10 @@ class GnrWebPage(GnrBaseWebPage):
             if not m:
                 raise GnrMissingResourceException('Missing resource %(resource_path)s',resource_path=path)
             if classname:
-                m = getattr(m,classname,None)
-                if not m:
-                    raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
+                cl = getattr(m,classname,None)
+                if cl:
+                    return cl
+                raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m
             
     def importTableResource(self, table, path):
@@ -1226,7 +1227,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: the table resource path"""
         pkg,table = table.split('.')
         path,classname= path.split(':')
-        resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
+        try:
+            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
+        except GnrMissingResourceException:
+            resource = None
         if not resource:
             resource = self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
         return resource

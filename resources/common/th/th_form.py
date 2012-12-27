@@ -157,12 +157,10 @@ class TableHandlerForm(BaseComponent):
 
             if options.get('copypaste'):
                 extra_slots.append('form_copypaste')
-
             if options.get('linker'):
                 default_slots = default_slots.replace('form_delete','')
                 default_slots = default_slots.replace('form_add','')
                 #default_slots = default_slots.replace('locker','') 
-
             table = form.getInheritedAttributes()['table']  
             if extra_slots:
                 default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))

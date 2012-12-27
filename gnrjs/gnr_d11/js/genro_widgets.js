@@ -1005,25 +1005,35 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
 
                 b._('input',{_class:'TAspeechInput','tabindex':32767,
                             "x-webkit-speech":"x-webkit-speech",onCreated:function(newobj,attributes){
-                                newobj.onwebkitspeechchange=function(){
+                                newobj.onwebkitspeechchange = function(){
                                     var v = this.value;
                                     this.value = '';
-                                    var lastSelection = genro._lastSelection;
-                                    if(lastSelection && (lastSelection.domNode == textarea.widget.domNode)){
-                                        var oldValue = textarea.getAttributeFromDatasource('value');
-                                        var fistchunk = oldValue.slice(0,lastSelection.start);
-                                        var secondchunk =  oldValue.slice(lastSelection.end);
-                                        v = fistchunk+v+secondchunk;
+                                    if(textarea.widget){
+                                        textarea.widget.gnr.onSpeechEnd(textarea,v);
                                     }
-                                    setTimeout(function(){
-                                        textarea.setAttributeInDatasource('value',v,true);
-                                        textarea.widget.domNode.focus();
-                                    },1);
-                                }
+                                    else if(textarea.externalWidget){
+                                        textarea.externalWidget.gnr.onSpeechEnd(textarea,v);
+                                    }
+
+                                    
+                                };
                             }          
                 },{'doTrigger':false});
             }
         }
+    },
+    onSpeechEnd:function(sourceNode,v){
+        var lastSelection = genro._lastSelection;
+        if(lastSelection && (lastSelection.domNode == sourceNode.widget.domNode)){
+            var oldValue = sourceNode.getAttributeFromDatasource('value');
+            var fistchunk = oldValue.slice(0,lastSelection.start);
+            var secondchunk =  oldValue.slice(lastSelection.end);
+            v = fistchunk+v+secondchunk;
+        }
+        setTimeout(function(){
+            sourceNode.setAttributeInDatasource('value',v,true);
+            sourceNode.widget.domNode.focus();
+        },1);
     },
 
     creating:function(attributes, sourceNode) {

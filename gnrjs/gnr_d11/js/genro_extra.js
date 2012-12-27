@@ -311,6 +311,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var ckeditor = CKEDITOR.instances[ckeditor_id];
         sourceNode.externalWidget = ckeditor;
         ckeditor.sourceNode = sourceNode;
+        ckeditor.gnr = this;
         for (var prop in this) {
             if (prop.indexOf('mixin_') == 0) {
                 ckeditor[prop.replace('mixin_', '')] = this[prop];
@@ -368,6 +369,21 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
     },
+
+    onSpeechEnd:function(sourceNode,v){
+        var lastSelection = sourceNode.externalWidget.getSelection().getNative();
+        if(lastSelection){
+            var oldValue = sourceNode.getAttributeFromDatasource('value') || '';
+            var fistchunk = oldValue.slice(0,lastSelection.start);
+            var secondchunk =  oldValue.slice(lastSelection.end);
+            v = fistchunk+v+secondchunk;
+        }
+        setTimeout(function(){
+            sourceNode.setAttributeInDatasource('value',v,true);
+            //sourceNode.widget.domNode.focus();
+        },1);
+    },
+
     created: function(widget, savedAttrs, sourceNode) {
         var that = this;
         var cb = function(){

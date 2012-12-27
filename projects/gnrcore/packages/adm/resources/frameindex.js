@@ -198,7 +198,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
         var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');
-        var iframe = dojo.byId("iframe_"+rootPageName+'_'+iframePageId);
+        var iframeId = iframePageId;
+        if(rootPageName!=iframePageId){
+            iframeId = rootPageName+'_'+iframePageId;
+        }
+        var iframe = dojo.byId("iframe_"+iframeId);
         iframe.sourceNode._genro.pageReload();
     },
 

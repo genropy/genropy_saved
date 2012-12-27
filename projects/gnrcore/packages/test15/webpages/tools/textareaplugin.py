@@ -11,11 +11,12 @@ class GnrCustomWebPage(object):
 
     def test_2_simpleTextareaSpeech(self, pane):
         """simpleTextarea"""
-        pane.simpleTextarea(value='^.simpleTextarea', height='200px', width='400px',speech=True)
+        pane.formbuilder(cols=1,border_spacing='3px').simpleTextarea(value='^.simpleTextarea', height='200px', width='400px')
 
     def test_3_simpleTextareaSpeechFb(self, pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px',fld_width='100%',width='400px')
         fb.simpleTextarea(value='^.simpleTextarea', height='200px',speech=True,lbl='Prova',editor=True)
+
 
 
    #def test_1_simpleTextareaFullEditor(self, pane):

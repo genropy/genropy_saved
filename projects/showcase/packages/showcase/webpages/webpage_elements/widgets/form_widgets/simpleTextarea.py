@@ -20,3 +20,9 @@ class GnrCustomWebPage(object):
         pane.simpleTextarea(value='^.simpleTextarea', height='80px', width='30em',
                             color='#605661', font_size='1.2em',
                             default='A simple area to contain text',editor=True)
+
+    def test_4_simpleTextareaFull(self, pane):
+        """simpleTextarea"""
+        pane.simpleTextarea(value='^.simpleTextarea', height='80px', width='30em',
+                            color='#605661', font_size='1.2em',
+                            default='A simple area to contain text',editor=True,speech=True)
