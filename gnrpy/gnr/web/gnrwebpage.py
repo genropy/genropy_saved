@@ -1200,7 +1200,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     getResourcePath = getResource
             
-    def importResource(self, path, classname=None, pkg=None):
+    def importResource(self, path, classname=None, pkg=None,importAs=None):
         """TODO
         
         :param path: TODO
@@ -1208,7 +1208,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
-            m = gnrImport(res)
+            m = gnrImport(res,importAs=importAs)
             if not m:
                 raise GnrMissingResourceException('Missing resource %(resource_path)s',resource_path=path)
             if classname:
@@ -1228,7 +1228,7 @@ class GnrWebPage(GnrBaseWebPage):
         pkg,table = table.split('.')
         path,classname= path.split(':')
         try:
-            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
+            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name,importAs='%s_packages_%s_%s_%s' %(self.package.name,pkg,table,path))
         except GnrMissingResourceException:
             resource = None
         if not resource:

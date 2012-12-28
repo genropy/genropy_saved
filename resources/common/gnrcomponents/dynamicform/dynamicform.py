@@ -397,7 +397,24 @@ class DynamicForm(BaseComponent):
             return
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
-        ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
+        caption_field = df_tblobj.attributes['caption_field']
+        if ',' in df_pkey:
+            for pkey in df_pkey.split(','):
+                if ':' in pkey:
+                    pkey,spec = pkey.split(':')
+                else:
+                    spec = None
+                ncol,caption =df_tblobj.readColumns(columns='df_fbcolumns,$%s' %caption_field,pkey=pkey)
+                box = pane.div(_class='pbl_roundedGroup',datapath='.%s_%s' %(pkey,spec) if spec else '.%s' %pkey,margin='2px')
+                box.div('%s (%s)' %(caption,spec) if spec else caption,_class='pbl_roundedGroupLabel')
+                grp=box.div(margin_right='10px')
+                grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol)
+        else:
+            ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
+            pane.div(margin_right='10px').dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol)
+
+    @struct_method
+    def df_dynamicFormGroup(self,pane,df_table=None,df_pkey=None,datapath=None,ncol=None,**kwargs):
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         fb.addDynamicFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
 

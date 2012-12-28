@@ -1056,7 +1056,7 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
-        if(cell.edit){
+        if(cell.edit || cell.counter){
             rowEditor.data.setItem(cellname,value,{_loadedValue:row[cellname]});
             this.updateStatus();
             this.lastEditTs = new Date();
