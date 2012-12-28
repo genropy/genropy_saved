@@ -27,7 +27,7 @@ class Package(GnrDboPackage):
         
     def onSiteInited(self):
         db=self.application.db
-        db.table('sys.locked_record').clearExistingLocks()
+        #db.table('sys.locked_record').clearExistingLocks()
         db.closeConnection()
        
 class Table(GnrDboTable):
