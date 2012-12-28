@@ -59,7 +59,7 @@ class Package(GnrDboPackage):
     def onApplicationInited(self):
         pass
 
-    def onSiteInited(self):
+    def zz_onSiteInited(self):
         db = self.application.db
         #db.table('adm.userobject').importOld()
         db.table('adm.htag').adaptToNewHtable()
