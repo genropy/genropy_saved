@@ -148,6 +148,16 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
         var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable'),objectExtract(kw,'dialog_*')));
+        var onStarted = objectPop(kw,'onStarted');
+        kw.onStarted = function(){
+            var wdg = dialog.getParentNode().widget;
+            this._genro._rootForm.subscribe('onChangedTitle',function(kw){
+                wdg.setTitle(kw.title)
+            });
+            if(onStarted){
+                onStarted.call(this);
+            }
+        }
         this.thiframe(dialog._('div',dialogAttrs),kw);
         return dialog;
     }
