@@ -67,7 +67,7 @@ class GnrWsgiWebApp(GnrApp):
     def _buildSiteMenu(self):
         menubag = None
         if 'adm' in self.db.packages:
-            menubag = self.db.table('adm.menu').getMenuBag()
+            menubag = self.db.table('adm.menu_dir').getMenuBag()
         if not menubag:
             menubag = self.config['menu']
         if not menubag:

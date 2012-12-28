@@ -8,22 +8,17 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('code')
+        r.fieldcell('_row_count')
+        r.fieldcell('dir_id')
+        r.fieldcell('page_id')
         r.fieldcell('label')
-        r.fieldcell('basepath')
         r.fieldcell('tags')
-        r.fieldcell('file')
-        r.fieldcell('description')
-        r.fieldcell('parameters')
-        r.fieldcell('position')
-        r.fieldcell('_class')
-        r.fieldcell('_style')
 
     def th_order(self):
-        return 'code'
+        return '_row_count'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='_row_count', op='contains', val='%')
 
 
 
@@ -32,16 +27,11 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('code')
+        fb.field('_row_count')
+        fb.field('dir_id')
+        fb.field('page_id')
         fb.field('label')
-        fb.field('basepath')
         fb.field('tags')
-        fb.field('file')
-        fb.field('description')
-        fb.field('parameters')
-        fb.field('position')
-        fb.field('_class')
-        fb.field('_style')
 
 
     def th_options(self):
