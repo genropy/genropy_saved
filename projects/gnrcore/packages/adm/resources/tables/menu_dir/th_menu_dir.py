@@ -8,23 +8,22 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('parent_id')
-        r.fieldcell('label')
         r.fieldcell('hierarchical_label')
-        r.fieldcell('_parent_h_label')
-        r.fieldcell('hierarchical_pkey')
-        r.fieldcell('_parent_h_pkey')
-        r.fieldcell('_h_count')
-        r.fieldcell('_parent_h_count')
-        r.fieldcell('_row_count')
         r.fieldcell('tags')
         r.fieldcell('summary')
 
     def th_order(self):
-        return 'parent_id'
+        return '_h_count'
 
     def th_query(self):
         return dict(column='parent_id', op='contains', val='%')
+
+
+
+    def th_bottom_custom(self,bottom):
+        bar = bottom.slotToolbar('importbtn,*')
+        bar.importbtn.button('Import from menuxml',fire='.import')
+        bar.dataRpc('dummy',self.db.table('adm.menu_dir').createRootHierarchy,_fired='^.import')
 
 
 
@@ -33,18 +32,9 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('parent_id')
         fb.field('label')
-        fb.field('hierarchical_label')
-        fb.field('_parent_h_label')
-        fb.field('hierarchical_pkey')
-        fb.field('_parent_h_pkey')
-        fb.field('_h_count')
-        fb.field('_parent_h_count')
-        fb.field('_row_count')
         fb.field('tags')
-        fb.field('summary')
-
+        fb.field('summary',colspan=2,width='100%')
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px')
+        return dict(hierarchical=True)

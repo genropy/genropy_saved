@@ -10,7 +10,8 @@ class Table(object):
         tbl.column('label', name_long='!!Label')
         tbl.column('filepath', name_long='!!Filepath')
         tbl.column('dbtable', name_long='!!Table')
-        tbl.column('metadata', name_long='!!Metadata',dtype='X')
+        tbl.column('package', name_long='!!Package')
+        tbl.column('metadata', name_long='!!Metadata')
 
     #def importFromBag(self, bag):
     #    self.empty()
@@ -30,3 +31,5 @@ class Table(object):
     #    for line in lines:
     #        result.setItem(line['code'], None, line)
     #    return result#
+
+

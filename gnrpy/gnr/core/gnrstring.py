@@ -471,7 +471,7 @@ def asDict(myString, itemSep=',', argSep='=', symbols=None):
             result[key] = value
     return result
     
-def stringDict(myDict, itemSep=',', argSep='='):
+def stringDict(myDict, itemSep=',', argSep='=',isSorted=False):
     """Return a string of key-value pairs taken from a dictionary.
     
     :param myDict: dictionary to transform in a string
@@ -482,7 +482,10 @@ def stringDict(myDict, itemSep=',', argSep='='):
     >>> stringDict({'height':22,'width':33})
      'width=33,height=22'
     """
-    return itemSep.join([argSep.join((str(k), str(v))) for k, v in myDict.items()])
+    keys = myDict.keys()
+    if isSorted:
+        keys = keys.sort()
+    return itemSep.join([argSep.join((str(k), str(myDict[k]))) for k in keys])
     
 def updateString(source, s, sep=','):
     """Append a new ``s`` string to the ``source`` string. The two strings are linked by 

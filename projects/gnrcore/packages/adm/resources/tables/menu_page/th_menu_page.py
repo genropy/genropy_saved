@@ -19,8 +19,6 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='label', op='contains', val='%')
 
-
-
 class Form(BaseComponent):
 
     def th_form(self, form):
@@ -29,7 +27,8 @@ class Form(BaseComponent):
         fb.field('label')
         fb.field('filepath')
         fb.field('dbtable')
-        fb.field('metadata')
+        fb.textbox(value='^metadata.formResource',lbl='FormResource')
+        fb.textbox(value='^metadata.viewResource',lbl='ViewResource')
 
 
     def th_options(self):

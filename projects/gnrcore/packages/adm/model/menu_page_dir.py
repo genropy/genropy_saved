@@ -12,6 +12,6 @@ class Table(object):
         tbl.formulaColumn('hierarchical_pagename',"@dir_id.hierarchical_label || '/' ||$label")
         tbl.aliasColumn('dir_hierarchical_pkey',relation_path='@dir_id.hierarchical_pkey')
         tbl.aliasColumn('page_label',relation_path='@page_id.label')
-        tbl.aliasColumn('page_file',relation_path='@page_id.file')
+        tbl.aliasColumn('page_filepath',relation_path='@page_id.filepath')
         tbl.aliasColumn('page_table',relation_path='@page_id.dbtable')
         tbl.aliasColumn('page_metadata',relation_path='@page_id.metadata')
