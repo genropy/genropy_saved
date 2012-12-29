@@ -2639,6 +2639,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                   _this._getFilterAutoValues(widget,searchBoxNode.getRelativeData('.menu_dtypes')));
                 };
                 dojo.connect(widget,'onSetStructpath',widget,cb);
+                dojo.connect(widget,'newDataStore',function(){
+                    searchBoxNode.setRelativeData('.currentValue','');
+                    searchBoxNode.setRelativeData('.value','');
+                })
                 setTimeout(function(){cb.call(widget);},1);
             }
             sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
@@ -2661,9 +2665,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid;
-                dojo.connect(filteringGrid,'updateRowCount',function(){widget.filterToRebuild(true);widget.updateRowCount('*');});
+                dojo.connect(filteringGrid,'updateRowCount',function(){
+                    console.log('UPDATE ROWCOUNT GRIGLIA BASE')
+                    widget.filterToRebuild(true);widget.updateRowCount('*');
+                });
                 widget.excludeListCb=function(){
-                    return filteringGrid.getColumnValues(filteredColumn);
+                    return filteringGrid.getColumnValues(filteredColumn);;
                 };
                 widget.excludeCol=filteringColumn;
             };
@@ -3769,7 +3776,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.updateRowCount(0);
         this.resetFilter();
         if(this.excludeCol){
-            this._filterToRebuild = true;
+            this.filterToRebuild(true);
         }
         if (this.sortedBy) {
             var storebag = this.storebag();

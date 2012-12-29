@@ -9,8 +9,8 @@ class Table(object):
         self.sysFields(tbl)
         tbl.column('label', name_long='!!Label')
         tbl.column('filepath', name_long='!!Filepath')
-        tbl.column('dbtable', name_long='!!Table')
-        tbl.column('package', name_long='!!Package')
+        tbl.column('tbl', name_long='!!Table')
+        tbl.column('pkg', name_long='!!Package')
         tbl.column('metadata', name_long='!!Metadata')
 
     #def importFromBag(self, bag):

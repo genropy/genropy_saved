@@ -9,7 +9,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',hidden=True,counter=True)
-        r.fieldcell('page_id',hidden=True)
+        r.fieldcell('page_id')
         r.fieldcell('label',edit=True,width='20em')
         r.fieldcell('tags',edit=True,width='30em')
 

@@ -13,5 +13,5 @@ class Table(object):
         tbl.aliasColumn('dir_hierarchical_pkey',relation_path='@dir_id.hierarchical_pkey')
         tbl.aliasColumn('page_label',relation_path='@page_id.label')
         tbl.aliasColumn('page_filepath',relation_path='@page_id.filepath')
-        tbl.aliasColumn('page_table',relation_path='@page_id.dbtable')
+        tbl.aliasColumn('page_tbl',relation_path='@page_id.tbl')
         tbl.aliasColumn('page_metadata',relation_path='@page_id.metadata')

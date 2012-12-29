@@ -53,19 +53,25 @@ class THPicker(BaseComponent):
         elif treepicker:
             palette = pane.paletteTree(paletteCode=paletteCode,dockButton=dockButton,title=title,
                             tree_dragTags=paletteCode,searchOn=searchOn,width=width,height=height).htableViewStore(table=table)
-        else:
-            try:
-                resource = self._th_getResClass(table=table,resourceName=viewResource,defaultClass='ViewPicker')()
-                struct=resource.th_struct
-                sortedBy = getattr(resource,'th_order',None)
-                if sortedBy:
-                    sortedBy = sortedBy()
-            except GnrMissingResourceException:
-                if tblobj.attributes.get('caption_field'):
-                    def struct(struct):
-                        r = struct.view().rows()
-                        r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
-                    sortedBy = tblobj.attributes.get('caption_field')
+        elif viewResource:
+            palette = pane.palettePane(paletteCode=paletteCode,dockButton=dockButton,
+                                        title=title,width=width,height=height)
+            paletteth = palette.plainTableHandler(table=table,viewResource=viewResource,
+                                                    grid_onDrag='dragValues["%s"]=dragValues.gridrow.rowset;' %paletteCode,
+                                                    grid_multiSelect=multiSelect,
+                                                    title=title,searchOn=searchOn,configurable=False,
+                                                  childname='picker_tablehandler')
+            if condition:
+                paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
+            if not condition_kwargs:
+                paletteth.view.store.attributes.update(_onStart=True)
+            if grid:
+                paletteth.view.grid.attributes.update(filteringGrid=grid.js_sourceNode(),filteringColumn='_pkey:%s' %many)
+        elif tblobj.attributes.get('caption_field'):
+            def struct(struct):
+                r = struct.view().rows()
+                r.fieldcell(tblobj.attributes['caption_field'], name=tblobj.name_long, width='100%')
+            sortedBy = tblobj.attributes.get('caption_field')
             paletteGridKwargs = dict(paletteCode=paletteCode,struct=struct,dockButton=dockButton,
                             grid_multiSelect=multiSelect,
                             title=title,searchOn=searchOn,
@@ -107,8 +113,7 @@ class THPicker(BaseComponent):
 
                 """,data='^.dropped_%s' %paletteCode,mainpkey='=#FORM.pkey',
                         rpcmethod=method,treepicker=oldtreePicker or treepicker or False,tbl=maintable,
-                        one=one,many=many,grid=grid.js_widget)
-                    
+                        one=one,many=many,grid=grid.js_widget)  
         return palette
 
     @struct_method

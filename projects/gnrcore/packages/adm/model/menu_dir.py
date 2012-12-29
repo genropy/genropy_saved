@@ -5,6 +5,7 @@
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import stringDict,asDict
+from datetime import datetime
 import os
 
 class Table(object):
@@ -30,7 +31,7 @@ class Table(object):
 
     def getMenuBag(self, **kwargs):
         tbl_page_dir = self.db.table('adm.menu_page_dir')
-        linked_pages = tbl_page_dir.query(columns='$dir_hierarchical_pkey,$page_label,$page_filepath,$page_table,$page_metadata').fetchGrouped('dir_hierarchical_pkey')
+        linked_pages = tbl_page_dir.query(columns='$dir_hierarchical_pkey,$page_label,$page_filepath,$page_tbl,$page_metadata').fetchGrouped('dir_hierarchical_pkey')
         if len(linked_pages) is 0:
             return
         tbl_page_dir = self.db.table('adm.menu_dir')
@@ -47,7 +48,7 @@ class Table(object):
         root_id=self.rootId()
         root = self.query(where='$id=:root_id',root_id=root_id).fetch()
         if not root:
-            root = dict(id=root_id,label='Menu Root')
+            root = dict(id=root_id,label='Menu Root',parent_id=None)
             self.insert(root)
         packages = self.db.application.packages
         packages_dir = self.query(where='$parent_id=:root_id',root_id=root_id).fetchAsDict('id')
@@ -56,44 +57,59 @@ class Table(object):
             if not os.path.exists(menupath):
                 continue
             ts = os.path.getmtime(menupath)
+            ts = datetime.fromtimestamp(ts)
             pkg_pkey =  self.pkgId(pkgId)
             if pkg_pkey in packages_dir and  packages_dir[pkg_pkey]['ts_import'] == ts:
                 continue
             pkgrec = packages_dir.get(pkg_pkey)
             if not pkgrec:
                 pkgattr = pkg.attributes
-                pkgrec = dict(label=pkgattr['name_long'],id=pkg_pkey,parent_id=root_id)
+                pkgrec = dict(label=pkgattr['name_long'].replace('!!',''),id=pkg_pkey,parent_id=root_id,ts_import=ts)
                 self.insert(pkgrec)
-            self.updatePackageHierarchy(pkgId,Bag(menupath),dir_id=pkg_pkey)
-            olderc = dict(pkgrec)
-            pkgrec['ts_import'] = ts
-            self.update(pkgrec,olderc)
+            else:
+                olderc = dict(pkgrec)
+                pkgrec['ts_import'] = ts
+                self.update(pkgrec,olderc)
+            self.updatePackageHierarchy(Bag(menupath),dir_id=pkg_pkey,pkgId=pkgId)
+        self.db.commit()
 
-
-    def updatePackageHierarchy(self,menu,dir_id=None,currpath=None):
+            
+    def updatePackageHierarchy(self,menu,dir_id=None,currpath=None,pkgId=None):
         currpath = currpath or []
-        menu.walk(self.onMenuNode,currpath=currpath)
+        tblpage = self.db.table('adm.menu_page')
+        tbllink = self.db.table('adm.menu_page_dir')
+        allpackages = self.db.application.packages.keys()
         for node in menu:
             attr = node.attr
-
-            dbtable = attr.pop('table',None)
+            tbl = attr.pop('table',None)
             filepath = attr.get('file',None)
-
-            if dbtable or filepath:
-                metadata = Bag(attr) if attr else Bag()
-                page_rec = dict(metadata=metadata)
-                if dbtable:
-                    page_rec['package'] = attr['table'].split('.')[0]
-                    page_rec['dbtable'] = dbtable
+            label = attr.get('label',None)
+            label = label.replace('!!','') if label else node.label
+            tags = attr.get('tags',None)
+            if tbl or filepath:
+                page_rec = dict(metadata=stringDict(attr) if attr else None)
+                if tbl:
+                    page_rec['pkg'] = tbl.split('.')[0]
+                    page_rec['tbl'] = tbl
                 elif filepath:
                     filepath = currpath+filepath.strip('/').split('/')
-                    page_rec['package'] = filepath[0]
+                    if not filepath[0] in allpackages:
+                        filepath.insert(0,pkgId)
+                    page_rec['pkg'] = filepath[0]
                     page_rec['filepath'] ='/%s' %'/'.join(filepath)
-
-
+                if not tblpage.checkDuplicate(**page_rec):
+                    label = label
+                    page_rec['label'] = label
+                    tblpage.insert(page_rec)
+                    tbllink.insert(dict(page_id=page_rec['id'],tags=tags,label=label,dir_id=dir_id))
             elif isinstance(node.value,Bag):
                 basepath = attr.get('basepath')
-                self.updatePackageHierarchy(node.value,currpath=currpath+basepath.strip('/').split('/') if basepath else currpath)
+                new_dir_rec = dict(label=label,tags=tags,parent_id=dir_id)
+                dir_rec = self.record(ignoreMissing=True,**new_dir_rec).output('dict') or new_dir_rec
+                if not dir_rec.get('id'):
+                    self.insert(dir_rec)
+                self.updatePackageHierarchy(node.value,dir_id = dir_rec['id']
+                                             ,currpath=currpath+basepath.strip('/').split('/') if basepath else currpath,pkgId=pkgId)
 
 
 

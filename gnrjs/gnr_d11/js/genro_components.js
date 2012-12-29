@@ -2180,7 +2180,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     absIndex:function(idx,reverse){
-        if (this.filterToRebuild()) {
+        if (this.invalidFilter()) {
             console.log('invalid filter');
         }
         if(!this._filtered){
@@ -2246,9 +2246,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     filterToRebuild: function(value) {
-        if (this._filtered){
-            this._filterToRebuild=value;
-        }
+        this._filterToRebuild=value;
     },
     invalidFilter: function() {
         return this._filterToRebuild;
