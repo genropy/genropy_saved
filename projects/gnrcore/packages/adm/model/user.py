@@ -14,6 +14,9 @@ class Table(object):
                    indexed='y', validate_notnull=True, validate_notnull_error='!!Mandatory field')
         tbl.column('email', name_long='Email', validate_notnull=True,
                    validate_notnull_error='!!Mandatory field')
+
+        tbl.column('mobile', name_long='Mobile')
+
         tbl.column('firstname', size=':32', name_long='!!First name',
                    validate_notnull=True, validate_case='c', validate_notnull_error='!!Mandatory field')
         tbl.column('lastname', size=':32', name_long='!!Last name',
@@ -26,7 +29,9 @@ class Table(object):
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
+        tbl.column('menu_root_id' ,size='22')
         tbl.column('avatar_rootpage', name_long='!!Root Page')
+
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 
     def createPassword(self):

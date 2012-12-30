@@ -472,6 +472,8 @@ class GnrApp(object):
         self.packages = Bag()
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
+        self.instanceMenu = self.load_instance_menu()
+
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
         if os.path.isfile(db_settings_path):
@@ -527,6 +529,12 @@ class GnrApp(object):
         log.warn('Missing genro configuration')
         return Bag()
         
+    def load_instance_menu(self):
+        """TODO"""
+        instance_menu_path = os.path.join(self.instanceFolder, 'menu.xml')
+        if os.path.exists(instance_menu_path):
+            return Bag(instance_menu_path)
+
     def load_instance_config(self):
         """TODO"""
         if not self.instanceFolder:
@@ -592,6 +600,7 @@ class GnrApp(object):
             apppkg = GnrPackage(pkgid, self, **attrs)
             self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
             self.packages[pkgid] = apppkg
+
         for pkgid, apppkg in self.packages.items():
             apppkg.initTableMixinDict()
             if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
@@ -601,6 +610,8 @@ class GnrApp(object):
                 else:
                     self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
                                         {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+
+
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
@@ -610,6 +621,9 @@ class GnrApp(object):
         self.db.startup(restorepath=restorepath)
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
+        if self.instanceMenu:
+            self.config['menu']=self.instanceMenu
+
         self.buildLocalization()
         if forTesting:
             # Create tables in temporary database
