@@ -146,6 +146,7 @@ cursorZoom_plus{
 .fieldsTree_group{
 	color: #777;
 }
+
 .fieldsTree_folder{
 	text-decoration: underline;
 	cursor: pointer;

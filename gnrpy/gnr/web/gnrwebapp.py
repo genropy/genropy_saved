@@ -65,11 +65,7 @@ class GnrWsgiWebApp(GnrApp):
     siteMenu = property(_get_siteMenu)
 
     def _buildSiteMenu(self):
-        menubag = None
-        if 'adm' in self.db.packages:
-            menubag = self.db.table('adm.menu_dir').getMenuBag()
-        if not menubag:
-            menubag = self.config['menu']
+        menubag = self.config['menu']
         if not menubag:
             menubag = Bag()
             for pathlist, node in self.site.automap.getIndex():

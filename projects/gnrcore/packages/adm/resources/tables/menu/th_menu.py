@@ -2,12 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
 
 class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
+        r.fieldcell('_h_count',hidden=True)
         r.fieldcell('hierarchical_label')
         r.fieldcell('tags')
         r.fieldcell('summary')
@@ -16,14 +16,14 @@ class View(BaseComponent):
         return '_h_count'
 
     def th_query(self):
-        return dict(column='parent_id', op='contains', val='%')
+        return dict(column='hierarchical_label', op='contains', val='%')
 
 
 
     def th_bottom_custom(self,bottom):
         bar = bottom.slotToolbar('importbtn,*')
         bar.importbtn.button('Import from menuxml',fire='.import')
-        bar.dataRpc('dummy',self.db.table('adm.menu_dir').createRootHierarchy,_fired='^.import')
+        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,_fired='^.import')
 
 
 
@@ -35,7 +35,7 @@ class Form(BaseComponent):
         fb.field('label')
         fb.field('tags')
         fb.field('summary',colspan=2,width='100%')
-        bc.contentPane(region='center').inlineTableHandler(relation='@dir_pages',addrow=False,picker='page_id',picker_viewResource='PagePickerView')
+        #bc.contentPane(region='center').inlineTableHandler(relation='@dir_pages',addrow=False,picker='page_id',picker_viewResource='PagePickerView')
 
     def th_options(self):
         return dict(hierarchical=True)

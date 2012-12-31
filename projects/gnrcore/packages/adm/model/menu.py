@@ -10,38 +10,59 @@ import os
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('menu_dir', pkey='id', name_long='!!Menu Directory',name_plural='!!Menu Directories', rowcaption='$hierarchical_label',caption_field='hierarchical_label')
+        tbl = pkg.table('menu', pkey='id', name_long='!!Menu Directory',name_plural='!!Menu Directories', rowcaption='$hierarchical_label',caption_field='hierarchical_label')
         self.sysFields(tbl, hierarchical='label',counter=True)
         tbl.column('label', name_long='!!Label')
         tbl.column('tags', name_long='!!Tags')
         tbl.column('summary', name_long='!!Summary')
         tbl.column('ts_import',dtype='DH')
-
-  # def importFromBag(self, bag):
-  #     self.empty()
-  #     index = bag.getIndex()
-  #     for pathlist, node in index:
-  #         record = node.getAttr()
-  #         record['position'] = str(bag['.'.join(pathlist[:-1])]._index(pathlist[-1]))
-  #         record['code'] = '.'.join(pathlist)
-  #         f = record.get('file', '')
-  #         if '?' in f:
-  #             record['file'], record['parameters'] = f.split('?')
-  #         self.insert(record)
-
-    def getMenuBag(self, **kwargs):
-        tbl_page_dir = self.db.table('adm.menu_page_dir')
-        linked_pages = tbl_page_dir.query(columns='$dir_hierarchical_pkey,$page_label,$page_filepath,$page_tbl,$page_metadata').fetchGrouped('dir_hierarchical_pkey')
-        if len(linked_pages) is 0:
-            return
-        tbl_page_dir = self.db.table('adm.menu_dir')
-        #menu_dirs = tbl_page_dir.query(where='$id ILI')
+        tbl.column('page_id').relation('menu_page.id',mode='foreignkey',relation_name='links')
+        tbl.aliasColumn('page_label',relation_path='@page_id.label')
+        tbl.aliasColumn('page_filepath',relation_path='@page_id.filepath')
+        tbl.aliasColumn('page_tbl',relation_path='@page_id.tbl')
+        tbl.aliasColumn('page_metadata',relation_path='@page_id.metadata')
 
     def rootId(self):
         return '_ROOT_'.ljust(22,'_')
 
     def pkgId(self,pkgId):
         return ('_ROOT_%s_' %pkgId).ljust(22,'_')
+
+    def getMenuBag(self,root_id=None,userTags=None):
+        root_id = root_id or self.rootId()
+        q = self.query(where="$hierarchical_pkey LIKE :root_id || '/%%' " ,
+                        root_id=root_id,columns='*,$hlevel,$page_label,$page_filepath,$page_tbl,$page_metadata',
+                        order_by='$_h_count')
+
+        f = q.fetch()
+        if not f:
+            return
+        result = Bag()
+        app = self.db.application
+        for r in f:
+            if app.checkResourcePermission(r['tags'], userTags):
+                kw = dict()      
+                r = dict(r)   
+                if r['page_id']:       
+                    kw['table'] = r.pop('page_tbl',None)
+                    kw['file'] = r.pop('page_filepath',None)
+                    if r['page_metadata']:
+                        kw.update(asDict(r['page_metadata']))
+                        labelClass = 'menu_shape menu_page'
+                else:
+                    kw['isDir'] = True
+                    labelClass='menu_shape menu_level_%i' %(r['hlevel']-2)
+                result.setItem(r['hierarchical_pkey'].split('/')[1:],None,label=r['label'],tags=r['tags'], labelClass=labelClass,
+                                **kw)  
+        empty = True
+        while empty:
+            empty = False
+            for pathlist,n in result.getIndex():
+                if n.attr.get('isDir') and  ( (n.value is None) or not n.value):
+                    result.popNode(pathlist)
+                    empty = True
+        return result
+
 
     @public_method
     def createRootHierarchy(self):
@@ -73,19 +94,17 @@ class Table(object):
             self.updatePackageHierarchy(Bag(menupath),dir_id=pkg_pkey,pkgId=pkgId)
         self.db.commit()
 
-            
     def updatePackageHierarchy(self,menu,dir_id=None,currpath=None,pkgId=None):
         currpath = currpath or []
         tblpage = self.db.table('adm.menu_page')
-        tbllink = self.db.table('adm.menu_page_dir')
         allpackages = self.db.application.packages.keys()
         for node in menu:
             attr = node.attr
             tbl = attr.pop('table',None)
-            filepath = attr.get('file',None)
-            label = attr.get('label',None)
+            filepath = attr.pop('file',None)
+            label = attr.pop('label',None)
             label = label.replace('!!','') if label else node.label
-            tags = attr.get('tags',None)
+            tags = attr.pop('tags',None)
             if tbl or filepath:
                 page_rec = dict(metadata=stringDict(attr) if attr else None)
                 if tbl:
@@ -101,7 +120,7 @@ class Table(object):
                     label = label
                     page_rec['label'] = label
                     tblpage.insert(page_rec)
-                    tbllink.insert(dict(page_id=page_rec['id'],tags=tags,label=label,dir_id=dir_id))
+                    self.insert(dict(page_id=page_rec['id'],tags=tags,label=label,parent_id=dir_id))
             elif isinstance(node.value,Bag):
                 basepath = attr.get('basepath')
                 new_dir_rec = dict(label=label,tags=tags,parent_id=dir_id)

@@ -11,8 +11,9 @@ from gnr.web.gnrwebstruct import struct_method
 from datetime import datetime
 from gnr.core.gnrbag import Bag
 
+#foundation/menu:MenuIframes,
 class FrameIndex(BaseComponent):
-    py_requires="""foundation/menu:MenuIframes,
+    py_requires="""frameplugin_menu/frameplugin_menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
