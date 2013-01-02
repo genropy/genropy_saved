@@ -63,7 +63,6 @@ class Table(object):
             empty = False
             for pathlist,n in result.getIndex():
                 if n.attr.get('isDir') and  ( (n.value is None) or not n.value):
-                    print pathlist
                     result.popNode(pathlist)
                     empty = True
         return result
@@ -131,12 +130,13 @@ class Table(object):
                         self.insert(dict(page_id=page_rec['id'],tags=tags,label=label,parent_id=dir_id))
             elif isinstance(node.value,Bag):
                 basepath = attr.get('basepath')
-                new_dir_rec = dict(label=label,tags=tags,parent_id=dir_id)
-                dir_rec = self.record(ignoreMissing=True,**new_dir_rec).output('dict') or new_dir_rec
-                if not dir_rec.get('id'):
-                    if not pagesOnly:
+                if not pagesOnly:
+                    new_dir_rec = dict(label=label,tags=tags,parent_id=dir_id)
+                    dir_rec = self.record(ignoreMissing=True,**new_dir_rec).output('dict') or new_dir_rec
+                    if not dir_rec.get('id'):
                         self.insert(dir_rec)
-                self.updatePackageHierarchy(node.value,dir_id = dir_rec['id']
+
+                    self.updatePackageHierarchy(node.value,dir_id = dir_rec['id']
                                              ,currpath=currpath+basepath.strip('/').split('/') if basepath else currpath,pkgId=pkgId,pagesOnly=pagesOnly)
 
 
