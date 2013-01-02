@@ -38,4 +38,4 @@ class Form(BaseComponent):
         #bc.contentPane(region='center').inlineTableHandler(relation='@dir_pages',addrow=False,picker='page_id',picker_viewResource='PagePickerView')
 
     def th_options(self):
-        return dict(hierarchical=True)
+        return dict(hierarchical=True,tree_picker='page_id',tree_picker_viewResource='PagePickerView')
