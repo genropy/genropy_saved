@@ -39,8 +39,9 @@ class Table(object):
             return
         result = Bag()
         app = self.db.application
+        forbidden = []
         for r in f:
-            if app.checkResourcePermission(r['tags'], userTags):
+            if app.checkResourcePermission(r['tags'], userTags) and not r['parent_id'] in forbidden:
                 kw = dict()      
                 r = dict(r)   
                 if r['page_id']:       
@@ -54,18 +55,22 @@ class Table(object):
                     labelClass='menu_shape menu_level_%i' %(r['hlevel']-2)
                 result.setItem(r['hierarchical_pkey'].split('/')[1:],None,label=r['label'],tags=r['tags'], labelClass=labelClass,
                                 **kw)  
+            else:
+                forbidden.append(r['id'])
         empty = True
+
         while empty:
             empty = False
             for pathlist,n in result.getIndex():
                 if n.attr.get('isDir') and  ( (n.value is None) or not n.value):
+                    print pathlist
                     result.popNode(pathlist)
                     empty = True
         return result
 
 
     @public_method
-    def createRootHierarchy(self):
+    def createRootHierarchy(self,pagesOnly=False):
         root_id=self.rootId()
         root = self.query(where='$id=:root_id',root_id=root_id).fetch()
         if not root:
@@ -86,15 +91,17 @@ class Table(object):
             if not pkgrec:
                 pkgattr = pkg.attributes
                 pkgrec = dict(label=pkgattr['name_long'].replace('!!',''),id=pkg_pkey,parent_id=root_id,ts_import=ts)
-                self.insert(pkgrec)
+                if not pagesOnly:
+                    self.insert(pkgrec)
             else:
                 olderc = dict(pkgrec)
                 pkgrec['ts_import'] = ts
-                self.update(pkgrec,olderc)
-            self.updatePackageHierarchy(Bag(menupath),dir_id=pkg_pkey,pkgId=pkgId)
+                if not pagesOnly:
+                    self.update(pkgrec,olderc)
+            self.updatePackageHierarchy(Bag(menupath),dir_id=pkg_pkey,pkgId=pkgId,pagesOnly=pagesOnly)
         self.db.commit()
 
-    def updatePackageHierarchy(self,menu,dir_id=None,currpath=None,pkgId=None):
+    def updatePackageHierarchy(self,menu,dir_id=None,currpath=None,pkgId=None,pagesOnly=None):
         currpath = currpath or []
         tblpage = self.db.table('adm.menu_page')
         allpackages = self.db.application.packages.keys()
@@ -120,15 +127,17 @@ class Table(object):
                     label = label
                     page_rec['label'] = label
                     tblpage.insert(page_rec)
-                    self.insert(dict(page_id=page_rec['id'],tags=tags,label=label,parent_id=dir_id))
+                    if not pagesOnly:
+                        self.insert(dict(page_id=page_rec['id'],tags=tags,label=label,parent_id=dir_id))
             elif isinstance(node.value,Bag):
                 basepath = attr.get('basepath')
                 new_dir_rec = dict(label=label,tags=tags,parent_id=dir_id)
                 dir_rec = self.record(ignoreMissing=True,**new_dir_rec).output('dict') or new_dir_rec
                 if not dir_rec.get('id'):
-                    self.insert(dir_rec)
+                    if not pagesOnly:
+                        self.insert(dir_rec)
                 self.updatePackageHierarchy(node.value,dir_id = dir_rec['id']
-                                             ,currpath=currpath+basepath.strip('/').split('/') if basepath else currpath,pkgId=pkgId)
+                                             ,currpath=currpath+basepath.strip('/').split('/') if basepath else currpath,pkgId=pkgId,pagesOnly=pagesOnly)
 
 
 

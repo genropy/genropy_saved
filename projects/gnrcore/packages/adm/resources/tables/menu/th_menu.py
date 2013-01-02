@@ -22,9 +22,11 @@ class View(BaseComponent):
 
     def th_bottom_custom(self,bottom):
         bar = bottom.slotToolbar('importbtn,*')
-        bar.importbtn.button('Import from menuxml',fire='.import')
-        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,_fired='^.import')
+        bar.importbtn.button('Import from menuxml',fire='.import_all')
+        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,_fired='^.import_all')
 
+        bar.importbtn.button('Update pages',fire='.import_all')
+        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,pagesOnly=True,_fired='^.import_all')
 
 
 class Form(BaseComponent):
