@@ -408,10 +408,10 @@ class DynamicForm(BaseComponent):
                 box = pane.div(_class='pbl_roundedGroup',datapath='.%s_%s' %(pkey,spec) if spec else '.%s' %pkey,margin='2px')
                 box.div('%s (%s)' %(caption,spec) if spec else caption,_class='pbl_roundedGroupLabel')
                 grp=box.div(margin_right='10px')
-                grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol)
+                grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol,datapath=datapath)
         else:
             ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
-            pane.div(margin_right='10px').dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol)
+            pane.div(margin_right='10px').dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol,datapath=datapath)
 
     @struct_method
     def df_dynamicFormGroup(self,pane,df_table=None,df_pkey=None,datapath=None,ncol=None,**kwargs):
