@@ -89,7 +89,9 @@ class Table(object):
             pkgrec = packages_dir.get(pkg_pkey)
             if not pkgrec:
                 pkgattr = pkg.attributes
-                pkgrec = dict(label=pkgattr['name_long'].replace('!!',''),id=pkg_pkey,parent_id=root_id,ts_import=ts)
+                pkglabel = pkgattr.get('name_long') or pkgId
+                pkglabel = pkglabel.replace('!!','')
+                pkgrec = dict(label=pkglabel,id=pkg_pkey,parent_id=root_id,ts_import=ts)
                 if not pagesOnly:
                     self.insert(pkgrec)
             else:
