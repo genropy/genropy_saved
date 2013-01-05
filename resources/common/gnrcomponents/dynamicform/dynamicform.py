@@ -272,7 +272,6 @@ class DynamicForm(BaseComponent):
                           grid=fg.grid.js_widget)
         fg.grid.dataFormula("#FORM.dynamicFormTester._editorDatapath", "'#FORM.record.df_custom_templates.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.dynamicFormTester.dummypath"')
-        
         frametree = left.framePane(region='center',margin_top='10px',margin_left='10px')
         frametree.top.div('!!Fields',font_size='.9em',font_weight='bold')
         treepane = frametree.center.contentPane().div(position='absolute',top='2px',bottom='2px',left='2px',right='4px',overflow='auto')
@@ -334,7 +333,6 @@ class DynamicForm(BaseComponent):
         self.df_fieldsBagForm(form)
         return bh
 
-
     def df_fieldsTableGrid(self,pane,title=None,searchOn=False,**kwargs):
         return pane.dialogTableHandler(relation='@dynamicfields',
                                         formResource='gnrcomponents/dynamicform/dynamicform:Form',
@@ -349,7 +347,6 @@ class DynamicForm(BaseComponent):
                                                         FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();
                                                 """,
                                         searchOn=searchOn,title=title,**kwargs)
-
 
     def df_previewForm(self,frame,mastertable=None):
         bar = frame.top.slotToolbar('parentStackButtons,*,tplmenu,3')
@@ -378,7 +375,6 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
         
     @struct_method
@@ -389,29 +385,34 @@ class DynamicForm(BaseComponent):
         df_table = df_column.relatedTable()
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
                         **kwargs)
-    
+  
+
+
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,**kwargs):
-        if not df_pkey:
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
+        if not (df_pkey or df_groups):
             pane.div()
             return
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
         
-        if ',' in df_pkey:
-            for pkey in df_pkey.split(','):
-                if ':' in pkey:
-                    pkey,spec = pkey.split(':')
-                else:
-                    spec = None
+        if df_groups:
+            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px')
+            for gr in df_groups:
+                gr_attr=gr.attr
+                pkey=gr_attr['pkey']
+                rowspan=gr_attr.get('rowspan',1)
+                colspan=gr_attr.get('colspan',1)
+                group_code = gr_attr['group_code']
+                group_label = gr_attr.get('group_label')
                 caption_field = df_tblobj.attributes['caption_field']
                 ncol,caption =df_tblobj.readColumns(columns='df_fbcolumns,$%s' %caption_field,pkey=pkey)
-                box = pane.div(_class='pbl_roundedGroup',datapath='.%s_%s' %(pkey,spec) if spec else '.%s' %pkey,margin='2px')
-                box.div('%s (%s)' %(caption,spec) if spec else caption,_class='pbl_roundedGroupLabel')
+                box = groupfb.div(_class='pbl_roundedGroup',datapath='.%s' %group_code,margin='2px',colspan=colspan,rowspan=rowspan)
+                box.div('%s (%s)' %(caption,group_label) if group_label else caption,_class='pbl_roundedGroupLabel')
                 grp=box.div(margin_right='10px')
                 grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol,datapath=datapath)
         else:
-            ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
+            ncol =df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
             pane.div(margin_right='10px').dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol,datapath=datapath)
 
     @struct_method
@@ -486,9 +487,7 @@ class DynamicForm(BaseComponent):
         getter = attr.pop('getter',None)
         wdg = fb.child(**attr)
         if not getter:
-            return wdg
-
-                    
+            return wdg     
         if isinstance(getter,basestring):
             getter = Bag(getter)
         if getter['table']:
