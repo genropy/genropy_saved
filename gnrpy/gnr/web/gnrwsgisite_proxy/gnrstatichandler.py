@@ -78,8 +78,8 @@ class StaticHandler(object):
         dflt_method = 'create_cached_document_%s' %ext if ext else 'create_cached_document'
         m = getattr(self.site.db.table(table),(method or dflt_method),None)
         if m:
-            m(pkey)
-            return True
+            result = m(pkey)
+            return result is not False
 
     def serve(self, path_list, environ, start_response, download=False, **kwargs):
         fullpath = self.path(*path_list[1:])
@@ -91,6 +91,10 @@ class StaticHandler(object):
         if not existing_doc and '_lazydoc' in kwargs:
             existing_doc = self.build_lazydoc(kwargs['_lazydoc'],ext=os.path.splitext(fullpath)[-1])
         if not existing_doc:
+            if kwargs.get('_lazydoc'):
+                headers = []
+                start_response('200 OK', headers)
+                return ['']
             return self.site.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
