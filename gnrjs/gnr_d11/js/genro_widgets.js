@@ -6380,6 +6380,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if(!curr){
                 return;
             }
+            if(!(curr instanceof gnr.GnrBag)){
+                genro.warn('TREE setSelectedPath warn curr is not a bag',curr);
+            }
             currNode = curr.getNode(pathList[i]);
             if(!currNode){
                 return;
