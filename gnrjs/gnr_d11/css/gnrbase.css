@@ -3429,6 +3429,47 @@ p {
 }
 
 /* @end */
+.tinyCloseBranch{
+    background: url(icons/base10/tinyCloseBranch.png) no-repeat right center;
+}
+.tinyOpenBranch{
+    background: url(icons/base10/tinyOpenBranch.png) no-repeat right 4px;
+}
 
+.tinytree .dijitTreeExpando{
+    display: none;
+}
 
+.tinytree .dijitTreeIcon{
+    padding-right: 0;
+    width: 10px
+}
+.tinytree .mainfolder{
+    font-variant: small-caps;
+    font-size: 15px;
+    font-weight: bold;
+    color:#888;
+}
+.tinytree .foldernode{
+    font-variant: small-caps;
+    font-size: 13px;
+    color:#888;
+    font-weight: bold;
+}
+
+.tundra .tinytree .dijitTreeNode{
+    background: none;
+    margin-left: 12px;
+}
+.tundra .tinytree .dijitTreeContent{
+    font-size: 11px;
+    padding-top: 0;
+    min-height: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.tundra .tinytree .dijitTreeIsRoot.dijitTreeNode{
+    margin-left: 0;
+}
 

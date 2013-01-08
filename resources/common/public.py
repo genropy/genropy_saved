@@ -84,9 +84,9 @@ class PublicBase(BaseComponent):
                             **kwargs)
 
     @struct_method
-    def public_roundedGroup(self, container, title=None,frame=False,**kwargs):
+    def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
         pane = container.contentPane(**kwargs)
-        rb = pane.div(_class='pbl_roundedBlock')
+        rb = pane.div(_class='pbl_roundedBlock',top=top,bottom=bottom,left=left,right=right)
         if title:
             rb.div(title,_class='pbl_roundedGroupLabel')
         return rb
