@@ -4007,6 +4007,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if ((n == null) || (n == '*')) {
             if (this.invalidFilter()) {
+                console.log('chiamo applyFilter da updateRowCount')
                 this.applyFilter(true, true);
             }
         }
@@ -4158,9 +4159,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     mixin_absIndex: function(idx,reverse) {
-        if (this.invalidFilter()) {
-            console.log('invalid filter');
-        }
+       //if (this.invalidFilter()) {
+       //    console.log('invalid filter');
+       //}
         if(!this._filtered){
             return idx;
         }

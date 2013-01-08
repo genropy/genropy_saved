@@ -2274,6 +2274,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     filterToRebuild: function(value) {
+        if(value==true && !this._filtered){
+            console.log('setFilterToTrue')
+        }
         this._filterToRebuild=value;
     },
     invalidFilter: function() {
@@ -2689,7 +2692,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 if (!grid.gnrediting){
                     if(that.mustBeSorted){
                         that.sort();
-                        that.filterToRebuild(true);
+                        if(that._filtered){
+                            that.filterToRebuild(true);
+                        }
                         that.mustBeSorted = false;
                     }
                     grid.updateRowCount('*');
