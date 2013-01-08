@@ -2382,6 +2382,18 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         if(rowNode){
             return this.updateRowNode(rowNode,updDict);
         }
+    },
+
+    filteredRowsIndex:function(filteringObject){
+        var items = this.getItems();
+        var r;
+        var result = [];
+        for (var i = 0; i < items.length; i++) {
+            if(objectIsContained(filteringObject,this.rowFromItem(items[i]))){
+                result.push(i);
+            }
+        };
+        return result;
     }
 });
 
@@ -2413,7 +2425,6 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
     keyGetter :function(n){
         return this.rowFromItem(n)[this.identifier];
     },
-
 
     sort:function(sortedBy){
         this.sortedBy = sortedBy || this.sortedBy;
@@ -3021,6 +3032,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             }
         }
         return -1;
+    },
+    filteredRowsIndex:function(){
+        console.error('filteredRowsIndex not implemented in virtualstore');
+        return [];
     }
     
 });

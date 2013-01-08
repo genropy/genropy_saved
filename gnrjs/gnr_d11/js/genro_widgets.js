@@ -2641,7 +2641,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
         objectFuncReplace(widget.selection, 'clickSelectEvent', function(e) {
-            this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey, e.shiftKey);
+            if(sourceNode.attr.selectGroupColumns && ( e.shiftKey && (e.ctrlKey || e.metaKey) ) ){
+                sourceNode.widget.groupColumnsSelect(e.rowIndex,sourceNode.attr.selectGroupColumns);
+            }else{
+                this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey, e.shiftKey);
+            }
+            
         });
         sourceNode.registerSubscription(nodeId + '_reload', widget, function(keep_selection) {
             this.reload(keep_selection !== false);
@@ -4958,6 +4963,22 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(inRowIndex!==null){
             return this.rowIdentity(this.rowByIndex(inRowIndex));
         }
+    },
+
+    mixin_filteredRowsIndex:function(filteringObject){
+        return this.collectionStore().filteredRowsIndex(filteringObject);
+    },
+
+    mixin_groupColumnsSelect:function(inIndex,columns){
+        var selection = this.selection;
+        selection.unselectAll(inIndex);
+        var baserow = this.rowByIndex(inIndex);
+        var groupRows = this.filteredRowsIndex(objectExtract(baserow,columns));
+        selection.beginUpdate();
+        dojo.forEach(groupRows,function(idx){
+            selection.addToSelection(idx);
+        })
+        selection.endUpdate();
     },
     
     mixin_indexByCb:function(cb, backward) {
