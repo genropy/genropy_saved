@@ -23,7 +23,12 @@ class GnrCustomWebPage(object):
         submenu = menu.menuline('Sub').menu(action='alert("sub "+$1.bar)')
         submenu.menuline('cat',bar=35)
         submenu.menuline('dog',bar=60)
-        
+
+    def test_11_base(self, pane):
+        pane.checkbox(value='^.disabled')
+        pane.menudiv(disabled='^.disabled',storepath='.menudata',iconClass='add_row',label='Piero')
+        pane.dataRemote('.menudata', 'menudata', cacheTime=5)
+
     def test_2_base(self, pane):
         """Basic 2"""
         menudiv = pane.div('-MENU-',height='20px',width='50px',background='teal')

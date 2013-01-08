@@ -1241,6 +1241,10 @@ div.dojoxDock {
 .floatingPopup {
     padding-right: 15px;
 }
+.menuButtonDiv{
+    padding-right: 10px;
+    background: transparent url(icons/base12/smallpopup.gif) no-repeat right 4px;
+}
 
 .iframereload{
     background: url(icons/base10/iframereload.gif) no-repeat center center;
@@ -3374,6 +3378,27 @@ p {
 }
 .mv_is_multi.mv_iconbox{
     background: url(icons/base12/smallpopup.gif) no-repeat center center;
+}
+
+div[disabled='true']{
+    opacity: .5;
+}
+.slotbar_toolbar .buttonDiv:hover{
+    cursor:pointer;
+    background-color:#bbb;
+    border-radius: 4px;
+}
+.buttonDiv{
+    display: inline-block;
+}
+.slotbar .buttonDiv{
+    display: block;
+}
+.buttonDiv[disabled='true']{
+    cursor:not-allowed;
+}
+.buttonDivLabel{
+    color:#666;
 }
 
 .formattedBagTable{

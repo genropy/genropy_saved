@@ -1675,6 +1675,15 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         if (!attributes.connectId) {
             savedAttrs['connectToParent'] = true;
         }
+        if(attributes.menuItemCb){
+            attributes['menuItemCb'] = funcCreate(attributes.menuItemCb,'item',sourceNode);
+        }
+        if(attributes.disabledItemCb){
+            attributes['disabledItemCb'] = funcCreate(attributes.disabledItemCb,'item',sourceNode);
+        }
+        if(attributes.hiddenItemCb){
+            attributes['hiddenItemCb'] = funcCreate(attributes.hiddenItemCb,'item',sourceNode);
+        }
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -1758,6 +1767,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     
 versionpatch_11__contextMouse: function (e) {
         this.originalContextTarget = e.target;
+        if(genro.dom.isDisabled(this.originalContextTarget,true)){
+            return;
+        }
         var sourceNode = this.sourceNode;
         var wdg = sourceNode.widget;
         if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
@@ -1794,6 +1806,20 @@ versionpatch_11__contextMouse: function (e) {
             }
         }
         wdg = sourceNode.widget;
+        if (wdg.menuItemCb){
+            dojo.forEach(wdg.getChildren(),wdg.menuItemCb);
+        }
+        if (wdg.disabledItemCb){
+            dojo.forEach(wdg.getChildren(),function(item){
+                item.setDisabled(wdg.disabledItemCb(item));
+            });
+        }
+        if (wdg.hiddenItemCb){
+            dojo.forEach(wdg.getChildren(),function(item){
+                item.setHidden(wdg.hiddenItemCb(item));
+            });
+        }
+
         if(wdg.modifiers){
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
@@ -1801,6 +1827,7 @@ versionpatch_11__contextMouse: function (e) {
         else if (e.button == 2) {
             wdg._contextMouse_replaced.call(wdg, e);
         }
+
     },
     
     versionpatch_15__openMyself: function (e) {

@@ -30,13 +30,15 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,picker=True,hider=True)
+    @extract_kwargs(condition=True,grid=True,picker=True,addrowmenu=None,hider=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
                             parentFormSave=None,
-                            picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
+                            picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
+                            addrowmenu_kwargs=True,
+                            picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -78,6 +80,10 @@ class TableHandler(BaseComponent):
         if picker:
             top_slots.append('thpicker')
             picker_kwargs['relation_field'] = picker
+        if addrowmenu:
+            top_slots.append('addrowmenu')
+            addrowmenu_kwargs['relation_field'] = addrowmenu
+
         if lockable:
             top_slots.append('viewlocker')
 
@@ -89,6 +95,7 @@ class TableHandler(BaseComponent):
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,
+                                top_addrowmenu_parameters=addrowmenu_kwargs,
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,

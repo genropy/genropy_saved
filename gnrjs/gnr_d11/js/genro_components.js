@@ -85,6 +85,34 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw, children){
+        var buttonkw = objectExtract(kw,'btn_*');
+        var iconClass = objectPop(kw,'iconClass');
+        var label = objectPop(kw,'label');
+        var disabled = objectPop(kw,'disabled');
+        var parentForm = objectPop(kw,'parentForm');
+        var tip = objectPop(kw,'tip');
+        var iconClass = iconClass? 'iconbox ' +iconClass :null;
+        var box_kw = {_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip}
+        if(parentForm){
+            box_kw.parentForm = parentForm;
+        }
+        var box = sourceNode._('div',box_kw);
+        if(label && false){
+            //not well implemented
+            box._('div',{innerHTML:label,display:'inline-block',_class:'buttonDivLabel'})
+        }
+        if(iconClass){
+            box._('div',{_class:iconClass});
+        }
+
+        kw['_class'] = kw['_class'] || 'smallmenu';
+        kw['modifiers'] = kw['modifiers'] || '*';
+        return box._('menu',kw);
+    }
+
+})
 dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     createContent:function(sourceNode, kw, children){
         var that = this;

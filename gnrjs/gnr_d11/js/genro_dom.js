@@ -1240,6 +1240,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var secondchunk = v.slice(se);
         fn.value = fistchunk+valueToPaste+secondchunk;
     },
+    isDisabled:function(domNode,inherited){
+
+        var isDisabled = domNode.getAttribute('disabled');
+        if(isDisabled || !inherited || isDisabled=='false'){
+            return isDisabled=='false'?false:isDisabled=='true'?true:isDisabled;
+        }
+        var domNode = domNode.parentNode;
+        return (domNode !=dojo.body())?this.isDisabled(domNode,true):null;
+    },
     
     centerOn: function(what, where, onlyX, onlyY) {
         var whatDomNode = this.getDomNode(what);

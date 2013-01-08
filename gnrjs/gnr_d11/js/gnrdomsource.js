@@ -1485,8 +1485,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }else if(this.domNode){
             this.domNode.disabled = value;
+            this.domNode.setAttribute('disabled',value);
         }
-
     },
 
     setSource: function(path, /*gnr.GnrDomSource*/ source) {
