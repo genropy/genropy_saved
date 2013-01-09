@@ -483,11 +483,7 @@ class TableHandlerMain(BaseComponent):
             totalRowCount = '^.view.store?totalRowCount',
             totalrows = '^.view.store?totalrows',
             whereAsPlainText='^.view.store?whereAsPlainText',
-            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True) 
-            if not extendedQuery:
-                th.view.top.bar.replaceSlots('count','')
-                th.view.top.bar.replaceSlots('searchOn','')
-                th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
+            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True)                 
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

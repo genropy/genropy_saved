@@ -1014,7 +1014,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     onDragStart:function(event) {
-       if(event.target && event.target.tagName.toLowerCase()=='img' ){
+       if(event.target && event.target.tagName && event.target.tagName.toLowerCase()=='img' ){
            if(dojo.isFF){
                //var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:','http://localhost:')
                //var html = event.dataTransfer.getData('text/html');
