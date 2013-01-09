@@ -6432,7 +6432,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if(!(curr instanceof gnr.GnrBag)){
                 console.warn('TREE setSelectedPath warn curr is not a bag',curr);
                 genro.dev.addError('TREE setSelectedPath warn curr is not a bag','warn',true);
-
+                return;
             }
             currNode = curr.getNode(pathList[i]);
             if(!currNode){
