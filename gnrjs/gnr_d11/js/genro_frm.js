@@ -547,7 +547,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
-            var node = node || this._firstField.widget?this._firstField.widget.focusNode:this._firstField.domNdoe;
+            if(!node && this._firstField){
+                node = this._firstField.widget?this._firstField.widget.focusNode:this._firstField.domNode;
+            }
             if(node){
                 node.focus();
             }
