@@ -362,7 +362,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         }
         if (objectNotEmpty(dockButton)){
             dockTo = 'dummyDock';
-            dockButton._class = 'slotButtonIconOnly';
+            dockButton._class = 'iconOnly slotButtonIconOnly';
             attributes.dockButton = dockButton;
         }
         var floating_kwargs = objectUpdate(attributes, {dockable:true,closable:false,visibility:'hidden'});

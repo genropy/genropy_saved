@@ -50,9 +50,11 @@ class Form(BaseComponent):
                                   margin_right='^.main.page.right',
                                   connect_onclick="""
                                     var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
-                                    SET currentEditedArea = clickedNode.absDatapath();
+                                    if(clickedNode){
+                                        SET #FORM.currentEditedArea = clickedNode.absDatapath();
+                                    }
                                 """,
-                                  _class='hideSplitter',
+                                  #_class='hideSplitter',
                                   regions='^#FORM._temp.data.layout.regions',
                                   design=design
                                   )
@@ -90,24 +92,27 @@ class Form(BaseComponent):
                             datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
-
-        mainBc = bc.borderContainer(region='top', margin='5px', _class='pbl_roundedGroup', height='200px',splitter=True )
-        topleft = mainBc.borderContainer(region='left', width='20em')
-        self.htmltemplate_tplInfo(topleft.contentPane(region='top'))
-        bottom = mainBc.contentPane(region='bottom')
+        self.htmltemplate_form(bc.borderContainer(region='top', height='200px',splitter=True))
+        
+        center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea')
+        self.RichTextEditor(center, value='^.html',
+                            nodeId='htmlEditor',toolbar='standard')
+        bottom = center.bottom
         bar = bottom.slotBar('picker,*,zoomfactor',_class='pbl_roundedGroupBottom')
         bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
-        self.htmltemplate_basePageParams(topleft.contentPane(region='center', datapath='.data.main.page'))
-        topTC = mainBc.tabContainer(region='center', selectedPage='^.data.main.design')
-        self.htmltemplate_headLineOpt(topTC.contentPane(title='Headline', pageName='headline'))
-        self.htmltemplate_sideBarOpt(topTC.contentPane(title='Sidebar', pageName='sidebar'))
-        self.RichTextEditor(bc.contentPane(datapath='^currentEditedArea', region='center'), value='^.html',
-                            nodeId='htmlEditor',toolbar='standard')
+
+    def htmltemplate_form(self,bc):
+        left = bc.borderContainer(region='left', width='20em')
+        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='100px'))        
+        self.htmltemplate_basePageParams(left.roundedGroup(region='center', datapath='.data.main.page',title='!!Page sizing'))
+        tc = bc.tabContainer(region='center', selectedPage='^.data.main.design',margin='2px')
+        self.htmltemplate_headLineOpt(tc.contentPane(title='Headline', pageName='headline'))
+        self.htmltemplate_sideBarOpt(tc.contentPane(title='Sidebar', pageName='sidebar'))
+        
 
     def htmltemplate_tplInfo(self, pane):
-        pane.div('!!Info', _class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         fb.field('name', width='12em')
         fb.field('version', width='5em')

@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,picker=True,addrowmenu=None,hider=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
@@ -38,7 +38,7 @@ class TableHandler(BaseComponent):
                             parentFormSave=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
-                            picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
+                            picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -99,7 +99,8 @@ class TableHandler(BaseComponent):
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
-                                grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title) 
+                                grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
+                                **view_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
             wdg.dataController("""
@@ -197,10 +198,10 @@ class TableHandler(BaseComponent):
         wdg.form.attributes.update(**regionAdapter(fpane_kwargs,region='center'))
         return wdg
         
-    @extract_kwargs(widget=True,default=True)
+    @extract_kwargs(widget=True,default=True,form=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,default_kwargs=None,readOnly=False,**kwargs):
+                            formInIframe=False,widget_kwargs=None,default_kwargs=None,readOnly=False,form_kwargs=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
@@ -208,7 +209,7 @@ class TableHandler(BaseComponent):
                                         pageName='view',readOnly=readOnly,handlerType='stack',**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,
-                        formInIframe=formInIframe,readOnly=readOnly)    
+                        formInIframe=formInIframe,readOnly=readOnly,**form_kwargs)    
         return wdg
         
     @extract_kwargs(default=True,page=True)
