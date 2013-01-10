@@ -2233,6 +2233,7 @@ dojo.declare("gnr.GnrBagResolver", null, {
         }
     },
     meToo: function(cb) {
+        console.error('Calling meToo');
         var newdeferred = new dojo.Deferred();
         newdeferred.addCallback(cb);
         this._pendingDeferred.push(newdeferred);
