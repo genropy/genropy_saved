@@ -2244,6 +2244,11 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
            sourceNode.unfreeze();
            dojo.addClass(widget.focusNode.parentNode,'formattedTextBox');
        }
+    },
+    patch_displayMessage:function(message){
+        if(!isNullOrBlank(this.value)){
+            this.displayMessage_replaced(message);
+        }
     }
 
 });

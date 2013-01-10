@@ -142,8 +142,8 @@ class DynamicFormBagManager(BaseComponent):
         form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
         bc = form.center.borderContainer(datapath='.record')
-        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
         pane = bc.contentPane(region='center')
+        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         #tbl = pane.getInheritedAttributes()['table']

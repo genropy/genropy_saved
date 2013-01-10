@@ -195,6 +195,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     registerChild:function(sourceNode){
         if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+            if(!this._firstField){
+                if(sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags){
+                    this._firstField = sourceNode;
+                }
+            }
             this._register[sourceNode._id] = sourceNode;
             return;
         }
@@ -542,7 +547,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
-            var node = node || dijit.getFirstInTabbingOrder(formContentDomNode);
+            var node = node || this._firstField.widget?this._firstField.widget.focusNode:this._firstField.domNdoe;
             if(node){
                 node.focus();
             }
