@@ -115,6 +115,7 @@ class Form(BaseComponent):
     def htmltemplate_tplInfo(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         fb.field('name', width='12em')
+        fb.field('type_code', width='12em',hasDownArrow=True,lbl='Type')
         fb.field('version', width='5em')
 
     def htmltemplate_basePageParams(self, pane):
