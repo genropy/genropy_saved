@@ -409,10 +409,13 @@ class ThLinker(BaseComponent):
                                     confirm:function(){
                                         that.form.reset();
                                         that.form.load({destPkey:linked_id});
-                                        } 
+                                        },
+                                    cancel:function(){
+                                        that.setRelativeData('#FORM.record.%s',null);
+                                    }
                                     });
                     }
-                }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
+                }""" %field,fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
                     curr_pkey='=#FORM.pkey',title='!!Existing %s' %main_name,
                     msg='Selected %s belong to an existing %s. <br/> Do you want to load it?' %(relname,main_name))
             else:
