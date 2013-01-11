@@ -240,6 +240,11 @@
     color: #555;
 }
 
+.pbl_roundedGroupVertical{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 0%, from(#DCC8C8), to(#CBB4B4));
+    background-image: -moz-linear-gradient(0deg, #DCC8C8, #CBB4B4);
+}
+
 .pbl_roundedGroupLabel .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
     border:0;
     background:transparent;

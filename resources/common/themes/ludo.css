@@ -230,6 +230,13 @@
     background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
     color: #555;
 }
+.pbl_roundedGroupVertical { 
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 0, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(0deg, #C8D1DC, #B4BECB);
+}
+
+
+
 .pbl_roundedGroupLabel .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
     border:0;
     background:transparent;
