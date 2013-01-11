@@ -383,7 +383,7 @@ class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
-                    openIfEmpty=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
+                    openIfEmpty=None,embedded=True,linkAskDlg=False,dialog_kwargs=None,default_kwargs=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
@@ -397,10 +397,31 @@ class ThLinker(BaseComponent):
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
             manyrelfld = joiner['relation_name']
-            noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
-            condition =  kwargs.get('condition')
-            kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
-            kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
+            if linkAskDlg:    
+                main_name = (tblobj.name_long or 'link').replace('!!','').lower()
+                relname =(related_tblobj.name_long or 'record').replace('!!','').lower()
+                pane.dataController("""if(_reason!='container' && this.form.isNewRecord()){
+                    if(linked_id && linked_id!=curr_pkey){
+                        that = this;
+                        genro.dlg.ask(title,
+                            msg,
+                             null,{
+                                    confirm:function(){
+                                        that.form.reset();
+                                        that.form.load({destPkey:linked_id});
+                                        } 
+                                    });
+                    }
+                }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
+                    curr_pkey='=#FORM.pkey',title='!!Existing %s' %main_name,
+                    msg='Selected %s belong to an existing %s. <br/> Do you want to load it?' %(relname,main_name))
+            else:
+                noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
+                condition =  kwargs.get('condition')
+                kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
+                kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition 
+
+
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',
