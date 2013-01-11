@@ -11,7 +11,7 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
-                   gnrcomponents/drop_uploader:DropUploader"""
+                   gnrcomponents/drop_uploader"""
     css_requires='public'
 
     def test_0_img_uploader(self, pane):
@@ -52,9 +52,13 @@ class GnrCustomWebPage(object):
                         
     def test_1_uploader(self, pane):
         """File Uploader"""
-        self.dropUploader(pane)
+        pane.data('.pippo','42')
+        pane.dropUploader(uploaderId="test_uploader", external_pippo='^.pippo')
 
-
+    def onUploading_test_uploader(self, file_url=None, file_path=None, file_ext=None, pippo=None,
+                                  action_results=None, **kwargs):
+        print pippo
+        print file_path
         #def test_2_dropFileGrid(self,pane):
         #    """dropFileGrid"""
         #    def footer(footer,**kwargs):
