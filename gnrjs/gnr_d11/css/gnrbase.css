@@ -762,6 +762,10 @@ table.formbuilder {
     opacity: .5;
     font-style: italic;
 }
+
+.multiColumnSelect tr.linked_row{
+    font-weight: bold;
+}
 /* @end */
 
 /* @group BagAttributesTable */

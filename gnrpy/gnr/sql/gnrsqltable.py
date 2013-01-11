@@ -1140,7 +1140,7 @@ class SqlTable(GnrObject):
         if isinstance(columns, basestring):
             columns = gnrstring.splitAndStrip(columns)
         for col in columns:
-            if not col.startswith('@') and not col.startswith('$'):
+            if not col[0] in ('@','$','('):
                 col = '$%s' % col
                 #FIX 
             result.append(col)

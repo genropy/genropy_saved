@@ -383,7 +383,7 @@ class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
-                    openIfEmpty=None,embedded=True,linkAskDlg=False,dialog_kwargs=None,default_kwargs=None,**kwargs):
+                    openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,default_kwargs=None,auxColumns=None,hiddenColumns=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
@@ -397,32 +397,23 @@ class ThLinker(BaseComponent):
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
             manyrelfld = joiner['relation_name']
-            if linkAskDlg:    
-                main_name = (tblobj.name_long or 'link').replace('!!','').lower()
-                relname =(related_tblobj.name_long or 'record').replace('!!','').lower()
-                pane.dataController("""if(_reason!='container' && this.form.isNewRecord()){
-                    if(linked_id && linked_id!=curr_pkey){
-                        that = this;
-                        genro.dlg.ask(title,
-                            msg,
-                             null,{
-                                    confirm:function(){
-                                        that.form.reset();
-                                        that.form.load({destPkey:linked_id});
-                                        },
-                                    cancel:function(){
-                                        that.setRelativeData('#FORM.record.%s',null);
-                                    }
-                                    });
-                    }
-                }""" %field,fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
-                    curr_pkey='=#FORM.pkey',title='!!Existing %s' %main_name,
-                    msg='Selected %s belong to an existing %s. <br/> Do you want to load it?' %(relname,main_name))
-            else:
+            if excludeLinked:    
                 noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
                 condition =  kwargs.get('condition')
                 kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
                 kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition 
+            else:
+                pane.dataController("""if(_reason!='container' && this.form.isNewRecord()){
+                    if(linked_id && linked_id!=curr_pkey){
+                        this.form.reset();
+                        this.form.load({destPkey:linked_id});
+                    }
+                }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
+                    curr_pkey='=#FORM.pkey')
+
+                _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses""" %(manyrelfld,tblobj.pkey)
+                hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
+
 
 
         linkerpath = '#FORM.linker_%s' %field
@@ -453,7 +444,7 @@ class ThLinker(BaseComponent):
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
-                    _class='th_linkerField',background='white',**kwargs)
+                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,**kwargs)
         return linker
         
     @extract_kwargs(template=True)
