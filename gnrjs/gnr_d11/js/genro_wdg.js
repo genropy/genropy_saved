@@ -1074,7 +1074,8 @@ dojo.declare("gnr.GridEditor", null, {
             }
             queries.setItem(cellname,null,{table:rtable,columns:hcols.join(','),pkey:value,where:'$pkey =:pkey'});
             var r = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
-            var kw = r.getNode('#0.#0').attr;
+            var rnode = r.getNode('#0.#0');
+            var kw = rnode?rnode.attr:{};
             valueCaption = objectPop(kw,cell.related_column);
             for(var selected in selectedKw){
                 var p = selectedKw[selected].split('.');
