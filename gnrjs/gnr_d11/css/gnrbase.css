@@ -2414,6 +2414,9 @@ body *{
 }
 
 /* @end */
+
+
+
 /* @group PatchDojox */
 .tundra .dojoxDockNode {
 	border: 1px solid #adadad;
@@ -2437,6 +2440,31 @@ body *{
 
 
 /* @group SlotBar */
+
+.openerPane{
+
+}
+.openerButton{
+    background: gray;
+    -moz-transition:all .5s;
+    -webkit-transition:all .5s;
+    opacity: .5;
+
+}
+.openerPane:hover .openerButton{
+    opacity: 1;
+}
+.openerButton_left{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    border-left: 0;
+    width: 8px;
+    height: 40px;
+    cursor: pointer;
+}
 
 /* @group Opener */
 .closableSide_horizontal{

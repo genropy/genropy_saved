@@ -43,7 +43,9 @@ class PublicBase(BaseComponent):
                 if(window.frameElement){
                     var parentIframeSourceNode = window.frameElement.sourceNode;
                     var multipage_childpath = parentIframeSourceNode.attr.multipage_childpath;
-                    genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
+                    if(multipage_childpath){
+                        genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
+                    }
                 }
             """,
             title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1,_onStart=True)
