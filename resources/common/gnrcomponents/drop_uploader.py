@@ -7,7 +7,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-
+from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebstruct import struct_method
 import os
 
@@ -15,7 +15,40 @@ class DropUploaderBase(BaseComponent):
     @struct_method
     def du_slotbar_doupload(self,pane,**kwargs):
         return pane.slotButton(label='!!Upload',publish='doupload',iconClass='iconbox inbox')
-        
+    
+    @extract_kwargs(uploader=None,external=None)
+    @struct_method
+    def du_dropUploader(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
+        uploaderId = uploaderId or 'stdupload'
+        uploadPath = uploader_kwargs.pop('path', 'site:uploaded_files')
+        pane.div(dropTypes='Files', drop_ext=ext, dropTarget=True, nodeId=uploaderId,
+                 #onDrop="""console.log(files);drop_uploader.send_files(files)""",
+                 onDrop="FIRE .prepare_files=files;",
+                 width='100px', height='100px', _class="document_empty_64",
+                 style="""border: 2px dashed #989898;border-radius: 3px;""")
+        pane.data('.uploading_data', Bag())
+        pane.dataController("""
+                dojo.forEach(files,
+                            function(f){
+                                var row = objectUpdate({_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:uploaderId},external_params);
+                                var label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
+                                if(filebag.index(label)<0){
+                                    var r = new gnr.GnrBag(row);
+                                    filebag.setItem(label,r);
+                                }
+                            });
+                FIRE .doupload;
+                """, filebag="=.uploading_data", files='^.prepare_files',
+                          external_params=external_kwargs, uploaderId=uploaderId)
+        pane.dataController("""
+                            genro.rpc.uploadMultipartFiles(filebag,{onResult:funcCreate(onResult,'result',this),
+                                                                    onFileUploaded:funcCreate(onFileUploaded,'node',this),
+                                                                    uploadPath:uploadPath,uploaderId:uploaderId});
+                            """, filebag='=.uploading_data', 
+                          uploaderId=uploaderId, onResult=uploader_kwargs.get('onResult',''), 
+                          onFileUploaded=uploader_kwargs.get('onUploaded',''),
+                          uploadPath=uploadPath,_fired='^.doupload')
+
     @extract_kwargs(uploader=None,metacol=None,external=None,process=dict(slice_prefix=False))
     @struct_method
     def du_dropFileFrame(self,pane,uploaderId=None,label=None,datapath=None,preview=None,
