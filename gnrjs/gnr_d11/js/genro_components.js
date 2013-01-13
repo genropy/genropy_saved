@@ -2741,6 +2741,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         if(result && result.error){
             genro.dlg.alert(result.error,'Alert');
         }
+    },
+    runQuery:function(runKwargs){
+        this.storeNode.fireNode(runKwargs);
     }
 
 });
@@ -2864,6 +2867,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                                              return result || [];
                                           });
     },
+
     
     clearBagCache:function() {
         var data = this.getData();
