@@ -294,7 +294,7 @@ class TableHandlerMain(BaseComponent):
         th_options.update(th_kwargs)
         return self._th_main(root,th_options=th_options,**kwargs)
         
-    def _th_main(self,root,th_options=None,**kwargs):
+    def _th_main(self,root,th_options=None,**kwargs): 
         formInIframe = boolean(th_options.get('formInIframe'))
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
@@ -303,6 +303,8 @@ class TableHandlerMain(BaseComponent):
             insidePublic = boolean(th_public) is True
         tablecode = self.maintable.replace('.','_')
         kwargs.update(th_options)
+        if kwargs['virtualStore'] is False:
+            kwargs['extendedQuery'] = False
         extendedQuery = kwargs.pop('extendedQuery','*') 
         lockable = kwargs.pop('lockable',True)           
         if insidePublic:
