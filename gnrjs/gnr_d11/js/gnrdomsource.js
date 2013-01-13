@@ -164,10 +164,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
     },
-    fireNode: function() {
-        return this.setDataNodeValue();
+    fireNode: function(runKwargs) {
+        return this.setDataNodeValue(runKwargs);
     },
-    setDataNodeValue:function(node, kw, trigger_reason, subscription_args) {
+    setDataNodeValue:function(nodeOrRunKwargs, kw, trigger_reason, subscription_args) {
+
         var delay = this.attr._delay;
         if(delay == 'auto'){
             delay = null;//genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
@@ -176,15 +177,22 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (this.pendingFire) {
                 clearTimeout(this.pendingFire);
             }
-            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason,subscription_args),delay);
+            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', nodeOrRunKwargs, kw, trigger_reason,subscription_args),delay);
         } else {
-            return this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
+            return this.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);
         }
     },
 
-    setDataNodeValueDo:function(node, kw, trigger_reason, subscription_args) {
-        var isFiredNode=!node;
-        var attributes = objectUpdate({}, this.attr);
+    setDataNodeValueDo:function(nodeOrRunKwargs, kw, trigger_reason, subscription_args) {
+        var node;
+        var runKwargs={};
+        var isFiredNode=!(nodeOrRunKwargs instanceof gnr.GnrDomSourceNode)
+        if(isFiredNode){
+            runKwargs = nodeOrRunKwargs;
+        }else{
+            node = nodeOrRunKwargs;
+        }
+        var attributes = objectUpdate(objectUpdate({}, this.attr),runKwargs);
         var _userChanges = objectPop(attributes, '_userChanges');
         var _trace = objectPop(attributes, '_trace');
         var _trace_level = objectPop(attributes, '_trace_level') || 0;
