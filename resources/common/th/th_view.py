@@ -52,7 +52,7 @@ class TableHandlerView(BaseComponent):
         if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
-        if extendedQuery:
+        if virtualStore and extendedQuery:
             if 'adm' in self.db.packages:
                 templateManager = 'templateManager'
             else:
@@ -64,9 +64,9 @@ class TableHandlerView(BaseComponent):
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
-            base_slots = ['5','vtitle','count','*']
-            if searchOn:
-                base_slots.append('searchOn')
+            base_slots = ['5','searchOn','5','count','*']
+            if not searchOn:
+                base_slots.remove('searchOn')
         else:
             base_slots = ['5','vtitle','count','*']
         base_slots = ','.join([b for b in base_slots if b])
@@ -367,9 +367,6 @@ class TableHandlerView(BaseComponent):
                         }""")
         gridattr.setdefault('userSets','.sets')
 
-                        #onDrop=""" for (var k in data){
-                        #                this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
-                        #           }""", NON USATO
 
         if virtualStore:
             chunkSize= rowsPerPage * 4
