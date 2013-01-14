@@ -4150,8 +4150,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         else {
             var selectionNode = genro.nodeById(nodeId + '_store') || genro.nodeById(this.sourceNode.attr.store + '_store'); 
-            if (selectionNode) {
-                this.filterToRebuild(true);
+            this.filterToRebuild(true);
+            if(selectionNode.store){
+                //scrupolo eccessivo
+                selectionNode.store.getSelectionData();
+            }
+            else{
+                //non dovrebbe capitarci mai
                 selectionNode.fireNode();
             }
         }

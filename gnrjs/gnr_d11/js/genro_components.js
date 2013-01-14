@@ -653,7 +653,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
         var store = objectPop(kw, 'store');
-        var _newGrid = objectPop(kw,'_newGrid');
+        var _newGrid = objectPop(kw,'_newGrid',true);
         var paletteCode=kw.paletteCode;
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
@@ -677,7 +677,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
-        pane._(_newGrid?'NewIncludedView':'includedview', 'grid',gridKwargs);
+        pane._(_newGrid?'newIncludedView':'includedview', 'grid',gridKwargs);
         var gridnode = pane.getNode('grid');
         gridnode.watch('isVisibile',function(){return genro.dom.isVisible(gridnode);},
                         function(){
@@ -2118,6 +2118,9 @@ dojo.declare("gnr.stores._Collection",null,{
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());
     },
+    runQuery:function(runKwargs){
+        return this.storeNode.fireNode(runKwargs);
+    },
 
     onStartEditItem:function(form){
         this._editingForm = form;
@@ -2773,13 +2776,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         this.externalChangedKeys = null;
         this.storeNode.setRelativeData(this.storepath,result);
         return result;
-    },
-
-    runQuery:function(runKwargs){
-        var deferred = this.storeNode.fireNode(runKwargs);
-        return deferred;
     }
-
 });
 
 
