@@ -33,6 +33,23 @@ class View(BaseComponent):
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
+
+    def th_condition(self):
+        return dict(condition="$nome ilike :c",condition_c=r'%i%')
+
+
+    def th_sections_zone(self):
+        return [dict(code='nord',caption='!!Nord',condition='@regione.zona=:zona',condition_zona='Nord'),
+                dict(code='centro',caption='!!Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
+                dict(code='sud',caption='!!Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
+                dict(code='isole',caption='!!Isole',condition='@regione.zona=:zona',condition_zona='Isole')
+                ]
+                
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('searchOn,','sections@zone,5,searchOn,')
+#
+    def th_options(self):
+        return dict(virtualStore=False,widget='dialog')
         
 
 class EditableView(View):    

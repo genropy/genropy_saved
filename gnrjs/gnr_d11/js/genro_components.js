@@ -2031,15 +2031,37 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          kw['_delay'] = kw['_delay'] || 'auto';
+         var skw = objectUpdate({},kw);
+         skw.script="if(_cleared){this.store.clear();}else{this.store.getSelectionData();}";
+         objectPop(skw,'nodeId')
+         objectPop(skw,'_onCalling');
+         objectPop(skw,'_onResult');
+
+         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
+         objectPop(kw,'_onStart');
+         objectPop(kw,'_cleared');
+         objectPop(kw,'_fired');
+         var v;
+         for (var k in kw){
+            v = kw[k];
+            if(typeof(v)=='string'){
+                if(v[0]=='^'){
+                    kw[k] = v.replace('^','=');
+                }
+            }
+         }
          var selectionStore = sourceNode._('dataRpc',kw);
-         var cb = "this.store.onLoaded(result,_isFiredNode);";
-         selectionStore._('callBack',{content:cb});
+        //var cb = "this.store.onLoaded(result,_isFiredNode);";
+        //selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType,'unlinkdict':kw.unlinkdict};
+         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
+                        'storeType':storeType,'unlinkdict':kw.unlinkdict};
          if('startLocked' in kw){
              storeKw.startLocked = kw.startLocked;
          }
-         rpcNode.store = new gnr.stores[storeType](rpcNode,storeKw);
+         var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
+         rpcNode.store = storeInstance;
+         selectionStarter.store = storeInstance;
          return selectionStore;
      }
 });
@@ -2122,11 +2144,6 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode.publish('onLockChange',{'locked':this.locked});
     },
     
-    onLoaded:function(result){
-        this.externalChangedKeys = null;
-        this.storeNode.setRelativeData(this.storepath,result);
-        return result;
-    },
     
     deleteRows:function(pkeys){
         return;
@@ -2742,8 +2759,25 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             genro.dlg.alert(result.error,'Alert');
         }
     },
+    getSelectionData:function(){
+        var deferred = this.runQuery();
+        var that = this;
+        deferred.addCallback(function(result){
+            that.onLoaded(result);
+            that.storeNode.setRelativeData('.queryRunning',false);
+        });
+        return deferred;
+    },
+
+    onLoaded:function(result){
+        this.externalChangedKeys = null;
+        this.storeNode.setRelativeData(this.storepath,result);
+        return result;
+    },
+
     runQuery:function(runKwargs){
-        this.storeNode.fireNode(runKwargs);
+        var deferred = this.storeNode.fireNode(runKwargs);
+        return deferred;
     }
 
 });
@@ -2816,7 +2850,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 grid.selectionKeeper('save');
             });
             this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
-            var deferred = this.storeNode.fireNode();
+            var deferred = this.runQuery();
             var that = this;
             deferred.addCallback(function(result){
                 dojo.forEach(that.linkedGrids(),function(grid){
