@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -64,9 +64,15 @@ class TableHandlerView(BaseComponent):
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
-            base_slots = ['5','vtitle','count','*']
-            if searchOn:
-                base_slots.append('searchOn')
+            if root_tablehandler:
+                base_slots = ['5','searchOn','5','count','*']
+                if searchOn is False:
+                    base_slots.remove('searchOn')
+            else:
+                base_slots = ['5','vtitle','count','*']
+                if searchOn:
+                    base_slots.append('searchOn')
+
         else:
             base_slots = ['5','vtitle','count','*']
         base_slots = ','.join([b for b in base_slots if b])
@@ -80,6 +86,7 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
+                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode)   
@@ -367,7 +374,6 @@ class TableHandlerView(BaseComponent):
                         }""")
         gridattr.setdefault('userSets','.sets')
 
-
         if virtualStore:
             chunkSize= rowsPerPage * 4
             selectionName = '*%s' %th_root
@@ -376,8 +382,6 @@ class TableHandlerView(BaseComponent):
             selectionName = None
         self.subscribeTable(table,True)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
-        frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
-       
         _if = condPars.pop('_if',None) or condPars.pop('if',None)
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
         _else = None
@@ -388,7 +392,6 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
                                _cleared='^.clearStore',
-                               #_onResult='SET .queryRunning=false;',
                                _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});SET .queryRunning=false;return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',

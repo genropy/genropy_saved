@@ -305,6 +305,7 @@ class TableHandlerMain(BaseComponent):
         kwargs.update(th_options)
         if kwargs['virtualStore'] is False:
             kwargs['extendedQuery'] = False
+            kwargs['view_root_tablehandler'] = True
         extendedQuery = kwargs.pop('extendedQuery','*') 
         lockable = kwargs.pop('lockable',True)           
         if insidePublic:
