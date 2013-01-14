@@ -4151,7 +4151,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.filterToRebuild(true);
             if(selectionNode.store){
                 //scrupolo eccessivo
-                selectionNode.store.getSelectionData();
+                selectionNode.store.loadData();
             }
             else{
                 //non dovrebbe capitarci mai
