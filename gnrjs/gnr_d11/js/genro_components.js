@@ -2031,8 +2031,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          kw['_delay'] = kw['_delay'] || 'auto';
+         var _onError = objectPop(kw,'_onError');
          var skw = objectUpdate({},kw);
-         skw.script="if(_cleared){this.store.clear();}else{this.store.getSelectionData();}";
+         skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
          objectPop(skw,'nodeId')
          objectPop(skw,'_onCalling');
          objectPop(skw,'_onResult');
@@ -2050,7 +2051,16 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
                 }
             }
          }
-         var selectionStore = sourceNode._('dataRpc',kw);
+         kw['_onError'] = function(error,originalKwargs){
+            if(_onError){
+                funcApply(_onError,{error:error,kwargs:originalKwargs},this);
+            }
+            this.store.clear();
+            this.store.gridBroadcast(function(grid){
+                 grid.sourceNode.publish('loadingData',{loading:false});
+            });
+         };
+        var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
@@ -2118,9 +2128,37 @@ dojo.declare("gnr.stores._Collection",null,{
     clear:function(){
         this.storeNode.setRelativeData(this.storepath,new gnr.GnrBag());
     },
-    runQuery:function(runKwargs){
-        return this.storeNode.fireNode(runKwargs);
+
+    gridBroadcast:function(cb){
+        this.linkedGrids().forEach(cb);
     },
+
+    runQuery:function(cb,runKwargs){
+        var result =  this.storeNode.fireNode(runKwargs);
+        if(result instanceof dojo.Deferred){
+            result.addCallback(function(r){cb(r)});
+        }else{
+            result = cb(result);
+        }
+        return result;
+    },
+
+    loadData:function(){
+        var that = this;
+        this.loadingData = true;
+        this.gridBroadcast(function(grid){
+            grid.sourceNode.publish('loadingData',{loading:true});
+        });
+        var cb = function(result){
+            that.onLoaded(result);
+            this.loadingData = false;
+            that.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+            });
+        };
+        return this.runQuery(cb);
+    },
+
 
     onStartEditItem:function(form){
         this._editingForm = form;
@@ -2762,15 +2800,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             genro.dlg.alert(result.error,'Alert');
         }
     },
-    getSelectionData:function(){
-        var deferred = this.runQuery();
-        var that = this;
-        deferred.addCallback(function(result){
-            that.onLoaded(result);
-            that.storeNode.setRelativeData('.queryRunning',false);
-        });
-        return deferred;
-    },
 
     onLoaded:function(result){
         this.externalChangedKeys = null;
@@ -2802,10 +2831,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         return len;
     },
     
-    onLoaded:function(result,_isFiredNode){
-       //if(!_isFiredNode){
-       //    this.externalChangedKeys = null;
-       //}
+    onLoaded:function(result){
         if(result.error){
             return;
         }
@@ -2847,14 +2873,15 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 grid.selectionKeeper('save');
             });
             this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
-            var deferred = this.runQuery();
+
             var that = this;
-            deferred.addCallback(function(result){
+            var cb = function(result){
                 dojo.forEach(that.linkedGrids(),function(grid){
                     grid.sourceNode.publish('onExternalChanged');
                 });
                 return result;
-            })
+            };
+            this.runQuery(cb);
         }
     },
     
