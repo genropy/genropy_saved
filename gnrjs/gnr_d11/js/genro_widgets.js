@@ -2703,7 +2703,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid;
                 dojo.connect(filteringGrid,'updateRowCount',function(){
-                    console.log('UPDATE ROWCOUNT GRIGLIA BASE')
                     widget.filterToRebuild(true);widget.updateRowCount('*');
                 });
                 widget.excludeListCb=function(){
@@ -4017,7 +4016,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if ((n == null) || (n == '*')) {
             if (this.invalidFilter()) {
-                console.log('chiamo applyFilter da updateRowCount')
                 this.applyFilter(true, true);
             }
         }
