@@ -1642,11 +1642,22 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 curr=node.getValue();
             }
             else{
-                node=curr.walk(function(n){
-                if('_childname' in n.attr){
-                    return n.attr._childname==childname?n:true;
-                }
+
+                curr.forEach(function(n){
+                    if(n.attr._childname==childname){
+                        node = n;
+                    }
                 },'static');
+                
+                if(node){
+                    return 
+                }
+                node=curr.walk(function(n){
+                       if('_childname' in n.attr){
+                           return n.attr._childname==childname?n:true;
+                         }
+                      },'static');
+
                 if (node==true){
                     return;
                 }else{

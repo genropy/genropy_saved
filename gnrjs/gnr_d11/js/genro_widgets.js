@@ -740,6 +740,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         return result;
     },
+
     mixin_mainDomNode: function() {
         return this.inputNode || this.textInputNode || this.domNode;
     },
@@ -5374,6 +5375,12 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         if(value!=displayedValue){
             valueAttr['_displayedValue'] = displayedValue;
         }       
+    },
+
+    patch_displayMessage:function(message){
+        if(!isNullOrBlank(this.value)){
+            this.displayMessage_replaced(message);
+        }
     }
 });
 
@@ -5840,8 +5847,9 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                 }else{
                     if ( (value=='') || (value==null) || (value==undefined) ){
                         this.setValue(null, true);
-                        this.setDisplayedValue(displayedValue,true);
-                        
+                        if(!this.sourceNode.attr.firstMatchDisabled){
+                            this.setDisplayedValue(displayedValue,true);
+                        }
                     }else //if(value!=lastValueReported){
                         {
                         this.setValue(value, true);

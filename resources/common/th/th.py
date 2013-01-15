@@ -383,7 +383,8 @@ class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
-                    openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,default_kwargs=None,auxColumns=None,hiddenColumns=None,**kwargs):
+                    openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
+                    default_kwargs=None,auxColumns=None,hiddenColumns=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')

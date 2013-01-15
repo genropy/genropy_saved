@@ -266,6 +266,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     
     newrecord:function(){
+        this.sourceNode.getChild('selector').widget.setDisplayedValue('')
         this.openrecord('*newrecord*');
     }
 });
