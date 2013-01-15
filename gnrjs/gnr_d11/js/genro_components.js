@@ -2614,25 +2614,22 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
         if (insOrUpdKeys.length>0) {
             var original_condition =  this.storeNode.attr.condition;
-            var newcondition = ' ( $pkey IN :_chpkeys ) ';
-            var kw = objectUpdate({},this.storeNode.attr);
-            objectExtract(kw,'_*');
-            kw._sourceNode = this.storeNode;
-            kw._chpkeys = insOrUpdKeys;
-            kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
+            var newcondition = ' ( $pkey IN :store_chpkeys ) ';
+            var chpkeys = insOrUpdKeys;
+            var condition = original_condition?original_condition+' AND '+newcondition:newcondition;
             if(this.freezedStore()){
                 return;
             }
-            genro.rpc.remoteCall('app.getSelection', 
-                                kw,null,'POST',null,
-                                function(result){
+            this.runQuery(function(result){
                                             willBeInSelection={};
                                             result.getValue().forEach(function(n){
                                                 willBeInSelection[n.attr['_pkey']] = n;
                                             },'static');
                                             that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection,isExternalDict);
                                             return result;
-                                    });
+                                    },{store_chpkeys:chpkeys,condition:condition});
+
+
         }else if (delKeys.length>0) {
             this.checkExternalChange(delKeys,[],[],isExternalDict);
         }

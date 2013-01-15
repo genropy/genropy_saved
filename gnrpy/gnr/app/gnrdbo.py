@@ -239,9 +239,9 @@ class TableBase(object):
 
 
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_',_sysfield=True)
-        tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
-        tbl.column('df_custom_templates','X',group='_',_sysfield=True)
+        tbl.column('df_fields',dtype='X',group='_')
+        tbl.column('df_fbcolumns','L',group='_')
+        tbl.column('df_custom_templates','X',group='_')
 
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
