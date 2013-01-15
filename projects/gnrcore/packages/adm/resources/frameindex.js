@@ -14,8 +14,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var rootPageName = kw.rootPageName;
         var stackWidget=this.stackSourceNode.widget;
         if(stackWidget.hasPageName(rootPageName)){
-            stackWidget.switchPage(rootPageName);
-            return;
+            return rootPageName;
         }
         this.iframesbag = genro.getData('iframes');
         if(!this.iframesbag){

@@ -159,7 +159,6 @@ class FrameIndex(BaseComponent):
                                             this.setRelativeData("selectedFrame",pageName);
 
                                             """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
-        tabroot.div()
         pane.dataController("""
                                 if(!data){
                                     if(indexTab){
