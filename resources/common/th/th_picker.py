@@ -138,7 +138,7 @@ class THPicker(BaseComponent):
         view = pane.parent.parent.parent    
         grid = view.grid  
         many = parameters['relation_field']
-        condition = parameters['condition']
+        condition = parameters.get('condition')
         condition_kwargs = dictExtract(parameters,'condition_')
         unique = parameters.get('unique',False)
         cacheTime = parameters.get('cacheTime',-1)
