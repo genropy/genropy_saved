@@ -2032,7 +2032,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          kw['_delay'] = kw['_delay'] || 'auto';
          var _onError = objectPop(kw,'_onError');
-         var skw = objectUpdate({},kw);
+         var skw = objectUpdate({_cleared:false},kw);
          skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
          objectPop(skw,'nodeId')
          objectPop(skw,'_onCalling');
