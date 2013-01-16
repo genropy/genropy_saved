@@ -1062,8 +1062,19 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     onChanged:function(widget) {
         var value = widget.getValue();
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
+    },
 
-    }
+    mixin_displayMessage: function(/*String*/ message){
+    			// summary:
+    			//		User overridable method to display validation errors/hints.
+    			//		By default uses a tooltip.
+    			if(this._message == message){ return; }
+    			this._message = message;
+    			dijit.hideTooltip(this.domNode);
+    			if(message){
+    				dijit.showTooltip(message, this.domNode, this.tooltipPosition);
+    			}
+    		}
 });
 
 dojo.declare("gnr.widgets.ProgressBar", gnr.widgets.baseDojo, {
