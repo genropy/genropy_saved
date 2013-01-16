@@ -390,7 +390,7 @@ class TableHandlerView(BaseComponent):
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
-                               pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                               pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,

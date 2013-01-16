@@ -906,6 +906,21 @@ table.formbuilder {
     border-right:0px !important;
 }
 
+.buttonInGrid{
+    border-radius:4px;
+    margin:1px;
+    display:inline-block;
+    font-size:1.1em;
+    padding-bottom:2px;
+    padding-top:1px;
+    padding-left:4px;
+    padding-right:4px;
+    color:white;
+    cursor:pointer;
+    line-height:10px;
+    background-color:#488fd7;
+}
+
 
 
 
