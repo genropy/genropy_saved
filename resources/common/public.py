@@ -65,7 +65,7 @@ class PublicBase(BaseComponent):
         return frame
         
     def public_frameTopBarSlots(self,baseslot):
-        if hasattr(self,'public_partitioned'):
+        if getattr(self,'public_partitioned',None):
             baseslot = baseslot.replace('avatar','partition_selector,10,avatar')
         return baseslot
         
