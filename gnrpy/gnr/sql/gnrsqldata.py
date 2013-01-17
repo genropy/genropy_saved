@@ -463,8 +463,8 @@ class SqlQueryCompiler(object):
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
             
-
-        env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        currentEnv = self.db.currentEnv
+        env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
         if env_conditions:
             wherelist = [where] if where else []
             for condition in env_conditions.values():
@@ -544,6 +544,12 @@ class SqlQueryCompiler(object):
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
+        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+        if partition_kwargs:
+            for k,v in partition_kwargs.items():
+                if currentEnv.get(k):
+                    where =  ' ( t0.%s=:env_%s ) AND %s' % (k,v, where)
+
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', 't0')

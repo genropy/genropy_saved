@@ -61,7 +61,7 @@ class TableHandlerForm(BaseComponent):
     @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
     def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
-                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,**kwargs):
+                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,store='recordCluster',**kwargs):
         tableCode = table.replace('.','_')
         formId = formId or tableCode
         self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
@@ -72,7 +72,7 @@ class TableHandlerForm(BaseComponent):
             formroot = formroot or pane
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,context_dbstore=dbstore,
-                             datapath='.form',store='recordCluster',store_kwargs=store_kwargs,
+                             datapath='.form',store=store,store_kwargs=store_kwargs,
                              **kwargs)
         self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)

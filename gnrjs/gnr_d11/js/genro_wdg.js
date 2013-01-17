@@ -380,7 +380,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
                     setTimeout(function() {
                         sourceNode.widget.displayMessage(errormessage);
                     }, 1);
-                } else if (warnings.length>0) {
+                } else if (warnings && warnings.length>0) {
                     warnings = warnings.join('<br />');
                     setTimeout(function() {
                         sourceNode.widget.displayMessage(warnings);
