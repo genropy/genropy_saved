@@ -289,8 +289,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
             }
-            var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
-            fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666'},objectExtract(kw,'wdg_*')));
+            
+            if(typeof(wdg)=='string'){
+                var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
+                fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
+            }else{
+                var fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
+                wdg.forEach(function(n){
+                    var w = objectPop(n,'wdg');
+                    fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
+                })
+            }
         }
         dlg.show_action();
         genro.setData('gnr.promptDlg.promptvalue',dflt || null);
