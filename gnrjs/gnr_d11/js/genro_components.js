@@ -2030,9 +2030,10 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var storeType = chunkSize? 'VirtualSelection':'Selection';
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
-         kw['_delay'] = kw['_delay'] || 'auto';
          var _onError = objectPop(kw,'_onError');
          var skw = objectUpdate({_cleared:false},kw);
+          //skw['_delay'] = kw['_delay'] || 'auto';
+
          skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
          objectPop(skw,'nodeId')
          objectPop(skw,'_onCalling');
@@ -2042,6 +2043,8 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          objectPop(kw,'_onStart');
          objectPop(kw,'_cleared');
          objectPop(kw,'_fired');
+         objectPop(kw,'_delay');
+
          var v;
          for (var k in kw){
             v = kw[k];

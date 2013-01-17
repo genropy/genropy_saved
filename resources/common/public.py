@@ -186,18 +186,18 @@ class PublicSlots(BaseComponent):
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
         box = pane.div(hidden='^gnr.partition_selector.hidden') 
-
         if self.public_partitioned is True:
             kw = dictExtract(self.tblobj.attributes,'partition_')
-            partition_field = kw.keys()[0]
-            partition_path = kw[partition_field]
-            related_tblobj = self.tblobj.column(partition_field).relatedColumn().table
-        else:
-            kw = self.public_partitioned
-            partition_field = kw['field']
-            partition_path = kw['path']
-            table = kw['table']
-            related_tblobj = self.db.table(table)
+            public_partitioned = dict()
+            public_partitioned['field'] = kw.keys()[0]
+            public_partitioned['path'] = kw[public_partitioned['field']]
+            public_partitioned['table'] = self.tblobj.column(public_partitioned['field']).relatedColumn().table.fullname
+            self.public_partitioned = public_partitioned
+        kw = self.public_partitioned
+        partition_field = kw['field']
+        partition_path = kw['path']
+        table = kw['table']
+        related_tblobj = self.db.table(table)
 
         if not self.rootenv[partition_path]:
             fb = box.formbuilder(cols=1,border_spacing='3px')
@@ -332,17 +332,9 @@ class TableHandlerMain(BaseComponent):
             kwargs['extendedQuery'] = False
             kwargs['view_root_tablehandler'] = True
         extendedQuery = kwargs.pop('extendedQuery','*') 
-        lockable = kwargs.pop('lockable',True)  
-        self.public_partitioned = None    
+        lockable = kwargs.pop('lockable',True)
         if th_options['partitioned']:
-            partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-            partitioned = th_options['partitioned']
-            if th_options['partitioned'] is True:
-                partitioned = dict()
-                partitioned['field'] = partition_kwargs.keys()[0]
-                partitioned['path'] = partition_kwargs[partitioned['field']]
-                partitioned['table'] = self.tblobj.column(partitioned['field']).relatedColumn().table.fullname
-            self.public_partitioned = partitioned
+            self.public_partitioned = th_options['partitioned']
         if insidePublic:
             pbl_root = root = root.rootContentPane(datapath=tablecode)
         else:
@@ -361,10 +353,10 @@ class TableHandlerMain(BaseComponent):
         thwidget = kwargs.pop('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
-        if self.public_partitioned:
+        if getattr(self,'public_partitioned',None):
             th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
                     storeServerTime='=.store?servertime',_if='storeServerTime')
-
+            partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if partition_kwargs:
                 th.form.dataController("SET gnr.partition_selector.hidden = pkey?true:false;",pkey='^#FORM.pkey')
 
