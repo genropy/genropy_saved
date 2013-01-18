@@ -3264,6 +3264,15 @@ p {
     font-variant:small-caps;
     height: 20px;
 }
+
+
+.pbl_roundedGroupLabel.slotbar_horizontal .multibutton_container{
+    height: 18px;
+    font-variant:normal;
+    line-height:15px;
+    font-size: 8pt;
+}
+
 .multibutton:hover{
 	text-decoration: underline;
 }

@@ -5,7 +5,7 @@ import datetime
 import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,encode36,decode36
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -118,9 +118,11 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """TODO"""
+    @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
                   counter=False,hierarchical=False,
-                  group='zzz', group_name='!!System',multidb=None,df=None):
+                  group='zzz', group_name='!!System',
+                  multidb=None,df=None,counter_kwargs=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -202,10 +204,11 @@ class TableBase(object):
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
                 tbl.attributes.setdefault('order_by','$_h_count')
             else:
+                self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')
-                tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
-                            _counter_fkey=counter,group=group,_sysfield=True)
-
+        if counter_kwargs:
+            for k,v in counter_kwargs.items():
+                self.sysFields_counter(tbl,'_row_count_%s' %k,counter=v,group=group,name_long='!!Counter %s' %k)
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
@@ -242,6 +245,10 @@ class TableBase(object):
         tbl.column('df_fields',dtype='X',group='_')
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
+
+    def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
+        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
+                            _counter_fkey=counter,group=group,_sysfield=True)
 
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
@@ -291,7 +298,7 @@ class TableBase(object):
     def trigger_setCounter(self,record,fldname,**kwargs):
         if record.get('_row_count') is not None:
             return
-        fldlist = self.column('_row_count').attributes.get('_counter_fkey').split(',')
+        fldlist = self.column(fldname).attributes.get('_counter_fkey').split(',')
         where = []
         wherekw = dict()
         cols = []
