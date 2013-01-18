@@ -56,3 +56,24 @@ class GnrCustomWebPage(object):
     
     def rpc_get_time(self, **kwargs):
         return datetime.datetime.now()
+
+
+    def test_9_remotepublish(self,pane):
+        "aaaaa"
+        pane.button('Test',action='FIRE .test')
+        pane.dataRpc('dummy',self.remotePublishTest,_fired='^.test')
+        pane.dataController("alert(number);",nodeId='ccc',selfsubscribe_test_node=True)
+        pane.dataController("alert(number);",subscribe_test_public=True)
+#
+    #@public_method
+    #def remotePublishTest(self):
+    #    self.setInClientData('gnr.publisher',dict(topic='test_node',nodeId='ccc',kw=dict(number=4)),fired=True)
+    #    self.setInClientData('gnr.publisher',dict(topic='test_public',kw=dict(number=36)),fired=True)
+
+
+
+    @public_method
+    def remotePublishTest(self):
+        self.clientPublish('test_node',number=4,nodeId='ccc')
+        self.clientPublish('test_public',number=36)
+

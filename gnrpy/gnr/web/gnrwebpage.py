@@ -1364,6 +1364,17 @@ class GnrWebPage(GnrBaseWebPage):
         :param username: TODO"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
+
+    def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
+        value = dict(topic=topic,kw=kwargs)
+        if nodeId:
+            value['nodeId'] = nodeId
+        if iframe:
+            value['iframe'] = iframe
+        if parent:
+            value['parent'] = parent
+        self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         """TODO
@@ -1467,6 +1478,10 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     
+                page.dataController("""if(kw){
+                                        genro.publish(kw)
+                                     };""", kw='^gnr.publisher')
+
                 page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")

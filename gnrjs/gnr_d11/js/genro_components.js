@@ -2254,7 +2254,7 @@ dojo.declare("gnr.stores._Collection",null,{
         if(filtered && this._filtered){
             return this._filtered.length;
         }
-        return this.getItems().length;
+        return this.getItems().length || 0;
     },
     
     indexByCb:function(cb,backward){
@@ -2575,6 +2575,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     freezedStore:function(){
+        if(this.freezed){
+            return true;
+        }
         var if_condition = this.storeNode.attr._if;
         if(if_condition){
             var if_result = funcApply('return '+if_condition,this.storeNode.currentAttributes(),this.storeNode);
@@ -2694,6 +2697,10 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             },'static');  
             return result;
         };
+        if((delKeys.length+insOrUpdKeys.length)>(this.len()*.3)){
+            this.loadData();
+            return
+        }
         if(delKeys.length>0){
             wasInSelection = wasInSelectionCb(delKeys);
              for(pkey in wasInSelection){
