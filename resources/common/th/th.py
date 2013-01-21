@@ -125,6 +125,8 @@ class TableHandler(BaseComponent):
                 """)
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
+            if pbl_classes=='*':
+                wdg.view.attributes.update(_class='pbl_roundedGroup noheader')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
             wdg.view.top.bar.replaceSlots('count','')
         if not self.th_checkPermission(wdg.view):
