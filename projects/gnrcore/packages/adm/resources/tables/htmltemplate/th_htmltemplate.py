@@ -92,7 +92,7 @@ class Form(BaseComponent):
                             datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
-        self.htmltemplate_form(bc.borderContainer(region='top', height='200px',splitter=True))
+        self.htmltemplate_form(bc.borderContainer(region='top', height='205px',splitter=True))
         
         center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea')
         self.RichTextEditor(center, value='^.html',
@@ -105,7 +105,7 @@ class Form(BaseComponent):
 
     def htmltemplate_form(self,bc):
         left = bc.borderContainer(region='left', width='20em')
-        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='100px'))        
+        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='110px'))        
         self.htmltemplate_basePageParams(left.roundedGroup(region='center', datapath='.data.main.page',title='!!Page sizing'))
         tc = bc.tabContainer(region='center', selectedPage='^.data.main.design',margin='2px')
         self.htmltemplate_headLineOpt(tc.contentPane(title='Headline', pageName='headline'))
@@ -113,10 +113,13 @@ class Form(BaseComponent):
         
 
     def htmltemplate_tplInfo(self, pane):
-        fb = pane.formbuilder(cols=1, border_spacing='3px')
-        fb.field('name', width='12em')
-        fb.field('type_code', width='12em',hasDownArrow=True,lbl='Type')
-        fb.field('version', width='5em')
+        fb = pane.formbuilder(cols=2, border_spacing='3px')
+        fb.field('name', width='12em',colspan=2)
+        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on')
+        fb.field('type_code', width='7em',hasDownArrow=True,lbl='Type')
+        fb.field('version', width='3em',lbl='V.')
+        fb.field('next_letterhead_id', width='12em',hasDownArrow=True,lbl='Follow on',colspan=2)
+
 
     def htmltemplate_basePageParams(self, pane):
         fb = pane.formbuilder(cols=2, border_spacing='4px')

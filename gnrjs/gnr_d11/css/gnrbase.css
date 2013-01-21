@@ -3554,3 +3554,6 @@ div[disabled='true']{
     margin-left: 0;
 }
 
+.gnrlayout{
+    position: absolute;
+}

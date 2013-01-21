@@ -126,12 +126,12 @@ class GnrHtmlSrc(GnrStructData):
         :param \*\*kwargs: you can pass:
         
             * *style*: a string with css style"""
-        self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
+        self.style(".%s_layout{border:%s%s %s %s;}" % (
         name, border_width, um, border_style, border_color))
             
         layout = self.child(tag='layout', **kwargs)
         layout.layout_name = name
-        layout.layout_class = '%s_layout' % name
+        layout.layout_class = 'gnrlayout %s_layout' % name
         layout.um = um
         layout.top = float(top or 0)
         layout.left = float(left or 0)
