@@ -51,7 +51,7 @@ dojo.declare("gnr.PagedEditorManager", null, {
                 }
             }
         },
-        getPages:function(){
+        getHtml:function(){
             var result = '<html> <head> <style> .gnrlayout{position:absolute;} </style> </head> <body>'
             result+=this.previewRoot().domNode.innerHTML;
             result+='</body> </html>';

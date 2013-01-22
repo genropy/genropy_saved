@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
         fb.button('Print',action="FIRE .print")
         fb.dataRpc('dummy',self.printPages,
                     _fired='^.print',
-                    _onCalling="""kwargs['pages'] = _pe._pe_manager.getPages();""",_pe=pe)
+                    _onCalling="""kwargs['pages'] = _pe._pe_manager.getHtml();""",_pe=pe)
 
     @public_method
     def printPages(self,pages=None):
