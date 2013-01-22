@@ -34,7 +34,7 @@ class PagedEditor(BaseComponent):
         pane.dataController("""frame._pe_manager.onContentChanged(value);""",value=value,frame=frame)
 
     def _pe_preview(self,pane):
-        bar = pane.slotBar('0,preview,0',closable='close',width='230px',preview_height='100%',splitter=True,border_left='1px solid silver')
+        bar = pane.slotBar('0,preview,0',closable=True,width='230px',preview_height='100%',splitter=True,border_left='1px solid silver')
         bar.preview.div(height='100%').div(position='absolute',top=0,left=0,right=0,bottom=0,zoom='.3',overflow='auto',_class='pe_preview_box',pe_previewRoot=True)
         #box.div(_class='pe_pages',nodeId='pr_1')
         #box.div(_class='pe_pages')

@@ -227,5 +227,5 @@ class Form(BaseComponent):
                     record.setItem('data.layout.%s' % path, None, height=30)
 
     def th_options(self):
-        return dict(dialog_height='600px',dialog_width='900px')
+        return dict(dialog_height='600px',dialog_width='900px',duplicate=True)
                           

@@ -75,11 +75,27 @@ class Table(object):
         builder.initializeSrc()
         height=builder.page_height - builder.page_margin_top - builder.page_margin_bottom
         width=builder.page_width - builder.page_margin_left - builder.page_margin_right
-        builder.letterhead_root = builder.body.div(letterhead_root='t',
-                                                   height='%imm' %height,
-                                                   width='%imm' %width,
-                                                   position='relative',border='1px solid silver',
-                                                   _class='letterhead_page')
+       #page = builder.body.div(height='%imm' %builder.page_height,width='%imm' %builder.page_width,
+       #                        position='relative',_class='letterhead_page')
+
+        page = builder.body.div(style="""position:relative;
+                                   width:%smm;
+                                   height:%smm;
+                                   border:.3mm solid %s; /*do not remove */
+                                   top:0mm;
+                                   left:0mm;
+                                   """ % (builder.page_width, builder.page_height, 'white'),
+                                   _class='letterhead_page')
+
+
+        builder.letterhead_root = page.div(style="""position:absolute;
+                                   top:%imm;
+                                   left:%imm;
+                                   right:%imm;
+                                   bottom:%imm;""" % (
+                            builder.page_margin_top, builder.page_margin_left,
+                            builder.page_margin_right, builder.page_margin_bottom))
+
         for i,pkey in enumerate(letterhead_pkeys):
             regions = self.letterhead_layer(builder, Bag(f[pkey]['data']),width=width,height=height,count=i)
         builder._regions = regions
@@ -117,6 +133,10 @@ class Table(object):
                                 innerHTML = "%s::HTML" % innerHTML
                             regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0)
         return regions
+
+
+    def onDuplicating(self,record):
+        record['name'] = '%s (copy)' %record['name']
 
     def updateCenterSize(self,record):
         pass

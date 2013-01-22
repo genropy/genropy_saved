@@ -50,6 +50,12 @@ dojo.declare("gnr.PagedEditorManager", null, {
                     dest.appendChild(node);
                 }
             }
+        },
+        getPages:function(){
+            var result = '<html> <head> <style> .gnrlayout{position:absolute;} </style> </head> <body>'
+            result+=this.previewRoot().domNode.innerHTML;
+            result+='</body> </html>';
+            return result;
         }
     }
 );

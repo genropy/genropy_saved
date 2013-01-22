@@ -2888,7 +2888,12 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 });
                 return result;
             };
-            this.runQuery(cb);
+            var result = this.loadData();
+            if(result instanceof dojo.Deferred){
+                result.addCallback(function(r){cb(r)});
+            }else{
+                result = cb(result);
+            }
         }
     },
     
