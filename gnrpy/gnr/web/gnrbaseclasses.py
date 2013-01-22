@@ -305,8 +305,6 @@ class TableTemplateToHtml(BagToHtml):
                     localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
                     **kwargs)
 
-
-
     @extract_kwargs(pdf=True)
     def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
         self.print_handler.htmlToPdf(self.filepath,pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)

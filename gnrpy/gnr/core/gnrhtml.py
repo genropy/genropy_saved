@@ -126,7 +126,7 @@ class GnrHtmlSrc(GnrStructData):
         :param \*\*kwargs: you can pass:
         
             * *style*: a string with css style"""
-        self.style(".%s_layout{border:%s%s %s %s;}" % (
+        self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
             
         layout = self.child(tag='layout', **kwargs)
@@ -534,6 +534,7 @@ class GnrHtmlBuilder(object):
         attr['tag'] = 'div'
         attr['top'] = 0
         attr['left'] = row.curr_x
+        attr['overflow'] = 'hidden'
         cell_class = 'x_br'
         if not bottom_border_width:
             cell_class = cell_class.replace('b', '')

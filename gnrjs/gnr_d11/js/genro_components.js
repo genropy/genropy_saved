@@ -1516,7 +1516,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var row_kw = objectExtract(kw,'row_*');
         var table_kw = objectExtract(kw,'table_*');
         var label_kw = objectExtract(kw,'label_*',null,true);
-        var has_code = values.indexOf(':')>=0;
+        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
 
         if(popup){
             var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));

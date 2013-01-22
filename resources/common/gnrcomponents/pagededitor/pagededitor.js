@@ -40,6 +40,7 @@ dojo.declare("gnr.PagedEditorManager", null, {
             var node;
             while(children.length){
                 node = src.removeChild(children[0]);
+                genro.dom.addClass(node,'pe_node');
                 dest.appendChild(node);
                 if(dest.clientHeight>page.clientHeight){
                     node = dest.removeChild(node);

@@ -523,8 +523,8 @@ class DynamicForm(BaseComponent):
 
     def df_checkboxtext(self,attr,**kwargs):
         attr.setdefault('popup',True)
+        attr.setdefault('codeSeparator',False)
         attr['values'] = attr.get('source_checkboxtext')    
-            
         
     def _df_handleFieldFormula(self,attr,fb,fields=None):
         formula = attr.pop('formula',None)

@@ -20,3 +20,6 @@
 .pe_preview_box{
     text-align: left;
 }
+.pe_preview_box .pe_node:hover{
+    background-color: red;
+}
