@@ -517,6 +517,7 @@ class GnrWebPage(GnrBaseWebPage):
             record[field] = data
             tblobj.update(record)
             self.db.commit()
+            
         
         
 
