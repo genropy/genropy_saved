@@ -379,9 +379,9 @@ class TableHandlerMain(BaseComponent):
             else:
                 th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
             viewbar.replaceSlots('#','#,avatarslot,10')
-            viewbar.replaceSlots('5,vtitle','10,captioslot')
+            viewbar.replaceSlots('5,searchOn','10,captionslot,searchOn')
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
-            viewbar.captioslot.publicRoot_captionslot()
+            viewbar.captionslot.publicRoot_captionslot()
 
         storeupd = dict(startLocked=lockable)
         if not extendedQuery:
