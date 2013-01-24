@@ -227,7 +227,7 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
-            var mainpkey = this.form.getCurrentPkey();
+            var mainpkey = this.form?this.form.getCurrentPkey():null;
             if(!this._pageHandler){
                 var th = {formResource:formResource,public:public}
                 var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
