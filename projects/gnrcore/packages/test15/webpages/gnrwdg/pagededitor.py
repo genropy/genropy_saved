@@ -18,6 +18,7 @@ class GnrCustomWebPage(object):
     def test_0_base(self,pane):
         """basic"""
         frame = pane.framePane(height='600px')
+        #frame.script('genro.newCkeditor=true;')
         fb = frame.top.slotBar('5,fb,*')
         fb = frame.top.bar.fb.formbuilder(cols=4,border_spacing='3px')
         fb.dbselect(value='^.letterhead_id',dbtable='adm.htmltemplate',hasDownArrow=True)

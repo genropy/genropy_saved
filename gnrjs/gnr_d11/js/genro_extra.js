@@ -390,7 +390,8 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             that.makeEditor(widget, savedAttrs, sourceNode);
         }
         if(!window.CKEDITOR){
-            genro.dom.loadJs('/_rsrc/js_libs/ckeditor/ckeditor.js',function(){
+            var suff = genro.newCkeditor? '_new':'';
+            genro.dom.loadJs('/_rsrc/js_libs/ckeditor'+suff+'/ckeditor.js',function(){
                 cb();
             });
             return;
