@@ -12,7 +12,7 @@ import tempfile
 
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/pagededitor/pagededitor:PagedEditor"
+    py_requires="""gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/pagededitor/pagededitor:PagedEditor"""
     
          
     def test_0_base(self,pane):

@@ -366,8 +366,13 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
         var ckeditor =  sourceNode.externalWidget;
         dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
-
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
+        ckeditor['on']('key',function(){
+            genro.callAfter(function(){
+                this.gnr_onTyped();
+                this.gnr_setInDatastore();
+            },2000,this,'typing');
+        });
     },
 
     onSpeechEnd:function(sourceNode,v){
@@ -409,11 +414,15 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     mixin_gnr_getFromDatastore : function() {
         this.setData(this.sourceNode.getAttributeFromDatasource('value'));
     },
+
     mixin_gnr_setInDatastore : function() {
         var value=this.getData();
         if(this.sourceNode.getAttributeFromDatasource('value')!=value){
             this.sourceNode.setAttributeInDatasource('value',value );
         }
+
+    },
+    mixin_gnr_onTyped:function(){
 
     },
 

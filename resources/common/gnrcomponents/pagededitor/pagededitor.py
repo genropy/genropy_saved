@@ -17,10 +17,9 @@ class PagedEditor(BaseComponent):
     @extract_kwargs(editor=True)
     @struct_method
     def pe_pagedEditor(self,pane,value=None,editor_kwargs=None,letterhead_id=None,**kwargs):
-        frame = pane.framePane(**kwargs)
+        frame = pane.framePane(_workspace=True,**kwargs)
         frame.dataController("""frame._pe_manager= new gnr.PagedEditorManager(frame);""",
-                            frame=frame,
-                        _onStart=True)
+                            frame=frame,_onStart=True)
         frame.dataRpc('dummy',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id',
                         _onResult='kwargs._frame._pe_manager.letterheads=result;',_frame=frame)
         self._pe_editor(frame,value=value,**editor_kwargs)
@@ -31,11 +30,18 @@ class PagedEditor(BaseComponent):
     def _pe_editor(self,frame,value=None,**kwargs):
         pane = frame.center.contentPane()
         pane.ckeditor(value=value,childname='editor',**kwargs)
-        pane.dataController("""frame._pe_manager.onContentChanged(value);""",value=value,frame=frame)
+        pane.dataController("""
+                                frame._pe_manager.onContentChanged(value);
+                            """,value=value,frame=frame)
 
     def _pe_preview(self,pane):
-        bar = pane.slotBar('0,preview,0',closable=True,width='230px',preview_height='100%',splitter=True,border_left='1px solid silver')
-        bar.preview.div(height='100%').div(position='absolute',top=0,left=0,right=0,bottom=0,zoom='.3',overflow='auto',_class='pe_preview_box',pe_previewRoot=True)
+        bar = pane.slotBar('zoombar,10,preview,0',closable=True,width='230px',preview_height='100%',splitter=True,border_left='1px solid silver')
+        top = bar.zoombar.slotToolbar('5,zoomSlider,*',height='20px')
+        pane.data('#WORKSPACE.zoom',.3)
+        top.zoomSlider.horizontalSlider(value='^#WORKSPACE.zoom',minimum=0.3, maximum=1,
+                                intermediateChanges=True, width='15em')
+
+        bar.preview.div(height='100%').div(position='absolute',top='40px',left=0,right=0,bottom=0).div(position='absolute',top='0',left=0,right=0,bottom=0,zoom='^#WORKSPACE.zoom',overflow='auto',_class='pe_preview_box',pe_previewRoot=True)
         #box.div(_class='pe_pages',nodeId='pr_1')
         #box.div(_class='pe_pages')
 

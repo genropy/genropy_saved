@@ -3,6 +3,13 @@ dojo.declare("gnr.PagedEditorManager", null, {
             this.sourceNode = sourceNode;
             this.pages = new gnr.GnrBag();
             this.letterheads = null;
+            this.disabled = true;
+            this.bottom_extraspace = sourceNode.attr.bottom_extraspace || 0;
+            this.editorNode = this.sourceNode.getChild('center').getChild('editor');
+            var that = this;
+            dojo.connect(this.editorNode.externalWidget,'gnr_onTyped',function(){
+                that.setDisabled(false);
+            })
         },
 
         previewRoot:function(){
@@ -26,10 +33,22 @@ dojo.declare("gnr.PagedEditorManager", null, {
             }
             rn.appendChild(p);
             genro.dom.addClass(content_node,'pe_content')
+            content_node.setAttribute('contenteditable','true');
             return content_node;
         },
         
         onContentChanged:function(value){
+            if(!this.disabled){
+                this.previewRoot().domNode.style.visibility ='hidden';
+                var prevZoom = this.previewRoot().domNode.style.zoom ;
+                this.previewRoot().domNode.style.zoom ='1';
+                this.paginate(value);
+                this.previewRoot().domNode.style.zoom =prevZoom;
+                this.previewRoot().domNode.style.visibility ='visible';
+            }
+        },
+
+        paginate:function(value){
             this.previewRoot().domNode.innerHTML = '';
             var page = this.addPage();
             var dest = document.createElement('div');
@@ -42,7 +61,7 @@ dojo.declare("gnr.PagedEditorManager", null, {
                 node = src.removeChild(children[0]);
                 genro.dom.addClass(node,'pe_node');
                 dest.appendChild(node);
-                if(dest.clientHeight>page.clientHeight){
+                if((dest.clientHeight+ this.bottom_extraspace)>=page.clientHeight){
                     node = dest.removeChild(node);
                     page = this.addPage();
                     dest = document.createElement('div');
@@ -51,9 +70,18 @@ dojo.declare("gnr.PagedEditorManager", null, {
                 }
             }
         },
+
+        setDisabled:function(disabled){
+            this.disabled = disabled===false?false:true;
+        },
+
         getHtml:function(){
-            var result = '<html> <head> <style> .gnrlayout{position:absolute;} </style> </head> <body>'
-            result+=this.previewRoot().domNode.innerHTML;
+            var paged_text = this.previewRoot().domNode.innerHTML;
+            if(!paged_text){
+                return
+            }
+            var result = '<html> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <style> .gnrlayout{position:absolute;} .letterhead_page{page-break-before:always;} .letterhead_page:first-child{page-break-before:avoid;}</style> </head> <body>'
+            result+=paged_text;
             result+='</body> </html>';
             return result;
         }

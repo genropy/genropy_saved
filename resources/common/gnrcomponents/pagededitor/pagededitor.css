@@ -9,13 +9,13 @@
 }
 
 .letterhead_page{
+    border:.3mm solid silver;
     box-shadow: 4mm 4mm 8mm #777;
     margin:10mm;
 
 }
 .pe_content{
     background-color: rgb(250, 250, 240);
-
 }
 .pe_preview_box{
     text-align: left;
