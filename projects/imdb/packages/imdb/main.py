@@ -4,7 +4,7 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(comment='imdb package',sqlprefix='',sqlschema='imdb',
+        return dict(comment='imdb package',sqlprefix='',
                     name_short='Imdb', name_long='Imdb', name_full='Imdb')
                     
     def config_db(self, pkg):
