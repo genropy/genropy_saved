@@ -351,7 +351,7 @@ class TableHandlerView(BaseComponent):
                         #view_title='=.title',
                         _sections='^.sections',
                         sub_title='==_sections?th_sections_manager.getSectionTitle(_sections):"";',
-                        _onBuilt=True)
+                        _onBuilt=True,_onStart=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
