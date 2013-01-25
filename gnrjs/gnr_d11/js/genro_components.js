@@ -2063,6 +2063,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
                  grid.sourceNode.publish('loadingData',{loading:false});
             });
          };
+         kw['_POST'] = true;
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});

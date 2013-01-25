@@ -408,6 +408,7 @@ class TableHandlerView(BaseComponent):
                                _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
+                               _POST =True,
                                _onCalling="""
                                %s
                                if(_sections){
