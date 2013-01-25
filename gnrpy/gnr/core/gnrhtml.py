@@ -534,7 +534,6 @@ class GnrHtmlBuilder(object):
         attr['tag'] = 'div'
         attr['top'] = 0
         attr['left'] = row.curr_x
-        attr['overflow'] = 'hidden'
         cell_class = 'x_br'
         if not bottom_border_width:
             cell_class = cell_class.replace('b', '')
@@ -543,7 +542,7 @@ class GnrHtmlBuilder(object):
         attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class] if x)
         row.curr_x += width + right_border_width
         self.calculate_style(attr, row.layout.um)
-                    
+                     
     def setLabel(self, cell, attr):
         """TODO
         
