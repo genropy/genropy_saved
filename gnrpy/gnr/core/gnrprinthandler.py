@@ -123,7 +123,7 @@ class PrintHandler(object):
         self.parent = parent
 
     def printBodyStyle(self):
-        return "font-size:12px;font-family: Arial, Verdana, sans-serif;margin-top:0;margin-bottom:0;margin-left:0;margin-right:0;"
+        return "font-size:12px;font-family: Arial, Verdana, sans-serif;margin-top:0;margin-bottom:0;margin-left:0;margin-right:0;-webkit-text-size-adjust:auto;"
     
     def standardPageHtmlTemplate(self,bodyStyle=None):
         bodyStyle = bodyStyle or self.printBodyStyle()

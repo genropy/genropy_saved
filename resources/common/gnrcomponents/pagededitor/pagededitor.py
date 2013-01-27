@@ -19,7 +19,7 @@ class PagedEditor(BaseComponent):
     def pe_pagedEditor(self,pane,value=None,editor_kwargs=None,letterhead_id=None,pagedText=None,printAction=None,bodyStyle=None,
                         **kwargs):
         bodyStyle = bodyStyle or self.getPreference('print.bodyStyle',pkg='adm') or self.getService('print').printBodyStyle()
-        frame = pane.framePane(_workspace=True,selfsubscribe_print='genro.bp(true);FIRE #WORKSPACE.print;',**kwargs)
+        frame = pane.framePane(_workspace=True,selfsubscribe_print='FIRE #WORKSPACE.print;',**kwargs)
         right = frame.right
         right.attributes.update(background='white')
         printId = 'pe_print_%s' %id(frame)

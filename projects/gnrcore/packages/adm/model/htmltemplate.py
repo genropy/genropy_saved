@@ -117,7 +117,7 @@ class Table(object):
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
                             regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, width=width, border=0,
-                                                                                overflow='hidden' if (subregion!='center' or region!='center') else None)
+                                                                                overflow='hidden')
         elif letterheadBag['main.design'] == 'sidebar':
             mainrow = layout.row(height=0)
             for region in ('left', 'center', 'right'):
@@ -131,7 +131,7 @@ class Table(object):
                             innerHTML = letterheadBag['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
-                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0,overflow='hidden' if (subregion!='center' or region!='center') else None)
+                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0,overflow='hidden')
         return regions
 
 
