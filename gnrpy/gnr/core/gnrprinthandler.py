@@ -6,6 +6,7 @@ except ImportError:
     HAS_CUPS = False
     
 import os.path
+import tempfile
 from subprocess import call
 
 try:
@@ -120,9 +121,40 @@ class PrintHandler(object):
         self.hasCups = HAS_CUPS
         self.hasPyPdf = HAS_PYPDF
         self.parent = parent
+
+    def printBodyStyle(self):
+        return "font-size:12px;font-family: Arial, Verdana, sans-serif;margin-top:0;margin-bottom:0;margin-left:0;margin-right:0;"
     
+    def standardPageHtmlTemplate(self,bodyStyle=None):
+        bodyStyle = bodyStyle or self.printBodyStyle()
+        head ="""<head> 
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+                    <style> 
+                        .gnrlayout{position:absolute;} 
+                        body{%s}
+                        .letterhead_page{page-break-before:always;} 
+                        .letterhead_page:first-child{page-break-before:avoid;}
+                    </style>
+                </head>
+                     """%bodyStyle
+        body = "<body>%s</body>"
+        return """<html> 
+                    %s 
+                    %s
+                 </html>""" %(head,body)
+
+    def createTempHtmlFile(self,htmlText,htmlTemplate=None,bodyStyle=None):
+        if not '<html' in htmlText:
+            htmlTemplate = htmlTemplate or self.standardPageHtmlTemplate(bodyStyle)
+            htmlText = htmlTemplate %htmlText
+        tmp = tempfile.NamedTemporaryFile(prefix='temp', suffix='.html',delete=False)
+        tmp.write(htmlText)
+        url = tmp.name
+        tmp.close()
+        return url
+
     @extract_kwargs(pdf=True)
-    def htmlToPdf(self, srcPath, destPath, orientation=None,pdf_kwargs=None): #srcPathList per ridurre i processi?
+    def htmlToPdf(self, srcPath, destPath, orientation=None,pdf_kwargs=None,htmlTemplate=None,bodyStyle=None): #srcPathList per ridurre i processi?
             
         """TODO
         
@@ -130,6 +162,13 @@ class PrintHandler(object):
         :param destPath: TODO
         :param orientation: TODO"""
 
+        if '<' in srcPath:
+            srcPath = self.createTempHtmlFile(srcPath,htmlTemplate=htmlTemplate,bodyStyle=bodyStyle)
+            self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
+            print srcPath
+            #os.remove(srcPath)
+            return
+        print pdf_kwargs,'PDF kwargs'
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys')
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
@@ -150,6 +189,7 @@ class PrintHandler(object):
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)
+        print 'callargs',args
         result = call(args)
 
        #if sys.platform.startswith('linux'):
@@ -159,7 +199,7 @@ class PrintHandler(object):
         if result < 0:
             raise PrintHandlerError('wkhtmltopdf error')
         return destPath
-        
+
     def autoConvertFiles(self, files, storeFolder, orientation=None):
         """TODO
         

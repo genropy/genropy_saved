@@ -31,23 +31,29 @@ class Form(BaseComponent):
         self.htmltemplate_mainInfo(bc.borderContainer(region='left', width='55em', splitter=True,datapath='.record'))
         bc.borderContainer(region='center', overflow='auto', datapath='#FORM._temp.data').remote(self.htmltemplate_printLayout,
                                                                                            design='^#FORM.record.data.main.design')
+
+
     @public_method
     def htmltemplate_printLayout(self, parentBc, design=None, **kwargs):
-        design = design or 'headline'
         page = parentBc.borderContainer(region='center',
                                         height='^.main.page.height',
                                         width='^.main.page.width',
                                         border='1px solid gray', style="""
                                                                     background-color:white;
                                                                     -moz-box-shadow:8px 8px 15px gray;
-	                                                                -webkit-box-shadow:8px 8px 15px gray;
+                                                                    -webkit-box-shadow:8px 8px 15px gray;
                                                                     """,
                                         zoom='^zoomFactor', margin='10px')
-        bc = page.borderContainer(region='center',
-                                  margin_top='^.main.page.top',
-                                  margin_bottom='^.main.page.bottom',
-                                  margin_left='^.main.page.left',
-                                  margin_right='^.main.page.right',
+        layers = page.contentPane(region='center',overflow='hidden')
+        layers.div('^#FORM.backgroundLetterhead',position='absolute',top=0,left=0,right=0,bottom=0,
+                    _class='backgroundLetterhead',visible='^#FORM.showBackground')
+        layer_1 = layers.div(position='absolute',top=0,left=0,right=0,bottom=0,z_index=1)
+
+        bc = layer_1.borderContainer(position='absolute',
+                                  top='^.main.page.top',
+                                  bottom='^.main.page.bottom',
+                                  left='^.main.page.left',
+                                  right='^.main.page.right',
                                   connect_onclick="""
                                     var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
                                     if(clickedNode){
@@ -61,6 +67,7 @@ class Form(BaseComponent):
         regions = dict(headline=('top', 'bottom', 'center'), sidebar=('left', 'right', 'center'))
         for region in regions[design]:
             self._htmltemplate_subRegions(bc, region=region, design=design)
+
 
     def _htmltemplate_subRegions(self, parentBc, region=None, design=None):
         subregions = dict(sidebar=('top', 'bottom', 'center'), headline=('left', 'right', 'center'))
@@ -98,7 +105,8 @@ class Form(BaseComponent):
         self.RichTextEditor(center, value='^.html',
                             nodeId='htmlEditor',toolbar='standard')
         bottom = center.bottom
-        bar = bottom.slotBar('picker,*,zoomfactor',_class='pbl_roundedGroupBottom')
+        bar = bottom.slotBar('picker,*,showBackground,5,zoomfactor',_class='pbl_roundedGroupBottom')
+        bar.showBackground.checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
         bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
@@ -116,9 +124,20 @@ class Form(BaseComponent):
         fb = pane.formbuilder(cols=2, border_spacing='3px')
         fb.field('name', width='12em',colspan=2)
         fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on')
+        fb.dataRpc('#FORM.backgroundLetterhead',self.loadBasedOn,letterhead_id='^.based_on',_if='letterhead_id',_else='return "";')
         fb.field('type_code', width='7em',hasDownArrow=True,lbl='Type')
         fb.field('version', width='3em',lbl='V.')
         fb.field('next_letterhead_id', width='12em',hasDownArrow=True,lbl='Follow on',colspan=2)
+
+    @public_method
+    def loadBasedOn(self,letterhead_id=None,**kwargs):
+        letterheadtbl = self.db.table('adm.htmltemplate')
+        base = letterheadtbl.getHtmlBuilder(letterhead_pkeys=letterhead_id)
+        base.finalize(base.body)
+        basehtml = base.root.getItem('#0.#1').toXml(omitRoot=True,autocreate=True,forcedTagAttr='tag',docHeader=' ',
+                                        addBagTypeAttr=False, typeattrs=False, 
+                                        self_closed_tags=['meta', 'br', 'img'])
+        return basehtml
 
 
     def htmltemplate_basePageParams(self, pane):

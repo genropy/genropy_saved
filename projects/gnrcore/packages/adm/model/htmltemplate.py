@@ -81,10 +81,9 @@ class Table(object):
         page = builder.body.div(style="""position:relative;
                                    width:%smm;
                                    height:%smm;
-                                   border:.3mm solid %s; /*do not remove */
                                    top:0mm;
                                    left:0mm;
-                                   """ % (builder.page_width, builder.page_height, 'white'),
+                                   """ % (builder.page_width, builder.page_height),
                                    _class='letterhead_page')
 
 
@@ -117,7 +116,8 @@ class Table(object):
                             innerHTML = letterheadBag['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
-                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, width=width, border=0)
+                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, width=width, border=0,
+                                                                                overflow='hidden' if (subregion!='center' or region!='center') else None)
         elif letterheadBag['main.design'] == 'sidebar':
             mainrow = layout.row(height=0)
             for region in ('left', 'center', 'right'):
@@ -131,7 +131,7 @@ class Table(object):
                             innerHTML = letterheadBag['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
-                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0)
+                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0,overflow='hidden' if (subregion!='center' or region!='center') else None)
         return regions
 
 

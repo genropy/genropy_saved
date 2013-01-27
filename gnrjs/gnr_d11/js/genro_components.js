@@ -4,7 +4,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         this._domtag = 'div';
     },
     _beforeCreation: function(attributes, sourceNode) {
-        sourceNode.gnrwdg = {'gnr':this,'sourceNode':sourceNode};
+        sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         var attributes = sourceNode.attr;
         sourceNode.attr = {};
         sourceNode.attr.tag=objectPop(attributes,'tag');
@@ -935,6 +935,115 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
+dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle');
+        kw['height'] = '100%';
+        kw['position'] = 'relative';
+        kw['background'] = 'white';
+        kw['_workspace'] = true;
+
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.extra_bottom = pagingKw.extra_bottom || 50;
+        gnrwdg.pagedTextPath = pagingKw.pagedText.replace('^','');
+        gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
+        gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
+
+        //gnrwdg.paginate = function()
+
+        sourceNode.attr.sourceText = pagingKw.sourceText;
+        sourceNode.attr.letterheads = pagingKw.letterheads;
+        kw['style'] = pagingKw.bodyStyle;
+        var container = sourceNode._('div',kw);
+        var top = container._('div',{position:'absolute',top:'0',left:0,right:0,height:'20px',gradient_from:'silver',gradient_to:'whitesmoke',gradient_deg:-90,border_bottom:'1px solid silver'})
+        top._('horizontalSlider',{value:'^#WORKSPACE.zoom','default':0.3,minimum:0.3, maximum:1,intermediateChanges:true, width:'15em',margin_top:'2px'})
+        if(pagingKw.printAction){
+            top._('div',{_class:'iconbox print',connect_onclick:pagingKw.printAction,position:'absolute',right:'2px',top:'0px'})
+        }
+        gnrwdg.pagesRoot = container._('div',{position:'absolute',top:'20px',left:0,bottom:0,right:0})._('div',{innerHTML:pagingKw.pagedText,position:'absolute',top:'0',left:0,right:0,bottom:0,zoom:'^#WORKSPACE.zoom',
+                                                                                            overflow:'auto',_class:'pe_preview_box'}).getParentNode();
+        return container;
+    },
+
+    gnrwdg_setLetterheads:function(letterheads){
+        this.paginate();
+    },
+
+    gnrwdg_addPage:function(){
+        var rn = this.pagesRoot.domNode;  
+        var p = document.createElement('div'); 
+        var content_node;  
+        var letterheads = this.sourceNode.getRelativeData(this.letterheadsPath);      
+        if(letterheads){
+            var lnumber = rn.childElementCount;
+            var max_lnumber = letterheads.len()-1;
+            if(lnumber>max_lnumber){
+                lnumber = max_lnumber;
+            }
+            var letterhead_page = letterheads.getItem('#'+lnumber);
+            p.innerHTML = letterhead_page;
+            var p = p.children[0];
+            content_node = dojo.query('div[content_node=t]',p)[0];
+        }else{
+            genro.dom.addClass(p,'pe_pages');
+            content_node = p;
+        }
+        rn.appendChild(p);
+        genro.dom.addClass(content_node,'pe_content')
+        content_node.setAttribute('contenteditable','true');
+        return content_node;
+    },
+
+    gnrwdg_setSourceText:function(value){
+        if(!this.disabled){
+            this.paginate();
+        }
+    },
+    gnrwdg_onPaginating:function(){
+        var pagesDomNode = this.pagesRoot.domNode;
+        pagesDomNode.style.visibility ='hidden';
+        this.currentZoom = pagesDomNode.style.zoom ;
+        pagesDomNode.style.zoom ='1';
+    },
+
+    gnrwdg_onPaginated:function(){
+        var pagesDomNode = this.pagesRoot.domNode;
+        pagesDomNode.style.zoom = this.currentZoom;
+        pagesDomNode.style.visibility ='visible';
+    },
+
+    gnrwdg_paginate:function(){
+        var sourceHtml = this.sourceNode.getRelativeData(this.sourceTextPath);
+        var pagesDomNode = this.pagesRoot.domNode
+        pagesDomNode.innerHTML = '';
+        if(sourceHtml){
+            this.onPaginating();
+            var page = this.addPage();
+            var dest = document.createElement('div');
+            page.appendChild(dest);
+            var src = document.createElement('div'); 
+            src.innerHTML = sourceHtml;
+            var children = src.children;
+            var node;
+            while(children.length){
+                node = src.removeChild(children[0]);
+                genro.dom.addClass(node,'pe_node');
+                dest.appendChild(node);
+                if(dest.clientHeight+this.extra_bottom>=page.clientHeight){
+                    node = dest.removeChild(node);
+                    page = this.addPage();
+                    dest = document.createElement('div');
+                    dest.setAttribute('xxx','x')
+                    page.appendChild(dest);
+                    dest.appendChild(node);
+                }
+            }
+            this.onPaginated();
+        }
+        
+        this.sourceNode.setRelativeData(this.pagedTextPath,pagesDomNode.innerHTML,null,null,this.pagesRoot);
+    }
+});
 
 dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     getVirtualColumns:function(tpl_vc,curr_vc){
@@ -1297,31 +1406,12 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         };
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
         if(values){
-            this.makeButtons(sourceNode,values);
+            sourceNode.gnrwdg.makeButtons(values);
         }else if(storepath){
-            this.makeButtons(sourceNode,this.valuesFromBag(sourceNode.getRelativeData(storepath)));
+            sourceNode.gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
         }
         return multibutton;
     },
-    gnrwdg_setValue:function(value,kw){
-        var mb = this._value.getItem('multibutton');
-        value = value.split(',');
-        if (mb){
-            mb.forEach(function(n){
-                genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
-            });
-        }
-    },
-    gnrwdg_setValues:function(values,kw){
-        this.gnrwdg.gnr.makeButtons(this,values);
-    },
-
-    gnrwdg_setStorepath:function(storebag,kw){
-        if(storebag && storebag.len()>0){
-            this.gnrwdg.gnr.makeButtons(this,this.valuesFromBag(storebag));
-        }
-    },
-
     valuesFromBag:function(storebag){
         var d = storebag.digest('#k,#a.caption');
         var r = [];
@@ -1331,10 +1421,30 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         return r.join(',');
     },
 
-    makeButtons:function(sourceNode,values){
+    gnrwdg_setValue:function(value,kw){
+        var mb = this.sourceNode._value.getItem('multibutton');
+        value = value.split(',');
+        if (mb){
+            mb.forEach(function(n){
+                genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+            });
+        }
+    },
+    gnrwdg_setValues:function(values,kw){
+        this.makeButtons(values);
+    },
+
+    gnrwdg_setStorepath:function(storebag,kw){
+        if(storebag && storebag.len()>0){
+            this.makeButtons(this.sourceNode,this.gnr.valuesFromBag(storebag));
+        }
+    },
+
+    gnrwdg_makeButtons:function(values){
         if(!values){
             return;
         }
+        var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
         if (mb && values){

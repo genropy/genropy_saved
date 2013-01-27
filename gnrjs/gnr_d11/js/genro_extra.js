@@ -336,6 +336,10 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             } else if (editor.document.$.attachEvent) {
                 editor.document.$.attachEvent( 'ondrop', dropHandler, true ) ; 
             }
+            if(sourceNode.attr.onStarted){
+                funcApply(sourceNode.attr.onStarted,{editor:editor},sourceNode);
+            }
+            
         });
         
         var cbResize=function(){
@@ -366,7 +370,24 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
         var ckeditor =  sourceNode.externalWidget;
         dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
-        dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_setInDatastore');
+        dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_onPaste');
+        ckeditor['on']('paste',function(e){
+            var lastSelection = sourceNode.externalWidget.getSelection().getNative();
+            var data = e.data.html || '';
+            if(data[0]=='<'){
+                var anchorNode = lastSelection.anchorNode;
+                if(anchorNode.innerHTML=='<br>'){
+                    anchorNode.innerHTML = '&nbsp;';
+                    var an = anchorNode.firstChild;
+                    lastSelection.anchorNode.parentNode.replaceChild(an,anchorNode);
+                    lastSelection.anchorNode = an;
+                }
+            }
+            genro.callAfter(function(){
+                this.gnr_onTyped();
+                this.gnr_setInDatastore();
+            },1,this,'typing');
+        })
         ckeditor['on']('key',function(){
             genro.callAfter(function(){
                 this.gnr_onTyped();
@@ -420,7 +441,9 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         if(this.sourceNode.getAttributeFromDatasource('value')!=value){
             this.sourceNode.setAttributeInDatasource('value',value );
         }
-
+    },
+    mixin_gnr_onPaste:function(){
+        this.gnr_setInDatastore();
     },
     mixin_gnr_onTyped:function(){
 

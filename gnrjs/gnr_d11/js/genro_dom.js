@@ -603,7 +603,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
     },
 
-    styleSheetsToBag:function() {
+    styleSheetsToBag:function(src) {
+        src = src || document;
         var styleSheets = document.styleSheets;
         var result = new gnr.GnrBag();
         var label,value,attr;

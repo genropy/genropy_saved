@@ -12,38 +12,32 @@ from gnr.core.gnrbag import Bag
 
 class PagedEditor(BaseComponent):
     css_requires='gnrcomponents/pagededitor/pagededitor'
-    js_requires='gnrcomponents/pagededitor/pagededitor'
+    #js_requires='gnrcomponents/pagededitor/pagededitor'
 
     @extract_kwargs(editor=True)
     @struct_method
-    def pe_pagedEditor(self,pane,value=None,editor_kwargs=None,letterhead_id=None,**kwargs):
-        frame = pane.framePane(_workspace=True,**kwargs)
-        frame.dataController("""frame._pe_manager= new gnr.PagedEditorManager(frame);""",
-                            frame=frame,_onStart=True)
-        frame.dataRpc('dummy',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id',
-                        _onResult='kwargs._frame._pe_manager.letterheads=result;',_frame=frame)
-        self._pe_editor(frame,value=value,**editor_kwargs)
-        self._pe_preview(frame.right)
+    def pe_pagedEditor(self,pane,value=None,editor_kwargs=None,letterhead_id=None,pagedText=None,printAction=None,bodyStyle=None,
+                        **kwargs):
+        bodyStyle = bodyStyle or self.getPreference('print.bodyStyle',pkg='adm') or self.getService('print').printBodyStyle()
+        frame = pane.framePane(_workspace=True,selfsubscribe_print='genro.bp(true);FIRE #WORKSPACE.print;',**kwargs)
+        right = frame.right
+        right.attributes.update(background='white')
+        printId = 'pe_print_%s' %id(frame)
+        frame.dataRpc('dummy',self.pe_printPages,
+                    pages=pagedText.replace('^','='),
+                    bodyStyle=bodyStyle,nodeId=printId,
+                    _fired='^#WORKSPACE.print')
+        if printAction is True:
+            printAction = """genro.getFrameNode(this.getInheritedAttributes()['frameCode']).publish('print');"""
+        bar = right.slotBar('0,previewPane,0',closable=True,width='270px',preview_height='100%',splitter=True,border_left='1px solid silver')
+        bar.previewPane.pagedHtml(sourceText=value,pagedText=pagedText,letterheads='^#WORKSPACE.letterheads',printAction=printAction,bodyStyle=bodyStyle)
+
+        center = frame.center.contentPane()
+        center.ckeditor(value=value,childname='editor',**kwargs)
+        frame.dataRpc('#WORKSPACE.letterheads',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id')
+
         return frame
 
-
-    def _pe_editor(self,frame,value=None,**kwargs):
-        pane = frame.center.contentPane()
-        pane.ckeditor(value=value,childname='editor',**kwargs)
-        pane.dataController("""
-                                frame._pe_manager.onContentChanged(value);
-                            """,value=value,frame=frame)
-
-    def _pe_preview(self,pane):
-        bar = pane.slotBar('zoombar,10,preview,0',closable=True,width='230px',preview_height='100%',splitter=True,border_left='1px solid silver')
-        top = bar.zoombar.slotToolbar('5,zoomSlider,*',height='20px')
-        pane.data('#WORKSPACE.zoom',.3)
-        top.zoomSlider.horizontalSlider(value='^#WORKSPACE.zoom',minimum=0.3, maximum=1,
-                                intermediateChanges=True, width='15em')
-
-        bar.preview.div(height='100%').div(position='absolute',top='40px',left=0,right=0,bottom=0).div(position='absolute',top='0',left=0,right=0,bottom=0,zoom='^#WORKSPACE.zoom',overflow='auto',_class='pe_preview_box',pe_previewRoot=True)
-        #box.div(_class='pe_pages',nodeId='pr_1')
-        #box.div(_class='pe_pages')
 
     @public_method
     def _pe_getLetterhead(self,letterhead_id=None,**kwargs):
@@ -70,3 +64,11 @@ class PagedEditor(BaseComponent):
         return result
 
 
+    @public_method
+    def pe_printPages(self,pages=None,bodyStyle=None):
+        self.getService('print').htmlToPdf(pages,self.site.getStaticPath('page:temp','pe_preview.pdf',autocreate=-1),pdf_margin_top='0mm',
+                                                                                                  pdf_margin_bottom='0mm',
+                                                                                                  pdf_margin_left='0mm',
+                                                                                                  pdf_margin_right='0mm',
+                                                                                                  bodyStyle=bodyStyle)
+        self.setInClientData(path='gnr.clientprint',value=self.site.getStaticUrl('page:temp','pe_preview.pdf', nocache=True),fired=True)

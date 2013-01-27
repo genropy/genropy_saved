@@ -33,10 +33,28 @@ dojo.declare("gnr.PagedEditorManager", null, {
             }
             rn.appendChild(p);
             genro.dom.addClass(content_node,'pe_content')
-            content_node.setAttribute('contenteditable','true');
+            //content_node.setAttribute('contenteditable','true');
             return content_node;
         },
         
+        setPagedText:function(pagedText){
+            var pt = pagedText.match(/(<body>)((.|\n)*)(<\/body>)/);
+            if(pt){
+                this.previewRoot().domNode.innerHTML = pt[2];
+            }
+        },
+
+        getPagedText:function(){
+            var paged_text = this.previewRoot().domNode.innerHTML;
+            if(!paged_text){
+                return
+            }
+            var result = '<html> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <style> .gnrlayout{position:absolute;} .letterhead_page{page-break-before:always;} .letterhead_page:first-child{page-break-before:avoid;}</style> </head> <body>'
+            result+=paged_text;
+            result+='</body> </html>';
+            return result;
+        },
+
         onContentChanged:function(value){
             if(!this.disabled){
                 this.previewRoot().domNode.style.visibility ='hidden';
@@ -73,17 +91,6 @@ dojo.declare("gnr.PagedEditorManager", null, {
 
         setDisabled:function(disabled){
             this.disabled = disabled===false?false:true;
-        },
-
-        getHtml:function(){
-            var paged_text = this.previewRoot().domNode.innerHTML;
-            if(!paged_text){
-                return
-            }
-            var result = '<html> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <style> .gnrlayout{position:absolute;} .letterhead_page{page-break-before:always;} .letterhead_page:first-child{page-break-before:avoid;}</style> </head> <body>'
-            result+=paged_text;
-            result+='</body> </html>';
-            return result;
         }
     }
 );

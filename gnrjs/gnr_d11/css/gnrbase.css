@@ -3557,3 +3557,6 @@ div[disabled='true']{
 .gnrlayout{
     position: absolute;
 }
+.backgroundLetterhead{
+    opacity: .5;
+}

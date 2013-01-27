@@ -288,7 +288,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+                // var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+
+                var httpMethod = objectPop(kwargs, '_POST') === false? 'GET' : 'POST';
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');
@@ -1315,9 +1317,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 //domnode.setAttribute(attr,value);
             }
         }else if(this.gnrwdg){
-            var setter = 'gnrwdg_set' + stringCapitalize(attr);
-            if(setter in this.gnrwdg.gnr){
-                this.gnrwdg.gnr[setter].call(this.gnrwdg.sourceNode,value,kw);
+            var setter = 'set' + stringCapitalize(attr);
+            if(setter in this.gnrwdg){
+                this.gnrwdg[setter].call(this.gnrwdg,value,kw);
             }
         }
     },

@@ -25,25 +25,9 @@ class GnrCustomWebPage(object):
         fb.dbselect(value='^.following_id',dbtable='adm.htmltemplate',hasDownArrow=True)
         fb.dataController('SET .letterhead_pkeys=following_id?letterhead_id+","+following_id:letterhead_id;',letterhead_id='^.letterhead_id',following_id='^.following_id',_if='letterhead_id')
         #fb.dataRpc()
-        pe = frame.pagedEditor(value='^.test_0_base',border='1px solid silver',letterhead_id='^.letterhead_pkeys')
+        pe = frame.pagedEditor(value='^.test_0_base',border='1px solid silver',letterhead_id='^.letterhead_pkeys',pagedText='^.pagedText',printAction=True)
 
         fb.button('Add page',action='pe._pe_manager.addPage();',pe=pe)
-        fb.button('Print',action="FIRE .print")
-        fb.dataRpc('dummy',self.printPages,
-                    _fired='^.print',
-                    _onCalling="""kwargs['pages'] = _pe._pe_manager.getHtml();""",_pe=pe)
-
-    @public_method
-    def printPages(self,pages=None):
-        tmp = tempfile.NamedTemporaryFile(prefix='tmp', suffix='.html')
-        tmp.write(pages)
-        url = tmp.name
-        self.getService('print').htmlToPdf(url,self.site.getStaticPath('site:provapagedtext.pdf'),pdf_margin_top='0mm',
-                                                                                                  pdf_margin_bottom='0mm',
-                                                                                                  pdf_margin_left='0mm',
-                                                                                                  pdf_margin_right='0mm')
-        self.setInClientData(path='gnr.clientprint',value=self.site.getStaticUrl('site:provapagedtext.pdf', nocache=True),fired=True)
-
 
     def test_1_letterhead(self,pane):
         frame = pane.framePane(height='600px')
