@@ -165,8 +165,7 @@ class PrintHandler(object):
         if '<' in srcPath:
             srcPath = self.createTempHtmlFile(srcPath,htmlTemplate=htmlTemplate,bodyStyle=bodyStyle)
             self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
-            print srcPath
-            #os.remove(srcPath)
+            os.remove(srcPath)
             return
         print pdf_kwargs,'PDF kwargs'
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys')
