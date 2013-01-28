@@ -449,9 +449,30 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
     },
 
+    mixin_gnr_highlightChild:function(idx){
+        var cs = this.sourceNode.externalWidget.document.$.getElementById('customstyles');
+        if(!cs){
+            var cs = this.sourceNode.externalWidget.document.$.createElement('style');
+            cs.setAttribute('id','customstyles');
+            this.sourceNode.externalWidget.document.getHead().$.appendChild(cs)
+        }
+        cs.textContent =idx>=0? "body>*:nth-child("+(idx+1)+"){background:yellow;}":"";
+        if(idx>=0){
+            var b = this.sourceNode.externalWidget.document.getBody().$;
+            var higlightedNode = b.children[idx];
+            var ht = higlightedNode.offsetTop;
+            console.log('body scrollTop',b.scrollTop,'page height',b.parentNode.clientHeight,'offset top node',ht)
+            //if(b.parentNode.clientHeight+b.scrollTop-ht<0){
+               b.scrollTop = ht-100;
+            //}
+            console.log(higlightedNode);
+        }
+    },
+
     mixin_gnr_cancelEvent : function(evt) {
         evt.cancel();
     },
+
     mixin_gnr_readOnly:function(value, kw, reason) {
         var value = (value != 'auto') ? value : this.sourceNode.getAttributeFromDatasource('readOnly');
         this.gnr_setReadOnly(value);

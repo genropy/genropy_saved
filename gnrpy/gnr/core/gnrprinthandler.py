@@ -167,7 +167,6 @@ class PrintHandler(object):
             self.htmlToPdf(srcPath,destPath,orientation,pdf_kwargs=pdf_kwargs)
             os.remove(srcPath)
             return
-        print pdf_kwargs,'PDF kwargs'
         pdf_pref = self.parent.getPreference('.pdf_render',pkg='sys')
         if pdf_pref:
             pdf_pref = pdf_pref.asDict(ascii=True)
@@ -188,7 +187,6 @@ class PrintHandler(object):
             destPath = os.path.join(destPath, '%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)
-        print 'callargs',args
         result = call(args)
 
        #if sys.platform.startswith('linux'):

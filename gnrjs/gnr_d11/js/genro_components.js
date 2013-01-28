@@ -937,20 +937,34 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 });
 dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
-        var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle');
+        var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource');
         kw['height'] = '100%';
         kw['position'] = 'relative';
         kw['background'] = 'white';
         kw['_workspace'] = true;
-
         var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.datasource = pagingKw.datasource;
+        gnrwdg.tpl_kwargs = objectExtract(kw,'tpl_*',false,true);
         gnrwdg.extra_bottom = pagingKw.extra_bottom || 50;
         gnrwdg.pagedTextPath = pagingKw.pagedText.replace('^','');
         gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
         gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
-
-        //gnrwdg.paginate = function()
-
+        gnrwdg.editorNode = pagingKw.editor;
+        gnrwdg.disabled = true;
+        var cb = function(){
+            if(gnrwdg.editorNode){
+                gnrwdg.editorNode = gnrwdg.sourceNode.currentFromDatasource(gnrwdg.editorNode);
+                dojo.connect(gnrwdg.editorNode.externalWidget,'gnr_onTyped',function(){
+                    gnrwdg.setDisabled(false);
+                });
+            }
+            if(gnrwdg.sourceNode.form){
+                gnrwdg.sourceNode.form.subscribe('onLoading',function(){
+                    gnrwdg.setDisabled(true);
+                })
+            }
+        };
+        genro.src.onBuiltCall(cb);
         sourceNode.attr.sourceText = pagingKw.sourceText;
         sourceNode.attr.letterheads = pagingKw.letterheads;
         kw['style'] = pagingKw.bodyStyle;
@@ -960,20 +974,40 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         if(pagingKw.printAction){
             top._('div',{_class:'iconbox print',connect_onclick:pagingKw.printAction,position:'absolute',right:'2px',top:'0px'})
         }
-        gnrwdg.pagesRoot = container._('div',{position:'absolute',top:'20px',left:0,bottom:0,right:0})._('div',{innerHTML:pagingKw.pagedText,position:'absolute',top:'0',left:0,right:0,bottom:0,zoom:'^#WORKSPACE.zoom',
-                                                                                            overflow:'auto',_class:'pe_preview_box'}).getParentNode();
+        var b = container._('div',{position:'absolute',top:'20px',left:0,bottom:0,right:0});
+        var rootKw = {innerHTML:pagingKw.pagedText,position:'absolute',top:'0',left:0,right:0,bottom:0,zoom:'^#WORKSPACE.zoom',
+                                      overflow:'auto',_class:'pe_preview_box'};
+        rootKw.connect_onclick = function(evt){
+            gnrwdg.onClick(evt);
+        }
+        gnrwdg.pagesRoot = b._('div',rootKw).getParentNode();
         return container;
+    },
+    gnrwdg_onClick:function(evt){
+        var target = evt.target;
+        while(target && target.getAttribute && !target.getAttribute('orig_idx')){
+            target = target.parentNode;
+        }
+        if(target && target.getAttribute && target.getAttribute('orig_idx')){
+            var c=parseInt(target.getAttribute('orig_idx'));
+        }else{
+            var c=-1;
+        }
+        this.editorNode.externalWidget.gnr_highlightChild(c);
     },
 
     gnrwdg_setLetterheads:function(letterheads){
         this.paginate();
     },
 
+    gnrwdg_setDisabled:function(disabled){
+        this.disabled = disabled===false?false:true;
+    },
     gnrwdg_addPage:function(){
         var rn = this.pagesRoot.domNode;  
         var p = document.createElement('div'); 
         var content_node;  
-        var letterheads = this.sourceNode.getRelativeData(this.letterheadsPath);      
+        var letterheads = this.sourceNode.getRelativeData(this.letterheadsPath);    
         if(letterheads){
             var lnumber = rn.childElementCount;
             var max_lnumber = letterheads.len()-1;
@@ -981,7 +1015,8 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
                 lnumber = max_lnumber;
             }
             var letterhead_page = letterheads.getItem('#'+lnumber);
-            p.innerHTML = letterhead_page;
+            this.sourceBag.setItem('p',rn.childElementCount+1);
+            p.innerHTML = dataTemplate(letterhead_page,this.sourceBag,null,true);
             var p = p.children[0];
             content_node = dojo.query('div[content_node=t]',p)[0];
         }else{
@@ -990,17 +1025,20 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         }
         rn.appendChild(p);
         genro.dom.addClass(content_node,'pe_content')
-        content_node.setAttribute('contenteditable','true');
         return content_node;
     },
 
-    gnrwdg_setSourceText:function(value){
-        if(!this.disabled){
-            this.paginate();
-        }
+    gnrwdg_setSourceText:function(value){    
+        this.paginate();
     },
     gnrwdg_onPaginating:function(){
         var pagesDomNode = this.pagesRoot.domNode;
+        var sn = this.sourceNode;
+        this.sourceBag = sn.getRelativeData(this.datasource).deepCopy();
+        this.sourceBag.setItem('pp','#PP');
+        for(var k in this.tpl_kwargs){
+            this.sourceBag.setItem(k,sn.currentFromDatasource(this.tpl_kwargs[k]));
+        }
         pagesDomNode.style.visibility ='hidden';
         this.currentZoom = pagesDomNode.style.zoom ;
         pagesDomNode.style.zoom ='1';
@@ -1008,11 +1046,15 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
 
     gnrwdg_onPaginated:function(){
         var pagesDomNode = this.pagesRoot.domNode;
+        pagesDomNode.innerHTML = pagesDomNode.innerHTML.replace(/\#PP/g, pagesDomNode.childElementCount);
         pagesDomNode.style.zoom = this.currentZoom;
         pagesDomNode.style.visibility ='visible';
     },
 
     gnrwdg_paginate:function(){
+        if(this.disabled){
+            return;
+        }
         var sourceHtml = this.sourceNode.getRelativeData(this.sourceTextPath);
         var pagesDomNode = this.pagesRoot.domNode
         pagesDomNode.innerHTML = '';
@@ -1025,18 +1067,20 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
             src.innerHTML = sourceHtml;
             var children = src.children;
             var node;
+            var idx = 0;
             while(children.length){
                 node = src.removeChild(children[0]);
+                node.setAttribute('orig_idx',idx);
                 genro.dom.addClass(node,'pe_node');
                 dest.appendChild(node);
                 if(dest.clientHeight+this.extra_bottom>=page.clientHeight){
                     node = dest.removeChild(node);
                     page = this.addPage();
                     dest = document.createElement('div');
-                    dest.setAttribute('xxx','x')
                     page.appendChild(dest);
                     dest.appendChild(node);
                 }
+                idx++;
             }
             this.onPaginated();
         }
