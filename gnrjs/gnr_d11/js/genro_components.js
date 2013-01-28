@@ -950,7 +950,7 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
         gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
         gnrwdg.editorNode = pagingKw.editor;
-        gnrwdg.disabled = true;
+        gnrwdg.disabled = false;
         var cb = function(){
             if(gnrwdg.editorNode){
                 gnrwdg.editorNode = gnrwdg.sourceNode.currentFromDatasource(gnrwdg.editorNode);
