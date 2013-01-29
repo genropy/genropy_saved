@@ -230,20 +230,15 @@ class GnrSqlAppDb(GnrSqlDb):
         
     @property
     def currentPage(self):
-        return self.application.site.currentPage
+        return self.application.site.currentPage if hasattr(self.application,'site') else None
 
     def localVirtualColumns(self,table):
         page = self.currentPage
+        if not page:
+            return
         maintable = getattr(page,'maintable',None)
         result = Bag()
         fmethods = [v for v in [getattr(page,k) for k in dir(page) if hasattr(page,k)] if getattr(v,'formulaColumn_kw',None)]
-       #fmethods = []
-
-       #for k in dir(page):
-       #    m = getattr(page,k)
-       #    if getattr(m,'formulaColumn_kw',None):
-       #        fmethods.append(m)
-
         for f in fmethods:
             fckw = dict(f.formulaColumn_kw)
             ftable = fckw.get('table',maintable)
