@@ -194,6 +194,14 @@ class SqlQueryCompiler(object):
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
+                sql_formula_var = dictExtract(fldalias.attributes,'var_')
+                if sql_formula_var:
+                    prefix = str(id(sql_formula_var))
+                    currentEnv = self.db.currentEnv
+                    for k,v in sql_formula_var.items():
+                        newk = '%s_%s' %(prefix,k)
+                        currentEnv[newk] = v
+                        sql_formula = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), sql_formula)
                 subColPars = {}
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)

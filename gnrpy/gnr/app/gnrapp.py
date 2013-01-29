@@ -231,7 +231,35 @@ class GnrSqlAppDb(GnrSqlDb):
     @property
     def currentPage(self):
         return self.application.site.currentPage
-        
+
+    def localVirtualColumns(self,table):
+        page = self.currentPage
+        maintable = getattr(page,'maintable',None)
+        result = Bag()
+        fmethods = [v for v in [getattr(page,k) for k in dir(page) if hasattr(page,k)] if getattr(v,'formulaColumn_kw',None)]
+       #fmethods = []
+
+       #for k in dir(page):
+       #    m = getattr(page,k)
+       #    if getattr(m,'formulaColumn_kw',None):
+       #        fmethods.append(m)
+
+        for f in fmethods:
+            fckw = dict(f.formulaColumn_kw)
+            ftable = fckw.get('table',maintable)
+            if ftable == table:
+                r = f()
+                if isinstance(r,list):
+                    for c in r:
+                        kw = dict(fckw)
+                        kw.update(c)
+                        result.setItem(kw.pop('name'),None,**kw)
+                else:
+                    fckw['sql_formula'] = r
+                    result.setItem(fckw.pop('name'),None,**fckw)
+        return result
+
+
 class GnrPackagePlugin(object):
     """TODO"""
     def __init__(self, pkg, path):

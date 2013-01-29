@@ -56,6 +56,14 @@ AUTH_EXPIRED = 2
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
+
+def formulaColumn(*args,**fcpars):
+    """add a local formula column"""
+    def decore(func):
+        fcpars.setdefault('name',func.__name__)
+        func.formulaColumn_kw = fcpars
+        return func
+    return decore
     
 class GnrWebPageException(GnrException):
     pass
@@ -1218,7 +1226,7 @@ class GnrWebPage(GnrBaseWebPage):
                     return cl
                 raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m
-            
+        
     def importTableResource(self, table, path):
         """TODO
         

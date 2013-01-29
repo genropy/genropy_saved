@@ -21,9 +21,7 @@ class GnrWsgiWebApp(GnrApp):
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         self.site.onDbCommitted()
-
-
-            
+   
     def _get_pagePackageId(self, filename):
         _packageId = None
         fpath, last = os.path.split(os.path.realpath(filename))
