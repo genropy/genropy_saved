@@ -2046,10 +2046,8 @@ class GnrWebPage(GnrBaseWebPage):
         
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
-    def _get_config(self):
         return self.site.config
         
-    config = property(_get_config)
         
     @deprecated
     def log(self, msg):
