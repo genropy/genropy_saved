@@ -238,7 +238,7 @@ class GnrSqlAppDb(GnrSqlDb):
             return
         maintable = getattr(page,'maintable',None)
         result = Bag()
-        fmethods = [v for v in [getattr(page,k) for k in dir(page) if hasattr(page,k)] if getattr(v,'formulaColumn_kw',None)]
+        fmethods = [v for v in [getattr(page,k) for k in dir(page) if k.startswith('formulacolumn_')]]
         for f in fmethods:
             fckw = dict(f.formulaColumn_kw)
             ftable = fckw.get('table',maintable)

@@ -61,6 +61,7 @@ def formulaColumn(*args,**fcpars):
     """add a local formula column"""
     def decore(func):
         fcpars.setdefault('name',func.__name__)
+        setattr(func,'mixin_as','formulacolumn_%s' %(func.func_name))
         func.formulaColumn_kw = fcpars
         return func
     return decore
