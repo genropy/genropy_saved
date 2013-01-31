@@ -1332,6 +1332,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param class_name: TODO"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
         
+    @public_method
     def setPreference(self, path, data, pkg=''):
         """TODO
         
@@ -1356,6 +1357,8 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object
         :param dflt: TODO
         :param username: TODO"""
+        if not username and self.isGuest:
+            return
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     @public_method
@@ -1364,7 +1367,8 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: TODO"""
         return self.getPreference(path)
-        
+
+    @public_method
     def setUserPreference(self, path, data, pkg='', username=''):
         """TODO
         
@@ -1476,9 +1480,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.pagename', self.pagename)
                 if self.dbstore:
                     page.data('gnr.dbstore',self.dbstore)
-                if not self.isGuest:
-                    page.dataRemote('gnr.user_preference', 'getUserPreference')
-                page.dataRemote('gnr.app_preference', 'getAppPreference')
+                page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
+                page.dataRemote('gnr.app_preference', self.getAppPreference)
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                             bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
