@@ -1261,8 +1261,10 @@ class GnrWsgiSite(object):
             return
         with open(txtname,'r') as f:
             result = f.read()
-        os.remove(tifname)
-        os.remove(txtname)
+        if os.path.exists(tifname):
+            os.remove(tifname)
+        if os.path.exists(txtname):
+            os.remove(txtname)
         return result
 
     def zipFiles(self, file_list=None, zipPath=None):
