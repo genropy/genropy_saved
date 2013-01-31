@@ -43,7 +43,7 @@ class Form(BaseComponent):
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         #tbl = pane.getInheritedAttributes()['table']
         fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
-                validate_regex='![^A-Za-z0-9]', 
+                validate_regex='![^A-Za-z0-9_]', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
                 validate_nodup=True,validate_nodup_error='!!Already existing code',
                 validate_nodup_condition='$maintable_id=:fkey',validate_nodup_fkey='=#FORM.record.maintable_id',
@@ -148,7 +148,7 @@ class DynamicFormBagManager(BaseComponent):
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         #tbl = pane.getInheritedAttributes()['table']
         fb.textbox(value='^.code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
-                validate_regex='![^A-Za-z0-9]', 
+                validate_regex='![^A-Za-z0-9_]', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
                 validate_case='l',lbl='!!Code',
                 ghost='!!Field code')
