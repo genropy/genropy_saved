@@ -460,6 +460,7 @@ class DynamicForm(BaseComponent):
         attr['dtype'] = data_type
         attr['mask'] = mask
         attr['colspan'] = 1
+        attr['row__workspace'] = True
         wdg_kwargs = attr.pop('wdg_kwargs',None)
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
@@ -567,8 +568,10 @@ class DynamicForm(BaseComponent):
             attr['row_hidden'] = """==function(sourceNode){
                                         try{
                                             if(%s){
+                                                sourceNode.setRelativeData('#WORKSPACE.do_validations',true);
                                                 return false;
                                             }else{
+                                                sourceNode.setRelativeData('#WORKSPACE.do_validations',false);
                                                 sourceNode.setRelativeData('.%s',null);
                                                 return true;
                                             }
@@ -576,7 +579,10 @@ class DynamicForm(BaseComponent):
                                             alert(e.toString());
                                         }
                                     }(this);""" %(condition,attr['code'])
+            if attr.get('validate_notnull'):
+                attr['validate_notnull']  = "^#WORKSPACE.do_validations"
             conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
+
             
     
