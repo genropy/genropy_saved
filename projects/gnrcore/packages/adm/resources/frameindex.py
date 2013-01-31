@@ -148,7 +148,7 @@ class FrameIndex(BaseComponent):
         menu.menuline('!!Set as start page',code='start')
         menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
-        menu.menuline('!!Clear favorites',code='clear')
+        menu.menuline('!!Clear favorites',code='clearfav')
 
         tabroot = pane.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
@@ -159,8 +159,7 @@ class FrameIndex(BaseComponent):
                                             this.setRelativeData("selectedFrame",pageName);
 
                                             """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
-        pane.dataController("""
-                                if(!data){
+        pane.dataController("""if(!data){
                                     if(indexTab){
                                         genro.callAfter(function(){
                                             var data = new gnr.GnrBag();
@@ -171,10 +170,10 @@ class FrameIndex(BaseComponent):
                                 }else{
                                     genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
-                                genro.framedIndexManager.loadFavorites();
                                 """,
                             data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
+        pane.dataController("genro.framedIndexManager.loadFavorites();",_onStart=100)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        

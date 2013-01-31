@@ -3109,7 +3109,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     var currvalue = rowdata[this.field_getter];
                     if(currvalue){
                         var valuetoset = [];
-                        currvalue = currvalue.split(',');
+                        currvalue = (currvalue+'').split(',');
                         dojo.forEach(currvalue,function(n){
                             valuetoset.push(valuesdict[n]);
                         });
@@ -3706,7 +3706,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(!rowdata){
             console.log('no rowdata:',rowdata);
         }
-        return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : rowdata[this.field_getter];
+        var result;
+        if(this._customGetter){
+            try{
+                return this._customGetter.call(this, rowdata,inRowIndex)
+            }catch(e){
+                console.error(e)
+                return 'err';
+            }
+        }else{
+            return rowdata[this.field_getter]
+        }
+        //return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : ;
     },
 
     mixin_rowCached:function(inRowIndex) {

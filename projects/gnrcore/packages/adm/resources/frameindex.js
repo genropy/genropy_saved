@@ -225,50 +225,59 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
     },
     removeFromFavorite:function(fullpath){
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages') || new gnr.GnrBag();
         if(fullpath==true){
-            favlist = [];
-        }else if(fullpath){
-            var favlist = genro.getFromStorage('locale','framedindex_favorites') || [];
-            var ind = dojo.indexOf(favlist,fullpath);
-            if(ind>=0){
-                favlist.splice(ind,1);
-            }
+            favorite_pages = null;
+        }else{
+            var l = fullpath.replace(/\W/g,'_');
+            favorite_pages.popNode(l);      
         }
-        genro.setInStorage('locale','framedindex_favorites',favlist);
-
+        genro.setUserPreference('index.favorite_pages',favorite_pages,'adm')
     },
 
     addToFavorite:function(fullpath,start){
-        var favlist = genro.getFromStorage('locale','framedindex_favorites') || [];
-        var ind = dojo.indexOf(favlist,fullpath);
-        if(ind==-1){
-            if(start){
-                favlist = [fullpath].concat(favlist);
-            }else{
-                favlist.push(fullpath);
-            }
-        }else if(start){
-            favlist.splice(ind,1);
-            favlist = [fullpath].concat(favlist);
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages') || new gnr.GnrBag();
+        var l = fullpath.replace(/\W/g,'_');
+        if(favorite_pages.len() && start){
+            favorite_pages.forEach(function(n){
+                n._value.setItem('start',false);
+            },'static')
+        }else{
+            start=true;
         }
-        genro.setInStorage('locale','framedindex_favorites',favlist);
+        favorite_pages.setItem(l,new gnr.GnrBag({pagepath:fullpath,start:start}));
+        genro.setUserPreference('index.favorite_pages',favorite_pages,'adm')
     },
 
     loadFavorites:function(){
-        var favlist = genro.getFromStorage('locale','framedindex_favorites');
-        if(favlist){
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages');
+        if(favorite_pages){
             var that = this;
-            var i = 0;
-            var firstPage;
+            var v;
+            var startPage;
+            var kw,inattr;
             var pageName;
-            dojo.forEach(favlist,function(fullpath){
-                pageName = that.createIframePage(genro.getDataNode(fullpath).attr);
-                if(i==0){
-                    firstPage = pageName;
+            var treenode;
+            favorite_pages.forEach(function(n){
+                v = n.getValue();
+                treenode = genro.getDataNode(v.getItem('pagepath'))
+                kw = treenode.attr;
+
+                var labelClass= treenode.attr.labelClass;
+                if(labelClass.indexOf('menu_existing_page')<0){
+                    treenode.setAttribute('labelClass',labelClass+' menu_existing_page');
+                }                
+                inattr = treenode.getInheritedAttributes();    
+                kw = objectUpdate({name:treenode.label,pkg_menu:inattr.pkg_menu,"file":null,
+                                    table:null,formResource:null,viewResource:null,
+                                    fullpath:v.getItem('pagepath'),modifiers:null},
+                                    treenode.attr)
+                pageName = that.createIframeRootPage(kw);
+                if(v.getItem('start')){
+                    startPage = pageName;
                 }
-                i++;
-            });
-            this.stackSourceNode.setRelativeData('selectedFrame',firstPage);
+            },'static');
+            that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
         }
     },
 
