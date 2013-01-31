@@ -1423,7 +1423,7 @@ class SqlTable(GnrObject):
                 grplist=(nodeattr.get('group') or '').split('.')
                 if grplist[-1] and grplist[-1].isdigit():
                     grplist.pop()
-                if grplist:
+                if grplist and grplist[0] in grdict:
                     for j,kg in enumerate(grplist):
                         grplevel='.'.join(grplist[0:j+1])
                         if not grplevel in newresult:
