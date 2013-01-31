@@ -2049,8 +2049,9 @@ class GnrWebPage(GnrBaseWebPage):
         
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
+    @property
+    def config(self):
         return self.site.config
-        
         
     @deprecated
     def log(self, msg):
