@@ -25,10 +25,13 @@ class GnrCustomWebPage(object):
             if not pkg:
                 fb.filteringSelect(value='^.package',lbl='!!Package',storepath='.packages',storeid='.code', 
                                 storecaption='.description',validate_onAccept='SET .table=null;')
-            fb.filteringSelect(value='^.table',lbl='!!Tables',storepath='.tables',storeid='.code', storecaption='.description',visible='^.package')
+            fb.filteringSelect(value='^.table',lbl='!!Tables',storepath='.tables',storeid='.code', 
+                                storecaption='.description',disabled='^.package?=!#v')
         else:
             root.dataFormula('.table','tbl',tbl='%(th_pkg)s.%(th_table)s' %callArgs,_onStart=1)
-        frame.center.contentPane().remote(self.remoteTh,table='^.table')
+        root.dataController("""
+                SET main.current_table=table;""",table='^main.table',status='=main.mainth.view.grid.status')
+        frame.center.contentPane().remote(self.remoteTh,table='^main.current_table',_onRemote='FIRE main.after_buildth;')
 
     def lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
@@ -39,12 +42,13 @@ class GnrCustomWebPage(object):
 
     @public_method
     def remoteTh(self,pane,table=None):
+        pane.data('.mainth',Bag())
         if not table:
             pane.div('!!Missing table')
         else:
-            pane.data('.mainth',Bag())
-            pane.inlineTableHandler(table=table,viewResource='LookupView',datapath='.mainth',
-                                    view_structCb=self.lookupTablesDefaultStruct,condition__onBuilt=True)
+            pane.inlineTableHandler(table=table,viewResource='LookupView',datapath='.mainth',autoSave=False,saveButton=True,semaphore=True,
+                                    nodeId='mainth',
+                                    view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.after_buildth')
 
 
     def getLookupTable(self,pkg=None):
