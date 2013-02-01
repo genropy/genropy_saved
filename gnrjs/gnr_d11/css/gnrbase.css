@@ -613,6 +613,9 @@ label{
 .gnrfield {
 
 }
+.gnrfield.tag_div{
+    padding-top:2px;
+}
 
 /* @group loading classes */
 

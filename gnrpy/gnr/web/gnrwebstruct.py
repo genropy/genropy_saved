@@ -1901,7 +1901,7 @@ class GnrFormBuilder(object):
             if colspan > 1:
                 kwargs['colspan'] = str(colspan * 2 - 1)
             kwargs.update(td_field_attr)
-            td = row.td(childname='c_%i_f' % c, align=fldalign, vertical_align=fldvalign, _class=self.fieldclass, **kwargs)
+            td = row.td(childname='c_%i_f' % c, align=fldalign, vertical_align=fldvalign, _class='%s tag_%s' %(self.fieldclass,tag), **kwargs)
             if colspan > 1:
                 for cs in range(c + 1, c + colspan):
                     row.delItem('c_%i_l' % cs)
