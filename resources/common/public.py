@@ -351,6 +351,10 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         self.th_mainUserSettings(kwargs=kwargs)
         thwidget = kwargs.pop('widget','stack')
+        if thwidget=='inline':
+            kwargs['saveButton'] = True
+            kwargs['autoSave'] = False
+            kwargs['semaphore'] = True
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
