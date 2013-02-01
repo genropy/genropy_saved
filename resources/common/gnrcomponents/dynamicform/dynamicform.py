@@ -383,8 +383,8 @@ class DynamicForm(BaseComponent):
         df_field = column.attributes['subfields']
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
-                        **kwargs)
+        pane.attributes['_workspace'] = True
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
   
 
 
@@ -395,7 +395,6 @@ class DynamicForm(BaseComponent):
             return
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
-        
         if df_groups:
             groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px')
             for gr in df_groups:
@@ -460,7 +459,6 @@ class DynamicForm(BaseComponent):
         attr['dtype'] = data_type
         attr['mask'] = mask
         attr['colspan'] = 1
-        attr['row__workspace'] = True
         wdg_kwargs = attr.pop('wdg_kwargs',None)
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
@@ -565,22 +563,25 @@ class DynamicForm(BaseComponent):
             attr['validate_notnull'] = attr.pop('mandatory')            
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
+            tpv = (condition,"", "",attr['code'])
+            if attr.get('validate_notnull'):
+                attr['validate_notnull']  = "^#WORKSPACE.%s.do_validations" %attr['code']
+                tpv = (condition,"sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
             attr['row_hidden'] = """==function(sourceNode){
                                         try{
                                             if(%s){
-                                                sourceNode.setRelativeData('#WORKSPACE.do_validations',true);
+                                                %s
                                                 return false;
                                             }else{
-                                                sourceNode.setRelativeData('#WORKSPACE.do_validations',false);
+                                                %s
                                                 sourceNode.setRelativeData('.%s',null);
                                                 return true;
                                             }
                                         }catch(e){
                                             alert(e.toString());
                                         }
-                                    }(this);""" %(condition,attr['code'])
-            if attr.get('validate_notnull'):
-                attr['validate_notnull']  = "^#WORKSPACE.do_validations"
+                                    }(this);""" %tpv
+
             conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
 
