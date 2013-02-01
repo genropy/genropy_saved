@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -83,7 +83,7 @@ class TableHandlerView(BaseComponent):
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = configurable
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
-                               struct=self._th_hook('struct',mangler=frameCode),
+                               struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
                                grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
@@ -94,6 +94,7 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
         return frame
+
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):

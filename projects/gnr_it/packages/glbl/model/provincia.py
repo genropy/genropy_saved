@@ -11,7 +11,7 @@ class Table(object):
                                                                         relation_name='province',
                                                                         eager_one=True)
         tbl.column('nome', size=':30', name_long='!!Nome', indexed=True,validate_notnull=True)
-        tbl.column('codice_istat', size='3', name_long='!!Codice Istat')
+        tbl.column('codice_istat', size='3', name_long='!!Codice Istat',cell_edit=True)
         tbl.column('ordine', 'L', name_long='!!Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='!!Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='!!CAP Valido')
