@@ -11,11 +11,18 @@ class GnrCustomWebPage(object):
     py_requires='public:Public,th/th:TableHandler'
     
     def main(self,root,**kwargs):
-        root = root.rootContentPane(title='!!Tables manager',datapath='main',**kwargs)
-        frame = root.framePane()
         callArgs = self.getCallArgs('th_pkg','th_table')
         pkg = callArgs.get('th_pkg')
         tbl = callArgs.get('th_table')
+        title = '!!Lookup Tables' 
+        if pkg:
+            title = '%s:lookup tables' %self.db.model.package(pkg).attributes.get('name_long')
+            if tbl:
+                tblobj = self.db.table('%(th_pkg)s.%(th_table)s' %callArgs)
+                title = tblobj.name_plural or tblobj.name_long
+        root = root.rootContentPane(title=title,datapath='main',**kwargs)
+        frame = root.framePane()
+
         if not tbl:
             bar = frame.top.slotToolbar('10,tblfb,*')
             fb = bar.tblfb.formbuilder(cols=2,border_spacing='3px')
