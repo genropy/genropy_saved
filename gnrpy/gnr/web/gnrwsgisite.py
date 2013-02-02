@@ -48,7 +48,7 @@ global GNRSITE
 
 def currentSite():
     global GNRSITE
-    return GNRSITE
+    return GNRSITE #JBE Why does this generate an error on Saving the doc == Undefined Name 'GNRSITE' ==?
 
 class GnrSiteException(GnrException):
     """Standard Genro Site Exception
@@ -668,7 +668,7 @@ class GnrWsgiSite(object):
             response.headers['X-GnrTime'] = str(totaltime)
         if isinstance(result, unicode):
             response.content_type = 'text/plain'
-            response.unicode_body = result
+            response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
             response.body = result
         elif isinstance(result, Response):
