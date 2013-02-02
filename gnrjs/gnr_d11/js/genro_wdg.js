@@ -864,6 +864,7 @@ dojo.declare("gnr.GridEditor", null, {
                 delete r.attr._newrecord;
             });
         }
+        this.grid.sourceNode.publish('savedRows');
         this.updateStatus();         
     },
     saveChangedRows:function(){

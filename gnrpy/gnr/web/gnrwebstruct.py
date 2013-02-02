@@ -714,7 +714,6 @@ class GnrDomSrc(GnrStructData):
         result['size'] = 20
         result.update(dict([(k, v) for k, v in fieldobj.attributes.items() if k.startswith('validate_')]))
         relcol = fieldobj.relatedColumn()
-        
         if relcol != None:
             lnktblobj = relcol.table
             linktable = lnktblobj.fullname
@@ -1465,6 +1464,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          For more information, check the :ref:`rowcaption` section
         """
         newkwargs = self._fieldDecode(field, **kwargs)
+        kwargs.pop('lbl',None)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         handler = getattr(self,tag)
@@ -1525,7 +1525,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param fieldobj: TODO
         """
-        result = {'lbl': fieldobj.name_long,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
+        lbl = kwargs.pop('lbl',None) 
+        result = {'lbl': lbl or fieldobj.name_long,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         if dtype in ('A', 'C'):
             size = fieldobj.attributes.get('size', '20')
@@ -1552,6 +1553,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 size = 5
             defaultZoom = self.page.pageOptions.get('enableZoom', True)
+            result['lbl'] = lbl or fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             if kwargs.get('zoom', defaultZoom):
                 if hasattr(self.page,'_legacy'):
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
@@ -1564,12 +1566,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
                         pass
                     else:
-                        zoomUrl = 'sys/thpage/%s' %lnktblobj.fullname.replace('.', '/')
-                        result['lbl_zoomUrl'] = zoomUrl
-                        result['lbl_pkey'] = '.%s' % fieldobj.name
-                        result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"                    
-                result['lbl__class'] = 'gnrzoomlabel'
-            result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
+                        result['lbl__zoomKw'] = dictExtract(kwargs,'zoom_',slice_prefix=False)
+                        result['lbl__zoomKw']['table'] = lnktblobj.fullname
+                        result['lbl__zoomKw']['lookup'] = lnktblobj.attributes.get('lookup')
+                        result['lbl__zoomKw']['title'] = lnktblobj.name_plural or lnktblobj.name_long
+                        result['lbl__zoomKw']['pkey'] = '=.%s' % fieldobj.name
+                        result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
+                result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %result['lbl']
+                result['lbl_class'] = 'gnrzoomlabel'
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
             if 'storefield' in joiner:
@@ -1626,7 +1630,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 kwargs['colspan'] = kwargs.pop('autospan')
                 kwargs['width'] = '99%'
             result.update(kwargs)
-                
         return result
         
 class GnrFormBuilder(object):

@@ -372,7 +372,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return dlg;
     },
     
-    zoomPaletteFromSourceNode:function(sourceNode,evt,paletteKw){
+    zoomPaletteFromSourceNode:function(sourceNode,evt){
+        var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
+        kw.evt = evt;
+        this.zoomPalette(kw);
+    },
+
+    zoomPaletteFromSourceNode_old:function(sourceNode,evt,paletteKw){
         var paletteKw = paletteKw || {};
         var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
         var paletteCode='external_'+sourceNode.getStringId();
@@ -426,25 +432,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
         }
     },
-    
-    _prepareZoomUrl:function(kw,usepublic){
-        var formOnly = 'formOnly' in kw? kw.formOnly:true;
-        var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
-        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
-        if(!formOnly){
-            zoomUrl+'/'+kw.pkey;
-        }else{
-            urlKw['th_pkey'] = kw.pkey;
-            urlKw['main_call'] = 'main_form';
-            urlKw['th_from_package'] = genro.getData("gnr.package");
-            if(kw.formResource){
-                urlKw['th_formResource'] = kw.formResource;
-            }
-        }
-        return genro.addParamsToUrl(zoomUrl,urlKw); 
-    },
-
-
 
     floatingEditor:function(sourceNode,kw){
         var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
@@ -510,21 +497,48 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
-            var palette_height = this._genro.getData('gnr.rootform.size.height');
-            var palette_width = this._genro.getData('gnr.rootform.size.width');
+            var palette_height = '300px';
+            var palette_width =  '500px';
             var paletteNode = palette.getParentNode();
             var wdg = paletteNode.getWidget();
-            wdg.setBoxAttributes({height:palette_height,width:palette_width});
-            this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
-            this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+            if(this._genro._rootForm){
+                palette_height = this._genro.getData('gnr.rootform.size.height') || palette_height;
+                palette_width = this._genro.getData('gnr.rootform.size.width') || palette_width;
+                this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
+                this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+            }else if(kw.lookup){
+                this._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.close();});
+            }
             if(onSavedCb){
                 this._genro._rootForm.subscribe('onSaved',function(kw){
                     onSavedCb(kw);
                 });
             }
+            wdg.setBoxAttributes({height:palette_height,width:palette_width});
         }}); 
         node.unfreeze(); 
     },
+    _prepareZoomUrl:function(kw,usepublic){
+        var formOnly = 'formOnly' in kw? kw.formOnly:true;
+        var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
+        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
+        if(!formOnly){
+            zoomUrl+'/'+kw.pkey;
+        }else if(kw.lookup){
+            zoomUrl = '/sys/lookuptables/'+kw.table.replace('.','/');
+        }
+        else{
+            urlKw['th_pkey'] = kw.pkey;
+            urlKw['main_call'] = 'main_form';
+            urlKw['th_from_package'] = genro.getData("gnr.package");
+            if(kw.formResource){
+                urlKw['th_formResource'] = kw.formResource;
+            }
+        }
+        return genro.addParamsToUrl(zoomUrl,urlKw); 
+    },
+
+
 
     quickPalette:function(paletteCode,kw,content){
         var kw = kw || {};

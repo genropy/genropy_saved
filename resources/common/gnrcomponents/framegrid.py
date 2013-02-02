@@ -42,7 +42,7 @@ class FrameGridSlots(BaseComponent):
     
     @struct_method
     def fgr_slotbar_gridsave(self,pane,**kwargs):
-        return pane.slotButton(label='!!Save',publish='saveChangedRows',command='export',
+        return pane.slotButton(label='!!Save',publish='saveChangedRows',
                                disabled='==status!="changed"',iconClass="iconbox save",
                                 status='^.grid.editor.status',**kwargs)
     @struct_method

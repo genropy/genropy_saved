@@ -617,6 +617,17 @@ label{
     padding-top:2px;
 }
 
+.gnrfieldlabel.gnrzoomlabel{
+    padding-left: 15px;
+    cursor: pointer;
+}
+.gnrzoomicon{
+    display: inline-block;
+    width:15px;
+}
+.gnrzoomlabel:hover .gnrzoomicon{
+    background: transparent url(icons/base14/linkto.gif) no-repeat center center;
+}
 /* @group loading classes */
 
 .loadingForm .gnrfield input {
