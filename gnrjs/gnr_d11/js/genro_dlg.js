@@ -374,6 +374,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     
     zoomPaletteFromSourceNode:function(sourceNode,evt){
         var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
+        var attr = sourceNode.currentAttributes();
+        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'))
         kw.evt = evt;
         this.zoomPalette(kw);
     },
