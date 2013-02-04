@@ -375,7 +375,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     zoomPaletteFromSourceNode:function(sourceNode,evt){
         var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
         var attr = sourceNode.currentAttributes();
-        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'))
+        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'));
         kw.evt = evt;
         this.zoomPalette(kw);
     },
@@ -471,6 +471,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;
+        console.log(table);
         var paletteCode= kw.paletteCode || 'zoom_'+table.replace('.','_')+pkey;
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
