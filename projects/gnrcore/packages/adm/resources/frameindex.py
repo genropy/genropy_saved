@@ -204,13 +204,13 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox app_lock',tip='!!Lock screen')
-        appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
+        appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode_old(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'});""",
                             subscribe_app_preference=True,
                             _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
        # dlg = self.frm_envDataDialog()
-        userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',right:'10px',title:preftitle,
+        userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode_old(pane,null,{top:'10px',right:'10px',title:preftitle,
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'});""",
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
