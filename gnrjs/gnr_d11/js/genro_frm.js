@@ -1208,7 +1208,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 });
 
 dojo.declare("gnr.GnrValidator", null, {
-    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','nodup','exist','remote'],
+    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','gridnodup','nodup','exist','remote'],
     getCurrentValidations: function(sourceNode) {
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
@@ -1461,9 +1461,9 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     },
     validate_gridnodup: function(param, value, sourceNode) {
-        var col = ((typeof(param) == 'string') && param) ? param : sourceNode.getAttributeFromDatasource('value');
-        if (value) {
-            var colvalues = genro.wdgById(sourceNode.gridId).getColumnValues(col);
+        var col = ((typeof(param) == 'string') && param) ? param : sourceNode.attr.field;
+        if (value && sourceNode.grid) {
+            var colvalues = sourceNode.grid.getColumnValues(col);
             var n = dojo.indexOf(colvalues, value);
             if ((n != -1) && (n != sourceNode.editedRowIndex)) {
                 return false;
