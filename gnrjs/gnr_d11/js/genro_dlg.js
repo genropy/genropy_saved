@@ -379,33 +379,32 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         kw.evt = evt;
         this.zoomPalette(kw);
     },
-
-    zoomPaletteFromSourceNode_old:function(sourceNode,evt,paletteKw){
-        var paletteKw = paletteKw || {};
-        var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
-        var paletteCode='external_'+sourceNode.getStringId();
+    
+    iframePalette:function(kw){
+        var paletteCode=kw.paletteCode || 'external_'+genro.getCounter();
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
             wdg.show();
             wdg.bringToTop();
             return;
         }
-        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_iframeContainerId='+paletteCode+'_floating';
+        var zoomUrl = objectPop(kw,'url');
         genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var paletteAttr = {'paletteCode':paletteCode,title:'Palette:'+pkey,overflow:'hidden',
+        var paletteAttr = {'paletteCode':paletteCode,title:kw.title,overflow:'hidden',
                                                       dockTo:false,//'*:open',
                                                       width:'1px',height:'1px'
                                                      // palette_transition:'all .7s'
                                                       };
-        if(evt){
+        if(kw.evt){
             paletteAttr.top=_px(evt.clientY);
             paletteAttr.left=_px(evt.clientX);
         }
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
-        objectUpdate(paletteAttr,paletteKw);
+        objectUpdate(paletteAttr,kw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
+        console.log(zoomUrl)
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },
@@ -532,7 +531,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         else{
             urlKw['th_pkey'] = kw.pkey;
-            urlKw['main_call'] = 'main_form';
+            urlKw['main_call'] = kw.main_call || 'main_form';
             urlKw['th_from_package'] = genro.getData("gnr.package");
             if(kw.formResource){
                 urlKw['th_formResource'] = kw.formResource;
