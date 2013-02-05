@@ -129,7 +129,7 @@ class View(BaseComponent):
         return '_row_count'
 
 class DynamicFormBagManager(BaseComponent):
-
+    
     def df_fieldsBagStruct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='!!Code', width='5em')
@@ -155,7 +155,7 @@ class DynamicFormBagManager(BaseComponent):
         fb.textbox(value='^.description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
                     ghost='!!Field description',lbl='!!Description')
 
-        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',lbl='!!Type')
+        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Grafico',width='8em',lbl='!!Type')
         fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
 
         fb.checkbox(value='^.calculated',lbl='',label='!!Calculated')
@@ -164,6 +164,9 @@ class DynamicFormBagManager(BaseComponent):
         fb.br()
         
         fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+        fb.simpleTextArea(value='^.calculatorFormula',lbl='!!Formula from calculator',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px', readOnly=True)
+        fb.button('Open Calculator', action="genro.fireEvent('#dialog_calculator.open');", colspan=3, row_class='df_row field_calculated')
+        self.dialogCalculator(bc)  
         
         fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
         fb.br()
@@ -198,6 +201,8 @@ class DynamicFormBagManager(BaseComponent):
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
         fb.br()
+        fb.simpleTextArea(value='^.source_graficazione',lbl='!!Graficazione',colspan=3,row_class='df_row field_GR',
+                width='100%',lbl_vertical_align='top',height='60px')
         
 
 
@@ -237,9 +242,9 @@ class DynamicFormBagManager(BaseComponent):
 
 class DynamicForm(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
-    js_requires='gnrcomponents/dynamicform/dynamicform'
+    js_requires='gnrcomponents/dynamicform/dynamicform,gnrcomponents/dynamicform/calculator'
     py_requires="""th/th:TableHandler,gnrcomponents/dynamicform/dynamicform:DynamicFormBagManager,
-                    foundation/macrowidgets:RichTextEditor"""
+                    foundation/macrowidgets:RichTextEditor, gnrcomponents/dynamicform/componentCalculator"""
     
     def __df_tpl_struct(self,struct):
         r = struct.view().rows()
@@ -426,6 +431,7 @@ class DynamicForm(BaseComponent):
         fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         if not fields:
             return
+
         for r in fields:
             fb.dynamicField(r,fields=fields,datapath=datapath,dbstore_kwargs=dbstore_kwargs)
             
@@ -438,59 +444,82 @@ class DynamicForm(BaseComponent):
         attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
-        mask = attr.pop('field_mask',None)
-        if tag.endswith('_nopopup'):
-            tag = tag.replace('_nopopup','')
-            attr['popup'] = False
-        attr['tag'] =tag
-        #attr['colspan'] = col_max if data_type == 'TL' else 1
-        code = attr.get('code')
-        description = attr.pop('description','')
-        attr['value']='^.%s' %code
-        if tag.lower() in ('checkbox' or 'radiobutton'):
-            attr['label'] = description
+
+
+        ####CODICE GRAFICO #####
+        if tag == 'GR':
+            width = attr['wdg_kwargs']['width']+'px' if attr['wdg_kwargs']['width'] else '99%'
+            height = attr['wdg_kwargs']['height']+'px' if attr['wdg_kwargs']['height'] else '68%'
+
+            fb.iframe(nodeId=attr.get('code'), height=height, width=width, border=1, src='^.%(id_url)s_chart_url' %{'id_url': attr.get('code')}, datapath=attr['datapath'])
+            
+            formulaArgs = dict()
+            list_graph = attr.get('source_graficazione').split(';')
+            for lg in list_graph:
+                for p in lg.split(','):
+                    formulaArgs[str(p)] = str('^.'+p)
+
+            formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
+            fb.dataFormula(".%s_chart_url" %attr['code'], "dynamicFormHandler.loadGrafico(this,_expression,'datapath,_expression');" ,_expression=attr.pop('source_graficazione'),_init=True,datapath=attr['datapath'],**formulaArgs)
         else:
-            attr['lbl'] = description
-        attr['ghost'] = attr.pop('field_placeholder',None)
-        attr['tip'] = attr.pop('field_tip',None)
-        attr['style'] = attr.pop('field_style',None)
-        
-        attr['format'] = attr.pop('field_format',None)
-        attr['dtype'] = data_type
-        attr['mask'] = mask
-        attr['colspan'] = 1
-        wdg_kwargs = attr.pop('wdg_kwargs',None)
-        if wdg_kwargs:
-            if isinstance(wdg_kwargs,basestring):
-                wdg_kwargs = Bag(wdg_kwargs)
-            attr.update(wdg_kwargs)
-            for dim in ('height','width','crop_height','crop_width'):
-                c = attr.pop(dim, None)
-                if isinstance(c,int) or (c and c.isdigit()):
-                    attr[dim] = '%spx' %c if c else None
-                else:
-                    attr[dim] = c
-            attr['colspan'] = attr.pop('colspan',1) or 1
+            mask = attr.pop('field_mask',None)
+            if tag.endswith('_nopopup'):
+                tag = tag.replace('_nopopup','')
+                attr['popup'] = False
+            attr['tag'] =tag
+            #attr['colspan'] = col_max if data_type == 'TL' else 1
+            code = attr.get('code')
+            description = attr.pop('description','')
+            attr['value']='^.%s' %code
+            if tag.lower() in ('checkbox' or 'radiobutton'):
+                attr['label'] = description
+            else:
+                attr['lbl'] = description
+            attr['ghost'] = attr.pop('field_placeholder',None)
+            attr['tip'] = attr.pop('field_tip',None)
+            attr['style'] = attr.pop('field_style',None)
+            
+            attr['format'] = attr.pop('field_format',None)
+            attr['dtype'] = data_type
+            attr['mask'] = mask
+            attr['colspan'] = 1
+            wdg_kwargs = attr.pop('wdg_kwargs',None)
+            if wdg_kwargs:
+                if isinstance(wdg_kwargs,basestring):
+                    wdg_kwargs = Bag(wdg_kwargs)
+                attr.update(wdg_kwargs)
+                for dim in ('height','width','crop_height','crop_width'):
+                    c = attr.pop(dim, None)
+                    if isinstance(c,int) or (c and c.isdigit()):
+                        attr[dim] = '%spx' %c if c else None
+                    else:
+                        attr[dim] = c
+                attr['colspan'] = attr.pop('colspan',1) or 1
 
-        if tag.lower()=='simpletextarea':
-            attr.setdefault('speech',True)
-            attr['width'] = attr.get('width') or '94%'
+            if tag.lower()=='simpletextarea':
+                attr.setdefault('speech',True)
+                attr['width'] = attr.get('width') or '94%'
 
-        customizer = getattr(self,'df_%(tag)s' %attr,None)
-        if customizer:
-            customizer(attr,dbstore_kwargs=dbstore_kwargs)
-        dictExtract(attr,'source_',pop=True)
-        self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-        self._df_handleFieldValidation(attr,fields=fields)
-        code = attr.pop('code')
-        getter = attr.pop('getter',None)
-        wdg = fb.child(**attr)
-        if not getter:
-            return wdg     
-        if isinstance(getter,basestring):
-            getter = Bag(getter)
-        if getter['table']:
-            self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
+            customizer = getattr(self,'df_%(tag)s' %attr,None)
+            if customizer:
+                customizer(attr,dbstore_kwargs=dbstore_kwargs)
+            dictExtract(attr,'source_',pop=True)
+            self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+            self._df_handleFieldCalculatorFormula(attr,fb=fb,fields=fields)
+            self._df_handleFieldValidation(attr,fields=fields)
+            code = attr.pop('code')
+            getter = attr.pop('getter',None)
+            for k,v in attr.items():
+                if isinstance(k,unicode):
+                    attr.pop(k)
+                    attr[str(k)] = v
+            wdg = fb.child(**attr)
+            if not getter:
+                return wdg     
+            if isinstance(getter,basestring):
+                getter = Bag(getter)
+            if getter['table']:
+                self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
 
 
     def df_filteringselect(self,attr,**kwargs):
@@ -533,8 +562,15 @@ class DynamicForm(BaseComponent):
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
         fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
-    
+        
+    def _df_handleFieldCalculatorFormula(self,attr,fb,fields=None):
+        formula = attr.pop('calculatorFormula',None)
+        if not formula:
+            return
+        formula = self.createFieldFormula(formula)
+        self.controllerFieldFormula(fb,fields,attr,formula)
 
+         
     def _df_handleGetter(self,fb,code=None,datapath=None,getter=None):
         kw = asDict(getter['where'].replace('\n',','))
         _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]

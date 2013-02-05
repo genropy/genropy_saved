@@ -22,7 +22,34 @@
 .dffb_enterable.dffb_numberspinner .field_numberspinner.df_row,
 .dffb_enterable.dffb_img .field_img.df_row,
 .dffb_enterable.dffb_geocoderfield .field_geocoderfield.df_row,
+.dffb_enterable.dffb_GR .field_GR.df_row,
 
 .dffb_calculated .field_calculated.df_row{
     display:table-row;
+}
+
+.buttonCalculator{
+    border:1px solid lightgray;
+    cursor:pointer;
+    text-align:center;
+    padding-top:10px;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ededed));
+    background: -moz-linear-gradient(top,  #fff,  #ededed);
+    font-size: 11pt;
+    color: #606060;
+    text-shadow: 0px 1px 1px #fff;
+    font-weight:bold;
+}
+
+.buttonCalculator:active{
+    box-shadow: inset 0px 3px 10px -2px rgba(2, 2, 2, 0.5);
+}
+
+.textareaCalculator{
+    font-size: 11pt !important;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans" !important;
+    background-color:rgb(230,250,187); 
+    border-radius:4px; 
+    padding:5px; 
+    box-shadow: inset 0px 3px 10px -2px rgba(2, 2, 2, 0.5);
 }
