@@ -129,7 +129,7 @@ class View(BaseComponent):
         return '_row_count'
 
 class DynamicFormBagManager(BaseComponent):
-
+    
     def df_fieldsBagStruct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='!!Code', width='5em')
@@ -164,6 +164,9 @@ class DynamicFormBagManager(BaseComponent):
         fb.br()
         
         fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+        fb.simpleTextArea(value='^.calculatorFormula',lbl='!!Formula from calculator',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px', readOnly=True)
+        fb.button('Open Calculator', action="genro.fireEvent('#dialog_calculator.open');", colspan=3, row_class='df_row field_calculated')
+        self.dialogCalculator(bc)  
         
         fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
         fb.br()
@@ -239,9 +242,9 @@ class DynamicFormBagManager(BaseComponent):
 
 class DynamicForm(BaseComponent):
     css_requires='gnrcomponents/dynamicform/dynamicform'
-    js_requires='gnrcomponents/dynamicform/dynamicform'
+    js_requires='gnrcomponents/dynamicform/dynamicform,gnrcomponents/dynamicform/calculator'
     py_requires="""th/th:TableHandler,gnrcomponents/dynamicform/dynamicform:DynamicFormBagManager,
-                    foundation/macrowidgets:RichTextEditor"""
+                    foundation/macrowidgets:RichTextEditor, gnrcomponents/dynamicform/componentCalculator"""
     
     def __df_tpl_struct(self,struct):
         r = struct.view().rows()
@@ -502,6 +505,7 @@ class DynamicForm(BaseComponent):
                 customizer(attr,dbstore_kwargs=dbstore_kwargs)
             dictExtract(attr,'source_',pop=True)
             self._df_handleFieldFormula(attr,fb=fb,fields=fields)
+            self._df_handleFieldCalculatorFormula(attr,fb=fb,fields=fields)
             self._df_handleFieldValidation(attr,fields=fields)
             code = attr.pop('code')
             getter = attr.pop('getter',None)
@@ -558,8 +562,15 @@ class DynamicForm(BaseComponent):
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
         fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
         attr['readOnly'] =True 
-    
+        
+    def _df_handleFieldCalculatorFormula(self,attr,fb,fields=None):
+        formula = attr.pop('calculatorFormula',None)
+        if not formula:
+            return
+        formula = self.createFieldFormula(formula)
+        self.controllerFieldFormula(fb,fields,attr,formula)
 
+         
     def _df_handleGetter(self,fb,code=None,datapath=None,getter=None):
         kw = asDict(getter['where'].replace('\n',','))
         _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]
