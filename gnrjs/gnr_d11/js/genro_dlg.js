@@ -372,32 +372,39 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return dlg;
     },
     
-    zoomPaletteFromSourceNode:function(sourceNode,evt,paletteKw){
-        var paletteKw = paletteKw || {};
-        var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
-        var paletteCode='external_'+sourceNode.getStringId();
+    zoomPaletteFromSourceNode:function(sourceNode,evt){
+        var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
+        var attr = sourceNode.currentAttributes();
+        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'));
+        kw.evt = evt;
+        this.zoomPalette(kw);
+    },
+    
+    iframePalette:function(kw){
+        var paletteCode=kw.paletteCode || 'external_'+genro.getCounter();
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
             wdg.show();
             wdg.bringToTop();
             return;
         }
-        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_iframeContainerId='+paletteCode+'_floating';
+        var zoomUrl = objectPop(kw,'url');
         genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var paletteAttr = {'paletteCode':paletteCode,title:'Palette:'+pkey,overflow:'hidden',
+        var paletteAttr = {'paletteCode':paletteCode,title:kw.title,overflow:'hidden',
                                                       dockTo:false,//'*:open',
                                                       width:'1px',height:'1px'
                                                      // palette_transition:'all .7s'
                                                       };
-        if(evt){
+        if(kw.evt){
             paletteAttr.top=_px(evt.clientY);
             paletteAttr.left=_px(evt.clientX);
         }
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
-        objectUpdate(paletteAttr,paletteKw);
+        objectUpdate(paletteAttr,kw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
+        console.log(zoomUrl)
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },
@@ -426,25 +433,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
         }
     },
-    
-    _prepareZoomUrl:function(kw,usepublic){
-        var formOnly = 'formOnly' in kw? kw.formOnly:true;
-        var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
-        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
-        if(!formOnly){
-            zoomUrl+'/'+kw.pkey;
-        }else{
-            urlKw['th_pkey'] = kw.pkey;
-            urlKw['main_call'] = 'main_form';
-            urlKw['th_from_package'] = genro.getData("gnr.package");
-            if(kw.formResource){
-                urlKw['th_formResource'] = kw.formResource;
-            }
-        }
-        return genro.addParamsToUrl(zoomUrl,urlKw); 
-    },
-
-
 
     floatingEditor:function(sourceNode,kw){
         var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
@@ -482,6 +470,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;
+        console.log(table);
         var paletteCode= kw.paletteCode || 'zoom_'+table.replace('.','_')+pkey;
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
@@ -510,21 +499,48 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var onSavedCb = objectPop(kw,'onSavedCb');
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
-            var palette_height = this._genro.getData('gnr.rootform.size.height');
-            var palette_width = this._genro.getData('gnr.rootform.size.width');
+            var palette_height = '300px';
+            var palette_width =  '500px';
             var paletteNode = palette.getParentNode();
             var wdg = paletteNode.getWidget();
-            wdg.setBoxAttributes({height:palette_height,width:palette_width});
-            this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
-            this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+            if(this._genro._rootForm){
+                palette_height = this._genro.getData('gnr.rootform.size.height') || palette_height;
+                palette_width = this._genro.getData('gnr.rootform.size.width') || palette_width;
+                this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
+                this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+            }else if(kw.lookup){
+                this._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.close();});
+            }
             if(onSavedCb){
                 this._genro._rootForm.subscribe('onSaved',function(kw){
                     onSavedCb(kw);
                 });
             }
+            wdg.setBoxAttributes({height:palette_height,width:palette_width});
         }}); 
         node.unfreeze(); 
     },
+    _prepareZoomUrl:function(kw,usepublic){
+        var formOnly = 'formOnly' in kw? kw.formOnly:true;
+        var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
+        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
+        if(!formOnly){
+            zoomUrl+'/'+kw.pkey;
+        }else if(kw.lookup){
+            zoomUrl = '/sys/lookuptables/'+kw.table.replace('.','/');
+        }
+        else{
+            urlKw['th_pkey'] = kw.pkey;
+            urlKw['main_call'] = kw.main_call || 'main_form';
+            urlKw['th_from_package'] = genro.getData("gnr.package");
+            if(kw.formResource){
+                urlKw['th_formResource'] = kw.formResource;
+            }
+        }
+        return genro.addParamsToUrl(zoomUrl,urlKw); 
+    },
+
+
 
     quickPalette:function(paletteCode,kw,content){
         var kw = kw || {};

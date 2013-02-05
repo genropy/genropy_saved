@@ -307,7 +307,6 @@ class TableHandlerMain(BaseComponent):
     @extract_kwargs(th=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
-        self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)
         thRootWidget = 'stack'
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
                         readOnly=False,virtualStore=True,public=True,partitioned=False)

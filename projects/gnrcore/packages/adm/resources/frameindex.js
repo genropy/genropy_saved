@@ -3,8 +3,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
         var default_uri =  genro.getData('gnr.defaultUrl')||'/';
-        var thurl = 'sys/thpage/'
+        var thurl = 'sys/thpage/';
+        var lookup_url = 'sys/lookuptables/';
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
+        this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
+
     },
     
     createIframeRootPage:function(kw){
@@ -108,6 +111,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     makePageUrl:function(kw){
         var url = kw.file;
         var table = kw.table;
+        var lookup_manager = kw.lookup_manager;
         var urlPars = {};
         if(kw.unique){
             urlPars.ts = new Date().getMilliseconds()
@@ -115,6 +119,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
+        }else if(lookup_manager){
+            url = this.lookup_url+(lookup_manager=='*'?'':lookup_manager.replace('.','/'));
         }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;

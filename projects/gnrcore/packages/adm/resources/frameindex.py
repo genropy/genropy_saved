@@ -193,9 +193,9 @@ class FrameIndex(BaseComponent):
         sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
                         messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
-                                connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
+                                connect_onclick='PUBLISH app_preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
-                               connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
+                               connect_onclick='PUBLISH user_preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
         
@@ -204,15 +204,15 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox app_lock',tip='!!Lock screen')
-        appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
+        appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
-                                                        palette_transition:null,palette_nodeId:'mainpreference'});""",
-                            subscribe_app_preference=True,
+                                                        palette_nodeId:'mainpreference'});""",
+                            subscribe_app_preference=True,url='adm/app_preference',
                             _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
        # dlg = self.frm_envDataDialog()
-        userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',right:'10px',title:preftitle,
+        userPref.dataController("""genro.dlg.iframePalette({top:'10px',right:'10px',title:preftitle,url:url,
                                                         height:'300px', width:'400px',palette_transition:null,
-                                                        palette_nodeId:'userpreference'});""",
+                                                        palette_nodeId:'userpreference'});""",url='adm/user_preference',
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):

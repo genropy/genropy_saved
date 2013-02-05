@@ -296,26 +296,36 @@ cursorZoom_plus{
 }
 
 /* @end */
+.slotbar_toolbar .dijitButtonNode{
+    box-shadow: 1px 2px 1px #666;
+}
+
 ._common_d11 .dijitComboBox .dijitArrowButton {
     border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
+    box-shadow: none;
+
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
     border-radius: 0px;
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
+    box-shadow: none;
 }
 
 .slotbar_toolbar .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
     border:0;
     background:transparent;
     padding: 0px 0px;
+    box-shadow: none;
+
 }
 .slotbar_toolbar .dijitButton, .slotbar_toolbar .dijitDropDownButton, .slotbar_toolbar .dijitComboButton{
     margin:0;
 }
+
 .bottom_btnDisabled .dijitButtonNode {
     opacity: .6;
     cursor: not-allowed !important;
@@ -617,6 +627,17 @@ label{
     padding-top:2px;
 }
 
+.gnrfieldlabel.gnrzoomlabel{
+    padding-left: 15px;
+    cursor: pointer;
+}
+.gnrzoomicon{
+    display: inline-block;
+    width:15px;
+}
+.gnrzoomlabel:hover .gnrzoomicon{
+    background: transparent url(icons/base14/linkto.gif) no-repeat center center;
+}
 /* @group loading classes */
 
 .loadingForm .gnrfield input {

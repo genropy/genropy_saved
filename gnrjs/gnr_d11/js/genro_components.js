@@ -2309,7 +2309,8 @@ dojo.declare("gnr.stores._Collection",null,{
         });
         var cb = function(result){
             that.onLoaded(result);
-            this.loadingData = false;
+            that.resetFilter();
+            that.loadingData = false;
             that.gridBroadcast(function(grid){
                 grid.sourceNode.publish('loadingData',{loading:false});
             });
