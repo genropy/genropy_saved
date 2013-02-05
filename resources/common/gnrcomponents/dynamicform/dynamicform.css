@@ -22,7 +22,7 @@
 .dffb_enterable.dffb_numberspinner .field_numberspinner.df_row,
 .dffb_enterable.dffb_img .field_img.df_row,
 .dffb_enterable.dffb_geocoderfield .field_geocoderfield.df_row,
-.dffb_enterable.dffb_GR .field_GR.df_row,
+.dffb_enterable.dffb_graph .field_graph.df_row,
 
 .dffb_calculated .field_calculated.df_row{
     display:table-row;
