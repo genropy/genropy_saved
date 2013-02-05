@@ -513,8 +513,11 @@ class DynamicForm(BaseComponent):
         #attr['format'] = 'auto'
 
     def df_graph(self,attr,**kwargs):
-        width = attr['wdg_kwargs']['width']+'px' if attr['wdg_kwargs']['width'] else '99%'
-        height = attr['wdg_kwargs']['height']+'px' if attr['wdg_kwargs']['height'] else '68%'
+        attr['tag'] = 'dojoGraph'
+        attr['width']= attr['wdg_kwargs']['width']+'px' if attr['wdg_kwargs']['width'] else '99%'
+        attr['height'] = attr['wdg_kwargs']['height']+'px' if attr['wdg_kwargs']['height'] else '68%'
+        attr['border'] = attr['border'] or 0
+
 
        #fb.iframe(nodeId=attr.get('code'), height=height, width=width, border=1, src='^.%(id_url)s_chart_url' %{'id_url': attr.get('code')}, datapath=attr['datapath'])
        #
