@@ -267,6 +267,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
             favorite_pages.forEach(function(n){
                 v = n.getValue();
                 treenode = genro.getDataNode(v.getItem('pagepath'))
+                if(!treenode){
+                    return;
+                }
                 kw = treenode.attr;
 
                 var labelClass= treenode.attr.labelClass;
