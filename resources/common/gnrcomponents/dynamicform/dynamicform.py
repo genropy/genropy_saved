@@ -438,60 +438,65 @@ class DynamicForm(BaseComponent):
         attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
-        mask = attr.pop('field_mask',None)
+        return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs)
+
+    @customizable
+    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None):
+        mask = wdg_attr.pop('field_mask',None)
         if tag.endswith('_nopopup'):
             tag = tag.replace('_nopopup','')
-            attr['popup'] = False
-        attr['tag'] =tag
-        #attr['colspan'] = col_max if data_type == 'TL' else 1
-        code = attr.get('code')
-        description = attr.pop('description','')
-        attr['value']='^.%s' %code
+            wdg_attr['popup'] = False
+        wdg_attr['tag'] =tag
+        #wdg_attr['colspan'] = col_max if data_type == 'TL' else 1
+        code = wdg_attr.get('code')
+        description = wdg_attr.pop('description','')
+        wdg_attr['value']='^.%s' %code
         if tag.lower() in ('checkbox' or 'radiobutton'):
-            attr['label'] = description
+            wdg_attr['label'] = description
         else:
-            attr['lbl'] = description
-        attr['ghost'] = attr.pop('field_placeholder',None)
-        attr['tip'] = attr.pop('field_tip',None)
-        attr['style'] = attr.pop('field_style',None)
+            wdg_attr['lbl'] = description
+        wdg_attr['ghost'] = wdg_attr.pop('field_placeholder',None)
+        wdg_attr['tip'] = wdg_attr.pop('field_tip',None)
+        wdg_attr['style'] = wdg_attr.pop('field_style',None)
         
-        attr['format'] = attr.pop('field_format',None)
-        attr['dtype'] = data_type
-        attr['mask'] = mask
-        attr['colspan'] = 1
-        wdg_kwargs = attr.pop('wdg_kwargs',None)
+        wdg_attr['format'] = wdg_attr.pop('field_format',None)
+        wdg_attr['dtype'] = data_type
+        wdg_attr['mask'] = mask
+        wdg_attr['colspan'] = 1
+        wdg_kwargs = wdg_attr.pop('wdg_kwargs',None)
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
                 wdg_kwargs = Bag(wdg_kwargs)
-            attr.update(wdg_kwargs)
+            wdg_attr.update(wdg_kwargs)
             for dim in ('height','width','crop_height','crop_width'):
-                c = attr.pop(dim, None)
+                c = wdg_attr.pop(dim, None)
                 if isinstance(c,int) or (c and c.isdigit()):
-                    attr[dim] = '%spx' %c if c else None
+                    wdg_attr[dim] = '%spx' %c if c else None
                 else:
-                    attr[dim] = c
-            attr['colspan'] = attr.pop('colspan',1) or 1
-
+                    wdg_attr[dim] = c
+            wdg_attr['colspan'] = wdg_attr.pop('colspan',1) or 1
         if tag.lower()=='simpletextarea':
-            attr.setdefault('speech',True)
-            attr['width'] = attr.get('width') or '94%'
-
-        customizer = getattr(self,'df_%(tag)s' %attr,None)
+            wdg_attr.setdefault('speech',True)
+            wdg_attr['width'] = wdg_attr.get('width') or '94%'
+        customizer = getattr(self,'df_%(tag)s' %wdg_attr,None)
         if customizer:
-            customizer(attr,dbstore_kwargs=dbstore_kwargs)
-        dictExtract(attr,'source_',pop=True)
-        self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-        self._df_handleFieldValidation(attr,fields=fields)
-        code = attr.pop('code')
-        getter = attr.pop('getter',None)
-        wdg = fb.child(**attr)
+            customizer(wdg_attr,dbstore_kwargs=dbstore_kwargs)
+        dictExtract(wdg_attr,'source_',pop=True)
+        self._df_handleFieldFormula(wdg_attr,fb=fb,fields=fields)
+        self._df_handleFieldValidation(wdg_attr,fields=fields)
+        code = wdg_attr.pop('code')
+        getter = wdg_attr.pop('getter',None)
+        wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     
         if isinstance(getter,basestring):
             getter = Bag(getter)
         if getter['table']:
-            self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
+            self._df_handleGetter(fb,code=code,datapath=wdg_attr['datapath'],getter=getter)
 
+    @customizable
+    def df_child(self,fb,**attr):
+        return fb.child(**attr)
 
     def df_filteringselect(self,attr,**kwargs):
         attr['values'] = attr.get('source_filteringselect')
@@ -499,7 +504,6 @@ class DynamicForm(BaseComponent):
     def df_combobox(self,attr,**kwargs):
         attr['values'] = attr.get('source_combobox')
                 
-
     def df_img(self,attr,**kwargs):
         attr['placeholder'] = self.getResourceUri('images/imgplaceholder.png')
         attr['upload_folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
@@ -509,26 +513,10 @@ class DynamicForm(BaseComponent):
         attr['border'] = '1px solid silver'
         attr['shadow'] = '2px 2px 3px #555'
 
-        #attr['dtype'] = 'T'
-        #attr['format'] = 'auto'
-
     def df_graph(self,attr,**kwargs):
-        attr['tag'] = 'dojoGraph'
-        attr['width']= attr['wdg_kwargs']['width']+'px' if attr['wdg_kwargs']['width'] else '99%'
-        attr['height'] = attr['wdg_kwargs']['height']+'px' if attr['wdg_kwargs']['height'] else '68%'
-        attr['border'] = attr['border'] or 0
-
-
-       #fb.iframe(nodeId=attr.get('code'), height=height, width=width, border=1, src='^.%(id_url)s_chart_url' %{'id_url': attr.get('code')}, datapath=attr['datapath'])
-       #
-       #formulaArgs = dict()
-       #list_graph = attr.get('source_graficazione').split(';')
-       #for lg in list_graph:
-       #    for p in lg.split(','):
-       #        formulaArgs[str(p)] = str('^.'+p)
-
-       #formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
-       #fb.dataFormula(".%s_chart_url" %attr['code'], "dynamicFormHandler.loadGrafico(this,_expression,'datapath,_expression');" ,_expression=attr.pop('source_graficazione'),_init=True,datapath=attr['datapath'],**formulaArgs)
+        attr['tag'] = 'div'
+        attr['innerHTML'] = 'Not yet implemented'
+        pass
 
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')

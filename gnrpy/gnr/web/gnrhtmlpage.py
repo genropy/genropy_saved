@@ -86,7 +86,7 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                     'sub', 'sup', 'table', 'tbody', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt',
                     'ul', 'var']
                     
-    gnrNS = ['layout', 'row', 'cell']
+    gnrNS = ['layout', 'row', 'cell','chart2D']
         
     html_autocontent_NS = ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'td', 'li', 'b', 'i', 'small', 'strong',
                            'p', 'pre', 'q', ]
@@ -158,7 +158,7 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                      'Grid': 'dojox.grid.Grid:dojox.Grid',
                      'VirtualGrid': 'dojox.grid.VirtualGrid:dojox.VirtualGrid',
                      'Calendar': 'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
-                     'GoogleMap': '','chart2D': ''
+                     'GoogleMap': ''
 
     };
     widgetNS = widgetcatalog.keys()
@@ -168,10 +168,6 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in widgetNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in gnr_dojoNS]))
-
-
-    def chart2D(self,id,**kwargs):
-        self.div(id=id)
 
         
 class GnrHtmlDojoPage(GnrHtmlPage):

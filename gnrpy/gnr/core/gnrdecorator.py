@@ -133,10 +133,12 @@ def customizable(func):
     def customize(page,name,*args,**kwargs):
         for k in dir(page):
             if k.startswith(name):
-                getattr(page,k)(*args,**kwargs)
+                return getattr(page,k)(*args,**kwargs)
 
     def newFunc(page,*args,**kwargs):
-        customize(page,'%s_oncalling_' %func.__name__,*args,**kwargs)
+        oncalling_result = customize(page,'%s_oncalling_' %func.__name__,*args,**kwargs)
+        if oncalling_result is False:
+            return
         result = func(page,*args,**kwargs)
         kwargs['_original_result'] = result
         customize(page,'%s_oncalled_' %func.__name__,*args,**kwargs)

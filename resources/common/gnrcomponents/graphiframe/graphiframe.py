@@ -14,8 +14,9 @@ class GraphIframe(BaseComponent):
         kwargs.setdefault('height','100%')
         kwargs.setdefault('width','100%')
         kwargs.setdefault('border','0')
-        kwargs.setdefault('src','/sys/dojograph')
-        pane.iframe(**kwargs)
+        kwargs.setdefault('src','/_rsrc/common/gnrcomponents/graphiframe/dojograph.py')
+        pane.attributes['overflow'] = 'hidden'
+        return pane.iframe(**kwargs)
 
 
 class componentsGrafico(BaseComponent):
