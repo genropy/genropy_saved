@@ -1464,7 +1464,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          For more information, check the :ref:`rowcaption` section
         """
         newkwargs = self._fieldDecode(field, **kwargs)
-        kwargs.pop('lbl',None)
+        kwargs.pop('lbl',None) #inside _fielddecode routine
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         handler = getattr(self,tag)
@@ -1526,7 +1526,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param fieldobj: TODO
         """
         lbl = kwargs.pop('lbl',None) 
-        result = {'lbl': lbl or fieldobj.name_long,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
+        lbl =  fieldobj.name_long if lbl is None else lbl
+        result = {'lbl': lbl,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         if dtype in ('A', 'C'):
             size = fieldobj.attributes.get('size', '20')
