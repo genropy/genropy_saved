@@ -7,7 +7,7 @@
 "gnrlayout"
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/graphiframe/graphiframe:GraphIframe"
     
     def windowTitle(self):
         return 'gnrlayout'
@@ -17,5 +17,4 @@ class GnrCustomWebPage(object):
         frame = pane.framePane(frameCode='frame0',height='300px')
         top = frame.top.slotToolbar(slots='*,|,piero,|,*',_class='frame_footer')
         top.piero.div('piero')
-        frame.div('HEI I AM CENTER')
-        
+        frame.graphIframe(x='pippo')

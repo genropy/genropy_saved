@@ -2,7 +2,22 @@
 # encoding: utf-8
 
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
 import json
+
+
+class GraphIframe(BaseComponent):
+    js_requires='gnrcomponents/graphiframe/graphiframe'
+
+    @struct_method
+    def gi_graphIframe(self,pane,**kwargs):
+        kwargs.setdefault('height','100%')
+        kwargs.setdefault('width','100%')
+        kwargs.setdefault('border','0')
+        kwargs.setdefault('src','/sys/dojograph')
+        pane.iframe(**kwargs)
+
+
 class componentsGrafico(BaseComponent):
     def plotGrafico(self, center, **kwargs): 
         dati_da_graficare = json.loads(kwargs['dati_da_graficare']) if kwargs.get('dati_da_graficare', False) else []

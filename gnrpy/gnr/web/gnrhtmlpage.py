@@ -158,7 +158,8 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                      'Grid': 'dojox.grid.Grid:dojox.Grid',
                      'VirtualGrid': 'dojox.grid.VirtualGrid:dojox.VirtualGrid',
                      'Calendar': 'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
-                     'GoogleMap': ''
+                     'GoogleMap': '','chart2D': ''
+
     };
     widgetNS = widgetcatalog.keys()
     gnr_dojoNS = []
@@ -167,6 +168,11 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in widgetNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in gnr_dojoNS]))
+
+
+    def chart2D(self,id,**kwargs):
+        self.div(id=id)
+
         
 class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory = GnrHtmlDojoSrc
@@ -214,7 +220,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.gnr_css()
         js_requires = getattr(self, 'js_requires', [])
         for js_require in js_requires:
-             urls =self.getResourceExternalUriList(js_require,'js') or []
+             urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
              for url in urls:
                 self.body.script(src=url)
         self.main(self.body, *args, **kwargs)

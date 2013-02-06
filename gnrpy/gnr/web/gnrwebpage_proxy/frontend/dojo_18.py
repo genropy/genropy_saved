@@ -8,11 +8,11 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.web.gnrwebpage_proxy.frontend.dojo_base import GnrBaseDojoFrontend
-from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_16
+from gnr.web.gnrwebstruct import  GnrDomSrc_dojo_18
 
 class GnrWebFrontend(GnrBaseDojoFrontend):
-    version = 'd16'
-    domSrcFactory = GnrDomSrc_dojo_16
+    version = 'd18'
+    domSrcFactory = GnrDomSrc_dojo_18
 
     def css_frontend(self, theme=None):
         theme = theme or self.theme
