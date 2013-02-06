@@ -60,7 +60,7 @@ function ValidateFormula(node, formulaEval)
     formulaEval = formulaEval.replace(/POTENZA\(/g,'Math.pow(');
     
     var codici = node.getRelativeData('#FORM/parent/#FORM.record.df_fields');
-    
+
     var num_codici = 0;
     if(codici)
         num_codici = codici.getNodes().length;
@@ -68,7 +68,7 @@ function ValidateFormula(node, formulaEval)
     var variabili = "";
     
     for(var i=0;i<num_codici;i++){
-        variabili += "var "+codici.getNodes()[i].attr.code+" = "+1+Math.random()*11+"; ";
+        variabili += "var "+codici.getNodes()[i].getValue().getItem('code')+" = "+1+Math.random()*11+"; ";
     }
 
     formulaEval = variabili+" "+formulaEval.parseFormula();
@@ -96,6 +96,7 @@ function save_formula(node){
 
     formulaEval = ValidateFormula(node, formula);
     try{
+        console.log(formulaEval)
         eval(formulaEval);  
         node.setRelativeData('#FORM.calculator.formulaEditor', formula)
         node.setRelativeData('#FORM.record.calculatorFormula',formula);
