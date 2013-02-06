@@ -12,7 +12,7 @@ class View(BaseComponent):
         r.fieldcell('gender')
 
     def th_options(self):
-        return dict(tableRecordCount=False)
+        return dict(tableRecordCount=True)
         
     def th_order(self):
         return 'name'

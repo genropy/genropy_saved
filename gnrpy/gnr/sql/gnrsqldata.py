@@ -23,6 +23,8 @@
 import os
 import shutil
 import re
+import time
+import thread
 #import weakref
 import cPickle
 import itertools
@@ -1113,6 +1115,10 @@ class SqlSelection(object):
         if _aggregateRows == True:
             data = self._aggregateRows(data, index, explodingColumns,aggregateDict=_aggregateDict)
         self._data = data
+        self._datasize=len(data)
+        self._chunksize=200
+        self._currChunkNumber=None
+        self._currChunk=None
         if key:
             self.setKey(key)
         elif 'pkey' in index:
@@ -1295,7 +1301,7 @@ class SqlSelection(object):
         f.close()
         self.dbtable, self._data, self._filtered_data = saved
         
-    def _freeze_data(self, readwrite):
+    def _freeze_data_old(self, readwrite):
         pik_path = '%s_data.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
@@ -1306,7 +1312,51 @@ class SqlSelection(object):
             with open(pik_path) as f:
                 self._data = cPickle.load(f)
         f.close()
+    
+    def _freeze_splitted(self,path=None,async=False):
+        if async :
+            thread.start_new_thread(self._freeze_splitted,(),dict(path=path))
+            print 'started thread'
+            return
+        if os.path.exists(path):
+            shutil.rmtree(path, True)
+        os.makedirs(path)
+        for i,s in enumerate(xrange(0,self._datasize,self._chunksize)):
+            temp_path=os.path.join(path,'slice_%09i_temp.pik' % i)
+            chunk_path=os.path.join(path,'slice_%09i.pik' % i)
+            f=open(temp_path,'w')
+            cPickle.dump(list(itertools.islice(self._data,s,s+self._chunksize)), f)
+            f.close()
+            shutil.move(temp_path, chunk_path)
+
+
+    def _loadChunck(self,path,i):
+        if self._currChunkNumber==i:
+            return self._currChunk
+        tstart=time.time()
+        path=os.path.join(path,'slice_%09i.pik' % i)
+        print 'loading',path
+        while not os.path.exists(path) and (time.time()-tstart)<10:
+            print 'waiting'
+            time.sleep(0.01)
+        f=open(path,'r')
+        self._currChunk=cPickle.load(f)
+        f.close()
+        self._currChunkNumber=i
         
+    def _unfreezedData(self,path):
+        for k in xrange (0,self._datasize):
+            chunk_number=int(k/self._chunksize)
+            self._loadChunck(path,chunk_number)
+            yield self._currChunk[k%self._chunksize] 
+            
+    def _freeze_data(self, readwrite):
+        pik_path = '%s_data' % self.freezepath
+        if readwrite == 'w':
+            self._freeze_splitted(pik_path,True)
+        else:
+            self._data = self._unfreezedData(pik_path)
+    
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
         if readwrite == 'w' and self._filtered_data is None:
@@ -2286,3 +2336,5 @@ class SqlRecordBag(Bag):
             return self._db
         
     db = property(_get_db, _set_db)
+    
+

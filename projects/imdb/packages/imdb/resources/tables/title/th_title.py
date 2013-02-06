@@ -19,7 +19,7 @@ class View(BaseComponent):
 
         
     def th_options(self):
-        return dict(tableRecordCount=False)
+        return dict(tableRecordCount=true)
         
     def th_order(self):
         return 'title'
