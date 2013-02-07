@@ -91,13 +91,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var readyState = xhr.readyState;
         var responseText = xhr.responseText;
         if (status == 400) {
-            genro.dlg.alert('Client HTTP error');
-            genro.pageReload();
+            genro.dlg.alert('Client HTTP error','Error',null,null,{confirmCb:genro.pageReload});
             return;
         }
         else if (status == 412) {
-            genro.dlg.alert('No longer existing page');
-            genro.pageReload();
+            genro.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
         } else if (status == 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');

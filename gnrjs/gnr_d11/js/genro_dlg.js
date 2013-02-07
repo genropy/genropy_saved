@@ -140,10 +140,21 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
         var kw = kw || {};
-        var resultPath = resultPath || 'dummy';
+        var confirmCb = objectPop(kw,'confirmCb')
+        var resultPath = resultPath;
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
         var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'},kw))._('div', {_class:'dlg_ask',
-            'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);"});
+            action:function(){
+                genro.wdgById('_dlg_alert').hide();
+                if(resultPath){
+                    genro.fireEvent(resultPath,this.attr.actCode);
+                }
+                if(confirmCb){
+                    funcApply(confirmCb);
+                }
+            }
+
+        });
         dlg._('div', {'innerHTML':msg,'_class':'dlg_ask_msg'});
         for (var btn in buttons) {
             dlg._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});

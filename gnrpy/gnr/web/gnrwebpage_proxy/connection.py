@@ -149,7 +149,6 @@ class GnrWebConnection(GnrBaseProxy):
         exclude = exclude or []
         if isinstance(exclude, basestring):
             exclude = exclude.split(',')
-
         for user, arguments in users.items():
             if user in exclude:
                 continue
