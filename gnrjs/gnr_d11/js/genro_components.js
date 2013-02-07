@@ -1688,11 +1688,13 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         tblNode.attr.action = function(){that.onCheckboxCheck(tblNode,separator);};
 
         var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
-                                    textvalue:value,textdescription:value+'?value_caption'}).getParentNode();
+                                    textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();
         dcNode._readValue = function(textvalue,textdescription,_triggerpars,_node){
-            if(_triggerpars.kw.reason=='cbgroup'){return}
-            if(!_triggerpars.kw.updvalue){
-                textvalue=null;
+            if(_triggerpars.kw){
+                if(_triggerpars.kw.reason=='cbgroup'){return}
+                if(!_triggerpars.kw.updvalue){
+                    textvalue=null;
+                }
             }
             that.readValue(tblNode,textvalue,textdescription,separator);
         }
