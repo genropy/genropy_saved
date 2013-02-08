@@ -634,6 +634,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             toterr+=n.getValue().len();
         });
         errorbag.getParentNode().setAttribute('counter',toterr,true);
+        if(genro.isDeveloper){
+            debugger;
+        }
     },
 
     errorPalette:function(parent){

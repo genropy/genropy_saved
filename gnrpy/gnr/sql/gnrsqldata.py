@@ -555,7 +555,7 @@ class SqlQueryCompiler(object):
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
         if partition_kwargs:
             for k,v in partition_kwargs.items():
-                if currentEnv.get(k):
+                if currentEnv.get(v):
                     where =  ' ( t0.%s=:env_%s ) AND %s' % (k,v, where)
 
         # add a special joinCondition for the main selection, not for JOINs
@@ -579,7 +579,6 @@ class SqlQueryCompiler(object):
                         xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
                         for xrd in xorderby:
                             if not xrd in columns:
-                                print 'adding ',xrd,' to columns ',columns
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
