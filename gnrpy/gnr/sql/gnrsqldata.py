@@ -1369,11 +1369,14 @@ class SqlSelection(object):
                         args[k] = arg.replace('*', '')
             self.sortedBy = args
             gnrlist.sortByItem(self.data, *args)
+            for k,n in enumerate(self.data):
+                n['rowidx'] = k
             self.isChangedSelection = True #prova
             if not self._filtered_data:
                 self.isChangedData = True
             else:
                 self.isChangedFiltered = True
+
                 
     def filter(self, filterCb=None):
         """TODO
