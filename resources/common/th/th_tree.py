@@ -168,7 +168,10 @@ class HTableTree(BaseComponent):
                         condition=dbselect_condition,
                         condition_kwargs=dbselect_condition_kwargs,
                         cacheTime=0,caption_field=caption_field)
-        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',selected_pkey=attr['value'].replace('^',''))
+        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
+                        action='this.getParentNode().getParentNode().widget.setValue(this.attr.pkey,true);'
+                        #selected_pkey=attr['value'].replace('^','')
+                      )
         
     @extract_kwargs(related=True)
     @struct_method
