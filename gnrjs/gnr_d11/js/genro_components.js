@@ -1242,7 +1242,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         kw._tplpars.editable = kw._tplpars.editable || (genro.isDeveloper? 'developer':false);
         kw._tplpars.showAlways = kw._tplpars.editable===true;
         kw._tplpars.asSource =  kw._tplpars.editable!=null;
-
+        kw._class = (kw._class || '') + ' selectable'
         var dataProvider = objectPop(kw,'dataProvider');
         if(dataProvider){
             dataProvider = sourceNode.currentFromDatasource(dataProvider);
