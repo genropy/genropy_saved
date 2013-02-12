@@ -487,7 +487,6 @@ class DynamicForm(BaseComponent):
         self._df_handleFieldValidation(wdg_attr,fields=fields)
         code = wdg_attr.pop('code')
         getter = wdg_attr.pop('getter',None)
-        print x
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     
