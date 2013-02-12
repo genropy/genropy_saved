@@ -467,6 +467,7 @@ class DynamicForm(BaseComponent):
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
                 wdg_kwargs = Bag(wdg_kwargs)
+            wdg_kwargs = wdg_kwargs.asDict(ascii=True)
             wdg_attr.update(wdg_kwargs)
             for dim in ('height','width','crop_height','crop_width'):
                 c = wdg_attr.pop(dim, None)
@@ -486,6 +487,7 @@ class DynamicForm(BaseComponent):
         self._df_handleFieldValidation(wdg_attr,fields=fields)
         code = wdg_attr.pop('code')
         getter = wdg_attr.pop('getter',None)
+        print x
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     
