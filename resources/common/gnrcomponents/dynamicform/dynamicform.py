@@ -467,6 +467,7 @@ class DynamicForm(BaseComponent):
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
                 wdg_kwargs = Bag(wdg_kwargs)
+                wdg_kwargs = wdg_kwargs.asDict(ascii=True)
             wdg_attr.update(wdg_kwargs)
             for dim in ('height','width','crop_height','crop_width'):
                 c = wdg_attr.pop(dim, None)
