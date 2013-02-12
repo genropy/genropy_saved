@@ -1612,7 +1612,7 @@ dojo.declare("gnr.formstores.Base", null, {
             genro.assert(dataNode,'Missing data for currentPath',currPkey);
             var kw = objectExtract(dataNode.attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
             var recordLoaded = new gnr.GnrBag();
-            dataNode.getValue().forEach(function(n){
+            dataNode.getValue().deepCopy().forEach(function(n){
                 recordLoaded.setItem(n.label,n.getValue());
             });
             envelope.setItem('record',recordLoaded,kw);
