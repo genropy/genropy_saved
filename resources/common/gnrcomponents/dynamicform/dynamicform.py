@@ -397,7 +397,7 @@ class DynamicForm(BaseComponent):
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
         if df_groups:
-            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px')
+            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath)
             for gr in df_groups:
                 gr_attr=gr.attr
                 pkey=gr_attr['pkey']
@@ -407,13 +407,13 @@ class DynamicForm(BaseComponent):
                 group_label = gr_attr.get('group_label')
                 caption_field = df_tblobj.attributes['caption_field']
                 ncol,caption =df_tblobj.readColumns(columns='df_fbcolumns,$%s' %caption_field,pkey=pkey)
-                box = groupfb.div(_class='pbl_roundedGroup',datapath='.%s' %group_code,margin='2px',colspan=colspan,rowspan=rowspan)
+                box = groupfb.div(_class='pbl_roundedGroup',datapath='.%s' %(group_code),margin='2px',colspan=colspan,rowspan=rowspan)
                 box.div('%s (%s)' %(caption,group_label) if group_label else caption,_class='pbl_roundedGroupLabel')
                 grp=box.div(margin_right='10px')
                 grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol,datapath=datapath)
         else:
             ncol =df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
-            pane.div(margin_right='10px').dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol,datapath=datapath)
+            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol)
 
     @struct_method
     def df_dynamicFormGroup(self,pane,df_table=None,df_pkey=None,datapath=None,ncol=None,**kwargs):
@@ -436,7 +436,7 @@ class DynamicForm(BaseComponent):
         attr.pop('id',None)
         attr.pop('pkey',None)
         attr.pop('maintable_id',None)
-        attr['datapath'] = datapath
+        #attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
         return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs)
@@ -494,7 +494,7 @@ class DynamicForm(BaseComponent):
         if isinstance(getter,basestring):
             getter = Bag(getter)
         if getter['table']:
-            self._df_handleGetter(fb,code=code,datapath=wdg_attr['datapath'],getter=getter)
+            self._df_handleGetter(fb,code=code,getter=getter)
 
     @customizable
     def df_child(self,fb,**attr):
@@ -539,16 +539,16 @@ class DynamicForm(BaseComponent):
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
-        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
+        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'_expression');" ,_expression=formula,_init=True,**formulaArgs)
         attr['readOnly'] =True 
     
 
-    def _df_handleGetter(self,fb,code=None,datapath=None,getter=None):
+    def _df_handleGetter(self,fb,code=None,getter=None):
         kw = asDict(getter['where'].replace('\n',','))
         _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]
         if _iflist:
             kw['_if'] = ' && '.join(_iflist)
-        fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],datapath=datapath,**kw)
+        fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],**kw)
 
     @public_method
     def _df_remoteGetter(self,table=None,column=None,innerpath=None,**kwargs):
@@ -590,7 +590,7 @@ class DynamicForm(BaseComponent):
                                         }
                                     }(this);""" %tpv
 
-            conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
+            conditionArgs = dict([('row_%s' %str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
 
             
