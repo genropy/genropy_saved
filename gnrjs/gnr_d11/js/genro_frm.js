@@ -1140,6 +1140,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     dojoValidation:function(wdg,isValid){
         var node_identifier=wdg.sourceNode.getStringId();
         var dojoValid=this.getInvalidDojo();
+        var changedNode = genro.getDataNode(wdg.sourceNode.absDatapath(wdg.sourceNode.attr.value));
+        if(!this.isNodeInFormData(changedNode)){
+            return;
+        }
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
