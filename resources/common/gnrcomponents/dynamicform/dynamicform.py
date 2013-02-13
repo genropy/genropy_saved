@@ -286,13 +286,14 @@ class DynamicForm(BaseComponent):
         
     @struct_method
     def df_fieldsGrid(self,pane,**kwargs):
+        pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer()
         mastertable = pane.getInheritedAttributes()['table']
         mastertblobj = self.db.table(mastertable)
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        center = bc.contentPane(region='center')
+        center = bc.contentPane(region='center',overflow='hidden')
         if mastertblobj.attributes.get('df_fieldstable'):
             th = self.df_fieldsTableGrid(center,**kwargs)
         else:
@@ -307,7 +308,7 @@ class DynamicForm(BaseComponent):
 
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
-        bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode)
+        bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode,overflow='hidden')
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
