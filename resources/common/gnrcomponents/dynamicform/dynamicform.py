@@ -389,15 +389,28 @@ class DynamicForm(BaseComponent):
   
 
 
+    def df_prepareGlobalVars(self,global_fields=None,df_groups=None):
+        result = []
+        for n in df_groups:
+            ext_ref = n.attr.get('external_ref')
+            if ext_ref:
+                for f in global_fields[n.attr['pkey']]:
+                    result.append('%s.%s' %(ext_ref,f['code'])) 
+        return result
+
     @public_method
     def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
+        pane.data(datapath,Bag())
         if not (df_pkey or df_groups):
             pane.div()
             return
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
+        pkeylist = df_groups.digest('#a.pkey') if df_groups else [df_pkey]
+        global_fields = dict([(pkey,df_tblobj.df_getFieldsRows(pkey=pkey)) for pkey in pkeylist])
         if df_groups:
             groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath)
+            global_vars = self.df_prepareGlobalVars(global_fields=global_fields,df_groups=df_groups)
             for gr in df_groups:
                 gr_attr=gr.attr
                 pkey=gr_attr['pkey']
@@ -410,39 +423,39 @@ class DynamicForm(BaseComponent):
                 box = groupfb.div(_class='pbl_roundedGroup',datapath='.%s' %(group_code),margin='2px',colspan=colspan,rowspan=rowspan)
                 box.div('%s (%s)' %(caption,group_label) if group_label else caption,_class='pbl_roundedGroupLabel')
                 grp=box.div(margin_right='10px')
-                grp.dynamicFormGroup(df_table=df_table,df_pkey=pkey,ncol=ncol,datapath=datapath)
+                fields = global_fields[pkey]
+                if fields:
+                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr['global_namespace'] else None,**kwargs)
         else:
-            ncol =df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
-            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(df_table=df_table,df_pkey=df_pkey,ncol=ncol)
+            ncol = df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
+            fields = global_fields[df_pkey]
+            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(fields=fields,ncol=ncol,**kwargs)
 
     @struct_method
-    def df_dynamicFormGroup(self,pane,df_table=None,df_pkey=None,datapath=None,ncol=None,**kwargs):
+    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,**kwargs):
         fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
-        fb.addDynamicFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
+        fb.addDynamicFields(fields=fields,**kwargs)
 
     @struct_method
-    def df_addDynamicFields(self,fb,df_table=None,df_pkey=None,datapath=None,**kwargs):
+    def df_addDynamicFields(self,fb,fields=None,**kwargs):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
-        df_tblobj = self.db.table(df_table)
-        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         if not fields:
             return
         for r in fields:
-            fb.dynamicField(r,fields=fields,datapath=datapath,dbstore_kwargs=dbstore_kwargs)
+            fb.dynamicField(r,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
             
     @struct_method
-    def df_dynamicField(self,fb,r,fields=None,datapath=None,dbstore_kwargs=None):
+    def df_dynamicField(self,fb,r,fields=None,dbstore_kwargs=None,**kwargs):
         attr = dict(r)
         attr.pop('id',None)
         attr.pop('pkey',None)
         attr.pop('maintable_id',None)
-        #attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
-        return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs)
+        return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
 
     @customizable
-    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None):
+    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None,**kwargs):
         mask = wdg_attr.pop('field_mask',None)
         if tag.endswith('_nopopup'):
             tag = tag.replace('_nopopup','')
@@ -484,7 +497,7 @@ class DynamicForm(BaseComponent):
         if customizer:
             customizer(wdg_attr,dbstore_kwargs=dbstore_kwargs)
         dictExtract(wdg_attr,'source_',pop=True)
-        self._df_handleFieldFormula(wdg_attr,fb=fb,fields=fields)
+        self._df_handleFieldFormula(wdg_attr,fb=fb,fields=fields,**kwargs)
         self._df_handleFieldValidation(wdg_attr,fields=fields)
         code = wdg_attr.pop('code')
         getter = wdg_attr.pop('getter',None)
@@ -533,11 +546,13 @@ class DynamicForm(BaseComponent):
         attr.setdefault('codeSeparator',False)
         attr['values'] = attr.get('source_checkboxtext')    
         
-    def _df_handleFieldFormula(self,attr,fb,fields=None):
+    def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,**kwargs):
         formula = attr.pop('formula',None)
         if not formula:
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
+        if global_vars:
+            formulaArgs.update(dict([(str(x.replace('.','_')),'^.#parent.%s' %x) for x in global_vars if x.replace('.','_') in formula]))
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
         fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'_expression');" ,_expression=formula,_init=True,**formulaArgs)
         attr['readOnly'] =True 
