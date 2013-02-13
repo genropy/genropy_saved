@@ -215,7 +215,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     setCurrentPkey:function(pkey){
         var currkey = this.sourceNode.getRelativeData(this.fieldpath);
-        this.sourceNode.setRelativeData(this.fieldpath,pkey);
+        this.sourceNode.getChild('selector').widget.setValue(pkey,true);
         if(currkey==pkey){
             this.sourceNode.getRelativeData(this.resolverpath).getParentNode().getValue('reload');
         }
