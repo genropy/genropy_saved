@@ -161,6 +161,7 @@ class HTableTree(BaseComponent):
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(dbselect))
         attr['hasDownArrow'] = True
+        attr['_hdbselect'] = True
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
         attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
@@ -169,7 +170,7 @@ class HTableTree(BaseComponent):
                         condition_kwargs=dbselect_condition_kwargs,
                         cacheTime=0,caption_field=caption_field)
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action='this.getParentNode().getParentNode().widget.setValue(this.attr.pkey,true);'
+                        action='this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);'
                         #selected_pkey=attr['value'].replace('^','')
                       )
         
