@@ -386,7 +386,7 @@ class ThLinker(BaseComponent):
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
-                    default_kwargs=None,auxColumns=None,hiddenColumns=None,**kwargs):
+                    default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
@@ -436,8 +436,10 @@ class ThLinker(BaseComponent):
                             addtpl='!!Add a new $table2',
                             t1=tblobj.name_long, t2=related_tblobj.name_long)        
         if formResource or formUrl:
-            linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
+            add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
+            if addEnabled:
+                pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)
             linker.attributes.update(_embedded=False)
             embedded = False
             openIfEmpty = True if openIfEmpty is None else openIfEmpty

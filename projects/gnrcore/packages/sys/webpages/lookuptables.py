@@ -50,7 +50,9 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         for k,v in struct.tblobj.model.columns.items():
             attr = v.attributes
-            if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
+            if attr.get('counter'):
+                r.fieldcell(k,hidden=True,counter=True)
+            elif not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
                 r.fieldcell(k,edit=attr['cell_edit'] if 'cell_edit' in attr else True)
 
     @public_method
@@ -61,9 +63,11 @@ class GnrCustomWebPage(object):
         else:
             saveButton = not fixeed_table
             semaphore = not fixeed_table
+            tblobj= self.db.table(table)
             th = pane.inlineTableHandler(table=table,viewResource='LookupView',datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
                                     nodeId='mainth',
-                                    view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data')
+                                    view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data',
+                                    grid_selfDragRows=tblobj.attributes.get('counter'))
             if fixeed_table:
                 bar = th.view.bottom.slotBar('10,revertbtn,*,cancel,savebtn,10',margin_bottom='2px',_class='slotbar_dialog_footer')
                 bar.revertbtn.slotButton('!!Revert',action='FIRE main.load_data;',disabled='==status!="changed"',status='^.grid.editor.status')

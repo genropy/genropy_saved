@@ -197,6 +197,7 @@ class TableBase(object):
             tbl.attributes['broadcast'] = ','.join(broadcast)
 
         if counter:
+            tbl.attributes['counter'] = counter
             if hierarchical:
                 assert counter is True, 'in hierarchical counter is not relative to a foreignkey'
                 tbl.column('_h_count',group=group,_sysfield=True)

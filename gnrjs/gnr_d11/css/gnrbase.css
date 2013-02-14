@@ -2763,6 +2763,7 @@ body *{
     box-shadow:none;
     padding-top:0;
 }
+
 .dijitError.th_linkerField{
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
 }
@@ -2798,7 +2799,7 @@ body *{
 .th_linker:hover{
     opacity:1;
 }
-.th_linkerAdd{
+.th_linkerAdd, .th_enableLinker .hidden.th_linkerAdd{
 	display: none;
 }
 .th_enableLinker .th_linkerAdd{
