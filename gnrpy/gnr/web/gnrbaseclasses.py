@@ -292,19 +292,18 @@ class TableTemplateToHtml(BagToHtml):
         return super(TableTemplateToHtml, self).__call__(record=record,htmlContent=htmlContent,**kwargs)
 
     def contentFromTemplate(self,record,template,locale=None,**kwargs):
+        virtual_columns=None
         if isinstance(template,Bag):
             kwargs['locale'] = locale or template.getItem('main?locale')
             kwargs['masks'] = template.getItem('main?masks')
             kwargs['formats'] = template.getItem('main?formats')
             kwargs['df_templates'] = template.getItem('main?df_templates')
             kwargs['dtypes'] = template.getItem('main?dtypes')
-        virtual_columns = template.getItem('main?virtual_columns')
+            virtual_columns = template.getItem('main?virtual_columns')
         self.record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
         return templateReplace(template,self.record, safeMode=True,noneIsBlank=False,
                     localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
                     **kwargs)
-
-
 
     @extract_kwargs(pdf=True)
     def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):

@@ -380,7 +380,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
                     setTimeout(function() {
                         sourceNode.widget.displayMessage(errormessage);
                     }, 1);
-                } else if (warnings) {
+                } else if (warnings && warnings.length>0) {
                     warnings = warnings.join('<br />');
                     setTimeout(function() {
                         sourceNode.widget.displayMessage(warnings);
@@ -596,6 +596,7 @@ dojo.declare("gnr.RowEditor", null, {
         if(rowIndex>=0){
             this.grid.updateRow(rowIndex);
         }
+        this.data.getParentNode().clearValue();
     },
     checkRowEditor:function(){
         var toDelete = true;
@@ -863,6 +864,7 @@ dojo.declare("gnr.GridEditor", null, {
                 delete r.attr._newrecord;
             });
         }
+        this.grid.sourceNode.publish('savedRows');
         this.updateStatus();         
     },
     saveChangedRows:function(){
@@ -1056,8 +1058,8 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
-        if(cell.edit){
-            rowEditor.data.setItem(cellname,value,{_loadedValue:row[cellname]});
+        if(cell.edit || cell.counter){
+            rowEditor.data.setItem(cellname,value);
             this.updateStatus();
             this.lastEditTs = new Date();
         }
@@ -1073,7 +1075,8 @@ dojo.declare("gnr.GridEditor", null, {
             }
             queries.setItem(cellname,null,{table:rtable,columns:hcols.join(','),pkey:value,where:'$pkey =:pkey'});
             var r = genro.serverCall('app.getMultiFetch',{'queries':queries},null,null,'POST');
-            var kw = r.getNode('#0.#0').attr;
+            var rnode = r.getNode('#0.#0');
+            var kw = rnode?rnode.attr:{};
             valueCaption = objectPop(kw,cell.related_column);
             for(var selected in selectedKw){
                 var p = selectedKw[selected].split('.');

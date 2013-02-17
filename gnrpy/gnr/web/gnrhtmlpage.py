@@ -25,58 +25,8 @@ from gnr.core.gnrhtml import GnrHtmlSrc, GnrHtmlBuilder
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.core.gnrstring import  splitAndStrip
 
-class GnrHtmlPage(GnrWebPage):
-    srcfactory = GnrHtmlSrc
-    
-    def __init__disabled_(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
-                          filepath=None, packageId=None, basename=None):
-        self.packageId = packageId
-        self.filepath = filepath
-        self.site = site
-        
-        self._call_args = request_args or tuple()
-        self._call_kwargs = request_kwargs or {}
-        self._user_login = None
-        self._user = None
-        
-    def main(self, *args, **kwargs):
-        pass
-        
-    def gnr_css(self):
-        css_genro = self.get_css_genro()
-        for css_media, css_link in css_genro.items():
-            import_statements = ';\n'.join(css_link)
-            self.builder.head.style(import_statements + ';', type="text/css", media=css_media)
-            
-    def rootPage(self, *args, **kwargs):
-        self.builder.initializeSrc(_class=self.theme)
-        self.body = self.builder.body
-        kwargs = kwargs or {}
-        if 'dojo_theme' in kwargs:
-            self.theme = kwargs.pop('dojo_theme')
-        if 'pagetemplate' in kwargs:
-            self.theme = kwargs.pop('pagetemplate')
-        js_requires = getattr(self, 'js_requires', [])
-        for js_require in js_requires:
-             urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
-             for url in urls:
-                self.body.script(src=url)
-        css_import_statements_list=[]
-        css_requires = getattr(self, 'css_requires', [])
-        for css_require in css_requires:
-             urls =self.getResourceExternalUriList(css_require,'css') or []
-             for url in urls:
-                css_import_statements_list.append('@import url("%s")' %url)
-        if css_import_statements_list:
-            import_statements = ';\n    '.join(css_import_statements_list)
-            self.builder.head.style(import_statements + ';\n', type="text/css")
-        
-        self.main(self.body, *args, **kwargs)
-        return self.builder.toHtml()
-        
-    def onPreIniting(self, request_args=None, request_kwargs=None):
-        self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
-        
+
+
 class GnrHtmlDojoSrc(GnrHtmlSrc):
     html_base_NS = ['a', 'abbr', 'acronym', 'address', 'area', 'base', 'bdo', 'big', 'blockquote',
                     'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
@@ -86,7 +36,7 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                     'sub', 'sup', 'table', 'tbody', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt',
                     'ul', 'var']
                     
-    gnrNS = ['layout', 'row', 'cell']
+    gnrNS = ['layout', 'row', 'cell','chart2D']
         
     html_autocontent_NS = ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'td', 'li', 'b', 'i', 'small', 'strong',
                            'p', 'pre', 'q', ]
@@ -159,6 +109,7 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                      'VirtualGrid': 'dojox.grid.VirtualGrid:dojox.VirtualGrid',
                      'Calendar': 'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
                      'GoogleMap': ''
+
     };
     widgetNS = widgetcatalog.keys()
     gnr_dojoNS = []
@@ -167,6 +118,73 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in widgetNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in gnr_dojoNS]))
+
+
+class GnrHtmlPage(GnrWebPage):
+    srcfactory = GnrHtmlSrc
+    
+    def __init__disabled_(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
+                          filepath=None, packageId=None, basename=None):
+        self.packageId = packageId
+        self.filepath = filepath
+        self.site = site
+        
+        self._call_args = request_args or tuple()
+        self._call_kwargs = request_kwargs or {}
+        self._user_login = None
+        self._user = None
+        
+    def main(self, *args, **kwargs):
+        pass
+
+    def setCssRequires(self):
+        css_import_statements_list=[]
+        css_requires = getattr(self, 'css_requires', [])
+        css_requires.extend([k.split('.')[0] for k in self.dynamic_css_requires.keys()])
+        for css_require in css_requires:
+             urls =self.getResourceExternalUriList(css_require,'css') or []
+             for url in urls:
+                css_import_statements_list.append('@import url("%s")' %url)
+        if css_import_statements_list:
+            import_statements = ';\n    '.join(css_import_statements_list)
+            self.builder.head.style(import_statements + ';\n', type="text/css")
+
+    def setJsRequires(self):
+        js_requires = getattr(self, 'js_requires', [])
+        js_requires.extend([k.split('.')[0] for k in self.dynamic_js_requires.keys()])
+        for js_require in js_requires:
+             urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
+             for url in urls:
+                self.body.script(src=url)
+        
+    def gnr_css(self):
+        css_genro = self.get_css_genro()
+        for css_media, css_link in css_genro.items():
+            import_statements = ';\n'.join(css_link)
+            self.builder.head.style(import_statements + ';', type="text/css", media=css_media)
+
+    def gnr_js(self):
+        pass
+            
+    def rootPage(self, *args, **kwargs):
+        self.builder.initializeSrc(_class=self.theme)
+        self.body = self.builder.body
+        kwargs = kwargs or {}
+        if 'dojo_theme' in kwargs:
+            self.theme = kwargs.pop('dojo_theme')
+        if 'pagetemplate' in kwargs:
+            self.theme = kwargs.pop('pagetemplate')
+        self.setJsRequires()
+        self.setCssRequires()
+
+        
+        self.main(self.body, *args, **kwargs)
+        return self.builder.toHtml()
+        
+    def onPreIniting(self, request_args=None, request_kwargs=None):
+        self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
+        
+
         
 class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory = GnrHtmlDojoSrc
@@ -212,11 +230,18 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.body = self.builder.body
         self.dojo()
         self.gnr_css()
-        js_requires = getattr(self, 'js_requires', [])
-        for js_require in js_requires:
-             urls =self.getResourceExternalUriList(js_require,'js') or []
-             for url in urls:
-                self.body.script(src=url)
+        self.gnr_js()
+        self.setJsRequires()
+        self.setCssRequires()
+
+       #if self.dynamic_css_requires:
+       #    for v in self.dynamic_css_requires.values():
+       #        if v:
+       #            page.script('genro.dom.loadCss("%s")' %v)
+       #if self.dynamic_js_requires:
+       #    for v in self.dynamic_js_requires.values():
+       #        if v:
+       #            page.script('genro.dom.loadJs("%s")' %v)
         self.main(self.body, *args, **kwargs)
         self.finalizeDojo()
         result = self.builder.toHtml()

@@ -164,10 +164,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
     },
-    fireNode: function() {
-        return this.setDataNodeValue();
+    fireNode: function(runKwargs) {
+        return this.setDataNodeValue(runKwargs);
     },
-    setDataNodeValue:function(node, kw, trigger_reason, subscription_args) {
+    setDataNodeValue:function(nodeOrRunKwargs, kw, trigger_reason, subscription_args) {
+
         var delay = this.attr._delay;
         if(delay == 'auto'){
             delay = null;//genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
@@ -176,14 +177,21 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (this.pendingFire) {
                 clearTimeout(this.pendingFire);
             }
-            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason,subscription_args),delay);
+            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', nodeOrRunKwargs, kw, trigger_reason,subscription_args),delay);
         } else {
-            return this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
+            return this.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);
         }
     },
 
-    setDataNodeValueDo:function(node, kw, trigger_reason, subscription_args) {
-        var isFiredNode=!node;
+    setDataNodeValueDo:function(nodeOrRunKwargs, kw, trigger_reason, subscription_args) {
+        var node;
+        var runKwargs={};
+        var isFiredNode=!(nodeOrRunKwargs instanceof gnr.GnrBagNode)
+        if(isFiredNode){
+            runKwargs = nodeOrRunKwargs;
+        }else{
+            node = nodeOrRunKwargs;
+        }
         var attributes = objectUpdate({}, this.attr);
         var _userChanges = objectPop(attributes, '_userChanges');
         var _trace = objectPop(attributes, '_trace');
@@ -259,6 +267,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log(val);
             }
         }
+        objectUpdate(kwargs,runKwargs);
         var if_result = true;
         if (_if) {
             if_result = funcCreate('return (' + _if + ')', argNames.join(',')).apply(this, argValues);
@@ -279,7 +288,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var doCall = true;
                 var domsource_id = this.getStringId();
                 var method = expr;
-                var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+                // var httpMethod = objectPop(kwargs, '_POST') ? 'POST' : 'GET';
+
+                var httpMethod = objectPop(kwargs, '_POST') === false? 'GET' : 'POST';
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');
@@ -355,7 +366,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     result = new gnr.GnrBag(kwargs);
                 } else {
                     expr = (tag == 'dataformula') ? 'return ' + expr : expr;
-                    result = funcCreate(expr, argNames.join(',')).apply(this, argValues);
+                    result = funcCreate(expr, (['_kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }
                 if (dataNode) { // if it has a dataNode set it to the returned value
                     dataNode.setValue(result);
@@ -519,6 +530,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
+        if(nodeId=='WORKSPACE'){
+            node=this.attributeOwnerNode('_workspace');
+            genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
+            return 'gnr.workspace.'+(node.attr.nodeId || node.getStringId())+'.'+relpath;
+        }
         if(nodeId=='DATA'){
             return relpath;
         }
@@ -1301,9 +1317,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 //domnode.setAttribute(attr,value);
             }
         }else if(this.gnrwdg){
-            var setter = 'gnrwdg_set' + stringCapitalize(attr);
-            if(setter in this.gnrwdg.gnr){
-                this.gnrwdg.gnr[setter].call(this.gnrwdg.sourceNode,value,kw);
+            var setter = 'set' + stringCapitalize(attr);
+            if(setter in this.gnrwdg){
+                this.gnrwdg[setter].call(this.gnrwdg,value,kw);
             }
         }
     },
@@ -1485,8 +1501,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }else if(this.domNode){
             this.domNode.disabled = value;
+            if(value){
+                this.domNode.setAttribute('disabled',value);
+            }else{
+                this.domNode.removeAttribute('disabled');
+            }
+            
         }
-
     },
 
     setSource: function(path, /*gnr.GnrDomSource*/ source) {
@@ -1628,11 +1649,22 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 curr=node.getValue();
             }
             else{
-                node=curr.walk(function(n){
-                if('_childname' in n.attr){
-                    return n.attr._childname==childname?n:true;
-                }
+
+                curr.forEach(function(n){
+                    if(n.attr._childname==childname){
+                        node = n;
+                    }
                 },'static');
+                
+                if(node){
+                    return 
+                }
+                node=curr.walk(function(n){
+                       if('_childname' in n.attr){
+                           return n.attr._childname==childname?n:true;
+                         }
+                      },'static');
+
                 if (node==true){
                     return;
                 }else{

@@ -39,6 +39,8 @@ class Table(object):
     
     @public_method     
     def validate_auth_code(self, value=None, **kwargs):
+        if not value:
+            return
         return self.check_auth(value)
         
     def check_auth(self, code):

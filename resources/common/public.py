@@ -13,6 +13,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdict import dictExtract
 import os
 
 class PublicBase(BaseComponent):
@@ -43,7 +44,9 @@ class PublicBase(BaseComponent):
                 if(window.frameElement){
                     var parentIframeSourceNode = window.frameElement.sourceNode;
                     var multipage_childpath = parentIframeSourceNode.attr.multipage_childpath;
-                    genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
+                    if(multipage_childpath){
+                        genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
+                    }
                 }
             """,
             title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1,_onStart=True)
@@ -62,6 +65,8 @@ class PublicBase(BaseComponent):
         return frame
         
     def public_frameTopBarSlots(self,baseslot):
+        if getattr(self,'public_partitioned',None):
+            baseslot = baseslot.replace('avatar','partition_selector,10,avatar')
         return baseslot
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
@@ -84,9 +89,9 @@ class PublicBase(BaseComponent):
                             **kwargs)
 
     @struct_method
-    def public_roundedGroup(self, container, title=None,frame=False,**kwargs):
+    def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
         pane = container.contentPane(**kwargs)
-        rb = pane.div(_class='pbl_roundedBlock')
+        rb = pane.div(_class='pbl_roundedBlock',top=top,bottom=bottom,left=left,right=right)
         if title:
             rb.div(title,_class='pbl_roundedGroupLabel')
         return rb
@@ -178,8 +183,30 @@ class PublicSlots(BaseComponent):
         pane.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                     _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',margin_left='4px',margin_right='4px',margin_top='3px')
 
+    @struct_method
+    def public_publicRoot_partition_selector(self,pane, **kwargs): 
+        box = pane.div(hidden='^gnr.partition_selector.hidden') 
+        if self.public_partitioned is True:
+            kw = dictExtract(self.tblobj.attributes,'partition_')
+            public_partitioned = dict()
+            public_partitioned['field'] = kw.keys()[0]
+            public_partitioned['path'] = kw[public_partitioned['field']]
+            public_partitioned['table'] = self.tblobj.column(public_partitioned['field']).relatedColumn().table.fullname
+            self.public_partitioned = public_partitioned
+        kw = self.public_partitioned
+        partition_field = kw['field']
+        partition_path = kw['path']
+        table = kw['table']
+        related_tblobj = self.db.table(table)
 
-            
+        if not self.rootenv[partition_path]:
+            fb = box.formbuilder(cols=1,border_spacing='3px')
+            fb.dbSelect(value='^current.%s' %partition_field,
+                        dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
+                        hasDownArrow=True,font_size='.8em',lbl_color='white',color='#666',lbl_font_size='.8em')
+            fb.data('current.%s' %partition_field,None,
+                    serverpath='currenv.%s' %partition_path,dbenv=True)
+
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
         if title:
@@ -280,10 +307,9 @@ class TableHandlerMain(BaseComponent):
     @extract_kwargs(th=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
-        self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)
         thRootWidget = 'stack'
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
-                        readOnly=False,virtualStore=True,public=True)
+                        readOnly=False,virtualStore=True,public=True,partitioned=False)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
         resource = self._th_getResClass(table=self.maintable,resourceName=viewResource,defaultClass='View')()
         resource_options = resource.th_options() if hasattr(resource,'th_options') else dict()
@@ -292,7 +318,7 @@ class TableHandlerMain(BaseComponent):
         th_options.update(th_kwargs)
         return self._th_main(root,th_options=th_options,**kwargs)
         
-    def _th_main(self,root,th_options=None,**kwargs):
+    def _th_main(self,root,th_options=None,**kwargs): 
         formInIframe = boolean(th_options.get('formInIframe'))
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
@@ -301,8 +327,13 @@ class TableHandlerMain(BaseComponent):
             insidePublic = boolean(th_public) is True
         tablecode = self.maintable.replace('.','_')
         kwargs.update(th_options)
+        if kwargs['virtualStore'] is False:
+            kwargs['extendedQuery'] = False
+            kwargs['view_root_tablehandler'] = True
         extendedQuery = kwargs.pop('extendedQuery','*') 
-        lockable = kwargs.pop('lockable',True)           
+        lockable = kwargs.pop('lockable',True)
+        if th_options['partitioned']:
+            self.public_partitioned = th_options['partitioned']
         if insidePublic:
             pbl_root = root = root.rootContentPane(datapath=tablecode)
         else:
@@ -319,8 +350,21 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         self.th_mainUserSettings(kwargs=kwargs)
         thwidget = kwargs.pop('widget','stack')
+        if thwidget=='inline':
+            kwargs['saveButton'] = True
+            kwargs['autoSave'] = False
+            kwargs['semaphore'] = True
+            lockable = False
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
+        if getattr(self,'public_partitioned',None):
+            th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
+                    storeServerTime='=.store?servertime',_if='storeServerTime')
+            partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+            if partition_kwargs:
+                th.form.dataController("SET gnr.partition_selector.hidden = pkey?true:false;",pkey='^#FORM.pkey')
+
+
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
@@ -339,9 +383,9 @@ class TableHandlerMain(BaseComponent):
             else:
                 th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
             viewbar.replaceSlots('#','#,avatarslot,10')
-            viewbar.replaceSlots('5,vtitle','10,captioslot')
+            viewbar.replaceSlots('5,searchOn','10,captionslot,searchOn')
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
-            viewbar.captioslot.publicRoot_captionslot()
+            viewbar.captionslot.publicRoot_captionslot()
 
         storeupd = dict(startLocked=lockable)
         if not extendedQuery:
@@ -369,12 +413,7 @@ class TableHandlerMain(BaseComponent):
             if selfDragRowsOpt['allowUnifyCb'] in (True,False):
                 selfDragRowsOpt['allowUnifyCb'] = 'return true;' if selfDragRowsOpt['allowUnifyCb'] is True else 'return false'
             selfDragRowsOpt.setdefault('onSelfDragRows','return false;')
-            gridattr['selfDragRows'] = True #"""var modifiers = genro.dom.getEventModifiers($1.event);
-                                            #   if(modifiers=='Shift,Alt'){
-                                            #         %(allowUnifyCb)s
-                                            #   }else{
-                                            #         %(onSelfDragRows)s
-                                            #   }""" %selfDragRowsOpt
+            gridattr['selfDragRows'] = True 
             selfDragRowsOpt.setdefault('canBeDropped','return true;')
             gridattr['dropTargetCb_selfdragrows'] = """function(dropInfo){
                 var modifiers = genro.dom.getEventModifiers(dropInfo.event);
@@ -483,11 +522,7 @@ class TableHandlerMain(BaseComponent):
             totalRowCount = '^.view.store?totalRowCount',
             totalrows = '^.view.store?totalrows',
             whereAsPlainText='^.view.store?whereAsPlainText',
-            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True) 
-            if not extendedQuery:
-                th.view.top.bar.replaceSlots('count','')
-                th.view.top.bar.replaceSlots('searchOn','')
-                th.view.top.bar.replaceSlots('#','5,searchOn,count,#')                
+            selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True)                 
 
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):

@@ -581,6 +581,9 @@ class GnrSqlDb(GnrObject):
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
+
+    def localVirtualColumns(self,table):
+        return None
                                                   
     def createDb(self, name, encoding='unicode'):
         """Create a database with a given name and an encoding

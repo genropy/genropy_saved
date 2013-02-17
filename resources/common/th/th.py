@@ -30,13 +30,15 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,picker=True,hider=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
                             parentFormSave=None,
-                            picker=None,addrow=True,delrow=True,export=False,title=None,picker_kwargs=True,dbstore=None,hider_kwargs=None,**kwargs):
+                            picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
+                            addrowmenu_kwargs=True,
+                            picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -78,6 +80,10 @@ class TableHandler(BaseComponent):
         if picker:
             top_slots.append('thpicker')
             picker_kwargs['relation_field'] = picker
+        if addrowmenu:
+            top_slots.append('addrowmenu')
+            addrowmenu_kwargs['relation_field'] = addrowmenu
+
         if lockable:
             top_slots.append('viewlocker')
 
@@ -89,10 +95,12 @@ class TableHandler(BaseComponent):
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,
+                                top_addrowmenu_parameters=addrowmenu_kwargs,
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
-                                grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title) 
+                                grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
+                                **view_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
             wdg.dataController("""
@@ -117,6 +125,8 @@ class TableHandler(BaseComponent):
                 """)
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
+            if pbl_classes=='*':
+                wdg.view.attributes.update(_class='pbl_roundedGroup noheader')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
             wdg.view.top.bar.replaceSlots('count','')
         if not self.th_checkPermission(wdg.view):
@@ -190,10 +200,10 @@ class TableHandler(BaseComponent):
         wdg.form.attributes.update(**regionAdapter(fpane_kwargs,region='center'))
         return wdg
         
-    @extract_kwargs(widget=True,default=True)
+    @extract_kwargs(widget=True,default=True,form=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,default_kwargs=None,readOnly=False,**kwargs):
+                            formInIframe=False,widget_kwargs=None,default_kwargs=None,readOnly=False,form_kwargs=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
@@ -201,7 +211,7 @@ class TableHandler(BaseComponent):
                                         pageName='view',readOnly=readOnly,handlerType='stack',**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,
-                        formInIframe=formInIframe,readOnly=readOnly)    
+                        formInIframe=formInIframe,readOnly=readOnly,**form_kwargs)    
         return wdg
         
     @extract_kwargs(default=True,page=True)
@@ -217,7 +227,7 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
-            var mainpkey = this.form.getCurrentPkey();
+            var mainpkey = this.form?this.form.getCurrentPkey():null;
             if(!this._pageHandler){
                 var th = {formResource:formResource,public:public}
                 var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
@@ -375,7 +385,8 @@ class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
-                    openIfEmpty=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
+                    openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
+                    default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
@@ -389,10 +400,25 @@ class ThLinker(BaseComponent):
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
             manyrelfld = joiner['relation_name']
-            noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
-            condition =  kwargs.get('condition')
-            kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
-            kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
+            if excludeLinked:    
+                noduplinkcondition = '@%s.%s IS NULL OR @%s.%s=:_rec_curr_pkey' %(manyrelfld,tblobj.pkey,manyrelfld,tblobj.pkey)
+                condition =  kwargs.get('condition')
+                kwargs['condition__rec_curr_pkey'] = '=#FORM.pkey'
+                kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition 
+            else:
+                pane.dataController("""if(_reason!='container' && this.form.isNewRecord()){
+                    if(linked_id && linked_id!=curr_pkey){
+                        this.form.reset();
+                        this.form.load({destPkey:linked_id});
+                    }
+                }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
+                    curr_pkey='=#FORM.pkey')
+
+                _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses""" %(manyrelfld,tblobj.pkey)
+                hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
+
+
+
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',
@@ -410,8 +436,10 @@ class ThLinker(BaseComponent):
                             addtpl='!!Add a new $table2',
                             t1=tblobj.name_long, t2=related_tblobj.name_long)        
         if formResource or formUrl:
-            linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
+            add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
+            if addEnabled:
+                pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)
             linker.attributes.update(_embedded=False)
             embedded = False
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
@@ -421,7 +449,7 @@ class ThLinker(BaseComponent):
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
-                    _class='th_linkerField',background='white',**kwargs)
+                    _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,**kwargs)
         return linker
         
     @extract_kwargs(template=True)

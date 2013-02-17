@@ -29,6 +29,7 @@ from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrObject,getUuid
 from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrbag import Bag, BagCbResolver
+from gnr.core.gnrdict import dictExtract
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
 from gnr.sql.gnrsql import GnrSqlException
@@ -1140,7 +1141,7 @@ class SqlTable(GnrObject):
         if isinstance(columns, basestring):
             columns = gnrstring.splitAndStrip(columns)
         for col in columns:
-            if not col.startswith('@') and not col.startswith('$'):
+            if not col[0] in ('@','$','('):
                 col = '$%s' % col
                 #FIX 
             result.append(col)
@@ -1355,6 +1356,10 @@ class SqlTable(GnrObject):
                                      
         def resultAppend(result, label, attributes, omit):
             gr = attributes.get('group') or ' '
+            if '%' in gr:
+                subgroups = dictExtract(attributes,'subgroup_')
+                gr = gr %subgroups
+                attributes['group'] = gr
             grin = gr[0]
             if grin == '*' or grin == '_':
                 attributes['group'] = gr[1:]
@@ -1407,7 +1412,6 @@ class SqlTable(GnrObject):
             elif mode == 'M':
                 attributes['dtype'] = 'RM'
             resultAppend(result, aliastbl.name, attributes, omit)
-            
         if dosort:
             result.sort(lambda a, b: cmp(a.getAttr('group', '').split('.'), b.getAttr('group', '').split('.')))
             grdict = dict([(k[6:], v) for k, v in self.attributes.items() if k.startswith('group_')])
@@ -1415,11 +1419,17 @@ class SqlTable(GnrObject):
                 return result
             newresult = Bag()
             for node in result:
-                grk = (node.getAttr('group') or '').split('.')[0]
-                if grk and grdict.get(grk):
-                    if not grk in newresult:
-                        newresult.setItem(grk, None, name_long=grdict.get(grk))
-                    newresult.setItem('%s.%s' % (grk, node.label), node.getValue(), node.getAttr())
+                nodeattr = node.attr
+                grplist=(nodeattr.get('group') or '').split('.')
+                if grplist[-1] and grplist[-1].isdigit():
+                    grplist.pop()
+                if grplist and grplist[0] in grdict:
+                    for j,kg in enumerate(grplist):
+                        grplevel='.'.join(grplist[0:j+1])
+                        if not grplevel in newresult:
+                            newresult.setItem(grplevel, None, name_long=grdict.get(grplevel,grplevel.split('.')[-1]))
+                    newresult.setItem('%s.%s' % ('.'.join(grplist), node.label), node.getValue(), node.getAttr())
+
                 else:
                     newresult.setItem(node.label, node.getValue(), node.getAttr())
             return newresult

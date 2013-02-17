@@ -810,8 +810,14 @@ class DbTableObj(DbModelObj):
         
     def _get_virtual_columns(self):
         """Returns a DbColAliasListObj"""
-        return self['virtual_columns']
-        
+        virtual_columns = self['virtual_columns']
+        local_virtual_columns = self.db.localVirtualColumns(self.fullname)
+        if local_virtual_columns:
+            for node in local_virtual_columns:
+                obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
+                virtual_columns.children[obj.name.lower()] = obj
+        return virtual_columns
+    
     virtual_columns = property(_get_virtual_columns)
         
     def _get_table_aliases(self):

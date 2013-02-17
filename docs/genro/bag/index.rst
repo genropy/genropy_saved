@@ -68,4 +68,4 @@ section index
 **Footnotes:**
 
 .. [#] Check the :ref:`bag_dictionary_methods` section for further details.
-.. [#] You might be wondering why we call "label" the ``key`` argument of a Bag: its origin is storical: the Bag has been created before Genro Team began to use Python language.
+.. [#] You might be wondering why we call "label" the ``key`` argument of a Bag: its origin is historical: the Bag has been created before Genro Team began to use Python language.

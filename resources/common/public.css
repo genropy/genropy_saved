@@ -188,7 +188,7 @@ element.style {
     background-position: left;
 }
 
-.menutree .dijitTreeIcon {
+.xmenutree .dijitTreeIcon {
     visibility: hidden;
     cursor: pointer;
 }

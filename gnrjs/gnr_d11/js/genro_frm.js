@@ -195,6 +195,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     registerChild:function(sourceNode){
         if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+            if(!this._firstField){
+                if(sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags){
+                    this._firstField = sourceNode;
+                }
+            }
             this._register[sourceNode._id] = sourceNode;
             return;
         }
@@ -525,9 +530,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             };
             this.applyDisabledStatus();
             //this.focus()
+            var that = this;
             setTimeout(function(){
-                this.focus();
-            },1)
+                that.focus();
+            },1);
         }
     },
     
@@ -541,7 +547,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
-            var node = node || dijit.getFirstInTabbingOrder(formContentDomNode);
+            if(!node && this._firstField){
+                node = this._firstField.widget?this._firstField.widget.focusNode:this._firstField.domNode;
+            }
             if(node){
                 node.focus();
             }
@@ -1132,6 +1140,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     dojoValidation:function(wdg,isValid){
         var node_identifier=wdg.sourceNode.getStringId();
         var dojoValid=this.getInvalidDojo();
+        var changedNode = genro.getDataNode(wdg.sourceNode.absDatapath(wdg.sourceNode.attr.value));
+        if(!this.isNodeInFormData(changedNode)){
+            return;
+        }
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
@@ -1200,7 +1212,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 });
 
 dojo.declare("gnr.GnrValidator", null, {
-    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','nodup','exist','remote'],
+    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','gridnodup','nodup','exist','remote'],
     getCurrentValidations: function(sourceNode) {
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
@@ -1453,9 +1465,9 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     },
     validate_gridnodup: function(param, value, sourceNode) {
-        var col = ((typeof(param) == 'string') && param) ? param : sourceNode.getAttributeFromDatasource('value');
-        if (value) {
-            var colvalues = genro.wdgById(sourceNode.gridId).getColumnValues(col);
+        var col = ((typeof(param) == 'string') && param) ? param : sourceNode.attr.field;
+        if (value && sourceNode.grid) {
+            var colvalues = sourceNode.grid.getColumnValues(col);
             var n = dojo.indexOf(colvalues, value);
             if ((n != -1) && (n != sourceNode.editedRowIndex)) {
                 return false;
@@ -1604,7 +1616,7 @@ dojo.declare("gnr.formstores.Base", null, {
             genro.assert(dataNode,'Missing data for currentPath',currPkey);
             var kw = objectExtract(dataNode.attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
             var recordLoaded = new gnr.GnrBag();
-            dataNode.getValue().forEach(function(n){
+            dataNode.getValue().deepCopy().forEach(function(n){
                 recordLoaded.setItem(n.label,n.getValue());
             });
             envelope.setItem('record',recordLoaded,kw);

@@ -28,5 +28,5 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import TableTemplateToHtml
 from gnr.core.gnrstring import templateReplace
 
-class WebMailHandler(PrintHandler):
+class WebPrintHandler(PrintHandler):
     pass

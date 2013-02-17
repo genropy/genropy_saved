@@ -27,10 +27,16 @@ var dynamicFormHandler = {
             allowedFormat = 'Yes,No\nTrue,False';
             defaults = {wdg_tag:'checkbox',format:'Yes,No'};
 
-        }else if(data_type='P'){
+        }else if(data_type=='P'){
             allowedWidget = 'img:Image';
             allowedFormat = ''
             defaults = {wdg_tag:'img',format:'auto'};
+
+        }else if(data_type=='GR'){
+            allowedWidget = 'graph:Graph';
+            allowedFormat = ''
+
+            defaults = {wdg_tag:'graph',format:'auto'};
         }
         sourceNode.setRelativeData('#FORM.allowedWidget',allowedWidget);
         sourceNode.setRelativeData('#FORM.allowedFormat',allowedFormat);
@@ -71,5 +77,4 @@ var dynamicFormHandler = {
             return 'error';
         }
     }
-
 };

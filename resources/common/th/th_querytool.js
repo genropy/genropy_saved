@@ -505,10 +505,6 @@ dojo.declare("gnr.QueryManager", null, {
     
     runQuery:function(){
         var sourceNode = this.sourceNode;
-        if(sourceNode.getRelativeData('.queryRunning')){
-            return;
-        }
-        sourceNode.setRelativeData('.queryRunning',true);
         genro.fireAfter(sourceNode.absDatapath('.runQueryDo'),true,500);
     },
     
@@ -521,7 +517,6 @@ dojo.declare("gnr.QueryManager", null, {
             dlg.close_action();
         };
         var cancel = function(){
-            sourceNode.setRelativeData('.queryRunning',false);
             dlg.close_action();
         };
         var count = function(){

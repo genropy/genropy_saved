@@ -56,6 +56,15 @@ AUTH_EXPIRED = 2
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
+
+def formulaColumn(*args,**fcpars):
+    """add a local formula column"""
+    def decore(func):
+        fcpars.setdefault('name',func.__name__)
+        setattr(func,'mixin_as','formulacolumn_%s' %(func.func_name))
+        func.formulaColumn_kw = fcpars
+        return func
+    return decore
     
 class GnrWebPageException(GnrException):
     pass
@@ -381,7 +390,7 @@ class GnrWebPage(GnrBaseWebPage):
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
-        if self.isDeveloper():
+        if self.isDeveloper() or self.site.force_debug:
             result = self.rpc(method=method, _auth=auth, **parameters)
         else:
             try:
@@ -517,6 +526,7 @@ class GnrWebPage(GnrBaseWebPage):
             record[field] = data
             tblobj.update(record)
             self.db.commit()
+            
         
         
 
@@ -1200,7 +1210,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     getResourcePath = getResource
             
-    def importResource(self, path, classname=None, pkg=None):
+    def importResource(self, path, classname=None, pkg=None,importAs=None):
         """TODO
         
         :param path: TODO
@@ -1208,15 +1218,16 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
-            m = gnrImport(res)
+            m = gnrImport(res,importAs=importAs)
             if not m:
                 raise GnrMissingResourceException('Missing resource %(resource_path)s',resource_path=path)
             if classname:
-                m = getattr(m,classname,None)
-                if not m:
-                    raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
+                cl = getattr(m,classname,None)
+                if cl:
+                    return cl
+                raise GnrMissingResourceException('Missing resource %(classname)s in %(resource_path)s',resource_path=path,classname=classname)
             return m
-            
+        
     def importTableResource(self, table, path):
         """TODO
         
@@ -1226,7 +1237,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: the table resource path"""
         pkg,table = table.split('.')
         path,classname= path.split(':')
-        resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
+        try:
+            resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name,importAs='%s_packages_%s_%s_%s' %(self.package.name,pkg,table,path))
+        except GnrMissingResourceException:
+            resource = None
         if not resource:
             resource = self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
         return resource
@@ -1318,6 +1332,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param class_name: TODO"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
         
+    @public_method
     def setPreference(self, path, data, pkg=''):
         """TODO
         
@@ -1342,6 +1357,8 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object
         :param dflt: TODO
         :param username: TODO"""
+        if not username and self.isGuest:
+            return
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     @public_method
@@ -1350,7 +1367,8 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: TODO"""
         return self.getPreference(path)
-        
+
+    @public_method
     def setUserPreference(self, path, data, pkg='', username=''):
         """TODO
         
@@ -1360,6 +1378,17 @@ class GnrWebPage(GnrBaseWebPage):
         :param username: TODO"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
+
+    def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
+        value = dict(topic=topic,kw=kwargs)
+        if nodeId:
+            value['nodeId'] = nodeId
+        if iframe:
+            value['iframe'] = iframe
+        if parent:
+            value['parent'] = parent
+        self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         """TODO
@@ -1451,9 +1480,8 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.pagename', self.pagename)
                 if self.dbstore:
                     page.data('gnr.dbstore',self.dbstore)
-                if not self.isGuest:
-                    page.dataRemote('gnr.user_preference', 'getUserPreference')
-                page.dataRemote('gnr.app_preference', 'getAppPreference')
+                page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
+                page.dataRemote('gnr.app_preference', self.getAppPreference)
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
                             bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
@@ -1463,6 +1491,10 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     
+                page.dataController("""if(kw){
+                                        genro.publish(kw)
+                                     };""", kw='^gnr.publisher')
+
                 page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
@@ -2017,10 +2049,9 @@ class GnrWebPage(GnrBaseWebPage):
         
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
-    def _get_config(self):
+    @property
+    def config(self):
         return self.site.config
-        
-    config = property(_get_config)
         
     @deprecated
     def log(self, msg):

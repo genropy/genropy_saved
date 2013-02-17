@@ -11,8 +11,9 @@ from gnr.web.gnrwebstruct import struct_method
 from datetime import datetime
 from gnr.core.gnrbag import Bag
 
+#foundation/menu:MenuIframes,
 class FrameIndex(BaseComponent):
-    py_requires="""foundation/menu:MenuIframes,
+    py_requires="""frameplugin_menu/frameplugin_menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                    gnrcomponents/chat_component/chat_component,
@@ -147,7 +148,7 @@ class FrameIndex(BaseComponent):
         menu.menuline('!!Set as start page',code='start')
         menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
-        menu.menuline('!!Clear favorites',code='clear')
+        menu.menuline('!!Clear favorites',code='clearfav')
 
         tabroot = pane.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
@@ -158,9 +159,7 @@ class FrameIndex(BaseComponent):
                                             this.setRelativeData("selectedFrame",pageName);
 
                                             """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
-        tabroot.div()
-        pane.dataController("""
-                                if(!data){
+        pane.dataController("""if(!data){
                                     if(indexTab){
                                         genro.callAfter(function(){
                                             var data = new gnr.GnrBag();
@@ -171,10 +170,10 @@ class FrameIndex(BaseComponent):
                                 }else{
                                     genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
-                                genro.framedIndexManager.loadFavorites();
                                 """,
                             data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
+        pane.dataController("genro.framedIndexManager.loadFavorites();",_onStart=100)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
@@ -194,9 +193,9 @@ class FrameIndex(BaseComponent):
         sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
                         messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
-                                connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
+                                connect_onclick='PUBLISH app_preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
-                               connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
+                               connect_onclick='PUBLISH user_preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
         
@@ -205,15 +204,15 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         
         sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox app_lock',tip='!!Lock screen')
-        appPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',left:'10px',
+        appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
-                                                        palette_transition:null,palette_nodeId:'mainpreference'});""",
-                            subscribe_app_preference=True,
+                                                        palette_nodeId:'mainpreference'});""",
+                            subscribe_app_preference=True,url='adm/app_preference',
                             _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
        # dlg = self.frm_envDataDialog()
-        userPref.dataController("""genro.dlg.zoomPaletteFromSourceNode(pane,null,{top:'10px',right:'10px',title:preftitle,
+        userPref.dataController("""genro.dlg.iframePalette({top:'10px',right:'10px',title:preftitle,url:url,
                                                         height:'300px', width:'400px',palette_transition:null,
-                                                        palette_nodeId:'userpreference'});""",
+                                                        palette_nodeId:'userpreference'});""",url='adm/user_preference',
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):

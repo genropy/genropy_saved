@@ -131,7 +131,7 @@ class GnrHtmlSrc(GnrStructData):
             
         layout = self.child(tag='layout', **kwargs)
         layout.layout_name = name
-        layout.layout_class = '%s_layout' % name
+        layout.layout_class = 'gnrlayout %s_layout' % name
         layout.um = um
         layout.top = float(top or 0)
         layout.left = float(left or 0)
@@ -287,11 +287,11 @@ class GnrHtmlBuilder(object):
         regions = dict(center_center=layout)
         if self.htmlTemplate['main.design'] == 'headline':
             for region in ('top', 'center', 'bottom'):
-                height = self.htmlTemplate['layout.%s?height' % region] or 0
+                height = float(self.htmlTemplate['layout.%s?height' % region] or 0)
                 if region == 'center' or height:
                     row = layout.row(height=height)
                     for subregion in ('left', 'center', 'right'):
-                        width = self.htmlTemplate['layout.%s.%s?width' % (region, subregion)] or 0
+                        width = float(self.htmlTemplate['layout.%s.%s?width' % (region, subregion)] or 0)
                         if subregion == 'center' or width:
                             innerHTML = self.htmlTemplate['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
@@ -303,11 +303,11 @@ class GnrHtmlBuilder(object):
         elif self.htmlTemplate['main.design'] == 'sidebar':
             mainrow = layout.row(height=0)
             for region in ('left', 'center', 'right'):
-                width = self.htmlTemplate['layout.%s?width' % region] or 0
+                width = float(self.htmlTemplate['layout.%s?width' % region] or 0)
                 if region == 'center' or width:
                     col = mainrow.cell(width=width, border=0).layout()
                     for subregion in ('top', 'center', 'bottom'):
-                        height = self.htmlTemplate['layout.%s.%s?height' % (region, subregion)] or 0
+                        height = float(self.htmlTemplate['layout.%s.%s?height' % (region, subregion)] or 0)
                         if subregion == 'center' or height:
                             row = col.row(height=height)
                             innerHTML = self.htmlTemplate['layout.%s.%s.html' % (region, subregion)] or None
@@ -542,7 +542,7 @@ class GnrHtmlBuilder(object):
         attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class] if x)
         row.curr_x += width + right_border_width
         self.calculate_style(attr, row.layout.um)
-                    
+                     
     def setLabel(self, cell, attr):
         """TODO
         

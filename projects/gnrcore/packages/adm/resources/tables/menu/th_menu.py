@@ -2,47 +2,41 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
 
 class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('code')
-        r.fieldcell('label')
-        r.fieldcell('basepath')
+        r.fieldcell('_h_count',hidden=True)
+        r.fieldcell('hierarchical_label')
         r.fieldcell('tags')
-        r.fieldcell('file')
-        r.fieldcell('description')
-        r.fieldcell('parameters')
-        r.fieldcell('position')
-        r.fieldcell('_class')
-        r.fieldcell('_style')
+        r.fieldcell('summary')
 
     def th_order(self):
-        return 'code'
+        return '_h_count'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='hierarchical_label', op='contains', val='%')
 
+
+
+    def th_bottom_custom(self,bottom):
+        bar = bottom.slotToolbar('importbtn,5,pagesonly,*')
+        bar.importbtn.button('Import from menuxml',fire='.import_all')
+        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,_fired='^.import_all')
+        bar.pagesonly.button('Update pages',fire='.pages_only')
+        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,pagesOnly=True,_fired='^.pages_only')
 
 
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('code')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('label')
-        fb.field('basepath')
         fb.field('tags')
-        fb.field('file')
-        fb.field('description')
-        fb.field('parameters')
-        fb.field('position')
-        fb.field('_class')
-        fb.field('_style')
-
+        fb.field('summary',colspan=2,width='100%')
+        #bc.contentPane(region='center').inlineTableHandler(relation='@dir_pages',addrow=False,picker='page_id',picker_viewResource='PagePickerView')
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px')
+        return dict(hierarchical=True,tree_picker='page_id',tree_picker_viewResource='PagePickerView')

@@ -113,7 +113,7 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-        gridattr['selfsubscribe_addrow'] = """  if(this.form && this.form.isNewRecord()){
+        gridattr['selfsubscribe_addrow'] = """ if(this.attr.table && this.form && this.form.isNewRecord()){
                                                     if(this.attr._saveNewRecordOnAdd){
                                                         var that = this;
                                                         this.form.save({onReload:function(result){

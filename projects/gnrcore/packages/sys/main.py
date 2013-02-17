@@ -8,7 +8,7 @@ class Package(GnrDboPackage):
                     comment='sys',
                     name_short='System',
                     name_long='System',
-                    name_full='System')
+                    name_full='System',_syspackage=True)
                     
     def config_db(self,pkg):
         #you can describe here your database or separate table into classes
@@ -27,7 +27,7 @@ class Package(GnrDboPackage):
         
     def onSiteInited(self):
         db=self.application.db
-        db.table('sys.locked_record').clearExistingLocks()
+        #db.table('sys.locked_record').clearExistingLocks()
         db.closeConnection()
        
 class Table(GnrDboTable):

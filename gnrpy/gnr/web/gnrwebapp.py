@@ -21,9 +21,7 @@ class GnrWsgiWebApp(GnrApp):
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         self.site.onDbCommitted()
-
-
-            
+   
     def _get_pagePackageId(self, filename):
         _packageId = None
         fpath, last = os.path.split(os.path.realpath(filename))
@@ -65,11 +63,7 @@ class GnrWsgiWebApp(GnrApp):
     siteMenu = property(_get_siteMenu)
 
     def _buildSiteMenu(self):
-        menubag = None
-        if 'adm' in self.db.packages:
-            menubag = self.db.table('adm.menu').getMenuBag()
-        if not menubag:
-            menubag = self.config['menu']
+        menubag = self.config['menu']
         if not menubag:
             menubag = Bag()
             for pathlist, node in self.site.automap.getIndex():

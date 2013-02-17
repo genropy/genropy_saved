@@ -31,34 +31,43 @@ class Form(BaseComponent):
         self.htmltemplate_mainInfo(bc.borderContainer(region='left', width='55em', splitter=True,datapath='.record'))
         bc.borderContainer(region='center', overflow='auto', datapath='#FORM._temp.data').remote(self.htmltemplate_printLayout,
                                                                                            design='^#FORM.record.data.main.design')
+
+
     @public_method
     def htmltemplate_printLayout(self, parentBc, design=None, **kwargs):
-        design = design or 'headline'
         page = parentBc.borderContainer(region='center',
                                         height='^.main.page.height',
                                         width='^.main.page.width',
                                         border='1px solid gray', style="""
                                                                     background-color:white;
                                                                     -moz-box-shadow:8px 8px 15px gray;
-	                                                                -webkit-box-shadow:8px 8px 15px gray;
+                                                                    -webkit-box-shadow:8px 8px 15px gray;
                                                                     """,
                                         zoom='^zoomFactor', margin='10px')
-        bc = page.borderContainer(region='center',
-                                  margin_top='^.main.page.top',
-                                  margin_bottom='^.main.page.bottom',
-                                  margin_left='^.main.page.left',
-                                  margin_right='^.main.page.right',
+        layers = page.contentPane(region='center',overflow='hidden')
+        layers.div('^#FORM.backgroundLetterhead',position='absolute',top=0,left=0,right=0,bottom=0,
+                    _class='backgroundLetterhead',visible='^#FORM.showBackground')
+        layer_1 = layers.div(position='absolute',top=0,left=0,right=0,bottom=0,z_index=1)
+
+        bc = layer_1.borderContainer(position='absolute',
+                                  top='^.main.page.top',
+                                  bottom='^.main.page.bottom',
+                                  left='^.main.page.left',
+                                  right='^.main.page.right',
                                   connect_onclick="""
                                     var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
-                                    SET currentEditedArea = clickedNode.absDatapath();
+                                    if(clickedNode){
+                                        SET #FORM.currentEditedArea = clickedNode.absDatapath();
+                                    }
                                 """,
-                                  _class='hideSplitter',
+                                  #_class='hideSplitter',
                                   regions='^#FORM._temp.data.layout.regions',
                                   design=design
                                   )
         regions = dict(headline=('top', 'bottom', 'center'), sidebar=('left', 'right', 'center'))
         for region in regions[design]:
             self._htmltemplate_subRegions(bc, region=region, design=design)
+
 
     def _htmltemplate_subRegions(self, parentBc, region=None, design=None):
         subregions = dict(sidebar=('top', 'bottom', 'center'), headline=('left', 'right', 'center'))
@@ -90,27 +99,46 @@ class Form(BaseComponent):
                             datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
-
-        mainBc = bc.borderContainer(region='top', margin='5px', _class='pbl_roundedGroup', height='200px',splitter=True )
-        topleft = mainBc.borderContainer(region='left', width='20em')
-        self.htmltemplate_tplInfo(topleft.contentPane(region='top'))
-        bottom = mainBc.contentPane(region='bottom')
-        bar = bottom.slotBar('picker,*,zoomfactor',_class='pbl_roundedGroupBottom')
+        self.htmltemplate_form(bc.borderContainer(region='top', height='205px',splitter=True))
+        
+        center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea')
+        self.RichTextEditor(center, value='^.html',
+                            nodeId='htmlEditor',toolbar='standard')
+        bottom = center.bottom
+        bar = bottom.slotBar('picker,*,showBackground,5,zoomfactor',_class='pbl_roundedGroupBottom')
+        bar.showBackground.checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
         bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
-        self.htmltemplate_basePageParams(topleft.contentPane(region='center', datapath='.data.main.page'))
-        topTC = mainBc.tabContainer(region='center', selectedPage='^.data.main.design')
-        self.htmltemplate_headLineOpt(topTC.contentPane(title='Headline', pageName='headline'))
-        self.htmltemplate_sideBarOpt(topTC.contentPane(title='Sidebar', pageName='sidebar'))
-        self.RichTextEditor(bc.contentPane(datapath='^currentEditedArea', region='center'), value='^.html',
-                            nodeId='htmlEditor',toolbar='standard')
+
+    def htmltemplate_form(self,bc):
+        left = bc.borderContainer(region='left', width='20em')
+        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='110px'))        
+        self.htmltemplate_basePageParams(left.roundedGroup(region='center', datapath='.data.main.page',title='!!Page sizing'))
+        tc = bc.tabContainer(region='center', selectedPage='^.data.main.design',margin='2px')
+        self.htmltemplate_headLineOpt(tc.contentPane(title='Headline', pageName='headline'))
+        self.htmltemplate_sideBarOpt(tc.contentPane(title='Sidebar', pageName='sidebar'))
+        
 
     def htmltemplate_tplInfo(self, pane):
-        pane.div('!!Info', _class='pbl_roundedGroupLabel')
-        fb = pane.formbuilder(cols=1, border_spacing='3px')
-        fb.field('name', width='12em')
-        fb.field('version', width='5em')
+        fb = pane.formbuilder(cols=2, border_spacing='3px')
+        fb.field('name', width='12em',colspan=2)
+        fb.field('based_on', width='12em',hasDownArrow=True,colspan=2,lbl='Based on')
+        fb.dataRpc('#FORM.backgroundLetterhead',self.loadBasedOn,letterhead_id='^.based_on',_if='letterhead_id',_else='return "";')
+        fb.field('type_code', width='7em',hasDownArrow=True,lbl='Type')
+        fb.field('version', width='3em',lbl='V.')
+        fb.field('next_letterhead_id', width='12em',hasDownArrow=True,lbl='Follow on',colspan=2)
+
+    @public_method
+    def loadBasedOn(self,letterhead_id=None,**kwargs):
+        letterheadtbl = self.db.table('adm.htmltemplate')
+        base = letterheadtbl.getHtmlBuilder(letterhead_pkeys=letterhead_id)
+        base.finalize(base.body)
+        basehtml = base.root.getItem('#0.#1').toXml(omitRoot=True,autocreate=True,forcedTagAttr='tag',docHeader=' ',
+                                        addBagTypeAttr=False, typeattrs=False, 
+                                        self_closed_tags=['meta', 'br', 'img'])
+        return basehtml
+
 
     def htmltemplate_basePageParams(self, pane):
         fb = pane.formbuilder(cols=2, border_spacing='4px')
@@ -218,5 +246,5 @@ class Form(BaseComponent):
                     record.setItem('data.layout.%s' % path, None, height=30)
 
     def th_options(self):
-        return dict(dialog_height='600px',dialog_width='900px')
+        return dict(dialog_height='600px',dialog_width='900px',duplicate=True)
                           

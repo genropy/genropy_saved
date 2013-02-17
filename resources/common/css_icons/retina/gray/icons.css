@@ -265,6 +265,10 @@
 	background: url(16/document_empty.png) no-repeat center center;
 }
 
+.document_empty_64{
+	background: url(64/document_empty.png) no-repeat center center;
+}
+
 .edit{
 	background: url(16/edit.png) no-repeat center center;
 }

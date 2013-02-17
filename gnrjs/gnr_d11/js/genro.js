@@ -641,6 +641,13 @@ dojo.declare('gnr.GenroClient', null, {
         return genro._('gnr.app_preference.'+pref);
     },
 
+    setUserPreference:function(path,data,pkg){
+        genro.serverCall('setUserPreference',{path:path,data:data,pkg:pkg});
+    },
+
+    setAppPreference:function(path,data){
+        genro.serverCall('setPreference',{path:path,data:data,pkg:pkg});
+    },
 
     chat:function(){
         return this.mainGenroWindow.ct_chat_utils;
@@ -1397,6 +1404,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     serverCall:function(method, params, async_cb, mode,httpMethod) {
         var cb = funcCreate(async_cb);
+        var httpMethod = httpMethod || 'POST';
         return genro.rpc.remoteCall(method, params, mode, httpMethod, null, cb);
     },
     

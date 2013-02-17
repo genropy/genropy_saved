@@ -3,8 +3,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
         var default_uri =  genro.getData('gnr.defaultUrl')||'/';
-        var thurl = 'sys/thpage/'
+        var thurl = 'sys/thpage/';
+        var lookup_url = 'sys/lookuptables/';
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
+        this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
+
     },
     
     createIframeRootPage:function(kw){
@@ -14,8 +17,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var rootPageName = kw.rootPageName;
         var stackWidget=this.stackSourceNode.widget;
         if(stackWidget.hasPageName(rootPageName)){
-            stackWidget.switchPage(rootPageName);
-            return;
+            return rootPageName;
         }
         this.iframesbag = genro.getData('iframes');
         if(!this.iframesbag){
@@ -109,6 +111,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     makePageUrl:function(kw){
         var url = kw.file;
         var table = kw.table;
+        var lookup_manager = kw.lookup_manager;
         var urlPars = {};
         if(kw.unique){
             urlPars.ts = new Date().getMilliseconds()
@@ -116,6 +119,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
+        }else if(lookup_manager){
+            url = this.lookup_url+(lookup_manager=='*'?'':lookup_manager.replace('.','/'));
         }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;
@@ -198,7 +203,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
         var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');
-        var iframe = dojo.byId("iframe_"+rootPageName+'_'+iframePageId);
+        var iframeId = iframePageId;
+        if(rootPageName!=iframePageId){
+            iframeId = rootPageName+'_'+iframePageId;
+        }
+        var iframe = dojo.byId("iframe_"+iframeId);
         iframe.sourceNode._genro.pageReload();
     },
 
@@ -222,50 +231,62 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
     },
     removeFromFavorite:function(fullpath){
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages') || new gnr.GnrBag();
         if(fullpath==true){
-            favlist = [];
-        }else if(fullpath){
-            var favlist = genro.getFromStorage('locale','framedindex_favorites') || [];
-            var ind = dojo.indexOf(favlist,fullpath);
-            if(ind>=0){
-                favlist.splice(ind,1);
-            }
+            favorite_pages = null;
+        }else{
+            var l = fullpath.replace(/\W/g,'_');
+            favorite_pages.popNode(l);      
         }
-        genro.setInStorage('locale','framedindex_favorites',favlist);
-
+        genro.setUserPreference('index.favorite_pages',favorite_pages,'adm')
     },
 
     addToFavorite:function(fullpath,start){
-        var favlist = genro.getFromStorage('locale','framedindex_favorites') || [];
-        var ind = dojo.indexOf(favlist,fullpath);
-        if(ind==-1){
-            if(start){
-                favlist = [fullpath].concat(favlist);
-            }else{
-                favlist.push(fullpath);
-            }
-        }else if(start){
-            favlist.splice(ind,1);
-            favlist = [fullpath].concat(favlist);
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages') || new gnr.GnrBag();
+        var l = fullpath.replace(/\W/g,'_');
+        if(favorite_pages.len() && start){
+            favorite_pages.forEach(function(n){
+                n._value.setItem('start',false);
+            },'static')
+        }else{
+            start=true;
         }
-        genro.setInStorage('locale','framedindex_favorites',favlist);
+        favorite_pages.setItem(l,new gnr.GnrBag({pagepath:fullpath,start:start}));
+        genro.setUserPreference('index.favorite_pages',favorite_pages,'adm')
     },
 
     loadFavorites:function(){
-        var favlist = genro.getFromStorage('locale','framedindex_favorites');
-        if(favlist){
+        var favorite_pages = genro.userPreference('adm.index.favorite_pages');
+        if(favorite_pages){
             var that = this;
-            var i = 0;
-            var firstPage;
+            var v;
+            var startPage;
+            var kw,inattr;
             var pageName;
-            dojo.forEach(favlist,function(fullpath){
-                pageName = that.createIframePage(genro.getDataNode(fullpath).attr);
-                if(i==0){
-                    firstPage = pageName;
+            var treenode;
+            favorite_pages.forEach(function(n){
+                v = n.getValue();
+                treenode = genro.getDataNode(v.getItem('pagepath'))
+                if(!treenode){
+                    return;
                 }
-                i++;
-            });
-            this.stackSourceNode.setRelativeData('selectedFrame',firstPage);
+                kw = treenode.attr;
+
+                var labelClass= treenode.attr.labelClass;
+                if(labelClass.indexOf('menu_existing_page')<0){
+                    treenode.setAttribute('labelClass',labelClass+' menu_existing_page');
+                }                
+                inattr = treenode.getInheritedAttributes();    
+                kw = objectUpdate({name:treenode.label,pkg_menu:inattr.pkg_menu,"file":null,
+                                    table:null,formResource:null,viewResource:null,
+                                    fullpath:v.getItem('pagepath'),modifiers:null},
+                                    treenode.attr)
+                pageName = that.createIframeRootPage(kw);
+                if(v.getItem('start')){
+                    startPage = pageName;
+                }
+            },'static');
+            that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
         }
     },
 

@@ -48,7 +48,7 @@ global GNRSITE
 
 def currentSite():
     global GNRSITE
-    return GNRSITE
+    return GNRSITE #JBE Why does this generate an error on Saving the doc == Undefined Name 'GNRSITE' ==?
 
 class GnrSiteException(GnrException):
     """Standard Genro Site Exception
@@ -241,6 +241,20 @@ class GnrWsgiSite(object):
                 print '***** %s : %s' % (code, msg)
             elif not code:
                 print '***** OTHER : %s' % (msg)
+
+    def setDebugAttribute(self, options):
+        self.force_debug = False
+        if options:
+            self.debug = boolean(options.debug)
+            if self.debug:
+                self.force_debug = True
+        else:
+            if (self.config['wsgi?debug'] or '').lower()=='force':
+                self.debug = True
+                self.force_debug = True
+            else:
+                self.debug = boolean(self.config['wsgi?debug'])
+
                 
     def __call__(self, environ, start_response):
         return self.wsgiapp(environ, start_response)
@@ -287,7 +301,7 @@ class GnrWsgiSite(object):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
-        self.debug = boolean(options.debug) if options else boolean(self.config['wsgi?debug'])
+        self.setDebugAttribute(options)
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -654,7 +668,7 @@ class GnrWsgiSite(object):
             response.headers['X-GnrTime'] = str(totaltime)
         if isinstance(result, unicode):
             response.content_type = 'text/plain'
-            response.unicode_body = result
+            response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
             response.body = result
         elif isinstance(result, Response):
@@ -819,6 +833,7 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
+        
         restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
         restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
         if restorefiles:
@@ -1246,8 +1261,10 @@ class GnrWsgiSite(object):
             return
         with open(txtname,'r') as f:
             result = f.read()
-        os.remove(tifname)
-        os.remove(txtname)
+        if os.path.exists(tifname):
+            os.remove(tifname)
+        if os.path.exists(txtname):
+            os.remove(txtname)
         return result
 
     def zipFiles(self, file_list=None, zipPath=None):

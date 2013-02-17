@@ -43,7 +43,7 @@ class Form(BaseComponent):
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         #tbl = pane.getInheritedAttributes()['table']
         fb.field('code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
-                validate_regex='!\.', 
+                validate_regex='![^A-Za-z0-9_]', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
                 validate_nodup=True,validate_nodup_error='!!Already existing code',
                 validate_nodup_condition='$maintable_id=:fkey',validate_nodup_fkey='=#FORM.record.maintable_id',
@@ -142,20 +142,20 @@ class DynamicFormBagManager(BaseComponent):
         form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
         bc = form.center.borderContainer(datapath='.record')
-        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
         pane = bc.contentPane(region='center')
+        self.df_customTabs(bc.tabContainer(region='bottom',height='160px',margin='2px'))
         box = pane.div(_class='^#FORM.boxClass',margin='5px',margin_top='10px',margin_right='15px')
         fb = box.formbuilder(cols=3, border_spacing='4px',tdl_width='5em',width='100%')
         #tbl = pane.getInheritedAttributes()['table']
         fb.textbox(value='^.code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
-                validate_regex='!\.', 
+                validate_regex='![^A-Za-z0-9_]', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
                 validate_case='l',lbl='!!Code',
                 ghost='!!Field code')
         fb.textbox(value='^.description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
                     ghost='!!Field description',lbl='!!Description')
 
-        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image',width='8em',lbl='!!Type')
+        fb.filteringSelect(value='^.data_type',values='!!T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph',width='8em',lbl='!!Type')
         fb.dataController("dynamicFormHandler.onDataTypeChange(this,data_type,_reason,this.form.isNewRecord());",data_type="^.data_type")
 
         fb.checkbox(value='^.calculated',lbl='',label='!!Calculated')
@@ -198,8 +198,8 @@ class DynamicFormBagManager(BaseComponent):
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
         fb.br()
-        
-
+        fb.simpleTextArea(value='^.source_graph',lbl='!!Graph',colspan=3,row_class='df_row field_graph',
+                width='100%',lbl_vertical_align='top',height='60px')
 
     @customizable
     def df_customTabs(self,tc):
@@ -272,7 +272,6 @@ class DynamicForm(BaseComponent):
                           grid=fg.grid.js_widget)
         fg.grid.dataFormula("#FORM.dynamicFormTester._editorDatapath", "'#FORM.record.df_custom_templates.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.dynamicFormTester.dummypath"')
-        
         frametree = left.framePane(region='center',margin_top='10px',margin_left='10px')
         frametree.top.div('!!Fields',font_size='.9em',font_weight='bold')
         treepane = frametree.center.contentPane().div(position='absolute',top='2px',bottom='2px',left='2px',right='4px',overflow='auto')
@@ -287,13 +286,14 @@ class DynamicForm(BaseComponent):
         
     @struct_method
     def df_fieldsGrid(self,pane,**kwargs):
+        pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer()
         mastertable = pane.getInheritedAttributes()['table']
         mastertblobj = self.db.table(mastertable)
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
-        center = bc.contentPane(region='center')
+        center = bc.contentPane(region='center',overflow='hidden')
         if mastertblobj.attributes.get('df_fieldstable'):
             th = self.df_fieldsTableGrid(center,**kwargs)
         else:
@@ -308,7 +308,7 @@ class DynamicForm(BaseComponent):
 
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
-        bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode)
+        bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode,overflow='hidden')
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
@@ -334,7 +334,6 @@ class DynamicForm(BaseComponent):
         self.df_fieldsBagForm(form)
         return bh
 
-
     def df_fieldsTableGrid(self,pane,title=None,searchOn=False,**kwargs):
         return pane.dialogTableHandler(relation='@dynamicfields',
                                         formResource='gnrcomponents/dynamicform/dynamicform:Form',
@@ -349,7 +348,6 @@ class DynamicForm(BaseComponent):
                                                         FIRE #FORM.dynamicFormTester._refresh_fields = genro.getCounter();
                                                 """,
                                         searchOn=searchOn,title=title,**kwargs)
-
 
     def df_previewForm(self,frame,mastertable=None):
         bar = frame.top.slotToolbar('parentStackButtons,*,tplmenu,3')
@@ -378,7 +376,6 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-
         pane.div().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
         
     @struct_method
@@ -387,94 +384,134 @@ class DynamicForm(BaseComponent):
         df_field = column.attributes['subfields']
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
-                        **kwargs)
-    
+        pane.attributes['_workspace'] = True
+        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
+  
+
+
+    def df_prepareGlobalVars(self,global_fields=None,df_groups=None):
+        result = []
+        for n in df_groups:
+            ext_ref = n.attr.get('external_ref')
+            if ext_ref:
+                for f in global_fields[n.attr['pkey']]:
+                    result.append('%s.%s' %(ext_ref,f['code'])) 
+        return result
+
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,**kwargs):
-        if not df_pkey:
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
+        pane.data(datapath,Bag())
+        if not (df_pkey or df_groups):
             pane.div()
             return
         pane.attributes.update(kwargs)
         df_tblobj = self.db.table(df_table)
-        ncol =df_tblobj.readColumns(columns='df_fbcolumns',pkey=df_pkey)
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
-        fb.addDynamicFields(df_table=df_table,df_pkey=df_pkey,datapath=datapath)
+        pkeylist = df_groups.digest('#a.pkey') if df_groups else [df_pkey]
+        global_fields = dict([(pkey,df_tblobj.df_getFieldsRows(pkey=pkey)) for pkey in pkeylist])
+        if df_groups:
+            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath)
+            global_vars = self.df_prepareGlobalVars(global_fields=global_fields,df_groups=df_groups)
+            for gr in df_groups:
+                gr_attr=gr.attr
+                pkey=gr_attr['pkey']
+                rowspan=gr_attr.get('rowspan',1)
+                colspan=gr_attr.get('colspan',1)
+                group_code = gr_attr['group_code']
+                group_label = gr_attr.get('group_label')
+                caption_field = df_tblobj.attributes['caption_field']
+                ncol,caption =df_tblobj.readColumns(columns='df_fbcolumns,$%s' %caption_field,pkey=pkey)
+                box = groupfb.div(_class='pbl_roundedGroup',datapath='.%s' %(group_code),margin='2px',colspan=colspan,rowspan=rowspan)
+                box.div('%s (%s)' %(caption,group_label) if group_label else caption,_class='pbl_roundedGroupLabel')
+                grp=box.div(margin_right='10px')
+                fields = global_fields[pkey]
+                if fields:
+                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr['global_namespace'] else None,**kwargs)
+        else:
+            ncol = df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
+            fields = global_fields[df_pkey]
+            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(fields=fields,ncol=ncol,**kwargs)
 
     @struct_method
-    def df_addDynamicFields(self,fb,df_table=None,df_pkey=None,datapath=None,**kwargs):
+    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,**kwargs):
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+        fb.addDynamicFields(fields=fields,**kwargs)
+
+    @struct_method
+    def df_addDynamicFields(self,fb,fields=None,**kwargs):
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
-        df_tblobj = self.db.table(df_table)
-        fields = df_tblobj.df_getFieldsRows(pkey=df_pkey)
         if not fields:
             return
         for r in fields:
-            fb.dynamicField(r,fields=fields,datapath=datapath,dbstore_kwargs=dbstore_kwargs)
+            fb.dynamicField(r,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
             
     @struct_method
-    def df_dynamicField(self,fb,r,fields=None,datapath=None,dbstore_kwargs=None):
+    def df_dynamicField(self,fb,r,fields=None,dbstore_kwargs=None,**kwargs):
         attr = dict(r)
         attr.pop('id',None)
         attr.pop('pkey',None)
         attr.pop('maintable_id',None)
-        attr['datapath'] = datapath
         data_type = attr.pop('data_type','T')
         tag =  attr.pop('wdg_tag') or AUTOWDG[data_type]
-        mask = attr.pop('field_mask',None)
+        return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
+
+    @customizable
+    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None,**kwargs):
+        mask = wdg_attr.pop('field_mask',None)
         if tag.endswith('_nopopup'):
             tag = tag.replace('_nopopup','')
-            attr['popup'] = False
-        attr['tag'] =tag
-        #attr['colspan'] = col_max if data_type == 'TL' else 1
-        code = attr.get('code')
-        description = attr.pop('description','')
-        attr['value']='^.%s' %code
+            wdg_attr['popup'] = False
+        wdg_attr['tag'] =tag
+        #wdg_attr['colspan'] = col_max if data_type == 'TL' else 1
+        code = wdg_attr.get('code')
+        description = wdg_attr.pop('description','')
+        wdg_attr['value']='^.%s' %code
         if tag.lower() in ('checkbox' or 'radiobutton'):
-            attr['label'] = description
+            wdg_attr['label'] = description
         else:
-            attr['lbl'] = description
-        attr['ghost'] = attr.pop('field_placeholder',None)
-        attr['tip'] = attr.pop('field_tip',None)
-        attr['style'] = attr.pop('field_style',None)
+            wdg_attr['lbl'] = description
+        wdg_attr['ghost'] = wdg_attr.pop('field_placeholder',None)
+        wdg_attr['tip'] = wdg_attr.pop('field_tip',None)
+        wdg_attr['style'] = wdg_attr.pop('field_style',None)
         
-        attr['format'] = attr.pop('field_format',None)
-        attr['dtype'] = data_type
-        attr['mask'] = mask
-        attr['colspan'] = 1
-        wdg_kwargs = attr.pop('wdg_kwargs',None)
+        wdg_attr['format'] = wdg_attr.pop('field_format',None)
+        wdg_attr['dtype'] = data_type
+        wdg_attr['mask'] = mask
+        wdg_attr['colspan'] = 1
+        wdg_kwargs = wdg_attr.pop('wdg_kwargs',None)
         if wdg_kwargs:
             if isinstance(wdg_kwargs,basestring):
                 wdg_kwargs = Bag(wdg_kwargs)
-            attr.update(wdg_kwargs)
+            wdg_kwargs = wdg_kwargs.asDict(ascii=True)
+            wdg_attr.update(wdg_kwargs)
             for dim in ('height','width','crop_height','crop_width'):
-                c = attr.pop(dim, None)
+                c = wdg_attr.pop(dim, None)
                 if isinstance(c,int) or (c and c.isdigit()):
-                    attr[dim] = '%spx' %c if c else None
+                    wdg_attr[dim] = '%spx' %c if c else None
                 else:
-                    attr[dim] = c
-            attr['colspan'] = attr.pop('colspan',1) or 1
-
+                    wdg_attr[dim] = c
+            wdg_attr['colspan'] = wdg_attr.pop('colspan',1) or 1
         if tag.lower()=='simpletextarea':
-            attr.setdefault('speech',True)
-            attr['width'] = attr.get('width') or '94%'
-
-        customizer = getattr(self,'df_%(tag)s' %attr,None)
+            wdg_attr.setdefault('speech',True)
+            wdg_attr['width'] = wdg_attr.get('width') or '94%'
+        customizer = getattr(self,'df_%(tag)s' %wdg_attr,None)
         if customizer:
-            customizer(attr,dbstore_kwargs=dbstore_kwargs)
-        dictExtract(attr,'source_',pop=True)
-        self._df_handleFieldFormula(attr,fb=fb,fields=fields)
-        self._df_handleFieldValidation(attr,fields=fields)
-        code = attr.pop('code')
-        getter = attr.pop('getter',None)
-        wdg = fb.child(**attr)
+            customizer(wdg_attr,dbstore_kwargs=dbstore_kwargs)
+        dictExtract(wdg_attr,'source_',pop=True)
+        self._df_handleFieldFormula(wdg_attr,fb=fb,fields=fields,**kwargs)
+        self._df_handleFieldValidation(wdg_attr,fields=fields)
+        code = wdg_attr.pop('code')
+        getter = wdg_attr.pop('getter',None)
+        wdg = self.df_child(fb,**wdg_attr)
         if not getter:
-            return wdg
-
-                    
+            return wdg     
         if isinstance(getter,basestring):
             getter = Bag(getter)
-        self._df_handleGetter(fb,code=code,datapath=datapath,getter=getter)
+        if getter['table']:
+            self._df_handleGetter(fb,code=code,getter=getter)
 
+    @customizable
+    def df_child(self,fb,**attr):
+        return fb.child(**attr)
 
     def df_filteringselect(self,attr,**kwargs):
         attr['values'] = attr.get('source_filteringselect')
@@ -482,7 +519,6 @@ class DynamicForm(BaseComponent):
     def df_combobox(self,attr,**kwargs):
         attr['values'] = attr.get('source_combobox')
                 
-
     def df_img(self,attr,**kwargs):
         attr['placeholder'] = self.getResourceUri('images/imgplaceholder.png')
         attr['upload_folder'] = "=='site:'+this.getInheritedAttributes()['table'].replace('.','/')+'%(code)s'" %attr
@@ -492,8 +528,10 @@ class DynamicForm(BaseComponent):
         attr['border'] = '1px solid silver'
         attr['shadow'] = '2px 2px 3px #555'
 
-        #attr['dtype'] = 'T'
-        #attr['format'] = 'auto'
+    def df_graph(self,attr,**kwargs):
+        attr['tag'] = 'div'
+        attr['innerHTML'] = 'Not yet implemented'
+        pass
 
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')
@@ -505,25 +543,27 @@ class DynamicForm(BaseComponent):
 
     def df_checkboxtext(self,attr,**kwargs):
         attr.setdefault('popup',True)
+        attr.setdefault('codeSeparator',False)
         attr['values'] = attr.get('source_checkboxtext')    
-            
         
-    def _df_handleFieldFormula(self,attr,fb,fields=None):
+    def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,**kwargs):
         formula = attr.pop('formula',None)
         if not formula:
             return
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
+        if global_vars:
+            formulaArgs.update(dict([(str(x.replace('.','_')),'^.#parent.%s' %x) for x in global_vars if x.replace('.','_') in formula]))
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
-        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'datapath,_expression');" ,_expression=formula,_init=True,datapath=attr['datapath'],**formulaArgs)
+        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'_expression');" ,_expression=formula,_init=True,**formulaArgs)
         attr['readOnly'] =True 
     
 
-    def _df_handleGetter(self,fb,code=None,datapath=None,getter=None):
+    def _df_handleGetter(self,fb,code=None,getter=None):
         kw = asDict(getter['where'].replace('\n',','))
         _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]
         if _iflist:
             kw['_if'] = ' && '.join(_iflist)
-        fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],datapath=datapath,**kw)
+        fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],**kw)
 
     @public_method
     def _df_remoteGetter(self,table=None,column=None,innerpath=None,**kwargs):
@@ -546,19 +586,27 @@ class DynamicForm(BaseComponent):
             attr['validate_notnull'] = attr.pop('mandatory')            
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
+            tpv = (condition,"", "",attr['code'])
+            if attr.get('validate_notnull'):
+                attr['validate_notnull']  = "^#WORKSPACE.%s.do_validations" %attr['code']
+                tpv = (condition,"sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
             attr['row_hidden'] = """==function(sourceNode){
                                         try{
                                             if(%s){
+                                                %s
                                                 return false;
                                             }else{
+                                                %s
                                                 sourceNode.setRelativeData('.%s',null);
                                                 return true;
                                             }
                                         }catch(e){
                                             alert(e.toString());
                                         }
-                                    }(this);""" %(condition,attr['code'])
-            conditionArgs = dict([('row_%s' %str(x['code']),'^%s.%s' %(attr['datapath'],x['code'])) for x in fields if x['code'] in condition])
+                                    }(this);""" %tpv
+
+            conditionArgs = dict([('row_%s' %str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
+
             
     

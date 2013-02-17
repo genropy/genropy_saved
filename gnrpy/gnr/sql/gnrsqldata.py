@@ -194,6 +194,14 @@ class SqlQueryCompiler(object):
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
+                sql_formula_var = dictExtract(fldalias.attributes,'var_')
+                if sql_formula_var:
+                    prefix = str(id(sql_formula_var))
+                    currentEnv = self.db.currentEnv
+                    for k,v in sql_formula_var.items():
+                        newk = '%s_%s' %(prefix,k)
+                        currentEnv[newk] = v
+                        sql_formula = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), sql_formula)
                 subColPars = {}
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
@@ -463,8 +471,8 @@ class SqlQueryCompiler(object):
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
             
-
-        env_conditions = dictExtract(self.db.currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
+        currentEnv = self.db.currentEnv
+        env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
         if env_conditions:
             wherelist = [where] if where else []
             for condition in env_conditions.values():
@@ -544,6 +552,12 @@ class SqlQueryCompiler(object):
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
+        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+        if partition_kwargs:
+            for k,v in partition_kwargs.items():
+                if currentEnv.get(v):
+                    where =  ' ( t0.%s=:env_%s ) AND %s' % (k,v, where)
+
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', 't0')
@@ -565,7 +579,6 @@ class SqlQueryCompiler(object):
                         xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
                         for xrd in xorderby:
                             if not xrd in columns:
-                                print 'adding ',xrd,' to columns ',columns
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
@@ -644,7 +657,7 @@ class SqlQueryCompiler(object):
                 col_name = col_name[1:]
             column = tbl_virtual_columns[col_name]
             if column is None:
-                print 'not existing col:%s' % col_name
+                # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
             field = self.getFieldAlias(column.name)
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
@@ -1356,11 +1369,14 @@ class SqlSelection(object):
                         args[k] = arg.replace('*', '')
             self.sortedBy = args
             gnrlist.sortByItem(self.data, *args)
+            if self.key == 'rowidx':
+                self.setKey('rowidx')
             self.isChangedSelection = True #prova
             if not self._filtered_data:
                 self.isChangedData = True
             else:
                 self.isChangedFiltered = True
+
                 
     def filter(self, filterCb=None):
         """TODO

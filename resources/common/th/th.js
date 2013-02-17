@@ -148,6 +148,16 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
         var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable'),objectExtract(kw,'dialog_*')));
+        var onStarted = objectPop(kw,'onStarted');
+        kw.onStarted = function(){
+            var wdg = dialog.getParentNode().widget;
+            this._genro._rootForm.subscribe('onChangedTitle',function(kw){
+                wdg.setTitle(kw.title)
+            });
+            if(onStarted){
+                onStarted.call(this);
+            }
+        }
         this.thiframe(dialog._('div',dialogAttrs),kw);
         return dialog;
     }
@@ -205,7 +215,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     setCurrentPkey:function(pkey){
         var currkey = this.sourceNode.getRelativeData(this.fieldpath);
-        this.sourceNode.setRelativeData(this.fieldpath,pkey);
+        this.sourceNode.getChild('selector').widget.setValue(pkey,true);
         if(currkey==pkey){
             this.sourceNode.getRelativeData(this.resolverpath).getParentNode().getValue('reload');
         }
@@ -256,6 +266,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     
     newrecord:function(){
+        this.sourceNode.getChild('selector').widget.setDisplayedValue('')
         this.openrecord('*newrecord*');
     }
 });

@@ -4,3 +4,5 @@ docs/genro/genrotit.sql
 projects/showcase/sites/showcase/data/
 gnrpy/build/
 _static
+*.pyc
+*.pyo

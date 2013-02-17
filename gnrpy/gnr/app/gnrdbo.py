@@ -5,7 +5,7 @@ import datetime
 import os
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,encode36,decode36
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -118,9 +118,11 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """TODO"""
+    @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
                   counter=False,hierarchical=False,
-                  group='zzz', group_name='!!System',multidb=None,df=None):
+                  group='zzz', group_name='!!System',
+                  multidb=None,df=None,counter_kwargs=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -195,6 +197,7 @@ class TableBase(object):
             tbl.attributes['broadcast'] = ','.join(broadcast)
 
         if counter:
+            tbl.attributes['counter'] = counter
             if hierarchical:
                 assert counter is True, 'in hierarchical counter is not relative to a foreignkey'
                 tbl.column('_h_count',group=group,_sysfield=True)
@@ -202,10 +205,11 @@ class TableBase(object):
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
                 tbl.attributes.setdefault('order_by','$_h_count')
             else:
+                self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')
-                tbl.column('_row_count', dtype='L', name_long='!!Counter', onInserting='setCounter',counter=True,
-                            _counter_fkey=counter,group=group,_sysfield=True)
-
+        if counter_kwargs:
+            for k,v in counter_kwargs.items():
+                self.sysFields_counter(tbl,'_row_count_%s' %k,counter=v,group=group,name_long='!!Counter %s' %k)
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
@@ -235,37 +239,40 @@ class TableBase(object):
                         onDeleting='syncRecordDeleting',
                         onInserted='syncRecordInserted',_sysfield=True)
         if df:
-            tbl.column('df_fields',dtype='X',group='_',_sysfield=True)
-            tbl.column('df_fbcolumns','L',group='_',_sysfield=True)
-            tbl.column('df_custom_templates','X',group='_',_sysfield=True)
+            self.sysFields_df(tbl)
+
+
+    def sysFields_df(self,tbl):
+        tbl.column('df_fields',dtype='X',group='_')
+        tbl.column('df_fbcolumns','L',group='_')
+        tbl.column('df_custom_templates','X',group='_')
+
+    def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
+        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
+                            _counter_fkey=counter,group=group,_sysfield=True)
 
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         pkeyfield = self.pkey
 
-        parent_id=record.get('parent_id')
-        parent_record=None
+        parent_id=record.get('parent_id')        
+        parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0] if parent_id else None
         for fld in self.attributes.get('hierarchical').split(','):
-            v=record.get(pkeyfield if fld=='pkey' else fld) 
             parent_h_fld='_parent_h_%s'%fld
             h_fld='hierarchical_%s'%fld
-            parent_v=record.get(parent_h_fld)
-            if parent_id is None:
-                record[h_fld] = v
-                record[parent_h_fld] = None
-                continue
-            parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0]
-            record[parent_h_fld] = parent_v = parent_record[h_fld]
-            record[h_fld] = '%s/%s'%( parent_v, v)
+            v=record.get(pkeyfield if fld=='pkey' else fld) 
+            record[parent_h_fld]= parent_record[h_fld] if parent_record else None
+            record[h_fld]= '%s/%s'%( parent_record[h_fld], v) if parent_record else v
         if self.column('_row_count') is None:
             return 
+        record['_parent_h_count'] = parent_record['_h_count'] if parent_record else None
         if old_record is None and record.get('_row_count') is None:
             #has counter and inserting a new record without '_row_count'
             where = '$parent_id IS NULL' if not record['parent_id'] else '$parent_id =:p_id' 
             last_counter = self.readColumns(columns='$_row_count',where=where,
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
-        if old_record is None or record['_row_count'] != old_record['_row_count']:
+        if old_record is None or (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count']):
             record['_h_count'] = '%s%s' %(record.get('_parent_h_count') or '',encode36(record['_row_count'],2))
 
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
@@ -275,7 +282,7 @@ class TableBase(object):
         changed_counter = False
         if '_row_count' in record:
             order_by = '$_row_count'
-            changed_counter = record['_row_count'] != old_record['_row_count']
+            changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
         if changed_hfields or changed_counter:
             fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[self.pkey],order_by=order_by).fetch()
             for k,row in enumerate(fetch):
@@ -292,7 +299,7 @@ class TableBase(object):
     def trigger_setCounter(self,record,fldname,**kwargs):
         if record.get('_row_count') is not None:
             return
-        fldlist = self.column('_row_count').attributes.get('_counter_fkey').split(',')
+        fldlist = self.column(fldname).attributes.get('_counter_fkey').split(',')
         where = []
         wherekw = dict()
         cols = []

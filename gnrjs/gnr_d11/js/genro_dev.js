@@ -91,13 +91,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var readyState = xhr.readyState;
         var responseText = xhr.responseText;
         if (status == 400) {
-            genro.dlg.alert('Client HTTP error');
-            genro.pageReload();
+            genro.dlg.alert('Client HTTP error','Error',null,null,{confirmCb:genro.pageReload});
             return;
         }
         else if (status == 412) {
-            genro.dlg.alert('No longer existing page');
-            genro.pageReload();
+            genro.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
         } else if (status == 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');
@@ -326,19 +324,20 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                });
                                genro.log(txt,'Check db');
                            };
-         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,clearLocal,clearSession,checkDb,DbSetup,ClearLog',toolbar:true,font_size:'.8'});
+         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,*,actionMenu,5',toolbar:true,font_size:'.8'});
          pane._('dataRpc',{'path':'.checkDb',method:'checkDb',subscribe_devUtils_checkDb:true,
                            _onResult:dbchangelog});
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
         sb._('checkbox','pollingSwitch',{'label':'Polling',value:'^gnr.polling.polling_enabled'});
-        sb._('button','clearLocal',{'label':'Clear LS',action:function(){localStorage.clear()}});
-        sb._('button','clearSession',{'label':'Clear SS',action:function(){sessionStorage.clear()}});
 
-        sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
-        sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
-        sb._('button','ClearLog',{'label':'Clear log',action:'genro.clearlog()'});
+        var m = sb._('DropDownButton','actionMenu',{label:'Commands'})._('menu',{_class:'smallMenu'})
+        m._('menuline',{'label':'Clear LS',action:function(){localStorage.clear()}});
+        m._('menuline',{'label':'Clear SS',action:function(){sessionStorage.clear()}});
+        m._('menuline',{'label':'CheckDb',publish:'devUtils_checkDb'});
+        m._('menuline',{'label':'DbSetup',publish:'devUtils_dbsetup'});
+        m._('menuline',{'label':'Clear log',action:'genro.clearlog()'});
         pane._('simpleTextArea',{'value':'^gnr._dev.logger',readOnly:true,height:'100%',
                                     style:'white-space: pre;'});
     },
@@ -635,6 +634,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             toterr+=n.getValue().len();
         });
         errorbag.getParentNode().setAttribute('counter',toterr,true);
+        if(genro.isDeveloper){
+            debugger;
+        }
     },
 
     errorPalette:function(parent){
