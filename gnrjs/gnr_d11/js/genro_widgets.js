@@ -5889,9 +5889,12 @@ dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         var selattr = objectExtract(widget.sourceNode.attr, 'selected_*', true);
         if ('selectedRecord' in widget.sourceNode.attr || objectNotEmpty(selattr)) {
-            dojo.connect(widget, '_doSelect', widget, function() {
-                this._updateSelect(this.item);
-            });
+            dojo.connect(widget,'setValue',function(kw,priorityChange){
+                if(priorityChange){
+                    var item = this.item || {attr:{}};
+                    this._updateSelect(item);
+                }
+            })
         }
     }
 });
