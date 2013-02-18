@@ -657,7 +657,7 @@ class SqlQueryCompiler(object):
                 col_name = col_name[1:]
             column = tbl_virtual_columns[col_name]
             if column is None:
-                print 'not existing col:%s' % col_name
+                # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
             field = self.getFieldAlias(column.name)
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
