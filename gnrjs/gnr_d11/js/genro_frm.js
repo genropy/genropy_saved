@@ -335,7 +335,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             var that = this;
             if(command=='deleteItem'){
-                this.store.deleteItem(kw.pkey);
+                var r = this.store.deleteItem(kw.pkey,kw);
+                if(kw.onDeleted){
+                    var onDeleted = funcCreate(kw.onDeleted,'result',this);
+                    if(r instanceof dojo.Deferred){
+                        r.addCallback(onDeleted);
+                    }else{
+                        onDeleted(r);
+                    }
+                }
             }else{
                 if(kw.cancelCb){
                     kw.cancelCb();
@@ -485,9 +493,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             genro.domById(this.formId).removeChild(hider);
         }
     },
-    deleted:function(kw){
-        
-        this.load({destPkey:'*norecord*'});
+    deleted:function(result,kw){
+        var destPkey = kw.destPkey || '*norecord*';
+        this.load({destPkey:destPkey});
         this.publish('message',{message:this.msg_deleted,sound:'$ondeleted'});
         this.publish('onDeleted');
     },
@@ -1660,11 +1668,11 @@ dojo.declare("gnr.formstores.Base", null, {
         this.saved(result);
         this.form.load({destPkey:newPkey});
     },
-    del_memory:function(){
+    del_memory:function(pkey,callkw){
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         var currPkey = form.getCurrentPkey();
         sourceBag.popNode(currPkey);
-        this.deleted();
+        this.deleted(null,callkw);
     },
     _load_prepareDefaults:function(pkey,default_kw,kw){
         var form = this.form;
@@ -1810,7 +1818,7 @@ dojo.declare("gnr.formstores.Base", null, {
         }
         return deferred;
     },
-    del_recordCluster:function(pkey){
+    del_recordCluster:function(pkey,callkw){
         var deleter = this.handlers.del;
         var form = this.form;
         var that = this;
@@ -1822,7 +1830,7 @@ dojo.declare("gnr.formstores.Base", null, {
                                                           'table':this.table},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){
-            that.deleted(result);
+            that.deleted(result,callkw);
             return result;
         };
         deferred.addCallback(cb);
@@ -1839,8 +1847,8 @@ dojo.declare("gnr.formstores.Base", null, {
         this.setNavigationStatus(pkey);
         this.form.loaded(result);
     },
-    deleted:function(result){
-        this.form.deleted(result);
+    deleted:function(result,kw){
+        this.form.deleted(result,kw);
     },
     saved:function(result){
         return this.form.saved(result);
@@ -1851,8 +1859,8 @@ dojo.declare("gnr.formstores.Base", null, {
     load:function(default_kw){
         return this.handlers.load.method.call(this,default_kw);
     },
-    deleteItem:function(pkey){
-        return this.handlers.del.method.call(this,pkey);
+    deleteItem:function(pkey,kw){
+        return this.handlers.del.method.call(this,pkey,kw);
     },
     setNavigationStatus:function(){
         return;
