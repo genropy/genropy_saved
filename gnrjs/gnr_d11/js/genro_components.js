@@ -2276,7 +2276,7 @@ dojo.declare("gnr.stores._Collection",null,{
             if(parentForm){
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);
-                },null,that.storeNode);
+                });
             }
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
