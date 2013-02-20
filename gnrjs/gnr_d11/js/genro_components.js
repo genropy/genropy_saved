@@ -1320,9 +1320,15 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             if(pkey){
                 genro.serverCall('te_renderChunk',{record_id:pkey,template_address:tplpars.table+':'+tplpars.template},function(resultNode){
                     var r = resultNode.getValue();
-                    that.domNode.innerHTML = r.getItem('rendered');
                     templateHandler.dataInfo = resultNode.attr;
-                    templateHandler.data = r.popNode('template_data').getValue();
+                    if(r instanceof gnr.GnrBag){
+                        that.domNode.innerHTML = r.getItem('rendered');
+                        templateHandler.data = r.popNode('template_data').getValue();
+                    }else{
+                        that.domNode.innerHTML = r;
+                        templateHandler.data = new gnr.GnrBag();
+                    }
+                    
                 },null,'POST');
             }else{
                 sourceNode.domNode.innerHTML = '';
