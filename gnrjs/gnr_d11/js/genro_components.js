@@ -1544,14 +1544,17 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var sn = widget.sourceNode;
         var controllerNodes = sn._stackButtonsNodes;
         
-        if((!controllerNodes) && sn._isBuilding){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         var that = this;
         sn.delayedCall(function(){
-            dojo.forEach(controllerNodes,function(c){
-                that.makeTabButton(c,child.sourceNode,sn);
-            });
+            var cn = sn._stackButtonsNodes;
+            if(cn){
+                dojo.forEach(cn,function(c){
+                    that.makeTabButton(c,child.sourceNode,sn);
+                });
+            }
         },100);
     },
     onRemoveChild:function(widget,child){

@@ -128,6 +128,7 @@ dojo.declare('gnr.GenroClient', null, {
                 dojo.keys.DOWN_ARROW = 40;
                 dojo.keys.UP_ARROW = 38;
             }
+            //genropatches.forEachError();
             genropatches.borderContainer();
             genropatches.setStateClass();
             genropatches.menu();

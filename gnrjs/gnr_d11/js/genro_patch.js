@@ -1,6 +1,20 @@
 
 
 var genropatches = {};
+genropatches.forEachError = function(){
+    var fe = dojo.forEach;
+    dojo['forEach'] = function(arr,cb,scope){
+        if(arr==null){
+            if(genro.isDeveloper){
+                debugger;
+            }else{
+                console.error('ERROR FOREACH',arguments,cb);
+            } 
+        }
+        fe.call(dojo,arr,cb,scope);
+    }
+},
+
 genropatches.setStateClass=function(){
     dojo.require('dijit.form._FormWidget');
     dijit.form._FormWidget.prototype._setStateClass_original = dijit.form._FormWidget.prototype._setStateClass;
