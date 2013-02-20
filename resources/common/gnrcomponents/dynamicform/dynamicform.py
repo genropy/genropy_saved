@@ -399,8 +399,9 @@ class DynamicForm(BaseComponent):
         return result
 
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
-        pane.data(datapath,Bag())
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,clearData=False,**kwargs):
+        if clearData:
+            pane.data(datapath,Bag())
         if not (df_pkey or df_groups):
             pane.div()
             return
@@ -409,7 +410,7 @@ class DynamicForm(BaseComponent):
         pkeylist = df_groups.digest('#a.pkey') if df_groups else [df_pkey]
         global_fields = dict([(pkey,df_tblobj.df_getFieldsRows(pkey=pkey)) for pkey in pkeylist])
         if df_groups:
-            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath)
+            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath,tdl_hidden=True)
             global_vars = self.df_prepareGlobalVars(global_fields=global_fields,df_groups=df_groups)
             for gr in df_groups:
                 gr_attr=gr.attr
