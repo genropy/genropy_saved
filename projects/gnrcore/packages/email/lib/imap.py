@@ -73,7 +73,7 @@ class ImapReceiver(object):
         new_mail['bcc_address'] = unicode(mail['Bcc'])
         new_mail['subject'] = mail['Subject']
         if encoding:
-            new_mail['subject'] =  unicode(mail['Subject'].decode(encoding).encode('utf8'))
+            new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         datetuple = email.Utils.parsedate(mail['Date'].replace('.',':')) #some emails have '.' instead of ':' for time format
         new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
     
@@ -82,13 +82,25 @@ class ImapReceiver(object):
             content = part.get_payload(decode=True)
             #encoding = chardet.detect(content)['encoding']
             encoding = part.get_content_charset()
-            new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
+            new_mail['body'] = self.smartConverter(content,encoding)
             new_mail['html'] = True
         elif part_content_type == 'text/plain':
             content = part.get_payload(decode=True)
             #encoding = chardet.detect(content)['encoding']
             encoding = part.get_content_charset() or 'utf8'
-            new_mail['body_plain'] = unicode(content.decode(encoding).encode('utf8'))
+            new_mail['body_plain'] = self.smartConverter(content,encoding)
+
+    def smartConverter(self,m,encoding=None):
+        encoding = encoding or chardet.detect(m)['encoding']
+        try:
+            return unicode(m.decode(encoding).encode('utf8'))
+        except UnicodeDecodeError:
+            encoding = chardet.detect(m)['encoding']
+            try:
+                return unicode(m.decode(encoding).encode('utf8'))
+            except UnicodeDecodeError:
+                return unicode('')
+
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
         new_attachment = dict(message_id = new_mail['id'])
@@ -149,14 +161,14 @@ class ImapReceiver(object):
         if encoding:
             for k,v in b.items():
                 if isinstance(v,basestring):
-                    b[k] = unicode(v.decode(encoding).encode('utf8'))
+                    b[k] =self.smartConverter(v,encoding)
         new_mail['email_bag'] = b
         self.fillHeaders(mail, new_mail,encoding)
         if mail.get_content_maintype() not in ('multipart','image'):
             content = mail.get_payload(decode=True)
             encoding = mail.get_content_charset()
             #encoding = chardet.detect(content)['encoding']
-            new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
+            new_mail['body'] = self.smartConverter(content,encoding)
             new_mail['body_plain'] = new_mail['body']
         else:
             for part in mail.walk():
