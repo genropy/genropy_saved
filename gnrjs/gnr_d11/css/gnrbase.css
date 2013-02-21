@@ -3368,20 +3368,21 @@ p {
 
 .multibutton_closer{
     position: absolute;
-    top:4px;
+    top:3px;
     right:2px;
 }
-.multibutton_closer{
-    position: absolute;
-    top:1px;
-    right:2px;
-}
+
 .multipage_add{
     background: url(icons/base10/smalladd.png) no-repeat center center;
     opacity: .5;
     width: 10px;
 }
 
+.multipage_del{
+    background: url(icons/base10/smalldel.png) no-repeat center center;
+    opacity: .5;
+    width: 10px;
+}
 /* @end */
 
 

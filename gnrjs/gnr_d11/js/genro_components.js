@@ -1425,7 +1425,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw,'storepath');
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
-
+        var deleteAction = objectPop(kw,'deleteAction');
+        var gnrwdg = sourceNode.gnrwdg;
+        if(deleteAction){
+            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
+        }
         sourceNode.attr.value = value;
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
@@ -1456,9 +1460,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         };
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
         if(values){
-            sourceNode.gnrwdg.makeButtons(values);
+            gnrwdg.makeButtons(values);
         }else if(storepath){
-            sourceNode.gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
+            gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
         }
         return multibutton;
     },
@@ -1497,14 +1501,25 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        var deleteAction = this.deleteAction;
         if (mb && values){
             var values = splitStrip(values,',');
-            var vl,btn_class;
+            var vl,btn,btn_class,_class;
             var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
             mb.clear(true);
             dojo.forEach(values,function(n){
                 vl = n.split(':');
-                mb._('div',vl[0],{multibutton_code:vl[0],_class:vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton'})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+                _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
+                if(deleteAction){
+                    _class = _class +' multibutton_closable';
+                }
+                btn = mb._('div',vl[0],{multibutton_code:vl[0],_class:_class})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+                if(deleteAction){
+                    btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
+                        dojo.stopEvent(e);
+                        deleteAction.call(sourceNode,vl[0],vl[1]);
+                    }});
+                }
             });
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
         }

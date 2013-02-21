@@ -1741,19 +1741,22 @@ class GnrWebPage(GnrBaseWebPage):
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
+
     @public_method
     def subfieldExplorer(self,table=None,field=None, fieldvalue=None,prevRelation='', prevCaption='',
-                             omit='', **kwargs):
+                             omit='', recordpath=None,**kwargs):
         df_table = self.db.table(table).column(field).relatedTable().dbtable
         subfields = df_table.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
-        df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='df_custom_templates')    
-        df_custom_templates = Bag(df_custom_templates)
-        #templates = ['auto']+df_custom_templates.keys()
-        for t in df_custom_templates.keys():
-            caption='Summary: %s' %t
-            fieldpath = '%s:@%s.df_custom_templates.%s.tpl' %(prevRelation,field,t)
-            subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath=fieldpath,
-                              fullcaption='%s/%s' %(prevCaption,caption))
+        if  df_table.model.column('df_custom_templates') is not None:
+            df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='$df_custom_templates')    
+            df_custom_templates = Bag(df_custom_templates)
+            #templates = ['auto']+df_custom_templates.keys()
+            for t in df_custom_templates.keys():
+                caption='Summary: %s' %t
+                recordpath = recordpath or '@%s' %field
+                fieldpath = '%s:%s.df_custom_templates.%s.tpl' %(prevRelation,recordpath,t)
+                subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath=fieldpath,
+                                  fullcaption='%s/%s' %(prevCaption,caption))
             
         return subfields
 

@@ -109,6 +109,7 @@
 
 .iframeroot_bar .multibutton{
 }
+
 .iframeroot_bar .multibutton_container{
     padding-top:0;
     padding-bottom:0;
@@ -117,6 +118,11 @@
     height: 18px;
     line-height: 2.5ex;
     padding-top: 2px;
+}
+.iframeroot_bar .multibutton_closer{
+    position: absolute;
+    top:1px;
+    right:2px;
 }
 
 .iframeroot_bar .multibutton:last-child{
