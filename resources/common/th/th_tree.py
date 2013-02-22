@@ -220,11 +220,11 @@ class HTableTree(BaseComponent):
             into_pkey = into_pkey or None
             tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
             self.db.commit()
-        elif (modifiers == 'Meta' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
+        elif (modifiers == 'Shift' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
             where='$parent_id=:p_id' if parent_id else '$parent_id IS NULL'
             f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',addPkeyColumn=False).fetch()
             b = Bag([(r['id'],dict(r)) for r in f])
-            pref = '>' if modifiers == 'Meta' else '<'
+            pref = '>' if modifiers == 'Shift' else '<'
             b.setItem(pkey,b.pop(pkey),_position='%s%s' %(pref,into_pkey))
             for k,r in enumerate(b.values()):
                 counter = k+1
@@ -264,6 +264,7 @@ class HTableTree(BaseComponent):
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
+                                        console.log('ffff',dropInfo)
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,

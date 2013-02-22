@@ -427,7 +427,6 @@ class TableHandlerMain(BaseComponent):
                     console.log('no targetRowData')
                     return true
                 }
-                console.log('dragRowData',dragRowData,'targetRowData',targetRowData,dropInfo,'dropInfo')
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }

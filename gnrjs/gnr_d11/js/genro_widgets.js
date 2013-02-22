@@ -5323,6 +5323,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
                 xval['id'] = val[0];
                 xval['caption'] = val[1];
             } else {
+                xval['id'] = val;
                 xval['caption'] = val;
             }
             localStore.setItem('root.r_' + i, null, xval);

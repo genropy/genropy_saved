@@ -2342,6 +2342,9 @@ body *{
     display: inline-block;
 }
 
+.dojoxFloatingPane.dijitContentPane{
+    overflow: hidden;
+}
 .dijitContentPane>.textAreaWrapper{
     position: absolute;
     display: block;

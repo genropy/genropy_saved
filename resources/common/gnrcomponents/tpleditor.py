@@ -359,8 +359,8 @@ class PaletteTemplateEditor(TemplateEditor):
     @struct_method
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
         palette = pane.palettePane(paletteCode=paletteCode or 'template_manager',
-                                    title='^.caption',
-                                    width='750px',height='500px',maxable=True,**kwargs)
+                                    title='^.caption',palette_overflow='hidden',
+                                    width='750px',height='500px',maxable=True,overflow='hidden',**kwargs)
         palette.remote(self.remoteTemplateEditor,maintable=maintable)
 
     @public_method
