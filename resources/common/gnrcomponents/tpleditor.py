@@ -135,7 +135,7 @@ class TemplateEditorBase(BaseComponent):
             for code,format,mask in tplpars:
                 formats[code] = format
                 masks[code] = mask
-        template = templateReplace(datacontent, varsdict, True,False)
+        template = templateReplace(datacontent, varsdict, True,False,conditionalMode=False)
         compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
         htmltables = doc.xpath('//table')

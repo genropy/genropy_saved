@@ -411,10 +411,20 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
 
-def conditionalTemplate(myString,symbolDict=None,**kwargs):
-    return myString
+
+
+def conditionalTemplate(myString,symbolDict=None):
+    def cb(g):
+        content = g.group(1)
+        m = re.search("\\$([_a-z\\@][_a-z0-9\\.\\@]*)", content, re.S)
+        if m and (m.group(1) in symbolDict) and (symbolDict[m.group(1)] not in (None,'')): 
+            return content
+        return ''
+    return re.sub("\\${(.*)}", cb,myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,urlformatter=None,emptyMode=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, 
+                    formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,
+                    urlformatter=None,emptyMode=None,conditionalMode=True):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -431,6 +441,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         myString = templateBag.pop('main')
         
     if not '$' in myString or not symbolDict: return myString
+
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
         #if templateBag:
@@ -440,11 +451,12 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
+    if conditionalMode and '${' in myString:
+        myString = conditionalTemplate(myString,symbolDict=symbolDict)
     symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,
                                     df_templates=df_templates,localizer=localizer,
                                     urlformatter=urlformatter,emptyMode=emptyMode)
-    if '${' in myString:
-        myString = conditionalTemplate(myString,symbolDict=symbolDict)
+
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:
