@@ -185,7 +185,6 @@ function dataTemplate(str, data, path, showAlways) {
         showAlways = showAlways || templateHandler.showAlways;
         
     }
-
     var templates;
     var masks={};
     var df_templates={};
@@ -201,6 +200,19 @@ function dataTemplate(str, data, path, showAlways) {
          df_templates = mainNode.attr.df_templates || df_templates;
          dtypes = mainNode.attr.dtypes || dtypes;
 
+    }
+    if(str.indexOf('${')>=0){
+        str = str.replace(/\${((.|\n)*)}/,function(s0,content){
+            if(!content){
+                return '';
+            }
+            var m = content.match(/\$([_a-z\\@][_a-z0-9\\(.|\n)\\@]*)/);
+            if(!m){
+                return '';
+            }
+            var k = data.getItem? data.getItem(m[1]):data[m[1]];
+            return isNullOrBlank(k)? '':content;
+        });
     }
     var auxattr = {};
     var regexpr = /\$(\#?\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
