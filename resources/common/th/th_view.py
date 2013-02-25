@@ -117,7 +117,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root):
-        bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
+        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
         gridId = '%s_grid' %th_root
