@@ -392,7 +392,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             genro.callAfter(function(){
                 this.gnr_onTyped();
                 this.gnr_setInDatastore();
-            },2000,this,'typing');
+            },1000,this,'typing');
         });
     },
 
