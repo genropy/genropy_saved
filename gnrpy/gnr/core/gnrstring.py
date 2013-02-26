@@ -416,11 +416,11 @@ def regexDelete(myString, pattern):
 def conditionalTemplate(myString,symbolDict=None):
     def cb(g):
         content = g.group(1)
-        m = re.search("\\$([_a-z\\@][_a-z0-9\\.\\@]*)", content, re.S)
+        m = re.search("\\$([_a-z\\@][_a-z0-9\\.\\@]*)", content)
         if m and (m.group(1) in symbolDict) and (symbolDict[m.group(1)] not in (None,'')): 
             return content
         return ''
-    return re.sub("\\${(.*)}", cb,myString)
+    return re.sub("\\${(.*)}", cb,myString,flags=re.S)
     
 def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, 
                     formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,
