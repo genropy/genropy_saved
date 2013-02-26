@@ -416,7 +416,6 @@ def regexDelete(myString, pattern):
 def conditionalTemplate(myString,symbolDict=None):
     def cb(g):
         content = g.group(1)
-        print 'CONTENT----',content
         m = re.search("\\$([_a-z\\@][_a-z0-9\\.\\@]*)", content)
         if m and (m.group(1) in symbolDict) and (symbolDict[m.group(1)] not in (None,'')): 
             return content

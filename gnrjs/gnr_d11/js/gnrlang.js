@@ -202,7 +202,7 @@ function dataTemplate(str, data, path, showAlways) {
 
     }
     if(str.indexOf('${')>=0){
-        str = str.replace(/\${((.|\n)*)}/,function(s0,content){
+        str = str.replace(/\${(([^}]|\n)*)}/,function(s0,content){
             if(!content){
                 return '';
             }
