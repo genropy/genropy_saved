@@ -672,6 +672,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     triggerUPD: function(kw) {
+        
         //var path = this._dataLogger.path;
 
         /*
@@ -694,7 +695,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     kw.node.attr._loadedValue = kw.oldvalue;
                     changed = true;
                     //console.log('dataChangeLogger NEWCHANGE: ' + path);
-                } else if (kw.node.attr._loadedValue == kw.value) {//value = _loadedValue
+                } else if ((kw.node.attr._loadedValue == kw.value) || (kw.node.attr._loadedValue==null && kw.value=='')) {//value = _loadedValue
                     delete kw.node.attr._loadedValue;
                     changed = false;
                     //console.log('dataChangeLogger UNCHANGED: ' + path);
@@ -710,6 +711,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.updateStatus();
                 //this.updateInvalidField(kw.reason, changekey);
             } else {
+
                 //changed attributes
             }
         } else {
@@ -783,6 +785,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0));
     },
     updateStatus:function(){
+        this.setControllerData('changes_number',this.getChangesLogger().len());
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
         var status;
