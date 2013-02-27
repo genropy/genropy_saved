@@ -426,7 +426,7 @@ class DynamicForm(BaseComponent):
                 grp=box.div(margin_right='10px')
                 fields = global_fields[pkey]
                 if fields:
-                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr['global_namespace'] else None,**kwargs)
+                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr.get('global_namespace') else None,**kwargs)
         else:
             ncol = df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
             fields = global_fields[df_pkey]

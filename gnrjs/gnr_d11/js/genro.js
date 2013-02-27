@@ -1496,6 +1496,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     openWindow:function(url, name, params) {
+        params = params || {height:'700',width:'800'};
         if (params) {
             if (typeof(params) != 'string') {
                 parlist = [];
