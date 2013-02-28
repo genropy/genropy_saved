@@ -204,8 +204,10 @@ class PublicSlots(BaseComponent):
             fb.dbSelect(value='^current.%s' %partition_field,
                         dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                         hasDownArrow=True,font_size='.8em',lbl_color='white',color='#666',lbl_font_size='.8em')
-            fb.data('current.%s' %partition_field,None,
+        
+        pane.data('current.%s' %partition_field,self.rootenv[partition_path],
                     serverpath='currenv.%s' %partition_path,dbenv=True)
+
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
