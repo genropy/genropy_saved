@@ -25,6 +25,9 @@ class BaseResourcePrint(BaseResourceBatch):
     batch_mail_modes = ['mail_pdf','mail_deliver']
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
+        batch_print_modes = self.db.application.getPreference('.print.modes',pkg='sys')
+        if batch_print_modes:
+            self.batch_print_modes = batch_print_modes.split(',')
         if self.html_res:
             self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
                                                         respath=self.html_res, class_name='Main')
