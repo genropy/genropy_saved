@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=${charset}" />
-        <meta http-equiv="X-UA-Compatible" content="IE=7" />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
 		<!-- Prevent iPad/iPhone resize and enable full screen mode (if you bookmark the app on the home screen) -->
 		<meta name="apple-mobile-web-app-capable" content="yes">
