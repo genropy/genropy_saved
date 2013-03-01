@@ -623,7 +623,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkeys = updaterDict.keys()
         tblobj = self.db.table(table)
         def cb(r):
-            r[counterField] = updaterDict[r['id']]
+            r[counterField] = updaterDict[r[tblobj.pkey]]
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
         
