@@ -716,7 +716,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(destPkey=='*dismiss*'){
                 onSaved = 'dismiss';
             }
-            var deferred=this.store.save(destPkey);
+            var deferred=this.store.save(kw);
             var that,cb;
             that = this;
             if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
@@ -1592,7 +1592,7 @@ dojo.declare("gnr.formstores.Base", null, {
         
     },
 
-    save_document:function(){
+    save_document:function(kw){
         
     },
     
@@ -1635,7 +1635,9 @@ dojo.declare("gnr.formstores.Base", null, {
     },
     
     
-    save_memory:function(destPkey){
+    save_memory:function(kw){
+        var saveKw = objectUpdate({},kw);
+        var destPkey = objectPop(saveKw,'destPkey');
         var form = this.form;
         var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
         var formData = form.getFormData();
@@ -1751,13 +1753,14 @@ dojo.declare("gnr.formstores.Base", null, {
         }
         return deferred;
     },
-    save_recordCluster:function(destPkey){
+    save_recordCluster:function(kw){
         var form=this.form;
         var that = this;
         var saver = this.handlers.save;
-        
-
+        var saveKw = objectUpdate({},kw);
+        var destPkey = objectPop(saveKw,'destPkey');
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
+        objectUpdate(kw,saveKw);
         var onSaving = objectPop(kw,'onSaving');
         kw['_sourceNode'] = form.sourceNode;
         kw['_autoreload'] = kw['_autoreload'] || false;
@@ -1853,8 +1856,8 @@ dojo.declare("gnr.formstores.Base", null, {
     saved:function(result){
         return this.form.saved(result);
     },
-    save:function(destPkey){
-        return this.handlers.save.method.call(this,destPkey);
+    save:function(kw){
+        return this.handlers.save.method.call(this,kw);
     },
     load:function(default_kw){
         return this.handlers.load.method.call(this,default_kw);
@@ -1884,7 +1887,9 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         });
         this.loaded('*subform*',r);
     },
-    save_subform:function(destPkey){
+    save_subform:function(kw){
+        var saveKw = objectUpdate({},kw);
+        var destPkey = saveKw.destPkey; 
         var form= this.form;
         var parentForm = form.getParentForm();
         var subRecord = form.getFormData();
