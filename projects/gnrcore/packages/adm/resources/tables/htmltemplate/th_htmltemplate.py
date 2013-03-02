@@ -99,9 +99,9 @@ class Form(BaseComponent):
                             datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
-        self.htmltemplate_form(bc.borderContainer(region='top', height='205px',splitter=True))
+        self.htmltemplate_form(bc.borderContainer(region='top', height='210px',splitter=True))
         
-        center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea')
+        center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea',overflow='hidden')
         self.RichTextEditor(center, value='^.html',
                             nodeId='htmlEditor',toolbar='standard')
         bottom = center.bottom
@@ -112,7 +112,7 @@ class Form(BaseComponent):
                                 intermediateChanges=True, width='15em', float='right')
 
     def htmltemplate_form(self,bc):
-        left = bc.borderContainer(region='left', width='20em')
+        left = bc.borderContainer(region='left', width='23em')
         self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='110px'))        
         self.htmltemplate_basePageParams(left.roundedGroup(region='center', datapath='.data.main.page',title='!!Page sizing'))
         tc = bc.tabContainer(region='center', selectedPage='^.data.main.design',margin='2px')
