@@ -166,6 +166,7 @@ class TableHandlerView(BaseComponent):
             if(variable_struct){
                 SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
+            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
             if(storeServerTime!=null){
                 FIRE .#parent.#parent.runQueryDo;
             }
