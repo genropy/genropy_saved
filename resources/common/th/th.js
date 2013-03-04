@@ -281,7 +281,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
                         url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection','url_th_from_package':genro.getData('gnr.package')};
         this.formUrl = kw.formUrl;
         this.loadingTitle = 'loading...'
-        this.indexgenro = window.parent.genro;
+        this.indexgenro = genro.mainGenroWindow.genro;
         this.viewStore = kw.viewStore.store;
         if(kw.th){
             for(var k in kw.th){
