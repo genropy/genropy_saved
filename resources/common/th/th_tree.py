@@ -139,7 +139,7 @@ class TableHandlerTreeResolver(BagResolver):
             db = self._page.db
             tblobj = db.table(self.table)
             condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$hierarchical_pkey',
+            valid = tblobj.query(where='$child_count=0 AND ( %s )' %self.condition,columns='$hierarchical_pkey',
                                  _storename=self.dbstore,addPkeyColumn=False,**condition_kwargs).fetch()
             condition_pkeys = set()
             for r in valid:
