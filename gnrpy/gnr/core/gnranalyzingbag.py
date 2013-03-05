@@ -1,4 +1,4 @@
-import itertools
+#import itertools
 from gnr.core.gnrbag import Bag
 
 class AnalyzingBag(Bag):
@@ -54,9 +54,10 @@ class AnalyzingBag(Bag):
                     if not value:
                         attr[lbl] = row[fld]
 
-        counter = itertools.count()
-        for row in data:
-            rowind = counter.next()
+        #counter = itertools.count()
+        for rowind, row in enumerate(data):
+            #rowind = counter.next()
+            #rowind += 1
             currbag = self
             for gr in group_by:
                 label = groupLabel(row, gr).replace('.', '_') or '_'
