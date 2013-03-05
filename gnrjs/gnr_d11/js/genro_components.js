@@ -448,7 +448,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var contentWidget = objectPop(kw,'contentWidget') || 'ContentPane';
         var groupCode = objectPop(kw, 'groupCode');
         if (groupCode) {
-            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._(contentWidget, objectUpdate({'detachable':true}, kw));
+            var pane = sourceNode._('ContentPane', objectUpdate({overflow:'hidden'},objectExtract(kw, 'title,pageName')))._(contentWidget, objectUpdate({'detachable':true}, kw));
             var controller_kw = {'script':"SET gnr.palettes._groups.pagename." + groupCode + " = paletteCode;",
                 'paletteCode':paletteCode};
             controller_kw['subscribe_show_palette_' + paletteCode] = true;
@@ -925,6 +925,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,height,width,maxable,resizable');
         palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode + '_floating';
+        palette_kwargs['overflow'] = 'hidden'
         palette_kwargs.selfsubscribe_showing = function() {
             genro.publish('palette_' + this.getRelativeData('gnr.palettes._groups.pagename.' + groupCode) + '_showing'); //gnr.palettes?gruppopiero=palettemario
         };
