@@ -303,7 +303,10 @@ class TableBase(object):
         where = None
         wherekw = dict()        
         if counter_fkey is not True:
-            counter_fkey = filter(lambda n: record.get(n),counter_fkey.split(','))[0]
+            filtered = filter(lambda n: record.get(n),counter_fkey.split(','))
+            if not filtered:
+                return
+            counter_fkey = filtered[0]
             where = '$%s=:p_%s' %(counter_fkey,counter_fkey)
             wherekw['p_%s' %counter_fkey] = record[counter_fkey]
         last_counter = self.readColumns(columns='$%s' %fldname,where=where,

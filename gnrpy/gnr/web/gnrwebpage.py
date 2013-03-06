@@ -1594,7 +1594,7 @@ class GnrWebPage(GnrBaseWebPage):
                 if loginUrl:
                     pageattr['redirect'] = loginUrl
                 else:
-                    pageattr['redirect'] = self.resolvePathAsUrl('simplelogin.py', folder='*common')
+                    pageattr['redirect'] = self.site.home_uri
             elif _auth == AUTH_FORBIDDEN:
                 page.clear()
                 self.forbiddenPage(page, **kwargs)
