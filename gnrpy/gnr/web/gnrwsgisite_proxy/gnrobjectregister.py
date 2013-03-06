@@ -296,11 +296,14 @@ class SiteRegister(object):
         page_item = self.p_register.create(page_id, page, data)
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
+        self.c_register.update_lastused(page_item['connection_id'],datetime.now())
         with self.sd.locked(self.cleanup_key):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
             if lastCleanupTs and (thisCleanupTs - lastCleanupTs > self.site.cleanup_interval):
-                self.cleanup(cascade=True, max_age=150, onlyGuest=False)  # FIXME!!
+                max_age = int(self.site.config['connection_timeout'] or 7200)
+                self.cleanup(cascade=True, max_age=max_age, onlyGuest=False)
+                self.cleanup(cascade=True, max_age=360, onlyGuest=True)  # FIXME!!
                 self.sd.set(self.cleanup_key, thisCleanupTs, 0)
             if not lastCleanupTs:
                 self.sd.set(self.cleanup_key, thisCleanupTs, 0)
@@ -391,12 +394,14 @@ class SiteRegister(object):
         for page_id, page in self.pages().items():
             page_last_rpc_age = page.get('last_rpc_age')
             guest_page = (page.get('user') or '').startswith('guest_')
+            #if (page_last_rpc_age and page_last_rpc_age > max_age) and ((guest_page or not onlyGuest):
+            
             if (page_last_rpc_age and page_last_rpc_age > max_age) and ((guest_page and onlyGuest) or not onlyGuest):
                 self.drop_page(page_id, cascade=cascade)
         for connection_id, connection in self.connections().items():
             connection_last_rpc_age = connection.get('last_rpc_age')
             guest_connection = onlyGuest and (connection.get('user') or '').startswith('guest_')
-            if (connection_last_rpc_age and connection_last_rpc_age > max_age) and ((guest_page and onlyGuest) or not onlyGuest):
+            if (connection_last_rpc_age and connection_last_rpc_age > max_age) and ((guest_connection and onlyGuest) or not onlyGuest):
                 self.drop_connection(connection_id, cascade=cascade)
 
 
