@@ -1425,6 +1425,7 @@ dojo.declare("gnr.GnrValidator", null, {
     validate_regex: function(param, value) {
         if (value) {
             var not = false;
+            param = param.trim()
             if (param[0] == '!') {
                 not = true;
                 param = param.slice(1);
