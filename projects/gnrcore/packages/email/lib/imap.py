@@ -105,6 +105,9 @@ class ImapReceiver(object):
     def parseAttachment(self, part, new_mail, part_content_type=None):
         new_attachment = dict(message_id = new_mail['id'])
         filename = part.get_filename()
+        filename = email.Header.decode_header(filename)[0][0]
+        filename =  self.smartConverter(filename)
+        
         counter = 1
         if not filename:
             filename = 'part-%03d%s' % (counter, 'bin')
