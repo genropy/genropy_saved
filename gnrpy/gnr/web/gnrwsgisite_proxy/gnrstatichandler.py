@@ -67,7 +67,7 @@ class StaticHandler(object):
     @property
     def home_uri(self):
         """TODO"""
-        return self.site.home_uri
+        return self.site.default_uri
 
     def absolute_url(self, external=True, *args):
         pass
