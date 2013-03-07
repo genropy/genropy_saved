@@ -399,7 +399,13 @@ cursorZoom_plus{
     padding-top: 1px;
 }
 
-.fakeTextBox,.smallFakeTextBox {
+.gnrfield.tag_div>div{
+    padding-top: 2px;
+    min-height: 14px;
+    line-height: normal;
+}
+
+.fakeTextBox,.smallFakeTextBox, .gnrfield.tag_div>div.fakeTextBox{
 	background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
