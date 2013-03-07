@@ -2880,10 +2880,10 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             },'static');  
             return result;
         };
-       //if((delKeys.length+insOrUpdKeys.length)>(this.len()*.3)){
-       //    this.loadData();
-       //    return
-       //}
+        if((delKeys.length+insOrUpdKeys.length)>(this.len()*.3) || this.sum_columns){
+            this.loadData();
+            return
+        }
         if(delKeys.length>0){
             wasInSelection = wasInSelectionCb(delKeys);
              for(pkey in wasInSelection){
