@@ -3057,7 +3057,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
             if (objectNotEmpty(zoomAttr)) {
-                v = "<a onclick='dojo.stopEvent(event);genro.dlg.zoomFromCell(event);' class='gnrzoomcell' href='#'>" + v + "</a>";
+                v = "<a onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell' href='#'>" + v + "</a>";
             }
             var draggable = this.draggable ? ' draggable=true ' : '';
             return '<div ' + draggable + 'class="cellContent">' + v + '</div>';

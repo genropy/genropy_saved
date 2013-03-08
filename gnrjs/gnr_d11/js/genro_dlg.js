@@ -433,6 +433,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['formOnly'] = true;
         zoomAttr['evt'] = evt;
         zoomAttr['title'] = grid.currRenderedRow[cellattr['field'].replace(/\W/g, '_')]
+        zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         var mode = objectPop(zoomAttr,'mode') || 'palette';
         if(mode=='palette'){
             this.zoomPalette(zoomAttr);

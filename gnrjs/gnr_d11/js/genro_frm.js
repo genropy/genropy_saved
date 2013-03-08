@@ -716,6 +716,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(destPkey=='*dismiss*'){
                 onSaved = 'dismiss';
             }
+            var onReload = objectPop(kw,'onReload');
             var deferred=this.store.save(kw);
             var that,cb;
             that = this;
@@ -736,7 +737,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }else{
                         that.setCurrentPkey(destPkey);
                         if(that.store){
-                            that.doload_store({'destPkey':destPkey,'onReload':kw.onReload});
+                            that.doload_store({'destPkey':destPkey,'onReload':onReload});
                         }else{
                             that.doload_loader({'destPkey':destPkey});
                         }
