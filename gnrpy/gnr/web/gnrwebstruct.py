@@ -948,11 +948,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if parentTag =='includedview' or  parentTag =='newincludedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
-            
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
+            attr['tag'] = 'newincludedview'
             parent = self.parent
-              
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
