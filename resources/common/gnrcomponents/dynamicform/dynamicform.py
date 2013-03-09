@@ -294,11 +294,10 @@ class DynamicForm(BaseComponent):
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
         center = bc.contentPane(region='center',overflow='hidden')
-        if mastertblobj.attributes.get('df_fieldstable'):
+        if mastertblobj.column('df_fields') is None:
             th = self.df_fieldsTableGrid(center,**kwargs)
         else:
             th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
-
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')

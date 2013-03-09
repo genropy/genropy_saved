@@ -385,11 +385,33 @@ class TableBase(object):
             self.restoreUnifiedRecord(record)
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
-        fieldstable = self.attributes.get('df_fieldstable')
-        if fieldstable:
+        if self.column('df_fields') is None:
+            fieldstable = self.attributes.get('df_fieldstable')
             return self.df_getFieldsRows_table(fieldstable,pkey=pkey,**kwargs)
         else:
             return self.df_getFieldsRows_bag(pkey,**kwargs)
+
+    def df_importLegacyScript(self):
+        updRecords = dict()
+        pkeys = self.query().selection().output('pkeylist')
+        for pkey in pkeys:
+            self._df_importLegacyRec(pkey,updRecords=updRecords)
+        def cb(row):
+            row['df_fields'] = updRecords.get(row.get('id'))
+        self.batchUpdate(cb,_pkeys=pkeys)
+
+    def _df_importLegacyRec(self,pkey=None,updRecords=None):
+        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        f = fieldstable.query(where='$maintable_id=:m_id',m_id=pkey,bagFields=True,order_by='$_row_count').fetch()
+        b = Bag()
+        for r in f:
+            c = dict(r)
+            for k in ('id','__del_ts','_row_count','maintable_id','pkey'):
+                c.pop(k)
+            c['wdg_kwargs'] = Bag(c['wdg_kwargs'])
+            c = Bag(c)
+            b.setItem(c['code'],c)
+        updRecords[pkey] = b
 
     def df_getFieldsRows_bag(self,pkey=None,**kwargs):
         hierarchical = self.attributes.get('hierarchical')
@@ -669,6 +691,16 @@ class DynamicFieldsTable(GnrDboTable):
                     one_group='_',many_group='_')
         if mastertbl.attributes.get('hierarchical'):
             tbl.formulaColumn('hlevel',"""array_length(string_to_array(@maintable_id.hierarchical_pkey,'/'),1)""")
+
+    def onSiteInited(self):
+        if self.pkg.attributes.get('df_ok'):
+            return
+        mastertbl = self.fullname.replace('_df','')
+        tblobj = self.db.table(mastertbl)
+        if tblobj.column('df_fields') is not None:
+            print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
+            tblobj.df_importLegacyScript()
+            return True
 
         
               

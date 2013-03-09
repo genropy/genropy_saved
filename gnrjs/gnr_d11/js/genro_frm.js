@@ -1626,7 +1626,9 @@ dojo.declare("gnr.formstores.Base", null, {
             genro.assert(dataNode,'Missing data for currentPath',currPkey);
             var kw = objectExtract(dataNode.attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
             var recordLoaded = new gnr.GnrBag();
-            dataNode.getValue().deepCopy().forEach(function(n){
+            var d = dataNode.getValue().deepCopy();
+            d.walk(function(n){n.attr = {}})
+            d.forEach(function(n){
                 recordLoaded.setItem(n.label,n.getValue());
             });
             envelope.setItem('record',recordLoaded,kw);
@@ -1665,8 +1667,12 @@ dojo.declare("gnr.formstores.Base", null, {
             }
         }
         form.setCurrentPkey(newPkey);
-        formData.forEach(function(n){
-            data.setItem(n.label,n.getValue());
+        var path;
+        formData.walk(function(n){
+            if(n.attr._loadedValue){
+                path = n.getFullpath('static',formData);
+                data.setItem(path,n.getValue());
+            }
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
