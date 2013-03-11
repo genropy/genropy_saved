@@ -414,7 +414,7 @@ class ThLinker(BaseComponent):
                 }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
                     curr_pkey='=#FORM.pkey')
 
-                _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses""" %(manyrelfld,tblobj.pkey)
+                _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses_existing""" %(manyrelfld,tblobj.pkey)
                 hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
 
 

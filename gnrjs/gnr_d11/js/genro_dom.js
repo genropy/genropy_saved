@@ -1194,6 +1194,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
             r = "";
             item = nodes[i].attr;
             _customClasses = objectPop(item,'_customclasses') || objectPop(item,'_customClasses');
+            more_customclasses = objectExtract(item,'_customclasses_*')
+            if(more_customclasses){
+                _customClasses = (_customClasses || '');
+                for(var cck in more_customclasses){
+                    _customClasses = _customClasses+' '+more_customclasses[cck];
+                }
+            }
+            
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';
