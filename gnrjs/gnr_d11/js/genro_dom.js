@@ -1197,7 +1197,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';
-                r = r + "<td>" + genro.format(value, {date:'short'})+"</td>";
+                r = r + "<td>" + _F(value)+"</td>";
             }
             tbl.push("<tr id='" + nodes[i].label + "' "+_customClasses+">" + r + "</tr>");
         }
