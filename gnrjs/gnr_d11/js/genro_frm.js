@@ -1669,7 +1669,7 @@ dojo.declare("gnr.formstores.Base", null, {
         form.setCurrentPkey(newPkey);
         var path;
         formData.walk(function(n){
-            if(n.attr._loadedValue){
+            if('_loadedValue' in n.attr){
                 path = n.getFullpath('static',formData);
                 data.setItem(path,n.getValue());
             }
