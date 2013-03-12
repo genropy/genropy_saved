@@ -107,6 +107,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                    wdg.sourceNode.form.focusCurrentField();
                 }
             });
+            if(this.store.autoSave){
+                this.autoSave = this.store.autoSave===true?2000:this.store.autoSave;
+                this.sourceNode.watch('autoSave',
+                        function(){if(that.changed){that.save()};
+                                   return false;},
+                        function(){},that.autoSave);
+            }
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
             if(startKey){
                 startKey = this.sourceNode.currentFromDatasource(startKey);
@@ -123,9 +130,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var parentForm = this.getParentForm();
             if(parentForm){
                 //dojo.connect(parentForm,'load',this,'abort');
-                parentForm.subscribe('onLoaded',function(){
-                    that.abort();
-                    that.publish('changedParent');
+                parentForm.subscribe('onLoaded',function(kw){
+                    if(kw.pkey!=that.parentFormPkey){
+                        that.parentFormPkey = kw.pkey;
+                        that.abort();
+                        that.publish('changedParent');
+                    }
                 });
             }
             
@@ -289,7 +299,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
         if (this.changed && kw.destPkey &&(currentPkey=='*newrecord*' || (kw.destPkey != currentPkey))) {
-            if(kw.modifiers=='Shift'){
+            if(kw.modifiers=='Shift' || this.autoSave){
                 this.save(kw);
             }else{
                 this.openPendingChangesDlg(kw);
@@ -460,7 +470,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setCurrentPkey(pkey);
         this.publish('onLoading',{destPkey:pkey});
         if(pkey){
-            if (!sync) {
+            if (!sync && !this.autoSave) {
                 this._showHider();
             }
             this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
