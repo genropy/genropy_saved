@@ -912,6 +912,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         if(genro.activeForm && genro.activeForm.currentFocused){
             genro.activeForm.currentFocused.focusNode.blur();
             genro.activeForm.currentFocused = null;
+            this.sourceNode.publish('close',{modifiers:genro.dom.getEventModifiers(event)});
             return;
         }
         this.sourceNode.publish('close',{modifiers:genro.dom.getEventModifiers(event)});
