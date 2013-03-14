@@ -31,8 +31,8 @@ class TemplateEditorBase(BaseComponent):
     def te_getPreview(self, record_id=None, compiled=None,templates=None,template_id=None,**kwargs):
         if template_id:
             templates = self.db.table('adm.htmltemplate').readColumns(columns='$name',pkey=template_id)
-        tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
-        return self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
+        tplbuilder = self.te_getTemplateBuilder(compiled=compiled, templates=templates)
+        return self.te_renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
 
     @public_method
     def te_renderChunk(self, record_id=None,template_address=None,templates=None,template_id=None,**kwargs):
@@ -41,12 +41,12 @@ class TemplateEditorBase(BaseComponent):
             return '<div class="chunkeditor_emptytemplate">Template not yet created</div>',dataInfo
         compiled = data['compiled']
         result = Bag()
-        tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
-        result['rendered'] = self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
+        tplbuilder = self.te_getTemplateBuilder(compiled=compiled, templates=templates)
+        result['rendered'] = self.te_renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
         result['template_data'] = data
         return result,dataInfo
     
-    def getTemplateBuilder(self, compiled=None, templates=None):
+    def te_getTemplateBuilder(self, compiled=None, templates=None):
         tblobj = self.db.table(compiled.getItem('main?maintable'))
         htmlbuilder = TableScriptToHtml(page=self,templates=templates, resource_table=tblobj,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.doctemplate = compiled
@@ -59,7 +59,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.data_tblobj = tblobj
         return htmlbuilder
         
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,contentOnly=False,**kwargs):
+    def te_renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,contentOnly=False,**kwargs):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,

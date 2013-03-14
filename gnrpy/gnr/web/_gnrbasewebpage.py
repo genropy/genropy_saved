@@ -507,6 +507,7 @@ class GnrBaseWebPage(GnrObject):
         if not 'caption' in resultAttr:
             resultAttr['caption'] = tblobj.recordCaption(record, rowcaption=rowcaption)
         pkey = record[tblobj.pkey]
+        resultAttr['lastTS'] = str(record[tblobj.lastTS]) if tblobj.lastTS else None
         if _autoreload:
             result = Bag()
             result.setItem('pkey',pkey,**resultAttr)

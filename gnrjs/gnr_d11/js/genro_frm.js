@@ -108,9 +108,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
             if(this.store.autoSave){
-                this.autoSave = this.store.autoSave===true?2000:this.store.autoSave;
+                this.autoSave = this.store.autoSave===true?1000:this.store.autoSave;
                 this.sourceNode.watch('autoSave',
-                        function(){if(that.changed){that.save()};
+                        function(){
+                                    if(that.record_changed && !that.isNewRecord()){
+                                        that.save({onSaved:'lazyReload'});
+                                   };
                                    return false;},
                         function(){},that.autoSave);
             }
@@ -707,7 +710,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             }
         }
-        else {
+        else if(!this.autoSave){
             genro.playSound('Basso');
             return false;
         }
@@ -722,7 +725,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             saverNode.fireNode();
             return saverNode._lastDeferred;
         }else if(this.store) {
-            var onSaved = this.store.onSaved;
+            var onSaved = objectPop(kw,'onSaved') || this.store.onSaved;
             if(destPkey=='*dismiss*'){
                 onSaved = 'dismiss';
             }
@@ -756,8 +759,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }else{
                 cb=function(result){
                     that.reset();
-                    if(onSaved=='dismiss'){
-                        that.dismiss(); //('onDismissed');
+                    if(onSaved in that){
+                        that[onSaved](result);
+                    }else if(onSaved){
+                        funcApply(onSaved,{result:result},this);
                     }
                 };
             }
@@ -770,6 +775,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return deferred;
 
         }
+    },
+    lazyReload:function(result){
+        var savedPkey = result.savedPkey;
+        this.setCurrentPkey(savedPkey);
+        var data = this.getFormData();
+        data.walk(function(n){ delete n.attr._loadedValue},'static');
+        if(result.savedAttr.lastTS){
+            data.getParentNode().attr.lastTS = result.savedAttr.lastTS;
+            data.setItem('__mod_ts',convertFromText(result.savedAttr.lastTS),null,{doTrigger:false});
+        }
+        this.setOpStatus();
     },
 
     setKeptData:function(valuepath,value,set){
@@ -790,7 +806,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             savedPkey = result.savedPkey;
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
-        this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+        if(!this.autoSave){
+            this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+        }
         return result;
 
     },
@@ -1108,7 +1126,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         //this.contentSourceNode.setHiderLayer(false,{});
         var changes = this.getChangesLogger();
         var changed = (changes.len() > 0 || this.registeredGridsStatus()=='changed');
+        this.record_changed = changes.len() > 0;
         this.changed = changed;
+        this.setControllerData('record_changed',this.record_changed);
         this.setControllerData('changed',changed);
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';

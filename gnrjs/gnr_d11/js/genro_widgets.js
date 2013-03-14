@@ -1912,6 +1912,12 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
         var callback = objectPop(attributes, 'callback');
         if (callback) {
             attributes['label'] = funcCreate(callback, 'n', sourceNode);
+        }else if(attributes.table){
+            attributes['label'] = function(n){
+                var kw = sourceNode.currentAttributes();
+                kw.pkey = n.sourceNode.getAttributeFromDatasource('pkey') || kw.pkey;
+                return genro.serverCall('renderTemplate',{record_id:kw.pkey,table:kw.table,tplname:(kw.template || 'tooltip')},null,null,'POST');
+            }
         }
         var savedAttrs = objectExtract(attributes, 'modifiers,validclass');
         if (! attributes.connectId) {

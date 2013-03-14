@@ -483,7 +483,13 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             result=Bag(result)
             return result,{'respath':path}
-        
+
+    @public_method
+    def renderTemplate(self,table=None,record_id=None,letterhead_id=None,tplname=None,**kwargs):
+        from gnr.web.gnrbaseclasses import TableTemplateToHtml
+        htmlbuilder = TableTemplateToHtml(table=self.db.table(table))
+        return htmlbuilder.contentFromTemplate(record=record_id,template=self.loadTemplate('%s:%s' %(table,tplname)))
+
     @public_method
     def loadTemplate(self,template_address,asSource=False,**kwargs):
         #se template_address non ha : ---> risorsa
