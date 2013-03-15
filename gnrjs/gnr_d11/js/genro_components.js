@@ -2981,6 +2981,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        console.log('BEFORE DELETING')
         genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
             that.onDeletedRows(result);
         },null,'POST');

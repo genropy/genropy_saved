@@ -2535,8 +2535,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             if (sourceNode.attr.onSelfDropRows) {
                 sourceNode.attr.onSelfDropRows(rows, dropInfo);
-            }
-            else {
+            }else if(sourceNode.form && sourceNode.form.isDisabled()){
+                return;
+            }else {
                 dropInfo.widget.moveRow(rows, dropInfo.row);
                 var row_counter_changes = dropInfo.widget.updateCounterColumn();
             }

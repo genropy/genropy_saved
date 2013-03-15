@@ -812,7 +812,7 @@ dojo.declare("gnr.GridEditor", null, {
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
         if(form && form.store){
-            return !form.locked;
+            return !form.isDisabled();
         }else{
             return 'editorEnabled' in gridSourceNode.attr? this.grid.editorEnabled:true;
         }
@@ -918,8 +918,7 @@ dojo.declare("gnr.GridEditor", null, {
         });
         if(existingPkeys.length>0){
             if(this.autoSave){
-                
-                this.grid.collectionStore().deleteAsk(existingPkeys,function(pkeys){that.markDeleted(pkeys)})
+                this.grid.collectionStore().deleteAsk(existingPkeys)
             }else{
                 this.markDeleted(existingPkeys);
             }

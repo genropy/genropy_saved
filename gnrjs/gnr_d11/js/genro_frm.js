@@ -725,6 +725,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             saverNode.fireNode();
             return saverNode._lastDeferred;
         }else if(this.store) {
+            var waitingStatus = objectPop(kw,'waitingStatus') || this.store.waitingStatus;
+            this.waitingStatus(waitingStatus);
             var onSaved = objectPop(kw,'onSaved') || this.store.onSaved;
             if(destPkey=='*dismiss*'){
                 onSaved = 'dismiss';
@@ -799,6 +801,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     saved: function(result) {
+        this.waitingStatus(false);
         this.fireControllerData('saved');
         this.setOpStatus('saved');
         var savedPkey = result;
