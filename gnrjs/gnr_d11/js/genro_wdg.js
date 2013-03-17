@@ -469,10 +469,10 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         modifiers = modifiers?modifiers.toLowerCase():modifiers;
         var result = false;
         var target = e.target;
-        if (validclass && target.className && dojo.every(validclass.split(','), function(item) {
-            return target.className.indexOf(item) < 0;
-        })) {
-            target = null;
+        if (validclass){
+            if(!target.className || (target.className && dojo.every(validclass.split(','), function(item) {return target.className.indexOf(item) < 0;}))){
+                target = null;
+            }
         }
         if (target) {
             var modif = (modifiers || "").replace('*', '') || '';
