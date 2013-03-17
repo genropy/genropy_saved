@@ -2988,6 +2988,13 @@ img.cannotBeDropped {
     display:inline-block;
 }
 
+/*
+.draggedItem {
+    border: 2px solid yellow;
+}
+.draggedItem>*{
+    -webkit-transform: scale(.9,.9);
+}*/
 
 .draggedItem {
     /*background-color: rgba(252, 252, 169, 0.63) !important;*/
@@ -2999,6 +3006,7 @@ img.cannotBeDropped {
     padding-right: 5px !important;
     padding-top: 2px !important;
     padding-bottom: 2px !important;
+    min-height: 16px;
 }
 
 .draggedItem .dojoxGrid {
@@ -3577,6 +3585,13 @@ div[disabled='true']{
 .tinyOpenBranch{
     background: url(icons/base10/tinyOpenBranch.png) no-repeat right 4px;
 }
+.tunerUp{
+    background: url(icons/base10/tuner_up.png) no-repeat center center;
+}
+.tunerDown{
+    background: url(icons/base10/tuner_down.png) no-repeat center center;
+}
+
 
 .tinytree .dijitTreeExpando{
     display: none;
