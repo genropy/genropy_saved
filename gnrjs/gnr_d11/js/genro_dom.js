@@ -780,11 +780,21 @@ dojo.declare("gnr.GnrDomHandler", null, {
             genro._lastDropTarget = event.target;
             genro.dom.onDragEnter(event);
         }
+        if(event.target.sourceNode && event.target.sourceNode.getInheritedAttributes().dragOverCb){
+            event.target.sourceNode.getInheritedAttributes().dragOverCb.call(this,event);
+        }
         event.stopPropagation();
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
 
     },
+    getBaseSourceNode:function(domnode){
+        while(domnode && !domnode.sourceNode){
+            domnode = domnode.parentNode;
+        }
+        return domnode?domnode.sourceNode:null;
+    },
+
     getDragDropInfo:function(event) {
         var domnode = event.target;
         while (!domnode.getAttribute) {
@@ -792,7 +802,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         var info = {'domnode':domnode};
         info.modifiers = genro.dom.getEventModifiers(event);
-        var widget,handler,sourceNode;
+        var handler,sourceNode,widget,baseSourceNode;
         if (domnode.sourceNode) {
             info.handler = domnode.gnr;
             info.sourceNode = domnode.sourceNode;
@@ -800,17 +810,24 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         else {
             widget = dijit.getEnclosingWidget(domnode);
-            if(!widget){
+            baseSourceNode = this.getBaseSourceNode(domnode);
+            var rootwidget = widget? (widget.sourceNode ? widget : widget.grid || widget.tree) : null;
+            if(!rootwidget && !baseSourceNode){
                 return;
             }
-            var rootwidget = widget.sourceNode ? widget : widget.grid || widget.tree;
-            info.widget = widget;
-            if (!rootwidget) {
+            if(!rootwidget || ( baseSourceNode &&  (baseSourceNode.isChildOf(rootwidget.sourceNode)) )){
+                info.handler = baseSourceNode.domNode.gnr;
+                info.sourceNode = baseSourceNode;
+                info.nodeId = baseSourceNode.attr.nodeId;
+                info.domnode = baseSourceNode.domNode;
+            }else if(widget){
+                info.widget = widget;
+                info.handler = rootwidget.gnr;
+                info.sourceNode = rootwidget.sourceNode;
+                info.nodeId = info.sourceNode.attr.nodeId;
+            }else{
                 return;
             }
-            info.handler = rootwidget.gnr;
-            info.sourceNode = rootwidget.sourceNode;
-            info.nodeId = info.sourceNode.attr.nodeId;
         }
         info.event = event;
         if (event.type == 'dragstart') {
