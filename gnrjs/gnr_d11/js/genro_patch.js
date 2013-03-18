@@ -9,6 +9,7 @@ genropatches.forEachError = function(){
                 debugger;
             }else{
                 console.error('ERROR FOREACH',arguments,cb);
+                return;
             } 
         }
         fe.call(dojo,arr,cb,scope);
