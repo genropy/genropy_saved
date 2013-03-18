@@ -258,7 +258,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     reload: function(kw) {
-        this.load({destPkey:this.getCurrentPkey()});
+        var kw = kw || {};
+        this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
     load: function(kw) {
         if(this.opStatus=='loading'){
@@ -478,7 +479,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
             this.setOpStatus('loading',pkey);
-            var deferredOrResult = this.store.load(kw.default_kw);
+            var deferredOrResult = this.store.load(kw);
             if(kw.onReload){
                 if(deferredOrResult instanceof dojo.Deferred){
                     deferredOrResult.addCallback(kw.onReload);
@@ -1636,7 +1637,8 @@ dojo.declare("gnr.formstores.Base", null, {
     },
 
 
-    load_memory:function(default_kw){
+    load_memory:function(loadkw){
+        var default_kw = loadkw.default_kw;
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
@@ -1758,7 +1760,9 @@ dojo.declare("gnr.formstores.Base", null, {
         })
     },
 
-    load_recordCluster:function(default_kw){
+    load_recordCluster:function(loadkw){
+        var default_kw = loadkw.default_kw;
+        var ignoreReadOnly = loadkw?objectPop(loadkw,'ignoreReadOnly'):null;
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
@@ -1781,6 +1785,7 @@ dojo.declare("gnr.formstores.Base", null, {
         form_virtual_columns = form_virtual_columns?form_virtual_columns.split(','):[]
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
+        kw.ignoreReadOnly = ignoreReadOnly;
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,maincb);
@@ -1900,8 +1905,8 @@ dojo.declare("gnr.formstores.Base", null, {
     save:function(kw){
         return this.handlers.save.method.call(this,kw);
     },
-    load:function(default_kw){
-        return this.handlers.load.method.call(this,default_kw);
+    load:function(loadkw){
+        return this.handlers.load.method.call(this,loadkw);
     },
     deleteItem:function(pkey,kw){
         return this.handlers.del.method.call(this,pkey,kw);

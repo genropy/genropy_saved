@@ -1109,7 +1109,7 @@ class SqlTable(GnrObject):
         print 'You should override for diagnostic'
         return
     
-    def check_updatable(self, record):
+    def check_updatable(self, record,ignoreReadOnly=None):
         """TODO
         
         :param record: TODO"""
