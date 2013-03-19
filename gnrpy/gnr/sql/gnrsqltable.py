@@ -87,12 +87,24 @@ class GnrSqlProtectValidateException(GnrSqlException):
     code = 'GNRSQL-013'
     description = '!!Genro SQL Protect Validate Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"
+
+class GnrSqlBusinessLogicException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-021'
+    description = '!!Genro SQL Business Logic Exception'
+    caption = '!!The requested operation violates the internal business logic'
+
     
 EXCEPTIONS = {'save': GnrSqlSaveException,
               'delete': GnrSqlDeleteException,
               'protect_update': GnrSqlProtectUpdateException,
               'protect_delete': GnrSqlProtectDeleteException,
-              'protect_validate': GnrSqlProtectValidateException}
+              'protect_validate': GnrSqlProtectValidateException,
+              'business_logic':GnrSqlBusinessLogicException}
               
 class SqlTable(GnrObject):
     """The base class for database :ref:`tables <table>`.
@@ -119,7 +131,7 @@ class SqlTable(GnrObject):
     def use_dbstores(self):
         """TODO"""
         return False
-        
+
     def exception(self, exception, record=None, msg=None, **kwargs):
         """TODO
         
@@ -130,6 +142,7 @@ class SqlTable(GnrObject):
             exception = EXCEPTIONS.get(exception)
             if not exception:
                 raise exception
+        rowcaption = ''
         if record:
             try:
                 rowcaption = self.recordCaption(record)
@@ -840,7 +853,7 @@ class SqlTable(GnrObject):
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
                 sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
-                                         pid=record[ofld], for_update=True).fetch()
+                                         pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',

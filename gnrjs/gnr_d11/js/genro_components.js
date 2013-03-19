@@ -1516,9 +1516,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 }
                 btn = mb._('div',vl[0],{multibutton_code:vl[0],_class:_class})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
                 if(deleteAction){
+                    var key = vl[0];
+                    var caption = vl[1];
                     btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
                         dojo.stopEvent(e);
-                        deleteAction.call(sourceNode,vl[0],vl[1]);
+                        deleteAction.call(sourceNode,key,caption);
                     }});
                 }
             });
