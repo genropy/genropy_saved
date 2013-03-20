@@ -1684,7 +1684,8 @@ dojo.declare("gnr.formstores.Base", null, {
         var pkeyField = this.pkeyField;
         var newPkey = formData.getItem(pkeyField);
         var data;
-        if(currPkey=='*newrecord*'){
+        var newrecord = currPkey=='*newrecord*';
+        if(newrecord){
             data = new gnr.GnrBag();
             if (!newPkey){
                 if(this.newPkeyCb){
@@ -1704,7 +1705,7 @@ dojo.declare("gnr.formstores.Base", null, {
         form.setCurrentPkey(newPkey);
         var path;
         formData.walk(function(n){
-            if('_loadedValue' in n.attr){
+            if(newrecord || '_loadedValue' in n.attr){
                 path = n.getFullpath('static',formData);
                 data.setItem(path,n.getValue());
             }
@@ -1714,8 +1715,8 @@ dojo.declare("gnr.formstores.Base", null, {
         this.form.load({destPkey:newPkey});
     },
     del_memory:function(pkey,callkw){
-        var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
-        var currPkey = form.getCurrentPkey();
+        var sourceBag = this.form.sourceNode.getRelativeData(this.locationpath);
+        var currPkey = this.form.getCurrentPkey();
         sourceBag.popNode(currPkey);
         this.deleted(null,callkw);
     },
