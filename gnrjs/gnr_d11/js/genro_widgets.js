@@ -5323,9 +5323,13 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         this._startSearchFromInput();
     },
     storeFromValues:function(values){
-        var ch = values.indexOf('\n')>=0?'\n':',';
         var localStore = new gnr.GnrBag();
-        values = values.split(ch);
+        if(!values){
+            values = [];
+        }else{
+            var ch = values.indexOf('\n')>=0?'\n':',';
+            values = values.split(ch);  
+        }
         for (var i = 0; i < values.length; i++) {
             val = values[i];
             xval = {};

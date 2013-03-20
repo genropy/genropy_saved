@@ -178,7 +178,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 clearTimeout(this.pendingFire);
             }
             this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', nodeOrRunKwargs, kw, trigger_reason,subscription_args),delay);
-        } else {
+        } else if(this.attr._ask_msg){
+            if(!this.attr._ask_if ||  funcApply('return ('+this.attr._ask_if+');',this.currentAttributes,this) ){
+                var that = this;
+                genro.dlg.ask(this.attr._ask_title || 'Warning',this.attr._ask_msg,null,{confirm:function(){that.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);}});
+            }
+        }
+        else{
             return this.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);
         }
     },

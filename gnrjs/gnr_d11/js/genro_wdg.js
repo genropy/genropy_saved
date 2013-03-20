@@ -903,7 +903,11 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     deleteSelectedRows:function(pkeys){
-        var selectedIdx = this.grid.selection.getSelected()
+        //var selectedIdx = this.grid.selection.getSelected()
+        if(pkeys=='*'){
+            pkeys = this.grid.getAllPkeys();
+            console.log('deleting',pkeys)
+        }
         var existingPkeys = [];
         var that = this;
         var storebag = this.grid.storebag();
