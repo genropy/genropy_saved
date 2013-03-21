@@ -916,7 +916,9 @@ genropatches.borderContainer = function() {
         },
 
         _cleanupHandlers: function() {
-            dojo.forEach(this._handlers, dojo.disconnect);
+            if(this._handlers){
+                dojo.forEach(this._handlers, dojo.disconnect);
+            }
             delete this._handlers;
         },
 
