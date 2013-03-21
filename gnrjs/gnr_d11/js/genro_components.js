@@ -1585,7 +1585,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var sn = widget.sourceNode;
         var controllerNodes = sn._stackButtonsNodes;
         
-        if((!controllerNodes) && sn._isBuilding){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         var paneId = child.sourceNode.getStringId();
@@ -1599,9 +1599,10 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if(!child){
             return;
         }
+        var sn = widget.sourceNode;
         var paneId = child.sourceNode.getStringId();
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
-        if(!controllerNodes){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         dojo.forEach(controllerNodes,function(c){
@@ -1614,6 +1615,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var sc = stackNode.widget;
         var page;
         var that = this;
+        if(!controllerNodes){
+            return;
+        }
         stackNode._value.forEach(function(n){
             if(n.getWidget()){
                 dojo.forEach(controllerNodes,function(c){

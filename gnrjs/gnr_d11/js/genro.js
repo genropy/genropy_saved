@@ -376,6 +376,7 @@ dojo.declare('gnr.GenroClient', null, {
             var currentDnDMover = genro.mainGenroWindow.genro.currentDnDMover;
             if(currentDnDMover && (currentDnDMover.page_id != genro.page_id)){
                 genro.mainGenroWindow.genro.currentDnDMover = null;
+                currentDnDMover.events = currentDnDMover.events || [];
                 currentDnDMover.destroy();
             }
             var currentResizeHandle = genro.mainGenroWindow.genro.currentResizeHandle;
