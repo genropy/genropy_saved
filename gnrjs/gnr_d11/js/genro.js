@@ -121,7 +121,18 @@ dojo.declare('gnr.GenroClient', null, {
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
 
-        dojo.addOnLoad(this, 'start');
+       // dojo.addOnLoad(this, 'start');
+        var mainWindow = dojo.byId('mainWindow');
+        if (mainWindow && mainWindow.clientHeight===0){
+            genro._startDelayer = setInterval(function(){
+                 if(dojo.byId('mainWindow').clientHeight>0){
+                       clearInterval(genro._startDelayer);
+                        genro.start();
+                  }
+               },200);
+         }else{
+             dojo.addOnLoad(genro, 'start');
+         }
     },
     start:function() {
         setTimeout(dojo.hitch(this, 'dostart'), 1);
