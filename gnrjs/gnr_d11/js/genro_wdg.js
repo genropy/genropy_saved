@@ -1392,6 +1392,9 @@ dojo.declare("gnr.GridChangeManager", null, {
         var result;
         var pars = this.grid.rowFromBagNode(rowNode);
         var cellmap = this.grid.cellmap;
+        for (var cl in cellmap){
+            pars[cl] = pars[cl];
+        }
         var struct = this.grid.structBag.getItem('#0.#0');
         var bagcellattr = struct.getNode(cellmap[formulaKey]._nodelabel).attr;
         var dynPars = objectExtract(bagcellattr,'formula_*',true);        
@@ -1463,15 +1466,18 @@ dojo.declare("gnr.GridChangeManager", null, {
         var changedPars = {};
         var k;
         var rowNode;
-        if(kw.updvalue){
-            /*
-            if(kw.node.label in this.triggeredColumns){
-                changedPars[kw.node.label] = true;
+        if(kw.updvalue && this.grid.datamode =='bag'){
+            var l = kw.node.label;
+            if(l in this.triggeredColumns){
+                changedPars[l] = true;
             }
-            rowNode = kw.node.getParentBag().getParentNode();*/
-            return;
+            rowNode = kw.node.getParentBag().getParentNode();
+            if(l in this.totalizeColumns){
+                this.updateTotalizer(l);
+            }
         }
-        if(kw.updattr){
+
+        else if(kw.updattr){
             rowNode = kw.node;
             var newattr = kw.node.attr;
             var oldattr = kw.oldattr;
