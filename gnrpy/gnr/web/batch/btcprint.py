@@ -64,6 +64,12 @@ class BaseResourcePrint(BaseResourceBatch):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield],idx=k)
 
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
+        result = self.do_print_record(record=record)
+        self.onRecordExit(record)
+        if result:
+            self.storeResult(storagekey, result, record, filepath=getattr(self.htmlMaker,'filepath',result))
+
+    def do_print_record(self,record=None,idx=None,thermo=None):
         result = None
         if self.htmlMaker.cached:
             self.htmlMaker.record = record
@@ -74,10 +80,8 @@ class BaseResourcePrint(BaseResourceBatch):
         if not result:
             result = self.htmlMaker(record=record,record_idx=idx, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
-        self.onRecordExit(record)
-        if result:
-            self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)
-            
+        return result
+    
     def onRecordExit(self, record=None):
         """Hook method.
         

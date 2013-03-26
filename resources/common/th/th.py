@@ -471,7 +471,8 @@ class ThLinker(BaseComponent):
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         template = frame.templateChunk(template=template,table=linker.attributes['table'],
-                                      datasource='^.@%s' %field,visible=currpkey,margin='4px',
+                                      record_id='^.%s' %field,
+                                      visible=currpkey,margin='4px',
                                       **template_kwargs)
         if formResource or formUrl:
             footer = frame.bottom.slotBar('*,linker_edit')

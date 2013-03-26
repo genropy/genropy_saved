@@ -56,6 +56,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,structpath=None,
                     datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     _newGrid=None,**kwargs):
+        pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
@@ -75,18 +76,27 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,gridEditor=True,**kwargs):
+    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
+        default_slots = []
+        if title:
+            default_slots.append('5,vtitle')
+        default_slots.append('*')
+        if delrow:
+            default_slots.append('delrow')
+        if addrow:
+            default_slots.append('addrow')
+        slots = slots or ','.join(default_slots)
         if pbl_classes:
-            bar = frame.top.slotBar('5,vtitle,*,delrow,addrow,2',_class='pbl_roundedGroupLabel')
-            bar.vtitle.div(title)
+            bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel')
         else:
-            frame.top.slotToolbar('5,vtitle,*,delrow,addrow,2',vtitle=title)
-
+            bar = frame.top.slotToolbar(slots,vtitle=title)
+        if title:
+            bar.vtitle.div(title)
         store = frame.grid.bagStore(storepath=storepath)
         frame.store = store
         return frame
