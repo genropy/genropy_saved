@@ -79,7 +79,9 @@ class TableHandlerTreeResolver(BagResolver):
             where='$parent_id=:p_id'
         caption_field = self.caption_field
         if not caption_field:
-            if tblobj.attributes['hierarchical'] != 'pkey':
+            if tblobj.attributes.get('hierarchical_caption_field'):
+                caption_field = tblobj.attributes['hierarchical_caption_field']
+            elif tblobj.attributes['hierarchical'] != 'pkey':
                 caption_field = tblobj.attributes['hierarchical'].split(',')[0]
             else:
                 caption_field = tblobj.attributes.get('caption_field')
@@ -92,7 +94,8 @@ class TableHandlerTreeResolver(BagResolver):
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
-        order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
+        default_order_by = tblobj.attributes.get('order_by')
+        order_by = 'COALESCE(%s,$%s)' %(default_order_by,caption_field) or '$%s' %caption_field
         columns = self.columns or '*'
         q = tblobj.query(where=where,p_id=parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
                          condition_pkeys=condition_pkeys,
