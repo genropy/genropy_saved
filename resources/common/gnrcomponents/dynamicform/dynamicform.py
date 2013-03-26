@@ -384,7 +384,9 @@ class DynamicForm(BaseComponent):
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
         pane.attributes['_workspace'] = True
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
+        pane.attributes.update(overflow='hidden')
+        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,
+                            df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
   
 
 

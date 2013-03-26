@@ -750,7 +750,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _buildChildren: function(destination) {
         if (this.attr.remote) {
             var that = this;
-            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){that.updateRemoteContent();});
+            this.updateRemoteContent();
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
@@ -1352,12 +1352,24 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
-    updateRemoteContent:function(forceUpdate) {
+
+    updateRemoteContent:function(forceUpdate){
+        var that = this;
+        this.watch('isVisibile',function(){
+            return genro.dom.isVisible(that);
+        },function(){
+            that.doUpdateRemoteContent(forceUpdate);
+        });
+    },
+
+    doUpdateRemoteContent:function(forceUpdate) {
         var _onRemote = false;
+        console.log('updating',forceUpdate)
         var currentValue = this.getValue('static');
         if (currentValue && currentValue.len() > 0 && !forceUpdate) {
             return;
         }
+        console.log('forceUpdate',forceUpdate)
         var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
         if(this._lastRemoteAttr && this.attr._cachedRemote && objectIsEqual(this._lastRemoteAttr,remoteAttr)){
             return;
