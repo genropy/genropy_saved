@@ -203,7 +203,9 @@ class TableBase(object):
                 tbl.column('_h_count',group=group,_sysfield=True)
                 tbl.column('_parent_h_count',group=group,_sysfield=True) 
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
-                tbl.attributes.setdefault('order_by','$_h_count')
+                default_order_by = '$_h_count' if hierarchical == 'pkey' else " COALESCE($_h_count,$%s) " %hierarchical.split(',')[0]
+                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True)
+                tbl.attributes.setdefault('order_by','$_h_sortcol')
             else:
                 self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')

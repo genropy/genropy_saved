@@ -94,8 +94,7 @@ class TableHandlerTreeResolver(BagResolver):
         if self.condition:
             condition_pkeys = self.getConditionPkeys()
             where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
-        default_order_by = tblobj.attributes.get('order_by')
-        order_by = 'COALESCE(%s,$%s)' %(default_order_by,caption_field) or '$%s' %caption_field
+        order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
         columns = self.columns or '*'
         q = tblobj.query(where=where,p_id=parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
                          condition_pkeys=condition_pkeys,
