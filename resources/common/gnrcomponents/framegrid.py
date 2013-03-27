@@ -83,8 +83,8 @@ class FrameGrid(BaseComponent):
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
         default_slots = []
-        if title:
-            default_slots.append('5,vtitle')
+        title = title or ''
+        default_slots.append('5,vtitle')
         default_slots.append('*')
         if delrow:
             default_slots.append('delrow')
@@ -92,7 +92,7 @@ class FrameGrid(BaseComponent):
             default_slots.append('addrow')
         slots = slots or ','.join(default_slots)
         if pbl_classes:
-            bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel')
+            bar = frame.top.slotBar(slots,vtitle=title,_class='pbl_roundedGroupLabel')
         else:
             bar = frame.top.slotToolbar(slots,vtitle=title)
         if title:
