@@ -1223,8 +1223,6 @@ table.formbuilder {
 .dateTextBoxCal{
     background: url(icons/base12/calsmall.png) no-repeat center center;
     opacity:.6;
-    display: block;
-    z-index: 1;
 }
 
 .timeTextBoxWatch{
