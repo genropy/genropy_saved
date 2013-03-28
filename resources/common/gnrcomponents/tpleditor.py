@@ -41,6 +41,12 @@ class TemplateEditorBase(BaseComponent):
             return '<div class="chunkeditor_emptytemplate">Template not yet created</div>',dataInfo
         compiled = data['compiled']
         result = Bag()
+        if not compiled:
+            content = data['content']
+            record = self.db.table(template_address.split(':')[0]).recordAs(record_id)
+            result['rendered'] = templateReplace(content,record)
+            result['template_data'] = data
+            return result,dataInfo
         tplbuilder = self.te_getTemplateBuilder(compiled=compiled, templates=templates)
         result['rendered'] = self.te_renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
         result['template_data'] = data
