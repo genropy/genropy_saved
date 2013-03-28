@@ -37,8 +37,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     makeMultiPageStack:function(parentStack,kw){
         var root = genro.src.newRoot();
         var rootPageName = kw.rootPageName;
-        var label = kw.label;
-        var fp = root._('framePane',rootPageName,{frameCode:label+'_#',pageName:rootPageName,title:label});
+        var fp = root._('framePane',rootPageName,{frameCode:kw.name+'_#',pageName:rootPageName,title:kw.label});
         this.framePageTop(fp,kw);
         var sc = fp._('StackContainer',{side:'center',nodeId:rootPageName+'_multipage',selectedPage:'^iframes.'+rootPageName+'?selectedPage'}); 
         var frameNode = root.popNode('#0');
