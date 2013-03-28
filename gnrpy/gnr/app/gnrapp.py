@@ -333,7 +333,7 @@ class GnrPackage(object):
         self.loadTableMixinDict(self.main_module, modelFolder)
         for pkgid, apppkg in self.application.packages.items():
             externalPkgModelFolder = os.path.join(apppkg.packageFolder,'model','_packages',self.id)
-            self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=self.id)
+            self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=pkgid)
         for plugin in self.getPlugins():
             pluginModelFolder = os.path.join(plugin.path, 'model')
             self.loadTableMixinDict(self.main_module, pluginModelFolder, pluginId=plugin.id)
