@@ -2886,21 +2886,23 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             },'static');  
             return result;
         };
-        if((delKeys.length+insOrUpdKeys.length)>(this.len()*.3) || this.sum_columns){
+        var insOrUpdKeys_wasInSelection=wasInSelectionCb(insOrUpdKeys);
+        var delKeys_wasInSelection=wasInSelectionCb(delKeys);
+        var changeCount = objectSize(willBeInSelection) + objectSize(insOrUpdKeys_wasInSelection) + objectSize(delKeys_wasInSelection);
+        var rt = this.reload_treshold || 0.3;
+        if(changeCount>0 && ((changeCount>this.len()*rt) || this.sum_columns)){
             this.loadData();
             return
         }
         if(delKeys.length>0){
-            wasInSelection = wasInSelectionCb(delKeys);
-             for(pkey in wasInSelection){
+             for(pkey in delKeys_wasInSelection){
                  toUpdate = true;
-                 data.popNode(wasInSelection[pkey].label);
+                 data.popNode(delKeys_wasInSelection[pkey].label);
             }
         }
         if(insOrUpdKeys.length>0){
-            wasInSelection = wasInSelectionCb(insOrUpdKeys);
             dojo.forEach(insOrUpdKeys,function(pkey){
-                wasInSelectionNode = wasInSelection[pkey];
+                wasInSelectionNode = insOrUpdKeys_wasInSelection[pkey];
                 willBeInSelectionNode = willBeInSelection[pkey];
                 if(wasInSelectionNode){
                     toUpdate=true;
