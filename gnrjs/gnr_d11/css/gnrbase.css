@@ -189,6 +189,9 @@ cursorZoom_plus{
 .gnrdebugger {
     z-index: 1000 !important;
 }
+.gnroutofdate .pbl_avatar,.gnroutofdate .pbl_slotbar_label{
+    color:red !important;
+}
 
 /* @group BUTTONS */
 

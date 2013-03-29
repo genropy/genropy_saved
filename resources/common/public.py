@@ -172,7 +172,19 @@ class PublicSlots(BaseComponent):
         
     @struct_method
     def public_publicRoot_avatar(self,pane,frameCode=None,**kwargs):
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),**kwargs)
+        pane.dataController("""var n = new Date();
+            var wd = genro.getData('gnr.rootenv.workdate');
+            if(wd.getFullYear()==n.getFullYear() && wd.getMonth()==n.getMonth() && wd.getDate()==n.getDate()){
+                var tomorrow = new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);
+                var deltams = tomorrow-n;
+                setTimeout(function(){
+                        dojo.addClass(dojo.body(),'gnroutofdate');
+                },deltams);
+            }else{
+                dojo.addClass(dojo.body(),'gnroutofdate');
+            }
+            """,_onStart=True)
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     
     def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
