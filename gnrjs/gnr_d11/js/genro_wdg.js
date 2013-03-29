@@ -596,7 +596,9 @@ dojo.declare("gnr.RowEditor", null, {
         if(rowIndex>=0){
             this.grid.updateRow(rowIndex);
         }
-        this.data.getParentNode().clearValue();
+        if(this.data.getParentNode()){
+            this.data.getParentNode().clearValue(); //deleting data because dbevents remove changes
+        }
     },
     checkRowEditor:function(){
         var toDelete = true;
