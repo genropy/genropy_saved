@@ -227,7 +227,7 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
-            if(this.form.changed && this.form.isNewRecord()){
+            if(pkey=='*newrecord*' && this.form && this.form.changed && this.form.isNewRecord()){
                 var that = this;
                 this.form.save({onReload:function(){
                         that.fireEvent('.editrow','*newrecord*');
