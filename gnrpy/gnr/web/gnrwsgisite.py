@@ -968,7 +968,7 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        self.register.drop_page(page_id, cascade=True)
+        self.register.drop_page(page_id, cascade=False)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         
