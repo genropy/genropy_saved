@@ -203,7 +203,7 @@ class DynamicFormBagManager(BaseComponent):
 
     @customizable
     def df_formulaField(self,fb):
-        fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+        return fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
 
 
     @customizable
