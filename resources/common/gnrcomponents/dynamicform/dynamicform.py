@@ -138,6 +138,7 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('wdg_tag',name='!!Widget',width='10em')
         r.cell('mandatory', name='!!Mandatory',width='7em') 
 
+    @customizable
     def df_fieldsBagForm(self,form):
         form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
@@ -162,9 +163,7 @@ class DynamicFormBagManager(BaseComponent):
         fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
 
         fb.br()
-        
-        fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
-        
+        self.df_formulaField(fb)        
         fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
         fb.br()
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
@@ -200,6 +199,12 @@ class DynamicFormBagManager(BaseComponent):
         fb.br()
         fb.simpleTextArea(value='^.source_graph',lbl='!!Graph',colspan=3,row_class='df_row field_graph',
                 width='100%',lbl_vertical_align='top',height='60px')
+        return fb
+
+    @customizable
+    def df_formulaField(self,fb):
+        fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+
 
     @customizable
     def df_customTabs(self,tc):
