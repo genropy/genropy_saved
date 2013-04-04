@@ -215,7 +215,8 @@ class PublicSlots(BaseComponent):
             fb = box.formbuilder(cols=1,border_spacing='3px')
             fb.dbSelect(value='^current.%s' %partition_field,
                         dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
-                        hasDownArrow=True,font_size='.8em',lbl_color='white',color='#666',lbl_font_size='.8em')
+                        hasDownArrow=True,font_size='.8em',lbl_color='white',
+                        color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
         
         pane.data('current.%s' %partition_field,self.rootenv[partition_path],
                     serverpath='currenv.%s' %partition_path,dbenv=True)
