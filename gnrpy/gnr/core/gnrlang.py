@@ -163,7 +163,7 @@ def timer_call(time_list=None, print_time=True):
 
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
-    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]
+    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22].replace('-','_')
     
 def safe_dict(d):
     """Use the str method, coercing all the dict keys into a string type and return the dict
