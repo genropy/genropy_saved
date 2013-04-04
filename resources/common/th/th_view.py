@@ -42,11 +42,11 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
     
-    @extract_kwargs (top=True)
+    @extract_kwargs (top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -93,6 +93,22 @@ class TableHandlerView(BaseComponent):
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
+
+        if preview_kwargs:
+            frame.grid.attributes.update(preview_kwargs=preview_kwargs)
+            frame.grid.tooltip(callback="""
+                    var r = n;
+                    while(!r.gridRowIndex){
+                        r = r.parentElement;
+                    }
+                    var grid = dijit.getEnclosingWidget(n).grid;
+                    var pkey = grid.rowIdByIndex(r.gridRowIndex);
+                    var table = grid.sourceNode.attr.table;
+                    var preview_kwargs = grid.sourceNode.attr.preview_kwargs;
+                    var tpl = preview_kwargs.tpl;
+                    tpl = tpl==true?'preview':preview_kwargs.tpl;
+                    return genro.serverCall('renderTemplate',{record_id:pkey,table:table,tplname:tpl,missingMessage:'Preview not available'},null,null,'POST');
+                """,modifiers='Shift',validclass='dojoxGrid-cell,cellContent')
         return frame
 
 

@@ -485,18 +485,19 @@ class GnrWebPage(GnrBaseWebPage):
             return result,{'respath':path}
 
     @public_method
-    def renderTemplate(self,table=None,record_id=None,letterhead_id=None,tplname=None,**kwargs):
+    def renderTemplate(self,table=None,record_id=None,letterhead_id=None,tplname=None,missingMessage=None,**kwargs):
         from gnr.web.gnrbaseclasses import TableTemplateToHtml
         htmlbuilder = TableTemplateToHtml(table=self.db.table(table))
-        return htmlbuilder.contentFromTemplate(record=record_id,template=self.loadTemplate('%s:%s' %(table,tplname)))
+        return htmlbuilder.contentFromTemplate(record=record_id,template=self.loadTemplate('%s:%s' %(table,tplname),missingMessage=missingMessage))
 
     @public_method
-    def loadTemplate(self,template_address,asSource=False,**kwargs):
+    def loadTemplate(self,template_address,asSource=False,missingMessage=None,**kwargs):
         #se template_address non ha : ---> risorsa
         #template_address = 'field:pkey'
         segments,pkey = template_address.split(':')
         dataInfo = dict()
         segments = segments.split('.')
+        missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
             resource_table = '.'.join(segments)
             resource_name = pkey
@@ -506,7 +507,7 @@ class GnrWebPage(GnrBaseWebPage):
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
         if asSource:
             return data,dataInfo
-        return data['compiled']
+        return data['compiled'] if data else missingMessage
         
     @public_method
     def saveTemplate(self,template_address,data):

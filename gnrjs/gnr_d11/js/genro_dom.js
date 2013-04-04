@@ -1199,7 +1199,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var columns = kw.columns;
         var headers = kw.headers;
         var tblclass = kw.tblclass;
-        var thead = '<thead><tr>';
+        var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
         for (var k = 0; k < columns.length; k++) {
             thead = thead + "<th>" + headers[k] + "</th>";
         }

@@ -382,17 +382,18 @@ class PaletteTemplateEditor(TemplateEditor):
                 action="""SET .currentTemplate.pkey=$1.pkey;
                           SET .currentTemplate.mode = $1.tplmode;
                           SET .currentTemplate.path = $1.fullpath;""",_class='smallmenu')
-        infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate = genro.dom.getEventModifiers(event);',
                                 disabled='^.data.content?=!#v')
         
         editbar = sc.edit.top.bar
         editbar.replaceSlots('#','#,savetpl,5')
-        editbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        editbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate = genro.dom.getEventModifiers(event);',
                                 disabled='^.data.content?=!#v')
         
         previewbar = sc.preview.top.bar
         previewbar.replaceSlots('#','#,savetpl,5')
-        previewbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        previewbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',
+                                action="""FIRE .savetemplate = genro.dom.getEventModifiers(event);""",
                                 disabled='^.data.content?=!#v')
         
         
@@ -416,15 +417,30 @@ class PaletteTemplateEditor(TemplateEditor):
         infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""
+            if(genro.isDeveloper && modifiers=='Shift'){
+                FIRE .savetemplateAsResource;
+                return;
+            }
             if(currentTemplatePkey){
                 FIRE .save_userobject = currentTemplatePkey;
             }else{
                 FIRE .save_userobject = '*newrecord*';
             }
-        """,_fired='^.savetemplate',currentTemplateMode='=.currentTemplate.tplmode',
+        """,modifiers='^.savetemplate',currentTemplateMode='=.currentTemplate.tplmode',
                             currentTemplatePath='=.currentTemplate.path',
                             currentTemplatePkey='=.currentTemplate.pkey',
                             data='=.data')
+
+        infobar.dataController("""
+            var template_address;
+            genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
+                    template_address =  table+':'+result;
+                    console.log('cccc',template_address)
+                    genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
+                }})
+        """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)
+
+
         infobar.dataController("""
                 var that = this;
                 var savepath = this.absDatapath('.userobject_meta');

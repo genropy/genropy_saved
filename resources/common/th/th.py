@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True,preview=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
@@ -38,7 +38,7 @@ class TableHandler(BaseComponent):
                             parentFormSave=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
-                            picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,**kwargs):
+                            picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -100,6 +100,7 @@ class TableHandler(BaseComponent):
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
                                 grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
+                                preview_kwargs=preview_kwargs,
                                 **view_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
