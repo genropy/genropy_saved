@@ -270,7 +270,7 @@ class TableBase(object):
         record['_parent_h_count'] = parent_record['_h_count'] if parent_record else None
         if old_record is None and record.get('_row_count') is None:
             #has counter and inserting a new record without '_row_count'
-            where = '$parent_id IS NULL' if not record['parent_id'] else '$parent_id =:p_id' 
+            where = '$parent_id IS NULL' if not record.get('parent_id') else '$parent_id =:p_id' 
             last_counter = self.readColumns(columns='$_row_count',where=where,
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
