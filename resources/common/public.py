@@ -370,6 +370,7 @@ class TableHandlerMain(BaseComponent):
             kwargs['autoSave'] = False
             kwargs['semaphore'] = True
             lockable = False
+        kwargs.setdefault('preview_tpl',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
