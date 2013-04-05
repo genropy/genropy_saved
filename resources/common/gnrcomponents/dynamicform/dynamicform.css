@@ -9,7 +9,7 @@
     display:table-row;
 }
 
-
+.dffb_enterable.dffb_horizontalslider .field_horizontalslider.df_row,
 .dffb_enterable.dffb_textbox .field_textbox.df_row,
 .dffb_enterable.dffb_simpletextarea .field_simpletextarea.df_row,
 .dffb_enterable.dffb_filteringselect .field_filteringselect.df_row, 
