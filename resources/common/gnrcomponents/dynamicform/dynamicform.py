@@ -92,8 +92,8 @@ class Form(BaseComponent):
         fb.field('validate_case',row_class='df_row field_textbox',width='100%')
         fb.br()
         
-        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
+        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
         fb.br()
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
@@ -191,8 +191,8 @@ class DynamicFormBagManager(BaseComponent):
         fb.filteringSelect(value='^.validate_case',lbl='!!Case',row_class='df_row field_textbox',width='100%',values='u:Uppercase,l:Lowercase,c:Capitalize,t:Title')
         fb.br()
         
-        fb.textbox(value='^.validate_range',lbl='!!Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-        fb.textbox(value='^.standard_range',lbl='!!Std.Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.textbox(value='^.validate_range',lbl='!!Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
+        fb.textbox(value='^.standard_range',lbl='!!Std.Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
         fb.br()
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
@@ -553,7 +553,15 @@ class DynamicForm(BaseComponent):
         attr.setdefault('popup',True)
         attr.setdefault('codeSeparator',False)
         attr['values'] = attr.get('source_checkboxtext')    
-        
+    
+    def df_horizontalslider(self,attr,dbstore_kwargs=None,**kwargs):
+        if attr['tag'].lower()=='horizontalslider' and attr.get('validate_range'):
+            attr['min'], attr['max'] = attr['validate_range'].split(':')
+            attr.pop('validate_range')
+            attr['intermediateChanges'] = True
+            if not attr.get('width'):
+                attr['width'] = '200px'
+    
     def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,**kwargs):
         formula = attr.pop('formula',None)
         if not formula:
