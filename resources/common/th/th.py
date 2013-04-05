@@ -92,6 +92,7 @@ class TableHandler(BaseComponent):
             grid_kwargs['_saveNewRecordOnAdd'] = True
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
+        preview_kwargs.setdefault('tpl',True)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,
