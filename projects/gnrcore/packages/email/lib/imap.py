@@ -127,11 +127,8 @@ class ImapReceiver(object):
         year = str(date.year)
         month = '%02i' %date.month
         new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
-        try:
-            with open(attachment_path,'wb') as attachment_file:
-                attachment_file.write(att_data)
-        except GnrImapException:
-            raise GnrImapException(new_mail['body_plain'])
+        with open(attachment_path,'wb') as attachment_file:
+            attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
     
     def getMessagePayload(self,part):
