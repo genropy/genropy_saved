@@ -197,7 +197,7 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
-        box = pane.div(hidden='^gnr.partition_selector.hidden') 
+        box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
         if self.public_partitioned is True:
             kw = dictExtract(self.tblobj.attributes,'partition_')
             public_partitioned = dict()
@@ -212,7 +212,7 @@ class PublicSlots(BaseComponent):
         related_tblobj = self.db.table(table)
 
         if not self.rootenv[partition_path]:
-            fb = box.formbuilder(cols=1,border_spacing='3px')
+            fb = box.formbuilder(cols=1,border_spacing='0')
             fb.dbSelect(value='^current.%s' %partition_field,
                         dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                         hasDownArrow=True,font_size='.8em',lbl_color='white',

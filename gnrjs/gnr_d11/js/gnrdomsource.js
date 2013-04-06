@@ -440,10 +440,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     fireEvent:function(path, value, attributes, reason, delay) {
         this.setRelativeData(path, value || true, attributes, true, reason, delay);
     },
-    setRelativeData: function(path, value, attributes, fired, reason, delay) {
+    setRelativeData: function(path, value, attributes, fired, reason, delay,_kwargs) {
         // var reason=reason || this
         if (delay) {
-            setTimeout(dojo.hitch(this, 'setRelativeData', path, value, attributes, fired, reason), delay);
+            setTimeout(dojo.hitch(this, 'setRelativeData', path, value, attributes, fired, reason,null,_kwargs), delay);
         } else {
             var reason = reason == null ? true : reason;
             var oldpath = path;
@@ -453,7 +453,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 genro._data.fireItem(path, value, attributes, {'doTrigger':reason});
                 genro._firingNode = null;
             } else {
-                 genro._data.setItem(path, value, attributes, {'doTrigger':reason,lazySet:true});
+                genro._data.setItem(path, value, attributes, objectUpdate({'doTrigger':reason,lazySet:true},_kwargs));
             }
         }
     },
