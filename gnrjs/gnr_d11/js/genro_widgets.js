@@ -2020,7 +2020,8 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
 
     onClick:function(e) {
         var inattr = this.getInheritedAttributes();
-        if(!inattr._delay){
+        var _delay = '_delay' in inattr? inattr._delay: 100;
+        if(!_delay){
             return this.widget._onClickDo(e,inattr);
         }
         if(this._pendingClick){
@@ -2032,7 +2033,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             var count = that._pendingClickCount;
             that._pendingClickCount = 0;
             that.widget._onClickDo(e,inattr,count);
-        },inattr._delay);
+        },_delay);
     },
 
     mixin__onClickDo:function(e,inattr,count) {
@@ -5865,6 +5866,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             // #4617:
             // if value is now more choices or previous choices, revert
             // the value
+            console.log('SET BLUR VALUE')
             var displayedValue=this.getDisplayedValue();
             var lastValueReported=this._lastValueReported;
             var value;

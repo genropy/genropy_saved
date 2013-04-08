@@ -8,7 +8,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
-from datetime import datetime
+from datetime import date
 from gnr.core.gnrbag import Bag
 
 #foundation/menu:MenuIframes,
@@ -455,7 +455,10 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 
-        rootenv['workdate'] = rootenv['workdate'] or datetime.date.today()
+        td = date.today()
+        rootenv['workdate'] = rootenv['workdate'] or td
+        if rootenv['workdate'] != td:
+            rootenv['custom_workdate'] = True
         with self.pageStore() as store:
             store.setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']

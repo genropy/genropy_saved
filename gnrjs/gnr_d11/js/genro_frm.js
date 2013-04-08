@@ -553,7 +553,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.applyDisabledStatus();
             //this.focus()
             var that = this;
-            setTimeout(function(){
+            setTimeout(function(){    
                 that.focus();
             },1);
         }
@@ -1707,12 +1707,18 @@ dojo.declare("gnr.formstores.Base", null, {
         formData.walk(function(n){
             if(newrecord || '_loadedValue' in n.attr){
                 path = n.getFullpath('static',formData);
-                data.setItem(path,n.getValue());
+                data.setItem(path,n.getValue(),{dtype:n.attr.dtype});
             }
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
-        this.form.load({destPkey:newPkey});
+        if(destPkey){
+            this.form.reset();
+            this.form.load({destPkey:destPkey});
+        }else{
+            this.form.load({destPkey:newPkey});
+        }
+
     },
     del_memory:function(pkey,callkw){
         var sourceBag = this.form.sourceNode.getRelativeData(this.locationpath);

@@ -14,6 +14,7 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
+from datetime import date
 import os
 
 class PublicBase(BaseComponent):
@@ -181,9 +182,18 @@ class PublicSlots(BaseComponent):
                         dojo.addClass(dojo.body(),'gnroutofdate');
                 },deltams);
             }else{
+                if(!custom_workdate){
+                    var mg = genro.mainGenroWindow.genro;
+                    mg.dlg.ask(title,msg,{logout:lg,cancel:cn},{
+                            logout:function(){
+                                mg.logout();
+                            }
+                        });
+                }
                 dojo.addClass(dojo.body(),'gnroutofdate');
             }
-            """,_onStart=True)
+            """,_onStart=True,custom_workdate=self.rootenv['custom_workdate'],lg='!!Logout',cn='!!Continue',
+                msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
         pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     
     def pbl_avatarTemplate(self):
@@ -197,7 +207,7 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
-        box = pane.div(hidden='^gnr.partition_selector.hidden') 
+        box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
         if self.public_partitioned is True:
             kw = dictExtract(self.tblobj.attributes,'partition_')
             public_partitioned = dict()
@@ -212,7 +222,7 @@ class PublicSlots(BaseComponent):
         related_tblobj = self.db.table(table)
 
         if not self.rootenv[partition_path]:
-            fb = box.formbuilder(cols=1,border_spacing='3px')
+            fb = box.formbuilder(cols=1,border_spacing='0')
             fb.dbSelect(value='^current.%s' %partition_field,
                         dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                         hasDownArrow=True,font_size='.8em',lbl_color='white',
