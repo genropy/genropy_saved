@@ -14,6 +14,7 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
+from datetime import date
 import os
 
 class PublicBase(BaseComponent):
@@ -181,9 +182,18 @@ class PublicSlots(BaseComponent):
                         dojo.addClass(dojo.body(),'gnroutofdate');
                 },deltams);
             }else{
+                if(!custom_workdate){
+                    var mg = genro.mainGenroWindow.genro;
+                    mg.dlg.ask(title,msg,{logout:lg,cancel:cn},{
+                            logout:function(){
+                                mg.logout();
+                            }
+                        });
+                }
                 dojo.addClass(dojo.body(),'gnroutofdate');
             }
-            """,_onStart=True)
+            """,_onStart=True,custom_workdate=self.rootenv['custom_workdate'],lg='!!Logout',cn='!!Continue',
+                msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
         pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     
     def pbl_avatarTemplate(self):
