@@ -663,6 +663,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
                            'frameCode':frameCode,
                            'autoWidth':false,
                            'store':store,
+                           'selfsubscribe_setSortedBy':"this.setRelativeData('.sortedBy',$1);",
                            'relativeWorkspace':true};   
         gridKwargs.onDrag = function(dragValues, dragInfo) {
             if (dragInfo.dragmode == 'row') {

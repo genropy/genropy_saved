@@ -918,9 +918,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
             attr['table'] = table
+            attr['sortedBy'] = '=.grid.sorted'
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
-        return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,handler=handler,**kwargs)
+        return parent.child('SelectionStore',storepath=storepath, table=table,
+                         nodeId=nodeId,columns=columns,handler=handler,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
