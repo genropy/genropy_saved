@@ -371,11 +371,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-            dlg.getParentNode().widget.hide();
+            var src = this.getParentNode();
+            this.getParentNode().widget.hide(); 
+            setTimeout(function(){
+                src.clearValue();
+            },500);
+            
         };
         dlg.show_action = function() {
+            var node = this.getParentNode().getParentNode();
             node.unfreeze();
-            var wdg = dlg.getParentNode().widget;
+            var wdg = this.getParentNode().widget;
             genro.callAfter(function(){
                 wdg.show();
             },1);
