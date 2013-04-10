@@ -301,6 +301,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');
+                var _execClass = objectPop(kwargs, '_execClass');
                 objectPop(kwargs, 'nodeId');
                 var _onCalling = objectPop(kwargs, '_onCalling');
                 var origKwargs = objectUpdate({}, kwargs);
@@ -313,6 +314,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var cb = function(result, error) {
                     if (_lockScreen) {
                         genro.lockScreen(false, domsource_id);
+                    }
+                    if(_execClass){
+                        genro.dom.removeClass(dojo.body(),_execClass);
                     }
                     if (error) {
                         if (_onError) {
@@ -334,7 +338,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         }
                     }
                 };
-
+                if(_execClass){
+                    genro.dom.addClass(dojo.body(),_execClass);
+                }
                 if (_onCalling) {
                     doCall = funcCreate(_onCalling, (['kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }

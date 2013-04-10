@@ -694,6 +694,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             always=kw.command;
         }else{
             always = kw;
+            kw = {};
         }
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
