@@ -57,6 +57,7 @@ class PublicBase(BaseComponent):
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
         frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',
+                                subscribe_pbl_bottomMsg="console.warn('pbl_bottomMsg deprecated use floating_message');genro.publish('floating_message',$1);",
                                 **kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
@@ -81,7 +82,8 @@ class PublicBase(BaseComponent):
                             **kwargs)
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
+        #slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
+        slots = slots or '5,dock,*,countErrors,devBtn,locBtn,5'
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
@@ -344,7 +346,6 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
-        formInIframe = boolean(th_options.get('formInIframe'))
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
         insidePublic = False
@@ -426,8 +427,6 @@ class TableHandlerMain(BaseComponent):
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic or publicCollapse,extendedQuery=extendedQuery)
         self.__th_moverdrop(th)
-        if hasattr(th,'form') and insidePublic and not formInIframe:
-            self._usePublicBottomMessage(th.form)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('menuUserSets','menuUserSets,5,mainFilter')
 
@@ -471,8 +470,6 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
-
-
         return th
 
     @public_method
@@ -514,7 +511,6 @@ class TableHandlerMain(BaseComponent):
                 i+=1
         return result
 
-
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes
         currCodes = gridattr.get('dropTarget_grid')
@@ -525,7 +521,6 @@ class TableHandlerMain(BaseComponent):
             gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
         gridattr.update(dropTarget_grid=','.join(currCodes))
         
-
     def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
@@ -573,15 +568,8 @@ class TableHandlerMain(BaseComponent):
             form.dataController("""
                             SET gnr.publicTitle = title;
                             """,title='^#FORM.controller.title',_if='title')  
-
-        if th_kwargs.get('showfooter',True):
-            self._usePublicBottomMessage(form)
         return form
 
-    def _usePublicBottomMessage(self,form):
-        form.attributes['hasBottomMessage'] = False
-        form.dataController('PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
-        
     @public_method                     
     def main_form(self, root,**kwargs):
         """ALTERNATIVE MAIN CALL"""

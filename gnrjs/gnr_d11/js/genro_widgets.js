@@ -699,7 +699,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
                 if(validateresult.error && formHandler){
-                    formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',color:'#FF260A',font_size:'1.1em',font_weight:'bold'});
+                    formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',messageType:'error'});
                 }
             }
             if (validateresult['warnings'].length) {
@@ -2002,6 +2002,9 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['fire'] = objectPop(attributes, 'fire');
         savedAttrs['publish'] = objectPop(attributes, 'publish');
         var focusOnTab = objectPop(attributes,'focusOnTab');
+        if(attributes.iconRight){
+            attributes.templateString = "<div class=\"dijit dijitReset dijitLeft dijitInline\"\n\tdojoAttachEvent=\"onclick:_onButtonClick,onmouseenter:_onMouse,onmouseleave:_onMouse,onmousedown:_onMouse\"\n\twaiRole=\"presentation\"\n\t><button class=\"dijitReset dijitStretch dijitButtonNode dijitButtonContents\" dojoAttachPoint=\"focusNode,titleNode\"\n\t\ttype=\"${type}\" waiRole=\"button\" waiState=\"labelledby-${id}_label\"\n\t\t><div class=\"dijitReset dijitInline\"><center class=\"dijitReset dijitButtonText\" id=\"${id}_label\" dojoAttachPoint=\"containerNode\">${label}</center></div\n\t><span class=\"dijitReset dijitInline ${iconClass}\" dojoAttachPoint=\"iconNode\" \n \t\t\t><span class=\"dijitReset dijitToggleButtonIconChar\">&#10003;</span \n\t\t></span\n\t\t></button\n></div>\n";
+        }
         if (!focusOnTab){
             attributes['tabindex'] = 32767;
         }

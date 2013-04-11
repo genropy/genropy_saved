@@ -31,6 +31,8 @@ class Table(object):
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
         tbl.column('menu_root_id' ,size='22')
         tbl.column('avatar_rootpage', name_long='!!Root Page')
+        tbl.column('sms_login' ,dtype='B',name_long='!!Sms login')
+        tbl.column('sms_number',name_long='!!Sms Number')
 
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 

@@ -1278,7 +1278,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
        
     },
     
-    centerOn: function(what, where, onlyX, onlyY) {
+    centerOn: function(what, where,xRatio,yRatio) {
         var whatDomNode = this.getDomNode(what);
         var whereDomNode = where ? this.getDomNode(where) : whatDomNode.parentNode;
         var viewport = dojo.coords(whereDomNode);
@@ -1288,15 +1288,24 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var whereposition = whereDomNode.style.position;
         var deltax = viewport.l;
         var deltay = viewport.t;
+        var onlyX,onlyY;
+        xRatio = xRatio || 0;
+        yRatio = yRatio || 0;
+        if(xRatio===true){
+            onlyX=true;
+        }
+        if(yRatio===true){
+            onlyY = true
+        }
         //if (whereposition=='relative' || whereposition=='absolute'){
         //    deltax = deltax +viewport.x;
         //    deltay = deltay + viewport.y;
         //}
         if (!onlyY) {
-            style.left = Math.floor((deltax + (viewport.w - mb.w) / 2)) + "px";
+            style.left = Math.floor((deltax + (viewport.w - mb.w)*(1+xRatio) / 2)) + "px";
         }
         if (!onlyX) {
-            style.top = Math.floor((deltay + (viewport.h - mb.h) / 2)) + "px";
+            style.top = Math.floor((deltay + (viewport.h - mb.h)*(1+yRatio) / 2)) + "px";
         }
 
     },
@@ -1315,7 +1324,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
     },
-    
+
+
     makeHiderLayer: function(parentId, kw) {
         var rootNode;
         var message=objectPop(kw,'message');
@@ -1343,6 +1353,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         return hider;
     },
+
+
     isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
