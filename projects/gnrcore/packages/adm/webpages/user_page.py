@@ -20,8 +20,8 @@ class GnrCustomWebPage(object):
     def th_form(self,form,**kwargs):
         bc = form.center.borderContainer()
         if 'th_linker' in self._call_kwargs:
-            self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px'))
-            self.userAuth(bc.contentPane(region='center',margin='2px'))
+            self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px',height='180px'))
+            self.userAuth(bc.contentPane(region='center'))
         
         else:
             top = bc.borderContainer(region='top',height='30%')
@@ -41,9 +41,10 @@ class GnrCustomWebPage(object):
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('avatar_rootpage',lbl='!!Startpage',tip='!!User start page',colspan=2)
-        fb.field('adm.user.email', lbl='!!Email')
+        fb.field('email', lbl='!!Email',colspan=2)
+        fb.field('sms_login', html_label=True,colspan=2)
+        fb.field('sms_number',row_hidden='^.sms_login?=!#v',colspan=2)
 
-    
     def userAuth(self,pane):
         pane.inlineTableHandler(relation='@tags',viewResource=':ViewFromUser',autoSave=False,semaphore=False)
 

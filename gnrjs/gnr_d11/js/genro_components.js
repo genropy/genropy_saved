@@ -573,9 +573,13 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         formId = formId || frameCode+'_form';
         var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
                                                             pkeyPath:'.pkey',formId:formId,form_store:store},kw));
-        if(kw.hasBottomMessage!==false){
-            frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
-        }
+        //if(kw.hasBottomMessage!==false){
+           //frame.getParentNode().subscribe('form_'+formId+'_message',function(kw){
+           //    console.log(kw);
+           //});
+        
+            //frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
+        //}
         var storeId = kw.store+'_store';
         return frame;
     },

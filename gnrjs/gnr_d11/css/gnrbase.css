@@ -3332,7 +3332,7 @@ p {
     line-height:3ex;
     font-size: 9pt;
     font-variant:small-caps;
-    height: 20px;
+    height: 19px;
 }
 
 
@@ -3638,3 +3638,40 @@ div[disabled='true']{
 .backgroundLetterhead{
     opacity: .5;
 }
+
+.invisible{
+    opacity: 0;
+}
+.fm_box{
+    font-size: 1.5em;
+    color:white;
+    padding: 3px;
+    padding-right: 25px;
+    padding-left: 10px;
+    position:absolute;
+    border-radius: 4px;
+    box-shadow: 3px 3px 4px #888;
+    z-index: 99999;
+}
+
+.fm_message{
+    background:rgba(23, 163, 28, 0.60);
+}
+
+.fm_error{
+    background:rgba(201, 17, 17, 0.60);
+}
+
+.fm_warning{
+    background:rgba(250, 120, 0, 0.60)
+}
+.fm_closebtn{
+    height: 18px;
+    width: 18px;
+    cursor: pointer;
+    background: url(icons/fm_close.gif) no-repeat center center;
+    position: absolute;
+    right:2px;
+    top:4px;
+}
+

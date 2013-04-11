@@ -54,6 +54,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return parentNode.getBuiltObj();
         }
     },
+
     getDomNode:function() {
         if (this.domNode) {
             return  this.domNode;
@@ -1491,6 +1492,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.widget._setStateClass();
         }
     },
+
     updateValidationClasses: function() {
         if (this.widget.cellNode) {
             var domnode = this.widget.cellNode;
@@ -1504,6 +1506,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             genro.dom.removeClass(domnode, 'gnrrequired');
         }
     },
+
     setDisabled:function(value){
         var value = value ? true : false;
         if(this.widget){

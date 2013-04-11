@@ -59,7 +59,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,reload,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
+        this.subscribe('save,reload,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -81,8 +81,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'datetextbox':null,
             'geocoderfield':null
         };
-        this.msg_saved = 'Saved';
-        this.msg_deleted = 'Deleted';
+        var tblname = this.getControllerData('table?name_long');
+        var pref = tblname?tblname+' record':'Record'
+        this.msg_saved = pref +' saved ';
+        this.msg_deleted = pref +' deleted';
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
@@ -91,7 +93,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
-
 
     onStartForm:function(kw){
         var kw = kw || {};
@@ -160,6 +161,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             });
         }
     },
+
     reset: function() {
         this.resetChanges();
         this.resetInvalidFields();
@@ -168,6 +170,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
         genro.publish(topic,kw);
     },
+
+    message:function(kw){
+        kw['duration_in'] = 3;
+        kw['duration_out'] = 4;
+        kw['yRatio'] = -.8;
+        genro.dlg.makeFloatingMessage(this.sourceNode,kw);
+    },
+
     subscribe: function(command,cb,scope,subscriberNode){
         if(command.indexOf(',')>=0){
             var that = this;
@@ -182,6 +192,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         subscriberNode = subscriberNode || this.sourceNode;
         subscriberNode.registerSubscription(topic,scope,cb);
     },
+
     applyDisabledStatus:function(){
         var disabled = this.isDisabled();
         this.publish('onDisabledChange',{disabled:disabled})
@@ -320,8 +331,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     norecord:function(){
         this.load({destPkey:'*norecord*'});
     },
+
     newrecord:function(default_kw){
-        this.load({destPkey:'*newrecord*', default_kw:default_kw });
+        this.load({destPkey:'*newrecord*', default_kw:default_kw});
     },
     
     deleteItem:function(kw){
@@ -436,7 +448,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.setCurrentPkey(destPkey);
         }
         if (!sync) {
-            this._showHider();
+            this.setHider(true);
         }
         this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
         genro.setData('_temp.grids', null);
@@ -461,7 +473,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(this.store.parentStore){
                 this.store.parentStore.onEndEditItem(this);
             };
-            this.publish('onDismissed');
+            genro.callAfter(function(){
+                genro.dlg.removeFloatingMessage(this.sourceNode);
+                this.publish('onDismissed');
+            },('onReload' in kw)?1000:1,this);
+            
             return;
         }else if(kw['destPkey'] == '*duplicate*'){
             this.store.duplicateRecord(null, kw.howmany);
@@ -475,7 +491,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onLoading',{destPkey:pkey});
         if(pkey){
             if (!sync && !this.autoSave) {
-                this._showHider();
+                this.setHider(true);
             }
             this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
             this.setOpStatus('loading',pkey);
@@ -491,22 +507,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.updateStatus();
             this.applyDisabledStatus();
         }
-        
     },
-    _showHider: function(){
-        genro.dom.addClass(this.formDomNode, 'loadingForm');
-        var formHider = document.createElement("div");
-        formHider.id = this.formId + "_hider";
-        dojo.addClass(formHider, 'formHider');
-        this.formDomNode.appendChild(formHider);
+    setHider:function(show){
+        this.sourceNode.setHiderLayer(show);
     },
-    _hideHider:function(){
-        genro.dom.removeClass(this.formId, 'loadingForm');
-        var hider = dojo.byId(this.formId + "_hider");
-        if (hider) {
-            genro.domById(this.formId).removeChild(hider);
-        }
-    },
+
     deleted:function(result,kw){
         var destPkey = kw.destPkey || '*norecord*';
         this.load({destPkey:destPkey});
@@ -520,7 +525,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.setFormData(data);
         }
         this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
-        this._hideHider();
+        this.setHider(false);
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         this.protect_write = this.isProtectWrite();
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());

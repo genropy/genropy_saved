@@ -1519,14 +1519,14 @@ class GnrWebPage(GnrBaseWebPage):
   
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
+                                            subscribe_floating_message='genro.dlg.makeFloatingMessage(this,$1);',
                                             regions='^_clientCtx.mainBC')
                 
                 typekit_code = self.site.config['gui?typekit']
                 if typekit_code and False:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
-                self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
-                
+                #self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
                 root.div(id='auxDragImage')
                 root.div(id='srcHighlighter')
                 pageOptions = self.pageOptions or dict()
