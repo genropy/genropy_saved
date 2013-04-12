@@ -261,7 +261,7 @@ class HTableTree(BaseComponent):
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
