@@ -253,11 +253,13 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
         treeattr.update(kwargs)
+        if excludeRoot:
+            treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
         tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
         if moveTreeNode:
