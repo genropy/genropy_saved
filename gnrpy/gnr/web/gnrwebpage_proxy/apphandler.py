@@ -1358,7 +1358,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         explorer_id = page.getUuid()
         freeze_path = page.site.getStaticPath('page:explorers', explorer_id)
         t1 = time.time()
-        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
+        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False, keep=['pkey']) #provvisorio
         t2 = time.time()
         store = page.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
         t3 = time.time()
