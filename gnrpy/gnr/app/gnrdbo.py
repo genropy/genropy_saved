@@ -417,7 +417,7 @@ class TableBase(object):
 
     def df_getFieldsRows_bag(self,pkey=None,**kwargs):
         hierarchical = self.attributes.get('hierarchical')
-        where="$id=:p"
+        where="$%s=:p" %self.pkey
         p = pkey
         order_by = '$__ins_ts'
         columns='*,$df_fields'
