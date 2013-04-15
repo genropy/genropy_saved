@@ -34,7 +34,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,
+                            lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
@@ -130,7 +130,8 @@ class TableHandler(BaseComponent):
             if pbl_classes=='*':
                 wdg.view.attributes.update(_class='pbl_roundedGroup noheader')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
-            wdg.view.top.bar.replaceSlots('count','')
+            if count is None:
+                wdg.view.top.bar.replaceSlots('count','')
         if not self.th_checkPermission(wdg.view):
             wdg.attributes['_notallowed'] = True
         return wdg

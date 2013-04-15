@@ -174,7 +174,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     message:function(kw){
         kw['duration_in'] = 3;
         kw['duration_out'] = 4;
-        kw['yRatio'] = -.8;
+        kw['yRatio'] = .8;
         genro.dlg.makeFloatingMessage(this.sourceNode,kw);
     },
 
@@ -1049,6 +1049,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
         var changes = this.getChangesLogger();
+        if(!('_loadedValue' in kw.node.attr)){
+            kw.node.attr._loadedValue = null;
+        }
         var changekey = this.getChangeKey(kw.node);
         changes.setItem(changekey, null, {isNewNode: true});
         this.updateStatus();
@@ -1718,11 +1721,11 @@ dojo.declare("gnr.formstores.Base", null, {
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
+        this.form.load({destPkey:newPkey});
         if(destPkey){
-            this.form.reset();
-            this.form.load({destPkey:destPkey});
-        }else{
-            this.form.load({destPkey:newPkey});
+            genro.callAfter(function(){
+                this.form.load({destPkey:destPkey,onReload:kw.onReload});
+            },1,this);  
         }
 
     },

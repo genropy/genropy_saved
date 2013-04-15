@@ -350,10 +350,16 @@ class TableHandlerView(BaseComponent):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
+        tblobj = self.db.table(table)
+        default_sort_col = 'pkey'
+        if tblobj.model.column('__ins_ts') is not None:
+            default_sort_col = '__ins_ts'
         if sortedBy :
             if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
-                sortedBy = sortedBy +',pkey' 
-        frame.data('.grid.sorted',sortedBy or 'pkey')
+                sortedBy = sortedBy +',%s' %default_sort_col 
+        elif tblobj.column('_row_count') is not None:
+            sortedBy = '_row_count' or default_sort_col
+        frame.data('.grid.sorted',sortedBy)
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
