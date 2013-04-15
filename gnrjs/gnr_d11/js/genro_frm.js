@@ -732,7 +732,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             saverNode.fireNode();
             return saverNode._lastDeferred;
         }else if(this.store) {
-            var waitingStatus = objectPop(kw,'waitingStatus') || this.store.waitingStatus;
+            var waitingStatus = objectPop(kw,'waitingStatus') || this.store.handlers.save.kw.waitingStatus;
             this.waitingStatus(waitingStatus);
             var onSaved = objectPop(kw,'onSaved') || this.store.onSaved;
             if(destPkey=='*dismiss*'){
@@ -1721,11 +1721,11 @@ dojo.declare("gnr.formstores.Base", null, {
         });
         var result = {};//{savedPkey:loadedRecordNode.label,loadedRecordNode:loadedRecordNode};
         this.saved(result);
-        this.form.load({destPkey:newPkey});
         if(destPkey){
-            genro.callAfter(function(){
-                this.form.load({destPkey:destPkey,onReload:kw.onReload});
-            },1,this);  
+            this.form.reset();
+            this.form.load({destPkey:destPkey});
+        }else{
+            this.form.load({destPkey:newPkey}); 
         }
 
     },

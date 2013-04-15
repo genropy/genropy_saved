@@ -98,7 +98,7 @@ class TableHandlerView(BaseComponent):
             frame.grid.attributes.update(preview_kwargs=preview_kwargs)
             frame.grid.tooltip(callback="""
                     var r = n;
-                    while(!r.gridRowIndex){
+                    while(r.gridRowIndex==null){
                         r = r.parentElement;
                     }
                     var grid = dijit.getEnclosingWidget(n).grid;
