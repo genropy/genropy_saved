@@ -2760,10 +2760,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         }
     },
 
-    currentPkeys:function(){
+    currentPkeys:function(caption_field){
         var data = this.getData();
         var result = [];
-        data.forEach(function(n){result.push(n.attr._pkey)});
+        var r;
+        data.forEach(function(n){
+            r = n.attr;
+            result.push(caption_field? {'pkey':r['_pkey'],'caption':r[caption_field]} : r['_pkey']);
+        });
         return result;
     },
 
@@ -3115,7 +3119,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                                           });
     },
 
-    currentPkeys:function(){
+    currentPkeys:function(caption_field){
         var parentNodeData = this.getData().getParentNode();
         if(!parentNodeData){
             return [];
@@ -3124,7 +3128,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         if(!selectionKw.selectionName){
             return [];
         }
-        var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName}
+        var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName,caption_field:caption_field}
 
 
         genro.rpc.remoteCall('app.freezedSelectionPkeys', 

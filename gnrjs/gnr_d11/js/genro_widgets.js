@@ -2998,19 +2998,21 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         bagnode.setAttr(attributes);
     },
-    mixin_getSelectedPkeys: function() {
+    mixin_getSelectedPkeys: function(caption_field) {
         var sel = this.selection.getSelected();
         var result = [];
+        var r;
         if (sel.length > 0) {
             for (var i = 0; i < sel.length; i++) {
-                result.push(this.rowIdByIndex(sel[i]));
+                r = this.rowByIndex(sel[i]);
+                result.push(caption_field? {'pkey':this.rowIdentity(r),'caption':r[caption_field]} : this.rowIdentity(r))
             }
         } 
         return result;
     },
-    mixin_getAllPkeys:function(){ 
+    mixin_getAllPkeys:function(caption_field){ 
         if(this.selectionStore){
-            return this.selectionStore().currentPkeys();
+            return this.selectionStore().currentPkeys(caption_field);
         }else{
             var result = [];
             for (var i = 0; i < this.rowCount; i++) {
@@ -5068,6 +5070,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         celldata['format_falseclass'] = objectPop(celldata,'falseclass')|| (radioButton?'radioOff':'checkboxOff'); //mettere classi radio
         celldata['calculated'] = true;
         celldata['checkedId'] = sourceNode.attr.userSets+'.'+fieldname;
+        if(celldata['userSets_caption']){
+            celldata['checkedCaption'] = sourceNode.attr.userSets+'_caption.'+fieldname;
+        }
+
         var checkedField = '_pkey';
         celldata['checkedField'] = checkedField;
         celldata['userSets'] = true;    
@@ -5100,21 +5106,55 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
         var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || '';
-
-        //currSet = ','+currSet+',';
+        var currSetCaption = this.sourceNode.getRelativeData(kw['checkedCaption']) || '';
         var checkedElement = node.attr[kw['checkedField']];
         var ischecked = currSet.match(new RegExp('(^|,)'+checkedElement+'($|,)'))!=null;
         var pkeys;
+        var caption_field = kw['userSets_caption'];
+        var pl = [];
+        var cl = [];
         if(modifiers=='Shift'){
-            pkeys = this.getAllPkeys();   
+            pkeys = this.getAllPkeys(caption_field);   
         }else{
-            pkeys = this.getSelectedPkeys();
-            if(dojo.indexOf(pkeys,checkedElement)<0){
-                 pkeys = [checkedElement];               
+            pkeys = this.getSelectedPkeys(caption_field);
+        }
+        if(caption_field){
+           pkeys.forEach(function(n){pl.push(n.pkey);cl.push(n.caption)});
+           pkeys = pl;
+        }
+        if(modifiers!='Shift' && (dojo.indexOf(pkeys,checkedElement)<0)){
+            pkeys = [checkedElement];  
+            if(caption_field){
+                cl = [node.attr[caption_field]]
+            }         
+        }  
+        if(!ischecked){
+            var group = kw['userSets_group'];
+            if(group){
+                var relatedcell;
+                var pset;
+                var cset;
+                for (var c in this.cellmap){
+                    relatedcell = this.cellmap[c];
+                    if(relatedcell.userSets_group==group && c!=fieldname){
+                        pset = this.sourceNode.getRelativeData(relatedcell['checkedId']);
+                        if(pset){
+                            this.sourceNode.setRelativeData(relatedcell['checkedId'],changeset(pset,pkeys,true));
+                        }
+                        if(relatedcell.userSets_caption){
+                            cset = this.sourceNode.getRelativeData(relatedcell['checkedCaption']);
+                            if(cset){
+                                this.sourceNode.setRelativeData(relatedcell['checkedCaption'],changeset(cset,cl,true));
+                            }
+                        }
+                    }
+                }
             }
         }
-        currSet = changeset(currSet,pkeys,ischecked);
-        this.sourceNode.setRelativeData(kw['checkedId'],currSet);
+        this.sourceNode.setRelativeData(kw['checkedId'],changeset(currSet,pkeys,ischecked));
+        if(caption_field){
+            this.sourceNode.setRelativeData(kw['checkedCaption'],changeset(currSetCaption,cl,ischecked));
+        }
     },
 
     patch_sort: function() {  
@@ -6235,7 +6275,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         } else if (bagnode._value instanceof gnr.GnrBag) {
             var ck = null;
             bagnode._value.forEach(function(node) {
-                var checked = ('checked' in node.attr) ? node.attr.checked : -1;
+                var checked = ('checked' in node.attr) ? (node.attr.checked || false) : -1;
                 ck = (ck == null) ? checked : (ck != checked) ? -1 : ck;
             }, 'static');
         }
@@ -6303,7 +6343,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var updBranchCheckedStatus = function(bag) {
             bag.forEach(function(n) {
                 var v = n.getValue(walkmode);
-                if (v instanceof gnr.GnrBag) {
+                if ((v instanceof gnr.GnrBag) && v.len()) {
                     updBranchCheckedStatus(v);
                     var checkedStatus = dojo.every(v.getNodes(), function(cn) {
                         return cn.attr.checked == true;
@@ -6325,7 +6365,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         };
         if (bagnode.getValue) {
             var value = bagnode.getValue();
-            if (value instanceof gnr.GnrBag) {
+            if ((value instanceof gnr.GnrBag) && this.sourceNode.attr.checkChildren!==false) {
                 updBranchCheckedStatus(value);
             }
         }
@@ -6349,6 +6389,32 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 var onCheck = this.onChecked ? this.onChecked(bagnode, e) : true;
                 if (onCheck != false) {
                     this.tree.clickOnCheckbox(bagnode, e);
+                    var checked_attr = objectExtract(this.sourceNode.attr,'checked_*',true)
+                    if(objectNotEmpty(checked_attr)){
+                        var propagate = this.sourceNode.attr.checkChildren!==false;
+                        var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
+                        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+                        var result = {};
+                        for(var k in checked_attr){
+                            result[k] = [];
+                        }
+                        store.walk(function(n){
+                            var v = n.getValue(walkmode);
+                            if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
+                                return;
+                            }else if(n.attr.checked===true){
+                                for(var k in checked_attr){
+                                    var av = n.attr[k];
+                                    if(result[k].indexOf(av)<0){
+                                        result[k].push(av)
+                                    }
+                                }
+                            }
+                        },walkmode);
+                        for(var k in checked_attr){
+                            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(','))
+                        }
+                    }
                 }
             }
             dojo.stopEvent(e);

@@ -75,6 +75,7 @@ class GnrWebRpc(GnrBaseProxy):
         while node:
             node = src.getNodeByAttr('_notallowed',True)
             if node:
+                assert not self.page.isGuest,'you must be logged'
                 node.parentbag.popNode(node.label)
 
 
