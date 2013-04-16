@@ -1712,8 +1712,12 @@ dojo.declare("gnr.formstores.Base", null, {
             }
         }
         form.setCurrentPkey(newPkey);
-        var path;
+        var path,v;
         formData.walk(function(n){
+            v = n.getValue();
+            if(v instanceof gnr.GnrBag){
+                return;
+            }
             if(newrecord || '_loadedValue' in n.attr){
                 path = n.getFullpath('static',formData);
                 data.setItem(path,n.getValue(),{dtype:n.attr.dtype});

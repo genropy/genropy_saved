@@ -6148,6 +6148,10 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     return (node.attr.checked == -1) ? "checkboxOnOff" : node.attr.checked ? "checkboxOn" : "checkboxOff";
                 }
             };
+            if(attributes.checkedPaths){
+                sourceNode.registerDynAttr('checkedPaths');
+            }
+
         }
         if (attributes.selectedPath) {
             sourceNode.registerDynAttr('selectedPath');
@@ -6379,8 +6383,50 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (this.sourceNode.attr.nodeId) {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
         }
+        var checked_attr = objectExtract(this.sourceNode.attr,'checked_*',true)
+        var checkedPaths = this.sourceNode.attr.checkedPaths;
+        if(objectNotEmpty(checked_attr)){
+            this.updateCheckedAttr(checked_attr,checkedPaths)
+        }
     },
     
+    mixin_updateCheckedAttr:function(checked_attr,checkedPaths){
+        var propagate = this.sourceNode.attr.checkChildren!==false;
+        var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
+        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+        var result = {};
+        var cp = [];
+        var p;
+        for(var k in checked_attr){
+            result[k] = [];
+        }
+        store.walk(function(n){
+            var v = n.getValue(walkmode);
+            if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
+                return;
+            }else if(n.attr.checked===true){
+                for(var k in checked_attr){
+                    var av = n.attr[k];
+                    if(result[k].indexOf(av)<0){
+                        result[k].push(av)
+                    }
+                    if(checkedPaths){
+                        p = n.getFullpath('static',store);
+                        if(cp.indexOf(p)<0){
+                            cp.push(p);
+                        }
+                    }
+                }
+            }
+        },walkmode);
+        for(var k in checked_attr){
+            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(','))
+        }
+        if(checkedPaths){
+            this.sourceNode.setRelativeData(checkedPaths,cp.join(','),null,null,this);
+        }
+    },
+
     versionpatch_11__onClick:function(e) {
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if (dojo.hasClass(e.target, 'dijitTreeIcon') && this.tree.checkBoxTree) {
@@ -6389,32 +6435,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 var onCheck = this.onChecked ? this.onChecked(bagnode, e) : true;
                 if (onCheck != false) {
                     this.tree.clickOnCheckbox(bagnode, e);
-                    var checked_attr = objectExtract(this.sourceNode.attr,'checked_*',true)
-                    if(objectNotEmpty(checked_attr)){
-                        var propagate = this.sourceNode.attr.checkChildren!==false;
-                        var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
-                        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
-                        var result = {};
-                        for(var k in checked_attr){
-                            result[k] = [];
-                        }
-                        store.walk(function(n){
-                            var v = n.getValue(walkmode);
-                            if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
-                                return;
-                            }else if(n.attr.checked===true){
-                                for(var k in checked_attr){
-                                    var av = n.attr[k];
-                                    if(result[k].indexOf(av)<0){
-                                        result[k].push(av)
-                                    }
-                                }
-                            }
-                        },walkmode);
-                        for(var k in checked_attr){
-                            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(','))
-                        }
-                    }
                 }
             }
             dojo.stopEvent(e);
@@ -6481,6 +6501,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             });
         }
     },
+
     attributes_mixin__saveState: function() {
         return;
         //summary: create and save a cookie with the currently expanded nodes identifiers
@@ -6540,6 +6561,30 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             objectPop(that._itemNodeMap,identifier);
         });
         this._onItemChildrenChange_replaced(n,nodes);
+    },
+
+    mixin_setCheckedPaths:function(path,kw){
+        if (kw.reason == this) {
+            return;
+        }
+        var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
+        store.walk(function(n){
+            n.setAttr({'checked':false}, true, true);
+        },'static')
+        var paths = this.sourceNode.getRelativeData(this.sourceNode.attr.checkedPaths);
+        if(!paths){
+            return;
+        }
+        paths = paths.split(',');
+        var that = this;
+        var treeNode;
+        console.log('SET CHECKEDPATHS',paths);
+        paths.forEach(function(path){
+            var n = store.getNode(path);
+            if(n){
+                that.clickOnCheckbox(n);
+            }
+        });
     },
 
     mixin_setSelectedPath:function(path, kw) {

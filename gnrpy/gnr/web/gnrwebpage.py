@@ -2101,7 +2101,7 @@ class LazyBagResolver(BagResolver):
             if value and isinstance(value, Bag):
                 path = n.label if not self.path else '%s.%s' % (self.path, n.label)
                 value = LazyBagResolver(path=path, resolverName=self.resolverName, location=self.location)
-            result.setItem(n.label, value, n.attr)
+            result.setItem(n.label.replace('.','_'), value, n.attr)
         return result
         
     def getSource(self):
