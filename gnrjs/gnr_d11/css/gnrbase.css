@@ -209,6 +209,7 @@ cursorZoom_plus{
     font-weight: normal;
 }
 .tundra .dijitButtonText {
+
 	text-align: center;
 	padding: 0 0.3em;
 }
@@ -318,7 +319,35 @@ cursorZoom_plus{
 
 /* @end */
 .slotbar_toolbar .dijitButtonNode{
+
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    font-size: .9em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-variant:small-caps;
     /*box-shadow: 1px 2px 1px #666;*/
+}
+.slotbar_toolbar .dijitButtonHover .dijitButtonNode{
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    height: 19px;
+
+}
+
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode{
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border: 1px solid #666;
+
+}
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode .dijitButtonText{
+    color:white !important;
 }
 
 ._common_d11 .dijitComboBox .dijitArrowButton {
@@ -326,7 +355,6 @@ cursorZoom_plus{
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
     box-shadow: none;
-
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
@@ -3330,7 +3358,7 @@ p {
     padding-top:1px;
     padding-bottom:1px;
     line-height:3ex;
-    font-size: 9pt;
+    font-size: .9em;
     font-variant:small-caps;
     height: 19px;
 }
@@ -3340,7 +3368,7 @@ p {
     height: 18px;
     font-variant:normal;
     line-height:15px;
-    font-size: 8pt;
+    font-size: .9em;
 }
 
 .multibutton:hover{

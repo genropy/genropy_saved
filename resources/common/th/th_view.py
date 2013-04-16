@@ -175,7 +175,7 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
-                PUT .currentSection = currentSection;
+                PUT .current = currentSection;
             }            
             var sectionNode = sectionbag.getNode(currentSection);
             FIRE .#parent.#parent.clearStore;
@@ -429,7 +429,7 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
-                               _currentSection='=.currentSection',
+                              # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
