@@ -256,6 +256,26 @@ cursorZoom_plus{
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
 }
 
+.tundra .dijitButton.dijitButtonActive .dijitButtonNode,
+.tundra .dijitButtonNodeActive,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsActive,
+.tundra .dijitComboButton .dijitDownArrowButtonActive{
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));*/
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border: black;
+}
+
+.tundra .dijitButton.dijitButtonActive .dijitButtonText{
+    color:white;
+}
+
 .fakeButton{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
@@ -2228,6 +2248,9 @@ textarea:disabled {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#E3E3E3), to(#CDCDCD));
     background-image: -moz-linear-gradient(-90deg, #E3E3E3, #CDCDCD);
 }
+
+
+
 .tundra .dijitToolbar label {   
     padding: 3px 3px 0 6px;
 }

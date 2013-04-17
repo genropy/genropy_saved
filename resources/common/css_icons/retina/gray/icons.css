@@ -13,9 +13,14 @@
 	background-color:#ddd !important;
 }
 
-.slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
-	background-color:#bbb !important;	
+.slotbar_toolbar .dijitButtonHover .dijitButtonNode .iconbox, .slotbar_toolbar .iconbox:hover{
+	background-color:#bbb;	
 }
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode .iconbox, .slotbar_toolbar .dijitButtonActive.dijitButtonHover .dijitButtonNode .iconbox, .slotbar_toolbar .iconbox:active{
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;   
+}
+
 
 
 .add_record{
