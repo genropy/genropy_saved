@@ -603,6 +603,9 @@ function objectAsXmlAttributes(obj, sep) {
     var result = [];
     for (var prop in obj) {
         val = obj[prop];
+        if(typeof(val)=='function'){
+            continue;
+        }
         if (typeof(val) != 'string') {
             val = asTypedTxt(val);
         }
@@ -707,6 +710,9 @@ zip = function(list) {
 };
 
 function asTypedTxt(value, dtype) {
+    if(typeof(value)=='function'){
+        return;
+    }
     var typedText = convertToText(value, {'xml':true,'dtype':dtype});
     var valType = typedText[0];
     var valText = typedText[1];
