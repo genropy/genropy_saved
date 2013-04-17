@@ -471,7 +471,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['pkey'] = grid.currRenderedRow[zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier];
         zoomAttr['formOnly'] = true;
         zoomAttr['evt'] = evt;
-        zoomAttr['title'] = grid.currRenderedRow[cellattr['field'].replace(/\W/g, '_')]
+        zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         var mode = objectPop(zoomAttr,'mode') || 'palette';
         if(mode=='palette'){
