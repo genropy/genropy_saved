@@ -5251,14 +5251,15 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
+    
     mixin_deleteSelectedRows:function(){
         var pkeys = this.getSelectedPkeys();
         if(this.gridEditor){
             this.gridEditor.deleteSelectedRows(pkeys);
+            this.sourceNode.publish('onDeletedRows');
         }else{
             this.collectionStore().deleteAsk(pkeys);
         }
-        this.sourceNode.publish('onDeletedRows');
     },
     
     mixin_filterToRebuild: function(value) {

@@ -2601,6 +2601,24 @@ dojo.declare("gnr.stores._Collection",null,{
                     });
         this._filtered=filtered;
         this._filterToRebuild=false;
+    },
+    linkedGrids:function(){
+        if(this._linkedGrids){
+            return this._linkedGrids;
+        }
+        var result= [];
+        var storeCode;
+        var storeNodeId = this.storeNode.attr.nodeId;
+        genro.src._main.walk(function(n){
+            if(n.widget && n.widget.selectionKeeper){
+                storeCode = n.attr.store || n.attr.nodeId;
+                if(storeCode+'_store'==storeNodeId){
+                    result.push(n.widget);
+                }
+            }
+        },'static');
+        this._linkedGrids = result;
+        return result;
     }
 });
 
@@ -2618,6 +2636,10 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         pkeys.forEach(function(n){
             data.popNode(n);
         });
+        this.linkedGrids().forEach(function(grid){
+            grid.sourceNode.publish('onDeletedRows')
+        });
+
     },
 
     itemByIdx:function(idx){
@@ -2840,25 +2862,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     
     onCounterChanges:function(counterField,changes){
         genro.serverCall('app.counterFieldChanges',{table:this.storeNode.attr.table,counterField:counterField,changes:changes});
-    },
-    
-    linkedGrids:function(){
-        if(this._linkedGrids){
-            return this._linkedGrids;
-        }
-        var result = [];
-        var storeCode;
-        var storeNodeId = this.storeNode.attr.nodeId;
-        genro.src._main.walk(function(n){
-            if(n.widget && n.widget.selectionKeeper){
-                storeCode = n.attr.store || n.attr.nodeId;
-                if(storeCode+'_store'==storeNodeId){
-                    result.push(n.widget);
-                }
-            }
-        },'static');
-        this._linkedGrids = result;
-        return result;
     },
     
     
