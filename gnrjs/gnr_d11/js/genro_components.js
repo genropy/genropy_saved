@@ -2606,7 +2606,7 @@ dojo.declare("gnr.stores._Collection",null,{
         if(this._linkedGrids){
             return this._linkedGrids;
         }
-        var result = [];
+        var result= [];
         var storeCode;
         var storeNodeId = this.storeNode.attr.nodeId;
         genro.src._main.walk(function(n){
