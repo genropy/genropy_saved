@@ -399,11 +399,13 @@ class GnrWebPage(GnrBaseWebPage):
                 self.rpc.error = 'gnrexception'
                 result = str(e)
             except Exception,e:
-                if self.site.smtp_kwargs:
+                if self.site.error_smtp_kwargs:
                     import sys
                     from paste.exceptions.errormiddleware import handle_exception
-                    handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **self.site.smtp_kwargs)
-                    #handle_exception(sys.exc_info(), sys.stderr, html=False, ...other config...)
+                    error_handler_kwargs = self.site.error_smtp_kwargs
+                    error_handler_kwargs['debug_mode'] = True
+                    error_handler_kwargs['simple_html_error'] = False
+                    handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **error_handler_kwargs)
                 self.rpc.error = str(e)
                 result = None
                 
