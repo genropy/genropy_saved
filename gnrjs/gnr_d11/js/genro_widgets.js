@@ -1473,6 +1473,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         this.onShowing();
         var that = this;
         this.show_replaced(cb);
+        this.bringToTop();
     },
     
 

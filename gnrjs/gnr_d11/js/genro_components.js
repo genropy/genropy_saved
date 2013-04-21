@@ -73,6 +73,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                 wdg.resize();
             },1)
         };
+        kw.doLayout = true;
         var tdialog =  ddb._('TooltipDialog',kw);
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
