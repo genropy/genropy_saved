@@ -137,7 +137,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 parentForm.subscribe('onLoaded',function(kw){
                     if(kw.pkey!=that.parentFormPkey){
                         that.parentFormPkey = kw.pkey;
-                        that.abort();
+                        if(that.status!='noItem'){
+                            that.abort();
+                        }
                         that.publish('changedParent');
                     }
                 });
