@@ -112,7 +112,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.autoSave = this.store.autoSave===true?1000:this.store.autoSave;
                 this.sourceNode.watch('autoSave',
                         function(){
-                                    if(that.record_changed && !that.isNewRecord()){
+                                    if(that.record_changed && that.isValid() && !that.isNewRecord()){
                                         that.save({onSaved:'lazyReload'});
                                    };
                                    return false;},

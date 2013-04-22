@@ -2398,7 +2398,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var del_type,master;
         if(this.unlinkdict){
             del_type = 'unlink';
-            master = this.unlinkdict.one_name;
+            master = _T(this.unlinkdict.one_name);
         }else{
             del_type = 'delete';
             master ='';

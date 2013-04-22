@@ -998,7 +998,7 @@ var gnrformatter = {
             for(var k in formatKw){
                 p.push(k+'="'+formatKw[k]+'"')
             }
-            return '<meter value="'+value+'"'+ p.join(' ')+ ' ></meter>';
+            return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
         }
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },

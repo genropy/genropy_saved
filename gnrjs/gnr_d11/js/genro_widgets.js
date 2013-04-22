@@ -2029,7 +2029,9 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             return this.widget._onClickDo(e,inattr);
         }
         if(this._pendingClick){
-            clearTimeout(this._pendingClick);
+            var pc = this._pendingClick;
+            delete this._pendingClick
+            clearTimeout(pc);
         }
         var that = this;
         this._pendingClickCount = (this._pendingClickCount || 0)+1;
@@ -2044,6 +2046,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         var modifier = eventToString(e);
         var action = inattr.action;
         var sourceNode = this.sourceNode;
+        console.log('click do in button')
         if (action) {
             //funcCreate(action).call(this,e);
             funcApply(action, objectUpdate(sourceNode.currentAttributes(), {event:e,_counter:count}), sourceNode);
