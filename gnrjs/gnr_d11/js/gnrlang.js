@@ -903,14 +903,6 @@ var gnrformatter = {
         if(format=='playsound'){
             return makeLink('javascript:genro.lockScreen(true,"sound"); genro.playUrl("'+value+'",function(){genro.lockScreen(false,"sound")});','<div class="iconbox sound"></div>')
         }
-        if(format=='meter'){
-            formatKw = formatKw || {};
-            var p = [];
-            for(var k in formatKw){
-                p.push(k+'="'+formatKw[k]+'"')
-            }
-            return '<meter value="'+value+'"'+ p.join(' ')+ ' ></meter>';
-        }
         if(format.indexOf('#')>=0){
             format = format.split('');
             value = value.split('');
@@ -999,7 +991,15 @@ var gnrformatter = {
             }else{
                 opt.pattern = format;
             }
-        }        
+        }
+        if(format=='meter'){
+            formatKw = formatKw || {};
+            var p = [];
+            for(var k in formatKw){
+                p.push(k+'="'+formatKw[k]+'"')
+            }
+            return '<meter value="'+value+'"'+ p.join(' ')+ ' ></meter>';
+        }
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){
