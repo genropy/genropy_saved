@@ -24,8 +24,12 @@ import sys
 
 import re
 import select
-
-import psycopg2
+try:
+    import psycopg2
+except:
+    from psycopg2ct import compat
+    compat.register()
+    import psycopg2
 from psycopg2.extras import DictConnection, DictCursor, DictCursorBase
 from psycopg2.extensions import cursor as _cursor
 from psycopg2.extensions import connection as _connection
