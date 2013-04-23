@@ -588,14 +588,13 @@ class TableHandlerView(BaseComponent):
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
-        
+        excludeLogicalDeleted = options.get('excludeLogicalDeleted',True)
+        showLogicalDeleted = not excludeLogicalDeleted
+        pane.data('.excludeLogicalDeleted', 'mark' if showLogicalDeleted else True)
         pane.dataController("""SET .excludeLogicalDeleted = show?'mark':true;
                                genro.dom.setClass(dojo.body(),'th_showLogicalDeleted',show);
                             """,show="^.showLogicalDeleted")
-        
-        pane.dataFormula('.showLogicalDeleted', '!default_ld',
-                        default_ld=options.get('excludeLogicalDeleted',True),
-                        _onBuilt=True)
+        pane.data('.showLogicalDeleted',showLogicalDeleted)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 
