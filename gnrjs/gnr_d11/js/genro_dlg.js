@@ -485,6 +485,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
     },
 
+    zoomPage:function(kw){
+        kw = kw || {};
+        kw['file'] = this._prepareZoomUrl(kw,true);
+        kw['label'] = kw.title;
+        kw['subtab'] = true;
+        genro.mainGenroWindow.genro.publish('selectIframePage',kw)
+    },
+
     floatingEditor:function(sourceNode,kw){
         var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
         var wdg = genro.wdgById(paletteCode+'_floating');

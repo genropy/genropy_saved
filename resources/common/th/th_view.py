@@ -89,7 +89,7 @@ class TableHandlerView(BaseComponent):
                                grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
                                **kwargs)  
         if configurable:
-            frame.right.viewConfigurator(table,frameCode)   
+            frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
@@ -132,7 +132,7 @@ class TableHandlerView(BaseComponent):
    #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
         
     @struct_method
-    def th_viewConfigurator(self,pane,table,th_root):
+    def th_viewConfigurator(self,pane,table,th_root,configurable=None):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
@@ -144,12 +144,12 @@ class TableHandlerView(BaseComponent):
         confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        if table==getattr(self,'maintable',None):
+        if table==getattr(self,'maintable',None) or configurable=='*':
             bar.replaceSlots('#','#,footerBar')
             footer = bar.footerBar.slotToolbar('log_del,*')
             footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
                                                                                     label='!!Show logical deleted',
-                                                                                    validate_onAccept='if(userChange){FIRE .runQuery;}')
+                                                                                    validate_onAccept='if(userChange){FIRE .runQueryDo;}')
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -595,7 +595,7 @@ class TableHandlerView(BaseComponent):
         
         pane.dataFormula('.showLogicalDeleted', '!default_ld',
                         default_ld=options.get('excludeLogicalDeleted',True),
-                        _onStart=True)
+                        _onBuilt=True)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 

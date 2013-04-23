@@ -4830,7 +4830,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             celldata.action = function(changes){
                 genro.serverCall("app.updateCheckboxPkeys",{table:sourceNode.attr.table,field:fieldname,changesDict:changes});
             };
-            celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:500;
+            celldata['action_delay'] = typeof(kw.remoteUpdate)=='number'?kw.remoteUpdate:1000;
         }
         celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,'"+fieldname+"')";
         return celldata;

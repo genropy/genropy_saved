@@ -335,6 +335,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         columns = columns or query_columns
         t = time.time()
         joinBag = None
+        resultAttributes = dict()
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
           # if not columns:
@@ -363,7 +364,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         sel = query.selection()
         if joinBag and joinBag.get('applymethod'):
             applyPars = self._getApplyMethodPars(kwargs)
-            self.page.getPublicMethod('rpc', joinBag['applymethod'])(sel, **applyPars)
+            applyresult = self.page.getPublicMethod('rpc', joinBag['applymethod'])(sel, **applyPars)
+            if applyresult:
+                resultAttributes.update(applyresult)
 
         result = Bag()
         relOneParams = dict(_target_fld='%s.%s' % (dbtable, self.db.table(dbtable).pkey),
@@ -379,7 +382,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _attributes=row, _removeNullAttributes=False, **relOneParams)
 
         relOneParams.update(dict([(k, None) for k in sel.colAttrs.keys() if not k == 'pkey']))
-        resultAttributes = dict(dbtable=dbtable, totalrows=len(sel))
+        resultAttributes.update(dbtable=dbtable, totalrows=len(sel))
         resultAttributes.update({'servertime': int((time.time() - t) * 1000),
                                  'newproc': getattr(self, 'self.newprocess', 'no'),
                                  'childResolverParams': '%s::JS' % toJson(relOneParams)
@@ -688,6 +691,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         newSelection = True
         formats = {}
         wherebag = where if isinstance(where,Bag) else None
+        resultAttributes = {}
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
@@ -704,7 +708,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                     selection.sort(sortedBy)
                     selection.freezeUpdate()
                 debug = 'fromPickle'
-                resultAttributes = {}
                 newSelection = False
         if newSelection:
             debug = 'fromDb'
@@ -730,14 +733,16 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
-                self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
+                applyresult = self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
+                if applyresult:
+                    resultAttributes.update(applyresult)
 
             if selectionName:
                 selection.setKey('rowidx')
                 selectionPath = self.page.freezeSelection(selection, selectionName)
                 with self.page.userStore() as store:
                     store.setItem('current.table.%s.last_selection_path' % table.replace('.', '_'), selectionPath)
-            resultAttributes = dict(table=table, method='app.getSelection', selectionName=selectionName,
+            resultAttributes.update(table=table, method='app.getSelection', selectionName=selectionName,
                                     row_count=row_count,
                                     totalrows=len(selection))
         generator = selection.output(mode='generator', offset=row_start, limit=row_count, formats=formats)
@@ -1167,7 +1172,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         if applymethod:
             applyPars = self._getApplyMethodPars(kwargs, newrecord=newrecord, loadingParameters=loadingParameters,
                                                  recInfo=recInfo, tblobj=tblobj)
-            self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
+            applyresult = self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
+            if applyresult:
+                recInfo.update(applyresult)
         recInfo['servertime'] = int((time.time() - t) * 1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
