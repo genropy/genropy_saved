@@ -1038,7 +1038,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                   Else, return an exception"""
         try:
             tblobj = self.db.table(table)
-            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
                                 for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
             for r in rows:
                 if unlinkfield:
