@@ -455,6 +455,9 @@ cursorZoom_plus{
     min-height: 14px;
     line-height: normal;
 }
+.gnrfield.tag_checkbox label{
+    color: #707070;
+}
 
 .fakeTextBox,.smallFakeTextBox, .gnrfield.tag_div>div.fakeTextBox{
 	background: white;
