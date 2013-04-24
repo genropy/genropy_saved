@@ -642,7 +642,7 @@ class GnrDomSrc(GnrStructData):
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
                     lblalign=None, lblvalign='top',
-                    fldalign=None, fldvalign='top', keeplabel=None,disabled=False,
+                    fldalign=None, fldvalign='top', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
         """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
@@ -680,7 +680,7 @@ class GnrDomSrc(GnrStructData):
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
                                       lblvalign=lblvalign, fldvalign=fldvalign, rowdatapath=rowdatapath,
-                                      head_rows=head_rows,keeplabel=keeplabel, commonKwargs=commonKwargs)
+                                      head_rows=head_rows, commonKwargs=commonKwargs)
         inattr = self.getInheritedAttributes()
         if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
@@ -1636,7 +1636,7 @@ class GnrFormBuilder(object):
     """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
-                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None, keeplabel=False,commonKwargs=None):
+                 lblvalign='top', fldvalign='top', rowdatapath=None, head_rows=None, commonKwargs=None):
         self.commonKwargs = commonKwargs or {}
         self.lblalign = lblalign or {'L': 'right', 'T': 'left'}[lblpos] # jbe?  why is this right and not left?
         self.fldalign = fldalign or {'L': 'left', 'T': 'center'}[lblpos]
@@ -1658,7 +1658,6 @@ class GnrFormBuilder(object):
         self.col = -1
         self.rowdatapath = rowdatapath
         self.head_rows = head_rows or 0
-        self.keeplabel = keeplabel
         
     def br(self):
         #self.row=self.row+1
@@ -1838,8 +1837,7 @@ class GnrFormBuilder(object):
             f.update(field)
             field = f
             lbl = field.pop('lbl', '')
-            if self.keeplabel:
-                f['_valuelabel'] = lbl
+            f['_valuelabel'] = lbl
             if 'lbl_href' in field:
                 lblhref = field.pop('lbl_href')
                 lblvalue = lbl
