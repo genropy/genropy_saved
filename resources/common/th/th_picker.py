@@ -187,6 +187,7 @@ class THPicker(BaseComponent):
         result = Bag()
         tblobj = self.db.table(dbtable)
         caption_field = tblobj.attributes['caption_field']
+        condition_kwargs = dict([(str(k),v) for k,v in condition_kwargs.items()]) #fix unicode
         fetch = tblobj.query(columns='*,$%s' %(caption_field),where=condition,**condition_kwargs).fetch()
         for i,r in enumerate(fetch):
             result.setItem('r_%i' %i,None,caption=r[caption_field],pkey=r['pkey'])
