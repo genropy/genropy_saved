@@ -624,8 +624,11 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     #ingnoring empty query lines
                     continue
+                colobj=tblobj.column(column)
+                if colobj is None:
+                    raise tblobj.exception('not_existing_column', column=column)
+                dtype = colobj.dtype
 
-                dtype = tblobj.column(column).dtype
                 if value is None and attr.get('value_caption'):
                     value = sqlArgs.pop(attr['value_caption'])
                 onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs)

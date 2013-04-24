@@ -98,13 +98,24 @@ class GnrSqlBusinessLogicException(GnrSqlException):
     description = '!!Genro SQL Business Logic Exception'
     caption = '!!The requested operation violates the internal business logic'
 
+class GnrSqlNotExistingColumnException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-081'
+    description = '!!Genro SQL Not Existing Column Exception'
+    caption = "!!Column %(column)s not existing in table %(tablename)s "
+
     
 EXCEPTIONS = {'save': GnrSqlSaveException,
               'delete': GnrSqlDeleteException,
               'protect_update': GnrSqlProtectUpdateException,
               'protect_delete': GnrSqlProtectDeleteException,
               'protect_validate': GnrSqlProtectValidateException,
-              'business_logic':GnrSqlBusinessLogicException}
+              'business_logic':GnrSqlBusinessLogicException,
+              'not_existing_column':GnrSqlNotExistingColumnException}
               
 class SqlTable(GnrObject):
     """The base class for database :ref:`tables <table>`.
@@ -691,6 +702,7 @@ class SqlTable(GnrObject):
             </c_2>"""
         if sqlArgs is None:
             sqlArgs = {}
+        self.model.virtual_columns
         result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
         
