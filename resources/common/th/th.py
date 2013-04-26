@@ -33,7 +33,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True,preview=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
-                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
+                            default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
