@@ -172,7 +172,7 @@ class HTableTree(BaseComponent):
                         condition_kwargs=dbselect_condition_kwargs,
                         cacheTime=0,caption_field=caption_field)
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action='this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);'
+                        action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
                         #selected_pkey=attr['value'].replace('^','')
                       )
         

@@ -666,6 +666,14 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
+    def fieldsChanged(self,fieldNames,record,old_record):
+        if isinstance(fieldNames,basestring):
+            fieldNames = fieldNames.split(',')
+        for field in fieldNames:
+            if record.get(field) != old_record.get(field):
+                return True
+        return False
+
     def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
         
