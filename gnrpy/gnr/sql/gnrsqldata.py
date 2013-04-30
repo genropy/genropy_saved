@@ -578,7 +578,7 @@ class SqlQueryCompiler(object):
                     if order_by:
                         xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
                         for xrd in xorderby:
-                            if not xrd in columns:
+                            if not xrd.strip() in columns:
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
