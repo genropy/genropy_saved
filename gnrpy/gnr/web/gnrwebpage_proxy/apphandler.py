@@ -1147,6 +1147,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}
+        default_kwargs = default_kwargs or {}
         loadingParameters.update(default_kwargs)
         method = None
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
@@ -1167,6 +1168,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.setRecordDefaults(record, default_kwargs)
             handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
+
+            for k in default_kwargs:
+                if not k in record:
+                    record[k]=None
+        
             self.setRecordDefaults(record, loadingParameters)
 
         if applymethod:
