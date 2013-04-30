@@ -24,7 +24,7 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
         kwargs.setdefault('visible',enable)
-        kwargs['subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs] = """var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n.attr._protect_delete});
+        kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n.attr._protect_delete});
                                                                           this.widget.setDisabled(hasProtectRow);
                                                                           """
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,disabled=disabled,**kwargs)
