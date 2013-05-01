@@ -34,6 +34,10 @@ from dateutil import rrule
 
 logger = logging.getLogger(__name__)
 
+def checkDateKeywords(keywords,datestr,locale):
+    return anyWordIn(gnrlocale.getDateKeywords(keywords, locale), datestr) or anyWordIn(
+                gnrlocale.getDateKeywords(keywords, DEFAULT_LOCALE), datestr)
+
 def yearDecode(datestr):
     """returns the year number as an int from a string of 2 or 4 digits:
     if 2 digits is given century is added
@@ -93,12 +97,14 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return date - datetime.timedelta(days)
         return date
 
-    def addToMonth(datestr, date, addmonth=0):
+    def addToMonth(datestr, date, addmonth=0):#l'errore è nel chiamate che passa addmonth sbagliato
+        delta=0
         if '+' in datestr:
-            addmonth = int(datestr.split('+')[1].strip())
+            delta =  int(datestr.split('+')[1].strip())
         if '-' in datestr:
-            addmonth = -int(datestr.split('-')[1].strip())
-        month = date.month + addmonth
+            delta = -int(datestr.split('-')[1].strip())
+        print datestr,' || ',date.month,addmonth,delta
+        month = date.month + addmonth+ delta
         year = date.year
         while month <= 0:
             month = month + 12
@@ -127,37 +133,30 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             if isEndPeriod:
                 dateEnd = datetime.date(year, 12, 31)
                 
-        elif anyWordIn(gnrlocale.getDateKeywords('today', locale), datestr) or anyWordIn(
-                gnrlocale.getDateKeywords('today', DEFAULT_LOCALE), datestr):     # today
+        elif checkDateKeywords('today', datestr, locale):     # today
             dateStart = addToDay(datestr, workdate)
-        elif anyWordIn(gnrlocale.getDateKeywords('yesterday', locale), datestr) or anyWordIn(
-                gnrlocale.getDateKeywords('yesterday', DEFAULT_LOCALE), datestr): # yesterday
+        elif checkDateKeywords('yesterday', datestr, locale): # yesterday
             dateStart = addToDay(datestr, workdate - datetime.timedelta(1))
-        elif anyWordIn(gnrlocale.getDateKeywords('tomorrow', locale), datestr) or anyWordIn(
-                gnrlocale.getDateKeywords('tomorrow', locale), DEFAULT_LOCALE):  # tomorrow
+        elif checkDateKeywords('tomorrow', datestr, locale):  # tomorrow
             dateStart = addToDay(datestr, workdate + datetime.timedelta(1))
-            
-        elif (datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), locale)) or  (
-        datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), DEFAULT_LOCALE)): # relative week
+
+        elif checkDateKeywords(('this week', 'next week', 'last week'), datestr, locale): # relative week
             j = workdate.weekday()
             dateStart = workdate - datetime.timedelta(j)
-            if (datestr in gnrlocale.getDateKeywords('last week', locale)) or (
-            datestr in gnrlocale.getDateKeywords('last week', DEFAULT_LOCALE)):
+            if checkDateKeywords('last week', datestr, locale):
                 dateStart = dateStart - datetime.timedelta(7)
-            elif (datestr in gnrlocale.getDateKeywords('next week', locale)) or (
-            datestr in gnrlocale.getDateKeywords('next week', DEFAULT_LOCALE)):
+            elif checkDateKeywords('next week', datestr, locale):
                 dateStart = dateStart + datetime.timedelta(7)
+            if '+' in datestr:
+                 dateStart = dateStart + datetime.timedelta(7*int(datestr.split('+')[1]))
+            if '-' in datestr:
+                 dateStart = dateStart - datetime.timedelta(7*int(datestr.split('-')[1]))
             if isEndPeriod:
                 dateEnd = dateStart + datetime.timedelta(6)
-        elif anyWordIn(gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), locale),
-                       datestr) or anyWordIn(
-                gnrlocale.getDateKeywords(('this month', 'next month', 'last month'), DEFAULT_LOCALE),
-                datestr): # relative month
-            if (datestr in gnrlocale.getDateKeywords('last month', locale)) or (
-            datestr in gnrlocale.getDateKeywords('last month', DEFAULT_LOCALE)):
+        elif checkDateKeywords(('this month', 'next month', 'last month'), datestr, locale): # relative month
+            if checkDateKeywords('last month', datestr, locale):  
                 dateStart = addToMonth(datestr, workdate, -1)
-            elif (datestr in gnrlocale.getDateKeywords('next month', locale)) or (
-            datestr in gnrlocale.getDateKeywords('next month', DEFAULT_LOCALE)):
+            elif checkDateKeywords('next month', datestr, locale):
                 dateStart = addToMonth(datestr, workdate, 1)
             else:
                 dateStart = addToMonth(datestr, workdate)
@@ -196,7 +195,6 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             dateStart = datetime.date(*[int(el) for el in wordSplit(datestr)[0:3]])
         else:                                                                   # a date in local format
             dateStart = gnrlocale.parselocal(datestr, datetime.date, locale)
-            
         if isEndPeriod and dateEnd:
             return dateEnd
         else:
