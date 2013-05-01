@@ -103,7 +103,6 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             delta =  int(datestr.split('+')[1].strip())
         if '-' in datestr:
             delta = -int(datestr.split('-')[1].strip())
-        print datestr,' || ',date.month,addmonth,delta
         month = date.month + addmonth+ delta
         year = date.year
         while month <= 0:
