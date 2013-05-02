@@ -54,6 +54,12 @@ cursorZoom_plus{
 
 }
 
+
+._common_d11 .tundra .dijitTabPaneWrapper{
+    background: none;
+    background-color: none;
+}
+
 .iskeepable{
     
 }
