@@ -891,6 +891,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isDraft:function(){
         return this.getDataNodeAttributes()._draft;
     },
+
+    setDraft:function(set){
+        this.sourceNode.setRelativeData('.record.__is_draft',set);
+        this.getDataNodeAttributes()._draft = set;
+        genro.dom.setClass(this.sourceNode,'form_draft',set);
+    },
+
+
     
     isProtectDelete:function(){
         return this.getDataNodeAttributes()._protect_delete;
