@@ -117,7 +117,7 @@ class ImapReceiver(object):
         else:
             att_data = part.get_payload(decode=True)
         fname,ext = os.path.splitext(filename)
-        fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','')
+        fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
         fname = '%i_%s' %(self.atc_counter,fname)
         self.atc_counter+=1
         filename = fname+ext
