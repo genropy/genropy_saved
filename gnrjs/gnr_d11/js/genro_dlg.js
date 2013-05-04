@@ -458,7 +458,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },
-    
+
     zoomFromCell:function(evt){
         var view = dijit.getEnclosingWidget(evt.target);
         view.content.decorateEvent(evt);
