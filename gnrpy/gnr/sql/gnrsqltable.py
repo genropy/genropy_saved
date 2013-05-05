@@ -526,7 +526,7 @@ class SqlTable(GnrObject):
                         manytable.duplicateRecord(r,destination_store=destination_store)
         return duplicatedRecords[0]
             
-    def recordAs(self, record, mode='bag', virtual_columns=None):
+    def recordAs(self, record, mode='bag', virtual_columns=None,ignoreMissing=True):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
         
         :param record: a bag, a dict or a string (i.e. the record's pkey)
@@ -536,7 +536,7 @@ class SqlTable(GnrObject):
             if mode == 'pkey':
                 return record
             else:
-                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns)
+                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns,ignoreMissing=ignoreMissing)
         if mode == 'pkey':
             # The record is either a dict or a bag, so it accepts indexing operations
             return record.get('pkey', None) or record.get(self.pkey)
