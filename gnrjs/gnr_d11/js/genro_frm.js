@@ -1878,8 +1878,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var data = form.getFormChanges();
         var rpckw = objectUpdate({'data':data,'table':this.table},kw);
         if(onSaving){
-            onSaving = funcCreate(onSaving,this);
-            var dosave = onSaving.call(this,rpckw);
+            var dosave = funcApply(onSaving,rpckw,this);
             if(dosave===false){
                 this.form.setOpStatus(null);
                 return;
