@@ -527,7 +527,6 @@ class SqlQueryCompiler(object):
             columns = columns.strip('\n').strip(',')
             
         # replace $fldname with tn.fldname: finally the real SQL columns!
-        
         columns = gnrstring.templateReplace(columns, colPars, safeMode=True)
         
         # replace $fldname with tn.fldname: finally the real SQL where!
@@ -544,7 +543,7 @@ class SqlQueryCompiler(object):
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
+                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField) #add logicalDeletionField
         if draftField:
             if excludeDraft is True:
                 extracnd = 't0.%s IS NOT TRUE' %draftField
@@ -569,6 +568,7 @@ class SqlQueryCompiler(object):
         order_by = gnrstring.templateReplace(order_by, colPars)
         having = gnrstring.templateReplace(having, colPars)
         group_by = gnrstring.templateReplace(group_by, colPars)
+        
         if distinct:
             distinct = 'DISTINCT '
         elif distinct is None or distinct == '':
@@ -577,8 +577,9 @@ class SqlQueryCompiler(object):
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if order_by:
                         xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
+                        lowercol=columns.lower()
                         for xrd in xorderby:
-                            if not xrd.strip() in columns:
+                            if not xrd.strip() in lowercol:
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
