@@ -454,7 +454,8 @@ class ThLinker(BaseComponent):
             embedded = False
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
         if openIfEmpty:
-            pane.dataController("genro.dom.setClass(linker,'th_enableLinker',!currvalue)",linker=linker.js_domNode,currvalue='^#FORM.record.%s' %field)          
+            pane.dataController("linker.linkerManager.openLinker();",linker=linker,
+                                currvalue='^#FORM.record.%s' %field,_if='!currvalue')          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',

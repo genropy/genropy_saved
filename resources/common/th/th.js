@@ -206,9 +206,16 @@ dojo.declare("gnr.LinkerManager", null, {
     },
 
     closeLinker:function(){
-        if(this.embedded || this.getCurrentPkey()){
-            genro.dom.removeClass(this.sourceNode,"th_enableLinker");
-        }
+        genro.callAfter(function(){
+            var selector = this.sourceNode.getChild('selector');
+            if(selector && !selector.widget.isValid()){
+                return;
+            }
+            if(this.embedded || this.getCurrentPkey()){
+                genro.dom.removeClass(this.sourceNode,"th_enableLinker");
+            }
+        },10,this,'closing')
+        
     },
     getCurrentPkey:function(){
         return this.sourceNode.getRelativeData(this.fieldpath);
