@@ -42,7 +42,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         }
         this.xhrKwargs.load = dojo.hitch(this, this.xhrKwargs.load);
         this.xhrKwargs.error = dojo.hitch(this, this.xhrKwargs.error);
-        this.httpMethod = objectPop(kwargs, 'httpMethod');
+        this.httpMethod = objectPop(kwargs, 'httpMethod') || 'POST';
         this.onloading = null;
     },
     load: function (kwargs) {
