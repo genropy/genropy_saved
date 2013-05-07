@@ -811,6 +811,9 @@ class SqlTable(GnrObject):
             return self.update(record)
         else:
             return self.insert(record)
+
+    def countRecords(self):
+        return self.query(excludeLogicalDeleted=False,excludeDraft=False).count()
             
     def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
         """TODO
@@ -1287,9 +1290,9 @@ class SqlTable(GnrObject):
             for record in data['records'].values():
                 record.pop('_isdeleted')
                 self.insert(record)
-                
+             
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
-                 source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None, **querykwargs):
+                 source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None,_converters=None, **querykwargs):
         """TODO
         
         :param dbsource: sourcedb
@@ -1309,6 +1312,9 @@ class SqlTable(GnrObject):
         if empty_before:
             dest_tbl.empty()
         for record in source_records:
+            if _converters:
+                for c in _converters:
+                    record = getattr(self,c)(record)
             if empty_before:
                 if raw_insert:
                     dest_tbl.raw_insert(record)
@@ -1316,7 +1322,6 @@ class SqlTable(GnrObject):
                     dest_tbl.insert(record)
             else:
                 dest_tbl.insertOrUpdate(record)
-                
     
     def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
         """TODO
@@ -1361,11 +1366,18 @@ class SqlTable(GnrObject):
         :param source_records: TODO"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
+
         source_db = instance.db
+        src_version = int(source_db.table(source_tbl_name or self.fullname).attributes.get('version') or 0)
+        dest_version = int(self.attributes.get('version') or 0)
+        converters = None
+        if src_version!=dest_version:
+            assert dest_version > src_version, 'table %s version conflict from %i to %i' %(self.fullname,src_version,dest_version)
+            converters = ['_convert_%i_%i' %(x,x+1) for x in range(src_version,dest_version)]
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                       source_records=source_records,excludeDraft=excludeDraft,
                       raw_insert=raw_insert,
-                      source_tbl_name=source_tbl_name,**querykwargs)
+                      source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """TODO

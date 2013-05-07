@@ -302,6 +302,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
+        self.option_restore = options.restore
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -314,6 +315,7 @@ class GnrWsgiSite(object):
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
+
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
@@ -326,7 +328,12 @@ class GnrWsgiSite(object):
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
-            
+        if options.source_instance:
+            self.gnrapp.importFromSourceInstance(options.source_instance)
+            self.db.commit()
+            print 'End of import'
+
+
     #def addSiteServices(self):
     #    """TODO"""
     #    service_names=[]
@@ -833,13 +840,16 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
-        
-        restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
-        restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
-        if restorefiles:
-            restorepath = os.path.join(restorepath,restorefiles[0])
-        else:
-            restorepath = None
+        restorepath = self.option_restore
+        restorefiles=[]
+        if restorepath:
+            if restorepath == 'auto':
+                restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
+            restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+            if restorefiles:
+                restorepath = os.path.join(restorepath,restorefiles[0])
+            else:
+                restorepath = None
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:

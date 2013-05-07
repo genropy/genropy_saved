@@ -33,7 +33,9 @@ wsgi_options = dict(
         server_name='Genropy',
         debug=True,
         profile=False,
-        noclean=False
+        noclean=False,
+        restore=False,
+        source_instance=None
         )
 
 DNS_SD_PID = None
@@ -256,6 +258,14 @@ class Server(object):
                       action='store_true',
                       dest='show_status',
                       help="Show the status of the (presumably daemonized) server")
+    parser.add_option('--restore',
+                      dest='restore',
+                      help="Restore from path")
+    parser.add_option('--source_instance',
+                      dest='source_instance',
+                      help="Import from instance")
+
+
 
     if hasattr(os, 'setuid'):
     # I don't think these are available on Windows

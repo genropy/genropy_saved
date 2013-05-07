@@ -174,6 +174,7 @@ class TableBase(object):
                                              onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
+                                                                                        deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
