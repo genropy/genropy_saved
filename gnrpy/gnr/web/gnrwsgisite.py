@@ -330,6 +330,7 @@ class GnrWsgiSite(object):
             self.onInited(clean=not noclean)
         if options.source_instance:
             self.gnrapp.importFromSourceInstance(options.source_instance)
+            print 'BEFORE COMMIT'
             self.db.commit()
             print 'End of import'
 

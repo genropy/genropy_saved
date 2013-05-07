@@ -1309,13 +1309,17 @@ class SqlTable(GnrObject):
         querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
         querykwargs['excludeDraft'] = excludeDraft
         source_records = source_records or source_tbl.query(bagFields=bagFields,**querykwargs).fetch()
+        insertOnly= False
         if empty_before:
+            insertOnly = True
             dest_tbl.empty()
+        elif raw_insert and dest_tbl.countRecords()==0:
+            insertOnly = True
         for record in source_records:
             if _converters:
                 for c in _converters:
                     record = getattr(self,c)(record)
-            if empty_before:
+            if insertOnly:
                 if raw_insert:
                     dest_tbl.raw_insert(record)
                 else:
@@ -1374,6 +1378,9 @@ class SqlTable(GnrObject):
         if src_version!=dest_version:
             assert dest_version > src_version, 'table %s version conflict from %i to %i' %(self.fullname,src_version,dest_version)
             converters = ['_convert_%i_%i' %(x,x+1) for x in range(src_version,dest_version)]
+            if filter(lambda m: not hasattr(self,m), converters):
+                print 'missing converter'
+                return 
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                       source_records=source_records,excludeDraft=excludeDraft,
                       raw_insert=raw_insert,

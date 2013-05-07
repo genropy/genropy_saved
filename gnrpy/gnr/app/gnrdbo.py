@@ -257,9 +257,11 @@ class TableBase(object):
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         pkeyfield = self.pkey
-
-        parent_id=record.get('parent_id')        
-        parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0] if parent_id else None
+        parent_id=record.get('parent_id')
+        parent_record = None
+        if parent_id:
+            parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()
+            parent_record = parent_record[0] if parent_record else None
         for fld in self.attributes.get('hierarchical').split(','):
             parent_h_fld='_parent_h_%s'%fld
             h_fld='hierarchical_%s'%fld

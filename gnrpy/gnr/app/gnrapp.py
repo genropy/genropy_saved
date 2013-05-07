@@ -672,11 +672,10 @@ class GnrApp(object):
                 else:
                     set_to_import.remove(k[1:])
             else:
-                ts = set([t.fullname for t in source_instance.db.packages[k].tables.values()])
                 if not k.startswith('!'):
-                    set_to_import = set_to_import.union(ts)
+                    set_to_import = set_to_import.union(set([t.fullname for t in source_instance.db.packages[k].tables.values()]))
                 else:
-                    set_to_import = set_to_import.difference(ts)
+                    set_to_import = set_to_import.difference(set([t.fullname for t in source_instance.db.packages[k[1:]].tables.values()]))
         
         imported_tables = set([t for t in set_to_import if self.db.table(t).countRecords()>0])
         set_to_import = set_to_import.difference(imported_tables)
@@ -684,12 +683,16 @@ class GnrApp(object):
         while tables_to_import:
             tbl = tables_to_import.pop(0)
             dest_tbl = self.db.table(tbl).model
-            dependencies=[('.'.join(n.value.split('.')[:-1]) , n.attr.get('deferred'))  for n in dest_tbl.relations_one ] 
+            src_tbl = source_instance.db.table(tbl).model
+            dependencies=[('.'.join(n.value.split('.')[:-1]) , n.attr.get('deferred'))  for n in dest_tbl.relations_one if n.label in src_tbl.relations_one] 
             dependencies= set([t for t,d in dependencies if t!=dest_tbl.fullname and not( d and t in tables_to_import )])
             if dependencies.issubset(imported_tables):
-                dest_tbl.dbtable.importFromAuxInstance(source_instance, empty_before=False)
+                #print '\nIMPORTING',tbl
+                dest_tbl.dbtable.importFromAuxInstance(source_instance, empty_before=False,raw_insert=True)
+                #print '\nSTILL TO IMPORT',tables_to_import
                 imported_tables.add(tbl)
             else:
+                #print '\nCANT IMPORT',tbl,dependencies.difference(imported_tables)
                 tables_to_import.append(tbl)
         
 
