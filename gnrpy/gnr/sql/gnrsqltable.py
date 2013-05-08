@@ -608,7 +608,7 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,_raw_update=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -636,7 +636,10 @@ class SqlTable(GnrObject):
                 new_row.update(updater)
             record_pkey = row[pkeycol]
             updatedKeys.append(record_pkey)
-            self.update(new_row, row,pkey=record_pkey)
+            if not _raw_update:
+                self.update(new_row, row,pkey=record_pkey)
+            else:
+                self.raw_update(new_row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -834,7 +837,9 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
-        
+    def raw_update(self,record=None,pkey=None,**kwargs):
+        self.db.raw_update(self, record, pkey=pkey,**kwargs)
+
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
         
@@ -1316,6 +1321,7 @@ class SqlTable(GnrObject):
         elif raw_insert and dest_tbl.countRecords()==0:
             insertOnly = True
         for record in source_records:
+            record = dict(record)
             if _converters:
                 for c in _converters:
                     record = getattr(self,c)(record)
@@ -1379,7 +1385,7 @@ class SqlTable(GnrObject):
             assert dest_version > src_version, 'table %s version conflict from %i to %i' %(self.fullname,src_version,dest_version)
             converters = ['_convert_%i_%i' %(x,x+1) for x in range(src_version,dest_version)]
             if filter(lambda m: not hasattr(self,m), converters):
-                print 'missing converter'
+                print 'missing converter',self.fullname
                 return 
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                       source_records=source_records,excludeDraft=excludeDraft,

@@ -424,6 +424,9 @@ class GnrSqlDb(GnrObject):
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 
+    def raw_update(self, tblobj, record, **kwargs):
+        self.adapter.update(tblobj, record,**kwargs)
+
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
