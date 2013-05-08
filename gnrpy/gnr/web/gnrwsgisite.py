@@ -302,7 +302,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
-        self.option_restore = options.restore
+        self.option_restore = options.restore if options else None
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -328,9 +328,8 @@ class GnrWsgiSite(object):
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
-        if options.source_instance:
+        if counter == 0 and options and options.source_instance:
             self.gnrapp.importFromSourceInstance(options.source_instance)
-            print 'BEFORE COMMIT'
             self.db.commit()
             print 'End of import'
 
