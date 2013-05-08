@@ -996,6 +996,18 @@ def _calledAync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=No
     status_dict['ended'] = True
 
 def callAsync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, exit_timeout = 60):
+    """Calls a method in a separate thread
+
+    :param call: callable, the method to run in the thread
+    :param call_args: args tuple for the method invocation
+    :param call_kwargs: kwargs dict for the method invocation
+    :param cb: callback to be called after method execution
+    :param cb_args: args tuple for the callback invocation
+    :param cb_kwargs: kwargs dict for the callback invocation
+    :param exit_timeout: max seconds to wait if the main process 
+            is exiting and 'call' is not yet completed. 0 or None waits forether
+
+    """
     thread_params = dict(call=call, call_args=call_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
     status_dict = dict(running=False, ended=False)
     thread_params['status_dict'] = status_dict
