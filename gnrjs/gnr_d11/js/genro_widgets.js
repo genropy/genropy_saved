@@ -5776,8 +5776,12 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;
         var currvalue = this.sourceNode.getRelativeData(vpath);
-        this.sourceNode.setRelativeData(vpath,null,null,null,false);
-        this.sourceNode.setRelativeData(vpath,currvalue);
+        //this.sourceNode.setRelativeData(vpath,null,null,null,true);
+        if(!isNullOrBlank(currvalue)){
+            this.setValue(null,true);
+            this.setValue(currvalue,true);
+        }
+        //this.sourceNode.setRelativeData(vpath,currvalue);
     },
     
     mixin_onSetValueFromItem: function(item, priorityChange) {

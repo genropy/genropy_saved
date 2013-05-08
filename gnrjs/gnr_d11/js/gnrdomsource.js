@@ -1225,7 +1225,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             else if (attr.indexOf('validate_') == 0) {
                 //this.validationsOnChange(this, this.getAttributeFromDatasource('value'));
-                if (trigger_reason == 'node') {
+                if ((trigger_reason == 'node') || (kw.reason=='resolver')){
                     this.resetValidationError();
                     var currval = this.getAttributeFromDatasource('value');
                     var newval = this.validationsOnChange(this, currval,true)['value'];
@@ -1522,6 +1522,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.updateValidationClasses();
             this.widget.state = this.hasValidationError() ? 'Error' : null;
             this.widget._setStateClass();
+
+            if(this.form){
+                this.form.updateInvalidField(this, this.attrDatapath('value'));
+            }
         }
     },
 

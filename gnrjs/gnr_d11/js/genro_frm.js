@@ -268,7 +268,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         sourceNode.setValidationError(result);
         sourceNode.updateValidationStatus();
-        this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
+        //this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     reload: function(kw) {
         var kw = kw || {};
