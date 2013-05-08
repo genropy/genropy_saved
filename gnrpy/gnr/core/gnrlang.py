@@ -26,7 +26,7 @@ import sys, imp, traceback, datetime
 import os.path
 import thread
 import warnings
-
+import atexit
 import uuid
 import base64
 import time
@@ -972,6 +972,36 @@ def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, 
         except:
             pass
     return tb_text
-        
+
+def _waitChild(status_dict = None, exit_timeout = 60):
+    elapsed = 0
+    while True:
+        if status_dict['ended'] or (exit_timeout and elapsed > exit_timeout):
+            break
+        time.sleep(1)
+        elapsed +=1
+
+def _calledAync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, status_dict=None):
+    status_dict['running'] = True
+    status_dict['ended'] = False
+    call_args = call_args or ()
+    call_kwargs = call_kwargs or {}
+    call_result = call(*call_args, **call_kwargs)
+    if cb:
+        cb_args = cb_args or ()
+        cb_kwargs = cb_kwargs or {}
+        cb_kwargs['result'] = call_result
+        cb(*cb_args, **cb_kwargs)
+    status_dict['running'] = False
+    status_dict['ended'] = True
+
+def callAsync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, exit_timeout = 60):
+    thread_params = dict(call=call, call_args=call_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
+    status_dict = dict(running=False, ended=False)
+    thread_params['status_dict'] = status_dict
+    thread.start_new_thread(_calledAync,(),thread_params)
+    atexit.register(_waitChild,status_dict=status_dict, exit_timeout=exit_timeout)
+
+
 if __name__ == '__main__':
     pass
