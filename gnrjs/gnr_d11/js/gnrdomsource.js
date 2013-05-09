@@ -1234,7 +1234,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }else if (attr.indexOf('condition_')==0){
                 if('setCondition' in this.widget){
-                    this.widget.setCondition(value,kw);
+                    if ((trigger_reason == 'node') || (kw.reason=='resolver')){
+                        this.widget.setCondition(value,kw);
+                    }
                 }
             }
             else {

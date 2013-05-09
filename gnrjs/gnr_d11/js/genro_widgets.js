@@ -5776,7 +5776,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;
         var currvalue = this.sourceNode.getRelativeData(vpath);
-        //this.sourceNode.setRelativeData(vpath,null,null,null,true);
+        //this.sourceNode.setRelativeData(vpath,null,null,null,false);
         if(!isNullOrBlank(currvalue)){
             this.setValue(null,true);
             this.setValue(currvalue,true);
