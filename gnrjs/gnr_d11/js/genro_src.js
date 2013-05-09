@@ -395,8 +395,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var nodeattr = node.attr;
                 var attrvalue;
                 var specialattr={}
-                for (var attr in nodeattr) {
-                    attrvalue = nodeattr[attr];
+                var notevaluated = {};
+                var attr;
+                this._attrToEvaluate(nodeattr).forEach(n){
+                    attr = n[0];
+                    attrvalue = n[1]
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
                         var dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
                         if(dflt && node.attr.dtype){
@@ -421,6 +424,22 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         node._alreadyStripped=true;
     },
+    _attrToEvaluate:function(nodeattr){
+        var result_eval = [];
+        var result_pars = [];
+        var n = null
+        for (var attr  in nodeattr){
+            attrvalue = nodeattr[attr];
+            n = [attr,attrvalue];
+            if ((typeof (attrvalue) == 'string') && attrvalue.indexOf('==')==0){
+                result_eval.push(n);
+            }else{
+                result_pars.push(n)
+            }
+        }
+        return result_pars.concat(result_eval);
+    },
+
     moveData: function(node) {
         node._registerNodeId();
         var attributes = node.registerNodeDynAttr(false);
