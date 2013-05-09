@@ -1285,7 +1285,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         selection = None
         identifier = 'pkey'
         rows = []
-        print dbtable, _id, querystring
         if _id:
             if alternatePkey:
                 where = '$%s = :id' % alternatePkey
