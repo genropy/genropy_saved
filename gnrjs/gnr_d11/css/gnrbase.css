@@ -360,8 +360,6 @@ cursorZoom_plus{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
     border: 1px solid #666;
-    height: 19px;
-
 }
 
 .slotbar_toolbar .dijitButtonActive .dijitButtonNode{
