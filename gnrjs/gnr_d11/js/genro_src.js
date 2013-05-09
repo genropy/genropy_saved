@@ -395,11 +395,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var nodeattr = node.attr;
                 var attrvalue;
                 var specialattr={}
-                var notevaluated = {};
-                var attr;
-                this._attrToEvaluate(nodeattr).forEach(function(n){
-                    attr = n[0];
-                    attrvalue = n[1]
+                for (var attr in nodeattr) {
+                    attrvalue = nodeattr[attr];
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
                         var dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
                         if(dflt && node.attr.dtype){
@@ -410,7 +407,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                     if(attr.indexOf('attr_')==0){
                         specialattr[attr.slice(5)] = attrvalue;
                     }
-                });
+                }
                 if(objectNotEmpty(specialattr) ){
                     var valuepath = nodeattr['value'] || nodeattr['src'] || nodeattr['innerHTML'];
                     if(valuepath){
@@ -419,27 +416,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                             valueNode.updAttributes(node.evaluateOnNode(specialattr));
                         }
                     }
-                }             
+                }                
             }
         }
         node._alreadyStripped=true;
     },
-    _attrToEvaluate:function(nodeattr){
-        var result_eval = [];
-        var result_pars = [];
-        var n = null
-        for (var attr  in nodeattr){
-            attrvalue = nodeattr[attr];
-            n = [attr,attrvalue];
-            if ((typeof (attrvalue) == 'string') && attrvalue.indexOf('==')==0){
-                result_eval.push(n);
-            }else{
-                result_pars.push(n)
-            }
-        }
-        return result_pars.concat(result_eval);
-    },
-
     moveData: function(node) {
         node._registerNodeId();
         var attributes = node.registerNodeDynAttr(false);
