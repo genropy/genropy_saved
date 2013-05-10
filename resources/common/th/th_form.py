@@ -4,7 +4,6 @@
 # Created by Francesco Porcari on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import extract_kwargs
@@ -61,15 +60,24 @@ class TableHandlerForm(BaseComponent):
     @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
     def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
-                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,store='recordCluster',**kwargs):
+                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,dbstore=None,
+                        store='recordCluster',handlerType=None,**kwargs):
         tableCode = table.replace('.','_')
         formId = formId or tableCode
         self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
         resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
         resource_options.update(kwargs)
-        formroot = pane._makeFormRoot(formId,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs,datapath=datapath)
-        if formroot is None:
-            formroot = formroot or pane
+        if not handlerType:
+            if dialog_kwargs:
+                handlerType = 'dialog'
+            elif palette_kwargs:
+                handlerType = 'palette'
+        if handlerType:
+            formroot = pane._makeFormRoot(formId,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs,datapath=datapath,handlerType=handlerType)
+        else:
+            formroot = pane
+            if datapath:
+                formroot.attributes.update(datapath=datapath)
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store=store,store_kwargs=store_kwargs,

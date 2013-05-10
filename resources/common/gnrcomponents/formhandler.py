@@ -54,13 +54,13 @@ class FormHandler(BaseComponent):
     @extract_kwargs(palette=True,dialog=True)
     @struct_method
     def formhandler__makeFormRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
-                    attachTo=None,form_kwargs=None,datapath=None):
+                    attachTo=None,form_kwargs=None,datapath=None,handlerType=None):
         attachTo = attachTo or pane
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
         onChangedTitle = 'subscribe_form_%s_onChangedTitle' %formId
 
-        handlerType = form_kwargs.get('handlerType') or pane.getInheritedAttributes().get('handlerType')
+        handlerType = handlerType or form_kwargs.get('handlerType') or pane.getInheritedAttributes().get('handlerType')
         if not handlerType:
             if dialog_kwargs:
                 handlerType = 'dialog'
