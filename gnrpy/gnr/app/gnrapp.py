@@ -1228,7 +1228,8 @@ class GnrApp(object):
             return self
         if not name in self.aux_instances:
             instance_name = self.config['aux_instances.%s?name' % name] or name
-            self.aux_instances[name] = GnrApp(instance_name)
+            remote_db = self.config['aux_instances.%s?remote_db' % name]
+            self.aux_instances[name] = GnrApp(instance_name,remote_db=remote_db)
         return self.aux_instances[name]
         
 class GnrAvatar(object):
