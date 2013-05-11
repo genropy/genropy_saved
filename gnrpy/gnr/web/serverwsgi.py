@@ -35,7 +35,8 @@ wsgi_options = dict(
         profile=False,
         noclean=False,
         restore=False,
-        source_instance=None
+        source_instance=None,
+        remote_db=None
         )
 
 DNS_SD_PID = None
@@ -265,7 +266,9 @@ class Server(object):
                       dest='source_instance',
                       help="Import from instance")
 
-
+    parser.add_option('--remote_db',
+                      dest='remote_db',
+                      help="Connect remote db")
 
     if hasattr(os, 'setuid'):
     # I don't think these are available on Windows
