@@ -39,7 +39,8 @@ wsgi_options = dict(
         noclean=False,
         restore=False,
         source_instance=None,
-        remote_db=None
+        remote_db=None,
+        remotesshdb=None
         )
 
 DNS_SD_PID = None
@@ -296,8 +297,8 @@ class Server(object):
     parser.add_option('--source_instance',
                       dest='source_instance',
                       help="Import from instance")
-    parser.add_option('--remotedb',
-                      dest='remote_db',
+    parser.add_option('--remotesshdb',
+                      dest='remotesshdb',
                       help="""Allow remote db connections over ssh tunnels.
                       use connection string in the form: ssh_user@ssh_host:ssh_port/db_user:db_password@db_host:db_port
                       if db part in the connection string is omitted the defaults from instanceconfig are used.
@@ -354,7 +355,7 @@ class Server(object):
         self.site_script = site_script
         self.server_description = server_description
         self.server_name = server_name
-        self.remotedb = None
+        self.remotesshdb = None
         (self.options, self.args) = self.parser.parse_args()
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
         self.load_gnr_config()
@@ -423,7 +424,7 @@ class Server(object):
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
     def get_tunnel_db_params(self):
-        conn_dict = self.parse_connection_string(self.options.remote_db)
+        conn_dict = self.parse_connection_string(self.options.remotesshdb)
         instance_config = self.get_instance_config()
         conn_dict['ssh_port'] = int(conn_dict['ssh_port'] or 22)
         conn_dict['db_user'] = conn_dict['db_user'] or instance_config['db?user']
@@ -597,8 +598,8 @@ class Server(object):
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
             self.set_bonjour()
-        if hasattr(self.options,'remote_db') and self.options.remote_db and first_run:
-            self.remotedb = self.setup_tunnel()
+        if hasattr(self.options,'remotesshdb') and self.options.remotesshdb and first_run:
+            self.remotesshdb = self.setup_tunnel()
         if self.cmd:
             return self.check_cmd()
         self.check_logfile()
@@ -632,7 +633,7 @@ class Server(object):
             gnrServer = GnrWsgiSite(self.site_script, site_name=self.site_name, _config=self.siteconfig,
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
-                                    options=self.options, remotedb=self.remotedb)
+                                    options=self.options, remotesshdb=self.remotesshdb)
             GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:

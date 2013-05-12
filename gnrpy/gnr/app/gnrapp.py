@@ -478,7 +478,7 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
-                debug=False, restorepath=None,remote_db=None, remotedb=None,**kwargs):
+                debug=False, restorepath=None,remote_db=None, remotesshdb=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -502,9 +502,9 @@ class GnrApp(object):
             self.config.update(db_credential)
         if custom_config:
             self.config.update(custom_config)
-        if remotedb:
+        if remotesshdb:
             db_node = self.config.getNode('db')
-            db_node.setAttr(remotedb)
+            db_node.setAttr(remotesshdb)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
@@ -590,6 +590,7 @@ class GnrApp(object):
         self.localization = {}
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
+            
             if remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
