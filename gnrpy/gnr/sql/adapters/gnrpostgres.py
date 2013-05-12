@@ -26,8 +26,11 @@ import re
 import select
 try:
     import psycopg2
-except:
-    from psycopg2ct import compat
+except ImportError:
+    try:
+        from psycopg2cffi import compat
+    except ImportError:
+        from psycopg2ct import compat
     compat.register()
     import psycopg2
 from psycopg2.extras import DictConnection, DictCursor, DictCursorBase
