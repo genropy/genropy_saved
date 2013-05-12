@@ -23,6 +23,9 @@ from gnr.core.gnrsys import expandpath, listdirs
 from gnr.core.gnrlog import enable_colored_logging
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
+import re
+CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)*)\:?(?P<ssh_port>\w*)(\/?(?P<db_user>\w*)\:?(?P<db_password>\w*)\@(?P<db_host>(\w|\.)*)\:?(?P<db_port>\w*))?"
+CONN_STRING = re.compile(CONN_STRING_RE)
 
 wsgi_options = dict(
         port=8080,
@@ -35,7 +38,8 @@ wsgi_options = dict(
         profile=False,
         noclean=False,
         restore=False,
-        source_instance=None
+        source_instance=None,
+        remote_db=None
         )
 
 DNS_SD_PID = None
@@ -125,7 +129,35 @@ class GnrReloaderMonitor(Monitor):
                 os._exit(3)
                 break
             time.sleep(self.poll_interval)
+def stop_tunnel(tunnel):
+    tunnel.stop()
 
+def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
+            db_user=None, db_password=None, db_host=None, db_port=None):
+    from gnr.core.gnrssh import SshTunnel
+    import getpass
+    ssh_host = ssh_host
+    ssh_port = ssh_port
+    username = ssh_user
+    forwarded_port = db_port
+    forwarded_host = db_host
+    if not ssh_password:
+        password = getpass.getpass('Enter SSH password:')
+    else:
+        password = ssh_password
+        cont = ''
+        while not (cont and cont[0] in ('Y','y','S','s')):
+            cont = raw_input('Press Y to continue with SSH remote connection ')
+    tunnel = SshTunnel(forwarded_port=forwarded_port, forwarded_host=forwarded_host,
+            ssh_host=ssh_host, ssh_port=ssh_port, 
+            username=username, password=password)
+    tunnel.prepare_tunnel()
+    local_port = tunnel.local_port
+    tunnel.serve_tunnel()
+    atexit.register(stop_tunnel, tunnel)
+    return local_port
+
+    
 def start_bonjour(host=None, port=None, server_name=None, server_description=None, home_uri=None):
     global DNS_SD_PID
     if DNS_SD_PID:
@@ -264,7 +296,12 @@ class Server(object):
     parser.add_option('--source_instance',
                       dest='source_instance',
                       help="Import from instance")
-
+    parser.add_option('--remotedb',
+                      dest='remote_db',
+                      help="""Allow remote db connections over ssh tunnels.
+                      use connection string in the form: ssh_user@ssh_host:ssh_port/db_user:db_password@db_host:db_port
+                      if db part in the connection string is omitted the defaults from instanceconfig are used.
+                      ssh_port is defaulted to 22 if omitted""")
 
 
     if hasattr(os, 'setuid'):
@@ -314,6 +351,7 @@ class Server(object):
         self.site_script = site_script
         self.server_description = server_description
         self.server_name = server_name
+        self.remotedb = None
         (self.options, self.args) = self.parser.parse_args()
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
         self.load_gnr_config()
@@ -381,6 +419,31 @@ class Server(object):
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
+    def get_tunnel_db_params(self):
+        conn_dict = self.parse_connection_string(self.options.remote_db)
+        instance_config = self.get_instance_config()
+        conn_dict['ssh_port'] = int(conn_dict['ssh_port'] or 22)
+        conn_dict['db_user'] = conn_dict['db_user'] or instance_config['db?user']
+        conn_dict['db_password'] = conn_dict['db_password'] or instance_config['db?password']
+        conn_dict['db_host'] = conn_dict['db_host'] or instance_config['db?host']
+        conn_dict['db_port'] = conn_dict['db_port'] or instance_config['db?port']
+        if conn_dict['db_port']:
+            conn_dict['db_port'] = int(conn_dict['db_port'])
+        return conn_dict
+
+    def parse_connection_string(self, connection_string):
+        match = re.search(CONN_STRING, connection_string)
+        return dict(
+        ssh_user = match.group('ssh_user') or None,
+        ssh_password = match.group('ssh_password') or None,
+        ssh_host = match.group('ssh_host') or None,
+        ssh_port = match.group('ssh_port') or None,
+        db_user = match.group('db_user') or None,
+        db_password = match.group('db_password') or None,
+        db_host = match.group('db_host') or None,
+        db_port = match.group('db_port') or None)
+    
+
     def get_config(self):
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
         base_site_config = Bag(site_config_path)
@@ -394,6 +457,32 @@ class Server(object):
                     site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
         site_config.update(base_site_config)
         return site_config
+
+    @property 
+    def site_config(self):
+        if not hasattr(self, '_site_config'):
+            self._site_config = self.get_config()
+        return self._site_config
+
+    def get_instance_config(self):
+        instance_path = os.path.join(self.site_path, 'instance')
+        if not os.path.isdir(instance_path):
+            instance_path = os.path.join(self.site_path, '..', '..', 'instances', self.site_name)
+        if not os.path.isdir(instance_path):
+            instance_path = self.site_config['instance?path'] or self.site_config['instances.#0?path']
+        instance_config_path = os.path.join(instance_path, 'instanceconfig.xml')
+        base_instance_config = Bag(instance_config_path)
+        instance_config = self.gnr_config['gnr.instanceconfig.default_xml'] or Bag()
+        template = instance_config['instance?template'] or getattr(self, 'instance_template', None)
+        if template:
+            instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % template] or Bag())
+        if 'instances' in self.gnr_config['gnr.environment_xml']:
+            for path, instance_template in self.gnr_config.digest('gnr.environment_xml.instances:#a.path,#a.instance_template'):
+                if path == os.path.dirname(instance_path):
+                    instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template] or Bag())
+        instance_config.update(base_instance_config)
+        return instance_config
+
 
     def set_user(self):
         if not hasattr(self.options, 'set_user'):
@@ -421,6 +510,12 @@ class Server(object):
     def set_bonjour(self):
         start_bonjour(host=self.options.host, port=self.options.port, server_name=self.site_name,
                       server_description=self.server_description, home_uri=self.siteconfig['wsgi?home_uri'] or '/')
+
+    def setup_tunnel(self):
+        conn_dict = self.get_tunnel_db_params()
+        db_port = start_tunnel(**conn_dict)
+        return dict(port=db_port, host='localhost', user=conn_dict['db_user'], password=conn_dict['db_password'])
+
 
     def check_cmd(self):
         if self.cmd not in (None, 'start', 'stop', 'restart', 'status'):
@@ -499,6 +594,8 @@ class Server(object):
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
             self.set_bonjour()
+        if hasattr(self.options,'remote_db') and self.options.remote_db and first_run:
+            self.remotedb = self.setup_tunnel()
         if self.cmd:
             return self.check_cmd()
         self.check_logfile()
@@ -532,7 +629,7 @@ class Server(object):
             gnrServer = GnrWsgiSite(self.site_script, site_name=self.site_name, _config=self.siteconfig,
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
-                                    options=self.options)
+                                    options=self.options, remotedb=self.remotedb)
             GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:

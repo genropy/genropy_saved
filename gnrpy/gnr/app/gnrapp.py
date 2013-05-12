@@ -478,7 +478,7 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
-                debug=False, restorepath=None,**kwargs):
+                debug=False, restorepath=None, remotedb=None, **kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -502,6 +502,9 @@ class GnrApp(object):
             self.config.update(db_credential)
         if custom_config:
             self.config.update(custom_config)
+        if remotedb:
+            db_node = self.config.getNode('db')
+            db_node.setAttr(remotedb)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
