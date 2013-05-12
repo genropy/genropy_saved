@@ -478,7 +478,7 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
-                debug=False, restorepath=None, remotedb=None, **kwargs):
+                debug=False, restorepath=None,remote_db=None, remotedb=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -515,7 +515,7 @@ class GnrApp(object):
             self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'),avoidDup=True)
             instanceMixin(self, getattr(self.main_module, 'Application', None))
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
-        self.init(forTesting=forTesting,restorepath=restorepath)
+        self.init(forTesting=forTesting,restorepath=restorepath,remote_db=remote_db)
         self.creationTime = time.time()
         
     def get_modulefinder(self, path_entry):
@@ -577,7 +577,7 @@ class GnrApp(object):
         instance_config.update(base_instance_config)
         return instance_config
         
-    def init(self, forTesting=False,restorepath=None):
+    def init(self, forTesting=False,restorepath=None,remote_db=None):
         """Initiate a :class:`GnrApp`
         
         :param forTesting:  if ``False``, setup the application normally.
@@ -590,6 +590,8 @@ class GnrApp(object):
         self.localization = {}
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
+            if remote_db:
+                dbattrs.update(self.config.getAttr('remote_db.%s' %remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
                 dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         else:
@@ -1229,7 +1231,8 @@ class GnrApp(object):
             return self
         if not name in self.aux_instances:
             instance_name = self.config['aux_instances.%s?name' % name] or name
-            self.aux_instances[name] = GnrApp(instance_name)
+            remote_db = self.config['aux_instances.%s?remote_db' % name]
+            self.aux_instances[name] = GnrApp(instance_name,remote_db=remote_db)
         return self.aux_instances[name]
         
 class GnrAvatar(object):

@@ -303,6 +303,9 @@ class Server(object):
                       if db part in the connection string is omitted the defaults from instanceconfig are used.
                       ssh_port is defaulted to 22 if omitted""")
 
+    parser.add_option('--remote_db',
+                      dest='remote_db',
+                      help="Connect remote db")
 
     if hasattr(os, 'setuid'):
     # I don't think these are available on Windows

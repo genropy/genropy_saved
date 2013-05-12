@@ -313,7 +313,7 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
-        self.gnrapp = self.build_gnrapp()
+        self.gnrapp = self.build_gnrapp(remote_db=options and options.remote_db)
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
 
@@ -833,7 +833,7 @@ class GnrWsgiSite(object):
             wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         return wsgiapp
         
-    def build_gnrapp(self):
+    def build_gnrapp(self,**kwargs):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path, 'instance')
         if not os.path.isdir(instance_path):
@@ -851,7 +851,7 @@ class GnrWsgiSite(object):
                 restorepath = os.path.join(restorepath,restorefiles[0])
             else:
                 restorepath = None
-        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotedb = self.remotedb)
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotedb=self.remotedb, **kwargs)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
             if os.path.isfile(restorepath):
