@@ -267,6 +267,9 @@ class GnrWsgiSite(object):
         self._currentPages = {}
         self._currentRequests = {}
         abs_script_path = os.path.abspath(script_path)
+        self.remote_db = ''
+        if ':' in site_name:
+            site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
             self.site_path = os.path.dirname(abs_script_path)
         else:
@@ -313,7 +316,7 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
-        self.gnrapp = self.build_gnrapp(remote_db=options and options.remote_db)
+        self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
 
@@ -833,7 +836,7 @@ class GnrWsgiSite(object):
             wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         return wsgiapp
         
-    def build_gnrapp(self,**kwargs):
+    def build_gnrapp(self):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path, 'instance')
         if not os.path.isdir(instance_path):
@@ -851,7 +854,9 @@ class GnrWsgiSite(object):
                 restorepath = os.path.join(restorepath,restorefiles[0])
             else:
                 restorepath = None
-        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotesshdb=self.remotesshdb, **kwargs)
+        if self.remote_db:
+            instance_path = '%s:%s' %(instance_path,self.remote_db)
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotesshdb=self.remotesshdb)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
             if os.path.isfile(restorepath):

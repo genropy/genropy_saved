@@ -1487,6 +1487,7 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
+                page.data('gnr.remote_db',self.site.remote_db)
                 if self.dbstore:
                     page.data('gnr.dbstore',self.dbstore)
                 page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')

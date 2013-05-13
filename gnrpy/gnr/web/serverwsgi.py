@@ -39,7 +39,6 @@ wsgi_options = dict(
         noclean=False,
         restore=False,
         source_instance=None,
-        remote_db=None,
         remotesshdb=None
         )
 
@@ -134,7 +133,7 @@ def stop_tunnel(tunnel):
     tunnel.stop()
 
 def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
-            db_user=None, db_password=None, db_host=None, db_port=None):
+            db_user=None, db_password=None, db_host=None, db_port=None,**kwargs):
     from gnr.core.gnrssh import SshTunnel
     import getpass
     ssh_host = ssh_host
@@ -304,10 +303,6 @@ class Server(object):
                       if db part in the connection string is omitted the defaults from instanceconfig are used.
                       ssh_port is defaulted to 22 if omitted""")
 
-    parser.add_option('--remote_db',
-                      dest='remote_db',
-                      help="Connect remote db")
-
     if hasattr(os, 'setuid'):
     # I don't think these are available on Windows
         parser.add_option('--user',
@@ -361,7 +356,10 @@ class Server(object):
         self.load_gnr_config()
         self.set_environment()
         self.site_name = self.options.site_name or (self.args and self.args[0])
+        self.remote_db = ''
         if self.site_name:
+            if ':' in self.site_name:
+                self.site_name,self.remote_db  = self.site_name.split(':',1)
             if not self.gnr_config:
                 raise ServerException(
                         'Error: no ~/.gnr/ or /etc/gnr/ found')
@@ -423,14 +421,15 @@ class Server(object):
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options.__dict__[option] = site_option or wsgi_options.get(option)
 
-    def get_tunnel_db_params(self):
-        conn_dict = self.parse_connection_string(self.options.remotesshdb)
-        instance_config = self.get_instance_config()
+    def get_tunnel_db_params(self,ssh_connection,dbattrs=None):
+        conn_dict = self.parse_connection_string(ssh_connection)
+        if not dbattrs:
+            dbattrs = self.instance_config.getAttr('db')
         conn_dict['ssh_port'] = int(conn_dict['ssh_port'] or 22)
-        conn_dict['db_user'] = conn_dict['db_user'] or instance_config['db?user']
-        conn_dict['db_password'] = conn_dict['db_password'] or instance_config['db?password']
-        conn_dict['db_host'] = conn_dict['db_host'] or instance_config['db?host']
-        conn_dict['db_port'] = conn_dict['db_port'] or instance_config['db?port']
+        conn_dict['db_user'] = conn_dict['db_user'] or dbattrs.get('user')
+        conn_dict['db_password'] = conn_dict['db_password'] or dbattrs.get('password')
+        conn_dict['db_host'] = conn_dict['db_host'] or dbattrs.get('host')
+        conn_dict['db_port'] = conn_dict['db_port'] or dbattrs.get('port')
         if conn_dict['db_port']:
             conn_dict['db_port'] = int(conn_dict['db_port'])
         return conn_dict
@@ -467,6 +466,12 @@ class Server(object):
         if not hasattr(self, '_site_config'):
             self._site_config = self.get_config()
         return self._site_config
+
+    @property 
+    def instance_config(self):
+        if not hasattr(self, '_instance_config'):
+            self._instance_config = self.get_instance_config()
+        return self._instance_config
 
     def get_instance_config(self):
         instance_path = os.path.join(self.site_path, 'instance')
@@ -515,8 +520,7 @@ class Server(object):
         start_bonjour(host=self.options.host, port=self.options.port, server_name=self.site_name,
                       server_description=self.server_description, home_uri=self.siteconfig['wsgi?home_uri'] or '/')
 
-    def setup_tunnel(self):
-        conn_dict = self.get_tunnel_db_params()
+    def setup_tunnel(self,conn_dict=None):
         db_port = start_tunnel(**conn_dict)
         return dict(port=db_port, host='localhost', user=conn_dict['db_user'], password=conn_dict['db_password'])
 
@@ -598,8 +602,8 @@ class Server(object):
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
             self.set_bonjour()
-        if hasattr(self.options,'remotesshdb') and self.options.remotesshdb and first_run:
-            self.remotesshdb = self.setup_tunnel()
+        if first_run:
+            self.handle_tunnel()
         if self.cmd:
             return self.check_cmd()
         self.check_logfile()
@@ -627,10 +631,23 @@ class Server(object):
 
         self.serve()
 
+    def handle_tunnel(self):
+        if self.remote_db :
+            dbattrs = self.instance_config.getAttr('db' )
+            remote_db = self.instance_config.getAttr('remote_db.%s' %self.remote_db)
+            dbattrs.update(remote_db)
+            if dbattrs.get('ssh_host'):
+                conn_dict = self.get_tunnel_db_params(dbattrs['ssh_host'],dbattrs=dbattrs)
+                self.remotesshdb = self.setup_tunnel(conn_dict)
+        elif hasattr(self.options,'remotesshdb') and self.options.remotesshdb:
+            conn_dict = self.get_tunnel_db_params(self.options.remotesshdb)
+            self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict)
+
 
     def serve(self):
         try:
-            gnrServer = GnrWsgiSite(self.site_script, site_name=self.site_name, _config=self.siteconfig,
+            site_name='%s:%s' %(self.site_name,self.remote_db) if self.remote_db else self.site_name
+            gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, _config=self.siteconfig,
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
                                     options=self.options, remotesshdb=self.remotesshdb)
