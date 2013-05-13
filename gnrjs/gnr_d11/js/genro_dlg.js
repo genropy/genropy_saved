@@ -166,6 +166,26 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                             },1)
 
     },
+    iframeDialog:function(iframeId,kw){
+        var dialogId = iframeId+'_dlg';
+        var dlgNode = genro.nodeById(dialogId)
+        if(!dlgNode){
+            var root = genro.src.getNode()._('div', '_dlg_iframe');
+            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
+            var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
+            iframekw['selfsubscribe_close'] = "this.dialog.hide();"
+            objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
+            var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            var dlgNode = dlg.getParentNode()
+            dlgNode._iframeNode = iframe.getParentNode();
+            dlgNode._iframeNode.dialog = dlgNode.widget;
+            //create dlg and iframe
+        }
+        dlgNode.widget.show()
+        if(kw.openKw){
+            dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
+        }
+    },
 
     alert:function(msg, title, buttons, resultPath, kw) {
         genro.src.getNode()._('div', '_dlg_alert');

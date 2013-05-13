@@ -1444,6 +1444,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         docprint.document.write('</div></body></html>');
         docprint.document.close();
         docprint.focus();
-    }
+    },
 
+    windowMessage:function(w,message){
+        if(w=='parent'){
+            w = window.parent;
+        }
+        w.postMessage(message,'*');
+    }
 });

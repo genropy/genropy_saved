@@ -657,6 +657,13 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         }else{
             domnode.src = null;
         }
+    },
+    postMessage:function(sourceNode,message){
+        sourceNode.watch('windowMessageReady',function(){
+            return sourceNode.domNode.contentWindow && sourceNode.domNode.contentWindow._windowMessageReady;
+        },function(){
+            genro.dom.windowMessage(sourceNode.domNode.contentWindow,message);
+        });
     }
     
 });
