@@ -1470,6 +1470,11 @@ div.dojoxDock {
     width:32px;
 }
 /* @group Base16 */
+.iconCreditWarning{
+    background: url(icons/base16/credit_warning.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBaseActivity{
     background: url(icons/base16/activity_icon.png) no-repeat center center;
     width: 16px;
