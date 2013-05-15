@@ -531,13 +531,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                             width:'600px',height:'400px',
                             maxable:true};
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        var tc = palette._('tabcontainer');
-        var editorpane = tc._('contentpane',{title:'Editor'});
-        var previewpane = tc._('contentpane',{title:'Preview'});
         var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
         valuepath = '^'+sourceNode.absDatapath(valuepath);
-        editorpane._('ckeditor',{value:valuepath});
-        previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
+        palette._('ckeditor',{value:valuepath});
         node.unfreeze(); 
     },
 
