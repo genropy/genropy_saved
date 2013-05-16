@@ -5485,6 +5485,11 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
     },
     creating: function(attributes, sourceNode) {
         objectExtract(attributes, 'maxLength,_type');
+        if (sourceNode.attr._virtual_column){
+            attributes.value = '^.$'+sourceNode.attr._virtual_column;
+            sourceNode.attr.value= attributes.value;
+            attributes.readOnly=false;
+        }
         var savedAttrs = {};
         var localStore = new gnr.GnrBag();
         var store = new gnr.GnrStoreBag({mainbag:localStore});
@@ -5647,10 +5652,10 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
     patch__onBlur: function(){
         if (this._popupWidget && !this.item){
             this._popupWidget.highlightFirstOption();
-            highlighted = this._popupWidget.getHighlightedOption();
-            if (highlighted.item){
-                this._popupWidget.setValue({ target: highlighted }, true);
-            }
+            var highlighted = this._popupWidget.getHighlightedOption();
+            //if (highlighted.item){
+                this._popupWidget.setValue({ target: highlighted.item?highlighted.item:null }, true);
+            //}
         }
         this.store.mainbag=new gnr.GnrBag();
     },
