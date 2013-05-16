@@ -191,14 +191,14 @@ dojo.declare("gnr.LinkerManager", null, {
         this.default_kwargs = sourceNode.attr._default_kwargs;
     },
     
-    openLinker:function(){
+    openLinker:function(focus){
         var sourceNode = this.sourceNode;
         var that =this;
         if(sourceNode.form.locked){
             return;
         } 
         genro.dom.addClass(sourceNode,"th_enableLinker");
-        if(this.embedded){
+        if(this.embedded && focus!=false){
             setTimeout(function(){
                 sourceNode.getChild('/selector').widget.focus();
             },1);

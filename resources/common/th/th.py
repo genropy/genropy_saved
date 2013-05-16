@@ -458,7 +458,7 @@ class ThLinker(BaseComponent):
             embedded = False
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
         if openIfEmpty:
-            pane.dataController("linker.linkerManager.openLinker();",linker=linker,
+            pane.dataController("linker.linkerManager.openLinker(false);",linker=linker,
                                 currvalue='^#FORM.record.%s' %field,_if='!currvalue')          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
