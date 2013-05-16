@@ -696,12 +696,12 @@ class GnrApp(object):
             dependencies=[('.'.join(n.value.split('.')[:-1]) , n.attr.get('deferred'))  for n in dest_tbl.relations_one if n.label in src_tbl.relations_one] 
             dependencies= set([t for t,d in dependencies if t!=dest_tbl.fullname and not( d and t in tables_to_import )])
             if dependencies.issubset(imported_tables):
-                #print '\nIMPORTING',tbl
+                print '\nIMPORTING',tbl
                 dest_tbl.dbtable.importFromAuxInstance(source_instance, empty_before=False,raw_insert=True)
-                #print '\nSTILL TO IMPORT',tables_to_import
+                print '\nSTILL TO IMPORT',tables_to_import
                 imported_tables.add(tbl)
             else:
-                #print '\nCANT IMPORT',tbl,dependencies.difference(imported_tables)
+                print '\nCANT IMPORT',tbl,dependencies.difference(imported_tables)
                 tables_to_import.append(tbl)
         
 

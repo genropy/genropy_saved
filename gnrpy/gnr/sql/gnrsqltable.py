@@ -448,7 +448,10 @@ class SqlTable(GnrObject):
             return record
 
     def restoreUnifiedRecord(self,record=None):
-        relations = record['__moved_related'].getItem('relations')
+        r = Bag(record['__moved_related'])
+        if not r:
+            return
+        relations = r.getItem('relations')
         if hasattr(self,'onRestoring'):
             self.onRestoring(record=record)
         if relations:

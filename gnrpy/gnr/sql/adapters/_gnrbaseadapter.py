@@ -337,7 +337,8 @@ class SqlDbAdapter(object):
         record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         for k in record_data.keys():
-            sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
+            if k in tblobj.sqlnamemapper:
+                sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
         pkeyColumn = tblobj.pkey
         if pkey:
             pkeyColumn = '__pkey__'

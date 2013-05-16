@@ -17,15 +17,14 @@ class Table(object):
 
         tbl.column('mobile', name_long='Mobile')
 
-        tbl.column('firstname', size=':32', name_long='!!First name',
+        tbl.column('firstname', name_long='!!First name',
                    validate_notnull=True, validate_case='c', validate_notnull_error='!!Mandatory field')
-        tbl.column('lastname', size=':32', name_long='!!Last name',
+        tbl.column('lastname', name_long='!!Last name',
                    validate_notnull=True, validate_case='c', validate_notnull_error='!!Mandatory field')
         tbl.column('registration_date', 'D', name_long='!!Registration Date')
         tbl.column('auth_tags', name_long='!!Authorization Tags')
         tbl.column('status', name_long='!!Status', size='4',
-                   validate_values_conf='!!Confirmed',
-                   validate_values_wait='!!Waiting')
+                   values='!!conf:Confirmed,wait:Waiting',_sendback=True)
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
@@ -49,7 +48,7 @@ class Table(object):
     def passwordTrigger(self, record):
         if 'md5pwd' in record:
             password = record['md5pwd']
-            if len(password) < 32:
+            if len(password) < 32 and record['status']=='conf':
                 record['md5pwd'] = self.db.application.changePassword(None, None, password, userid=record['username'])
 
     def populate(self, fromDump=None):
