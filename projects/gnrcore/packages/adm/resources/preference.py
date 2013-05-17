@@ -33,6 +33,8 @@ class AppPref(object):
     def _adm_general(self, pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
+        fb.checkbox(value='^.forgot_password',label='Allow password recovery')
+        fb.checkbox(value='^.new_user',label='New user registration')
 
     def _pr_backups(self, pane):
         fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')

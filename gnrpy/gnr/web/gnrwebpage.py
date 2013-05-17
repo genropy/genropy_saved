@@ -865,7 +865,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: TODO"""
         return self.site.externalUrl(path, **kwargs)
 
-    def externalUrlToken(self, path, _expiry=None, _host=None, method='root', **kwargs):
+    def externalUrlToken(self, path, _expiry=None, _host=None, method='root',max_usages=None, **kwargs):
         """TODO
         
         :param path: TODO
@@ -873,7 +873,7 @@ class GnrWebPage(GnrBaseWebPage):
         """
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path, expiry=_expiry, allowed_host=_host,
-                                                                          method=method, parameters=kwargs,
+                                                                          method=method, parameters=kwargs,max_usages=max_usages,
                                                                           exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
         
@@ -1522,7 +1522,7 @@ class GnrWebPage(GnrBaseWebPage):
   
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
-                                            subscribe_floating_message='genro.dlg.makeFloatingMessage(this,$1);',
+                                            subscribe_floating_message='genro.dlg.floatingMessage(this,$1);',
                                             regions='^_clientCtx.mainBC')
                 
                 typekit_code = self.site.config['gui?typekit']

@@ -138,6 +138,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     makeFloatingMessage:function(sourceNode,kw){
+        console.warn('Use floatingMessage instead of makeFloatingMessage');
+        this.floatingMessage(sourceNode,kw);
+    },
+
+    floatingMessage:function(sourceNode,kw){
         kw = objectUpdate({},kw)
         var yRatio = objectPop(kw,'yRatio')
         var xRatio = objectPop(kw,'xRatio')

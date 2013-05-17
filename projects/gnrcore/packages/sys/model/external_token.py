@@ -49,14 +49,15 @@ class Table(object):
         return None, None, None, None
 
     def check_token(self, record, host=None):
+        record = self.recordAs(record,'dict')
         if host:
             pass
         if record['expiry'] and record['expiry'] >= datetime.now():
             return None
         if record['max_usages']:
-            uses = self.db.table('sys.external_token_use').query(where='external_token_id := id',
-                                                                 id=record['id']).count()
-            if uses > record['max_usages']:
+            uses = self.db.table('sys.external_token_use').query(where='external_token_id =:cid',
+                                                                 cid=record['id']).count()
+            if uses >= record['max_usages']:
                 return None
         return record
         

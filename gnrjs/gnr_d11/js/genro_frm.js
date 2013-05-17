@@ -177,7 +177,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         kw['duration_in'] = 3;
         kw['duration_out'] = 4;
         kw['yRatio'] = .8;
-        genro.dlg.makeFloatingMessage(this.sourceNode,kw);
+        genro.dlg.floatingMessage(this.sourceNode,kw);
     },
 
     subscribe: function(command,cb,scope,subscriberNode){
