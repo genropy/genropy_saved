@@ -1566,7 +1566,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
                         pass
                     else:
-                        result['lbl__zoomKw'] = dictExtract(kwargs,'zoom_',slice_prefix=False)
+                        result['lbl__zoomKw'] = dictExtract(kwargs,'zoom_') #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
                         result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
                         result['lbl__zoomKw_title'] = lnktblobj.name_plural or lnktblobj.name_long
