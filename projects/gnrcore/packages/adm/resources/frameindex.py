@@ -57,7 +57,7 @@ class FrameIndex(BaseComponent):
             sc = root.stackContainer(selectedPage='^indexStack')
             sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
 
-            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,**kwargs)
+            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
         
     @struct_method
@@ -96,11 +96,14 @@ class FrameIndex(BaseComponent):
 
 
     @public_method  
-    def remoteFrameRoot(self,pane,**kwargs):
+    def remoteFrameRoot(self,pane,custom_index=None,**kwargs):
         pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
         if pageAuth:
             pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-            pane.frameIndexRoot(**kwargs)
+            if custom_index:
+                getattr(self,'index_%s' %custom_index)(pane,**kwargs)
+            else:
+                pane.frameIndexRoot(**kwargs)
         else:
             pane.div('Not allowed')
     
@@ -499,8 +502,9 @@ class FramedIndexLogin(BaseComponent):
                 btn.setAttribute('disabled',false);
             }else{
                 dlg.hide();
-                if(result['rootpage']){
-                    genro.gotoURL(result['rootpage']);
+                rootpage = rootpage || result['rootpage'];
+                if(rootpage){
+                    genro.gotoURL(rootpage);
                 }
                 sc.switchPage('dashboard');
                 genro.publish('logged');
@@ -508,6 +512,7 @@ class FramedIndexLogin(BaseComponent):
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
+            rootpage='=gnr.rootenv.rootpage',
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  
         return dlg
 
