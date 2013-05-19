@@ -26,7 +26,7 @@ import sys, imp, traceback, datetime
 import os.path
 import thread
 import warnings
-
+import atexit
 import uuid
 import base64
 import time
@@ -163,7 +163,7 @@ def timer_call(time_list=None, print_time=True):
 
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
-    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]
+    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22].replace('-','_')
     
 def safe_dict(d):
     """Use the str method, coercing all the dict keys into a string type and return the dict
@@ -972,6 +972,48 @@ def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, 
         except:
             pass
     return tb_text
-        
+
+def _waitChild(status_dict = None, exit_timeout = 60):
+    elapsed = 0
+    while True:
+        if status_dict['ended'] or (exit_timeout and elapsed > exit_timeout):
+            break
+        time.sleep(1)
+        elapsed +=1
+
+def _calledAync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, status_dict=None):
+    status_dict['running'] = True
+    status_dict['ended'] = False
+    call_args = call_args or ()
+    call_kwargs = call_kwargs or {}
+    call_result = call(*call_args, **call_kwargs)
+    if cb:
+        cb_args = cb_args or ()
+        cb_kwargs = cb_kwargs or {}
+        cb_kwargs['result'] = call_result
+        cb(*cb_args, **cb_kwargs)
+    status_dict['running'] = False
+    status_dict['ended'] = True
+
+def callAsync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, exit_timeout = 60):
+    """Calls a method in a separate thread
+
+    :param call: callable, the method to run in the thread
+    :param call_args: args tuple for the method invocation
+    :param call_kwargs: kwargs dict for the method invocation
+    :param cb: callback to be called after method execution
+    :param cb_args: args tuple for the callback invocation
+    :param cb_kwargs: kwargs dict for the callback invocation
+    :param exit_timeout: max seconds to wait if the main process 
+            is exiting and 'call' is not yet completed. 0 or None waits forether
+
+    """
+    thread_params = dict(call=call, call_args=call_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
+    status_dict = dict(running=False, ended=False)
+    thread_params['status_dict'] = status_dict
+    thread.start_new_thread(_calledAync,(),thread_params)
+    atexit.register(_waitChild,status_dict=status_dict, exit_timeout=exit_timeout)
+
+
 if __name__ == '__main__':
     pass

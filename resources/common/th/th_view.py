@@ -42,11 +42,11 @@ class TableHandlerView(BaseComponent):
             viewhook(view)
         return view
     
-    @extract_kwargs (top=True)
+    @extract_kwargs (top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -89,10 +89,26 @@ class TableHandlerView(BaseComponent):
                                grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
                                **kwargs)  
         if configurable:
-            frame.right.viewConfigurator(table,frameCode)   
+            frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
+
+        if preview_kwargs:
+            frame.grid.attributes.update(preview_kwargs=preview_kwargs)
+            frame.grid.tooltip(callback="""
+                    var r = n;
+                    while(r.gridRowIndex==null){
+                        r = r.parentElement;
+                    }
+                    var grid = dijit.getEnclosingWidget(n).grid;
+                    var pkey = grid.rowIdByIndex(r.gridRowIndex);
+                    var table = grid.sourceNode.attr.table;
+                    var preview_kwargs = grid.sourceNode.attr.preview_kwargs;
+                    var tpl = preview_kwargs.tpl;
+                    tpl = tpl==true?'preview':preview_kwargs.tpl;
+                    return genro.serverCall('renderTemplate',{record_id:pkey,table:table,tplname:tpl,missingMessage:'Preview not available'},null,null,'POST');
+                """,modifiers='Shift',validclass='dojoxGrid-cell,cellContent')
         return frame
 
 
@@ -116,8 +132,8 @@ class TableHandlerView(BaseComponent):
    #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
         
     @struct_method
-    def th_viewConfigurator(self,pane,table,th_root):
-        bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
+    def th_viewConfigurator(self,pane,table,th_root,configurable=None):
+        bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
         confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
         gridId = '%s_grid' %th_root
@@ -128,12 +144,12 @@ class TableHandlerView(BaseComponent):
         confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        if table==getattr(self,'maintable',None):
+        if table==getattr(self,'maintable',None) or configurable=='*':
             bar.replaceSlots('#','#,footerBar')
             footer = bar.footerBar.slotToolbar('log_del,*')
             footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
                                                                                     label='!!Show logical deleted',
-                                                                                    validate_onAccept='if(userChange){FIRE .runQuery;}')
+                                                                                    validate_onAccept='if(userChange){FIRE .runQueryDo;}')
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -159,13 +175,14 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
-                PUT .currentSection = currentSection;
+                PUT .current = currentSection;
             }            
             var sectionNode = sectionbag.getNode(currentSection);
             FIRE .#parent.#parent.clearStore;
             if(variable_struct){
                 SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
+            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
             if(storeServerTime!=null){
                 FIRE .#parent.#parent.runQueryDo;
             }
@@ -333,10 +350,16 @@ class TableHandlerView(BaseComponent):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
+        tblobj = self.db.table(table)
+        default_sort_col = 'pkey'
+        if tblobj.model.column('__ins_ts') is not None:
+            default_sort_col = '__ins_ts'
         if sortedBy :
             if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
-                sortedBy = sortedBy +',pkey' 
-        frame.data('.grid.sorted',sortedBy or 'pkey')
+                sortedBy = sortedBy +',%s' %default_sort_col 
+        elif tblobj.column('_row_count') is not None:
+            sortedBy = '_row_count' or default_sort_col
+        frame.data('.grid.sorted',sortedBy)
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
@@ -406,7 +429,7 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
-                               _currentSection='=.currentSection',
+                              # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
@@ -565,14 +588,13 @@ class TableHandlerView(BaseComponent):
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
-        
+        excludeLogicalDeleted = options.get('excludeLogicalDeleted',True)
+        showLogicalDeleted = not excludeLogicalDeleted
+        pane.data('.excludeLogicalDeleted', 'mark' if showLogicalDeleted else True)
         pane.dataController("""SET .excludeLogicalDeleted = show?'mark':true;
                                genro.dom.setClass(dojo.body(),'th_showLogicalDeleted',show);
                             """,show="^.showLogicalDeleted")
-        
-        pane.dataFormula('.showLogicalDeleted', '!default_ld',
-                        default_ld=options.get('excludeLogicalDeleted',True),
-                        _onStart=True)
+        pane.data('.showLogicalDeleted',showLogicalDeleted)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 

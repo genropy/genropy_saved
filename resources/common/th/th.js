@@ -88,7 +88,7 @@ var th_sections_manager = {
                     for(var k in condpars){
                         var newcondkey = k+'_'+cn.attr.code;
                         kwargs[newcondkey] = condpars[k];
-                        cond = cond.replace(':'+k,':'+newcondkey);
+                        cond = cond.replace(new RegExp(':'+k,'g'),':'+newcondkey);
                     }
                     orlist.push(' ('+cond+') ');
                 }
@@ -191,14 +191,14 @@ dojo.declare("gnr.LinkerManager", null, {
         this.default_kwargs = sourceNode.attr._default_kwargs;
     },
     
-    openLinker:function(){
+    openLinker:function(focus){
         var sourceNode = this.sourceNode;
         var that =this;
         if(sourceNode.form.locked){
             return;
         } 
         genro.dom.addClass(sourceNode,"th_enableLinker");
-        if(this.embedded){
+        if(this.embedded && focus!=false){
             setTimeout(function(){
                 sourceNode.getChild('/selector').widget.focus();
             },1);
@@ -206,9 +206,16 @@ dojo.declare("gnr.LinkerManager", null, {
     },
 
     closeLinker:function(){
-        if(this.embedded || this.getCurrentPkey()){
-            genro.dom.removeClass(this.sourceNode,"th_enableLinker");
-        }
+        genro.callAfter(function(){
+            var selector = this.sourceNode.getChild('selector');
+            if(selector && !selector.widget.isValid()){
+                return;
+            }
+            if(this.embedded || this.getCurrentPkey()){
+                genro.dom.removeClass(this.sourceNode,"th_enableLinker");
+            }
+        },10,this,'closing')
+        
     },
     getCurrentPkey:function(){
         return this.sourceNode.getRelativeData(this.fieldpath);
@@ -281,7 +288,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
                         url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection','url_th_from_package':genro.getData('gnr.package')};
         this.formUrl = kw.formUrl;
         this.loadingTitle = 'loading...'
-        this.indexgenro = window.parent.genro;
+        this.indexgenro = genro.mainGenroWindow.genro;
         this.viewStore = kw.viewStore.store;
         if(kw.th){
             for(var k in kw.th){

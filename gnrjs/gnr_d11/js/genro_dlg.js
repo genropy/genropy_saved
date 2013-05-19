@@ -133,6 +133,64 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
     },
 
+    removeFloatingMessage:function(sourceNode){
+        sourceNode._value.popNode('_floatingmess');
+    },
+
+    makeFloatingMessage:function(sourceNode,kw){
+        console.warn('Use floatingMessage instead of makeFloatingMessage');
+        this.floatingMessage(sourceNode,kw);
+    },
+
+    floatingMessage:function(sourceNode,kw){
+        kw = objectUpdate({},kw)
+        var yRatio = objectPop(kw,'yRatio')
+        var xRatio = objectPop(kw,'xRatio')
+        var duration = objectPop(kw,'duration') || 2;
+        var duration_in = objectPop(kw,'duration_in') || duration;
+        var duration_out = objectPop(kw,'duration_out') || duration;
+        var sound = objectPop(kw,'sound');
+        var message = objectPop(kw,'message');
+        var msgType = objectPop(kw,'messageType') || 'message';
+        var transition = 'opacity '+duration_in+'s';
+        var messageBox = sourceNode._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
+        kw.innerHTML = message;
+        messageBox._('div',kw);
+        var deleteCb = function(){that._value.popNode('_floatingmess')};
+        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
+        genro.dom.centerOn(messageBox,sourceNode,xRatio,yRatio);
+        var that = sourceNode;
+        if(sound){
+            genro.playSound(sound);
+        }
+        var t1 = setTimeout(function(){
+                              genro.dom.removeClass(messageBox,'invisible');
+                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
+                                    setTimeout(deleteCb,(duration_out*1000)+1)
+                              },(duration_in*1000)+1);
+                            },1)
+
+    },
+    iframeDialog:function(iframeId,kw){
+        var dialogId = iframeId+'_dlg';
+        var dlgNode = genro.nodeById(dialogId)
+        if(!dlgNode){
+            var root = genro.src.getNode()._('div', '_dlg_iframe');
+            var dlg = root._('dialog',{title:kw.title,closable:kw.closable,nodeId:dialogId});
+            var iframekw = {src:kw.src,border:0,height:'100%',width:'100%',nodeId:iframeId};
+            iframekw['selfsubscribe_close'] = "this.dialog.hide();"
+            objectUpdate(iframekw,objectExtract(kw,'selfsubscribe_*',true,true));
+            var iframe = dlg._('div',{height:kw.height,width:kw.width,overflow:'hidden'})._('iframe','iframe',iframekw);
+            var dlgNode = dlg.getParentNode()
+            dlgNode._iframeNode = iframe.getParentNode();
+            dlgNode._iframeNode.dialog = dlgNode.widget;
+            //create dlg and iframe
+        }
+        dlgNode.widget.show()
+        if(kw.openKw){
+            dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
+        }
+    },
 
     alert:function(msg, title, buttons, resultPath, kw) {
         genro.src.getNode()._('div', '_dlg_alert');
@@ -371,11 +429,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-            dlg.getParentNode().widget.hide();
+            var src = this.getParentNode();
+            this.getParentNode().widget.hide(); 
+            setTimeout(function(){
+                src.clearValue();
+            },500);
+            
         };
         dlg.show_action = function() {
+            var node = this.getParentNode().getParentNode();
             node.unfreeze();
-            var wdg = dlg.getParentNode().widget;
+            var wdg = this.getParentNode().widget;
             genro.callAfter(function(){
                 wdg.show();
             },1);
@@ -419,7 +483,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },
-    
+
     zoomFromCell:function(evt){
         var view = dijit.getEnclosingWidget(evt.target);
         view.content.decorateEvent(evt);
@@ -432,7 +496,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['pkey'] = grid.currRenderedRow[zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier];
         zoomAttr['formOnly'] = true;
         zoomAttr['evt'] = evt;
-        zoomAttr['title'] = grid.currRenderedRow[cellattr['field'].replace(/\W/g, '_')]
+        zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
+        zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         var mode = objectPop(zoomAttr,'mode') || 'palette';
         if(mode=='palette'){
             this.zoomPalette(zoomAttr);
@@ -443,6 +508,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
         }
+    },
+
+    zoomPage:function(kw){
+        kw = kw || {};
+        kw['file'] = this._prepareZoomUrl(kw,true);
+        kw['label'] = kw.title;
+        kw['subtab'] = true;
+        genro.mainGenroWindow.genro.publish('selectIframePage',kw)
     },
 
     floatingEditor:function(sourceNode,kw){
@@ -463,13 +536,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                             width:'600px',height:'400px',
                             maxable:true};
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        var tc = palette._('tabcontainer');
-        var editorpane = tc._('contentpane',{title:'Editor'});
-        var previewpane = tc._('contentpane',{title:'Preview'});
         var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
         valuepath = '^'+sourceNode.absDatapath(valuepath);
-        editorpane._('ckeditor',{value:valuepath});
-        previewpane._('div',{innerHTML:valuepath,position:'absolute',top:'2px',left:'2px',right:'2px',bottom:'2px',background:'white',border:'1px solid silver'});
+        palette._('ckeditor',{value:valuepath});
         node.unfreeze(); 
     },
 

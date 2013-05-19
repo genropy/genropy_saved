@@ -73,6 +73,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
                 wdg.resize();
             },1)
         };
+        kw.doLayout = true;
         var tdialog =  ddb._('TooltipDialog',kw);
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
@@ -448,7 +449,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
         var contentWidget = objectPop(kw,'contentWidget') || 'ContentPane';
         var groupCode = objectPop(kw, 'groupCode');
         if (groupCode) {
-            var pane = sourceNode._('ContentPane', objectExtract(kw, 'title,pageName'))._(contentWidget, objectUpdate({'detachable':true}, kw));
+            var pane = sourceNode._('ContentPane', objectUpdate({overflow:'hidden'},objectExtract(kw, 'title,pageName')))._(contentWidget, objectUpdate({'detachable':true}, kw));
             var controller_kw = {'script':"SET gnr.palettes._groups.pagename." + groupCode + " = paletteCode;",
                 'paletteCode':paletteCode};
             controller_kw['subscribe_show_palette_' + paletteCode] = true;
@@ -573,9 +574,13 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         formId = formId || frameCode+'_form';
         var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
                                                             pkeyPath:'.pkey',formId:formId,form_store:store},kw));
-        if(kw.hasBottomMessage!==false){
-            frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
-        }
+        //if(kw.hasBottomMessage!==false){
+           //frame.getParentNode().subscribe('form_'+formId+'_message',function(kw){
+           //    console.log(kw);
+           //});
+        
+            //frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
+        //}
         var storeId = kw.store+'_store';
         return frame;
     },
@@ -925,6 +930,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,height,width,maxable,resizable');
         palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode + '_floating';
+        palette_kwargs['overflow'] = 'hidden'
         palette_kwargs.selfsubscribe_showing = function() {
             genro.publish('palette_' + this.getRelativeData('gnr.palettes._groups.pagename.' + groupCode) + '_showing'); //gnr.palettes?gruppopiero=palettemario
         };
@@ -1320,9 +1326,15 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             if(pkey){
                 genro.serverCall('te_renderChunk',{record_id:pkey,template_address:tplpars.table+':'+tplpars.template},function(resultNode){
                     var r = resultNode.getValue();
-                    that.domNode.innerHTML = r.getItem('rendered');
                     templateHandler.dataInfo = resultNode.attr;
-                    templateHandler.data = r.popNode('template_data').getValue();
+                    if(r instanceof gnr.GnrBag){
+                        that.domNode.innerHTML = r.getItem('rendered');
+                        templateHandler.data = r.popNode('template_data').getValue();
+                    }else{
+                        that.domNode.innerHTML = r;
+                        templateHandler.data = new gnr.GnrBag();
+                    }
+                    
                 },null,'POST');
             }else{
                 sourceNode.domNode.innerHTML = '';
@@ -1419,7 +1431,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw,'storepath');
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
-
+        var deleteAction = objectPop(kw,'deleteAction');
+        var gnrwdg = sourceNode.gnrwdg;
+        if(deleteAction){
+            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
+        }
         sourceNode.attr.value = value;
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
@@ -1450,9 +1466,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         };
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
         if(values){
-            sourceNode.gnrwdg.makeButtons(values);
+            gnrwdg.makeButtons(values);
         }else if(storepath){
-            sourceNode.gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
+            gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
         }
         return multibutton;
     },
@@ -1491,14 +1507,27 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        var deleteAction = this.deleteAction;
         if (mb && values){
             var values = splitStrip(values,',');
-            var vl,btn_class;
+            var vl,btn,btn_class,_class;
             var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
             mb.clear(true);
             dojo.forEach(values,function(n){
                 vl = n.split(':');
-                mb._('div',vl[0],{multibutton_code:vl[0],_class:vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton'})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+                _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
+                if(deleteAction){
+                    _class = _class +' multibutton_closable';
+                }
+                btn = mb._('div',vl[0],{multibutton_code:vl[0],_class:_class})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+                if(deleteAction){
+                    var key = vl[0];
+                    var caption = vl[1];
+                    btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
+                        dojo.stopEvent(e);
+                        deleteAction.call(sourceNode,key,caption);
+                    }});
+                }
             });
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
         }
@@ -1544,21 +1573,24 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var sn = widget.sourceNode;
         var controllerNodes = sn._stackButtonsNodes;
         
-        if((!controllerNodes) && sn._isBuilding){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         var that = this;
         sn.delayedCall(function(){
-            dojo.forEach(controllerNodes,function(c){
-                that.makeTabButton(c,child.sourceNode,sn);
-            });
+            var cn = sn._stackButtonsNodes;
+            if(cn){
+                dojo.forEach(cn,function(c){
+                    that.makeTabButton(c,child.sourceNode,sn);
+                });
+            }
         },100);
     },
     onRemoveChild:function(widget,child){
         var sn = widget.sourceNode;
         var controllerNodes = sn._stackButtonsNodes;
         
-        if((!controllerNodes) && sn._isBuilding){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         var paneId = child.sourceNode.getStringId();
@@ -1572,9 +1604,10 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         if(!child){
             return;
         }
+        var sn = widget.sourceNode;
         var paneId = child.sourceNode.getStringId();
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
-        if(!controllerNodes){
+        if((!controllerNodes) || sn._isBuilding){
             return;
         }
         dojo.forEach(controllerNodes,function(c){
@@ -1587,6 +1620,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var sc = stackNode.widget;
         var page;
         var that = this;
+        if(!controllerNodes){
+            return;
+        }
         stackNode._value.forEach(function(n){
             if(n.getWidget()){
                 dojo.forEach(controllerNodes,function(c){
@@ -2276,7 +2312,7 @@ dojo.declare("gnr.stores._Collection",null,{
             if(parentForm){
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);
-                },null,that.storeNode);
+                });
             }
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
@@ -2362,7 +2398,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var del_type,master;
         if(this.unlinkdict){
             del_type = 'unlink';
-            master = this.unlinkdict.one_name;
+            master = _T(this.unlinkdict.one_name);
         }else{
             del_type = 'delete';
             master ='';
@@ -2566,6 +2602,24 @@ dojo.declare("gnr.stores._Collection",null,{
                     });
         this._filtered=filtered;
         this._filterToRebuild=false;
+    },
+    linkedGrids:function(){
+        if(this._linkedGrids){
+            return this._linkedGrids;
+        }
+        var result= [];
+        var storeCode;
+        var storeNodeId = this.storeNode.attr.nodeId;
+        genro.src._main.walk(function(n){
+            if(n.widget && n.widget.selectionKeeper){
+                storeCode = n.attr.store || n.attr.nodeId;
+                if(storeCode+'_store'==storeNodeId){
+                    result.push(n.widget);
+                }
+            }
+        },'static');
+        this._linkedGrids = result;
+        return result;
     }
 });
 
@@ -2583,6 +2637,10 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         pkeys.forEach(function(n){
             data.popNode(n);
         });
+        this.linkedGrids().forEach(function(grid){
+            grid.sourceNode.publish('onDeletedRows')
+        });
+
     },
 
     itemByIdx:function(idx){
@@ -2725,10 +2783,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         }
     },
 
-    currentPkeys:function(){
+    currentPkeys:function(caption_field){
         var data = this.getData();
         var result = [];
-        data.forEach(function(n){result.push(n.attr._pkey)});
+        var r;
+        data.forEach(function(n){
+            r = n.attr;
+            result.push(caption_field? {'pkey':r['_pkey'],'caption':r[caption_field]} : r['_pkey']);
+        });
         return result;
     },
 
@@ -2803,25 +2865,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         genro.serverCall('app.counterFieldChanges',{table:this.storeNode.attr.table,counterField:counterField,changes:changes});
     },
     
-    linkedGrids:function(){
-        if(this._linkedGrids){
-            return this._linkedGrids;
-        }
-        var result = [];
-        var storeCode;
-        var storeNodeId = this.storeNode.attr.nodeId;
-        genro.src._main.walk(function(n){
-            if(n.widget && n.widget.selectionKeeper){
-                storeCode = n.attr.store || n.attr.nodeId;
-                if(storeCode+'_store'==storeNodeId){
-                    result.push(n.widget);
-                }
-            }
-        },'static');
-        this._linkedGrids = result;
-        return result;
-    },
-    
     
     checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection,isExternalDict){
         var linkedGrids = this.linkedGrids();
@@ -2855,21 +2898,23 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             },'static');  
             return result;
         };
-       //if((delKeys.length+insOrUpdKeys.length)>(this.len()*.3)){
-       //    this.loadData();
-       //    return
-       //}
+        var insOrUpdKeys_wasInSelection=wasInSelectionCb(insOrUpdKeys);
+        var delKeys_wasInSelection=wasInSelectionCb(delKeys);
+        var changeCount = objectSize(willBeInSelection) + objectSize(insOrUpdKeys_wasInSelection) + objectSize(delKeys_wasInSelection);
+        var rt = this.reload_treshold || 0.3;
+        if(changeCount>0 && ((changeCount>this.len()*rt) || this.sum_columns)){
+            this.loadData();
+            return
+        }
         if(delKeys.length>0){
-            wasInSelection = wasInSelectionCb(delKeys);
-             for(pkey in wasInSelection){
+             for(pkey in delKeys_wasInSelection){
                  toUpdate = true;
-                 data.popNode(wasInSelection[pkey].label);
+                 data.popNode(delKeys_wasInSelection[pkey].label);
             }
         }
         if(insOrUpdKeys.length>0){
-            wasInSelection = wasInSelectionCb(insOrUpdKeys);
             dojo.forEach(insOrUpdKeys,function(pkey){
-                wasInSelectionNode = wasInSelection[pkey];
+                wasInSelectionNode = insOrUpdKeys_wasInSelection[pkey];
                 willBeInSelectionNode = willBeInSelection[pkey];
                 if(wasInSelectionNode){
                     toUpdate=true;
@@ -2956,6 +3001,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        console.log('BEFORE DELETING')
         genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
             that.onDeletedRows(result);
         },null,'POST');
@@ -3077,7 +3123,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                                           });
     },
 
-    currentPkeys:function(){
+    currentPkeys:function(caption_field){
         var parentNodeData = this.getData().getParentNode();
         if(!parentNodeData){
             return [];
@@ -3086,7 +3132,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         if(!selectionKw.selectionName){
             return [];
         }
-        var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName}
+        var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName,caption_field:caption_field}
 
 
         genro.rpc.remoteCall('app.freezedSelectionPkeys', 

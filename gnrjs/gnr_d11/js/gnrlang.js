@@ -185,7 +185,6 @@ function dataTemplate(str, data, path, showAlways) {
         showAlways = showAlways || templateHandler.showAlways;
         
     }
-
     var templates;
     var masks={};
     var df_templates={};
@@ -201,6 +200,19 @@ function dataTemplate(str, data, path, showAlways) {
          df_templates = mainNode.attr.df_templates || df_templates;
          dtypes = mainNode.attr.dtypes || dtypes;
 
+    }
+    if(str.indexOf('${')>=0){
+        str = str.replace(/\${(([^}]|\n)*)}/,function(s0,content){
+            if(!content){
+                return '';
+            }
+            var m = content.match(/\$([_a-z\\@][_a-z0-9\\(.|\n)\\@]*)/);
+            if(!m){
+                return '';
+            }
+            var k = data.getItem? data.getItem(m[1]):data[m[1]];
+            return isNullOrBlank(k)? '':content;
+        });
     }
     var auxattr = {};
     var regexpr = /\$(\#?\@?[a-zA-Z0-9_]+)(\.@?[a-zA-Z0-9_]+)*(\?[a-zA-Z0-9_]+)?(\^[a-zA-Z0-9_]+)?/g;
@@ -591,6 +603,9 @@ function objectAsXmlAttributes(obj, sep) {
     var result = [];
     for (var prop in obj) {
         val = obj[prop];
+        if(typeof(val)=='function'){
+            continue;
+        }
         if (typeof(val) != 'string') {
             val = asTypedTxt(val);
         }
@@ -695,6 +710,9 @@ zip = function(list) {
 };
 
 function asTypedTxt(value, dtype) {
+    if(typeof(value)=='function'){
+        return;
+    }
     var typedText = convertToText(value, {'xml':true,'dtype':dtype});
     var valType = typedText[0];
     var valText = typedText[1];
@@ -973,7 +991,15 @@ var gnrformatter = {
             }else{
                 opt.pattern = format;
             }
-        }        
+        }
+        if(format=='meter'){
+            formatKw = formatKw || {};
+            var p = [];
+            for(var k in formatKw){
+                p.push(k+'="'+formatKw[k]+'"')
+            }
+            return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
+        }
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){

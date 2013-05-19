@@ -11,7 +11,7 @@ class Table(object):
         tbl.column('description' ,name_long='!!Description',name_short='Label')
         tbl.column('level',dtype='I',name_long='!!Level')
         tbl.column('country',size='2',name_long='!!Country')
-        tbl.column('country_iso',size='2',name_long='!!Country').relation('glbl.nazione.code',relation_name='nuts',mode='foreignkey',onDelete='raise')
+        tbl.column('country_iso',size='2',name_long='!!Country').relation('glbl.nazione.code',relation_name='nuts',mode='foreignkey',onDelete='raise',deferred=True)
 
    #def setParent(self):
    #    f = nuts.query(order_by='$code',for_update=True,addPkeyColumn=False).fetch()

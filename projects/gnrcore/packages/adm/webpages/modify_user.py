@@ -19,10 +19,10 @@ class GnrCustomWebPage(object):
 
 
     def main(self, root, **kwargs):
-        sc, top, bottom = self.pbl_rootStackContainer(root, '!!Modify user', centered=True)
-        self.pageForm(sc, bottom)
-        self.pageSaving(sc, bottom)
-        self.pageSaved(sc, bottom)
+        frame = root.rootStackContainer(title='!!Modify user', centered=True)
+        self.pageForm(frame,frame.bottom)
+        self.pageSaving(frame,frame.bottom)
+        self.pageSaved(frame,frame.bottom)
 
     def pageForm(self, sc, bottom):
         client = sc.contentPane(datapath='form')
@@ -51,8 +51,8 @@ class GnrCustomWebPage(object):
                    invalidMessage=u"!!The passwords doesn't match",
                    validate_call="var v=GET .newpass; return ((v==value) || (!value && !v))")
 
-        bottom['right'].div('!!Confirm', connect_onclick='FIRE form.doSave=true', _class='bottom_btn', float='right')
-        bottom['right'].div('!!Cancel', connect_onclick='genro.gotoHome()', _class='bottom_btn', float='right')
+        bottom.div('!!Confirm', connect_onclick='FIRE form.doSave=true', _class='bottom_btn', float='right')
+        bottom.div('!!Cancel', connect_onclick='genro.gotoHome()', _class='bottom_btn', float='right')
 
     def pageSaving(self, sc, bottom):
         client = sc.contentPane(datapath='form')

@@ -19,8 +19,6 @@ class Form(BaseComponent):
         return dict(height='300px',width='500px')
 
 class View(BaseComponent):
-    
-    
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome', width='20em')
@@ -33,9 +31,6 @@ class View(BaseComponent):
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
-
-    def th_condition(self):
-        return dict(condition="$nome ilike :c",condition_c=r'%i%')
 
 
     def th_sections_zone(self):

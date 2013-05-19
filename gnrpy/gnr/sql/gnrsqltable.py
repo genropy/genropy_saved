@@ -87,12 +87,35 @@ class GnrSqlProtectValidateException(GnrSqlException):
     code = 'GNRSQL-013'
     description = '!!Genro SQL Protect Validate Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"
+
+class GnrSqlBusinessLogicException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-021'
+    description = '!!Genro SQL Business Logic Exception'
+    caption = '!!The requested operation violates the internal business logic'
+
+class GnrSqlNotExistingColumnException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-081'
+    description = '!!Genro SQL Not Existing Column Exception'
+    caption = "!!Column %(column)s not existing in table %(tablename)s "
+
     
 EXCEPTIONS = {'save': GnrSqlSaveException,
               'delete': GnrSqlDeleteException,
               'protect_update': GnrSqlProtectUpdateException,
               'protect_delete': GnrSqlProtectDeleteException,
-              'protect_validate': GnrSqlProtectValidateException}
+              'protect_validate': GnrSqlProtectValidateException,
+              'business_logic':GnrSqlBusinessLogicException,
+              'not_existing_column':GnrSqlNotExistingColumnException}
               
 class SqlTable(GnrObject):
     """The base class for database :ref:`tables <table>`.
@@ -119,7 +142,7 @@ class SqlTable(GnrObject):
     def use_dbstores(self):
         """TODO"""
         return False
-        
+
     def exception(self, exception, record=None, msg=None, **kwargs):
         """TODO
         
@@ -130,6 +153,7 @@ class SqlTable(GnrObject):
             exception = EXCEPTIONS.get(exception)
             if not exception:
                 raise exception
+        rowcaption = ''
         if record:
             try:
                 rowcaption = self.recordCaption(record)
@@ -424,7 +448,10 @@ class SqlTable(GnrObject):
             return record
 
     def restoreUnifiedRecord(self,record=None):
-        relations = record['__moved_related'].getItem('relations')
+        r = Bag(record['__moved_related'])
+        if not r:
+            return
+        relations = r.getItem('relations')
         if hasattr(self,'onRestoring'):
             self.onRestoring(record=record)
         if relations:
@@ -502,7 +529,7 @@ class SqlTable(GnrObject):
                         manytable.duplicateRecord(r,destination_store=destination_store)
         return duplicatedRecords[0]
             
-    def recordAs(self, record, mode='bag', virtual_columns=None):
+    def recordAs(self, record, mode='bag', virtual_columns=None,ignoreMissing=True):
         """Accept and return a record as a bag, dict or primary pkey (as a string)
         
         :param record: a bag, a dict or a string (i.e. the record's pkey)
@@ -512,7 +539,7 @@ class SqlTable(GnrObject):
             if mode == 'pkey':
                 return record
             else:
-                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns)
+                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns,ignoreMissing=ignoreMissing)
         if mode == 'pkey':
             # The record is either a dict or a bag, so it accepts indexing operations
             return record.get('pkey', None) or record.get(self.pkey)
@@ -584,7 +611,7 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,_raw_update=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -612,7 +639,10 @@ class SqlTable(GnrObject):
                 new_row.update(updater)
             record_pkey = row[pkeycol]
             updatedKeys.append(record_pkey)
-            self.update(new_row, row,pkey=record_pkey)
+            if not _raw_update:
+                self.update(new_row, row,pkey=record_pkey)
+            else:
+                self.raw_update(new_row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -642,6 +672,14 @@ class SqlTable(GnrObject):
             result.toXml(path,autocreate=True)
         return result
             
+    def fieldsChanged(self,fieldNames,record,old_record):
+        if isinstance(fieldNames,basestring):
+            fieldNames = fieldNames.split(',')
+        for field in fieldNames:
+            if record.get(field) != old_record.get(field):
+                return True
+        return False
+
     def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
         
@@ -678,6 +716,7 @@ class SqlTable(GnrObject):
             </c_2>"""
         if sqlArgs is None:
             sqlArgs = {}
+        self.model.virtual_columns
         result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
         
@@ -778,6 +817,9 @@ class SqlTable(GnrObject):
             return self.update(record)
         else:
             return self.insert(record)
+
+    def countRecords(self):
+        return self.query(excludeLogicalDeleted=False,excludeDraft=False).count()
             
     def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
         """TODO
@@ -798,7 +840,9 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
-        
+    def raw_update(self,record=None,pkey=None,**kwargs):
+        self.db.raw_update(self, record, pkey=pkey,**kwargs)
+
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
         
@@ -840,7 +884,7 @@ class SqlTable(GnrObject):
                 opkg, otbl, ofld = rel.attr['one_relation'].split('.')
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
                 sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
-                                         pid=record[ofld], for_update=True).fetch()
+                                         pid=record[ofld], for_update=True,excludeDraft=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
@@ -1109,7 +1153,7 @@ class SqlTable(GnrObject):
         print 'You should override for diagnostic'
         return
     
-    def check_updatable(self, record):
+    def check_updatable(self, record,ignoreReadOnly=None):
         """TODO
         
         :param record: TODO"""
@@ -1254,9 +1298,9 @@ class SqlTable(GnrObject):
             for record in data['records'].values():
                 record.pop('_isdeleted')
                 self.insert(record)
-                
+             
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=False, excludeDraft=False,
-                 source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None, **querykwargs):
+                 source_records=None, bagFields=True,source_tbl_name=None, raw_insert=None,_converters=None, **querykwargs):
         """TODO
         
         :param dbsource: sourcedb
@@ -1273,17 +1317,24 @@ class SqlTable(GnrObject):
         querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
         querykwargs['excludeDraft'] = excludeDraft
         source_records = source_records or source_tbl.query(bagFields=bagFields,**querykwargs).fetch()
+        insertOnly= False
         if empty_before:
+            insertOnly = True
             dest_tbl.empty()
+        elif raw_insert and dest_tbl.countRecords()==0:
+            insertOnly = True
         for record in source_records:
-            if empty_before:
+            record = dict(record)
+            if _converters:
+                for c in _converters:
+                    record = getattr(self,c)(record)
+            if insertOnly:
                 if raw_insert:
                     dest_tbl.raw_insert(record)
                 else:
                     dest_tbl.insert(record)
             else:
                 dest_tbl.insertOrUpdate(record)
-                
     
     def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
         """TODO
@@ -1328,11 +1379,21 @@ class SqlTable(GnrObject):
         :param source_records: TODO"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
+
         source_db = instance.db
+        src_version = int(source_db.table(source_tbl_name or self.fullname).attributes.get('version') or 0)
+        dest_version = int(self.attributes.get('version') or 0)
+        converters = None
+        if src_version!=dest_version:
+            assert dest_version > src_version, 'table %s version conflict from %i to %i' %(self.fullname,src_version,dest_version)
+            converters = ['_convert_%i_%i' %(x,x+1) for x in range(src_version,dest_version)]
+            if filter(lambda m: not hasattr(self,m), converters):
+                print 'missing converter',self.fullname
+                return 
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                       source_records=source_records,excludeDraft=excludeDraft,
                       raw_insert=raw_insert,
-                      source_tbl_name=source_tbl_name,**querykwargs)
+                      source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """TODO

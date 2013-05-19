@@ -780,11 +780,21 @@ dojo.declare("gnr.GnrDomHandler", null, {
             genro._lastDropTarget = event.target;
             genro.dom.onDragEnter(event);
         }
+        if(event.target.sourceNode && event.target.sourceNode.getInheritedAttributes().dragOverCb){
+            event.target.sourceNode.getInheritedAttributes().dragOverCb.call(this,event);
+        }
         event.stopPropagation();
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
 
     },
+    getBaseSourceNode:function(domnode){
+        while(domnode && !domnode.sourceNode){
+            domnode = domnode.parentNode;
+        }
+        return domnode?domnode.sourceNode:null;
+    },
+
     getDragDropInfo:function(event) {
         var domnode = event.target;
         while (!domnode.getAttribute) {
@@ -792,7 +802,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         var info = {'domnode':domnode};
         info.modifiers = genro.dom.getEventModifiers(event);
-        var widget,handler,sourceNode;
+        var handler,sourceNode,widget,baseSourceNode;
         if (domnode.sourceNode) {
             info.handler = domnode.gnr;
             info.sourceNode = domnode.sourceNode;
@@ -800,17 +810,24 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         else {
             widget = dijit.getEnclosingWidget(domnode);
-            if(!widget){
+            baseSourceNode = this.getBaseSourceNode(domnode);
+            var rootwidget = widget? (widget.sourceNode ? widget : widget.grid || widget.tree) : null;
+            if(!rootwidget && !baseSourceNode){
                 return;
             }
-            var rootwidget = widget.sourceNode ? widget : widget.grid || widget.tree;
-            info.widget = widget;
-            if (!rootwidget) {
+            if(!rootwidget || ( baseSourceNode &&  (baseSourceNode.isChildOf(rootwidget.sourceNode)) )){
+                info.handler = baseSourceNode.domNode.gnr;
+                info.sourceNode = baseSourceNode;
+                info.nodeId = baseSourceNode.attr.nodeId;
+                info.domnode = baseSourceNode.domNode;
+            }else if(widget){
+                info.widget = widget;
+                info.handler = rootwidget.gnr;
+                info.sourceNode = rootwidget.sourceNode;
+                info.nodeId = info.sourceNode.attr.nodeId;
+            }else{
                 return;
             }
-            info.handler = rootwidget.gnr;
-            info.sourceNode = rootwidget.sourceNode;
-            info.nodeId = info.sourceNode.attr.nodeId;
         }
         info.event = event;
         if (event.type == 'dragstart') {
@@ -1182,7 +1199,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var columns = kw.columns;
         var headers = kw.headers;
         var tblclass = kw.tblclass;
-        var thead = '<thead><tr>';
+        var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
         for (var k = 0; k < columns.length; k++) {
             thead = thead + "<th>" + headers[k] + "</th>";
         }
@@ -1194,10 +1211,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
             r = "";
             item = nodes[i].attr;
             _customClasses = objectPop(item,'_customclasses') || objectPop(item,'_customClasses');
+            more_customclasses = objectExtract(item,'_customclasses_*')
+            if(more_customclasses){
+                _customClasses = (_customClasses || '');
+                for(var cck in more_customclasses){
+                    _customClasses = _customClasses+' '+more_customclasses[cck];
+                }
+            }
+            
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';
-                r = r + "<td>" + genro.format(value, {date:'short'})+"</td>";
+                r = r + "<td>" + _F(value)+"</td>";
             }
             tbl.push("<tr id='" + nodes[i].label + "' "+_customClasses+">" + r + "</tr>");
         }
@@ -1253,7 +1278,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
        
     },
     
-    centerOn: function(what, where, onlyX, onlyY) {
+    centerOn: function(what, where,xRatio,yRatio) {
         var whatDomNode = this.getDomNode(what);
         var whereDomNode = where ? this.getDomNode(where) : whatDomNode.parentNode;
         var viewport = dojo.coords(whereDomNode);
@@ -1263,15 +1288,24 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var whereposition = whereDomNode.style.position;
         var deltax = viewport.l;
         var deltay = viewport.t;
+        var onlyX,onlyY;
+        xRatio = xRatio || 0;
+        yRatio = yRatio || 0;
+        if(xRatio===true){
+            onlyX=true;
+        }
+        if(yRatio===true){
+            onlyY = true
+        }
         //if (whereposition=='relative' || whereposition=='absolute'){
         //    deltax = deltax +viewport.x;
         //    deltay = deltay + viewport.y;
         //}
         if (!onlyY) {
-            style.left = Math.floor((deltax + (viewport.w - mb.w) / 2)) + "px";
+            style.left = Math.floor((deltax + (viewport.w - mb.w)*(1+xRatio) / 2)) + "px";
         }
         if (!onlyX) {
-            style.top = Math.floor((deltay + (viewport.h - mb.h) / 2)) + "px";
+            style.top = Math.floor((deltay + (viewport.h - mb.h)*(1+yRatio) / 2)) + "px";
         }
 
     },
@@ -1290,7 +1324,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
     },
-    
+
+
     makeHiderLayer: function(parentId, kw) {
         var rootNode;
         var message=objectPop(kw,'message');
@@ -1302,7 +1337,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             parentId = rootNode.getStringId();
         }
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
-            z_index:800,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
+            z_index:399,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
         var kw = objectUpdate(default_kw, kw);
         var hider = rootNode._('div','hiderNode', kw).getParentNode();
         if(message){
@@ -1318,6 +1353,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         return hider;
     },
+
+
     isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
@@ -1383,6 +1420,36 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var mw = dojo.byId('mainWindow');
             mw.style.cssText = objectAsStyle(genro.dom.getStyleDict(rs.asDict(), {}));
         }        
-    }
+    },
+    printElementContent:function(where,title,doprint){
+        var where = this.getDomNode(where);
+        var title = title || 'Print'
+        var coords = dojo.coords(where);
+        var disp_setting="toolbar=yes,location=no,";
+        disp_setting+="directories=yes,menubar=yes,";
+        disp_setting+="scrollbars=yes,width="+coords.w+10+", height="+coords.h+10+", left=100, top=25";
+        var content_vlue = where.innerHTML;
+        var docprint=window.open("","",disp_setting);
+        docprint.document.open();
+        docprint.document.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"');
+        docprint.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+        docprint.document.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">');
+        docprint.document.write('<head><title>'+title+'</title>');
+        docprint.document.write('<style type="text/css">body{ margin:0px;');
+        docprint.document.write('font-family:verdana,Arial;color:#000;');
+        docprint.document.write('font-family:Verdana, Geneva, sans-serif; font-size:12px;}');
+        docprint.document.write('a{color:#000;text-decoration:none;} </style>');
+        docprint.document.write('</head><body onLoad="setTimeout(function(){window.print()},100);"><div style="margin:5px">');
+        docprint.document.write(content_vlue);
+        docprint.document.write('</div></body></html>');
+        docprint.document.close();
+        docprint.focus();
+    },
 
+    windowMessage:function(w,message){
+        if(w=='parent'){
+            w = window.parent;
+        }
+        w.postMessage(message,'*');
+    }
 });

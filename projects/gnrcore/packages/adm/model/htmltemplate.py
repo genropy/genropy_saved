@@ -33,8 +33,8 @@ class Table(object):
         tbl.column('center_height',dtype='I',name_long='!!Center height')
         tbl.column('center_width',dtype='I',name_long='!!Center width')
 
-        tbl.column('based_on',size='22' ,group='_',name_long='!!Based on').relation('htmltemplate.id',relation_name='children',one_one=True,mode='foreignkey',onDelete='raise')
-        tbl.column('next_letterhead_id',size='22' ,group='_',name_long='!!Next letterhead').relation('htmltemplate.id',relation_name='previous',one_one=True,mode='foreignkey',onDelete='raise')
+        tbl.column('based_on',size='22' ,group='_',name_long='!!Based on').relation('htmltemplate.id',relation_name='children',one_one=True,mode='foreignkey',onDelete='raise',deferred=True)
+        tbl.column('next_letterhead_id',size='22' ,group='_',name_long='!!Next letterhead').relation('htmltemplate.id',relation_name='previous',one_one=True,mode='foreignkey',onDelete='raise',deferred=True)
 
 
     def getTemplate(self,letterhead_id=None,name=None):

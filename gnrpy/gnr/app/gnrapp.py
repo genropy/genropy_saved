@@ -292,7 +292,7 @@ class GnrPackage(object):
         self.loadPlugins()
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
-            self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'), 'package_%s' % pkg_id)
+            self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'),avoidDup=True)
         except Exception, e:
             log.exception(e)
             raise GnrImportException(
@@ -318,7 +318,7 @@ class GnrPackage(object):
         custom_mixin = os.path.join(self.customFolder, 'custom.py')
         self.custom_module = None
         if os.path.isfile(custom_mixin):
-            self.custom_module = gnrImport(custom_mixin, 'custom_package_%s' % pkg_id)
+            self.custom_module = gnrImport(custom_mixin,avoidDup=True)
             instanceMixin(self.pkgMixin, getattr(self.custom_module, 'Package', None))
         
             self.attributes.update(self.pkgMixin.config_attributes())
@@ -334,7 +334,7 @@ class GnrPackage(object):
         self.loadTableMixinDict(self.main_module, modelFolder)
         for pkgid, apppkg in self.application.packages.items():
             externalPkgModelFolder = os.path.join(apppkg.packageFolder,'model','_packages',self.id)
-            self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=self.id)
+            self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=pkgid)
         for plugin in self.getPlugins():
             pluginModelFolder = os.path.join(plugin.path, 'model')
             self.loadTableMixinDict(self.main_module, pluginModelFolder, pluginId=plugin.id)
@@ -380,11 +380,8 @@ class GnrPackage(object):
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinCls)
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinClsCustom)
             if not cls:
-                module_name = '%smodel_of_%s_%s' % (model_prefix, self.id, tbl)
-                if fromPkg:
-                    module_name = '%s_from_%s'%(module_name, fromPkg)
                 tbl_module = gnrImport(os.path.join(modelfolder, '%s.py' % tbl),
-                                       module_name)
+                                       avoidDup=True)
                 tbl_cls = getattr(tbl_module, 'Table', None)
                 if not fromPkg:
                     instanceMixin(self.tableMixinDict[tbl], tbl_cls)
@@ -481,13 +478,18 @@ class GnrApp(object):
     >>> testgarden = GnrApp('testgarden')
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
-    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, debug=False, restorepath=None,**kwargs):
+    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
+                debug=False, restorepath=None,remotesshdb=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
         self.set_environment()
-        if instanceFolder and not os.path.isdir(instanceFolder):
-            instanceFolder = self.instance_name_to_path(instanceFolder)
+        self.remote_db = None
+        if instanceFolder:
+            if ':' in instanceFolder:
+                instanceFolder,self.remote_db  = instanceFolder.split(':',1)
+            if not os.path.isdir(instanceFolder):
+                instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder or ''
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
@@ -506,6 +508,9 @@ class GnrApp(object):
             self.config.update(db_credential)
         if custom_config:
             self.config.update(custom_config)
+        if remotesshdb:
+            db_node = self.config.getNode('db')
+            db_node.setAttr(remotesshdb)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
@@ -513,7 +518,7 @@ class GnrApp(object):
         self.dataFolder = os.path.join(self.instanceFolder, 'data')
         self.webPageCustom = None
         if os.path.isfile(os.path.join(self.customFolder, 'custom.py')):
-            self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'), 'custom_application')
+            self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'),avoidDup=True)
             instanceMixin(self, getattr(self.main_module, 'Application', None))
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init(forTesting=forTesting,restorepath=restorepath)
@@ -591,6 +596,9 @@ class GnrApp(object):
         self.localization = {}
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
+            
+            if self.remote_db:
+                dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
                 dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         else:
@@ -657,7 +665,49 @@ class GnrApp(object):
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
         self.onInited()
+            
+
+    def importFromSourceInstance(self,source_instance=None):
+        to_import = ''
+        if ':' in source_instance:
+            source_instance,to_import = source_instance.split(':')
+        source_instance = GnrApp(source_instance)
+        to_import = source_instance.db.packages.keys() if not to_import else to_import.split(',')
+        set_to_import = set()
+        while to_import:
+            k = to_import.pop(0)
+            if k == '*':
+                to_import[:] = source_instance.db.packages.keys()+to_import
+            elif  '.' in k:
+                if not k.startswith('!'):
+                    set_to_import.add(k)
+                else:
+                    set_to_import.remove(k[1:])
+            else:
+                if not k.startswith('!'):
+                    set_to_import = set_to_import.union(set([t.fullname for t in source_instance.db.packages[k].tables.values()]))
+                else:
+                    set_to_import = set_to_import.difference(set([t.fullname for t in source_instance.db.packages[k[1:]].tables.values()]))
         
+        imported_tables = set([t for t in set_to_import if self.db.table(t).countRecords()>0])
+        set_to_import = set_to_import.difference(imported_tables)
+        tables_to_import = list(set_to_import)
+        while tables_to_import:
+            tbl = tables_to_import.pop(0)
+            dest_tbl = self.db.table(tbl).model
+            src_tbl = source_instance.db.table(tbl).model
+            dependencies=[('.'.join(n.value.split('.')[:-1]) , n.attr.get('deferred'))  for n in dest_tbl.relations_one if n.label in src_tbl.relations_one] 
+            dependencies= set([t for t,d in dependencies if t!=dest_tbl.fullname and not( d and t in tables_to_import )])
+            if dependencies.issubset(imported_tables):
+                print '\nIMPORTING',tbl
+                dest_tbl.dbtable.importFromAuxInstance(source_instance, empty_before=False,raw_insert=True)
+                print '\nSTILL TO IMPORT',tables_to_import
+                imported_tables.add(tbl)
+            else:
+                print '\nCANT IMPORT',tbl,dependencies.difference(imported_tables)
+                tables_to_import.append(tbl)
+        
+
     def loadTestingData(self, bag):
         """Load data used for testing in the database.
         

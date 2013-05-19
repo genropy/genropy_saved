@@ -4,7 +4,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('regione', pkey='sigla', 
-        	name_long='!!Regione', rowcaption='sigla,nome',caption_field='nome_completo')
+        	name_long='!!Regione', rowcaption='sigla,nome',caption_field='nome')
         tbl.column('sigla', size='3', group='_', readOnly=True, name_long='!!Sigla', indexed=True)
         tbl.column('nome', name_long='!!Nome', indexed=True)
         tbl.column('codice_istat', size='2', name_long='!!Codice Istat')
@@ -13,4 +13,3 @@ class Table(object):
         tbl.column('zona_numero', 'I', name_long='!!Zona n.')
 
         tbl.column('nuts',name_long='!!NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise')
-        tbl.formulaColumn('nome_completo',""" $nome ||'(' || $sigla || ')' """,name_long='Nome completo')	

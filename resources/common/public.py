@@ -14,6 +14,7 @@ from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
+from datetime import date
 import os
 
 class PublicBase(BaseComponent):
@@ -56,6 +57,7 @@ class PublicBase(BaseComponent):
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
         frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',
+                                subscribe_pbl_bottomMsg="console.warn('pbl_bottomMsg deprecated use floating_message');genro.publish('floating_message',$1);",
                                 **kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
@@ -80,7 +82,8 @@ class PublicBase(BaseComponent):
                             **kwargs)
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
+        #slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
+        slots = slots or '5,dock,*,countErrors,devBtn,locBtn,5'
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
@@ -172,7 +175,28 @@ class PublicSlots(BaseComponent):
         
     @struct_method
     def public_publicRoot_avatar(self,pane,frameCode=None,**kwargs):
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),**kwargs)
+        pane.dataController("""var n = new Date();
+            var wd = genro.getData('gnr.rootenv.workdate');
+            if(wd.getFullYear()==n.getFullYear() && wd.getMonth()==n.getMonth() && wd.getDate()==n.getDate()){
+                var tomorrow = new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);
+                var deltams = tomorrow-n;
+                setTimeout(function(){
+                        dojo.addClass(dojo.body(),'gnroutofdate');
+                },deltams);
+            }else{
+                if(!custom_workdate){
+                    var mg = genro.mainGenroWindow.genro;
+                    mg.dlg.ask(title,msg,{logout:lg,cancel:cn},{
+                            logout:function(){
+                                mg.logout();
+                            }
+                        });
+                }
+                dojo.addClass(dojo.body(),'gnroutofdate');
+            }
+            """,_onStart=True,custom_workdate=self.rootenv['custom_workdate'] or False,lg='!!Logout',cn='!!Continue',
+                msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     
     def pbl_avatarTemplate(self):
         return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
@@ -185,7 +209,7 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
-        box = pane.div(hidden='^gnr.partition_selector.hidden') 
+        box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
         if self.public_partitioned is True:
             kw = dictExtract(self.tblobj.attributes,'partition_')
             public_partitioned = dict()
@@ -200,12 +224,15 @@ class PublicSlots(BaseComponent):
         related_tblobj = self.db.table(table)
 
         if not self.rootenv[partition_path]:
-            fb = box.formbuilder(cols=1,border_spacing='3px')
+            fb = box.formbuilder(cols=1,border_spacing='0')
             fb.dbSelect(value='^current.%s' %partition_field,
                         dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
-                        hasDownArrow=True,font_size='.8em',lbl_color='white',color='#666',lbl_font_size='.8em')
-            fb.data('current.%s' %partition_field,None,
+                        hasDownArrow=True,font_size='.8em',lbl_color='white',
+                        color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
+        
+        pane.data('current.%s' %partition_field,self.rootenv[partition_path],
                     serverpath='currenv.%s' %partition_path,dbenv=True)
+
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
@@ -319,7 +346,6 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
-        formInIframe = boolean(th_options.get('formInIframe'))
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
         insidePublic = False
@@ -355,16 +381,19 @@ class TableHandlerMain(BaseComponent):
             kwargs['autoSave'] = False
             kwargs['semaphore'] = True
             lockable = False
+        kwargs.setdefault('preview_tpl',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
             th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-            if partition_kwargs:
+            if th['view.top.bar.addrow']:
+                th.view.top.bar.addrow.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+            if th['form.top.bar.form_add']:
+                th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
+            if th['form'] and partition_kwargs:
                 th.form.dataController("SET gnr.partition_selector.hidden = pkey?true:false;",pkey='^#FORM.pkey')
-
-
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
@@ -398,8 +427,6 @@ class TableHandlerMain(BaseComponent):
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic or publicCollapse,extendedQuery=extendedQuery)
         self.__th_moverdrop(th)
-        if hasattr(th,'form') and insidePublic and not formInIframe:
-            self._usePublicBottomMessage(th.form)
         if th_options.get('filterSlot'):
             th.view.top.bar.replaceSlots('menuUserSets','menuUserSets,5,mainFilter')
 
@@ -427,7 +454,6 @@ class TableHandlerMain(BaseComponent):
                     console.log('no targetRowData')
                     return true
                 }
-                console.log('dragRowData',dragRowData,'targetRowData',targetRowData,dropInfo,'dropInfo')
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }
@@ -444,8 +470,6 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
-
-
         return th
 
     @public_method
@@ -487,7 +511,6 @@ class TableHandlerMain(BaseComponent):
                 i+=1
         return result
 
-
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes
         currCodes = gridattr.get('dropTarget_grid')
@@ -498,7 +521,6 @@ class TableHandlerMain(BaseComponent):
             gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
         gridattr.update(dropTarget_grid=','.join(currCodes))
         
-
     def __th_title(self,th,widget,insidePublic,extendedQuery=None):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
@@ -546,15 +568,8 @@ class TableHandlerMain(BaseComponent):
             form.dataController("""
                             SET gnr.publicTitle = title;
                             """,title='^#FORM.controller.title',_if='title')  
-
-        if th_kwargs.get('showfooter',True):
-            self._usePublicBottomMessage(form)
         return form
 
-    def _usePublicBottomMessage(self,form):
-        form.attributes['hasBottomMessage'] = False
-        form.dataController('PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
-        
     @public_method                     
     def main_form(self, root,**kwargs):
         """ALTERNATIVE MAIN CALL"""

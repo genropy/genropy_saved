@@ -335,6 +335,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         columns = columns or query_columns
         t = time.time()
         joinBag = None
+        resultAttributes = dict()
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
           # if not columns:
@@ -363,7 +364,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         sel = query.selection()
         if joinBag and joinBag.get('applymethod'):
             applyPars = self._getApplyMethodPars(kwargs)
-            self.page.getPublicMethod('rpc', joinBag['applymethod'])(sel, **applyPars)
+            applyresult = self.page.getPublicMethod('rpc', joinBag['applymethod'])(sel, **applyPars)
+            if applyresult:
+                resultAttributes.update(applyresult)
 
         result = Bag()
         relOneParams = dict(_target_fld='%s.%s' % (dbtable, self.db.table(dbtable).pkey),
@@ -379,7 +382,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _attributes=row, _removeNullAttributes=False, **relOneParams)
 
         relOneParams.update(dict([(k, None) for k in sel.colAttrs.keys() if not k == 'pkey']))
-        resultAttributes = dict(dbtable=dbtable, totalrows=len(sel))
+        resultAttributes.update(dbtable=dbtable, totalrows=len(sel))
         resultAttributes.update({'servertime': int((time.time() - t) * 1000),
                                  'newproc': getattr(self, 'self.newprocess', 'no'),
                                  'childResolverParams': '%s::JS' % toJson(relOneParams)
@@ -571,9 +574,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method
-    def freezedSelectionPkeys(self,table=None,selectionName=None):
+    def freezedSelectionPkeys(self,table=None,selectionName=None,caption_field=None):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
-        return selection.output('pkeylist')
+        l = selection.output('dictlist')
+        return [dict(pkey=r['_pkey'],caption=r['caption_field']) if caption_field else r['_pkey'] for r in l]
 
     
     @public_method
@@ -623,7 +627,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkeys = updaterDict.keys()
         tblobj = self.db.table(table)
         def cb(r):
-            r[counterField] = updaterDict[r['id']]
+            r[counterField] = updaterDict[r[tblobj.pkey]]
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
         
@@ -687,6 +691,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         newSelection = True
         formats = {}
         wherebag = where if isinstance(where,Bag) else None
+        resultAttributes = {}
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
@@ -703,7 +708,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                     selection.sort(sortedBy)
                     selection.freezeUpdate()
                 debug = 'fromPickle'
-                resultAttributes = {}
                 newSelection = False
         if newSelection:
             debug = 'fromDb'
@@ -729,14 +733,16 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
-                self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
+                applyresult = self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
+                if applyresult:
+                    resultAttributes.update(applyresult)
 
             if selectionName:
                 selection.setKey('rowidx')
                 selectionPath = self.page.freezeSelection(selection, selectionName)
                 with self.page.userStore() as store:
                     store.setItem('current.table.%s.last_selection_path' % table.replace('.', '_'), selectionPath)
-            resultAttributes = dict(table=table, method='app.getSelection', selectionName=selectionName,
+            resultAttributes.update(table=table, method='app.getSelection', selectionName=selectionName,
                                     row_count=row_count,
                                     totalrows=len(selection))
         generator = selection.output(mode='generator', offset=row_start, limit=row_count, formats=formats)
@@ -1032,7 +1038,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                   Else, return an exception"""
         try:
             tblobj = self.db.table(table)
-            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
                                 for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
             for r in rows:
                 if unlinkfield:
@@ -1069,7 +1075,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
-                      _eager_level=0, onLoadingHandler=None,sample_kwargs=None,**kwargs):
+                      _eager_level=0, onLoadingHandler=None,sample_kwargs=None,ignoreReadOnly=None,**kwargs):
         """TODO
         
         ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
@@ -1136,11 +1142,12 @@ class GnrWebAppHandler(GnrBaseProxy):
                        _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
-            recInfo['_protect_write'] = not tblobj.check_updatable(record)
+            recInfo['_protect_write'] = not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
             recInfo['_protect_delete'] = not tblobj.check_deletable(record)
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}
+        default_kwargs = default_kwargs or {}
         loadingParameters.update(default_kwargs)
         method = None
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
@@ -1161,12 +1168,19 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.setRecordDefaults(record, default_kwargs)
             handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
+
+            for k in default_kwargs:
+                if not k in record:
+                    record[k]=None
+        
             self.setRecordDefaults(record, loadingParameters)
 
         if applymethod:
             applyPars = self._getApplyMethodPars(kwargs, newrecord=newrecord, loadingParameters=loadingParameters,
                                                  recInfo=recInfo, tblobj=tblobj)
-            self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
+            applyresult = self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
+            if applyresult:
+                recInfo.update(applyresult)
         recInfo['servertime'] = int((time.time() - t) * 1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
@@ -1296,7 +1310,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             preferred = preferred or tblobj.attributes.get('preferred')
             if preferred:
                 order_list.append('%s desc' %preferred)
-                resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses""" %preferred)
+                resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
             #order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
             order_by = order_by or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
@@ -1358,7 +1372,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         explorer_id = page.getUuid()
         freeze_path = page.site.getStaticPath('page:explorers', explorer_id)
         t1 = time.time()
-        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
+        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False, keep=['pkey']) #provvisorio
         t2 = time.time()
         store = page.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
         t3 = time.time()

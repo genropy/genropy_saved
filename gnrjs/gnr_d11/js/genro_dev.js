@@ -292,7 +292,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var storepath='gnr.debugger.main';
         var bc = frame._('borderContainer',{side:'center'});
         var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
-        var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
+        var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden',_class:'selectable'});
         var center = bc._('contentPane',{'region':'center'});
 
         bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',

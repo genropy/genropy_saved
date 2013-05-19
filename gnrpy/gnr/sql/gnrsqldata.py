@@ -479,6 +479,13 @@ class SqlQueryCompiler(object):
                 wherelist.append('( %s )' %condition)
             where = ' AND '.join(wherelist)
 
+        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+        if partition_kwargs:
+            wherelist = [where] if where else []
+            for k,v in partition_kwargs.items():
+                if currentEnv.get(v):
+                    wherelist.append('( $%s=:env_%s )' % (k,v))
+            where = ' AND '.join(wherelist)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
         order_by = self.updateFieldDict(order_by or '')
@@ -511,7 +518,6 @@ class SqlQueryCompiler(object):
             # self._currColKey manage exploding columns in recursive getFieldAlias without add too much parameters
             self._currColKey = key
             colPars[key] = self.getFieldAlias(value)
-            
         if count:               # if the query is executed in count mode...
             order_by = ''       # sort has no meaning
             if group_by:        # the number of rows is defined only from GROUP BY cols, so clean aggregate functions from columns.
@@ -527,10 +533,10 @@ class SqlQueryCompiler(object):
             columns = columns.strip('\n').strip(',')
             
         # replace $fldname with tn.fldname: finally the real SQL columns!
-        
         columns = gnrstring.templateReplace(columns, colPars, safeMode=True)
         
         # replace $fldname with tn.fldname: finally the real SQL where!
+        
         where = gnrstring.templateReplace(where, colPars)
         #if excludeLogicalDeleted==True we have additional conditions in the where clause
         logicalDeletionField = self.tblobj.logicalDeletionField
@@ -544,7 +550,7 @@ class SqlQueryCompiler(object):
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
+                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField) #add logicalDeletionField
         if draftField:
             if excludeDraft is True:
                 extracnd = 't0.%s IS NOT TRUE' %draftField
@@ -552,12 +558,6 @@ class SqlQueryCompiler(object):
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
-        partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-        if partition_kwargs:
-            for k,v in partition_kwargs.items():
-                if currentEnv.get(v):
-                    where =  ' ( t0.%s=:env_%s ) AND %s' % (k,v, where)
-
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', 't0')
@@ -569,6 +569,7 @@ class SqlQueryCompiler(object):
         order_by = gnrstring.templateReplace(order_by, colPars)
         having = gnrstring.templateReplace(having, colPars)
         group_by = gnrstring.templateReplace(group_by, colPars)
+        
         if distinct:
             distinct = 'DISTINCT '
         elif distinct is None or distinct == '':
@@ -577,8 +578,9 @@ class SqlQueryCompiler(object):
                     distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if order_by:
                         xorderby=(('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')).split(',')
+                        lowercol=columns.lower()
                         for xrd in xorderby:
-                            if not xrd in columns:
+                            if not xrd.strip() in lowercol:
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:

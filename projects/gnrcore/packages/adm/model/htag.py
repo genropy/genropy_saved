@@ -8,9 +8,9 @@ class Table(object):
                         newrecord_caption='!!New tag')
         self.sysFields(tbl,hierarchical='description')
         #self.htableFields(tbl)
-        tbl.column('parent_code').relation('htag.code',onDelete='cascade')
+        #tbl.column('parent_code').relation('htag.code',onDelete='cascade')
 
-        tbl.column('code',name_long='!!Code',validate_notnull=True)
+        tbl.column('code',name_long='!!Code',validate_notnull=True,validate_nodup=True)
         tbl.column('description',name_long='!!Description',validate_notnull=True)
         tbl.column('isreserved', 'B', name_long='!!Reserved')
         tbl.column('note',name_long='!!Notes')
@@ -26,4 +26,3 @@ class Table(object):
                 r['parent_id'] = parent_id
                 self.update(r,old_rec)
             self.db.commit()
-            print 'updated htag'

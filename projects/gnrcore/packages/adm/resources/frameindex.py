@@ -8,7 +8,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
-from datetime import datetime
+from datetime import date
 from gnr.core.gnrbag import Bag
 
 #foundation/menu:MenuIframes,
@@ -42,14 +42,22 @@ class FrameIndex(BaseComponent):
     def defaultAuthTags(self):
         return ''
     
-    def main(self,root,new_window=None,**kwargs):
+    def main(self,root,new_window=None,gnrtoken=None,**kwargs):
+        if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
+            root.dataController("""genro.dlg.alert(msg,'Error',null,null,{confirmCb:function(){
+                    var href = window.location.href;
+                    href = href.replace(window.location.search,'');
+                    window.history.replaceState({},document.title,href);
+                    genro.pageReload()}})""",msg='!!Invalid Access',_onStart=True)
+            return 
         root.attributes['overflow'] = 'hidden'
         if self.root_page_id:
             self.index_dashboard(root)
         else:         
             sc = root.stackContainer(selectedPage='^indexStack')
-            sc.loginPage(new_window=new_window)
-            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,**kwargs)
+            sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
+
+            sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
         
     @struct_method
@@ -88,11 +96,14 @@ class FrameIndex(BaseComponent):
 
 
     @public_method  
-    def remoteFrameRoot(self,pane,**kwargs):
+    def remoteFrameRoot(self,pane,custom_index=None,**kwargs):
         pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
         if pageAuth:
             pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-            pane.frameIndexRoot(**kwargs)
+            if custom_index:
+                getattr(self,'index_%s' %custom_index)(pane,**kwargs)
+            else:
+                pane.frameIndexRoot(**kwargs)
         else:
             pane.div('Not allowed')
     
@@ -190,8 +201,12 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('5,appName,*,messageBox,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
-                        messageBox_subscribeTo='rootmessage',gradient_from='gray',gradient_to='silver',gradient_deg=90)
+        sb = pane.slotToolbar('5,appName,*,appInfo,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
+                        gradient_from='gray',gradient_to='silver',gradient_deg=90)
+        sb.appInfo.div('^gnr.appInfo')
+        sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
+            msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
+                        tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
         appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
@@ -314,8 +329,88 @@ class FramedIndexLogin(BaseComponent):
     def loginSubititlePane(self,pane):
         pass
         
+    def login_lostPassword(self,pane,dlg_login):
+        dlg = pane.dialog(_class='lightboxDialog')
+        box = dlg.div(**self.loginboxPars())
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar.wtitle.div('!!Lost password')  
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE send_lost_password_mail;',
+                                datapath='lost_password',width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.textbox(value='^.email',lbl='!!Email')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Recover',action='FIRE recover_password',position='absolute',right='-5px',top='8px')
+        fb.dataRpc("dummy",self.login_confirmNewPassword, _fired='^recover_password',_if='email',email='=.email',
+                _onResult="""if(result=="ok"){
+                    FIRE recover_password_ok;
+                }else{
+                    FIRE recover_password_err;
+                }""")
+        fb.dataController("""genro.dlg.floatingMessage(sn,{message:msg,messageType:'error',yRatio:.95})""",
+                            msg='!!Missing user for this email',_fired='^recover_password_err',sn=dlg)
+        fb.dataController("""genro.dlg.floatingMessage(sn,{message:msg,yRatio:.95})""",
+                            msg='!!Check your email for instruction',_fired='^recover_password_ok',sn=dlg)
+        footer = box.div().slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
+        footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick='FIRE back_login;',
+                            color='silver',font_size='12px',height='15px')
+        footer.dataController("dlg_lp.hide();dlg_login.show();",_fired='^back_login',
+                        dlg_login=dlg_login.js_widget,dlg_lp=dlg.js_widget)
+            
+        return dlg
+
+    def login_newPassword(self,pane,gnrtoken=None,dlg_login=None):
+        dlg = pane.dialog(_class='lightboxDialog')
+        box = dlg.div(**self.loginboxPars())
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar.wtitle.div('!!New Password')  
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE set_new_password;',
+                                datapath='new_password',width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.data('.gnrtoken',gnrtoken)
+        fb.textbox(value='^.password',lbl='!!New Password',type='password')
+        fb.textbox(value='^.password_confirm',lbl='!!Confirm New Password',type='password',
+                    validate_call='return value==GET .password;',validate_call_message='!!Passwords must be equal')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE set_new_password',position='absolute',right='-5px',top='8px')
+        fb.dataRpc('dummy',self.login_changePassword,_fired='^set_new_password',
+                    password='=.password',password_confirm='=.password_confirm',
+                    _if='password==password_confirm',
+                    _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
+                    gnrtoken=gnrtoken,_onResult='genro.pageReload()')
+        return dlg
+        
+    def login_newUser(self,pane,dlg_login):
+        dlg = pane.dialog(_class='lightboxDialog')
+        kw = self.loginboxPars()
+        kw['width'] = '400px'
+        box = dlg.div(**kw)
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar.wtitle.div('!!New User')  
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE send_lost_password_mail;',
+                                datapath='new_user',width='100%',tdl_width='6em',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.textbox(value='^.firstname',lbl='!!First name')
+        fb.textbox(value='^.lastname',lbl='!!Last name')
+        fb.textbox(value='^.mobile',lbl='!!Mobile')
+        fb.textbox(value='^.email',lbl='!!Email')
+        fb.textbox(value='^.username',lbl='!!Username')
+        fb.textbox(value='^.password',lbl='!!Password',type='password')
+        fb.textbox(value='^.password_confirm',lbl='!!Confirm',type='password')
+
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE new_user',position='absolute',right='-5px',top='8px')
+
+        footer = box.div().slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
+        footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick='FIRE back_login;',
+                            color='silver',font_size='12px',height='15px')
+        footer.dataController("dlg_nu.hide();dlg_login.show();",_fired='^back_login',
+                        dlg_login=dlg_login.js_widget,dlg_nu=dlg.js_widget)
+            
+        return dlg
+
+
     @struct_method
-    def login_loginPage(self,sc,new_window=None):
+    def login_loginPage(self,sc,new_window=None,gnrtoken=None):
         pane = sc.contentPane(overflow='hidden',pageName='login')   
         if self.index_url:
             pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
@@ -366,18 +461,39 @@ class FramedIndexLogin(BaseComponent):
                                 window.history.replaceState({},document.title,href);
                             }
                             if(startPage=='login'){
-                                loginDialog.show();
+                                if(new_password){
+                                    newPasswordDialog.show();
+                                }else{
+                                    loginDialog.show();
+                                }
                             }else{
                                 SET indexStack = 'dashboard';
                             }
                             """,_onBuilt=True,
-                            loginDialog = dlg.js_widget,sc=sc.js_widget,fb=fb,
+                            new_password=gnrtoken or False,
+                            loginDialog = dlg.js_widget,
+                            newPasswordDialog = self.login_newPassword(pane,gnrtoken=gnrtoken,dlg_login=dlg).js_widget,
+                            sc=sc.js_widget,fb=fb,
                             _if='indexStack=="login"',indexStack='^indexStack',
                             startPage=self._getStartPage(new_window))
- 
-        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
 
-        footer = box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_login_msg',height='18px',width='100%',tdl_width='6em')
+
+        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
+        dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:.95})",subscribe_failed_login_msg=True,sn=dlg)
+
+        footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
+        lostpass = footer.lost_password.div()
+        new_user = footer.new_user.div()
+
+        if self.getPreference('general.forgot_password',pkg='adm'):
+            lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
+                            color='silver',font_size='12px',height='15px')
+            lostpass.dataController("dlg_login.hide();dlg_lp.show();",_fired='^lost_password_dlg',dlg_login=dlg.js_widget,dlg_lp=self.login_lostPassword(pane,dlg).js_widget)
+        if self.getPreference('general.new_user',pkg='adm'):
+            new_user.div('!!New User',cursor='pointer',connect_onclick='FIRE new_user_dlg;',
+                            color='silver',font_size='12px',height='15px')
+            new_user.dataController("dlg_login.hide();dlg_nu.show();",_fired='^new_user_dlg',dlg_login=dlg.js_widget,dlg_nu=self.login_newUser(pane,dlg).js_widget)
+
         footer.dataController("""
         btn.setAttribute('disabled',true);
         genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
@@ -386,8 +502,9 @@ class FramedIndexLogin(BaseComponent):
                 btn.setAttribute('disabled',false);
             }else{
                 dlg.hide();
-                if(result['rootpage']){
-                    genro.gotoURL(result['rootpage']);
+                rootpage = rootpage || result['rootpage'];
+                if(rootpage){
+                    genro.gotoURL(rootpage);
                 }
                 sc.switchPage('dashboard');
                 genro.publish('logged');
@@ -395,6 +512,7 @@ class FramedIndexLogin(BaseComponent):
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
+            rootpage='=gnr.rootenv.rootpage',
             error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  
         return dlg
 
@@ -455,12 +573,39 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 
-        rootenv['workdate'] = rootenv['workdate'] or datetime.date.today()
+        td = date.today()
+        rootenv['workdate'] = rootenv['workdate'] or td
+        if rootenv['workdate'] != td:
+            rootenv['custom_workdate'] = True
         with self.pageStore() as store:
             store.setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
         return self.avatar.as_dict()
-                    
+        
+    @public_method
+    def login_confirmNewPassword(self, email=None, **kwargs):
+        usertbl = self.db.table('adm.user')
+        users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
+        if not users:
+            return 'err'
+        for u in users:
+            userid = u['id']
+            recordBag = usertbl.record(userid).output('bag')
+            recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=recordBag['id'],max_usages=1)
+            self.db.commit()
+            recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+            self.getService('mail').sendmail_template(recordBag,to_address=email,
+                                    body='Dear $greetings set your password $link', subject='Password recovery',
+                                    async=False)
+        return 'ok'
+            #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
+
+    @public_method
+    def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
+        method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
+        if kwargs.get('userid'):
+            self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])
+        self.db.commit()
 
                                                       

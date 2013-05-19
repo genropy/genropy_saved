@@ -54,6 +54,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return parentNode.getBuiltObj();
         }
     },
+
     getDomNode:function() {
         if (this.domNode) {
             return  this.domNode;
@@ -178,7 +179,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 clearTimeout(this.pendingFire);
             }
             this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', nodeOrRunKwargs, kw, trigger_reason,subscription_args),delay);
-        } else {
+        } else if(this.attr._ask){
+            var currentAttributes = this.currentAttributes();
+            if(!this.attr._ask_if ||  funcApply('return ('+this.attr._ask_if+');',currentAttributes,this) ){
+                var that = this;
+                genro.dlg.ask(currentAttributes._ask_title || 'Warning',currentAttributes._ask,null,{confirm:function(){that.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);}});
+            }
+        }
+        else{
             return this.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);
         }
     },
@@ -294,6 +302,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var _onResult = objectPop(kwargs, '_onResult');
                 var _onError = objectPop(kwargs, '_onError');
                 var _lockScreen = objectPop(kwargs, '_lockScreen');
+                var _execClass = objectPop(kwargs, '_execClass');
                 objectPop(kwargs, 'nodeId');
                 var _onCalling = objectPop(kwargs, '_onCalling');
                 var origKwargs = objectUpdate({}, kwargs);
@@ -306,6 +315,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 var cb = function(result, error) {
                     if (_lockScreen) {
                         genro.lockScreen(false, domsource_id);
+                    }
+                    if(_execClass){
+                        genro.dom.removeClass(dojo.body(),_execClass);
                     }
                     if (error) {
                         if (_onError) {
@@ -327,7 +339,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         }
                     }
                 };
-
+                if(_execClass){
+                    genro.dom.addClass(dojo.body(),_execClass);
+                }
                 if (_onCalling) {
                     doCall = funcCreate(_onCalling, (['kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }
@@ -433,10 +447,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     fireEvent:function(path, value, attributes, reason, delay) {
         this.setRelativeData(path, value || true, attributes, true, reason, delay);
     },
-    setRelativeData: function(path, value, attributes, fired, reason, delay) {
+    setRelativeData: function(path, value, attributes, fired, reason, delay,_kwargs) {
         // var reason=reason || this
         if (delay) {
-            setTimeout(dojo.hitch(this, 'setRelativeData', path, value, attributes, fired, reason), delay);
+            setTimeout(dojo.hitch(this, 'setRelativeData', path, value, attributes, fired, reason,null,_kwargs), delay);
         } else {
             var reason = reason == null ? true : reason;
             var oldpath = path;
@@ -446,7 +460,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 genro._data.fireItem(path, value, attributes, {'doTrigger':reason});
                 genro._firingNode = null;
             } else {
-                 genro._data.setItem(path, value, attributes, {'doTrigger':reason,lazySet:true});
+                genro._data.setItem(path, value, attributes, objectUpdate({'doTrigger':reason,lazySet:true},_kwargs));
             }
         }
     },
@@ -1061,6 +1075,38 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         function(){genro.dom.makeHiderLayer(that,kw);});
         }        
     },
+
+    makeFloatingMessage:function(kw){
+        kw = objectUpdate({},kw)
+        var yRatio = objectPop(kw,'yRatio')
+        var xRatio = objectPop(kw,'xRatio')
+        var duration = objectPop(kw,'duration') || 2;
+        var duration_in = objectPop(kw,'duration_in') || duration;
+        var duration_out = objectPop(kw,'duration_out') || duration;
+
+        var sound = objectPop(kw,'sound');
+        var message = objectPop(kw,'message');
+
+        var msgType = objectPop(kw,'messageType') || 'message';
+        var transition = 'opacity '+duration_in+'s';
+        var messageBox = this._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
+        kw.innerHTML = message;
+        messageBox._('div',kw);
+        var deleteCb = function(){that._value.popNode('_floatingmess')};
+        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
+        genro.dom.centerOn(messageBox,this,xRatio,yRatio);
+        var that = this;
+        if(sound){
+            genro.playSound(sound);
+        }
+        var t1 = setTimeout(function(){
+                              genro.dom.removeClass(messageBox,'invisible');
+                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
+                                    setTimeout(deleteCb,(duration_out*1000)+1)
+                              },(duration_in*1000)+1);
+                            },1)
+
+    },
     
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
         var re= new RegExp('\\b'+attr+'\\b');
@@ -1179,7 +1225,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             else if (attr.indexOf('validate_') == 0) {
                 //this.validationsOnChange(this, this.getAttributeFromDatasource('value'));
-                if (trigger_reason == 'node') {
+                if ((trigger_reason == 'node') || (kw.reason=='resolver')){
                     this.resetValidationError();
                     var currval = this.getAttributeFromDatasource('value');
                     var newval = this.validationsOnChange(this, currval,true)['value'];
@@ -1188,7 +1234,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }else if (attr.indexOf('condition_')==0){
                 if('setCondition' in this.widget){
-                    this.widget.setCondition(value,kw);
+                    if ((trigger_reason == 'node') || (kw.reason=='resolver')){
+                        this.widget.setCondition(value,kw);
+                    }
                 }
             }
             else {
@@ -1476,8 +1524,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.updateValidationClasses();
             this.widget.state = this.hasValidationError() ? 'Error' : null;
             this.widget._setStateClass();
+
+            if(this.form){
+                this.form.updateInvalidField(this, this.attrDatapath('value'));
+            }
         }
     },
+
     updateValidationClasses: function() {
         if (this.widget.cellNode) {
             var domnode = this.widget.cellNode;
@@ -1491,6 +1544,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             genro.dom.removeClass(domnode, 'gnrrequired');
         }
     },
+
     setDisabled:function(value){
         var value = value ? true : false;
         if(this.widget){

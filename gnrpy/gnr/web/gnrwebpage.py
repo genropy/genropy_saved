@@ -399,11 +399,13 @@ class GnrWebPage(GnrBaseWebPage):
                 self.rpc.error = 'gnrexception'
                 result = str(e)
             except Exception,e:
-                if self.site.smtp_kwargs:
+                if self.site.error_smtp_kwargs:
                     import sys
                     from paste.exceptions.errormiddleware import handle_exception
-                    handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **self.site.smtp_kwargs)
-                    #handle_exception(sys.exc_info(), sys.stderr, html=False, ...other config...)
+                    error_handler_kwargs = self.site.error_smtp_kwargs
+                    error_handler_kwargs['debug_mode'] = True
+                    error_handler_kwargs['simple_html_error'] = False
+                    handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **error_handler_kwargs)
                 self.rpc.error = str(e)
                 result = None
                 
@@ -483,14 +485,21 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             result=Bag(result)
             return result,{'respath':path}
-        
+
     @public_method
-    def loadTemplate(self,template_address,asSource=False,**kwargs):
+    def renderTemplate(self,table=None,record_id=None,letterhead_id=None,tplname=None,missingMessage=None,**kwargs):
+        from gnr.web.gnrbaseclasses import TableTemplateToHtml
+        htmlbuilder = TableTemplateToHtml(table=self.db.table(table))
+        return htmlbuilder.contentFromTemplate(record=record_id,template=self.loadTemplate('%s:%s' %(table,tplname),missingMessage=missingMessage))
+
+    @public_method
+    def loadTemplate(self,template_address,asSource=False,missingMessage=None,**kwargs):
         #se template_address non ha : ---> risorsa
         #template_address = 'field:pkey'
         segments,pkey = template_address.split(':')
         dataInfo = dict()
         segments = segments.split('.')
+        missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
             resource_table = '.'.join(segments)
             resource_name = pkey
@@ -500,7 +509,7 @@ class GnrWebPage(GnrBaseWebPage):
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
         if asSource:
             return data,dataInfo
-        return data['compiled']
+        return data['compiled'] if data else missingMessage
         
     @public_method
     def saveTemplate(self,template_address,data):
@@ -856,7 +865,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: TODO"""
         return self.site.externalUrl(path, **kwargs)
 
-    def externalUrlToken(self, path, _expiry=None, _host=None, method='root', **kwargs):
+    def externalUrlToken(self, path, _expiry=None, _host=None, method='root',max_usages=None, **kwargs):
         """TODO
         
         :param path: TODO
@@ -864,7 +873,7 @@ class GnrWebPage(GnrBaseWebPage):
         """
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path, expiry=_expiry, allowed_host=_host,
-                                                                          method=method, parameters=kwargs,
+                                                                          method=method, parameters=kwargs,max_usages=max_usages,
                                                                           exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
         
@@ -1478,6 +1487,7 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
+                page.data('gnr.remote_db',self.site.remote_db)
                 if self.dbstore:
                     page.data('gnr.dbstore',self.dbstore)
                 page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
@@ -1512,14 +1522,14 @@ class GnrWebPage(GnrBaseWebPage):
   
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
+                                            subscribe_floating_message='genro.dlg.floatingMessage(this,$1);',
                                             regions='^_clientCtx.mainBC')
                 
                 typekit_code = self.site.config['gui?typekit']
                 if typekit_code and False:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
-                self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
-                
+                #self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
                 root.div(id='auxDragImage')
                 root.div(id='srcHighlighter')
                 pageOptions = self.pageOptions or dict()
@@ -1594,7 +1604,7 @@ class GnrWebPage(GnrBaseWebPage):
                 if loginUrl:
                     pageattr['redirect'] = loginUrl
                 else:
-                    pageattr['redirect'] = self.resolvePathAsUrl('simplelogin.py', folder='*common')
+                    pageattr['redirect'] = self.site.home_uri
             elif _auth == AUTH_FORBIDDEN:
                 page.clear()
                 self.forbiddenPage(page, **kwargs)
@@ -1741,19 +1751,22 @@ class GnrWebPage(GnrBaseWebPage):
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
+
     @public_method
     def subfieldExplorer(self,table=None,field=None, fieldvalue=None,prevRelation='', prevCaption='',
-                             omit='', **kwargs):
+                             omit='', recordpath=None,**kwargs):
         df_table = self.db.table(table).column(field).relatedTable().dbtable
         subfields = df_table.df_subFieldsBag(pkey=fieldvalue,df_field=prevRelation,df_caption=prevCaption)
-        df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='df_custom_templates')    
-        df_custom_templates = Bag(df_custom_templates)
-        #templates = ['auto']+df_custom_templates.keys()
-        for t in df_custom_templates.keys():
-            caption='Summary: %s' %t
-            fieldpath = '%s:@%s.df_custom_templates.%s.tpl' %(prevRelation,field,t)
-            subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath=fieldpath,
-                              fullcaption='%s/%s' %(prevCaption,caption))
+        if  df_table.model.column('df_custom_templates') is not None:
+            df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='$df_custom_templates')    
+            df_custom_templates = Bag(df_custom_templates)
+            #templates = ['auto']+df_custom_templates.keys()
+            for t in df_custom_templates.keys():
+                caption='Summary: %s' %t
+                recordpath = recordpath or '@%s' %field
+                fieldpath = '%s:%s.df_custom_templates.%s.tpl' %(prevRelation,recordpath,t)
+                subfields.setItem('summary_%s' %t,None,caption=caption,dtype='T',fieldpath=fieldpath,
+                                  fullcaption='%s/%s' %(prevCaption,caption))
             
         return subfields
 
@@ -2091,7 +2104,7 @@ class LazyBagResolver(BagResolver):
             if value and isinstance(value, Bag):
                 path = n.label if not self.path else '%s.%s' % (self.path, n.label)
                 value = LazyBagResolver(path=path, resolverName=self.resolverName, location=self.location)
-            result.setItem(n.label, value, n.attr)
+            result.setItem(n.label.replace('.','_'), value, n.attr)
         return result
         
     def getSource(self):

@@ -200,7 +200,10 @@
 /* @end */
 
 /* @group Form group */
-
+.gnr_footer{
+    background-image: -webkit-gradient(linear,  0% 0%, 0% 90%, from(rgb(190, 196, 204)), to(rgb(217, 227, 233)));
+    background-image: -moz-linear-gradient(0deg, rgb(190, 196, 204), rgb(217, 227, 233));
+}
 .pbl_roundedBlock{
     border-radius: 6px;
     position: absolute;
@@ -460,7 +463,6 @@
 ._common_d11 .dijitTabPaneWrapper {
     border-radius: 6px;
     border-top-left-radius: 0px;
-    background-color: #f6f6f6;
 }
 
 /* @group righttab */

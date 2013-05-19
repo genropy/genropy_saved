@@ -1,6 +1,21 @@
 
 
 var genropatches = {};
+genropatches.forEachError = function(){
+    var fe = dojo.forEach;
+    dojo['forEach'] = function(arr,cb,scope){
+        if(arr==null){
+            if(genro.isDeveloper){
+                debugger;
+            }else{
+                console.error('ERROR FOREACH',arguments,cb);
+                return;
+            } 
+        }
+        fe.call(dojo,arr,cb,scope);
+    }
+},
+
 genropatches.setStateClass=function(){
     dojo.require('dijit.form._FormWidget');
     dijit.form._FormWidget.prototype._setStateClass_original = dijit.form._FormWidget.prototype._setStateClass;
@@ -901,7 +916,9 @@ genropatches.borderContainer = function() {
         },
 
         _cleanupHandlers: function() {
-            dojo.forEach(this._handlers, dojo.disconnect);
+            if(this._handlers){
+                dojo.forEach(this._handlers, dojo.disconnect);
+            }
             delete this._handlers;
         },
 

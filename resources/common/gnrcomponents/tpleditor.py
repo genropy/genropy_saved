@@ -31,8 +31,8 @@ class TemplateEditorBase(BaseComponent):
     def te_getPreview(self, record_id=None, compiled=None,templates=None,template_id=None,**kwargs):
         if template_id:
             templates = self.db.table('adm.htmltemplate').readColumns(columns='$name',pkey=template_id)
-        tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
-        return self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
+        tplbuilder = self.te_getTemplateBuilder(compiled=compiled, templates=templates)
+        return self.te_renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
 
     @public_method
     def te_renderChunk(self, record_id=None,template_address=None,templates=None,template_id=None,**kwargs):
@@ -41,12 +41,18 @@ class TemplateEditorBase(BaseComponent):
             return '<div class="chunkeditor_emptytemplate">Template not yet created</div>',dataInfo
         compiled = data['compiled']
         result = Bag()
-        tplbuilder = self.getTemplateBuilder(compiled=compiled, templates=templates)
-        result['rendered'] = self.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
+        if not compiled:
+            content = data['content']
+            record = self.db.table(template_address.split(':')[0]).recordAs(record_id)
+            result['rendered'] = templateReplace(content,record)
+            result['template_data'] = data
+            return result,dataInfo
+        tplbuilder = self.te_getTemplateBuilder(compiled=compiled, templates=templates)
+        result['rendered'] = self.te_renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)),contentOnly=True)
         result['template_data'] = data
         return result,dataInfo
     
-    def getTemplateBuilder(self, compiled=None, templates=None):
+    def te_getTemplateBuilder(self, compiled=None, templates=None):
         tblobj = self.db.table(compiled.getItem('main?maintable'))
         htmlbuilder = TableScriptToHtml(page=self,templates=templates, resource_table=tblobj,templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.doctemplate = compiled
@@ -59,7 +65,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.data_tblobj = tblobj
         return htmlbuilder
         
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,contentOnly=False,**kwargs):
+    def te_renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,contentOnly=False,**kwargs):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
@@ -135,7 +141,7 @@ class TemplateEditorBase(BaseComponent):
             for code,format,mask in tplpars:
                 formats[code] = format
                 masks[code] = mask
-        template = templateReplace(datacontent, varsdict, True,False)
+        template = templateReplace(datacontent, varsdict, True,False,conditionalMode=False)
         compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
         htmltables = doc.xpath('//table')
@@ -359,8 +365,8 @@ class PaletteTemplateEditor(TemplateEditor):
     @struct_method
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
         palette = pane.palettePane(paletteCode=paletteCode or 'template_manager',
-                                    title='^.caption',
-                                    width='750px',height='500px',maxable=True,**kwargs)
+                                    title='^.caption',palette_overflow='hidden',
+                                    width='750px',height='500px',maxable=True,overflow='hidden',**kwargs)
         palette.remote(self.remoteTemplateEditor,maintable=maintable)
 
     @public_method
@@ -376,17 +382,18 @@ class PaletteTemplateEditor(TemplateEditor):
                 action="""SET .currentTemplate.pkey=$1.pkey;
                           SET .currentTemplate.mode = $1.tplmode;
                           SET .currentTemplate.path = $1.fullpath;""",_class='smallmenu')
-        infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate = genro.dom.getEventModifiers(event);',
                                 disabled='^.data.content?=!#v')
         
         editbar = sc.edit.top.bar
         editbar.replaceSlots('#','#,savetpl,5')
-        editbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        editbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate = genro.dom.getEventModifiers(event);',
                                 disabled='^.data.content?=!#v')
         
         previewbar = sc.preview.top.bar
         previewbar.replaceSlots('#','#,savetpl,5')
-        previewbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        previewbar.savetpl.slotButton('!!Save template',iconClass='iconbox save',
+                                action="""FIRE .savetemplate = genro.dom.getEventModifiers(event);""",
                                 disabled='^.data.content?=!#v')
         
         
@@ -410,15 +417,30 @@ class PaletteTemplateEditor(TemplateEditor):
         infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""
+            if(genro.isDeveloper && modifiers=='Shift'){
+                FIRE .savetemplateAsResource;
+                return;
+            }
             if(currentTemplatePkey){
                 FIRE .save_userobject = currentTemplatePkey;
             }else{
                 FIRE .save_userobject = '*newrecord*';
             }
-        """,_fired='^.savetemplate',currentTemplateMode='=.currentTemplate.tplmode',
+        """,modifiers='^.savetemplate',currentTemplateMode='=.currentTemplate.tplmode',
                             currentTemplatePath='=.currentTemplate.path',
                             currentTemplatePkey='=.currentTemplate.pkey',
                             data='=.data')
+
+        infobar.dataController("""
+            var template_address;
+            genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
+                    template_address =  table+':'+result;
+                    console.log('cccc',template_address)
+                    genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
+                }})
+        """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)
+
+
         infobar.dataController("""
                 var that = this;
                 var savepath = this.absDatapath('.userobject_meta');

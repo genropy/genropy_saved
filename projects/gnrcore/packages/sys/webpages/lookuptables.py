@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
             semaphore = not fixeed_table
             tblobj= self.db.table(table)
             th = pane.inlineTableHandler(table=table,viewResource='LookupView',datapath='.mainth',autoSave=False,saveButton=saveButton,semaphore=semaphore,
-                                    nodeId='mainth',
+                                    nodeId='mainth',configurable='*',
                                     view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data',
                                     grid_selfDragRows=tblobj.attributes.get('counter'))
             if fixeed_table:

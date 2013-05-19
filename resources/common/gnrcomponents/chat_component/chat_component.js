@@ -95,6 +95,10 @@ ct_chat_utils.read_msg = function(msgbag) {
         roomPage = genro.nodeById(roomId + '_room');
     }
     roomNode = genro.getDataNode('gnr.chat.rooms.' + roomId);
+    if(!roomNode){
+        console.log('missing roomNode')
+        return;
+    }
     roombag = roomNode.getValue();
     if (genro.getData('gnr.chat.selected_room') != roomId) {
         roombag.setItem('unread', roombag.getItem('unread') || 0 + 1);

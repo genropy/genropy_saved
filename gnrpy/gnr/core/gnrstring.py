@@ -50,7 +50,7 @@ try:
     class LocalizedWrapper(object):
 
         def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None,dtypes=None,
-                         localizer=None,urlformatter=None,noneIsBlank=None):
+                         localizer=None,urlformatter=None,noneIsBlank=None,emptyMode=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
@@ -62,6 +62,7 @@ try:
             self.localizer = localizer
             self.urlformatter = urlformatter
             self.dtypes = dtypes or dict()
+            self.emptyMode=emptyMode
 
         def __getitem__(self,k):
             as_name = k.replace('@','_').replace('.','_')
@@ -91,9 +92,14 @@ try:
                     elif as_name in self.df_templates:
                         templatepath = self.df_templates[as_name]
                         template = self.data[templatepath]
-                        return templateReplace(template,value,locale=self.locale, 
+                        result = templateReplace(template,value,locale=self.locale, 
                                                 formats=self.formats,masks=self.masks, dtypes=self.dtypes,
                                                 noneIsBlank=self.noneIsBlank)
+                        empty=templateReplace(template,value,locale=self.locale, 
+                                                formats=self.formats,masks=self.masks, dtypes=self.dtypes,
+                                                noneIsBlank=self.noneIsBlank,emptyMode=True)
+                        return result if result!=empty else ''
+
                     else:
                         return value.getFormattedValue(joiner='<br/>');
                 else:
@@ -118,7 +124,7 @@ try:
             elif not format and formattedValue:
                 value = formattedValue
             value = toText(value,locale=self.locale, format=format,mask=mask)
-            return value
+            return value if not self.emptyMode else ''
             
 
     
@@ -404,8 +410,22 @@ def regexDelete(myString, pattern):
     'Wn  turns t steering wel'
     """
     return re.sub(pattern, '', myString)
+
+
+
+def conditionalTemplate(myString,symbolDict=None):
+    def cb(g):
+        content = g.group(1)
+        m = re.search("\\$([_a-z\\@][_a-z0-9\\.\\@]*)", content)
+        if m and (m.group(1) in symbolDict) and (symbolDict[m.group(1)] not in (None,'')): 
+            return content
+        return ''
+    return re.sub("\\${([^}]*)}", cb,myString,flags=re.S)
+
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,urlformatter=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, 
+                    formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,
+                    urlformatter=None,emptyMode=None,conditionalMode=True):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -422,6 +442,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         myString = templateBag.pop('main')
         
     if not '$' in myString or not symbolDict: return myString
+
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
         #if templateBag:
@@ -431,7 +452,12 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,df_templates=df_templates,localizer=localizer,urlformatter=urlformatter)
+    if conditionalMode and '${' in myString:
+        myString = conditionalTemplate(myString,symbolDict=symbolDict)
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,
+                                    df_templates=df_templates,localizer=localizer,
+                                    urlformatter=urlformatter,emptyMode=emptyMode)
+
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:

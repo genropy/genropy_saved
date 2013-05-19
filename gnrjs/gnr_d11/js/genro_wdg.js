@@ -469,10 +469,10 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         modifiers = modifiers?modifiers.toLowerCase():modifiers;
         var result = false;
         var target = e.target;
-        if (validclass && target.className && dojo.every(validclass.split(','), function(item) {
-            return target.className.indexOf(item) < 0;
-        })) {
-            target = null;
+        if (validclass){
+            if(!target.className || (target.className && dojo.every(validclass.split(','), function(item) {return target.className.indexOf(item) < 0;}))){
+                target = null;
+            }
         }
         if (target) {
             var modif = (modifiers || "").replace('*', '') || '';
@@ -596,7 +596,9 @@ dojo.declare("gnr.RowEditor", null, {
         if(rowIndex>=0){
             this.grid.updateRow(rowIndex);
         }
-        this.data.getParentNode().clearValue();
+        if(this.data.getParentNode()){
+            this.data.getParentNode().clearValue(); //deleting data because dbevents remove changes
+        }
     },
     checkRowEditor:function(){
         var toDelete = true;
@@ -812,7 +814,7 @@ dojo.declare("gnr.GridEditor", null, {
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
         if(form && form.store){
-            return !form.locked;
+            return !form.isDisabled();
         }else{
             return 'editorEnabled' in gridSourceNode.attr? this.grid.editorEnabled:true;
         }
@@ -903,7 +905,11 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     deleteSelectedRows:function(pkeys){
-        var selectedIdx = this.grid.selection.getSelected()
+        //var selectedIdx = this.grid.selection.getSelected()
+        if(pkeys=='*'){
+            pkeys = this.grid.getAllPkeys();
+            console.log('deleting',pkeys)
+        }
         var existingPkeys = [];
         var that = this;
         var storebag = this.grid.storebag();
@@ -918,8 +924,7 @@ dojo.declare("gnr.GridEditor", null, {
         });
         if(existingPkeys.length>0){
             if(this.autoSave){
-                
-                this.grid.collectionStore().deleteAsk(existingPkeys,function(pkeys){that.markDeleted(pkeys)})
+                this.grid.collectionStore().deleteAsk(existingPkeys)
             }else{
                 this.markDeleted(existingPkeys);
             }
@@ -1389,6 +1394,9 @@ dojo.declare("gnr.GridChangeManager", null, {
         var result;
         var pars = this.grid.rowFromBagNode(rowNode);
         var cellmap = this.grid.cellmap;
+        for (var cl in cellmap){
+            pars[cl] = pars[cl];
+        }
         var struct = this.grid.structBag.getItem('#0.#0');
         var bagcellattr = struct.getNode(cellmap[formulaKey]._nodelabel).attr;
         var dynPars = objectExtract(bagcellattr,'formula_*',true);        
@@ -1460,15 +1468,18 @@ dojo.declare("gnr.GridChangeManager", null, {
         var changedPars = {};
         var k;
         var rowNode;
-        if(kw.updvalue){
-            /*
-            if(kw.node.label in this.triggeredColumns){
-                changedPars[kw.node.label] = true;
+        if(kw.updvalue && this.grid.datamode =='bag'){
+            var l = kw.node.label;
+            if(l in this.triggeredColumns){
+                changedPars[l] = true;
             }
-            rowNode = kw.node.getParentBag().getParentNode();*/
-            return;
+            rowNode = kw.node.getParentBag().getParentNode();
+            if(l in this.totalizeColumns){
+                this.updateTotalizer(l);
+            }
         }
-        if(kw.updattr){
+
+        else if(kw.updattr){
             rowNode = kw.node;
             var newattr = kw.node.attr;
             var oldattr = kw.oldattr;

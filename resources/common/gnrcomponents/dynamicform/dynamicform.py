@@ -92,8 +92,8 @@ class Form(BaseComponent):
         fb.field('validate_case',row_class='df_row field_textbox',width='100%')
         fb.br()
         
-        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.field('validate_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
+        fb.field('standard_range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
         fb.br()
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
@@ -138,6 +138,7 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('wdg_tag',name='!!Widget',width='10em')
         r.cell('mandatory', name='!!Mandatory',width='7em') 
 
+    @customizable
     def df_fieldsBagForm(self,form):
         form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         form.dataController('SET #FORM.ftitle = desc || newfield;',desc='=#FORM.record.description',newfield='!!New Field',_fired='^#FORM.controller.loaded')
@@ -162,9 +163,7 @@ class DynamicFormBagManager(BaseComponent):
         fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
 
         fb.br()
-        
-        fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
-        
+        self.df_formulaField(fb)        
         fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
         fb.br()
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
@@ -192,14 +191,20 @@ class DynamicFormBagManager(BaseComponent):
         fb.filteringSelect(value='^.validate_case',lbl='!!Case',row_class='df_row field_textbox',width='100%',values='u:Uppercase,l:Lowercase,c:Capitalize,t:Title')
         fb.br()
         
-        fb.textbox(value='^.validate_range',lbl='!!Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
-        fb.textbox(value='^.standard_range',lbl='!!Std.Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox',ghost='min:max')
+        fb.textbox(value='^.validate_range',lbl='!!Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
+        fb.textbox(value='^.standard_range',lbl='!!Std.Range',width='100%',row_class='df_row field_numbertextbox field_numberspinner field_currencytextbox field_horizontalslider',ghost='min:max')
         fb.br()
         fb.numbertextBox(value='^.wdg_kwargs.crop_height',width='100%',row_class='df_row field_img',lbl='!!Crop H')
         fb.numbertextBox(value='^.wdg_kwargs.crop_width',width='100%',row_class='df_row field_img',lbl='!!Crop W')
         fb.br()
         fb.simpleTextArea(value='^.source_graph',lbl='!!Graph',colspan=3,row_class='df_row field_graph',
                 width='100%',lbl_vertical_align='top',height='60px')
+        return fb
+
+    @customizable
+    def df_formulaField(self,fb):
+        return fb.simpleTextArea(value='^.formula',lbl='!!Formula',colspan=3,width='100%',row_class='df_row field_calculated',lbl_vertical_align='top',height='60px')
+
 
     @customizable
     def df_customTabs(self,tc):
@@ -294,11 +299,10 @@ class DynamicForm(BaseComponent):
         self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
         self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
         center = bc.contentPane(region='center',overflow='hidden')
-        if mastertblobj.attributes.get('df_fieldstable'):
+        if mastertblobj.column('df_fields') is None:
             th = self.df_fieldsTableGrid(center,**kwargs)
         else:
             th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
-
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
@@ -309,6 +313,7 @@ class DynamicForm(BaseComponent):
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
         bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode,overflow='hidden')
+        
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
@@ -385,7 +390,9 @@ class DynamicForm(BaseComponent):
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
         pane.attributes['_workspace'] = True
-        pane.div().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
+        pane.attributes.update(overflow='hidden')
+        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,
+                            df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
   
 
 
@@ -399,8 +406,9 @@ class DynamicForm(BaseComponent):
         return result
 
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
-        pane.data(datapath,Bag())
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,clearData=False,**kwargs):
+        if clearData:
+            pane.data(datapath,Bag())
         if not (df_pkey or df_groups):
             pane.div()
             return
@@ -409,7 +417,7 @@ class DynamicForm(BaseComponent):
         pkeylist = df_groups.digest('#a.pkey') if df_groups else [df_pkey]
         global_fields = dict([(pkey,df_tblobj.df_getFieldsRows(pkey=pkey)) for pkey in pkeylist])
         if df_groups:
-            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath)
+            groupfb = pane.formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath,tdl_hidden=True)
             global_vars = self.df_prepareGlobalVars(global_fields=global_fields,df_groups=df_groups)
             for gr in df_groups:
                 gr_attr=gr.attr
@@ -425,7 +433,7 @@ class DynamicForm(BaseComponent):
                 grp=box.div(margin_right='10px')
                 fields = global_fields[pkey]
                 if fields:
-                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr['global_namespace'] else None,**kwargs)
+                    grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr.get('global_namespace') else None,**kwargs)
         else:
             ncol = df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
             fields = global_fields[df_pkey]
@@ -545,7 +553,15 @@ class DynamicForm(BaseComponent):
         attr.setdefault('popup',True)
         attr.setdefault('codeSeparator',False)
         attr['values'] = attr.get('source_checkboxtext')    
-        
+    
+    def df_horizontalslider(self,attr,dbstore_kwargs=None,**kwargs):
+        if attr['tag'].lower()=='horizontalslider' and attr.get('validate_range'):
+            attr['min'], attr['max'] = attr['validate_range'].split(':')
+            attr.pop('validate_range')
+            attr['intermediateChanges'] = True
+            if not attr.get('width'):
+                attr['width'] = '200px'
+    
     def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,**kwargs):
         formula = attr.pop('formula',None)
         if not formula:

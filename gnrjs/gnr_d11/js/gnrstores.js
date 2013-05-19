@@ -564,10 +564,14 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             dojo.hitch(scope, request.onItem)(result);
         } else {
             var id = request.identity;
-    
+            if (isNullOrBlank(id)){
+                console.log('ID NULL OR BLANK')
+                dojo.hitch(scope, request.onItem)(null);
+                return;     
+            }
             var parentSourceNode = this._parentSourceNode;
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
-            if(!(('rowcaption' in parentSourceNode.attr) || objectNotEmpty(selectedAttrs))){
+            if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
                 recordNodePath = recordNodePath.slice(1);
                 if(recordNodePath.indexOf('.')==0){

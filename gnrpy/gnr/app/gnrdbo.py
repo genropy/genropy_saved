@@ -174,6 +174,7 @@ class TableBase(object):
                                              onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
+                                                                                        #deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
@@ -203,7 +204,9 @@ class TableBase(object):
                 tbl.column('_h_count',group=group,_sysfield=True)
                 tbl.column('_parent_h_count',group=group,_sysfield=True) 
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
-                tbl.attributes.setdefault('order_by','$_h_count')
+                default_order_by = '$_h_count' if hierarchical == 'pkey' else " COALESCE($_h_count,$%s) " %hierarchical.split(',')[0]
+                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True)
+                tbl.attributes.setdefault('order_by','$_h_sortcol')
             else:
                 self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')
@@ -254,9 +257,11 @@ class TableBase(object):
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         pkeyfield = self.pkey
-
-        parent_id=record.get('parent_id')        
-        parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()[0] if parent_id else None
+        parent_id=record.get('parent_id')
+        parent_record = None
+        if parent_id:
+            parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()
+            parent_record = parent_record[0] if parent_record else None
         for fld in self.attributes.get('hierarchical').split(','):
             parent_h_fld='_parent_h_%s'%fld
             h_fld='hierarchical_%s'%fld
@@ -268,7 +273,7 @@ class TableBase(object):
         record['_parent_h_count'] = parent_record['_h_count'] if parent_record else None
         if old_record is None and record.get('_row_count') is None:
             #has counter and inserting a new record without '_row_count'
-            where = '$parent_id IS NULL' if not record['parent_id'] else '$parent_id =:p_id' 
+            where = '$parent_id IS NULL' if not record.get('parent_id') else '$parent_id =:p_id' 
             last_counter = self.readColumns(columns='$_row_count',where=where,
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
@@ -297,22 +302,21 @@ class TableBase(object):
                 self.update(new_row, row)
 
     def trigger_setCounter(self,record,fldname,**kwargs):
-        if record.get('_row_count') is not None:
+        if record.get(fldname) is not None:
             return
-        fldlist = self.column(fldname).attributes.get('_counter_fkey').split(',')
-        where = []
-        wherekw = dict()
-        cols = []
-        for f in fldlist:
-            if record.get(f):
-                where.append('$%s=:p_%s' %(f,f))
-                wherekw['p_%s' %f] = record[f]
-                cols.append('$%s' %f)
-                break
-        if cols:
-            last_counter = self.readColumns(columns='$%s' %fldname,where=' OR '.join(where),
-                                        order_by='$%s desc' %fldname,limit=1,**wherekw)
-            record[fldname] = (last_counter or 0)+1
+        counter_fkey = self.column(fldname).attributes.get('_counter_fkey')
+        where = None
+        wherekw = dict()        
+        if counter_fkey is not True:
+            filtered = filter(lambda n: record.get(n),counter_fkey.split(','))
+            if not filtered:
+                return
+            counter_fkey = filtered[0]
+            where = '$%s=:p_%s' %(counter_fkey,counter_fkey)
+            wherekw['p_%s' %counter_fkey] = record[counter_fkey]
+        last_counter = self.readColumns(columns='$%s' %fldname,where=where,
+                                    order_by='$%s desc' %fldname,limit=1,**wherekw)
+        record[fldname] = (last_counter or 0)+1
         
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
@@ -386,15 +390,37 @@ class TableBase(object):
             self.restoreUnifiedRecord(record)
 
     def df_getFieldsRows(self,pkey=None,**kwargs):
-        fieldstable = self.attributes.get('df_fieldstable')
-        if fieldstable:
+        if self.column('df_fields') is None:
+            fieldstable = self.attributes.get('df_fieldstable')
             return self.df_getFieldsRows_table(fieldstable,pkey=pkey,**kwargs)
         else:
             return self.df_getFieldsRows_bag(pkey,**kwargs)
 
+    def df_importLegacyScript(self):
+        updRecords = dict()
+        pkeys = self.query().selection().output('pkeylist')
+        for pkey in pkeys:
+            self._df_importLegacyRec(pkey,updRecords=updRecords)
+        def cb(row):
+            row['df_fields'] = updRecords.get(row.get('id'))
+        self.batchUpdate(cb,_pkeys=pkeys)
+
+    def _df_importLegacyRec(self,pkey=None,updRecords=None):
+        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
+        f = fieldstable.query(where='$maintable_id=:m_id',m_id=pkey,bagFields=True,order_by='$_row_count').fetch()
+        b = Bag()
+        for r in f:
+            c = dict(r)
+            for k in ('id','__del_ts','_row_count','maintable_id','pkey'):
+                c.pop(k)
+            c['wdg_kwargs'] = Bag(c['wdg_kwargs'])
+            c = Bag(c)
+            b.setItem(c['code'],c)
+        updRecords[pkey] = b
+
     def df_getFieldsRows_bag(self,pkey=None,**kwargs):
         hierarchical = self.attributes.get('hierarchical')
-        where="$id=:p"
+        where="$%s=:p" %self.pkey
         p = pkey
         order_by = '$__ins_ts'
         columns='*,$df_fields'
@@ -670,6 +696,16 @@ class DynamicFieldsTable(GnrDboTable):
                     one_group='_',many_group='_')
         if mastertbl.attributes.get('hierarchical'):
             tbl.formulaColumn('hlevel',"""array_length(string_to_array(@maintable_id.hierarchical_pkey,'/'),1)""")
+
+    def onSiteInited(self):
+        if self.pkg.attributes.get('df_ok'):
+            return
+        mastertbl = self.fullname.replace('_df','')
+        tblobj = self.db.table(mastertbl)
+        if tblobj.column('df_fields') is not None:
+            print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
+            tblobj.df_importLegacyScript()
+            return True
 
         
               

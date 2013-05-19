@@ -949,7 +949,7 @@ class DbTableObj(DbModelObj):
         result = Bag()
         for k, joiner in self.relations.digest('#k,#a.joiner'):
             if joiner and joiner['mode'] == 'O':
-                result[joiner['many_relation'].split('.')[-1]] = joiner['one_relation']
+                result.setItem(joiner['many_relation'].split('.')[-1],joiner['one_relation'],joiner)
         return result
         
     relations_one = property(_get_relations_one)

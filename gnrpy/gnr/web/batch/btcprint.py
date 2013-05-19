@@ -25,6 +25,9 @@ class BaseResourcePrint(BaseResourceBatch):
     batch_mail_modes = ['mail_pdf','mail_deliver']
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
+        batch_print_modes = self.db.application.getPreference('.print.modes',pkg='sys')
+        if batch_print_modes:
+            self.batch_print_modes = batch_print_modes.split(',')
         if self.html_res:
             self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
                                                         respath=self.html_res, class_name='Main')
@@ -61,6 +64,12 @@ class BaseResourcePrint(BaseResourceBatch):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield],idx=k)
 
     def print_record(self, record=None, thermo=None, storagekey=None,idx=None):
+        result = self.do_print_record(record=record)
+        self.onRecordExit(record)
+        if result:
+            self.storeResult(storagekey, result, record, filepath=getattr(self.htmlMaker,'filepath',result))
+
+    def do_print_record(self,record=None,idx=None,thermo=None):
         result = None
         if self.htmlMaker.cached:
             self.htmlMaker.record = record
@@ -71,10 +80,8 @@ class BaseResourcePrint(BaseResourceBatch):
         if not result:
             result = self.htmlMaker(record=record,record_idx=idx, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
-        self.onRecordExit(record)
-        if result:
-            self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)
-            
+        return result
+    
     def onRecordExit(self, record=None):
         """Hook method.
         

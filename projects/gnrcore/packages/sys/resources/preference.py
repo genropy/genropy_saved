@@ -36,8 +36,11 @@ class AppPref(object):
         fb.filteringSelect(value='^.default_fontsize',values='!!12px:Small,13px:Medium,14px:Large,15px:Extra Large',lbl='Font size')
         fb.comboBox(value='^.rootstyle.font_family',values=FONTFAMILIES,lbl='Font family',width='20em')        
         
-        pdfpane = tc.contentPane(title='Pdf render')
-        fb = pdfpane.formbuilder(cols=1, border_spacing='4px',datapath='.pdf_render')
+        pdfpane = tc.borderContainer(title='Print')
+        fb = pdfpane.roundedGroup(title='Print Modes',region='top',height='50px')
+        fb.checkBoxText(value='^.print.modes',values='pdf:PDF,server_print:Server Print,mail_pdf:PDF Mail,mail_deliver:Mail Deliver',lbl='Print modes')
+
+        fb = pdfpane.roundedGroup(title='PDF Render',region='center').formbuilder(cols=1, border_spacing='4px',datapath='.pdf_render')
         fb.textbox(value='^.margin_top',lbl='Margin top')
         fb.textbox(value='^.margin_bottom',lbl='Margin bottom')
         fb.textbox(value='^.margin_left',lbl='Margin left')

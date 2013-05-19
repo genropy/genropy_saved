@@ -118,6 +118,7 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         if self.onRecordLoaded() is False:
             return False
+
         self.showTemplate(hideTemplate is not True)
         self.htmlTemplate = None
         self.prepareTemplates()
@@ -310,7 +311,9 @@ class BagToHtml(object):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             
         lines = self.getData(self.rows_path)
-        
+        if not lines and hasattr(self,'empty_row'):
+            lines = Bag()
+            lines.setItem('empty',Bag(self.empty_row),**self.empty_row)
         if lines:
             if isinstance(lines, Bag):
                 nodes = lines.getNodes()
@@ -319,7 +322,6 @@ class BagToHtml(object):
             lastNode = nodes[-1] 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
-            
             for rowDataNode in nodes:
                 self.isLastRow = rowDataNode is lastNode
                 self.currRowDataNode = rowDataNode
@@ -340,6 +342,7 @@ class BagToHtml(object):
             for copy in range(self.copies_per_page):
                 self.copy = copy
                 self._closePage(True)
+
         
     def onNewRow(self):
         pass

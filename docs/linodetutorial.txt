@@ -1,3 +1,12 @@
+=== Jeff's install problems ==
+
+1. when I had installed .gnr files my copy was not complete . . causing an error
+2. postgres password was not correct for the instanceconfig in .gnr
+3. the dependencies in securepay were not installed and causing an error
+4. postgres install needed a modification in pg_hba.conf from PEER to TRUSTED in order for it to work
+===============================
+
+
 Enable  /etc/apt/sources.list  repositories universe removing #
 
 
@@ -24,6 +33,7 @@ apt-get install python-reportlab
 apt-get install python-qt4  
 apt-get install libxml2-dev libxslt-dev
 apt-get install libcups2-dev wget cups cups-client
+apt-get install memcached
 
 THE GREAT MAGIC WORD
 apt-get install libapache2-mod-wsgi postgresql build-essential subversion python-psycopg2 python-setuptools python-dev python-reportlab python-qt4 libxml2-dev libxslt-dev libcups2-dev wget cups cups-client

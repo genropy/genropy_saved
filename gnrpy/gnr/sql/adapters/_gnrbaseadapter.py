@@ -55,7 +55,7 @@ class SqlDbAdapter(object):
         self.dbroot = dbroot
         self.options = kwargs
 
-    def connect(self):
+    def connect(self, storename=None):
         """-- IMPLEMENT THIS --
         Build and return a new connection object: ex. return dbapi.connect()
         The returned connection MUST provide cursors accessible by col number or col name (as list or as dict)
@@ -337,7 +337,8 @@ class SqlDbAdapter(object):
         record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         for k in record_data.keys():
-            sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
+            if k in tblobj.sqlnamemapper:
+                sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
         pkeyColumn = tblobj.pkey
         if pkey:
             pkeyColumn = '__pkey__'
@@ -624,8 +625,11 @@ class GnrWhereTranslator(object):
                 if not op or not column:
                     #ingnoring empty query lines
                     continue
+                colobj=tblobj.column(column)
+                if colobj is None:
+                    raise tblobj.exception('not_existing_column', column=column)
+                dtype = colobj.dtype
 
-                dtype = tblobj.column(column).dtype
                 if value is None and attr.get('value_caption'):
                     value = sqlArgs.pop(attr['value_caption'])
                 onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs)

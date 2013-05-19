@@ -260,13 +260,16 @@ class GnrWsgiSite(object):
         return self.wsgiapp(environ, start_response)
         
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,
-                 options=None):
+                 options=None, remotesshdb=None):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
         self._currentPages = {}
         self._currentRequests = {}
         abs_script_path = os.path.abspath(script_path)
+        self.remote_db = ''
+        if site_name and ':' in site_name:
+            site_name,self.remote_db = site_name.split(':',1)
         if os.path.isfile(abs_script_path):
             self.site_path = os.path.dirname(abs_script_path)
         else:
@@ -302,6 +305,8 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
+        self.option_restore = options.restore if options else None
+        self.remotesshdb = remotesshdb
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -314,6 +319,7 @@ class GnrWsgiSite(object):
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
+
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
@@ -326,7 +332,12 @@ class GnrWsgiSite(object):
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
-            
+        if counter == 0 and options and options.source_instance:
+            self.gnrapp.importFromSourceInstance(options.source_instance)
+            self.db.commit()
+            print 'End of import'
+
+
     #def addSiteServices(self):
     #    """TODO"""
     #    service_names=[]
@@ -792,7 +803,7 @@ class GnrWsgiSite(object):
     def build_wsgiapp(self):
         """Build the wsgiapp callable wrapping self.dispatcher with WSGI middlewares"""
         wsgiapp = self.dispatcher
-        self.smtp_kwargs = None
+        self.error_smtp_kwargs = None
         if self.profile:
             from repoze.profile.profiler import AccumulatingProfileMiddleware
             wsgiapp = AccumulatingProfileMiddleware(
@@ -809,19 +820,19 @@ class GnrWsgiSite(object):
         else:
             err_kwargs = dict(debug=True)
             if 'debug_email' in self.config:
-                smtp_kwargs = self.config.getAttr('debug_email')
-                if smtp_kwargs.get('smtp_password'):
-                    smtp_kwargs['smtp_password'] = smtp_kwargs['smtp_password'].encode('utf-8')
-                if smtp_kwargs.get('smtp_username'):
-                    smtp_kwargs['smtp_username'] = smtp_kwargs['smtp_username'].encode('utf-8')
-                if 'error_subject_prefix' not in smtp_kwargs:
-                    smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
-                smtp_kwargs['error_email'] = smtp_kwargs['error_email'].replace(';', ',').split(',')
-                if 'smtp_use_tls' in smtp_kwargs:
-                    smtp_kwargs['smtp_use_tls'] = (smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
-                self.smtp_kwargs = dict(smtp_kwargs)
-                self.smtp_kwargs['error_email_from'] = self.smtp_kwargs.pop('from_address')
-                err_kwargs.update(smtp_kwargs)
+                error_smtp_kwargs = self.config.getAttr('debug_email')
+                if error_smtp_kwargs.get('smtp_password'):
+                    error_smtp_kwargs['smtp_password'] = error_smtp_kwargs['smtp_password'].encode('utf-8')
+                if error_smtp_kwargs.get('smtp_username'):
+                    error_smtp_kwargs['smtp_username'] = error_smtp_kwargs['smtp_username'].encode('utf-8')
+                if 'error_subject_prefix' not in error_smtp_kwargs:
+                    error_smtp_kwargs['error_subject_prefix'] = '[%s] ' % self.site_name
+                error_smtp_kwargs['error_email'] = error_smtp_kwargs['error_email'].replace(';', ',').split(',')
+                if 'smtp_use_tls' in error_smtp_kwargs:
+                    error_smtp_kwargs['smtp_use_tls'] = (error_smtp_kwargs['smtp_use_tls'] in (True, 'true', 't', 'True', '1', 'TRUE'))
+                self.error_smtp_kwargs = dict(error_smtp_kwargs)
+                self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
+                err_kwargs.update(error_smtp_kwargs)
             wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         return wsgiapp
         
@@ -833,14 +844,19 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
-        
-        restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
-        restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
-        if restorefiles:
-            restorepath = os.path.join(restorepath,restorefiles[0])
-        else:
-            restorepath = None
-        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
+        restorepath = self.option_restore
+        restorefiles=[]
+        if restorepath:
+            if restorepath == 'auto':
+                restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
+            restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+            if restorefiles:
+                restorepath = os.path.join(restorepath,restorefiles[0])
+            else:
+                restorepath = None
+        if self.remote_db:
+            instance_path = '%s:%s' %(instance_path,self.remote_db)
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotesshdb=self.remotesshdb)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
             if os.path.isfile(restorepath):
@@ -968,7 +984,7 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        self.register.drop_page(page_id, cascade=True)
+        self.register.drop_page(page_id, cascade=False)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         

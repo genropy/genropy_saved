@@ -95,7 +95,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None):
+                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -424,6 +424,9 @@ class GnrSqlDb(GnrObject):
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 
+    def raw_update(self, tblobj, record, **kwargs):
+        self.adapter.update(tblobj, record,**kwargs)
+
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
@@ -463,9 +466,26 @@ class GnrSqlDb(GnrObject):
         
     def commit(self):
         """Commit a transaction"""
+        self.onCommitting()
         self.connection.commit()
         if not self.systemDbEvent():
             self.onDbCommitted()
+
+    def onCommitting(self):
+        deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
+        while deferreds:
+            node =  deferreds.getNode('#0')
+            cb,args,kwargs = node.value
+            cb(*args,**kwargs)
+            deferreds.pop(node.label)
+
+    def deferToCommit(self,cb,*args,**kwargs):
+        deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
+        deferredId = kwargs.pop('_deferredId',None)
+        if not deferredId:
+            deferredId = getUuid()
+        if not deferredId in deferreds:
+            deferreds.setItem(deferredId,(cb,args,kwargs))
     
     def deferredCommit(self):
         currentEnv = self.currentEnv

@@ -79,7 +79,9 @@ class TableHandlerTreeResolver(BagResolver):
             where='$parent_id=:p_id'
         caption_field = self.caption_field
         if not caption_field:
-            if tblobj.attributes['hierarchical'] != 'pkey':
+            if tblobj.attributes.get('hierarchical_caption_field'):
+                caption_field = tblobj.attributes['hierarchical_caption_field']
+            elif tblobj.attributes['hierarchical'] != 'pkey':
                 caption_field = tblobj.attributes['hierarchical'].split(',')[0]
             else:
                 caption_field = tblobj.attributes.get('caption_field')
@@ -139,7 +141,7 @@ class TableHandlerTreeResolver(BagResolver):
             db = self._page.db
             tblobj = db.table(self.table)
             condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s ) AND $parent_id IS NOT NULL' %self.condition,columns='$hierarchical_pkey',
+            valid = tblobj.query(where='$child_count=0 AND ( %s )' %self.condition,columns='$hierarchical_pkey',
                                  _storename=self.dbstore,addPkeyColumn=False,**condition_kwargs).fetch()
             condition_pkeys = set()
             for r in valid:
@@ -170,7 +172,7 @@ class HTableTree(BaseComponent):
                         condition_kwargs=dbselect_condition_kwargs,
                         cacheTime=0,caption_field=caption_field)
         dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action='this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);'
+                        action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
                         #selected_pkey=attr['value'].replace('^','')
                       )
         
@@ -220,11 +222,11 @@ class HTableTree(BaseComponent):
             into_pkey = into_pkey or None
             tblobj.batchUpdate(dict(parent_id=into_pkey),where='$id=:pkey',pkey=pkey)
             self.db.commit()
-        elif (modifiers == 'Meta' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
+        elif (modifiers == 'Shift' or modifiers == 'Shift,Meta') and (into_parent_id==parent_id) and tblobj.column('_row_count') is not None:
             where='$parent_id=:p_id' if parent_id else '$parent_id IS NULL'
             f = tblobj.query(where=where,p_id=parent_id,for_update=True,order_by='$_row_count',addPkeyColumn=False).fetch()
             b = Bag([(r['id'],dict(r)) for r in f])
-            pref = '>' if modifiers == 'Meta' else '<'
+            pref = '>' if modifiers == 'Shift' else '<'
             b.setItem(pkey,b.pop(pkey),_position='%s%s' %(pref,into_pkey))
             for k,r in enumerate(b.values()):
                 counter = k+1
@@ -251,19 +253,22 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
         treeattr.update(kwargs)
+        if excludeRoot:
+            treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=treeattr['storepath'],table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
+                                        console.log('ffff',dropInfo)
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,

@@ -54,6 +54,11 @@ cursorZoom_plus{
 
 }
 
+
+.tundra .dijitTabPaneWrapper{
+    background: none;
+}
+
 .iskeepable{
     
 }
@@ -189,6 +194,9 @@ cursorZoom_plus{
 .gnrdebugger {
     z-index: 1000 !important;
 }
+.gnroutofdate .pbl_avatar,.gnroutofdate .pbl_slotbar_label{
+    color:red !important;
+}
 
 /* @group BUTTONS */
 
@@ -206,6 +214,7 @@ cursorZoom_plus{
     font-weight: normal;
 }
 .tundra .dijitButtonText {
+
 	text-align: center;
 	padding: 0 0.3em;
 }
@@ -250,6 +259,26 @@ cursorZoom_plus{
 	border-color: silver;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+
+.tundra .dijitButton.dijitButtonActive .dijitButtonNode,
+.tundra .dijitButtonNodeActive,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsActive,
+.tundra .dijitComboButton .dijitDownArrowButtonActive{
+    /* hover state - inner */
+    /* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));*/
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border-color: gray;
+}
+
+.tundra .dijitButton.dijitButtonActive .dijitButtonText{
+    color:white;
 }
 
 .fakeButton{
@@ -315,7 +344,33 @@ cursorZoom_plus{
 
 /* @end */
 .slotbar_toolbar .dijitButtonNode{
-    box-shadow: 1px 2px 1px #666;
+
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    font-size: .9em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-variant:small-caps;
+    /*box-shadow: 1px 2px 1px #666;*/
+}
+.slotbar_toolbar .dijitButtonHover .dijitButtonNode{
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+}
+
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode{
+    background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+    border: 1px solid #666;
+
+}
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode .dijitButtonText{
+    color:white !important;
 }
 
 ._common_d11 .dijitComboBox .dijitArrowButton {
@@ -323,7 +378,6 @@ cursorZoom_plus{
     border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
     box-shadow: none;
-
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
@@ -399,7 +453,16 @@ cursorZoom_plus{
     padding-top: 1px;
 }
 
-.fakeTextBox,.smallFakeTextBox {
+.gnrfield.tag_div>div{
+    padding-top: 2px;
+    min-height: 14px;
+    line-height: normal;
+}
+.gnrfield.tag_checkbox label{
+    color: #707070;
+}
+
+.fakeTextBox,.smallFakeTextBox, .gnrfield.tag_div>div.fakeTextBox{
 	background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
@@ -411,14 +474,14 @@ cursorZoom_plus{
     min-height: 14px;
 }
 
-.fakeNumberTextBox {
+.fakeNumberTextBox ,.gnrfield.tag_div>div.fakeNumberTextBox{
 	background: white;
     border: 1px solid #B3B3B3;
     /*box-shadow: 0 2px 2px #DDDDDD inset;*/
     line-height: normal;
     border-radius:3px;
     position: relative;
-    padding-left: 2px;
+    padding-right: 2px;
     padding-top: 1px;
     min-height: 14px;
     text-align: right;
@@ -1212,12 +1275,11 @@ table.formbuilder {
 /* @group Base12 */
 
 .dijitTextBoxDisabled .dateTextBoxCal{
-    display: none;
+    visibility: hidden;
 }
 .dateTextBoxCal{
     background: url(icons/base12/calsmall.png) no-repeat center center;
     opacity:.6;
-    display: block;
 }
 
 .timeTextBoxWatch{
@@ -1408,6 +1470,11 @@ div.dojoxDock {
     width:32px;
 }
 /* @group Base16 */
+.iconCreditWarning{
+    background: url(icons/base16/credit_warning.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBaseActivity{
     background: url(icons/base16/activity_icon.png) no-repeat center center;
     width: 16px;
@@ -2192,6 +2259,9 @@ textarea:disabled {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#E3E3E3), to(#CDCDCD));
     background-image: -moz-linear-gradient(-90deg, #E3E3E3, #CDCDCD);
 }
+
+
+
 .tundra .dijitToolbar label {   
     padding: 3px 3px 0 6px;
 }
@@ -2342,6 +2412,9 @@ body *{
     display: inline-block;
 }
 
+.dojoxFloatingPane.dijitContentPane{
+    overflow: hidden;
+}
 .dijitContentPane>.textAreaWrapper{
     position: absolute;
     display: block;
@@ -2470,6 +2543,14 @@ body *{
     box-shadow: 0px 0px 1px #488fd7;
 }
 
+
+.slotbar_toolbar .gnrfieldlabel {
+    /*vertical-align: middle;*/
+    color: #555;
+    margin-top:2px;
+    white-space: nowrap;
+    padding-left:4px;
+}
 /* @end */
 
 
@@ -2971,6 +3052,13 @@ img.cannotBeDropped {
     display:inline-block;
 }
 
+/*
+.draggedItem {
+    border: 2px solid yellow;
+}
+.draggedItem>*{
+    -webkit-transform: scale(.9,.9);
+}*/
 
 .draggedItem {
     /*background-color: rgba(252, 252, 169, 0.63) !important;*/
@@ -2982,6 +3070,7 @@ img.cannotBeDropped {
     padding-right: 5px !important;
     padding-top: 2px !important;
     padding-bottom: 2px !important;
+    min-height: 16px;
 }
 
 .draggedItem .dojoxGrid {
@@ -3303,9 +3392,9 @@ p {
     padding-top:1px;
     padding-bottom:1px;
     line-height:3ex;
-    font-size: 9pt;
+    font-size: .9em;
     font-variant:small-caps;
-    height: 20px;
+    height: 19px;
 }
 
 
@@ -3313,7 +3402,7 @@ p {
     height: 18px;
     font-variant:normal;
     line-height:15px;
-    font-size: 8pt;
+    font-size: .9em;
 }
 
 .multibutton:hover{
@@ -3368,20 +3457,21 @@ p {
 
 .multibutton_closer{
     position: absolute;
-    top:4px;
+    top:3px;
     right:2px;
 }
-.multibutton_closer{
-    position: absolute;
-    top:1px;
-    right:2px;
-}
+
 .multipage_add{
     background: url(icons/base10/smalladd.png) no-repeat center center;
     opacity: .5;
     width: 10px;
 }
 
+.multipage_del{
+    background: url(icons/base10/smalldel.png) no-repeat center center;
+    opacity: .5;
+    width: 10px;
+}
 /* @end */
 
 
@@ -3559,6 +3649,13 @@ div[disabled='true']{
 .tinyOpenBranch{
     background: url(icons/base10/tinyOpenBranch.png) no-repeat right 4px;
 }
+.tunerUp{
+    background: url(icons/base10/tuner_up.png) no-repeat center center;
+}
+.tunerDown{
+    background: url(icons/base10/tuner_down.png) no-repeat center center;
+}
+
 
 .tinytree .dijitTreeExpando{
     display: none;
@@ -3603,3 +3700,40 @@ div[disabled='true']{
 .backgroundLetterhead{
     opacity: .5;
 }
+
+.invisible{
+    opacity: 0;
+}
+.fm_box{
+    font-size: 1.5em;
+    color:white;
+    padding: 3px;
+    padding-right: 25px;
+    padding-left: 10px;
+    position:absolute;
+    border-radius: 4px;
+    box-shadow: 3px 3px 4px #888;
+    z-index: 99999;
+}
+
+.fm_message{
+    background:rgba(23, 163, 28, 0.60);
+}
+
+.fm_error{
+    background:rgba(201, 17, 17, 0.60);
+}
+
+.fm_warning{
+    background:rgba(250, 120, 0, 0.60)
+}
+.fm_closebtn{
+    height: 18px;
+    width: 18px;
+    cursor: pointer;
+    background: url(icons/fm_close.gif) no-repeat center center;
+    position: absolute;
+    right:2px;
+    top:4px;
+}
+

@@ -37,8 +37,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     makeMultiPageStack:function(parentStack,kw){
         var root = genro.src.newRoot();
         var rootPageName = kw.rootPageName;
-        var label = kw.label;
-        var fp = root._('framePane',rootPageName,{frameCode:label+'_#',pageName:rootPageName,title:label});
+        var fp = root._('framePane',rootPageName,{frameCode:kw.name+'_#',pageName:rootPageName,title:kw.label});
         this.framePageTop(fp,kw);
         var sc = fp._('StackContainer',{side:'center',nodeId:rootPageName+'_multipage',selectedPage:'^iframes.'+rootPageName+'?selectedPage'}); 
         var frameNode = root.popNode('#0');
@@ -102,8 +101,18 @@ dojo.declare("gnr.FramedIndexManager", null, {
     },
 
     selectIframePage:function(kw){
+        var openKw = objectPop(kw,'openKw');
         var rootPageName = this.createIframeRootPage(kw);
         this.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
+        if(openKw){
+            var that = this;
+            this.stackSourceNode.watch('loadingOpenKw',function(){
+                return that.getCurrentIframe(rootPageName);
+            },function(){
+                var iframe = that.getCurrentIframe(rootPageName);
+                iframe.gnr.postMessage(iframe.sourceNode,openKw);
+            })
+        }
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
     
@@ -201,14 +210,20 @@ dojo.declare("gnr.FramedIndexManager", null, {
     },
 
     reloadSelectedIframe:function(rootPageName){
+        var iframe = this.getCurrentIframe(rootPageName);
+        if(iframe){
+            iframe.sourceNode._genro.pageReload();
+        }
+    },
+
+    getCurrentIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
         var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');
         var iframeId = iframePageId;
         if(rootPageName!=iframePageId){
             iframeId = rootPageName+'_'+iframePageId;
         }
-        var iframe = dojo.byId("iframe_"+iframeId);
-        iframe.sourceNode._genro.pageReload();
+        return dojo.byId("iframe_"+iframeId);
     },
 
     menuAction:function(menuitem,ctxSourceNode,event){
