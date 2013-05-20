@@ -363,15 +363,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             var that = this;
             if(command=='deleteItem'){
-                var r = this.store.deleteItem(kw.pkey,kw);
-                if(kw.onDeleted){
-                    var onDeleted = funcCreate(kw.onDeleted,'result',this);
-                    if(r instanceof dojo.Deferred){
-                        r.addCallback(onDeleted);
-                    }else{
-                        onDeleted(r);
-                    }
-                }
+                this.do_deleteItem(kw);
             }else{
                 if(kw.cancelCb){
                     kw.cancelCb();
@@ -381,6 +373,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     
+    do_deleteItem:function(kw){
+        var r = this.store.deleteItem(kw.pkey,kw);
+        if(kw.onDeleted){
+            var onDeleted = funcCreate(kw.onDeleted,'result',this);
+            if(r instanceof dojo.Deferred){
+                r.addCallback(onDeleted);
+            }else{
+                onDeleted(r);
+            }
+        }
+    },
     
     pendingChangesAnswer:function(kw){
         var command = objectPop(kw,'command');
@@ -515,11 +518,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     deleted:function(result,kw){
-        var destPkey = kw.destPkey || '*norecord*';
+        var destPkey = kw.destPkey || '*dismiss*';
         this.load({destPkey:destPkey});
         this.publish('message',{message:this.msg_deleted,sound:'$ondeleted'});
         this.publish('onDeleted');
     },
+
     loaded: function(data) {
         var controllerData = this.getControllerData();
         controllerData.setItem('temp',null);
