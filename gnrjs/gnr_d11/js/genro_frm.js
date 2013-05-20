@@ -374,6 +374,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     do_deleteItem:function(kw){
+        kw = {}
+        kw.pkey = kw.pkey || this.getCurrentPkey();
         var r = this.store.deleteItem(kw.pkey,kw);
         if(kw.onDeleted){
             var onDeleted = funcCreate(kw.onDeleted,'result',this);
