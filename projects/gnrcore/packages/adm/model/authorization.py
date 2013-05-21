@@ -23,11 +23,13 @@ class Table(object):
             code = code.replace(c[0], c[1])
         return code
     
-    @public_method(tags='admin')
-    def authorize(self, reason=None):
+    #@public_method #(tags='admin')
+    def authorize(self, reason=None,commit=True):
         record = dict(note=reason)
+        print 'inside auth',reason
         self.insert(record)
-        self.db.commit()
+        if commit:
+            self.db.commit()
         return record['code']
         
     def use_auth(self, code, username):
@@ -64,5 +66,6 @@ class Table(object):
         toassign=True
         while toassign:
             record_data['code'] = self.generate_code()
+            print record_data,toassign
             toassign = self.existsRecord(record_data)
             
