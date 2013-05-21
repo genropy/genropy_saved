@@ -459,7 +459,7 @@ class ThLinker(BaseComponent):
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
         if openIfEmpty:
             pane.dataController("linker.linkerManager.openLinker(false);",linker=linker,
-                                currvalue='^#FORM.record.%s' %field,_if='!currvalue')          
+                                currvalue='^#FORM.record.%s' %field,_if='!currvalue',_else='linker.linkerManager.closeLinker()')          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
