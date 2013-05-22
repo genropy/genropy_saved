@@ -410,6 +410,10 @@ dojo.declare("gnr.IframeFormManager", null, {
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }
         this.iframeForm.load({destPkey:pkey});
+        var g = genro;
+        this.iframeForm.subscribe('onSaved',function(){
+            g.ping();
+        });
         if(this.formStoreKwargs.parentStore){
             this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         }
