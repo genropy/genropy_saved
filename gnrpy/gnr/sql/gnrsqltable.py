@@ -920,20 +920,20 @@ class SqlTable(GnrObject):
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
-        noTestForMerge = self.pkg.attributes.get('noTestForMerge')
+        noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
         if isNew:
             main_record = main_changeSet
         else:
-            old_record = self.record(pkey, for_update=True).output('bag', resolver_one=False, resolver_many=False)
+            old_record = self.record(pkey, for_update=True,bagFields=True).output('bag', resolver_one=False, resolver_many=False)
             main_record = old_record.deepcopy()
             if main_changeSet or toDelete:
                 lastTs = recordClusterAttr.get('lastTS')
                 changed_TS = lastTs and (lastTs != str(main_record[self.lastTS]))
                 if changed_TS and (self.noChangeMerge or toDelete):
                     raise self.exception("save", record=main_record,
-                                         msg="Another user modified the record.Operation aborted")
+                                         msg="Another user modified the record.Operation aborted changed_TS %s  lastTs %s " %(changed_TS,lastTs))
                 if toDelete:
                     self.delete(old_record)
                     return

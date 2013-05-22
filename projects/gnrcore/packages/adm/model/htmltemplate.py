@@ -23,7 +23,7 @@ from gnr.core.gnrhtml import GnrHtmlBuilder
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('htmltemplate', pkey='id', name_long='!!Letterhead',
-                        name_plural='!!Letterheads', rowcaption='name')
+                        name_plural='!!Letterheads', rowcaption='name',noTestForMerge=True)
         self.sysFields(tbl)
         tbl.column('name', name_long='!!Name',validate_notnull=True)
         tbl.column('username', name_long='!!Username')
