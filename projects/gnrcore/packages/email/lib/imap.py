@@ -6,6 +6,7 @@ from email.generator import Generator as EmailGenerator
 from gnr.core.gnrlang import getUuid
 import chardet
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import slugify
 import StringIO
 detach_dir = '.'
 import os
@@ -119,6 +120,7 @@ class ImapReceiver(object):
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
         fname = '%i_%s' %(self.atc_counter,fname)
+        fname = slugify(fname)
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
