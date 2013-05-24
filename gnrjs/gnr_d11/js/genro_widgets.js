@@ -5336,7 +5336,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
         kwargs['struct'] = this.structbag();
-        
+        kwargs['_sourceNode'] = this.sourceNode;
         var cb = function(result){
             genro.download(result);
         };
