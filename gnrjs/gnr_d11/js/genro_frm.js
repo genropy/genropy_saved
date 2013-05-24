@@ -43,6 +43,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.gridEditors = {};
         this.opStatus = null;
         this.locked = this.locked || false;
+        this.parentLock = this.parentLock ==null? 'auto':this.parentLock;
         this.current_field = null;
         this.controllerPath = controllerPath;
         if(!this.store){
@@ -127,7 +128,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(startKey){
                 var that = this;
                 this.sourceNode.watch('pageStarted',function(){return genro._pageStarted},function(){
-                    console.log('inizio form')
                     that.load({destPkey:startKey});
                 });
             }
@@ -148,12 +148,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var parentStore = this.store.parentStore;
             if(parentStore){
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
-                    that.setLocked(kw.locked);
+                    if(that.parentLock=='auto'){
+                        that.setLocked(kw.locked);
+                    }
+                    that.publish('onParentLockChange',kw);
                 },this.sourceNode);
                 this.locked = parentStore.locked;
             }else if (parentForm){
                 parentForm.subscribe('onLockChange',function(kw){
-                    that.setLocked(kw.locked);
+                    if(that.parentLock=='auto'){
+                        that.setLocked(kw.locked);
+                    }
                 },null,this.sourceNode);
                 this.locked = parentForm.locked;
             }
@@ -883,7 +888,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
         var protect_write = this.getDataNodeAttributes()._protect_write;
-        if (parentForm){
+        if (parentForm && this.parentLock=='auto'){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
         return protect_write || this.readOnly || false;

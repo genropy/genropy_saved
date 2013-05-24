@@ -754,7 +754,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     connectChangeEvent:function(widget) {
         if ('onChange' in widget) {
             dojo.connect(widget, 'onChange', dojo.hitch(this, function(val) {
-                this.onChanged(widget, val);
+                if(!widget.disabled){
+                    this.onChanged(widget, val);
+                }
             }));
         }
     },

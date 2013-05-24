@@ -134,7 +134,7 @@ class TableHandlerForm(BaseComponent):
             if sidebar:
                 box_kwargs['design'] = 'sidebar'
             form.attributes.update(**box_kwargs)
-            
+        
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
@@ -144,6 +144,8 @@ class TableHandlerForm(BaseComponent):
         if options.get('saveOnChange'):
             form.attributes.update(form_saveOnChange=True)
             showtoolbar = False
+        if 'parentLock' in options:
+            form.attributes.update(form_parentLock=options.pop('parentLock'))
         if modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
