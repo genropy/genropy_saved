@@ -626,8 +626,11 @@ class AttachmentTable(GnrDboTable):
     def trigger_onDeletedAtc(self,record,**kwargs):
         site = self.db.application.site
         fpath = site.getStaticPath('vol:%s' %record['filepath'])
-        if os.path.exists(fpath):
-            os.remove(fpath)
+        try:
+            if os.path.exists(fpath):
+                os.remove(fpath)
+        except Exception:
+            return
 
 
 class DynamicFieldsTable(GnrDboTable):
