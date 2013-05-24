@@ -629,7 +629,10 @@ class GnrWsgiSite(object):
             return self.serve_tool(path_list, environ, start_response, **request_kwargs)
         elif path_list and path_list[0].startswith('_'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
-            return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
+            try:
+                return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
+            except Exception, exc:
+                return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             if self.debug:
