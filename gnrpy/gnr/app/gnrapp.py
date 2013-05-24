@@ -204,7 +204,46 @@ class GnrSqlAppDb(GnrSqlDb):
         if self.systemDbEvent():
             return
         self.application.notifyDbEvent(tblobj, record, 'I')
+       
+
+
+    def raw_delete(self, tblobj, record, **kwargs):
+
+        """Delete a record in the database
         
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be deleted"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.raw_delete(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
+        self.application.notifyDbEvent(tblobj, record, 'D')
+        
+    def raw_update(self, tblobj, record, old_record=None,pkey=None,**kwargs):
+        """Update a record in the database
+        
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the new record
+        :param old_record: the old record to be updated
+        :param pkey: the record :ref:`primary key <pkey>`"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.update(self, tblobj, record, pkey=pkey,**kwargs)
+        if self.systemDbEvent():
+            return
+        old_record = record or dict(record)
+        self.application.notifyDbEvent(tblobj, record, 'U', old_record)
+        
+    def raw_insert(self, tblobj, record, **kwargs):
+        """Insert a record in the database
+
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be inserted"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.raw_insert(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
+        self.application.notifyDbEvent(tblobj, record, 'I')
+
     def getResource(self, tblobj, path):
         """TODO
 

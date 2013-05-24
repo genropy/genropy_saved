@@ -484,15 +484,16 @@ class SqlTable(GnrObject):
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
                 updater[fkey] = destRecord[joinkey]
-                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey])
+                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey],_raw_update=True)
                 moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
         if self.model.column('__moved_related') is not None:
-            oldsource = dict(sourceRecord)
+            old_record = dict(sourceRecord)
             moved_relations.setItem('destPkey',destPkey)
+            moved_relations = moved_relations.toXml()
             sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
-            self.update(sourceRecord,oldsource)
+            self.raw_update(sourceRecord,old_record=old_record)
         else:
-            self.delete(sourcePkey)
+            self.raw_delete(sourcePkey)
             
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
@@ -642,7 +643,7 @@ class SqlTable(GnrObject):
             if not _raw_update:
                 self.update(new_row, row,pkey=record_pkey)
             else:
-                self.raw_update(new_row,pkey=record_pkey)
+                self.raw_update(new_row,old_record=row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -840,8 +841,8 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
-    def raw_update(self,record=None,pkey=None,**kwargs):
-        self.db.raw_update(self, record, pkey=pkey,**kwargs)
+    def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
+        self.db.raw_update(self, record, pkey=pkey,old_record=old_record,**kwargs)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
