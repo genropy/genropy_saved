@@ -155,7 +155,7 @@ class AttachManager(BaseComponent):
         filename = kwargs.get('filename')
         description,ext = os.path.splitext(filename)
         description = slugify(description)
-        filename = '%s.%s' %(description,ext)
+        filename = '%s%s' %(description,ext)
         path = os.path.join(maintable.replace('.','_'),maintable_id)
         if hasattr(maintableobj,'atc_getAttachmentPath'):
             path = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
