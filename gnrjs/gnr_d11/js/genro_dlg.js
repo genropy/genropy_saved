@@ -479,7 +479,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         objectUpdate(paletteAttr,kw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        console.log(zoomUrl)
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },
@@ -494,16 +493,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var cellattr = structbag.getNode('view_0.rows_0.#'+cellIndex).attr;
         var zoomAttr = objectExtract(cellattr,'zoom_*',true);
         zoomAttr['pkey'] = grid.currRenderedRow[zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier];
-        zoomAttr['formOnly'] = true;
+        zoomAttr['main_call'] = 'main_form';
         zoomAttr['evt'] = evt;
         zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
+        zoomAttr['paletteCode']  = zoomAttr['pkey']+(zoomAttr['formResource'] || '');
         var mode = objectPop(zoomAttr,'mode') || 'palette';
         if(mode=='palette'){
             this.zoomPalette(zoomAttr);
         }else if(mode=='page' && genro.root_page_id){
             var pageKw = {};
-            pageKw['file'] = this._prepareZoomUrl(zoomAttr,true);
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
@@ -512,7 +512,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     zoomPage:function(kw){
         kw = kw || {};
-        kw['file'] = this._prepareZoomUrl(kw,true);
+        kw.main_call = kw.main_call || 'main_form';
+        kw['file'] = this._prepareThIframeUrl(kw);
         kw['label'] = kw.title;
         kw['subtab'] = true;
         genro.mainGenroWindow.genro.publish('selectIframePage',kw)
@@ -542,85 +543,99 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.unfreeze(); 
     },
 
-    zoomPalette:function(kw){
-        if(objectPop(kw,'rootZoom')){
-            genro.mainGenroWindow.genro.dlg.zoomPalette(kw);
+    thIframePalette:function(kw,openKw){
+        if(objectPop(kw,'rootPalette')){
+            genro.mainGenroWindow.genro.dlg.thIframePalette(kw);
             return;
         }
-        var pkey = kw.pkey;
         var table = kw.table;
         var evt = kw.evt;
-        console.log(table);
-        var paletteCode= kw.paletteCode || 'zoom_'+table.replace('.','_')+pkey;
-        var wdg = genro.wdgById(paletteCode+'_floating');
-        if(wdg){
-            wdg.show();
-            wdg.bringToTop();
-            return;
+        var paletteCode= kw.paletteCode || 'th_'+table.replace('.','_')+(kw.formResource || '')+(kw.main_call  || '');
+        var paletteNode = genro.nodeById(paletteCode+'_floating');
+        openKw = openKw || {};
+
+        var openKw = objectUpdate(openKw,objectExtract(kw,'default_*',false,true));
+        if(kw.pkey){
+            openKw.pkey = objectPop(kw,'pkey');
         }
-        var zoomUrl = this._prepareZoomUrl(kw,false); 
-        genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
-        var node = genro.src.getNode(paletteCode).clearValue();
-        node.freeze();
-        var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+pkey,
-                                                    overflow:'hidden',
-                                                      dockTo: false,//'dummyDock:open',
-                                                      width:'1px',height:'1px',
-                                                      fixedPosition:true
-                                                     // palette_transition:'all .7s'
-                                                      };
-        if(evt){
-            paletteAttr.top=_px(evt.clientY);
-            paletteAttr.left=_px(evt.clientX);
+        if(paletteNode){
+            paletteNode.widget.show();
+            paletteNode.widget.bringToTop();
+        }else{
+            var zoomUrl = this._prepareThIframeUrl(kw); 
+            genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
+            var node = genro.src.getNode(paletteCode).clearValue();
+            node.freeze();
+            var dockTo = kw.dockTo || 'dummyDock:open';
+            var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+table,
+                                                        overflow:'hidden',
+                                                          dockTo: dockTo,
+                                                          width:'1px',height:'1px',
+                                                          fixedPosition:true
+                                                         // palette_transition:'all .7s'
+                                                          };
+            var paletteKwargs = objectExtract(kw,'palette_*');
+            objectUpdate(paletteAttr,paletteKwargs);
+            var palette = node._('palettePane',paletteCode,paletteAttr);
+            var onSavedCb = objectPop(kw,'onSavedCb');
+            var iframeNode = palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
+                var palette_height = '300px';
+                var palette_width =  '500px';
+                var paletteNode = palette.getParentNode();
+                var wdg = paletteNode.getWidget();
+                if(this._genro._rootForm){
+                    palette_height = this._genro.getData('gnr.rootform.size.height') || palette_height;
+                    palette_width = this._genro.getData('gnr.rootform.size.width') || palette_width;
+                    if(kw.main_call=='main_form'){
+                        this._genro._rootForm.subscribe('onDismissed',function(){if(!dockTo){wdg.close();}else{wdg.hide();}})
+                    }
+                    this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
+                }else if(kw.lookup){
+                    this._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.close();});
+                }
+                if(onSavedCb){
+                    this._genro._rootForm.subscribe('onSaved',function(kw){
+                        onSavedCb(kw);
+                    });
+                }
+                wdg.setBoxAttributes({height:palette_height,width:palette_width});
+            }}).getParentNode();         
+            node.unfreeze(); 
+            var paletteNode = genro.nodeById(paletteCode+'_floating');
+            paletteNode._iframeNode = iframeNode;
         }
-        //paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
-        var paletteKwargs = objectExtract(kw,'palette_*');
-        objectUpdate(paletteAttr,paletteKwargs);
-        var palette = node._('palettePane',paletteCode,paletteAttr);
-        var onSavedCb = objectPop(kw,'onSavedCb');
-        palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0,onStarted:function(){
-            var palette_height = '300px';
-            var palette_width =  '500px';
-            var paletteNode = palette.getParentNode();
-            var wdg = paletteNode.getWidget();
-            if(this._genro._rootForm){
-                palette_height = this._genro.getData('gnr.rootform.size.height') || palette_height;
-                palette_width = this._genro.getData('gnr.rootform.size.width') || palette_width;
-                this._genro._rootForm.subscribe('onDismissed',function(){wdg.close();})
-                this._genro._rootForm.subscribe('onChangedTitle',function(kw){wdg.setTitle(kw.title)});
-            }else if(kw.lookup){
-                this._genro.nodeById('lookup_root').subscribe('lookup_cancel',function(){wdg.close();});
-            }
-            if(onSavedCb){
-                this._genro._rootForm.subscribe('onSaved',function(kw){
-                    onSavedCb(kw);
-                });
-            }
-            wdg.setBoxAttributes({height:palette_height,width:palette_width});
-        }}); 
-        node.unfreeze(); 
+        if(objectNotEmpty(openKw)){
+            openKw.topic = openKw.topic || 'main_form_open';
+            paletteNode._iframeNode.domNode.gnr.postMessage(paletteNode._iframeNode,openKw);
+        }
     },
-    _prepareZoomUrl:function(kw,usepublic){
-        var formOnly = 'formOnly' in kw? kw.formOnly:true;
+
+    _prepareThIframeUrl:function(kw){
         var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
-        var urlKw = objectUpdate({th_public:usepublic},objectExtract(kw,'url_*'));
-        if(!formOnly){
-            zoomUrl+'/'+kw.pkey;
-        }else if(kw.lookup){
-            zoomUrl = '/sys/lookuptables/'+kw.table.replace('.','/');
+        var urlKw = objectExtract(kw,'url_*');
+        urlKw.th_public = objectPop(kw,'public') || false;
+        if(kw.formResource){
+            urlKw.th_formResource = kw.formResource;
         }
-        else{
-            urlKw['th_pkey'] = kw.pkey;
-            urlKw['main_call'] = kw.main_call || 'main_form';
-            urlKw['th_from_package'] = genro.getData("gnr.package");
-            if(kw.formResource){
-                urlKw['th_formResource'] = kw.formResource;
-            }
+        if(kw.viewResource){
+            urlKw.th_viewResource = kw.viewResource;
         }
+        if(kw.main_call){
+            urlKw['main_call'] = kw.main_call;
+        }
+        objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
+        urlKw['th_from_package'] = genro.getData("gnr.package");
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
-
+    zoomPalette:function(kw){
+        var evt = objectPop(kw,'evt');
+        if(evt){
+            kw['palette_top'] = _px(evt.clientY);
+            kw['palette_left'] = _px(evt.clientX);
+        }
+        this.thIframePalette(kw);
+    },
 
     quickPalette:function(paletteCode,kw,content){
         var kw = kw || {};

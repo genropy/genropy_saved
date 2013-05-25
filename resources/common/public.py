@@ -331,10 +331,11 @@ class TableHandlerMain(BaseComponent):
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
     
-    @extract_kwargs(th=True)
+    @extract_kwargs(th=True,current=True)
     @struct_method
-    def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
+    def pbl_rootTableHandler(self,root,th_kwargs=None,current_kwargs=None,**kwargs):
         thRootWidget = 'stack'
+        kwargs['th_pkey'] = th_kwargs.pop('pkey',None)
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
                         readOnly=False,virtualStore=True,public=True,partitioned=False)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
@@ -343,6 +344,8 @@ class TableHandlerMain(BaseComponent):
         th_options.update(self.th_options())
         th_options.update(resource_options)
         th_options.update(th_kwargs)
+        if current_kwargs:
+            root.data('current',Bag(current_kwargs))
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
@@ -382,6 +385,7 @@ class TableHandlerMain(BaseComponent):
             kwargs['semaphore'] = True
             lockable = False
         kwargs.setdefault('preview_tpl',True)
+        kwargs.setdefault('form_form_isRootForm',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
@@ -470,6 +474,8 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
+        if hasattr(th,'form'):
+            self._th_parentFrameMessageSubscription(th.form)
         return th
 
     @public_method
@@ -567,8 +573,19 @@ class TableHandlerMain(BaseComponent):
         if public:
             form.dataController("""
                             SET gnr.publicTitle = title;
-                            """,title='^#FORM.controller.title',_if='title')  
+                            """,title='^#FORM.controller.title',_if='title') 
+        self._th_parentFrameMessageSubscription(form) 
         return form
+
+    def _th_parentFrameMessageSubscription(self,form):
+        form.dataController("""if(_subscription_kwargs.pkey){
+                                    if(pkey=='*newrecord*'){
+                                    this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
+                                    }else{
+                                        this.form.load({destPkey:pkey,discardChange:true});
+                                    }
+                               }
+                               """,subscribe_main_form_open=True)
 
     @public_method                     
     def main_form(self, root,**kwargs):
