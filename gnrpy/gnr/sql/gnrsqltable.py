@@ -778,8 +778,11 @@ class SqlTable(GnrObject):
             self.delete(r)
             # if not self.trigger_onDeleting:
             #  sql delete where
+
+    def notifyDbUpdate(self,record):
+        self.db.notifyDbUpdate(self,record)
             
-    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None, **kwargs):
+    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False, **kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -792,6 +795,9 @@ class SqlTable(GnrObject):
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             sel = _wrapper(sel, **(_wrapperKwargs or dict()))
+        if _notifyOnly:
+            self.notifyDbUpdate(sel)
+            return
         for row in sel:
             row._notUserChange = True
             self.update(row, old_record=dict(row))
@@ -828,6 +834,7 @@ class SqlTable(GnrObject):
         :param mode: TODO
         :param nowait: boolean. TODO"""
         self.db.adapter.lockTable(self, mode, nowait)
+
         
     def insert(self, record, **kwargs):
         """Insert a single record

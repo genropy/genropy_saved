@@ -169,6 +169,25 @@ class GnrSqlAppDb(GnrSqlDb):
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
+
+    def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
+        if isinstance(recordOrPkey,list):
+            records = recordOrPkey
+        elif not recordOrPkey and kwargs:
+            records = tblobj.query(**kwargs).fetch()
+        else:
+            broadcast = tblobj.attributes.get('broadcast')
+            if broadcast is False:
+                return
+            if isinstance(recordOrPkey,basestring):
+                if isinstance(broadcast,basestring):
+                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
+                else:
+                    records = [{tblobj.pkey:recordOrPkey}]
+            else:
+                records = [recordOrPkey]
+        for record in records:
+            self.application.notifyDbEvent(tblobj, record, 'U')
         
     def delete(self, tblobj, record, **kwargs):
         """Delete a record in the database
@@ -205,7 +224,6 @@ class GnrSqlAppDb(GnrSqlDb):
             return
         self.application.notifyDbEvent(tblobj, record, 'I')
        
-
 
     def raw_delete(self, tblobj, record, **kwargs):
 

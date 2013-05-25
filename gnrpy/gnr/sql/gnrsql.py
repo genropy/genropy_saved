@@ -399,6 +399,9 @@ class GnrSqlDb(GnrObject):
             if autocommit:
                 self.commit()
         return cursor
+
+    def notifyDbEvent(self,tblobj,**kwargs):
+        pass
         
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
