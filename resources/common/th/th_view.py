@@ -206,6 +206,9 @@ class TableHandlerView(BaseComponent):
                     
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
+        pane.dataController("""
+            genro.dlg.thIframePalette({table:'adm.userobject',palette_top:'100px',palette_right:'600px',current_tbl:tbl,current_pkg:pkg,title:title,viewResource:'ViewCustomColumn',formResource:'FormCustomColumn'})
+            """,tbl=table,_fired='^.handle_custom_column',pkg=table.split('.')[0],title='!!Custom columns')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():
@@ -681,6 +684,8 @@ class THViewUtils(BaseComponent):
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
+        if self.application.checkResourcePermission('_DEV_,dbadmin', self.userTags):
+            querymenu.setItem('__custom_columns__',None,caption='!!Custom columns',action="""FIRE .handle_custom_column;""")
         querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
             

@@ -1505,7 +1505,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj = tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
-        wdgattr = self.wdgAttributesFromColumn(fieldobj, **kwargs)     
+        wdgattr = self.wdgAttributesFromColumn(fieldobj, fld=fld,**kwargs)     
         if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld != tblobj.fullRelationPath(fld)):
             wdgattr.setdefault('readOnly', True)
             wdgattr['_virtual_column'] = fld
@@ -1519,7 +1519,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['value'] = '^.%s' % fld
         return wdgattr
         
-    def wdgAttributesFromColumn(self, fieldobj, **kwargs):
+    def wdgAttributesFromColumn(self, fieldobj,fld=None, **kwargs):
         """TODO
         
         :param fieldobj: TODO
@@ -1561,16 +1561,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     else:
                         zoomPage = lnktblobj.fullname.replace('.', '/')
                     result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
-                    result['lbl_pkey'] = '^.%s' % fieldobj.name
+                    result['lbl_pkey'] = '^.%s' %fld
                 else:
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
                         pass
                     else:
-                        result['lbl__zoomKw'] = dictExtract(kwargs,'zoom_') #,slice_prefix=False)
+                        zoomKw = dictExtract(kwargs,'zoom_')
+                        zoomKw.setdefault('formOnly',False)
+                        result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
                         result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
                         result['lbl__zoomKw_title'] = lnktblobj.name_plural or lnktblobj.name_long
-                        result['lbl__zoomKw_pkey'] = '=.%s' % fieldobj.name
+                        result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
                 result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
                 result['lbl_class'] = 'gnrzoomlabel'

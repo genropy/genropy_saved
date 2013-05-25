@@ -262,6 +262,7 @@ class DbModel(object):
         """Return a package object
         
         :param pkg: the :ref:`package <packages>` object"""
+
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
@@ -670,7 +671,7 @@ class DbTableObj(DbModelObj):
             self.children['columns'] = objclassdict['column_list'](parent=self)
         if not self.indexes:
             self.children['indexes'] = objclassdict['index_list'](parent=self)
-        if not self.virtual_columns:
+        if not 'virtual_columns' in self.children:
             self.children['virtual_columns'] = objclassdict['virtual_columns_list'](parent=self)
         if not self.table_aliases:
             self.children['table_aliases'] = objclassdict['tblalias_list'](parent=self)
@@ -807,18 +808,24 @@ class DbTableObj(DbModelObj):
         return self['relations']
         
     relations = property(_get_relations)
-        
-    def _get_virtual_columns(self):
+      
+    @property  
+    def virtual_columns(self):
         """Returns a DbColAliasListObj"""
         virtual_columns = self['virtual_columns']
         local_virtual_columns = self.db.localVirtualColumns(self.fullname)
+        custom_virtual_columns = self.db.customVirtualColumns(self.fullname)
+
         if local_virtual_columns:
             for node in local_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
                 virtual_columns.children[obj.name.lower()] = obj
+        if custom_virtual_columns:
+            for node in custom_virtual_columns:
+                obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
+                virtual_columns.children[obj.name.lower()] = obj
         return virtual_columns
     
-    virtual_columns = property(_get_virtual_columns)
         
     def _get_table_aliases(self):
         """Returns an DbTblAliasListObj"""

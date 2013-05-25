@@ -293,6 +293,22 @@ class GnrSqlAppDb(GnrSqlDb):
                     result.setItem(fckw.pop('name'),None,**fckw)
         return result
 
+    def customVirtualColumns(self,table):
+        if self.package('adm') and table!='adm.userobject':
+            userobject = self.table('adm.userobject')
+            pkg,tbl = table.split('.')
+            f = userobject.query(where='$tbl=:t AND objtype=:fc',t=table,fc='formulacolumn',bagFields=True).fetch()
+            result = Bag()
+
+            for r in f:
+                b = Bag(r['data'])
+                kw = b.asDict(ascii=True)
+                kw['name_long'] = r['description']
+                result.setItem(b.pop('fieldname'),None,**kw)
+            return result
+
+
+
 
 class GnrPackagePlugin(object):
     """TODO"""
