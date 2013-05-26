@@ -42,7 +42,7 @@ def cellFromField(field,tableobj):
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
-    if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
@@ -2087,10 +2087,17 @@ class GnrGridStruct(GnrStructData):
                   , dtype='B', **kwargs)
                   
 
+    def templatecell(self,field,name=None,template=None,table=None,**kwargs):
+        table = table or self.tblobj.fullname
+        tpl = self.page.loadTemplate('%s:%s' %(table,template))
+        tplattr = tpl.getAttr('main')
+        return self.cell(field,name=name,calculated=True,template_columns=('%(columns)s,%(virtual_columns)s' %tplattr).strip(','),template=template)
+
+
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,table=None,**kwargs):
+                   zoom=False,template=None,table=None,**kwargs):
         tableobj = self.tblobj
         if table:
             tableobj = self.page.db.table(table)
@@ -2104,12 +2111,18 @@ class GnrGridStruct(GnrStructData):
             kwargs['relating_column'] = _as
             kwargs['related_column'] = tbl_caption_field
 
+
         if not tableobj:
             self.root._missing_table = True
             return
         fldobj = tableobj.column(field)
         cellpars = cellFromField(field,tableobj)
         cellpars.update(kwargs)
+        template = template or fldobj.attributes.get('template')
+        if template:
+            tpl = self.page.loadTemplate('%s:%s' %(tableobj.fullname,template))
+            tplattr = tpl.getAttr('main')
+            cellpars['template_columns'] = ('%(columns)s,%(virtual_columns)s' %tplattr).strip(',')
         loc = locals()
         for attr in ('name','width','dtype','classes','cellClasses','headerClasses'):
             cellpars[attr] = loc[attr] or cellpars.get(attr)

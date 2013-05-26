@@ -432,7 +432,7 @@ class DbModelSrc(GnrStructData):
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
-    def pyColumn(self, name, py_method, **kwargs):
+    def pyColumn(self, name, py_method=None,**kwargs):
         """Insert a pyColumn into a table, that is TODO. The aliasColumn is a child of the table
         created with the :meth:`table()` method
         
@@ -440,6 +440,7 @@ class DbModelSrc(GnrStructData):
         :param sql_formula: TODO
         :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn"""
+        py_method = py_method or 'pyColumn_%s' %name
         return self.virtual_column(name, py_method=py_method, **kwargs)
         
     def aliasTable(self, name, relation_path, **kwargs):

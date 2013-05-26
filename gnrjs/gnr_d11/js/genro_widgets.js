@@ -81,6 +81,11 @@ gnr.columnsFromStruct = function(struct, columns) {
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         var fld = node.attr.field;
+        if(node.attr.template_columns){
+            node.attr.template_columns.split(',').forEach(function(n){
+                arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
+            });
+        }
         if (node.attr['calculated'] || (fld && fld.indexOf(':')>=0)) {
             continue;
         }

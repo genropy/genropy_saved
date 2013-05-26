@@ -17,3 +17,4 @@ class Table(object):
         tbl.column('cap_valido', size='2', name_long='!!CAP Valido')
             
         tbl.column('nuts',name_long='!!NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise')
+

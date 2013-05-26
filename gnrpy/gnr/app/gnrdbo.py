@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,decode36
+from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -569,6 +569,18 @@ class TableBase(object):
     def normalizeText(self,text):
         return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
 
+
+    def templateColumn(self,record=None,field=None):
+        template = self.column(field).attributes.get('template')
+        tplpath = '%s:%s' %(self.fullname,template)
+        tplkey = 'template_%s' %tplpath
+        currEnv = self.db.currentEnv
+        tpl = currEnv.get(tplkey)
+        if not tpl:
+            tpl = self.db.currentPage.loadTemplate(tplpath)
+            currEnv[tplkey] = tpl
+        r = Bag(dict(record))
+        return templateReplace(tpl,r)
 
 
 class GnrDboTable(TableBase):

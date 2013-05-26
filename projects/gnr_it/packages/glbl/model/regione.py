@@ -13,3 +13,10 @@ class Table(object):
         tbl.column('zona_numero', 'I', name_long='!!Zona n.')
 
         tbl.column('nuts',name_long='!!NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise')
+
+
+        tbl.pyColumn('test_nome',name_long='Testone',dtype='A')
+
+    
+    def pyColumn_test_nome(self,record=None):
+        return record['nome']+'_test'

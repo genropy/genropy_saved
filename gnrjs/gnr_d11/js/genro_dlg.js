@@ -429,10 +429,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-            var src = this.getParentNode();
-            this.getParentNode().widget.hide(); 
+
+            dlg.getParentNode().widget.hide(); 
             setTimeout(function(){
-                src.clearValue();
+                dlg.getParentNode().getParentNode().clearValue();
             },500);
             
         };
