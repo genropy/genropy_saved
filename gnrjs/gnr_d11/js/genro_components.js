@@ -2879,6 +2879,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);
             }
+            grid.selectionKeeper('save');
         });
         var changedRows = {};
         var wasInSelection;
