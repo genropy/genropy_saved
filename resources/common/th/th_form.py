@@ -108,6 +108,8 @@ class TableHandlerForm(BaseComponent):
                             newTitleTemplate=options.get('newTitleTemplate',False))
         if form.attributes.get('form_isRootForm'):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
+        if 'lazyBuild' in options:
+            form.attributes['_lazyBuild'] = options.get('lazyBuild')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   

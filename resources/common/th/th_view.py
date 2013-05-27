@@ -170,7 +170,7 @@ class TableHandlerView(BaseComponent):
         if dflt:
             pane.data('.current',dflt)
         pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
-                        mandatory=getattr(m,'mandatory',True))
+                        mandatory=getattr(m,'mandatory',True), )
 
         pane.dataController("""
             if(!currentSection){
@@ -187,8 +187,9 @@ class TableHandlerView(BaseComponent):
                 FIRE .#parent.#parent.runQueryDo;
             }
             """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
-            storeServerTime='=.#parent.#parent.store?servertime',
-            _init=True)
+            storeServerTime='=.#parent.#parent.store?servertime')#,
+            #_onBuilt=True)
+            #_init=True)
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -525,10 +526,11 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         pane.dataController(
                """var th = TH(th_root);
-                  th.querymanager = new gnr.QueryManager(th,this,table);
+                  
+                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
                """ 
-               , _init=True,table=table,th_root = th_root)
-
+               , _init=True, _onBuilt=True, table=table,th_root = th_root)
+               
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',

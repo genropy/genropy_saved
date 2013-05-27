@@ -54,7 +54,6 @@ class TableHandler(BaseComponent):
 
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
-
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
