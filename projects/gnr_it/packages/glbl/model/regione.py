@@ -4,7 +4,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('regione', pkey='sigla', 
-        	name_long='!!Regione', rowcaption='sigla,nome',caption_field='nome')
+        	name_long='!!Regione', rowcaption='sigla,nome',caption_field='nome',lookup=True)
         tbl.column('sigla', size='3', group='_', readOnly=True, name_long='!!Sigla', indexed=True)
         tbl.column('nome', name_long='!!Nome', indexed=True)
         tbl.column('codice_istat', size='2', name_long='!!Codice Istat')

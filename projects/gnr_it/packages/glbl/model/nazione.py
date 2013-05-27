@@ -3,7 +3,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('nazione', pkey='code', name_long='Nazione', rowcaption='code,name')
+        tbl = pkg.table('nazione', pkey='code', name_long='Nazione', rowcaption='code,name', lookup=True)
         tbl.column('code', size='2', group='_', readOnly=True, name_long='!!Code')
         tbl.column('name', size=':48', name_long='!!Name')
         tbl.column('code3', size='3', name_long='!!Code3')
