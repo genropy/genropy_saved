@@ -462,6 +462,11 @@ cursorZoom_plus{
     color: #707070;
 }
 
+.gnrfield label{
+    color: #707070;
+    padding-right: 10px;
+}
+
 .fakeTextBox,.smallFakeTextBox, .gnrfield.tag_div>div.fakeTextBox{
 	background: white;
     border: 1px solid #B3B3B3;

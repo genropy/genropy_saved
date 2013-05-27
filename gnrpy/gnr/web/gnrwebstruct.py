@@ -2097,7 +2097,7 @@ class GnrGridStruct(GnrStructData):
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,template=None,table=None,**kwargs):
+                   zoom=False,template=None,template_name=None,table=None,**kwargs):
         tableobj = self.tblobj
         if table:
             tableobj = self.page.db.table(table)
@@ -2118,9 +2118,9 @@ class GnrGridStruct(GnrStructData):
         fldobj = tableobj.column(field)
         cellpars = cellFromField(field,tableobj)
         cellpars.update(kwargs)
-        template = template or fldobj.attributes.get('template')
-        if template:
-            tpl = self.page.loadTemplate('%s:%s' %(tableobj.fullname,template))
+        template_name = template_name or fldobj.attributes.get('template_name')
+        if template_name:
+            tpl = self.page.loadTemplate('%s:%s' %(tableobj.fullname,template_name))
             tplattr = tpl.getAttr('main')
             cellpars['template_columns'] = ('%(columns)s,%(virtual_columns)s' %tplattr).strip(',')
         loc = locals()

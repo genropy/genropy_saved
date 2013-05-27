@@ -571,7 +571,7 @@ class TableBase(object):
 
 
     def templateColumn(self,record=None,field=None):
-        template = self.column(field).attributes.get('template')
+        template = self.column(field).attributes.get('template_name')
         tplpath = '%s:%s' %(self.fullname,template)
         tplkey = 'template_%s' %tplpath
         currEnv = self.db.currentEnv
