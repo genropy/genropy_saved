@@ -783,7 +783,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','MultiButton','PaletteGroup','PagedHtml', 'PalettePane','PaletteMap','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
-             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
+             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))

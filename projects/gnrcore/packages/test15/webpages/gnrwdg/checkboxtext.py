@@ -25,7 +25,7 @@ class GnrCustomWebPage(object):
 
     def test_2_mode_codes(self,pane):
         """First test description"""
-        pane.checkBoxText(values='foo:Foo,bar:Bar,span:Span',value='^.pluto')
+        pane.radioButtonText(values='foo:Foo,bar:Bar,span:Span',value='^.pluto',group='test')
         pane.textbox(value='^.pluto')
         pane.textbox(value='^.pluto?value_caption')
 

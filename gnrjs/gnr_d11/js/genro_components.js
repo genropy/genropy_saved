@@ -1820,6 +1820,136 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
 });
 
 
+dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var values = objectPop(kw,'values');
+        var value = objectPop(kw,'value');
+        var separator = objectPop(kw,'separator') || ',';
+        var codeSeparator = objectPop(kw,'codeSeparator');
+
+        var radiogroup = objectPop(kw,'group');
+        genro.assert(radiogroup,'group is mandatory for RadioButtonText')
+
+        if(codeSeparator!==false){
+            codeSeparator =  codeSeparator || ':'
+        }
+        var rootNode = sourceNode;
+        var cell_kw = objectExtract(kw,'cell_*');
+        var row_kw = objectExtract(kw,'row_*');
+        var table_kw = objectExtract(kw,'table_*');
+        var label_kw = objectExtract(kw,'label_*',null,true);
+        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
+        var tbl = rootNode._('table',table_kw)._('tbody')
+        var tblNode = tbl.getParentNode();
+        var splitter = values.indexOf('\n')>=0? '\n':',';
+        var valuelist = splitStrip(values,splitter);
+        var curr_row = tblNode._('tr',row_kw);
+        var cell,cbpars,label,_code;
+        var that = this;
+        tblNode.attr._textvaluepath = value.replace('^','');
+        tblNode.attr._has_code = has_code;
+        tblNode.attr.action = function(){that.onRadioCheck(tblNode,separator);};
+
+        var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
+                                    textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();
+        dcNode._readValue = function(textvalue,textdescription,_triggerpars,_node){
+            if(_triggerpars.kw){
+                if(_triggerpars.kw.reason=='cbgroup'){return}
+                if(!_triggerpars.kw.updvalue){
+                    textvalue=null;
+                }
+            }
+            that.readValue(tblNode,textvalue,textdescription,separator);
+        }
+        var cols = objectPop(kw,'cols');
+        var i = 1;
+        var colspan;
+        dojo.forEach(valuelist,function(v){
+            if(v=='/'){
+                curr_row =  tblNode._('tr',row_kw);
+                i = 1;
+                return;
+            }
+            if(cols && i>cols){
+                i = 1;
+                curr_row =  tblNode._('tr',row_kw);
+            }
+
+            label = v;
+            if(has_code){
+                v = v.split(codeSeparator);
+                _code = v[0];
+                label = v[1];
+            }  
+            colspan = 1;
+            if(label.indexOf('\\')>=0){
+                label = label.split('\\');
+                colspan = parseInt(label[1]);
+                label = label[0];
+            }
+            var z = objectUpdate(cell_kw,{colspan:colspan});
+            cell = curr_row._('td',z);  
+            cbpars ={label:label,_code:_code,group:radiogroup};
+            cell._('radiobutton',objectUpdate(cbpars,label_kw));
+            i= i + colspan;
+        })
+        return tbl;
+        
+    },
+    onRadioCheck:function(sourceNode,separator){
+        var textvaluepath = sourceNode.attr._textvaluepath;
+        var has_code = sourceNode.attr._has_code;
+        var i = 0;
+        var label = null;
+        var code = null;
+        var rows = sourceNode.getValue().getItem('#0');
+        var sourceNodes = dojo.query('.dijitCheckBoxInput',sourceNode.domNode).map(function(n){
+            return dijit.getEnclosingWidget(n).sourceNode
+        });
+        dojo.forEach(sourceNodes,function(cbNode){
+            if(cbNode.widget.checked){
+                if(has_code){
+                    code = cbNode.attr._code;
+                }
+                label = cbNode.attr.label;
+            }
+        });
+        if(has_code){
+            sourceNode.setRelativeData(textvaluepath,code,{value_caption:label},null,'cbgroup');
+        }else{
+            sourceNode.setRelativeData(textvaluepath,label,{},null,'cbgroup');
+        }
+    },
+    readValue:function(sourceNode,textvalue,textdescription,separator){
+        var splitter = separator;
+        var textvaluepath = sourceNode.attr._textvaluepath;
+        var checkcodes = textvalue && sourceNode.attr._has_code;
+        sourceNode.setRelativeData(textvaluepath,null,{},null,'cbgroup');
+        if(checkcodes){
+            splitter = ',';
+        }
+        textvalue = textvalue || textdescription || '';
+        var v;
+        var compareCb = function(node,value){
+            if(checkcodes){
+                return node.attr._code == value;
+            }
+            return node.attr.label.toLowerCase() == value.toLowerCase()
+        };
+        sourceNode._value.walk(function(n){
+            if(n.attr.tag=='radiobutton'){
+                n.widget.setAttribute('checked',compareCb(n,textvalue));
+            }
+        });
+        this.onRadioCheck(sourceNode,separator)
+    }
+
+});
+
+
 dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
