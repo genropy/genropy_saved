@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -86,7 +86,7 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
+                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});" if loadingHider else None,
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   

@@ -60,7 +60,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,reload,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
+        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -279,6 +279,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
+    goToRecord:function(pkey){
+        if(pkey!=this.getCurrentPkey()){
+            this.load({destPkey:pkey});
+        }
+    },
+
     load: function(kw) {
         if(this.opStatus=='loading'){
             return;
