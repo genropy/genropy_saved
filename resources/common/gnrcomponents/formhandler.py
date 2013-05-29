@@ -290,7 +290,7 @@ class FormHandler(BaseComponent):
                         this.setRelativeData('#FORM.record.%s',value?new Date():null);  
                         this.form.save();
                     }
-                    """ %logicalDeletionField)
+                    """ %logicalDeletionField,parentForm=False)
         box.dataController("""SET #FORM.controller.do_logical_delete = logical_del_ts!=null;""",
                         logical_del_ts='^#FORM.record.%s' %logicalDeletionField)
 

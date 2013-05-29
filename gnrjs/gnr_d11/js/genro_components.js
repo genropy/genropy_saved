@@ -1830,7 +1830,7 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
         var separator = objectPop(kw,'separator') || ',';
         var codeSeparator = objectPop(kw,'codeSeparator');
 
-        var radiogroup = objectPop(kw,'group');
+        var radiogroup = objectPop(kw,'group') || genro.getCounter();
         genro.assert(radiogroup,'group is mandatory for RadioButtonText')
 
         if(codeSeparator!==false){
