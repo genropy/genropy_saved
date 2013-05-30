@@ -180,10 +180,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', nodeOrRunKwargs, kw, trigger_reason,subscription_args),delay);
         } else if(this.attr._ask){
+            if((kw && kw.reason == 'autocreate' ) || (trigger_reason != 'node')){
+                return; //askmode
+            }
             var currentAttributes = this.currentAttributes();
             if(!this.attr._ask_if ||  funcApply('return ('+this.attr._ask_if+');',currentAttributes,this) ){
                 var that = this;
-                genro.dlg.ask(currentAttributes._ask_title || 'Warning',currentAttributes._ask,null,{confirm:function(){that.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);}});
+                var _ask_onCancel= this.attr._ask_onCancel || function(){};
+                _ask_onCancel = funcCreate(_ask_onCancel,'kwargs',this);
+                genro.dlg.ask(currentAttributes._ask_title || 'Warning',currentAttributes._ask,null,
+                            {confirm:function(){that.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);},
+                            cancel:function(){_ask_onCancel(currentAttributes)}});
             }
         }
         else{

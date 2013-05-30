@@ -1443,7 +1443,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
 
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
-            var sn = evt.target?evt.target.sourceNode:null;
+            var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
             if(sn){
                 var mcode = sn.getInheritedAttributes()['multibutton_code'];
                 if(mcode){
