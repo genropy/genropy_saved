@@ -43,4 +43,27 @@ class GnrCustomWebPage(object):
         pane.checkBoxText(values="""0:Foo,1:Bar,/,3:Span,4:Zum,5:Pap,6:Mas,/,8:Ilo""",value='^.pluto')
     
 
+
+    def test_6_mode_values(self,pane):
+        """First test description"""
+        pane.data('.values','M:Maschio,F:Femmina')
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.checkBoxText(values='^.values',value='^.pluto')
+        fb.textbox(value='^.pluto',lbl='code')
+        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+
+        fb.textbox(value='^.values',lbl='Values')
+
+    def test_7_mode_values(self,pane):
+        """First test description"""
+        pane.data('.values','M:Maschio,F:Femmina')
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.radioButtonText(values='^.values',value='^.pluto')
+        fb.textbox(value='^.pluto',lbl='code')
+        fb.textbox(value='^.pluto?value_caption',lbl='Caption')
+
+        fb.textbox(value='^.values',lbl='Values')   
+
+
+
         
