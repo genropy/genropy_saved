@@ -3741,4 +3741,9 @@ div[disabled='true']{
     right:2px;
     top:4px;
 }
+.genropylogo{
+	background: url(icons/genropy.png) no-repeat center center;
+    height: 88px;
+    width: 252px;
+}
 
