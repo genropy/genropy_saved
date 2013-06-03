@@ -614,6 +614,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
+        if(kw.pkey){
+            urlKw.th_pkey = kw.pkey; 
+        }
         if(kw.formResource){
             urlKw.th_formResource = kw.formResource;
         }
