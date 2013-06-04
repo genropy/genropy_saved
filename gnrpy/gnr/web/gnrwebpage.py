@@ -550,10 +550,11 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return self.user == self.connection.guestname
     
-
+    def onAuthenticating(self,avatar,**kwargs):
+        pass
     
     @public_method
-    def doLogin(self, login=None,guestName=None,authenticate=True, **kwargs):
+    def doLogin(self, login=None,guestName=None,authenticate=True, rootenv=None,**kwargs):
         """Service method. Set user's avatar into its connection if:
         
         * The user exists and his password is correct
@@ -572,6 +573,11 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
+          
+            err = self.onAuthenticating(avatar,rootenv=rootenv)
+            if err:
+                login['error'] = err
+                return (login, loginPars)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))

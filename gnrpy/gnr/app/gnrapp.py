@@ -1004,7 +1004,7 @@ class GnrApp(object):
                                        login_pwd=password, authenticate=authenticate,
                                        defaultTags=defaultTags, **kw)
                                        
-    def auth_py(self, node, user, password=None, authenticate=False, **kwargs):
+    def auth_py(self, node, user, password=None, authenticate=False,tags=None, **kwargs):
         """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
         
         In file instanceconfig.xml insert a tag like::
@@ -1028,6 +1028,7 @@ class GnrApp(object):
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
+        print attrs.get('method')
         if pkg:
             handler = getattr(self.packages[pkg], attrs['method'])
         else:
@@ -1037,7 +1038,13 @@ class GnrApp(object):
         if result:
             user_name = result.pop('user_name', user)
             user_id = result.pop('user_id', user)
-            tags = result.pop('tags', user)
+            user_record_tags = result.pop('tags', user)
+            if not tags:
+                tags = user_record_tags
+            elif user_record_tags:
+                tags = tags.split(',')
+                tags.extend(user_record_tags.split(','))
+                tags = ','.join(list(set(tags)))
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
                                    defaultTags=defaultTags, **result)
@@ -1341,7 +1348,7 @@ class GnrAvatar(object):
         for tag in tags:
             if not tag in t:
                 t.append(tag)
-        self.tags = ','.join(t)
+        self.user_tags = ','.join(t)
         
     def __getattr__(self, fname):
         if fname in self.extra_kwargs:

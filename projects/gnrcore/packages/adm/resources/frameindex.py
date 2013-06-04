@@ -500,6 +500,9 @@ class FramedIndexLogin(BaseComponent):
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
                 btn.setAttribute('disabled',false);
+            }else if(result.error){
+                genro.publish('failed_login_msg',{'message':result.error});
+                btn.setAttribute('disabled',false);
             }else{
                 dlg.hide();
                 rootpage = rootpage || result['rootpage'];
@@ -518,14 +521,14 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs): 
-        self.doLogin(login=login,guestName=guestName,**kwargs)
+        self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
             with self.connectionStore() as store:
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
-        return False
+        return dict(error=login['error']) if login['error'] else False
 
     @public_method
     def login_checkAvatar(self,password=None,user=None,**kwargs):
