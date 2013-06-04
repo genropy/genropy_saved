@@ -107,7 +107,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     lazySave:function(){
-        this.save({onSaved:'lazyReload'});
+        if(this.canBeSaved()){
+            this.save({onSaved:'lazyReload'});
+        }
     },
 
     onStartForm:function(kw){
