@@ -1028,7 +1028,6 @@ class GnrApp(object):
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
-        print attrs.get('method')
         if pkg:
             handler = getattr(self.packages[pkg], attrs['method'])
         else:
