@@ -1866,7 +1866,7 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
         var table_kw = objectExtract(kw,'table_*');
         var label_kw = objectExtract(kw,'label_*',null,true);
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
-        var tbl = rootNode._('table',table_kw)._('tbody')
+        var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
         var tblNode = tbl.getParentNode();
         var splitter = values.indexOf('\n')>=0? '\n':',';
         var valuelist = splitStrip(values,splitter);

@@ -611,7 +611,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     _prepareThIframeUrl:function(kw){
-        var zoomUrl = kw.zoomUrl || '/sys/thpage/'+kw.table.replace('.','/');
+        var prefix = kw.lookup? '/sys/lookuptables/':'sys/thpage/';
+        var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
         if(kw.pkey){
