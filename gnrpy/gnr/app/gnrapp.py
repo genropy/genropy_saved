@@ -1043,7 +1043,9 @@ class GnrApp(object):
             elif user_record_tags:
                 tags = tags.split(',')
                 tags.extend(user_record_tags.split(','))
-                tags = ','.join(list(set(tags)))
+                tags = list(set(tags))
+                tags = ','.join([t for t in tags if t])
+
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
                                    defaultTags=defaultTags, **result)
