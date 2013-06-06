@@ -1307,14 +1307,18 @@ class GnrApp(object):
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
                 
-    def getAuxInstance(self, name=None):
+    def getAuxInstance(self, name=None,check=False):
         """TODO
         
         :param name: the name of the auxiliary instance"""
         if not name:
             return self
         if not name in self.aux_instances:
-            instance_name = self.config['aux_instances.%s?name' % name] or name
+            instance_name = self.config['aux_instances.%s?name' % name] 
+            if not check:
+                instance_name = instance_name or name
+            if not instance_name:
+                return
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
         

@@ -98,8 +98,8 @@ class Table(object):
         hosted_pkg = self.db.package('hosting').attributes.get('hostedPackage')
         client_id = record_data['client_id']
         client_record = self.db.table('hosting.client').record(record_data['client_id']).output('dict')
-        user_record = self.db.table('adm.user').record(pkey=client_record['user_id']).output('dict')
-        hosted_user_table.insertOrUpdate(user_record)
+        #user_record = self.db.table('adm.user').record(pkey=client_record['user_id']).output('dict')
+       # hosted_user_table.insertOrUpdate(user_record)
         hosted_client_table.insertOrUpdate(client_record)
         hosted_instance_table.insertOrUpdate(record_data)
         slots = self.db.table('hosting.slot').query(columns='$slot_type,$quantity', where='instance_id = :i_id', i_id=record_data['id']).fetchAsDict('slot_type')

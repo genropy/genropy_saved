@@ -1016,7 +1016,30 @@ class DbTableObj(DbModelObj):
                     return joiner
                 
                 
-            
+    def manyRelationsList(self,cascadeOnly=False):
+        result = list()
+        relations = self.relations.keys()
+        for k in relations:
+            n = self.relations.getNode(k)
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M' and (not cascadeOnly or  (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade')):
+                fldlist = joiner['many_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                fkey = fldlist[-1]
+                result.append((tblname,fkey))
+        return result
+
+    def oneRelationsList(self,foreignkeyOnly=False):
+        result = list()
+        for n in self.relations_one:
+            attr =  n.attr
+            if not foreignkeyOnly or attr.get('foreignkey'):
+                fldlist = attr['one_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                fkey = attr['many_relation'].split('.')[-1]
+                pkey = fldlist[-1]
+                result.append((tblname,pkey,fkey))
+        return result
         
         
 class DbBaseColumnObj(DbModelObj):
