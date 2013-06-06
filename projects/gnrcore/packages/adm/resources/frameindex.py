@@ -205,8 +205,8 @@ class FrameIndex(BaseComponent):
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
 
-        sb.applogo.div(_class=self.application_logo,height='60px')
-        sb.genrologo.div(_class='genropylogo', zoom=.3,height='60px')
+        sb.applogo.div(_class=self.application_logo)
+        sb.genrologo.div(_class='genropylogo_small')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)

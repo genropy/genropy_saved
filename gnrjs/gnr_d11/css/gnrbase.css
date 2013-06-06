@@ -3759,3 +3759,10 @@ div[disabled='true']{
     width: 252px;
 }
 
+.genropylogo_small{
+    background: url(icons/genropy.png) no-repeat center center;
+    height: 60px;
+    width: 252px;
+    zoom:.3;
+}
+
