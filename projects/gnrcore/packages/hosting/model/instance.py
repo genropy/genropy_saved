@@ -138,7 +138,7 @@ class Table(object):
             if hasattr(pkg, 'onInstanceCreated'):
                 getattr(pkg, 'onInstanceCreated')(record_data)
         if sys.platform.startswith('linux'):
-            pkg_config = self.db.application.config.getAttr('packages.hosting')
+            pkg_config = self.db.application.config.getAttr('packages.gnrcore:hosting')
             self.build_apache_site(record_data['code'], domain=pkg_config.get('domain'),
                                    sudo_password=pkg_config.get('sudo_password'),
                                    user=pkg_config.get('user'),
