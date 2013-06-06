@@ -14,7 +14,9 @@ class GnrDboPackage(object):
         
         :param externaldb: TODO
         :param empty_before: TODO"""
-        tables = self.attributes.get('export_order') or ''
+        tables = self.attributes.get('export_order')
+        if not tables:
+            return
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
             self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)

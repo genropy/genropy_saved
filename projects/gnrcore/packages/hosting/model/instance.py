@@ -21,6 +21,7 @@ class Table(object):
         tbl.column('hosted_data', 'X', name_long='!!Hosted data', _sendback=True)
         tbl.column('client_id', size=':22', name_long='!!Client id').relation('hosting.client.id', mode='foreignkey',
                                                                             relation_name='instances')
+        tbl.column('active','B',name_long='Active')
 
     def create_instance(self, code):
         instanceconfig = Bag(self.pkg.instance_template())
@@ -94,24 +95,27 @@ class Table(object):
         hosted_user_table = hosted_app.db.table('adm.user')
         hosted_client_table = hosted_app.db.table('hosting.client')
         hosted_instance_table = hosted_app.db.table('hosting.instance')
-        hosted_pkg = self.db.application.config('packages.hosting?hostedPackage')
+        hosted_pkg = self.db.package('hosting').attributes.get('hostedPackage')
         client_id = record_data['client_id']
         client_record = self.db.table('hosting.client').record(record_data['client_id']).output('dict')
         user_record = self.db.table('adm.user').record(pkey=client_record['user_id']).output('dict')
         hosted_user_table.insertOrUpdate(user_record)
         hosted_client_table.insertOrUpdate(client_record)
         hosted_instance_table.insertOrUpdate(record_data)
-        self.db.application.packages(hosted_pkg).copyLinkedCard(hosted_app, client_record)
-        self.prepopulate_instance(hosted_app)
+        slots = self.db.table('hosting.slot').query(columns='$slot_type,$quantity', where='instance_id = :i_id', i_id=record_data['id']).fetchAsDict('slot_type')
+        hosted_app.db.package(hosted_pkg).createSlots(slots)
+        #self.db.application.packages(hosted_pkg).copyLinkedCard(hosted_app, client_record)
+        #self.prepopulate_instance(hosted_app)
         hosted_app.db.commit()
 
     def prepopulate_instance(self, hosted_app):
         hosted_db = hosted_app.db
         for pkg in hosted_db.packages.values():
-            pkg.updateFromExternalDb()
+            pkg.updateFromExternalDb(self.db)
                 
     def trigger_onInserting(self, *args, **kwargs):
-        self.common_inserting_trigger(*args, **kwargs)
+        pass
+        #self.common_inserting_trigger(*args, **kwargs)
 
     def common_inserting_trigger(self, instance_record):
         if not self.db.application.config['hosting?instance']:
@@ -119,7 +123,11 @@ class Table(object):
         else:
             self.common_inserting_trigger_hosted(instance_record)
 
+
     def common_inserting_trigger_hosting(self, record_data):
+        self.activate_instance(record_data)
+
+    def activate_instance(self,record_data):
         self.create_instance(record_data['code'])
         self.create_site(record_data['code'])
         self.pkg.db_setup(record_data['code'])
