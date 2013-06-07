@@ -82,7 +82,8 @@ class PublicBase(BaseComponent):
                             **kwargs)
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        pane.slotBar('',_class='gnr_footer')
+        pane.slotBar('',_class='pbl_root_bottom')
+
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
