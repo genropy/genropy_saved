@@ -239,7 +239,7 @@ class FrameIndex(BaseComponent):
                             
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
-                                border_left='1px solid silver',
+                                #border_left='1px solid silver',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);',_class='frameindexcenter')
         sc.dataController("""setTimeout(function(){
                                 genro.framedIndexManager.selectIframePage(selectIframePage[0])
@@ -274,7 +274,7 @@ class FrameIndex(BaseComponent):
                        
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
-                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins))
+                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
         bc = pane.borderContainer()
         
         #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
