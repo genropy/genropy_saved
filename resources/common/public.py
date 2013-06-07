@@ -85,6 +85,7 @@ class PublicBase(BaseComponent):
         pane.slotBar('',_class='pbl_root_bottom')
 
 
+
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
         pane = container.contentPane(**kwargs)
