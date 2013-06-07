@@ -459,6 +459,10 @@ class TableHandlerView(BaseComponent):
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
+            if options.get('tableRecordCount',True):
+                frame.data('.store?totalrows',0)
+                frame.data('.store?totalRowCount',self.db.table(table).query().count())
+
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',

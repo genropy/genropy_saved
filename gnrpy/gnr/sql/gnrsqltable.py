@@ -96,12 +96,23 @@ class GnrSqlBusinessLogicException(GnrSqlException):
     """
     code = 'GNRSQL-021'
     description = '!!Genro SQL Business Logic Exception'
-    caption = '!!The requested operation violates the internal business logic'
+    caption = '!!The requested operation violates the internal business logic: %(msg)s'
+
+
+class GnrSqlStandardException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-023'
+    description = '!!%(description)s'
+    caption = '!!%(msg)s'
 
 class GnrSqlNotExistingColumnException(GnrSqlException):
     """Standard Genro SQL Business Logic Exception
     
-    * **code**: GNRSQL-021
+    * **code**: GNRSQL-022
     * **description**: Genro SQL Business Logic Exception
     """
     code = 'GNRSQL-081'
@@ -115,6 +126,7 @@ EXCEPTIONS = {'save': GnrSqlSaveException,
               'protect_delete': GnrSqlProtectDeleteException,
               'protect_validate': GnrSqlProtectValidateException,
               'business_logic':GnrSqlBusinessLogicException,
+              'standard':GnrSqlStandardException,
               'not_existing_column':GnrSqlNotExistingColumnException}
               
 class SqlTable(GnrObject):
