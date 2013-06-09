@@ -2038,7 +2038,8 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
 
     onClick:function(e) {
         var inattr = this.getInheritedAttributes();
-        var _delay = '_delay' in inattr? inattr._delay: 100;
+        //var _delay = '_delay' in inattr? inattr._delay: 100;
+        var _delay = inattr._delay;
         if(!_delay){
             return this.widget._onClickDo(e,inattr);
         }
@@ -5763,10 +5764,19 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         var store;
         savedAttrs['record'] = objectPop(storeAttrs, 'record');
         attributes.searchAttr = storeAttrs['caption'] || 'caption';
-        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr});
+        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode});
 
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
-        store._parentSourceNode = sourceNode;
+
+        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
+            if(this.attr.dbtable==kw.table){
+                this.widget.clearCache(kw.pkey);
+            }
+        });
+
+
+
+        //store._parentSourceNode = sourceNode;
         resolverAttrs._sourceNode = sourceNode;
         //resolverAttrs.sync = true
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
@@ -5779,6 +5789,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         attributes.ignoreCase = (attributes.ignoreCase == false) ? false : true;
         //store._remote;
         attributes.store = store;
+
         return savedAttrs;
     },
     
@@ -5791,6 +5802,9 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     },
     mixin_setDbtable:function(value) {
         this.store.rootDataNode()._resolver.kwargs.dbtable = value;
+    },
+    mixin_clearCache:function(pkey){
+        this.store.clearCache(pkey);
     },
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;

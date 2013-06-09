@@ -32,6 +32,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
     constructor: function(kw) {
         dojo.mixin(this, kw);
     },
+
     rootDataNode:function() {
         if (this.datapath) {
             return genro.getDataNode(this.datapath, true, new gnr.GnrBag());
@@ -554,6 +555,20 @@ dojo.declare("gnr.GnrStoreGrid", gnr.GnrStoreBag, {
 
 // ******************** GnrStoreQuery **************************
 dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
+
+    constructor: function(kw) {
+        this.cached_values = {};
+        this.cache_time = 60;
+    },
+
+    clearCache:function(pkey){
+        if(pkey){
+            objectPop(this.cached_values,pkey);
+        }else{
+            this.cached_values = {};
+        }
+    },
+
     fetchItemByIdentity: function(/* object */ request) {
         genro.debug('fetchItemByIdentity: identity=' + request.identity);
         if (!request.identity) {
@@ -564,12 +579,24 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             dojo.hitch(scope, request.onItem)(result);
         } else {
             var id = request.identity;
+            if(id in this.cached_values){
+                var cached = this.cached_values[id];
+                var age = (new Date()-cached.ts)/1000;
+                if(age<this.cache_time){
+                    dojo.hitch(scope, request.onItem)(cached.result);
+                    return;  
+                }
+            }
             if (isNullOrBlank(id)){
                 console.log('ID NULL OR BLANK')
                 dojo.hitch(scope, request.onItem)(null);
                 return;     
             }
             var parentSourceNode = this._parentSourceNode;
+           // if(parentSourceNode.widget && parentSourceNode.widget._lastValue==request.identity){
+           //     //lastValue equal to requested identitiy: the fetchItemByIdentity is skipped 9/6/2013 fporcari
+           //     return;
+           // }
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
@@ -599,7 +626,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 } else {
                     result = null;
                 }
-
+                this.cached_values[request.identity] = {'result':result,'ts':new Date()};
                 //if (result) {
                     if(!result){
                         console.log('no result',request);
