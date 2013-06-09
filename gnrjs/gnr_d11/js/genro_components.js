@@ -1242,6 +1242,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var record_id = objectPop(kw, 'record_id');
         genro.assert((record_id || kw.datasource),'record_id or datasource are mandatory in templatechunk');
 
+        if(record_id){
+            sourceNode.attr.record_id = record_id;
+        }
         for(var k in editorConstrain){
             var c = editorConstrain[k];
             if(typeof(c)=='string' && (c[0]=='^' || c[0]=='=')){
@@ -1351,10 +1354,28 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         templateHandler.setNewData = function(result){
             sourceNode.updateTemplate(sourceNode.getRelativeData(record_id));
         }
-        sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate(pkey);",pkey:record_id});
+        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
+            var mainNode = this.getParentNode();
+            var currpkey = mainNode.getAttributeFromDatasource('record_id');
+            if(kw.table==this.attr._tplpars.table && currpkey==kw.pkey){
+                mainNode.gnrwdg.refresh();
+            }
+        });
+        //sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate(pkey);",pkey:record_id});
+    },
+    gnrwdg_refresh:function(){
+        var pkey;
+        var tnode = this.sourceNode._value.getNode('templateChunk');
+
+        if(this.sourceNode.attr.record_id){
+            pkey = this.sourceNode.getAttributeFromDatasource('record_id');
+        }
+        tnode.updateTemplate(pkey);
+    },
+    gnrwdg_setRecord_id:function(pkey){
+        var tnode = this.sourceNode._value.getNode('templateChunk');
+        tnode.updateTemplate(pkey);
     }
-
-
 });
 
 dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
