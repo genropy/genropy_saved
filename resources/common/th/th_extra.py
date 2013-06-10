@@ -274,8 +274,9 @@ class THHierarchical(BaseComponent):
                   inspect='shift',
                   selectedLabelClass='selectedTreeNode',
                   labelAttribute='caption',
-                  fired='^.queryEnd',
+                  fired='^.rebuildTree',
                   **tree_kwargs)
+        pane.dataController('FIRE .rebuildTree;', _fired='^.queryEnd', _delay='1') #waiting resolver data
 
     def hv_tree_kwargs(self):
         return dict()
