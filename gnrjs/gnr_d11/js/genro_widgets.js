@@ -3896,6 +3896,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.selection.select(sel);
         }
     },
+
+    patch_onCellDblClick:function(e){
+        if(dojo.isIE){
+            this.edit.setEditCell(this._click[1].cell, this._click[1].rowIndex);
+        }else if( /*patch_start*/ this._click[0] /*patch_end*/&& this._click[0].rowIndex != this._click[1].rowIndex){ 
+            this.edit.setEditCell(this._click[0].cell, this._click[0].rowIndex);
+        }else{
+            this.edit.setEditCell(e.cell, e.rowIndex);
+        }
+        this.onRowDblClick(e);
+
+    },
     
     mixin_setStorepath:function(val, kw) {
         if ((!this._updatingIncludedView) && (! this._batchUpdating)) {

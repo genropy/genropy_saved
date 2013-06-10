@@ -2891,6 +2891,11 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
         for(var k in updDict){
+            var n = rowData.getNode('static');
+            if(!n){
+                //put the missing node
+                rowData.setItem(k,null,null,{doTrigger:false});
+            }
             rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx}});
         }
     },
