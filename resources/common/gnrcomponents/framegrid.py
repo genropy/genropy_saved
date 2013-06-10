@@ -30,7 +30,7 @@ class FrameGridSlots(BaseComponent):
         kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """
                                                                           var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && n.attr._protect_delete});
                                                                             var currDisabled = GET .disabledButton;
-                                                                          this.widget.setDisabled(currDisabled || hasProtectRow);
+                                                                          this.widget.setAttribute('disabled',currDisabled || hasProtectRow);
                                                                           """
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,disabled=disabled,**kwargs)
     
