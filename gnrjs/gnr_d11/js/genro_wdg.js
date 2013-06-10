@@ -1221,7 +1221,7 @@ dojo.declare("gnr.GridEditor", null, {
             var dt = convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
-        var editWidgetNode = this.widgetRootNode._(wdgtag,rowDataNode.attr._pkey, attr).getParentNode();
+        var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
@@ -1238,7 +1238,8 @@ dojo.declare("gnr.GridEditor", null, {
     endEdit:function(editWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
-        editWidget.sourceNode._destroy();
+        var removedNode = editWidget.sourceNode._destroy();
+        console.log('removedNode',removedNode);
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);
         if(editingInfo.editedRowId){
