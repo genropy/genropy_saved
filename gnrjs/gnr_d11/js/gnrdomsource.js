@@ -1616,7 +1616,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return child;
     },
     _destroy: function() {
-        this.getParentBag().popNode(this.label);
+        return this.getParentBag().popNode(this.label);
     },
     getChild:function(childpath){
         var v = this._value;
