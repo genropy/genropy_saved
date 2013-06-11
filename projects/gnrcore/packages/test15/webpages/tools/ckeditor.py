@@ -3,7 +3,7 @@
 """ClientPage tester"""
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerFull,"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     #css_requires = 'rich_edit'
     #js_requires = 'ckeditor/ckeditor'
     
@@ -17,10 +17,16 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2,border_spacing='3px')
         fb.textbox(value='^.height',lbl='Height')
         fb.textbox(value='^.width',lbl='Width')
-
         pane.ckeditor(value='^.testdata',constrain_height='^.height',
+                      config_stylesSet='/_site/styles/style_pippo.js',
                       constrain_width='^.width',constrain_border='1px solid red')
 
+
+    def test_2_stylegroup(self, pane):
+        fb = pane.formbuilder(cols=2,border_spacing='3px')
+        fb.textbox(value='^.height',lbl='Height')
+        fb.textbox(value='^.width',lbl='Width')
+        pane.ckEditor(value='^.testdata',stylegroup='base')
 
   
     #def main(self, pane):

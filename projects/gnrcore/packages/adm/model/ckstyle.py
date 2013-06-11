@@ -9,3 +9,4 @@ class Table(object):
         tbl.column('element' ,values='div,span,h1,h2,h3',name_long='!!Dom element',name_short='Element')
         tbl.column('styles',name_long='!!Styles')
         tbl.column('attributes',name_long='!!Attributes')
+        tbl.column('stylegroup',name_long='!!Group')

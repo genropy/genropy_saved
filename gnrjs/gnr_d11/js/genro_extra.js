@@ -210,6 +210,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         attributes.id = attributes.id || 'ckedit_' + sourceNode.getStringId();
         var toolbar = objectPop(attributes, 'toolbar');
         var config = objectExtract(attributes, 'config_*');
+        var stylesheet = objectPop(attributes,'stylesheet');
+        if(stylesheet){
+            config.extraPlugins = 'stylesheetparser';
+            config.contentsCss = stylesheet;
+        }
         var showtoolbar = true;
         if (toolbar===false){
             toolbar=[];

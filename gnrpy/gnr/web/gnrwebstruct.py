@@ -1075,6 +1075,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param groupCode: TODO
         """
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
+
+
+    def ckeditor(self,stylegroup=None,**kwargs):
+        style_table = self.page.db.table('adm.ckstyle')
+        if stylegroup and style_table:
+            cs = dict()
+            for st in stylegroup.split(','):
+                cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup).fetchAsDict('name'))
+            kwargs['customStyles'] = [dict(v) for v in cs.values()]
+
+        return self.child('ckEditor',**kwargs)
         
     def palettePane(self, paletteCode, datapath=None, **kwargs):
         """Return a :ref:`palettepane`
@@ -1136,6 +1147,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
+
+
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes
