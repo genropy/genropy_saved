@@ -3,7 +3,7 @@
 """ClientPage tester"""
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull,public:Public"
     #css_requires = 'rich_edit'
     #js_requires = 'ckeditor/ckeditor'
     
