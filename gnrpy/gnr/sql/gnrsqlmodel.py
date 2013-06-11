@@ -277,7 +277,7 @@ class DbModel(object):
                     "table() called with '%(tblname)s' instead of '<packagename>.%(tblname)s'" % {'tblname': tblname})
             #if pkg is None:
         #    pkg = self.obj.keys()[0]
-        if not self.obj['pkg']:
+        if not self.obj[pkg]:
             return
         return self.obj[pkg].table(tblname)
 
