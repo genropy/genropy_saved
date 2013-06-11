@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2,border_spacing='3px')
         fb.textbox(value='^.height',lbl='Height')
         fb.textbox(value='^.width',lbl='Width')
-        pane.ckEditor(value='^.testdata',stylegroup='base')
+        pane.ckEditor(value='^.testdata',stylegroup='base',contentsCss='/_rsrc/common/public.css')
 
   
     #def main(self, pane):

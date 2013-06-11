@@ -1079,10 +1079,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 
     def ckeditor(self,stylegroup=None,**kwargs):
         style_table = self.page.db.table('adm.ckstyle')
-        if stylegroup and style_table:
+        if style_table:
             cs = dict()
-            for st in stylegroup.split(','):
-                cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
+            cs.update(style_table.query(where="$stylegroup IS NULL OR $stylegroup=''",g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
+            if stylegroup:
+                for st in stylegroup.split(','):
+                    cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
             kwargs['customStyles'] = [dict(v) for v in cs.values()]
 
         return self.child('ckEditor',**kwargs)

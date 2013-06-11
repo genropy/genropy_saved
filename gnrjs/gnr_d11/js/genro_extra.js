@@ -212,7 +212,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var config = objectExtract(attributes, 'config_*');
         var stylesheet = objectPop(attributes,'stylesheet');
         var customStyles = objectPop(attributes,'customStyles');
-
+        var contentsCss = objectPop(attributes,'contentsCss');
         if(stylesheet){
             config.extraPlugins = 'stylesheetparser';
             config.contentsCss = stylesheet;
@@ -240,6 +240,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ;
         var savedAttrs = {'config':config,showtoolbar:showtoolbar,enterMode:objectPop(attributes,'enterMode'),bodyStyle:objectPop(attributes,'bodyStyle',{margin:'2px'})};
         savedAttrs.customStyles = customStyles;
+        savedAttrs.contentsCss = contentsCss;
         savedAttrs.constrainAttr = objectExtract(attributes,'constrain_*')
         return savedAttrs;
 
@@ -326,7 +327,15 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         //savedAttrs.config.enterMode = CKEDITOR.ENTER_BR;
         //savedAttrs.config.enterMode = CKEDITOR.ENTER_P;
 
+        if(savedAttrs.contentsCss){
+            var currlst = CKEDITOR.config.contentsCss;
+            if(typeof(currlst)=='string'){
+                currlst = currlst.split(',')
+            }
+            savedAttrs.config.contentsCss = currlst.concat(savedAttrs.contentsCss.split(','));
+        }
         CKEDITOR.replace(widget, savedAttrs.config);
+
 
         var ckeditor_id = 'ckedit_' + sourceNode.getStringId();
         var ckeditor = CKEDITOR.instances[ckeditor_id];
