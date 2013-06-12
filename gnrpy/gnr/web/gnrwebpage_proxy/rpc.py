@@ -6,7 +6,7 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,BagNode
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
@@ -43,6 +43,10 @@ class GnrWebRpc(GnrBaseProxy):
         page = self.page
         envelope = Bag()
         resultAttrs = {}
+        if isinstance(result, BagNode):
+            envelope['resultType'] = 'node'
+            resultAttrs = result.attr
+            result = result.getValue()
         if isinstance(result, tuple):
             resultAttrs = result[1]
             if len(result) == 3 and isinstance(result[2], Bag):
