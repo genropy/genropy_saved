@@ -70,7 +70,9 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             // We got an error parsing the XML response from the server
             debugger;
         }
-        return genro.rpc.resultHandler(response, ioArgs, (this.updateAttr ? this._parentNode.attr : null));
+        var result=genro.rpc.resultHandler(response, ioArgs, (this.updateAttr ? this._parentNode.attr : null));
+
+        return result
     }
 });
 
@@ -249,6 +251,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     },
     _serverCall_execute: function(httpMethod, kw, callKwargs) {
+        var xhrResult;
         if (this.debug){
             console.log('_serverCall_execute:start --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs)
         }
