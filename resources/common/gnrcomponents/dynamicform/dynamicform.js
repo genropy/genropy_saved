@@ -72,7 +72,7 @@ var dynamicFormHandler = {
                 objectExtract(kw,extractstr);
             }
             var result = funcApply('return '+expression,sourceNode.evaluateOnNode(kw),sourceNode);
-            if(isNaN(result)){
+            if((result_type=='N' || result_type=='L' || result_type=='R') && isNaN(result)){
                 result = null;
             }
             return result;
