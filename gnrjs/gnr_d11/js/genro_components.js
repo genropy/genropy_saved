@@ -974,13 +974,13 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
                 gnrwdg.sourceNode.form.subscribe('onLoading',function(){
                     gnrwdg.setDisabled(true);
                 })
-                gnrwdg.sourceNode.form.subscribe('onLoaded',function(){
+                /*gnrwdg.sourceNode.form.subscribe('onLoaded',function(){
                     var st = gnrwdg.sourceNode.getRelativeData(gnrwdg.sourceTextPath);
                     var pt = gnrwdg.sourceNode.getRelativeData(gnrwdg.pagedTextPath);
                     if(st && !pt){
                         gnrwdg.editorNode.externalWidget.gnr_onTyped();
                     }
-                })
+                })*/
             }
         };
         genro.src.onBuiltCall(cb);
