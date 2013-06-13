@@ -24,6 +24,7 @@ Component for thermo:
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrstring import slugify
 import os
 
 
@@ -153,6 +154,9 @@ class AttachManager(BaseComponent):
         maintableobj = self.db.table(maintable)
         filename = kwargs.get('filename')
         description,ext = os.path.splitext(filename)
+        description = slugify(description)
+        filename = '%s%s' %(description,ext)
+        kwargs['filename'] = filename
         path = os.path.join(maintable.replace('.','_'),maintable_id)
         if hasattr(maintableobj,'atc_getAttachmentPath'):
             path = maintableobj.atc_getAttachmentPath(pkey=maintable_id)

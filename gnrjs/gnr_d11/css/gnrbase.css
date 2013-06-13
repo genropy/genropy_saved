@@ -462,6 +462,11 @@ cursorZoom_plus{
     color: #707070;
 }
 
+.gnrfield label{
+    color: #707070;
+    padding-right: 10px;
+}
+
 .fakeTextBox,.smallFakeTextBox, .gnrfield.tag_div>div.fakeTextBox{
 	background: white;
     border: 1px solid #B3B3B3;
@@ -1624,6 +1629,18 @@ div.dojoxDock {
 
 .icnBaseLogout {
     background: url(icons/base16/logout.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
+
+.icnBaseUserLogout {
+    background: url(icons/base16/user_logout.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+.icnBaseUserPause {
+    background: url(icons/base16/user_pause.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
@@ -3735,5 +3752,17 @@ div[disabled='true']{
     position: absolute;
     right:2px;
     top:4px;
+}
+.genropylogo{
+	background: url(icons/genropy.png) no-repeat center center;
+    height: 60px;
+    width: 252px;
+}
+
+.genropylogo_small{
+    background: url(icons/genropy.png) no-repeat center center;
+    height: 60px;
+    width: 252px;
+    zoom:.3;
 }
 

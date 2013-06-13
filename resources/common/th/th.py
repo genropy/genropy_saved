@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,view=True,picker=True,addrowmenu=None,hider=True,preview=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=None,hider=True,preview=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
@@ -38,6 +38,7 @@ class TableHandler(BaseComponent):
                             parentFormSave=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
+                            export_kwargs=None,
                             picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
@@ -94,7 +95,7 @@ class TableHandler(BaseComponent):
         preview_kwargs.setdefault('tpl',True)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
-                                top_thpicker_picker_kwargs=picker_kwargs,
+                                top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
                                 top_addrowmenu_parameters=addrowmenu_kwargs,
                                 lockable=lockable,
                                 configurable=configurable,
@@ -458,7 +459,7 @@ class ThLinker(BaseComponent):
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
         if openIfEmpty:
             pane.dataController("linker.linkerManager.openLinker(false);",linker=linker,
-                                currvalue='^#FORM.record.%s' %field,_if='!currvalue')          
+                                currvalue='^#FORM.record.%s' %field,_if='!currvalue',_else='linker.linkerManager.closeLinker()')          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',

@@ -502,8 +502,14 @@ class GnrWebPage(GnrBaseWebPage):
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
             resource_table = '.'.join(segments)
-            resource_name = pkey
-            data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
+            data = None
+            if self.db.package('adm'):
+                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=resource_table)
+                if data and metadata['private'] and metadata['userid'] != self.user:
+                    data = None
+            if not data:
+                resource_name = pkey
+                data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
         else:
             pkg,table,field = segments
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
@@ -544,10 +550,11 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return self.user == self.connection.guestname
     
-
+    def onAuthenticating(self,avatar,**kwargs):
+        pass
     
     @public_method
-    def doLogin(self, login=None,guestName=None,authenticate=True, **kwargs):
+    def doLogin(self, login=None,guestName=None,authenticate=True, rootenv=None,**kwargs):
         """Service method. Set user's avatar into its connection if:
         
         * The user exists and his password is correct
@@ -566,6 +573,11 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
+          
+            err = self.onAuthenticating(avatar,rootenv=rootenv)
+            if err:
+                login['error'] = err
+                return (login, loginPars)
             self.site.onAuthenticated(avatar)
             self.connection.change_user(avatar)
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))

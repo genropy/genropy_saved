@@ -399,6 +399,9 @@ class GnrSqlDb(GnrObject):
             if autocommit:
                 self.commit()
         return cursor
+
+    def notifyDbEvent(self,tblobj,**kwargs):
+        pass
         
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
@@ -426,6 +429,9 @@ class GnrSqlDb(GnrObject):
 
     def raw_update(self, tblobj, record, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
+
+    def raw_delete(self, tblobj, record, **kwargs):
+        self.adapter.delete(tblobj, record,**kwargs)
 
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):

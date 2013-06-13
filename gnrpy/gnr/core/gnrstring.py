@@ -29,7 +29,7 @@ import datetime
 from decimal import Decimal
 
 logger = logging.getLogger(__name__)
-
+CONDITIONAL_PATTERN = re.compile("\\${([^}]*)}",flags=re.S)
 try:
     from string import Template
     
@@ -71,6 +71,8 @@ try:
                 as_name = k[1]
                 k = k[0]
             value = self.data[k]
+            if not value:
+                value = self.data(as_name)
             format = None
             mask = None
             formattedValue = None
@@ -420,7 +422,7 @@ def conditionalTemplate(myString,symbolDict=None):
         if m and (m.group(1) in symbolDict) and (symbolDict[m.group(1)] not in (None,'')): 
             return content
         return ''
-    return re.sub("\\${([^}]*)}", cb,myString,flags=re.S)
+    return re.sub(CONDITIONAL_PATTERN, cb,myString)
 
     
 def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, 

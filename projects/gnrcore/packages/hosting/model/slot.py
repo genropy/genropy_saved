@@ -6,10 +6,13 @@ class Table(object):
                         name_plural='!!Slots', rowcaption='$code,$type')
         self.sysFields(tbl)
         tbl.column('code', size=':20', name_long='!!Code', _sendback=True, unique=True)
-        tbl.column('slot_type', size=':5', name_long='!!Type', unmodifiable=True)
+        tbl.column('slot_type_id', size='22', name_long='!!Type', unmodifiable=True).relation('hosting.slot_type.id')
         tbl.column('used', 'B', name_long='!!Used')
+    
+        tbl.column('quantity', 'L', name_long='!!Quantity')
         tbl.column('instance_id', size='22', group='_', name_long='Instance id'
-                   ).relation('hosting.instance.id', mode='foreignkey', deferred=True)
+                   ).relation('hosting.instance.id', mode='foreignkey',relation_name='slots', deferred=True)
+        tbl.aliasColumn('slot_type', relation_path='@slot_type_id.code')
 
     def set_slots(self, config, instance_id):
         currentConfig = self.query(where='instance_id =:instance_id', instance_id=instance_id).fetchGrouped(

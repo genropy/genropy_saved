@@ -20,6 +20,20 @@ class View(BaseComponent):
         return dict(column='code', op='contains', val='%')
 
 
+class ViewFromInstance(BaseComponent):
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        #r.fieldcell('code',edit=True)
+        r.fieldcell('slot_type_id',edit=dict(hasDownArrow=True))
+        r.fieldcell('quantity',edit=True,width='5em')
+    def th_order(self):
+        return 'code'
+
+    def th_query(self):
+        return dict(column='code', op='contains', val='%')
+
+
 
 class Form(BaseComponent):
 

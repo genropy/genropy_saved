@@ -126,12 +126,16 @@ class FormHandler(BaseComponent):
                                                     this.publish('editrow',{pkey:"*newrecord*"});
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
-                                    var topic = 'form_'+this.attr._linkedFormId+'_load';
-                                    var kw = {destPkey:$1.pkey};
-                                    if($1.default_kw){
-                                        kw.default_kw = $1.default_kw;
+                                    var pref = 'form_'+this.attr._linkedFormId;
+                                    if($1.pkey=='*newrecord*'){
+                                        var kw = {destPkey:$1.pkey};
+                                        if($1.default_kw){
+                                            kw.default_kw = $1.default_kw;
+                                        }
+                                        genro.publish(pref+'_load',kw);
+                                    }else{
+                                        genro.publish(pref+'_goToRecord',$1.pkey);
                                     }
-                                    genro.publish(topic,kw);
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridsubscribers['onExternalChanged']= """
@@ -286,7 +290,7 @@ class FormHandler(BaseComponent):
                         this.setRelativeData('#FORM.record.%s',value?new Date():null);  
                         this.form.save();
                     }
-                    """ %logicalDeletionField)
+                    """ %logicalDeletionField,parentForm=False)
         box.dataController("""SET #FORM.controller.do_logical_delete = logical_del_ts!=null;""",
                         logical_del_ts='^#FORM.record.%s' %logicalDeletionField)
 

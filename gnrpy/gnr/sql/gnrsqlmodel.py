@@ -262,6 +262,7 @@ class DbModel(object):
         """Return a package object
         
         :param pkg: the :ref:`package <packages>` object"""
+
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
@@ -276,6 +277,8 @@ class DbModel(object):
                     "table() called with '%(tblname)s' instead of '<packagename>.%(tblname)s'" % {'tblname': tblname})
             #if pkg is None:
         #    pkg = self.obj.keys()[0]
+        if not self.obj[pkg]:
+            return
         return self.obj[pkg].table(tblname)
 
     def column(self, colname):
@@ -431,7 +434,7 @@ class DbModelSrc(GnrStructData):
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
-    def pyColumn(self, name, py_method, **kwargs):
+    def pyColumn(self, name, py_method=None,**kwargs):
         """Insert a pyColumn into a table, that is TODO. The aliasColumn is a child of the table
         created with the :meth:`table()` method
         
@@ -439,6 +442,7 @@ class DbModelSrc(GnrStructData):
         :param sql_formula: TODO
         :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn"""
+        py_method = py_method or 'pyColumn_%s' %name
         return self.virtual_column(name, py_method=py_method, **kwargs)
         
     def aliasTable(self, name, relation_path, **kwargs):
@@ -670,7 +674,7 @@ class DbTableObj(DbModelObj):
             self.children['columns'] = objclassdict['column_list'](parent=self)
         if not self.indexes:
             self.children['indexes'] = objclassdict['index_list'](parent=self)
-        if not self.virtual_columns:
+        if not 'virtual_columns' in self.children:
             self.children['virtual_columns'] = objclassdict['virtual_columns_list'](parent=self)
         if not self.table_aliases:
             self.children['table_aliases'] = objclassdict['tblalias_list'](parent=self)
@@ -807,18 +811,24 @@ class DbTableObj(DbModelObj):
         return self['relations']
         
     relations = property(_get_relations)
-        
-    def _get_virtual_columns(self):
+      
+    @property  
+    def virtual_columns(self):
         """Returns a DbColAliasListObj"""
         virtual_columns = self['virtual_columns']
         local_virtual_columns = self.db.localVirtualColumns(self.fullname)
+        custom_virtual_columns = self.db.customVirtualColumns(self.fullname)
+
         if local_virtual_columns:
             for node in local_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
                 virtual_columns.children[obj.name.lower()] = obj
+        if custom_virtual_columns:
+            for node in custom_virtual_columns:
+                obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
+                virtual_columns.children[obj.name.lower()] = obj
         return virtual_columns
     
-    virtual_columns = property(_get_virtual_columns)
         
     def _get_table_aliases(self):
         """Returns an DbTblAliasListObj"""
@@ -1008,7 +1018,30 @@ class DbTableObj(DbModelObj):
                     return joiner
                 
                 
-            
+    def manyRelationsList(self,cascadeOnly=False):
+        result = list()
+        relations = self.relations.keys()
+        for k in relations:
+            n = self.relations.getNode(k)
+            joiner =  n.attr.get('joiner')
+            if joiner and joiner['mode'] == 'M' and (not cascadeOnly or  (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade')):
+                fldlist = joiner['many_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                fkey = fldlist[-1]
+                result.append((tblname,fkey))
+        return result
+
+    def oneRelationsList(self,foreignkeyOnly=False):
+        result = list()
+        for n in self.relations_one:
+            attr =  n.attr
+            if not foreignkeyOnly or attr.get('foreignkey'):
+                fldlist = attr['one_relation'].split('.')
+                tblname = '.'.join(fldlist[0:2])
+                fkey = attr['many_relation'].split('.')[-1]
+                pkey = fldlist[-1]
+                result.append((tblname,pkey,fkey))
+        return result
         
         
 class DbBaseColumnObj(DbModelObj):

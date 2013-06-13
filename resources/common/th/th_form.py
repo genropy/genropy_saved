@@ -118,7 +118,7 @@ class TableHandlerForm(BaseComponent):
         modal = options.get('modal',False)
         autoSave = options.get('autoSave',False)
         if autoSave:
-            form.store.attributes.update(autoSave=True)
+            form.store.attributes.update(autoSave=autoSave)
         form.dataController(""" if(reason=='nochange' && modal){return;}
                                 genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),titledialog);""",
                             reason="^.controller.save_failed",_if='reason',
@@ -136,7 +136,7 @@ class TableHandlerForm(BaseComponent):
             if sidebar:
                 box_kwargs['design'] = 'sidebar'
             form.attributes.update(**box_kwargs)
-            
+        
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
@@ -146,6 +146,8 @@ class TableHandlerForm(BaseComponent):
         if options.get('saveOnChange'):
             form.attributes.update(form_saveOnChange=True)
             showtoolbar = False
+        if 'parentLock' in options:
+            form.attributes.update(form_parentLock=options.pop('parentLock'))
         if modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False

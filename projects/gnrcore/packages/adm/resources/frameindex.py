@@ -33,7 +33,7 @@ class FrameIndex(BaseComponent):
     login_error_msg = '!!Invalid login'
     login_title = '!!Login'
     new_window_title = '!!New Window'
-
+    application_logo = 'applicationlogo'
     
     def mainLeftContent(self,*args,**kwargs):
         pass 
@@ -201,24 +201,31 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('5,appName,*,appInfo,*,count_errors,10,devlink,5,screenlock,5,user,logout,5',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
+
+        sb.applogo.div(_class=self.application_logo)
+        sb.genrologo.div(_class='genropylogo_small')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
-        appPref = sb.appName.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
+
+
+        box = sb.preferences.div(_class='iframeroot_pref')
+        appPref = box.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
                                 connect_onclick='PUBLISH app_preference')
-        userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
+        userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference')
-        sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
+        sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
+        sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
+
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
         
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         
-        sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox app_lock',tip='!!Lock screen')
         appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_nodeId:'mainpreference'});""",
@@ -232,7 +239,7 @@ class FrameIndex(BaseComponent):
                             
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
-                                border_left='1px solid silver',
+                                #border_left='1px solid silver',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);',_class='frameindexcenter')
         sc.dataController("""setTimeout(function(){
                                 genro.framedIndexManager.selectIframePage(selectIframePage[0])
@@ -267,7 +274,7 @@ class FrameIndex(BaseComponent):
                        
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
-                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins))
+                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd'))
         bc = pane.borderContainer()
         
         #self.rootSummaryBox(bc.contentPane(region='bottom',_class='login_summarybox'))
@@ -500,6 +507,9 @@ class FramedIndexLogin(BaseComponent):
             if (!result){
                 genro.publish('failed_login_msg',{'message':error_msg});
                 btn.setAttribute('disabled',false);
+            }else if(result.error){
+                genro.publish('failed_login_msg',{'message':result.error});
+                btn.setAttribute('disabled',false);
             }else{
                 dlg.hide();
                 rootpage = rootpage || result['rootpage'];
@@ -518,14 +528,14 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs): 
-        self.doLogin(login=login,guestName=guestName,**kwargs)
+        self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
             with self.connectionStore() as store:
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
-        return False
+        return dict(error=login['error']) if login['error'] else False
 
     @public_method
     def login_checkAvatar(self,password=None,user=None,**kwargs):

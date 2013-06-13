@@ -570,7 +570,7 @@ class DynamicForm(BaseComponent):
         if global_vars:
             formulaArgs.update(dict([(str(x.replace('.','_')),'^.#parent.%s' %x) for x in global_vars if x.replace('.','_') in formula]))
         formulaArgs['_'] = """==this._relativeGetter('#FORM.record');"""
-        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'_expression');" ,_expression=formula,_init=True,**formulaArgs)
+        fb.dataFormula(".%s" %attr['code'], "dynamicFormHandler.executeFormula(this,_expression,'_expression');",result_type=attr.get('dtype') ,_expression=formula,_init=True,**formulaArgs)
         attr['readOnly'] =True 
     
 

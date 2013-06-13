@@ -5,9 +5,15 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     },
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
-        var attributes = sourceNode.attr;
+        attributes = sourceNode.attr;
+        sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
         sourceNode.attr.tag=objectPop(attributes,'tag');
+        for (var k in sourceNode._dynattr){
+            if(this['gnrwdg_set'+stringCapitalize(k)]){
+                sourceNode.attr[k] = attributes[k];
+            }
+        }
         var datapath=objectPop(attributes,'datapath');
         if(datapath){sourceNode.attr.datapath=datapath;}
         else if(datapath===false){
@@ -968,6 +974,13 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
                 gnrwdg.sourceNode.form.subscribe('onLoading',function(){
                     gnrwdg.setDisabled(true);
                 })
+                /*gnrwdg.sourceNode.form.subscribe('onLoaded',function(){
+                    var st = gnrwdg.sourceNode.getRelativeData(gnrwdg.sourceTextPath);
+                    var pt = gnrwdg.sourceNode.getRelativeData(gnrwdg.pagedTextPath);
+                    if(st && !pt){
+                        gnrwdg.editorNode.externalWidget.gnr_onTyped();
+                    }
+                })*/
             }
         };
         genro.src.onBuiltCall(cb);
@@ -1236,6 +1249,9 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var record_id = objectPop(kw, 'record_id');
         genro.assert((record_id || kw.datasource),'record_id or datasource are mandatory in templatechunk');
 
+        if(record_id){
+            sourceNode.attr.record_id = record_id;
+        }
         for(var k in editorConstrain){
             var c = editorConstrain[k];
             if(typeof(c)=='string' && (c[0]=='^' || c[0]=='=')){
@@ -1345,10 +1361,28 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         templateHandler.setNewData = function(result){
             sourceNode.updateTemplate(sourceNode.getRelativeData(record_id));
         }
-        sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate(pkey);",pkey:record_id});
+        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
+            var mainNode = this.getParentNode();
+            var currpkey = mainNode.getAttributeFromDatasource('record_id');
+            if(kw.table==this.attr._tplpars.table && currpkey==kw.pkey){
+                mainNode.gnrwdg.refresh();
+            }
+        });
+        //sourceNode._('dataController',{'script':"this.getParentBag().getParentNode().updateTemplate(pkey);",pkey:record_id});
+    },
+    gnrwdg_refresh:function(){
+        var pkey;
+        var tnode = this.sourceNode._value.getNode('templateChunk');
+
+        if(this.sourceNode.attr.record_id){
+            pkey = this.sourceNode.getAttributeFromDatasource('record_id');
+        }
+        tnode.updateTemplate(pkey);
+    },
+    gnrwdg_setRecord_id:function(pkey){
+        var tnode = this.sourceNode._value.getNode('templateChunk');
+        tnode.updateTemplate(pkey);
     }
-
-
 });
 
 dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
@@ -1443,7 +1477,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
 
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
-            var sn = evt.target?evt.target.sourceNode:null;
+            var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
             if(sn){
                 var mcode = sn.getInheritedAttributes()['multibutton_code'];
                 if(mcode){
@@ -1689,38 +1723,38 @@ dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
 
 
 dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
+
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
     },
     createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw = sourceNode.evaluateOnNode(kw);
         var popup = objectPop(kw,'popup');
         var values = objectPop(kw,'values');
-        var value = objectPop(kw,'value');
         var separator = objectPop(kw,'separator') || ',';
         var codeSeparator = objectPop(kw,'codeSeparator');
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
         var rootNode = sourceNode;
-        var cell_kw = objectExtract(kw,'cell_*');
-        var row_kw = objectExtract(kw,'row_*');
-        var table_kw = objectExtract(kw,'table_*');
-        var label_kw = objectExtract(kw,'label_*',null,true);
-        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
 
+        var table_kw = objectExtract(kw,'table_*');
+        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         if(popup){
             var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
         }
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
-        var curr_row = tblNode._('tr',row_kw);
-        var cell,cbpars,label,_code;
+        sourceNode.gnrwdg.tblNode = tblNode;
+        tblNode.attr._has_code = has_code;
+        tblNode.attr._codeSeparator = codeSeparator;
+        sourceNode.gnrwdg.kw = objectUpdate({},kw);
+        this.createCheckBoxes(tblNode,values,kw);
         var that = this;
         tblNode.attr._textvaluepath = value.replace('^','');
-        tblNode.attr._has_code = has_code;
+        
         tblNode.attr.action = function(){that.onCheckboxCheck(tblNode,separator);};
 
         var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
@@ -1734,9 +1768,29 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
             that.readValue(tblNode,textvalue,textdescription,separator);
         }
-        var cols = objectPop(kw,'cols');
+        
+        return tbl;
+    },
+
+    gnrwdg_setValues:function(values,kw){
+        this.gnr.createCheckBoxes(this.tblNode,values,this.kw);
+    },
+
+    createCheckBoxes:function(tblNode,values,kw){
+        tblNode._value.clear(true);
+        var that = this;
+        var splitter = values.indexOf('\n')>=0? '\n':',';
+        var valuelist = splitStrip(values,splitter);
+        var curr_row = tblNode._('tr',row_kw);
+        var cell,cbpars,label,_code;
         var i = 1;
         var colspan;
+        var cols = objectPop(kw,'cols');
+        var cell_kw = objectExtract(kw,'cell_*');
+        var row_kw = objectExtract(kw,'row_*');
+        var label_kw = objectExtract(kw,'label_*',null,true);
+        var has_code = tblNode.attr._has_code;
+        var codeSeparator = tblNode.attr._codeSeparator;
         dojo.forEach(valuelist,function(v){
             if(v=='/'){
                 curr_row =  tblNode._('tr',row_kw);
@@ -1766,9 +1820,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             cell._('checkbox',objectUpdate(cbpars,label_kw));
             i= i + colspan;
         })
-        return tbl;
-        
     },
+
     onCheckboxCheck:function(sourceNode,separator){
         var textvaluepath = sourceNode.attr._textvaluepath;
         var has_code = sourceNode.attr._has_code;
@@ -1817,6 +1870,156 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         });
         this.onCheckboxCheck(sourceNode,separator)
     }
+});
+
+
+dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw = sourceNode.evaluateOnNode(kw);
+        var values = objectPop(kw,'values');
+        var separator = objectPop(kw,'separator') || ',';
+        var codeSeparator = objectPop(kw,'codeSeparator');
+
+        kw.group = kw.group || genro.getCounter();
+        if(codeSeparator!==false){
+            codeSeparator =  codeSeparator || ':'
+        }
+        var rootNode = sourceNode;
+        var cell_kw = objectExtract(kw,'cell_*');
+        var row_kw = objectExtract(kw,'row_*');
+        var table_kw = objectExtract(kw,'table_*');
+        var label_kw = objectExtract(kw,'label_*',null,true);
+        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
+        var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
+        var tblNode = tbl.getParentNode();
+        var splitter = values.indexOf('\n')>=0? '\n':',';
+        var valuelist = splitStrip(values,splitter);
+        var curr_row = tblNode._('tr',row_kw);
+        var cell,cbpars,label,_code;
+        var that = this;
+        tblNode.attr._textvaluepath = value.replace('^','');
+        tblNode.attr._has_code = has_code;
+        tblNode.attr._codeSeparator = codeSeparator;
+        tblNode.attr.action = function(){that.onRadioCheck(tblNode,separator);};
+        sourceNode.gnrwdg.tblNode = tblNode;
+        sourceNode.gnrwdg.kw = objectUpdate({},kw);
+        this.createRadioButtons(tblNode,values,kw);
+        var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
+                                    textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();
+        dcNode._readValue = function(textvalue,textdescription,_triggerpars,_node){
+            if(_triggerpars.kw){
+                if(_triggerpars.kw.reason=='cbgroup'){return}
+                if(!_triggerpars.kw.updvalue){
+                    textvalue=null;
+                }
+            }
+            that.readValue(tblNode,textvalue,textdescription,separator);
+        }
+        return tbl;
+    },
+
+    gnrwdg_setValues:function(values,kw){
+        this.gnr.createRadioButtons(this.tblNode,values,this.kw);
+    },
+
+    createRadioButtons:function(tblNode,values,kw){
+        tblNode._value.clear(true);
+        var that = this;
+        var splitter = values.indexOf('\n')>=0? '\n':',';
+        var valuelist = splitStrip(values,splitter);
+        var curr_row = tblNode._('tr',row_kw);
+        var cell,cbpars,label,_code;
+        var i = 1;
+        var colspan;
+        var cols = objectPop(kw,'cols');
+
+        var cell_kw = objectExtract(kw,'cell_*');
+        var row_kw = objectExtract(kw,'row_*');
+        var label_kw = objectExtract(kw,'label_*',null,true);
+        var has_code = tblNode.attr._has_code;
+        var codeSeparator = tblNode.attr._codeSeparator;
+        dojo.forEach(valuelist,function(v){
+            if(v=='/'){
+                curr_row =  tblNode._('tr',row_kw);
+                i = 1;
+                return;
+            }
+            if(cols && i>cols){
+                i = 1;
+                curr_row =  tblNode._('tr',row_kw);
+            }
+
+            label = v;
+            if(has_code){
+                v = v.split(codeSeparator);
+                _code = v[0];
+                label = v[1];
+            }  
+            colspan = 1;
+            if(label.indexOf('\\')>=0){
+                label = label.split('\\');
+                colspan = parseInt(label[1]);
+                label = label[0];
+            }
+            var z = objectUpdate(cell_kw,{colspan:colspan});
+            cell = curr_row._('td',z);  
+            cbpars ={label:label,_code:_code,group:kw.group};
+            cell._('radiobutton',objectUpdate(cbpars,label_kw));
+            i= i + colspan;
+        })
+    },
+    onRadioCheck:function(sourceNode,separator){
+        var textvaluepath = sourceNode.attr._textvaluepath;
+        var has_code = sourceNode.attr._has_code;
+        var i = 0;
+        var label = null;
+        var code = null;
+        var rows = sourceNode.getValue().getItem('#0');
+        var sourceNodes = dojo.query('.dijitCheckBoxInput',sourceNode.domNode).map(function(n){
+            return dijit.getEnclosingWidget(n).sourceNode
+        });
+        dojo.forEach(sourceNodes,function(cbNode){
+            if(cbNode.widget.checked){
+                if(has_code){
+                    code = cbNode.attr._code;
+                }
+                label = cbNode.attr.label;
+            }
+        });
+        if(has_code){
+            sourceNode.setRelativeData(textvaluepath,code,{value_caption:label},null,'cbgroup');
+        }else{
+            sourceNode.setRelativeData(textvaluepath,label,{},null,'cbgroup');
+        }
+    },
+    readValue:function(sourceNode,textvalue,textdescription,separator){
+        var splitter = separator;
+        var textvaluepath = sourceNode.attr._textvaluepath;
+        var checkcodes = textvalue && sourceNode.attr._has_code;
+        sourceNode.setRelativeData(textvaluepath,null,{},null,'cbgroup');
+        if(checkcodes){
+            splitter = ',';
+        }
+        textvalue = textvalue || textdescription || '';
+        var v;
+        var compareCb = function(node,value){
+            if(checkcodes){
+                return node.attr._code == value;
+            }
+            return node.attr.label.toLowerCase() == value.toLowerCase()
+        };
+        sourceNode._value.walk(function(n){
+            if(n.attr.tag=='radiobutton'){
+                n.widget.setAttribute('checked',compareCb(n,textvalue));
+            }
+        });
+        this.onRadioCheck(sourceNode,separator)
+    }
+
 });
 
 
@@ -2695,6 +2898,11 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
         var rowData = rowNode.getValue();
         var idx = this.getData().index(rowNode.label);
         for(var k in updDict){
+            var n = rowData.getNode('static');
+            if(!n){
+                //put the missing node
+                rowData.setItem(k,null,null,{doTrigger:false});
+            }
             rowData.setItem(k,updDict[k],null,{doTrigger:{editedRowIndex:idx}});
         }
     },
@@ -2879,6 +3087,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);
             }
+            grid.selectionKeeper('save');
         });
         var changedRows = {};
         var wasInSelection;

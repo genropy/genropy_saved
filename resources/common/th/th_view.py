@@ -46,7 +46,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -86,7 +86,7 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});",
+                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});" if loadingHider else None,
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -207,6 +207,9 @@ class TableHandlerView(BaseComponent):
                     
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
+        pane.dataController("""
+            genro.dlg.thIframePalette({table:'adm.userobject',palette_top:'100px',palette_right:'600px',current_tbl:tbl,current_pkg:pkg,title:title,viewResource:'ViewCustomColumn',formResource:'FormCustomColumn'})
+            """,tbl=table,_fired='^.handle_custom_column',pkg=table.split('.')[0],title='!!Custom columns')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():
@@ -457,6 +460,10 @@ class TableHandlerView(BaseComponent):
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
+            if options.get('tableRecordCount',True):
+                frame.data('.store?totalrows',0)
+                frame.data('.store?totalRowCount',self.db.table(table).query().count())
+
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
@@ -683,6 +690,8 @@ class THViewUtils(BaseComponent):
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
+        if self.application.checkResourcePermission('_DEV_,dbadmin', self.userTags):
+            querymenu.setItem('__custom_columns__',None,caption='!!Custom columns',action="""FIRE .handle_custom_column;""")
         querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
             

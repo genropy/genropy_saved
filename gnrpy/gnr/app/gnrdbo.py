@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,decode36
+from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -14,7 +14,9 @@ class GnrDboPackage(object):
         
         :param externaldb: TODO
         :param empty_before: TODO"""
-        tables = self.attributes.get('export_order') or ''
+        tables = self.attributes.get('export_order')
+        if not tables:
+            return
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
             self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)
@@ -570,12 +572,81 @@ class TableBase(object):
         return """regexp_replace(translate(%s,'àèéìòù-','aeeiou '),'[.|,|;]', '', 'g')""" %text
 
 
+    def templateColumn(self,record=None,field=None):
+        template = self.column(field).attributes.get('template_name')
+        tplpath = '%s:%s' %(self.fullname,template)
+        tplkey = 'template_%s' %tplpath
+        currEnv = self.db.currentEnv
+        tpl = currEnv.get(tplkey)
+        if not tpl:
+            tpl = self.db.currentPage.loadTemplate(tplpath)
+            currEnv[tplkey] = tpl
+        r = Bag(dict(record))
+        return templateReplace(tpl,r)
+
+
 
 class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self):
         """TODO"""
         return self.attributes.get('multidb')
+
+
+    def populateFromMasterDb(self,master_db=None,from_table=None,**kwargs):
+        print 'populating %s from %s' %(self.fullname,from_table or '')
+        descendingRelations = self.model.manyRelationsList(cascadeOnly=True)
+        ascendingRelations = self.model.oneRelationsList(foreignkeyOnly=True)
+        onPopulatingFromMasterDb = getattr(self,'onPopulatingFromMasterDb',None)
+
+        if onPopulatingFromMasterDb:
+            onPopulatingFromMasterDb(master_db=master_db,from_table=from_table,query_kwargs=kwargs)
+        f = master_db.table(self.fullname).query(bagFields=True,addPkeyColumn=False,**kwargs).fetch()
+        valuesset = self._getTableCache(self.fullname)
+        for r in f:
+            r = dict(r)
+            self.populateAscendingRelationsFromMasterDb(r,master_db=master_db,ascendingRelations=ascendingRelations)
+            if r[self.pkey] in valuesset:
+                continue
+            self.raw_insert(r)
+            print '.',
+            valuesset.add(r[self.pkey])
+            for tbl,fkey in descendingRelations:
+                if tbl!=from_table and tbl!=self.fullname:
+                    self.db.table(tbl).populateFromMasterDb(master_db,where='$%s=:fkey' %fkey, fkey=r[self.pkey])
+        print '\n'
+
+
+    def populateAscendingRelationsFromMasterDb(self,record,master_db=None,ascendingRelations=None,foreignkeyOnly=None):
+        currentEnv = self.db.currentEnv
+        if not ascendingRelations:
+            p = '%s_one_relations' %self.fullname.replace('.','_')
+            ascendingRelations = currentEnv.get(p)
+            if not ascendingRelations:
+                ascendingRelations = self.model.oneRelationsList(foreignkeyOnly=foreignkeyOnly)
+                currentEnv[p] = ascendingRelations
+                self.db.currentEnv = currentEnv
+        for table,pkey,fkey in ascendingRelations:
+            valuesset = self._getTableCache(table)
+            tblobj= self.db.table(table)
+            fkeyvalue = record[fkey]
+            if fkeyvalue and not fkeyvalue in valuesset:
+                tblobj.populateFromMasterDb(master_db=master_db,where='$%s=:f' %pkey,f=fkeyvalue,from_table=self.fullname)
+            
+
+    def _getTableCache(self,table):
+        currentEnv = self.db.currentEnv
+        p = 'cached_%s' %table.replace('.','_')
+        valuesset = currentEnv.get(p)
+        if valuesset is None:
+            tblobj = self.db.table(table)
+            f = tblobj.query(columns='%s' %tblobj.pkey).fetch()
+            valuesset = set([r['pkey'] for r in f])
+            currentEnv[p] = valuesset
+        return valuesset
+
+        
+
 
 class AttachmentTable(GnrDboTable):
     """AttachmentTable"""
@@ -626,8 +697,11 @@ class AttachmentTable(GnrDboTable):
     def trigger_onDeletedAtc(self,record,**kwargs):
         site = self.db.application.site
         fpath = site.getStaticPath('vol:%s' %record['filepath'])
-        if os.path.exists(fpath):
-            os.remove(fpath)
+        try:
+            if os.path.exists(fpath):
+                os.remove(fpath)
+        except Exception:
+            return
 
 
 class DynamicFieldsTable(GnrDboTable):

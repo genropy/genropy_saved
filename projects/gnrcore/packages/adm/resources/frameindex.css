@@ -147,3 +147,32 @@
 .iframeroot_bar .multibutton_selected.multibutton{
     border-color: #444;
 }
+
+
+.iframeroot_appname{
+    cursor: pointer;
+    display: inline-block;
+    background:#777;
+    color: white;
+    padding: 1px;
+    padding-right: 6px;
+    padding-left: 6px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.iframeroot_username{
+    cursor: pointer;
+    display: inline-block;
+    background: whitesmoke;
+    color:#444;
+    padding: 1px;
+    padding-left: 6px;
+    padding-right: 6px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+.iframeroot_pref{
+    border:1px solid #444;
+    border-radius: 4px;
+}

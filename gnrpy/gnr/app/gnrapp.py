@@ -169,6 +169,25 @@ class GnrSqlAppDb(GnrSqlDb):
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
+
+    def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
+        if isinstance(recordOrPkey,list):
+            records = recordOrPkey
+        elif not recordOrPkey and kwargs:
+            records = tblobj.query(**kwargs).fetch()
+        else:
+            broadcast = tblobj.attributes.get('broadcast')
+            if broadcast is False:
+                return
+            if isinstance(recordOrPkey,basestring):
+                if isinstance(broadcast,basestring):
+                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
+                else:
+                    records = [{tblobj.pkey:recordOrPkey}]
+            else:
+                records = [recordOrPkey]
+        for record in records:
+            self.application.notifyDbEvent(tblobj, record, 'U')
         
     def delete(self, tblobj, record, **kwargs):
         """Delete a record in the database
@@ -204,7 +223,45 @@ class GnrSqlAppDb(GnrSqlDb):
         if self.systemDbEvent():
             return
         self.application.notifyDbEvent(tblobj, record, 'I')
+       
+
+    def raw_delete(self, tblobj, record, **kwargs):
+
+        """Delete a record in the database
         
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be deleted"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.raw_delete(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
+        self.application.notifyDbEvent(tblobj, record, 'D')
+        
+    def raw_update(self, tblobj, record, old_record=None,pkey=None,**kwargs):
+        """Update a record in the database
+        
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the new record
+        :param old_record: the old record to be updated
+        :param pkey: the record :ref:`primary key <pkey>`"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.raw_update(self, tblobj, record, pkey=pkey,**kwargs)
+        if self.systemDbEvent():
+            return
+        old_record = record or dict(record)
+        self.application.notifyDbEvent(tblobj, record, 'U', old_record)
+        
+    def raw_insert(self, tblobj, record, **kwargs):
+        """Insert a record in the database
+
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be inserted"""
+        self.checkTransactionWritable(tblobj)
+        GnrSqlDb.raw_insert(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
+        self.application.notifyDbEvent(tblobj, record, 'I')
+
     def getResource(self, tblobj, path):
         """TODO
 
@@ -253,6 +310,22 @@ class GnrSqlAppDb(GnrSqlDb):
                     fckw['sql_formula'] = r
                     result.setItem(fckw.pop('name'),None,**fckw)
         return result
+
+    def customVirtualColumns(self,table):
+        if self.package('adm') and table!='adm.userobject':
+            userobject = self.table('adm.userobject')
+            pkg,tbl = table.split('.')
+            f = userobject.query(where='$tbl=:t AND objtype=:fc',t=table,fc='formulacolumn',bagFields=True).fetch()
+            result = Bag()
+
+            for r in f:
+                b = Bag(r['data'])
+                kw = b.asDict(ascii=True)
+                kw['name_long'] = r['description']
+                result.setItem(b.pop('fieldname'),None,**kw)
+            return result
+
+
 
 
 class GnrPackagePlugin(object):
@@ -931,7 +1004,7 @@ class GnrApp(object):
                                        login_pwd=password, authenticate=authenticate,
                                        defaultTags=defaultTags, **kw)
                                        
-    def auth_py(self, node, user, password=None, authenticate=False, **kwargs):
+    def auth_py(self, node, user, password=None, authenticate=False,tags=None, **kwargs):
         """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
         
         In file instanceconfig.xml insert a tag like::
@@ -964,7 +1037,13 @@ class GnrApp(object):
         if result:
             user_name = result.pop('user_name', user)
             user_id = result.pop('user_id', user)
-            tags = result.pop('tags', user)
+            user_record_tags = result.pop('tags', user)
+            if not tags:
+                tags = user_record_tags
+            elif user_record_tags:
+                tags = tags.split(',')
+                tags.extend(user_record_tags.split(','))
+                tags = ','.join(list(set(tags)))
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
                                    defaultTags=defaultTags, **result)
@@ -1228,14 +1307,18 @@ class GnrApp(object):
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
                 
-    def getAuxInstance(self, name=None):
+    def getAuxInstance(self, name=None,check=False):
         """TODO
         
         :param name: the name of the auxiliary instance"""
         if not name:
             return self
         if not name in self.aux_instances:
-            instance_name = self.config['aux_instances.%s?name' % name] or name
+            instance_name = self.config['aux_instances.%s?name' % name] 
+            if not check:
+                instance_name = instance_name or name
+            if not instance_name:
+                return
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
         
@@ -1268,7 +1351,7 @@ class GnrAvatar(object):
         for tag in tags:
             if not tag in t:
                 t.append(tag)
-        self.tags = ','.join(t)
+        self.user_tags = ','.join(t)
         
     def __getattr__(self, fname):
         if fname in self.extra_kwargs:

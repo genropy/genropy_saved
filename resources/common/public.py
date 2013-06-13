@@ -73,7 +73,7 @@ class PublicBase(BaseComponent):
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
-        baseslots = '10,captionslot,*,avatar,10'
+        baseslots = '15,captionslot,*,dock,avatar,countErrors'
         kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'captionslot' in slots:
@@ -82,14 +82,9 @@ class PublicBase(BaseComponent):
                             **kwargs)
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        #slots = slots or '5,dock,*,messageBox,*,countErrors,devBtn,locBtn,5'
-        slots = slots or '5,dock,*,countErrors,devBtn,locBtn,5'
-        if 'messageBox' in slots:
-            pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
-            kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
-        return pane.slotBar(slots=slots,childname='bar',
-                            _class='pbl_root_bottom',
-                            **kwargs)
+        pane.slotBar('',_class='pbl_root_bottom')
+
+
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
@@ -204,8 +199,8 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_countErrors(self,pane,**kwargs):
-        pane.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
-                    _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',margin_left='4px',margin_right='4px',margin_top='3px')
+        pane.div(width='15px').div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
+                    _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();',padding_right='3px',padding_left='3px',margin_top='3px')
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
@@ -331,10 +326,11 @@ class TableHandlerMain(BaseComponent):
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
     
-    @extract_kwargs(th=True)
+    @extract_kwargs(th=True,current=True)
     @struct_method
-    def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
+    def pbl_rootTableHandler(self,root,th_kwargs=None,current_kwargs=None,**kwargs):
         thRootWidget = 'stack'
+        kwargs['th_pkey'] = th_kwargs.pop('pkey',None)
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget=thRootWidget,
                         readOnly=False,virtualStore=True,public=True,partitioned=False)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
@@ -343,6 +339,8 @@ class TableHandlerMain(BaseComponent):
         th_options.update(self.th_options())
         th_options.update(resource_options)
         th_options.update(th_kwargs)
+        if current_kwargs:
+            root.data('current',Bag(current_kwargs))
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
@@ -382,6 +380,7 @@ class TableHandlerMain(BaseComponent):
             kwargs['semaphore'] = True
             lockable = False
         kwargs.setdefault('preview_tpl',True)
+        kwargs.setdefault('form_form_isRootForm',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
@@ -470,6 +469,8 @@ class TableHandlerMain(BaseComponent):
                 th_unifyrecord(kw);
             }
             """
+        if hasattr(th,'form'):
+            self._th_parentFrameMessageSubscription(th.form)
         return th
 
     @public_method
@@ -567,8 +568,19 @@ class TableHandlerMain(BaseComponent):
         if public:
             form.dataController("""
                             SET gnr.publicTitle = title;
-                            """,title='^#FORM.controller.title',_if='title')  
+                            """,title='^#FORM.controller.title',_if='title') 
+        self._th_parentFrameMessageSubscription(form) 
         return form
+
+    def _th_parentFrameMessageSubscription(self,form):
+        form.dataController("""if(_subscription_kwargs.pkey){
+                                    if(pkey=='*newrecord*'){
+                                    this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
+                                    }else{
+                                        this.form.load({destPkey:pkey,discardChange:true});
+                                    }
+                               }
+                               """,subscribe_main_form_open=True)
 
     @public_method                     
     def main_form(self, root,**kwargs):
@@ -587,6 +599,32 @@ class TableHandlerMain(BaseComponent):
         pane.div('^gnr.publicTitle', _class='pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id; dragValues["dbrecords"] = objectUpdate({},genro.getDataNode("gnr.publicTitle").attr);',
                     childname='captionbox',**kwargs)
+
+
+    def public_frameTopBarSlots(self,baseslot):
+        baseslot = baseslot.replace('avatar','tablelimiter,10,avatar')
+        if getattr(self,'public_partitioned',None):
+            baseslot = baseslot.replace('avatar','partition_selector,10,avatar')
+        return baseslot
+
+    @struct_method
+    def public_publicRoot_tablelimiter(self,pane,title='',**kwargs): 
+        pane.div()
+
+        #limit = self.application.config.getItem('tablelimiter.%s' %self.maintable)
+        #if limit:
+        #    limit = int(limit)
+        #    tablecode = self.maintable.replace('.','_')
+        #    pane.data('%s.view.tablelimit' %tablecode,limit)
+        #    pane.dataController("""SET .view.tablelimitBlock = totalRowCount>=tablelimit;
+        #                        SET .view.limitcaption = totalRowCount+'/'+tablelimit;""",datapath=tablecode,totalRowCount='^.view.store?totalRowCount',
+        #                        tablelimit='=.view.tablelimit',_onStart=True)
+#
+        #    pane.div('^.view.limitcaption',color='white')
+#
+        #else:
+        #    pane.div()
+
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
     py_requires = 'foundation/thermo'
