@@ -7,13 +7,13 @@
 #Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
-
+from gnr.core.gnrbag import Bag
 
 class BaseResourceMail(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourceMail, self).__init__(**kwargs)
         self.mail_handler = self.page.getService('mail')
-        self.mail_preference = self.mail_handler.getDefaultMailAccount()
+        self.mail_preference = Bag(self.mail_handler.getDefaultMailAccount())
 
                                   
     def send_one_template(self,record=None,to_address=None,cc_address=None,subject=None,body=None,attachments=None,**kwargs):
@@ -24,8 +24,8 @@ class BaseResourceMail(BaseResourceBatch):
         mp = self.mail_preference
         self.mail_handler.sendmail(to_address=to_address,
                                     body=body, subject=subject,
-                                    cc_address=cc_address, bcc_address=mp.get('bcc_address'),
-                                    from_address=mp.get('from_address'),
+                                    cc_address=cc_address, bcc_address=mp['bcc_address'],
+                                    from_address=mp['from_address'],
                                     attachments=attachments or mp['attachments'], 
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
