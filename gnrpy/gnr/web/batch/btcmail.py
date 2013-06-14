@@ -24,8 +24,8 @@ class BaseResourceMail(BaseResourceBatch):
         mp = self.mail_preference
         self.mail_handler.sendmail(to_address=to_address,
                                     body=body, subject=subject,
-                                    cc_address=cc_address, bcc_address=mp['bcc_address'],
-                                    from_address=mp['from_address'],
+                                    cc_address=cc_address, bcc_address=mp.get('bcc_address'),
+                                    from_address=mp.get('from_address'),
                                     attachments=attachments or mp['attachments'], 
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
