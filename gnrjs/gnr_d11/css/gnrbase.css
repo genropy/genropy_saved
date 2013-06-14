@@ -476,7 +476,7 @@ cursorZoom_plus{
     position: relative;
     padding-left: 2px;
     padding-top: 1px;
-    min-height: 14px;
+    min-height: 13px;
 }
 
 .fakeNumberTextBox ,.gnrfield.tag_div>div.fakeNumberTextBox{
@@ -488,7 +488,7 @@ cursorZoom_plus{
     position: relative;
     padding-right: 2px;
     padding-top: 1px;
-    min-height: 14px;
+    min-height: 13px;
     text-align: right;
 }
 
@@ -1415,7 +1415,7 @@ div.dojoxDock {
     background-color: #feffb4;
 }
 .floatingPopup:hover {
-    background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right;
+    background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right !important;
 }
 
 
