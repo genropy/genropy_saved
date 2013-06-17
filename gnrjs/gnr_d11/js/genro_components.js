@@ -960,30 +960,13 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
         gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
         gnrwdg.editorNode = pagingKw.editor;
-        gnrwdg.disabled = false;
-        var cb = function(){
-            if(gnrwdg.editorNode){
-                gnrwdg.editorNode = gnrwdg.sourceNode.currentFromDatasource(gnrwdg.editorNode);
-                dojo.connect(gnrwdg.editorNode.externalWidget,'gnr_onTyped',function(){
-                    gnrwdg.setDisabled(false);
-                });
-            }
-            if(gnrwdg.sourceNode.form){
-                gnrwdg.sourceNode.form.subscribe('onLoading',function(){
-                    gnrwdg.setDisabled(true);
-                })
-                /*gnrwdg.sourceNode.form.subscribe('onLoaded',function(){
-                    var st = gnrwdg.sourceNode.getRelativeData(gnrwdg.sourceTextPath);
-                    var pt = gnrwdg.sourceNode.getRelativeData(gnrwdg.pagedTextPath);
-                    if(st && !pt){
-                        gnrwdg.editorNode.externalWidget.gnr_onTyped();
-                    }
-                })*/
-            }
-        };
-        genro.src.onBuiltCall(cb);
         sourceNode.attr.sourceText = pagingKw.sourceText;
         sourceNode.attr.letterheads = pagingKw.letterheads;
+
+        sourceNode.subscribe('paginate',function(){
+            gnrwdg.paginate();
+        });
+
         kw['style'] = pagingKw.bodyStyle;
         var container = sourceNode._('div',kw);
         var top = container._('div',{position:'absolute',top:'0',left:0,right:0,height:'20px',gradient_from:'silver',gradient_to:'whitesmoke',gradient_deg:-90,border_bottom:'1px solid silver'})
@@ -1017,9 +1000,6 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         this.paginate();
     },
 
-    gnrwdg_setDisabled:function(disabled){
-        this.disabled = disabled===false?false:true;
-    },
     gnrwdg_addPage:function(){
         var rn = this.pagesRoot.domNode;  
         var p = document.createElement('div'); 
@@ -1045,9 +1025,12 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         return content_node;
     },
 
-    gnrwdg_setSourceText:function(value){    
-        this.paginate();
+    gnrwdg_setSourceText:function(value,kw,trigger_reason){    
+        //if(trigger_reason!='container'){
+            this.paginate();
+        //}
     },
+
     gnrwdg_onPaginating:function(){
         var pagesDomNode = this.pagesRoot.domNode;
         var sn = this.sourceNode;
@@ -1069,9 +1052,6 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_paginate:function(){
-        if(this.disabled){
-            return;
-        }
         var sourceHtml = this.sourceNode.getRelativeData(this.sourceTextPath);
         var pagesDomNode = this.pagesRoot.domNode
         pagesDomNode.innerHTML = '';

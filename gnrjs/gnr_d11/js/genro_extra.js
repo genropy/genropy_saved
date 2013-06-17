@@ -444,6 +444,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var that = this;
         var cb = function(){
             that.makeEditor(widget, savedAttrs, sourceNode);
+            sourceNode.publish('editorCreated');
         }
         if(!window.CKEDITOR){
             var suff = genro.newCkeditor? '_new':'';

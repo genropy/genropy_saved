@@ -206,7 +206,7 @@ class FrameIndex(BaseComponent):
         sb.appInfo.div('^gnr.appInfo')
 
         sb.applogo.div(_class=self.application_logo)
-        sb.genrologo.div(_class='genropylogo_small')
+        sb.genrologo.div(_class='made_with_genropy')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
