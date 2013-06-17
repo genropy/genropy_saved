@@ -361,6 +361,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     deleteItem:function(kw){
+        kw = kw || {};
         this.deleteConfirmDlg(kw);
     },
     

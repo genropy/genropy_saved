@@ -1720,3 +1720,14 @@ function localeParser(/*String*/value, /*Object?*/options) {
 }
 ;
 
+
+function flattenString(str,forbidden){
+    var forbidden = forbidden || ['.'];
+    var result = str;
+    var pattern;
+    forbidden.forEach(function(c){
+        pattern = new RegExp("\\"+c,'g');
+        result = result.replace(pattern,'_')
+    });
+    return result;
+}
