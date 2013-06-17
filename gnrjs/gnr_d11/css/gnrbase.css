@@ -3766,3 +3766,9 @@ div[disabled='true']{
     zoom:.3;
 }
 
+.made_with_genropy{
+    height: 237px;
+    width:873px;
+    zoom:.08;
+    background: url(icons/made_with_genropy.png) no-repeat center center;
+}
