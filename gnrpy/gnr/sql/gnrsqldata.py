@@ -2223,13 +2223,14 @@ class SqlRecord(object):
                                              sqlContextName=self.sqlContextName
                                              )
         #else:
+
         if 'storefield' in joiner:
             info['_storefield'] = joiner['storefield']
         info['_resolver_name'] = resolver_one
         info['_sqlContextName'] = self.sqlContextName
         info['_auto_relation_value'] = mfld
         info['_virtual_columns'] = virtual_columns
-        info['_storename'] = self.storename
+        info['_storename'] = joiner.get('storename') or self.storename
         return value,info
         
     def _onChangedValueCb(self,node=None,evt=None,info=None,**kwargs):
