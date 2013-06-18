@@ -641,6 +641,7 @@ class GnrDomSrc(GnrStructData):
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+                    colswidth=None,
                     lblalign=None, lblvalign='top',
                     fldalign=None, fldvalign='top', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
@@ -684,6 +685,19 @@ class GnrDomSrc(GnrStructData):
         inattr = self.getInheritedAttributes()
         if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
+        if colswidth:
+            colswidth = colswidth.split(',')
+            if len(colswidth)==1:
+                colsvalue=colswidth[0]
+                if colsvalue == 'auto':
+                    x = 100. / cols
+                    colsvalue ='%s%%' % x
+                colswidth = [colsvalue]
+
+            for w in range(cols):
+                k=w if w <len(colswidth) else len(colswidth) -1
+                tbl.div(tdf_width=colswidth[k],tdl_height='0px', tdl_border='0',tdf_border='0', tdf_height='0px',min_height='0px', padding_top='0px')
+
         return tbl
         
     def place(self, fields):
