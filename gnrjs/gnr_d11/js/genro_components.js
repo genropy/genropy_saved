@@ -955,7 +955,7 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.datasource = pagingKw.datasource;
         gnrwdg.tpl_kwargs = objectExtract(kw,'tpl_*',false,true);
-        gnrwdg.extra_bottom = pagingKw.extra_bottom || 50;
+        gnrwdg.extra_bottom = pagingKw.extra_bottom || 10;
         gnrwdg.pagedTextPath = pagingKw.pagedText.replace('^','');
         gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
         gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
