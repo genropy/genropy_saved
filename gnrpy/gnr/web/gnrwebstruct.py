@@ -1593,7 +1593,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 result['lbl_class'] = 'gnrzoomlabel'
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
-            if 'storefield' in joiner:
+            if '_storename' in joiner:
+                result['_storename'] = joiner['_storename']
+            elif 'storefield' in joiner:
                 result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
