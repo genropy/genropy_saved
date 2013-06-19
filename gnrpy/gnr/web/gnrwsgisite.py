@@ -581,6 +581,12 @@ class GnrWsgiSite(object):
                 pass
         return out_dict
     
+    @property
+    def dummyPage(self):
+        request = Request.blank('/sys/headless')
+        response = Response()
+        return self.resource_loader(['sys', 'headless'], request, response)
+
     def dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
