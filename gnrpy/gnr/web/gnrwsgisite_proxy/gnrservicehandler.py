@@ -43,7 +43,7 @@ class ServiceHandlerManager(object):
         for service in services:
             kw = dict(service.attr)
             resource = kw.pop('resource')
-            service_name = service.label
+            service_name = kw.pop('service_type',service.label)
             resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
             modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_name,resmodule))
             assert modules,'Missing module %s for service %s '  %(resmodule,service_name)    

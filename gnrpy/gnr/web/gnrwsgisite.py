@@ -357,6 +357,8 @@ class GnrWsgiSite(object):
         """TODO
         
         :param service_name: TODO"""
+        if self.currentPage and self.currentPage.rootenv:
+            service_name = self.currentPage.rootenv['custom_services.%s' %service_name] or service_name
         return self.services.get(service_name)
         
     def addStatic(self, static_handler_factory, **kwargs):
@@ -581,6 +583,12 @@ class GnrWsgiSite(object):
                 pass
         return out_dict
     
+    @property
+    def dummyPage(self):
+        request = Request.blank('/sys/headless')
+        response = Response()
+        return self.resource_loader(['sys', 'headless'], request, response)
+
     def dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
@@ -630,6 +638,7 @@ class GnrWsgiSite(object):
         elif path_list and path_list[0].startswith('_'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
+                self.currentPage = self.dummyPage
                 return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
             except Exception, exc:
                 return self.not_found_exception(environ,start_response)

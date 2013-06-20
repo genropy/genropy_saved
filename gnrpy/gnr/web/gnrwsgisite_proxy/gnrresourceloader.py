@@ -145,6 +145,7 @@ class ResourceLoader(object):
         
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         page_node = None
+        request_kwargs = request_kwargs or dict()
         mobile = request_kwargs.pop('_mobile',False)
         if mobile:
             page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
