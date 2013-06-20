@@ -357,6 +357,8 @@ class GnrWsgiSite(object):
         """TODO
         
         :param service_name: TODO"""
+        if self.currentPage and self.currentPage.rootenv:
+            service_name = self.currentPage.rootenv['custom_services.%s' %service_name] or service_name
         return self.services.get(service_name)
         
     def addStatic(self, static_handler_factory, **kwargs):
