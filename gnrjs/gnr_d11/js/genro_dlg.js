@@ -520,7 +520,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     floatingEditor:function(sourceNode,kw){
-        var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
+
+        var paletteCode = kw.paletteCode || 'floatingEditor_'+sourceNode.getStringId();
         var wdg = genro.wdgById(paletteCode+'_floating');
         if (wdg){
             wdg.show();
@@ -537,7 +538,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                             width:'600px',height:'400px',
                             maxable:true};
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
+        var valuepath = kw.valuepath || sourceNode.attr.innerHTML || sourceNode.attr.value;
         valuepath = '^'+sourceNode.absDatapath(valuepath);
         palette._('ckeditor',{value:valuepath});
         node.unfreeze(); 

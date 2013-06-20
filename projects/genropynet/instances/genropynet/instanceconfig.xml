@@ -2,13 +2,15 @@
 <GenRoBag>
     <db dbname="genropynet"/>
     <packages _T="NN">
-        <portal/>
+        <base/>
+        <gnrtutor:gnrtutor/>
+        <imdb:imdb/>
         <gnrcore:adm/>
-        <prj/>
-        <showcase/>
     </packages>
-    <db _T="NN"/>
     <authentication pkg="adm">
+        <xml_auth defaultTags="users,xml">
+            <demo pwd="demo" tags="user,demo"/>
+        </xml_auth>
         <py_auth _T="NN" defaultTags="user" pkg="adm" method="authenticate"/>
     </authentication>
 </GenRoBag>

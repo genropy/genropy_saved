@@ -435,7 +435,6 @@ class PaletteTemplateEditor(TemplateEditor):
             var template_address;
             genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
                     template_address =  table+':'+result;
-                    console.log('cccc',template_address)
                     genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
                 }})
         """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)

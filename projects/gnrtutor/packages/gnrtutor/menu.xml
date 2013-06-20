@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-    <backoffice label="Genropy Tutor" tags="staff">
+    <backoffice label="Genropy Tutor" tags="demo">
         <intro label="Introduction">
             <basics label="!!Basics" basepath="/gnrtutor/basics">
                 <html label="!!HTML" file="html" />

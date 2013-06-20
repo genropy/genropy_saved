@@ -169,8 +169,7 @@ class PkgStaticHandler(StaticHandler):
     prefix = 'pkg'
 
     def path(self, pkg, *args,**kwargs):
-        folder = kwargs.get('folder','webpages')
-        return os.path.join(self.site.gnrapp.packages[pkg].packageFolder, folder, *args)
+        return os.path.join(self.site.gnrapp.packages[pkg].packageFolder, *args)
 
     def url(self, pkg, *args, **kwargs):
         return '%s_pkg/%s/%s' % (self.home_uri, pkg, '/'.join(args))
