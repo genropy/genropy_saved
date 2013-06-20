@@ -1907,8 +1907,9 @@ versionpatch_11__contextMouse: function (e) {
         this._openPopup_replaced.call(this, e);
     },
     mixin_onOpeningPopup:function(popupKwargs){
-        if(this.sourceNode.attr.attachTo){
-            var attachTo = this.sourceNode.attr.attachTo.widget;
+        var kw = this.sourceNode.currentAttributes();
+        if(kw.attachTo){
+            var attachTo = kw.attachTo.widget;
             popupKwargs.popup.domNode.style.width = attachTo.domNode.clientWidth+'px';
             popupKwargs.orient = this.isLeftToRight() ? {'BL':'TL', 'BR':'TR', 'TL':'BL', 'TR':'BR'}: {'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'};
             popupKwargs.parent = attachTo;

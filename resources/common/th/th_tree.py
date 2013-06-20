@@ -158,7 +158,7 @@ class HTableTree(BaseComponent):
     js_requires='th/th_tree'
 
     @struct_method
-    def ht_hdbselect(self,pane,caption_field=None,**kwargs):
+    def ht_hdbselect(self,pane,caption_field=None,treeMode=None,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(dbselect))
@@ -170,8 +170,23 @@ class HTableTree(BaseComponent):
         pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
                         condition=dbselect_condition,
                         condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=0,caption_field=caption_field)
-        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
+                        cacheTime=0,caption_field=caption_field,dbstore=kwargs.get('_storename'))
+        if treeMode:
+            menunode = dbselect.menu(modifiers='*',attachTo=dbselect,_class='menupane').menuItem().div(height='300px',width='100%',overflow='auto')
+            menunode.div().tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
+                         hideValues=True,autoCollapse=True,excludeRoot=True,
+                         openOnClick=True,
+                         labelAttribute='caption',
+                         selectedLabelClass='selectedTreeNode',_class="fieldsTree noIcon",
+                           getLabelClass="""function(item){
+                                            
+                                            var _class = [];
+                                            if(item.attr.child_count){
+                                                _class.push('fieldsTree_folder');
+                                            }
+                                            return _class.join(' ');}""")
+        else:
+            dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',attachTo=dbselect,
                         action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
                         #selected_pkey=attr['value'].replace('^','')
                       )
@@ -256,12 +271,12 @@ class HTableTree(BaseComponent):
                         moveTreeNode=True,excludeRoot=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True,_class='fieldsTree')
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,**condition_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
