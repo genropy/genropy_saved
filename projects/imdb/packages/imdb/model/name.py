@@ -1,7 +1,7 @@
 # encoding: utf-8
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('name', pkey='id', name_long='Actor',rowcaption='$name',caption_field='name',name_plural='Actors')
+        tbl =  pkg.table('name', pkey='id', name_long='Person',rowcaption='$name',caption_field='name',name_plural='People')
         tbl.column('id',  dtype ='I', notnull ='y', name_long ='!!Id',group='_')  
         tbl.column('name', dtype ='T', name_long ='!!Name', notnull ='y',indexed=True)  
         tbl.column('imdb_index', dtype ='A', name_long ='!!Imdb_Index', size ='0:12',group='_')  

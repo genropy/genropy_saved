@@ -20,6 +20,20 @@ class View(BaseComponent):
         return dict(column='movie_id', op='contains', val='%')
 
 
+class ViewFromCompany(BaseComponent):
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('movie_id')
+        r.fieldcell('company_type_id')
+        r.fieldcell('note')
+
+    def th_order(self):
+        return 'movie_id'
+
+    def th_query(self):
+        return dict(column='movie_id', op='contains', val='%')
+
 
 class Form(BaseComponent):
 

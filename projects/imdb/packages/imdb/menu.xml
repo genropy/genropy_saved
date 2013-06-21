@@ -5,26 +5,26 @@
         <title table="imdb.title" label="!!Movies"/>
         <cast_info table="imdb.cast_info" label="!!Cast Members"/>
         <company_name table="imdb.company_name" label="!!Company"/>
+
+
+
+    <setup label='Setup'>
+        <mm_lookup label="!!Lookup tables" lookup_manager='imdb'/>
+
         <aka_name table="imdb.aka_name" label="!!Aka Actor"/>
         <aka_title table="imdb.aka_title" label="!!Aka Movie"/>
-    </mainmenu>
-    <setup label='Setup'>
+
+        
         <char_name table="imdb.char_name" label="!!Characters"/>
         <comp_cast_type table="imdb.comp_cast_type" label="!!Comp_cast_type"/>
-        <company_type table="imdb.company_type" label="!!Company type"/>
         <complete_cast table="imdb.complete_cast" label="!!Complete_cast"/>
         <counter table="imdb.counter" label="!!Counter"/>
-        <info_type table="imdb.info_type" label="!!Info_type"/>
         <keyword table="imdb.keyword" label="!!Keyword"/>
-        <kind_type table="imdb.kind_type" label="!!Kind_type"/>
-        <link_type table="imdb.link_type" label="!!Link_type"/>
         <movie_companies table="imdb.movie_companies" label="!!Movie_companies"/>
         <movie_info table="imdb.movie_info" label="!!Movie_info"/>
         <movie_info_idx table="imdb.movie_info_idx" label="!!Movie_info_idx"/>
         <movie_keyword table="imdb.movie_keyword" label="!!Movie_keyword"/>
         <movie_link table="imdb.movie_link" label="!!Movie_link"/>
         <person_info table="imdb.person_info" label="!!Person_info"/>
-        <role_type table="imdb.role_type" label="!!Role_type"/>
-        <userobject table="imdb.userobject" label="!!Userobject"/>
     </setup>
 </GenRoBag>

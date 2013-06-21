@@ -26,15 +26,15 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('name')
         fb.field('country_code')
         fb.field('imdb_id')
         fb.field('name_pcode_nf')
         fb.field('name_pcode_sf')
         fb.field('md5sum')
-
+        bc.contentPane(region='center').plainTableHandler(relation='@movies',viewResource='ViewFromCompany')
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')

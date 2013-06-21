@@ -10,7 +10,7 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('title',width='16em')
         r.fieldcell('year',width='4em')
-        r.fieldcell('actor',width='16em')
+        r.fieldcell('person',width='16em')
         r.fieldcell('character',width='16em')      
         r.fieldcell('role',width='12em')
         r.fieldcell('note')
@@ -20,7 +20,7 @@ class View(BaseComponent):
         return dict(tableRecordCount=False)
         
     def th_order(self):
-        return 'actor'
+        return 'person'
 
     def th_query(self):
         return dict(column='title', op='startswith', val='')
@@ -31,7 +31,7 @@ class ViewFromMovie(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('nr_order')
         r.fieldcell('year',width='4em')
-        r.fieldcell('actor',width='16em')
+        r.fieldcell('person',width='16em')
         r.fieldcell('character',width='16em')      
         r.fieldcell('role',width='12em')
         r.fieldcell('note')
