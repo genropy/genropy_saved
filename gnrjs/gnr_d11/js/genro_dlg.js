@@ -520,7 +520,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     floatingEditor:function(sourceNode,kw){
-
+        kw = kw || {};
         var paletteCode = kw.paletteCode || 'floatingEditor_'+sourceNode.getStringId();
         var wdg = genro.wdgById(paletteCode+'_floating');
         if (wdg){
@@ -540,7 +540,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var valuepath = kw.valuepath || sourceNode.attr.innerHTML || sourceNode.attr.value;
         valuepath = '^'+sourceNode.absDatapath(valuepath);
-        palette._('ckeditor',{value:valuepath});
+        palette._('ckeditor',objectUpdate(kw,{value:valuepath}));
         node.unfreeze(); 
     },
 

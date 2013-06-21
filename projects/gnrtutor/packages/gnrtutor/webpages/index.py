@@ -1,36 +1,87 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
-"""
-index.py
+#
+#  index.py
+#
+#
 
-Created by Jeff Edwards on 2009-10-01.
-Copyright (c) 2012 Softwell. All rights reserved.
-"""
+""" index.py """
 
-
+import os 
+from gnr.core.gnrbag import Bag
 # --------------------------- GnrWebPage subclass ---------------------------
+from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     py_requires = 'frameindex'
     index_url='genropynet.html'
-    #showTabs=True
-    authTags='user'
-    auth_workdate = 'superuser'
-
-    login_title = '!!Genropy Net' # here the title
-    newwindow_title='!!Open new window'# this is the title for new window  (but i don't remember tif it is written in this way.-...)ok
-    
-
-    def windowTitle(self):
-        return '!!Genropy'
+    auth_workdate = 'admin'
+    plugin_list = 'iframemenu_plugin,chat_plugin'
+    css_requires='customstyles'
 
     def windowTitleTemplate(self):
-       return 'Genropy $workdate' 
+        return "GenroPy Developer $workdate" 
 
+    def windowTitle(self):
+        return 'Genropy'
 
-    def loginSubititlePane(self,pane):#here you can define the sub title as you required a 
-        pane.div('User:demo Password:demo',text_align='center',font_size='.9em',font_style='italic',color='#AAAAAA')
+    def isDeveloper(self):
+        return True
 
-   # def onUserSelected(self,avatar,data):
-   #     if avatar.user_tags=='demo':
-   #         data['custom_index'] = 'demo'
-#
+    def onUserSelected(self,avatar,data):
+        if 'demo' in avatar.user_tags:
+            data['custom_index'] = 'demo'
+
+    def index_demo(self,root,**kwargs):
+        frame = root.framePane()
+        sc = frame.center.stackContainer()
+        sc.contentPane().div('Tutorial')
+        sc.contentPane(overflow='hidden',_lazyBuild=True).iframe(height='100%', width='100%', border=0, src='^iframe.selected_page')
+        sc.dataController("sc.switchPage(page?1:0);",page='^iframe.selected_page',sc = sc.js_widget)
+        self.left_menu(frame.left)
+        #self.demoTop(frame.top)
+        self.prepareBottom(frame.bottom)
+
+    def demoTop(self,top):
+        bar = top.slotBar('*,demotitle,*',background='#3E454C',color='white')
+        bar.demotitle.div('Genropy Demo Tutorial',font_size='22px')
+        
+    def left_menu(self, pane):
+        pane.data('menubag', self.diskDirectory())
+        bar = pane.slotBar('2,datatree,2',width='200px',splitter=True,closable='open')
+        datatreeslot = bar.datatree
+        datatreeslot.attributes.update(height='100%',position='relative')
+        treebox = datatreeslot.div(position='absolute',top='2px',right='4px',bottom='2px',
+                                left='2px',overflow='auto',text_align='left',_class='pbl_roundedGroup',padding='2px',background='white',_lazyBuild=True)
+
+        treebox.tree(storepath='menubag', hideValues=True, inspect='shift', labelAttribute='name',
+                  isTree=False, selected_path='tree.current_path', selected_name='tree.name',
+                  selectedLabelClass='selectedTreeNode')
+        treebox.dataController("""if (current_path){SET iframe.selected_page=current_path;}""",
+                               current_path="^tree.current_path")
+                               
+
+        
+####### server side operation #######
+    
+    def diskDirectory(self):
+        pages = Bag(self.site.sitemap['gnrtutor'])['tutorial']
+        for k in pages.keys():
+            if hasattr(pages[k], '_htraverse'):
+                pages[k].sort()
+        return pages
+        
+    @public_method
+    def fileSysPath(self, relpath=None):
+        if not relpath:
+            return ''
+        basedir = __file__.strip('/').split('/')[:-1]
+        basedir = u'/' + '/'.join(basedir)
+        sys_path = os.path.join(basedir, relpath)
+        return sys_path
+        
+   
+        
+    @public_method
+    def demoCurrentName(self, relpath=None):
+        name = relpath.split('/')[-1]
+        return name

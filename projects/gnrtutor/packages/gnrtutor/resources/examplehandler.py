@@ -34,12 +34,14 @@ class ExampleHandler(BaseComponent):
     def saveDocumentationBag(self,docbag=None):
         docbag.toXml(self.documentationPath,autocreate=True)
 
-    def exampleHandler(self, pane):
-        pane.attributes.update(overflow='hidden')
-        frame = pane.framePane()
-        pane = frame.center.contentPane(background='whitesmoke')
-        self.exampleHandler_headers(pane)
-        
+    def exampleHandler(self, root):
+        root.attributes.update(overflow='hidden')
+        frame = root.framePane()
+        tc = frame.center.tabContainer()
+        tc.contentPane(title='About').div('==_docbag.getItem(_lang+"."+_examplename)',_lang='^documentation.language',_docbag='^documentation.data',_examplename='__summary__',white_space='pre',overflow='auto', position='absolute',top='2px',left='2px',right='2px',bottom='2px',
+                    connect_ondblclick="""var lang = GET documentation.language;   
+                                          var example_name = this.attr._examplename;
+                                        genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang});""" ) 
         titlebar = frame.top.slotBar('50,moduletitle,*,savedoc,3,menulang,50',background='#204174',color='#B1B7BD')
         moduledoc=sys.modules[self.__module__].__doc__ or '...missing docline in module...'
         titlebar.moduletitle.span(moduledoc, font_size='20pt')
@@ -56,17 +58,14 @@ class ExampleHandler(BaseComponent):
         langmenu = lang.menu(_class='smallmenu',action='SET documentation.language = $1.code;',modifiers='*')
         langmenu.menuline(label='!!English',code='EN')
         langmenu.menuline(label='!!Italiano',code='IT')
-        pane = pane.div(width='1000px')
         docdata = Bag()
         documentationPath = self.documentationPath
         if os.path.isfile(documentationPath):
             docdata = Bag(documentationPath)
-        pane.data('documentation.data',docdata)
+        root.data('documentation.data',docdata)
 
-        self.exampleHandler_loop(pane)
+        self.exampleHandler_loop(tc.contentPane(title='Examples',_lazyBuild=True).div(width='1000px'))
         
-    def exampleHandler_headers(self, pane):
-        pane.div(width='1000px', margin='5px')
 
 
     def exampleHandler_loop(self, pane):
