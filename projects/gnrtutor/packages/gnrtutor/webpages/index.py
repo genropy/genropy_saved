@@ -50,12 +50,18 @@ class GnrCustomWebPage(object):
         bar = pane.slotBar('2,datatree,2',width='200px',splitter=True,closable='open')
         datatreeslot = bar.datatree
         datatreeslot.attributes.update(height='100%',position='relative')
-        treebox = datatreeslot.div(position='absolute',top='2px',right='4px',bottom='2px',
-                                left='2px',overflow='auto',text_align='left',_class='pbl_roundedGroup',padding='2px',background='white',_lazyBuild=True)
+        treebox = datatreeslot.div(position='absolute',top='0',right='0',bottom='0',
+                                left='0',overflow='auto',text_align='left',padding='5px',gradient_from='#efefef',gradient_to='#ffffff',gradient_deg=-90,_lazyBuild=True)
 
         treebox.tree(storepath='menubag', hideValues=True, inspect='shift', labelAttribute='name',
-                  isTree=False, selected_path='tree.current_path', selected_name='tree.name',
-                  selectedLabelClass='selectedTreeNode')
+                  isTree=False, selected_path='tree.current_path', selected_name='tree.name',openOnClick=True,
+                  selectedLabelClass='selectedTreeNode',_class="fieldsTree noIcon",
+                        getLabelClass="""function(item){
+                                            var _class = [];
+                                            if(item._value){
+                                                _class.push('fieldsTree_folder');
+                                            }
+                                            return _class.join(' ');}""",font_size='13px',color='#666',line_height='16px')
         treebox.dataController("""if (current_path){SET iframe.selected_page=current_path;}""",
                                current_path="^tree.current_path")
                                

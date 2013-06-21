@@ -56,3 +56,62 @@
 }
 
 /* @end */
+
+
+
+
+.exampleToolbar .multibutton_container{
+    padding-top:1px;
+    padding-bottom:1px;
+    line-height:normal;
+    font-size: 11px;
+    font-variant:normal;
+    height: auto;
+}
+
+.exampleToolbar .multibutton:hover{
+    text-decoration: normal;
+}
+
+
+
+.exampleToolbar .multibutton_selected.multibutton{
+    color: whitesmoke;
+   /* border: 0px;*/
+     background: whitesmoke;
+    color:#445D84;
+
+    -moz-box-shadow: inset 3px 3px 3px #ACACAC;
+    -webkit-box-shadow:inset 3px 3px 3px #ACACAC;
+}
+.exampleToolbar .multibutton_selected.multibutton:hover{
+    text-decoration:none;
+    background: white;
+}
+
+.exampleToolbar .multibutton{
+    position:relative;
+    display:inline-block;
+    padding-left:8px;
+    padding-right:8px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    cursor:pointer;
+    border: 0;
+    background:whitesmoke;
+    color:#3E454C;
+    border-radius: 4px;
+    margin-right:5px; 
+    border: 1px solid #848C94;
+    /*line-height:20px;
+    font-size: 9pt;
+    font-variant:small-caps;*/
+}
+.exampleToolbar .multibutton.multibutton_closable{
+    padding-right:15px;
+}
+
+.exampleToolbar .multibutton:hover{
+    text-decoration:none;
+    background: white;
+}

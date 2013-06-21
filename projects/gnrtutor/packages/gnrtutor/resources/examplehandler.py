@@ -37,15 +37,15 @@ class ExampleHandler(BaseComponent):
     def exampleHandler(self, root):
         root.attributes.update(overflow='hidden')
         frame = root.framePane()
-        tc = frame.center.tabContainer()
+        tc = frame.center.stackContainer()
         tc.contentPane(title='About').div('==_docbag.getItem(_lang+"."+_examplename)',_lang='^documentation.language',_docbag='^documentation.data',_examplename='__summary__',white_space='pre',overflow='auto', position='absolute',top='2px',left='2px',right='2px',bottom='2px',
                     connect_ondblclick="""var lang = GET documentation.language;   
                                           var example_name = this.attr._examplename;
                                         genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang});""" ) 
-        titlebar = frame.top.slotBar('50,moduletitle,*,savedoc,3,menulang,50',background='#204174',color='#B1B7BD')
+        titlebar = frame.top.slotToolbar('3,stackButtons,*,moduletitle,*,savedoc,3,menulang,',color='#666',font_size='13px')
         moduledoc=sys.modules[self.__module__].__doc__ or '...missing docline in module...'
-        titlebar.moduletitle.span(moduledoc, font_size='20pt')
-        savedoc = titlebar.savedoc.div().button('Save documentation',hidden='^documentation.changed?=!#v',action='FIRE applyDocChanges')
+        titlebar.moduletitle.span(moduledoc, font_size='20px')
+        savedoc = titlebar.savedoc.div(width='130px').button('Save documentation',hidden='^documentation.changed?=!#v',action='FIRE applyDocChanges')
         savedoc.dataController('SET documentation.changed = true;',_fired='^documentation.data')
         savedoc.dataRpc('dummy',self.saveDocumentationBag,docbag='=documentation.data',
                     _fired='^applyDocChanges',
