@@ -100,7 +100,7 @@ class FrameIndex(BaseComponent):
         pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
         if pageAuth:
             pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-            if custom_index:
+            if custom_index and custom_index!='*':
                 getattr(self,'index_%s' %custom_index)(pane,**kwargs)
             else:
                 pane.frameIndexRoot(**kwargs)
