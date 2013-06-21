@@ -531,10 +531,13 @@ class TableHandlerMain(BaseComponent):
                     title = formtitle;
                 }else{
                     title = viewtitle;
+
+                    totalrows = hardQueryLimitOver?'<span style="color:#FF3519;">'+totalrows+'</span>' :totalrows;
+                    console.log(hardQueryLimitOver,totalrows)
                     if(totalRowCount!==null){
-                        title = title +' ('+totalrows+'/'+totalRowCount+')';
+                        title = title +' ('+totalrows+'/'+totalRowCount+')';                    
                     }
-                    if(totalrows){
+                    else if(totalrows){
                         title = title + ' ('+totalrows+')';
                     }
                 }
@@ -545,7 +548,7 @@ class TableHandlerMain(BaseComponent):
                         """,
             formtitle='^.form.controller.title',viewtitle='^.view.title',
             selectionName='^.view.store?selectionName',table='=.view.table',
-            totalRowCount = '^.view.store?totalRowCount',
+            totalRowCount = '^.view.store?totalRowCount',hardQueryLimitOver='^.view.store?hardQueryLimitOver',
             totalrows = '^.view.store?totalrows',
             whereAsPlainText='^.view.store?whereAsPlainText',
             selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True)                 

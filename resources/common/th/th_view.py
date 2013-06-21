@@ -146,10 +146,10 @@ class TableHandlerView(BaseComponent):
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         if table==getattr(self,'maintable',None) or configurable=='*':
             bar.replaceSlots('#','#,footerBar')
-            footer = bar.footerBar.slotToolbar('log_del,*')
-            footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
-                                                                                    label='!!Show logical deleted',
-                                                                                    validate_onAccept='if(userChange){FIRE .runQueryDo;}')
+            footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
+            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
+            footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
+            footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -372,6 +372,10 @@ class TableHandlerView(BaseComponent):
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
 
+
+        hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
+            
+        frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
@@ -433,6 +437,7 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               hardQueryLimit='=.hardQueryLimit',
                               # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
@@ -460,15 +465,20 @@ class TableHandlerView(BaseComponent):
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
-            if options.get('tableRecordCount',True):
-                frame.data('.store?totalrows',0)
-                frame.data('.store?totalRowCount',self.db.table(table).query().count())
-
+            #if options.get('tableRecordCount',True):
+            #    frame.data('.store?totalrows',0)
+            #    countPars = dict(condPars)
+            #    countPars['_onStart'] = 1
+            #    frame.dataRpc('dummy','app.getRecordCount',table=table,condition=condition,
+            #                _onCalling="""if(_sections){
+            #                        th_sections_manager.onCalling(_sections,kwargs);
+            #                   }""",_sections='=.sections',_onResult='this.getRelativeData(".store").getParentNode().updAttributes({totalRowCount:result})',**countPars)
+#
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
-                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %_if,
+                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %(_if or 'true'),
                          _else='return 0;',
                          **condPars)
         
