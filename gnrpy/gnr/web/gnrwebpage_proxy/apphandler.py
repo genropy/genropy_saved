@@ -639,7 +639,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,**kwargs):
         """TODO
         
@@ -690,6 +690,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_count = int(row_count)
         newSelection = True
         formats = {}
+        if hardQueryLimit is not None:
+            limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
         for k in kwargs.keys():
@@ -765,6 +767,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                              excludeLogicalDeleted=excludeLogicalDeleted,
                                                              excludeDraft=excludeDraft,
                                                              **kwargs).count()
+
         if sum_columns:
             for col in sum_columns.split(','):
                 col = col.strip()
@@ -774,6 +777,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
+        resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
         return (result, resultAttributes)
 
 
