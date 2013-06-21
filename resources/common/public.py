@@ -534,6 +534,9 @@ class TableHandlerMain(BaseComponent):
                     if(totalRowCount!==null){
                         title = title +' ('+totalrows+'/'+totalRowCount+')';
                     }
+                    if(totalrows){
+                        title = title + ' ('+totalrows+')';
+                    }
                 }
                 if(title){
                     whereAsPlainText = whereAsPlainText? '<div style="zoom:.8;">'+whereAsPlainText+'</div>' :'';
