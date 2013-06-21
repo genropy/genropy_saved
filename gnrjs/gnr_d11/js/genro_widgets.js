@@ -5135,7 +5135,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var structbag = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath);
         var kw = this.cellmap[fieldname];   
         var store = this.collectionStore();
-        var rowIndex = this.absIndex(rowIndex);
+        //var rowIndex = this.absIndex(rowIndex);
         var node = store.itemByIdx(rowIndex);
         var currSet = this.sourceNode.getRelativeData(kw['checkedId']) || '';
         var currSetCaption = this.sourceNode.getRelativeData(kw['checkedCaption']) || '';
