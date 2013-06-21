@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-    <db dbname="genropynet"/>
+    <db dbname="genropynet" hardQueryLimit="10000" />
     <packages _T="NN">
         <base/>
         <gnrtutor:gnrtutor/>

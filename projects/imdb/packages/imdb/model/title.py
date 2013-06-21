@@ -5,7 +5,7 @@ class Table(object):
         tbl.column('id', dtype ='I', notnull ='y', name_long ='!!Id')  
         tbl.column('title',dtype ='T', name_long ='!!Title', notnull ='y',indexed=True)  
         tbl.column('imdb_index',  dtype ='A', name_long ='!!Imdb_Index', size ='0:12',group='_')  
-        tbl.column('kind_id',  dtype ='I', name_long ='!!Kind_Id', notnull ='y',group='_').relation('imdb.kind_type.id',
+        tbl.column('kind_id',  dtype ='I', name_long ='!!Kind', notnull ='y',group='_').relation('imdb.kind_type.id',
                                                                                               relation_name='kind_type',
                                                                                               one_name='!!Kind',many_name='!!Movies')
         tbl.column('production_year', dtype ='I', name_long ='!!Year',indexed=True)  

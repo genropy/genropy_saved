@@ -29,7 +29,13 @@ class GnrCustomWebPage(object):
 
     def onUserSelected(self,avatar,data):
         if 'demo' in avatar.user_tags:
-            data['custom_index'] = 'demo'
+            data.setItem('custom_index', 'demo',hidden=not '_DEV_' in avatar.user_tags)
+
+
+
+    def rootenvForm(self,fb):
+        fb.filteringSelect(value='^.custom_index',lbl='Mode',values='*:Standard,demo:Demo')
+
 
     def index_demo(self,root,**kwargs):
         frame = root.framePane()

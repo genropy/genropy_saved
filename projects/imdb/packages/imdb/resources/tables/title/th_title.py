@@ -19,10 +19,20 @@ class View(BaseComponent):
 
         
     def th_options(self):
-        return dict(tableRecordCount=False)
+        return dict(tableRecordCount=True)
         
     def th_order(self):
         return 'title'
+
+    def th_sections_kind(self):
+        result = []
+        f = self.db.table('imdb.kind_type').query().fetch()
+        for r in f:
+            result.append(dict(code=str(r['id']),caption=r['kind'],condition='$kind_id=:k',condition_k=r['id']))
+        return result
+
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('3,sections@kind,*')
 
     def th_query(self):
         return dict(column='title', op='startswith', val='')
