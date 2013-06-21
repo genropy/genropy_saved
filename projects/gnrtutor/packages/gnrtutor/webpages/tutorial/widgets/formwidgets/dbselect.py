@@ -8,24 +8,11 @@ class GnrCustomWebPage(object):
 
 
 
-    @example(code=1,height=350,description='Basic dbSelect')
+    @example(code=1,height=150,description='Basic dbSelect')
     def dbSelect_1(self, pane):
-        fb = pane.formbuilder(cols=3)
-        fb.div("""In this test you can see the basic funcionalities of the dbSelect attribute:
-                  the "dbtable" attribute allows to search from a database table, saving the
-                  ID of the chosen record.""", colspan=3)
-                  
-        fb.div('saved in \"test/test_1_db/id\"')
-        fb.dbSelect(dbtable='gnrtutor.person', value='^.id', limit=10)
-        fb.div("""dbSelect default attributes: limit=10,
-                                               hasDownArrow=False,
-                                               ignoreCase=True""")
-                                               
-        fb.div('saved in \"test/test_1_db/id2\"')
-        fb.dbSelect(dbtable='gnrtutor.person', value='^.id2', hasDownArrow=True)
-        fb.div("""The hasDownArrow=True override the limit=10,
-                  and let the user see all the entries""")
-
+        fb = pane.formbuilder(cols=1)
+        fb.dbSelect(dbtable='imdb.role_type', value='^.role_type', lbl='Role',hasDownArrow=True)
+        fb.dbSelect(dbtable='imdb.role_type', value='^.role_type', lbl='Role',hasDownArrow=True)
 
 
     def doc_dbSelect_1(self, pane):

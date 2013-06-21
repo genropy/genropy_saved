@@ -205,6 +205,20 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
     },
+
+    toolbar_dict:{
+        'simple':[['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-','Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize','TextColor','BGColor']],
+        'standard':[
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink','-','Templates'],
+                   ['Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize'],
+                   ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
+                   ]
+
+    },
     creating: function(attributes, sourceNode) {
 
         attributes.id = attributes.id || 'ckedit_' + sourceNode.getStringId();
@@ -230,7 +244,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             showtoolbar = false;
         }
         if (typeof(toolbar) == 'string') {
-            toolbar = genro.evaluate(toolbar);
+            if(toolbar in this.toolbar_dict){
+                toolbar = this.toolbar_dict[toolbar];
+            }else{
+                toolbar = genro.evaluate(toolbar);
+            }
         }
         ;
         if (toolbar) {

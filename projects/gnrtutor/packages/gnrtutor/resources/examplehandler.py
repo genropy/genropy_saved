@@ -41,7 +41,7 @@ class ExampleHandler(BaseComponent):
         tc.contentPane(title='About').div('==_docbag.getItem(_lang+"."+_examplename)',_lang='^documentation.language',_docbag='^documentation.data',_examplename='__summary__',white_space='pre',overflow='auto', position='absolute',top='2px',left='2px',right='2px',bottom='2px',
                     connect_ondblclick="""var lang = GET documentation.language;   
                                           var example_name = this.attr._examplename;
-                                        genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang});""" ) 
+                                        genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang,toolbar:'simple'});""" ) 
         titlebar = frame.top.slotToolbar('3,stackButtons,*,moduletitle,*,savedoc,3,menulang,',color='#666',font_size='13px')
         moduledoc=sys.modules[self.__module__].__doc__ or '...missing docline in module...'
         titlebar.moduletitle.span(moduledoc, font_size='20px')
@@ -116,7 +116,7 @@ class ExampleHandler(BaseComponent):
                 _lang='^documentation.language',_docbag='^documentation.data',_examplename=example_name,white_space='pre',overflow='auto', position='absolute',top='2px',left='2px',right='2px',bottom='2px',
                     connect_ondblclick="""var lang = GET documentation.language;   
                                           var example_name = this.attr._examplename;
-                                        genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang});""" )
+                                        genro.dlg.floatingEditor(this,{valuepath:"documentation.data."+lang+"."+example_name,paletteCode:example_name+'_'+lang,toolbar:'simple'});""" )
         
         xmlsource = examplePane.toXml(docHeader=False)
         xmlsource = xmlsource.replace('>\n','>')
