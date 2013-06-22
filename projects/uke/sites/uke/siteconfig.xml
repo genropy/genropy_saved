@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <wsgi debug='true' reload='true' mainpackage='uke' />
-    <gui css_theme='ludo'/>
-
-    <dojo version="11"/>
-</GenRoBag>

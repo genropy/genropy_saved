@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <companies label="!!Companies" table="agenda.azienda"/>
-    <staff label="!!Staff" file="agenda/staff_page"/>
-    <contacts label="!!Contacts" table="agenda.contatto"/>
-    <calls label="!!Calls" file="agenda/telefonata_page"/>
-    <notice-board label="!!Notice-board" table="agenda.bacheca" tags="_DEV_"/>
-</GenRoBag>

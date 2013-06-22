@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag>
-    <wsgi debug="true" mainpackage='warh' port="8082" reload="true"></wsgi>
-    <gui css_theme='aqua'/>
-    <dojo _T="NN" version="11"></dojo>
-</GenRoBag>
