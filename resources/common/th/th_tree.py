@@ -283,7 +283,6 @@ class HTableTree(BaseComponent):
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
-                                        console.log('ffff',dropInfo)
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,

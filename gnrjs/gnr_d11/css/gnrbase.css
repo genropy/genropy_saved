@@ -3780,3 +3780,23 @@ div[disabled='true']{
     zoom:.08;
     background: url(icons/made_with_genropy.png) no-repeat center center;
 }
+
+
+
+.branchtree_folder{
+    background: url(icons/base10/tinyCloseBranch.png) no-repeat left center;
+}
+.dijitTreeContentExpanded .branchtree_folder{
+    background: url(icons/base10/tinyOpenBranch.png) no-repeat left center;
+}
+.dijitTreeContentExpanded .branchtree_folder.branchtree_selected{
+    background: #739CDC url(icons/base10/tinyOpenBranch.png) no-repeat left center;
+}
+
+
+.branchtree_selected{
+    background-color: #739CDC;
+    color: white;
+    padding-right: 15px;
+    border-radius: 0px 10px 10px 0px;
+}
