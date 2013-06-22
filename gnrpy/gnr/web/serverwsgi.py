@@ -133,7 +133,7 @@ def stop_tunnel(tunnel):
     tunnel.stop()
 
 def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
-            db_user=None, db_password=None, db_host=None, db_port=None,**kwargs):
+            db_user=None, db_password=None, db_host=None, db_port=None,first_run=None,**kwargs):
     from gnr.core.gnrssh import SshTunnel
     import getpass
     ssh_host = ssh_host
@@ -145,9 +145,12 @@ def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
         password = getpass.getpass('Enter SSH password:')
     else:
         password = ssh_password
-        cont = ''
-        while not (cont and cont[0] in ('Y','y','S','s')):
-            cont = raw_input('Press Y to continue with SSH remote connection ')
+        if first_run:
+            cont = ''
+            while not (cont and cont[0] in ('Y','y','S','s')):
+                cont = raw_input('Press Y to continue with SSH remote connection ')
+
+
     tunnel = SshTunnel(forwarded_port=forwarded_port, forwarded_host=forwarded_host,
             ssh_host=ssh_host, ssh_port=ssh_port, 
             username=username, password=password)
@@ -520,8 +523,8 @@ class Server(object):
         start_bonjour(host=self.options.host, port=self.options.port, server_name=self.site_name,
                       server_description=self.server_description, home_uri=self.siteconfig['wsgi?home_uri'] or '/')
 
-    def setup_tunnel(self,conn_dict=None):
-        db_port = start_tunnel(**conn_dict)
+    def setup_tunnel(self,conn_dict=None,first_run=None):
+        db_port = start_tunnel(first_run=first_run,**conn_dict)
         return dict(port=db_port, host='localhost', user=conn_dict['db_user'], password=conn_dict['db_password'])
 
 
@@ -602,8 +605,8 @@ class Server(object):
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
             self.set_bonjour()
-        if first_run:
-            self.handle_tunnel()
+        if True or first_run:
+            self.handle_tunnel(first_run=first_run)
         if self.cmd:
             return self.check_cmd()
         self.check_logfile()
@@ -631,17 +634,17 @@ class Server(object):
 
         self.serve()
 
-    def handle_tunnel(self):
+    def handle_tunnel(self,first_run=None):
         if self.remote_db :
             dbattrs = self.instance_config.getAttr('db' )
             remote_db = self.instance_config.getAttr('remote_db.%s' %self.remote_db)
             dbattrs.update(remote_db)
             if dbattrs.get('ssh_host'):
                 conn_dict = self.get_tunnel_db_params(dbattrs['ssh_host'],dbattrs=dbattrs)
-                self.remotesshdb = self.setup_tunnel(conn_dict)
+                self.remotesshdb = self.setup_tunnel(conn_dict,first_run=first_run)
         elif hasattr(self.options,'remotesshdb') and self.options.remotesshdb:
             conn_dict = self.get_tunnel_db_params(self.options.remotesshdb)
-            self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict)
+            self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict,first_run=first_run)
 
 
     def serve(self):

@@ -535,7 +535,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var paletteAttr = {'paletteCode':paletteCode,title:'Editor',
                             overflow:'hidden',
                             dockTo:'dummyDock:open',
-                            width:'600px',height:'400px',
+                            width:'800px',height:'400px',
                             maxable:true};
         var palette = node._('palettePane',paletteCode,paletteAttr);
         var valuepath = kw.valuepath || sourceNode.attr.innerHTML || sourceNode.attr.value;
