@@ -1101,7 +1101,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param requires: TODO If None, get the css_requires string included in a :ref:`webpage`"""
         requires = [r for r in (requires or self.css_requires) if r]
-        css_theme = self.get_css_theme() or 'aqua'
+        css_theme = self.get_css_theme() or 'ludo'
         css_icons = self.get_css_icons()
         if css_theme:
             requires.append('themes/%s' %css_theme)
