@@ -42,7 +42,7 @@ class FrameIndex(BaseComponent):
     def defaultAuthTags(self):
         return ''
     
-    def main(self,root,new_window=None,gnrtoken=None,**kwargs):
+    def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
             root.dataController("""genro.dlg.alert(msg,'Error',null,null,{confirmCb:function(){
                     var href = window.location.href;
@@ -52,11 +52,13 @@ class FrameIndex(BaseComponent):
             return 
         root.attributes['overflow'] = 'hidden'
         if self.root_page_id:
-            self.index_dashboard(root)
+            if custom_index:
+                getattr(self,'index_%s' %custom_index)(root)
+            else:
+                self.index_dashboard(root)
         else:         
             sc = root.stackContainer(selectedPage='^indexStack')
             sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
-
             sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
         
