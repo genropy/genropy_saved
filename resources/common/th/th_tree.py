@@ -175,18 +175,10 @@ class HTableTree(BaseComponent):
             menunode = dbselect.menu(modifiers='*',attachTo=dbselect,_class='menupane').menuItem().div(height='300px',width='100%',overflow='auto')
             menunode.div().tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
                          hideValues=True,autoCollapse=True,excludeRoot=True,
-                         openOnClick=True,
-                         labelAttribute='caption',
-                         selectedLabelClass='selectedTreeNode',_class="fieldsTree noIcon",
-                           getLabelClass="""function(item){
-                                            
-                                            var _class = [];
-                                            if(item.attr.child_count){
-                                                _class.push('fieldsTree_folder');
-                                            }
-                                            return _class.join(' ');}""")
+                         labelAttribute='caption',openOnClick=True,
+                         selectedLabelClass='selectedTreeNode',_class="branchtree noIcon")
         else:
-            dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',attachTo=dbselect,
+            dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
                         action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
                         #selected_pkey=attr['value'].replace('^','')
                       )
