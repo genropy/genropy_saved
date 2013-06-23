@@ -941,7 +941,17 @@ class SqlQuery(object):
             return result
         result = cursor.fetchall()
         cursor.close()
+        self.handlePyColumns(result)
         return result
+
+    def handlePyColumns(self,data):
+        if not self.compiled.pyColumns:
+            return
+        for field,handler in self.compiled.pyColumns:
+            if handler:
+                for d in data:
+                    d[field] = handler(d,field=field)
+
         
     def fetchAsDict(self, key=None, ordered=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key
@@ -992,7 +1002,6 @@ class SqlQuery(object):
         
     def _dofetch(self, pyWhere=None):
         """private: called by _get_selection"""
-
         if pyWhere:
             cursor, rowset = self.serverfetch(arraysize=100)
             index = cursor.index
@@ -1010,11 +1019,7 @@ class SqlQuery(object):
                 return index, data            
             data = cursor.fetchall() or []
             index = cursor.index
-        if self.compiled.pyColumns:
-            for field,handler in self.compiled.pyColumns:
-                if handler:
-                    for d in data:
-                        d[field] = handler(d,field=field)
+        self.handlePyColumns(data)
 
         return index, data
         
