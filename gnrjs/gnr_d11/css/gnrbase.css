@@ -3767,18 +3767,10 @@ div[disabled='true']{
     width: 252px;
 }
 
-.genropylogo_small{
-    background: url(icons/genropy.png) no-repeat center center;
-    height: 60px;
-    width: 252px;
-    zoom:.3;
-}
-
 .made_with_genropy{
-    height: 237px;
-    width:873px;
-    zoom:.08;
-    background: url(icons/made_with_genropy.png) no-repeat center center;
+    height: 21px;
+    width:78px;
+    background: url(icons/made_with_genropy_small.png) no-repeat center center;
 }
 
 

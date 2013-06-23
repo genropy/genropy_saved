@@ -33,7 +33,6 @@ class FrameIndex(BaseComponent):
     login_error_msg = '!!Invalid login'
     login_title = '!!Login'
     new_window_title = '!!New Window'
-    application_logo = 'applicationlogo'
     
     def mainLeftContent(self,*args,**kwargs):
         pass 
@@ -203,12 +202,13 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
-
-        sb.applogo.div(_class=self.application_logo)
-        sb.genrologo.div(_class='made_with_genropy')
+        applogo = sb.applogo.div()
+        if hasattr(self,'application_logo'):
+            applogo.img(src=self.application_logo,height='20px')
+        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy.png',height='20px')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
