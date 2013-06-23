@@ -271,7 +271,7 @@ class HTableTree(BaseComponent):
                         moveTreeNode=True,excludeRoot=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True,_class='fieldsTree')
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True,_class='noIcon')
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr

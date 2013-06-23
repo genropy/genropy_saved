@@ -1099,7 +1099,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if stylegroup:
                 for st in stylegroup.split(','):
                     cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            kwargs['customStyles'] = [dict(v) for v in cs.values()]
+            if cs:
+                kwargs['customStyles'] = [dict(v) for v in cs.values()]
 
         return self.child('ckEditor',**kwargs)
 
