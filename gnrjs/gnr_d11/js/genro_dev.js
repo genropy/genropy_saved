@@ -201,7 +201,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
-        treeattr._class = 'fieldsTree noIcon';
+        treeattr._class = 'fieldsTree noIcon noExpando';
         treeattr.hideValues = true;
         treeattr.autoCollapse=true;
         treeattr.openOnClick = true;
