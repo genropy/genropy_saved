@@ -543,7 +543,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     }
 });
 
-
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');
@@ -560,9 +559,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         return sourceNode.savedAttrs;
     },
 
-    autoSize:function(iframe){
-        console.log('autosize',iframe);
-    },
+
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.rowcount && savedAttrs.tableid) {
             var rowcount = savedAttrs.rowcount;
@@ -600,6 +597,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         dojo.connect(sourceNode,'_onDeleting',function(){
             newobj.src = null;
         });
+    },
+    autoSize:function(iframe){
+        console.log('autosize',iframe);
     },
     prepareSrc:function(domnode) {
         var sourceNode = domnode.sourceNode;
@@ -671,6 +671,67 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         });
     }
     
+});
+
+dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
+
+    creating:function(attributes, sourceNode) {
+        var savedAttrs = {};
+        return savedAttrs;
+    },
+
+
+    created:function(newobj, savedAttrs, sourceNode) {
+        sourceNode.savePhoto = function(kw){
+            this.domNode.gnr.savePhoto(sourceNode,kw);
+        };
+    },
+    savePhoto:function(sourceNode,kw) {
+        var photo = sourceNode.domNode;
+        var data = photo.toDataURL("image/png");
+        data = data.replace("image/png","image/octet-stream");
+        document.location.href = data;
+    }
+});
+
+
+dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
+    creating:function(attributes, sourceNode) {
+
+    },
+
+    created:function(newobj, savedAttrs, sourceNode) {
+        sourceNode.startCapture = function(kw){
+            if(objectNotEmpty(kw)){
+                this.domNode.gnr.startCapture(sourceNode,kw);
+            }
+        };
+        sourceNode.takePhoto = function(canvas){
+            if(canvas){
+                this.domNode.gnr.takePhoto(sourceNode,canvas);
+            }
+        };
+    },
+    startCapture:function(sourceNode,capture_kw){
+        var onErr=function(e){
+            genro.dlg.alert('Not allowed video capture '+e,'Error');
+        };
+        var onOk=function(stream){
+            sourceNode.domNode.src=window.webkitURL? window.webkitURL.createObjectURL(stream):stream;
+        };
+        if(navigator.webkitGetUserMedia){
+            navigator.webkitGetUserMedia(capture_kw,onOk,onErr);
+        }else{
+            navigator.getUserMedia(capture_kw,onOk,onErr);
+        }
+    },
+    takePhoto:function(sourceNode,canvas){
+        var canvas = genro.dom.getDomNode(canvas);
+        var video = sourceNode.domNode;
+        var context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    },
+
 });
 
 dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
