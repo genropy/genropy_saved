@@ -3801,7 +3801,7 @@ div[disabled='true']{
     background: none;
 }
 
-.branchtree dijitTreeLabel {
+.branchtree .dijitTreeLabel {
     padding-left: 2px;
     white-space: nowrap;
 }
