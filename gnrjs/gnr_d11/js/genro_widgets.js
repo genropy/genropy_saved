@@ -685,12 +685,31 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
         sourceNode.savePhoto = function(kw){
             this.domNode.gnr.savePhoto(sourceNode,kw);
         };
+        sourceNode.takePhoto = function(video,kw){
+            this.domNode.gnr.takePhoto(sourceNode,video,kw);
+        };
     },
     savePhoto:function(sourceNode,kw) {
         var photo = sourceNode.domNode;
         var data = photo.toDataURL("image/png");
         data = data.replace("image/png","image/octet-stream");
         document.location.href = data;
+    },
+    takePhoto:function(sourceNode,video,kw){
+        var kw=kw || {}
+
+        var video = genro.dom.getDomNode(video);
+        var canvas = sourceNode.domNode;
+        var context = canvas.getContext('2d');
+        if (kw.sync){
+            var draw=function() {
+                    requestAnimationFrame(draw);
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    }
+                draw();
+        }else{
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
     }
 });
 
@@ -724,14 +743,7 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
         }else{
             navigator.getUserMedia(capture_kw,onOk,onErr);
         }
-    },
-    takePhoto:function(sourceNode,canvas){
-        var canvas = genro.dom.getDomNode(canvas);
-        var video = sourceNode.domNode;
-        var context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    },
-
+    }
 });
 
 dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
