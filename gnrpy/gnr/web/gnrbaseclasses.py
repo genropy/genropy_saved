@@ -307,7 +307,9 @@ class TableTemplateToHtml(BagToHtml):
 
     @extract_kwargs(pdf=True)
     def writePdf(self,pdfpath=None,docname=None,pdf_kwargs=None,**kwargs):
+        pdfpath = pdfpath or self.filepath.replace('.html','.pdf')
         self.print_handler.htmlToPdf(self.filepath,pdfpath, orientation=self.orientation(),pdf_kwargs=pdf_kwargs)
+        return pdfpath
 
         
 
