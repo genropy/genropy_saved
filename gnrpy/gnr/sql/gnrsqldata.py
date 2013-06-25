@@ -2065,6 +2065,7 @@ class SqlRecord(object):
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
             cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
+            cursor.close()
             if len(data) == 1:
                 self._result = data[0]
             elif len(data) == 0:
@@ -2152,6 +2153,10 @@ class SqlRecord(object):
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
+        if self.compiled.pyColumns:
+            for field,handler in self.compiled.pyColumns:
+                if handler:
+                    result[field] = handler(result,field=field)
    
 
     def _loadRecord_DynItemMany(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):
