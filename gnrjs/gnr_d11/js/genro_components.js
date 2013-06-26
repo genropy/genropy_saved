@@ -736,6 +736,44 @@ dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
     }
 });
 
+
+dojo.declare("gnr.widgets.VideoPickerPalette", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var paletteKw = objectExtract(kw,'palette_*')
+        var paletteCode = paletteKw.paletteCode = objectPop(kw,'paletteCode') || 'capturePicker';
+        paletteKw.height = paletteKw.height || '700px';
+        paletteKw.width = paletteKw.width || '420px';
+        paletteKw.dockButton = 'dockButton' in paletteKw? paletteKw.dockButton:true;
+        paletteKw.selfsubscribe_showing = function(){
+            genro.publish(paletteCode+'_video'+'_startCapture');
+        }
+        var palette = sourceNode._('PalettePane',paletteKw);
+        var bc = palette._('BorderContainer')
+        var top = bc._('framePane',{frameCode:paletteCode+'_cam',region:'top',height:'350px',splitter:true});
+        var bar = top._('SlotBar',{'side':'bottom',slots:'*,zoomSlider,5,snap,5',toolbar:true});
+        bar._('horizontalSlider','zoomSlider',{value:'^.currentZoom','default':0.3,minimum:0.3, maximum:1,intermediateChanges:true, width:'15em',margin_top:'2px'});
+        bar._('slotButton','snap',{label:'Take picture',iconClass:'iconbox photo',action:function(){
+            genro.publish(paletteCode+'_video'+'_takePicture');
+        }})
+        top._('video',{autoplay:true,height:'300px',width:'400px',margin:'10px',nodeId:paletteCode+'_video',
+                        selfsubscribe_takePicture:function(){
+                            var box = genro.nodeById(paletteCode+'_preview');
+                            var c = box._('canvas',{height:'300px',width:'400px',display:'inline-block',margin:'5px',draggable:true,
+                                            onDrag:function(dragValues, dragInfo){
+                                                dragValues['dataUrl'] = dragInfo.sourceNode.domNode.toDataURL('image/png');
+                                            }})
+                            c.getParentNode().takePhoto(this);
+                        },selfsubscribe_startCapture:function(){this.startCapture({video:true})}});
+        var center = bc._('FramePane',{frameCode:paletteCode+'_viewer',region:'center'});
+
+        center._('div','box',{position:'absolute',overflow:'auto',top:'2px',left:'2px',right:'2px',bottom:'2px',
+                                                                    nodeId:paletteCode+'_preview',zoom:'^.currentZoom'});
+        return palette;
+    }    
+});
+
+
+
 dojo.declare("gnr.widgets.PaletteBagNodeEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var nodeId = objectPop(kw, 'nodeId');

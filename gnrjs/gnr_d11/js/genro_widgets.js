@@ -721,7 +721,6 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
                           filename:kw.filename,
                           onResult:function(result){
                               var url = this.responseText;
-                              console.log('xxx')
                               //sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
                            }});
         },
@@ -6918,7 +6917,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                     };
                     sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,data).formattedUrl);
                  };
-                 attr.onDrop = function(data,files){
+                 var cbOnDropData = function(dropInfo,data){
                     if(sourceNode.form && sourceNode.form.isDisabled()){
                         genro.dlg.alert("The form is locked",'Warning');
                         return false;
@@ -6929,21 +6928,24 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                             that.centerImage(sourceNode,cropAttr);
                         };
                     }
-                    var f = files[0];
                     var filename = sourceNode.currentFromDatasource(uploadAttr.filename);
                     if(!filename){
                         genro.dlg.alert("Missing info to upload the image",'Warning');
                         return false;
                     }
-                    genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
+                    genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
                                   filename:filename,
                                   onResult:function(result){
                                       var url = this.responseText;
                                       
                                       sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
                                    }});
-                                          
-                
+                 }
+                 attr.onDrop_dataUrl = function(dropInfo,data){
+                    cbOnDropData(dropInfo,data)
+                 }
+                 attr.onDrop = function(dropInfo,files){
+                    cbOnDropData(dropInfo,files[0]);
                 };
             }
             //            attributes.title="<h3>click & drag to move<h3><br/><h3>Shift-clik drag up-down to zoom</h3><br/><h3>Alt-clik drag up-down to rotate</h3>"

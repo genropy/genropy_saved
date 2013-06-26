@@ -867,7 +867,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
         //var filereader = new FileReader();
         var onResult = objectPop(kw,'onResult');
-        if(typeof(file),'string'){
+        if(typeof(file) == 'string'){
             content.append('dataUrl',file);
         }else{
             content.append('file_handle',file);

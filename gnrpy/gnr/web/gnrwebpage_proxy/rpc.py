@@ -131,16 +131,15 @@ class GnrWebRpc(GnrBaseProxy):
 
         #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
 
-
-
         file_actions = dictExtract(kwargs, 'process_') or {}
+
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
             if uploaderId:
                 uploadPath = '%s/%s' % (uploadPath, uploaderId)
         if uploadPath is None:
             return
-        if file_handle:
+        if file_handle is not None:
             f = file_handle.file
             content = f.read()
             original_filename = file_handle.filename
@@ -154,7 +153,6 @@ class GnrWebRpc(GnrBaseProxy):
             content = base64.b64decode(base64Content)
         else:
             return
-        
         file_ext = os.path.splitext(filename)[1]
         if not file_ext:
             filename = '%s%s' %(filename,original_ext)

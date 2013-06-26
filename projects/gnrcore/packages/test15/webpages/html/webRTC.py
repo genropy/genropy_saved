@@ -47,5 +47,16 @@ class GnrCustomWebPage(object):
         fb.button('Start',action='video.startCapture({video:videoCapture,audio:audioCapture})',video=video,videoCapture=True,audioCapture=False)
         fb.button('Copy',action='canvas.takePhoto(video,{"sync":sync,"mirror":mirror})',video=video,canvas=canvas,sync=True,mirror='=.mirror')
         fb.button('Save',action='canvas.savePhoto()',canvas=canvas)
-        fb.button('Save server',action='canvas.savePhoto({uploadPath:path,filename:"supertest",ext:"jpeg"})',canvas=canvas,path='site:test/myimage')
+        fb.button('Save server',action='canvas.savePhoto({uploadPath:path,filename:"supertest})',canvas=canvas,path='site:test/myimage')
+
+    def test_3_video_capture(self,pane):
+        frame = pane.framePane(height='340px',width='420px',border='1px solid silver')
+        top = frame.top.slotToolbar('*,pickerImage,5',height='20px')
+        top.pickerImage.videoPickerPalette()
+        frame.center.contentPane(overflow='hidden').img(src='^.currUrl',crop_width='400px',crop_height='300px',
+                        placeholder=self.getResourceUri('images/missing_photo.png'),
+                        upload_folder='site:test/photo',edit=True,
+                        upload_filename='foto_test_grabber',crop_border='1px solid #ddd',crop_rounded=8,crop_margin='9px',
+                       zoomWindow=True)
+
 
