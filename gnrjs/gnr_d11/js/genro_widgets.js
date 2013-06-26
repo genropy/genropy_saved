@@ -688,12 +688,46 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
         sourceNode.takePhoto = function(video,kw){
             this.domNode.gnr.takePhoto(sourceNode,video,kw);
         };
+
+        if('effect' in sourceNode.attr){
+            genro._PixasticReady='loading'
+            genro.dom.loadJs('/_rsrc/js_libs/pixastic.js',function(){
+                genro._PixasticReady=true;
+                sourceNode.pixasticEffects = objectKeys(Pixastic.Actions);
+            });
+            sourceNode._currentEffect = sourceNode.getAttributeFromDatasource('effect');
+        }
     },
     savePhoto:function(sourceNode,kw) {
+        var kw = kw || {};
         var photo = sourceNode.domNode;
-        var data = photo.toDataURL("image/png");
-        data = data.replace("image/png","image/octet-stream");
-        document.location.href = data;
+        var ext = kw.ext || 'png';
+        var toDataURLContent = "image/"+ext;
+        var data = photo.toDataURL(toDataURLContent);
+        kw = sourceNode.evaluateOnNode(kw);
+        if(kw.uploadPath){
+            this.uploadContent(sourceNode,data,kw)
+        }else{
+            data = data.replace(toDataURLContent,"image/octet-stream");
+            document.location.href = data;
+        }
+    },
+    uploadContent:function(sourceNode,data,kw){
+            if(!kw.filename){
+                genro.dlg.alert("Missing info to upload the image",'Warning');
+                return false;
+            }
+            genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:kw.uploadPath,
+                          filename:kw.filename,
+                          onResult:function(result){
+                              var url = this.responseText;
+                              console.log('xxx')
+                              //sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
+                           }});
+        },
+
+    setEffect:function(domnode,v,kw){
+        domnode.sourceNode._currentEffect = v;
     },
     takePhoto:function(sourceNode,video,kw){
         var that = this;
@@ -710,30 +744,23 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
         var ghostcanvas = document.createElement('canvas');
         ghostcanvas.width = canvas.width ;
         ghostcanvas.height = canvas.height;
-        gctx = ghostcanvas.getContext('2d');
-     
+        var imageData;
+        var gctx = ghostcanvas.getContext('2d');
         if (kw.sync){
             var draw=function() {
-                    requestAnimationFrame(draw);
-                    effect=sourceNode.getAttributeFromDatasource('effect')
-                    if (effect &&(effect !='_')){
-                        gctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        imageData = gctx.getImageData(0, 0, canvas.width, canvas.height);
-                        if(genro._PixasticReady==true){
-                            var options = {};
-                            console.log('effect',effect)
-                            imageData=Pixastic.process(ghostcanvas, effect, options);
-                        }else if (!genro._PixasticReady){
-                            genro._PixasticReady='loading'
-                            genro.dom.loadJs('/_rsrc/js_libs/pixastic.js',function(){
-                                 genro._PixasticReady=true;
-                            });
-                        }
-                        context.putImageData(imageData, 0, 0);
-                    }else{
-                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    }
+                requestAnimationFrame(draw);
+                var effect = sourceNode._currentEffect;
+                if (effect &&(effect !='_')){
+                    gctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    var options = {};
+                    Pixastic.process(ghostcanvas, effect, options,function(resultcanvas){
+                         imageData = resultcanvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+                          context.putImageData(imageData, 0, 0);
+                    });
+                }else{
+                  context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 }
+            }
             draw();
         }else{
             context.drawImage(video, 0, 0, canvas.width, canvas.height);

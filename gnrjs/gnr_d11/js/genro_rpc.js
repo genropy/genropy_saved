@@ -865,9 +865,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (kw.onProgress) sender.upload.addEventListener("progress", kw.onProgress, false);
         if (kw.onError) sender.upload.addEventListener("error", kw.onError || errorCb, false);
         if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
-        var filereader = new FileReader();
+        //var filereader = new FileReader();
         var onResult = objectPop(kw,'onResult');
-        content.append('file_handle',file);
+        if(typeof(file),'string'){
+            content.append('dataUrl',file);
+        }else{
+            content.append('file_handle',file);
+        }
         sender.open("POST", genro.rpc.pageIndexUrl(), true);
         if(onResult){
             dojo.connect(sender,'onload',onResult);

@@ -11,6 +11,11 @@ from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import os
+import base64
+import mimetypes
+import re 
+
+
 
 AUTH_FORBIDDEN = -1
 AUTH_EXPIRED = 2
@@ -113,6 +118,7 @@ class GnrWebRpc(GnrBaseProxy):
             onUploading = self.page.getPublicMethod('rpc', onUploadingMethod)
             onUploading(kwargs)
         file_handle = kwargs.get('file_handle')
+        dataUrl = kwargs.get('dataUrl')
         uploadPath = kwargs.get('uploadPath')
         uploaderId = kwargs.get('uploaderId')
 
@@ -132,14 +138,23 @@ class GnrWebRpc(GnrBaseProxy):
             uploadPath = 'site:uploaded_files'
             if uploaderId:
                 uploadPath = '%s/%s' % (uploadPath, uploaderId)
-        if file_handle is None or uploadPath is None:
+        if uploadPath is None:
             return
-        f = file_handle.file
-        content = f.read()
-        original_filename = file_handle.filename
-        original_ext = os.path.splitext(original_filename)[1]
-
-        filename = filename or original_filename
+        if file_handle:
+            f = file_handle.file
+            content = f.read()
+            original_filename = file_handle.filename
+            original_ext = os.path.splitext(original_filename)[1]
+            filename = filename or original_filename
+        elif dataUrl:
+            dataUrlPattern = re.compile('data:(.*);base64,(.*)$')
+            g= dataUrlPattern.match(dataUrl)#.group(2)
+            mimetype,base64Content = g.groups()
+            original_ext = mimetypes.guess_extension(mimetype)
+            content = base64.b64decode(base64Content)
+        else:
+            return
+        
         file_ext = os.path.splitext(filename)[1]
         if not file_ext:
             filename = '%s%s' %(filename,original_ext)
