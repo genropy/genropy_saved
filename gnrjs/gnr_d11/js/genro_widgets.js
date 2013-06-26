@@ -696,21 +696,50 @@ dojo.declare("gnr.widgets.canvas", gnr.widgets.baseHtml, {
         document.location.href = data;
     },
     takePhoto:function(sourceNode,video,kw){
+        var that = this;
         var kw=kw || {}
 
         var video = genro.dom.getDomNode(video);
         var canvas = sourceNode.domNode;
         var context = canvas.getContext('2d');
+        if (kw.mirror){         
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+        }
+
+        var ghostcanvas = document.createElement('canvas');
+        ghostcanvas.width = canvas.width ;
+        ghostcanvas.height = canvas.height;
+        gctx = ghostcanvas.getContext('2d');
+     
         if (kw.sync){
             var draw=function() {
                     requestAnimationFrame(draw);
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    effect=sourceNode.getAttributeFromDatasource('effect')
+                    if (effect &&(effect !='_')){
+                        gctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        imageData = gctx.getImageData(0, 0, canvas.width, canvas.height);
+                        if(genro._PixasticReady==true){
+                            var options = {};
+                            console.log('effect',effect)
+                            imageData=Pixastic.process(ghostcanvas, effect, options);
+                        }else if (!genro._PixasticReady){
+                            genro._PixasticReady='loading'
+                            genro.dom.loadJs('/_rsrc/js_libs/pixastic.js',function(){
+                                 genro._PixasticReady=true;
+                            });
+                        }
+                        context.putImageData(imageData, 0, 0);
+                    }else{
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
                     }
-                draw();
+                }
+            draw();
         }else{
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
     }
+
 });
 
 

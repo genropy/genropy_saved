@@ -36,13 +36,13 @@ class GnrCustomWebPage(object):
     def test_2_video_copytocanvas(self,pane):
         """Video and Canvas"""
         video = pane.div(height='310px',display='inline-block').video(autoplay=True,height='300px',width='400px')
-        canvas = pane.div(height='310px',display='inline-block',margin_left='10px').canvas(height='300px',width='400px',border='1px solid silver')
+        canvas = pane.div(height='310px',display='inline-block',margin_left='10px').canvas(height='300px',width='400px',border='1px solid silver',effect='=.effect')
         pane.br()
         fb = pane.formbuilder(cols=5,border_spacing='3px')
-        fb.checkbox(value='^.video',label='Video',default_value=True)
-        fb.checkbox(value='^.audio',label='Audio')
-        fb.button('Start',action='video.startCapture({video:videoCapture,audio:audioCapture})',video=video,videoCapture='=.video',audioCapture='=.audio')
-
-        fb.button('Copy',action='canvas.takePhoto(video,{"sync":sync})',video=video,canvas=canvas,sync=True)
+       # fb.checkbox(value='^.video',label='Video',default_value=True)
+        fb.checkbox(value='^.mirror',label='Mirror')
+        fb.filteringSelect(value='^.effect',values='invert:Invert,red:Red,blue:Blue,gree:Green,_:No Effect')
+        fb.button('Start',action='video.startCapture({video:videoCapture,audio:audioCapture})',video=video,videoCapture=True,audioCapture=False)
+        fb.button('Copy',action='canvas.takePhoto(video,{"sync":sync,"mirror":mirror})',video=video,canvas=canvas,sync=True,mirror='=.mirror')
         fb.button('Save',action='canvas.savePhoto()',canvas=canvas)
   
