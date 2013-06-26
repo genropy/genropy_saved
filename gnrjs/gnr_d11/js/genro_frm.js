@@ -589,7 +589,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.applyDisabledStatus();
             //this.focus()
             var that = this;
-            setTimeout(function(){    
+            var parentForm = this.getParentForm();
+            if(parentForm && parentForm.currentFocused){
+                return;
+            }
+            setTimeout(function(){ 
+
                 that.focus();
             },1);
         }
@@ -627,7 +632,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     onFocusElement:function(wdg){
         if(this.isRegisteredWidget(wdg) && (typeof(wdg.focus)=='function')){
-            this.currentFocused=wdg;
+            this.currentFocused = wdg;
+        }else{
+            this.currentFocused = null;
         }
     },
     focusCurrentField:function(e){
