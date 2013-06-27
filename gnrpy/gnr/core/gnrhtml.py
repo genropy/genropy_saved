@@ -262,7 +262,15 @@ class GnrHtmlBuilder(object):
                         .no_print{
                             display:none;
                         }
+                        [visible_if=""]{
+                            display:none;
+                        }
                         """, media='print')
+        self.body.style("""
+                        [visible_if=""]{
+                            display:none;
+                        }
+            """)
         self.body.style("""
                         #printButton{
                             position:fixed;right:30px;top:5px;z-index:100;
