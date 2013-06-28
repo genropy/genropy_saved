@@ -787,10 +787,19 @@ dojo.declare("gnr.widgets.video", gnr.widgets.baseHtml, {
         };
     },
     startCapture:function(sourceNode,capture_kw){
+        var onErrorGetUserMedia = objectPop(capture_kw,'onReject');
+        var onAccept = objectPop(capture_kw,'onAccept');
         var onErr=function(e){
-            genro.dlg.alert('Not allowed video capture '+e,'Error');
+            if(onErrorGetUserMedia){
+                funcApply(onErrorGetUserMedia,{e:e});
+            }else{
+                genro.dlg.alert('Not allowed video capture '+e,'Error');
+            }
         };
         var onOk=function(stream){
+            if(onAccept){
+                funcApply(onAccept,{},sourceNode);
+            }
             sourceNode.domNode.src=window.webkitURL? window.webkitURL.createObjectURL(stream):stream;
         };
         if(navigator.webkitGetUserMedia){

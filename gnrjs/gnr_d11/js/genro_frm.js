@@ -624,6 +624,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     onBlurForm:function(){
+        if(this.autoSave && this.changed){
+            this.lazySave();
+        }
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
     

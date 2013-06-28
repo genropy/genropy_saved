@@ -24,17 +24,41 @@ class AppPref(object):
 
     def prefpane_adm(self, parent, **kwargs):
         tc = parent.tabContainer(**kwargs)
-        self._adm_general(tc.contentPane(title='!!General', datapath='.general'))
+        self._adm_general(tc.borderContainer(title='!!General', datapath='.general'))
         self._pr_instance_data(tc.contentPane(title='!!Instance data', datapath='.instance_data'))
         self._pr_mail(tc.contentPane(title='!!Mail options', datapath='.mail'))
         self._pr_backups(tc.contentPane(title='!!Backups', datapath='.backups'))
 
 
-    def _adm_general(self, pane):
-        fb = pane.formbuilder(cols=1,border_spacing='3px')
+    def _adm_general(self, bc):
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.numberTextBox(value='^.screenlock_timeout',lbl='!!Screenlock timeout (minutes)')
         fb.checkbox(value='^.forgot_password',label='Allow password recovery')
         fb.checkbox(value='^.new_user',label='New user registration')
+        center = bc.tabContainer(region='center',margin='2px')
+        self._auth_messages(center.contentPane(title='!!Authentication messages'))
+        self._auth_email_confirm_template(center.contentPane(title='!!Confirm user template'))
+        self._auth_new_password_template(center.contentPane(title='!!Confirm new password template'))
+
+    def _auth_email_confirm_template(self,pane):
+        pane.simpleTextArea(value='^.confirm_user_tpl',editor=True)
+
+    def _auth_new_password_template(self,pane):
+        pane.simpleTextArea(value='^.confirm_password_tpl',editor=True)
+
+
+    def _auth_messages(self,pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.login_title',width='30em',lbl='Login title',)
+        fb.textbox(value='^.new_window_title',width='30em',lbl='New window title')
+        fb.textbox(value='^.lost_password',width='30em',lbl='!!Lost password')
+        fb.textbox(value='^.new_password',width='30em',lbl='New password')
+        fb.textbox(value='^.check_email',width='30em',lbl='Check email')
+        fb.textbox(value='^.confirm_user_title',width='30em',lbl='Confirm user title')
+        fb.textbox(value='^.confirm_user_message',width='30em',lbl='Confirm user message')
+
+
 
     def _pr_backups(self, pane):
         fb = pane.div(padding='5px').formbuilder(cols=1, border_spacing='3px')

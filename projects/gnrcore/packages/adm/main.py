@@ -19,12 +19,16 @@ class Package(GnrDboPackage):
 
     def authenticate(self, username, **kwargs):
         result = self.application.db.query('adm.user', columns='*',
-                                           where='$username = :user AND $status != :waiting',
-                                           user=username, waiting='wait', limit=1).fetch()
+                                           where='$username = :user',
+                                           user=username, limit=1).fetch()
         if result:
             user_record = dict(result[0])
             kwargs['tags'] = user_record.pop('auth_tags')
             kwargs['pwd'] = user_record.pop('md5pwd')
+            kwargs['status'] = user_record['status']
+            kwargs['email'] = user_record['email']
+            kwargs['firstname'] = user_record['firstname']
+            kwargs['lastname'] = user_record['lastname']
             kwargs['user_id'] = user_record['id']
             kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
             kwargs.update(dictExtract(user_record, 'avatar_'))

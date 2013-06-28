@@ -387,6 +387,31 @@ class FramedIndexLogin(BaseComponent):
                     _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
                     gnrtoken=gnrtoken,_onResult='genro.pageReload()')
         return dlg
+
+
+    def login_confirmUserDialog(self,pane,gnrtoken=None,dlg_login=None):
+        dlg = pane.dialog(_class='lightboxDialog')
+        sc = dlg.stackContainer(**self.loginboxPars())
+        box = sc.contentPane()
+        sc.contentPane().div(self.loginPreference['check_email'],_class='index_logintitle',text_align='center',margin_top='50px')
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar.wtitle.div(self.loginPreference['confirm_user_title'] or '!!Confirm User')  
+        box.div(self.loginPreference['confirm_user_message'],padding='10px',color='#777',font_style='italic',font_size='.9em',text_align='center')
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE confirm_email;',
+                                datapath='new_password',width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.textbox(value='^.email',lbl='!!Email')
+        fb.dataController("SET .email = avatar_email;",avatar_email='^gnr.avatar.email')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send Email',action='FIRE confirm_email',position='absolute',right='-5px',top='8px')
+        fb.dataRpc('dummy',self.login_confirmUser,_fired='^confirm_email',email='=.email',user_id='=gnr.avatar.user_id',
+                    _if='email',
+                    _onCalling='_sc.switchPage(1);',
+                    _sc=sc.js_widget,
+                    _else="genro.dlg.floatingMessage(_sn,{message:_error_msg,messageType:'error',yRatio:.95})",
+                    _error_msg='!!Missing email',_sn=box)
+        return dlg
+        
         
     def login_newUser(self,pane,dlg_login):
         dlg = pane.dialog(_class='lightboxDialog')
@@ -414,9 +439,13 @@ class FramedIndexLogin(BaseComponent):
                             color='silver',font_size='12px',height='15px')
         footer.dataController("dlg_nu.hide();dlg_login.show();",_fired='^back_login',
                         dlg_login=dlg_login.js_widget,dlg_nu=dlg.js_widget)
-            
         return dlg
 
+    @property
+    def loginPreference(self):
+        if not hasattr(self,'_loginPreference'):
+            self._loginPreference = self.getPreference('general',pkg='adm')
+        return self._loginPreference
 
     @struct_method
     def login_loginPage(self,sc,new_window=None,gnrtoken=None):
@@ -428,7 +457,7 @@ class FramedIndexLogin(BaseComponent):
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
-        wtitle = self.login_title if doLogin else self.new_window_title  
+        wtitle = (self.loginPreference['login_title'] or self.login_title) if doLogin else (self.loginPreference['new_window_title'] or self.new_window_title) 
         topbar.wtitle.div(wtitle)  
         if hasattr(self,'loginSubititlePane'):
             self.loginSubititlePane(box.div())
@@ -444,12 +473,18 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _if='user&&password',_else='SET gnr.avatar = null;',
-                        _onResult="""var newenv = result.getItem('rootenv');
+                        _onResult="""var avatar = result.getItem('avatar');
+                                    if(avatar.getItem('status')!='conf'){
+                                        SET gnr.avatar = avatar;
+                                        genro.publish('confirmUserDialog');
+                                        return;
+                                    }
+                                    var newenv = result.getItem('rootenv');
                                     var rootenv = GET gnr.rootenv;
                                     currenv = rootenv.deepCopy();
                                     currenv.update(newenv);
                                     SET gnr.rootenv = currenv;
-                                    SET gnr.avatar = result.getItem('avatar');
+                                    SET gnr.avatar = avatar;
                                 """,sync=True,_POST=True)
             rpcmethod = self.login_doLogin    
         
@@ -459,7 +494,7 @@ class FramedIndexLogin(BaseComponent):
         for fbnode in fb.getNodes()[start:]:
             if fbnode.attr['tag']=='tr':
                 fbnode.attr['hidden'] = '==!_avatar || _hide'
-                fbnode.attr['_avatar'] = '^gnr.avatar'
+                fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
         
         
@@ -494,14 +529,20 @@ class FramedIndexLogin(BaseComponent):
         lostpass = footer.lost_password.div()
         new_user = footer.new_user.div()
 
-        if self.getPreference('general.forgot_password',pkg='adm'):
+        if self.loginPreference['forgot_password']:
             lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
                             color='silver',font_size='12px',height='15px')
             lostpass.dataController("dlg_login.hide();dlg_lp.show();",_fired='^lost_password_dlg',dlg_login=dlg.js_widget,dlg_lp=self.login_lostPassword(pane,dlg).js_widget)
-        if self.getPreference('general.new_user',pkg='adm'):
+        if self.loginPreference['new_user']:
             new_user.div('!!New User',cursor='pointer',connect_onclick='FIRE new_user_dlg;',
                             color='silver',font_size='12px',height='15px')
             new_user.dataController("dlg_login.hide();dlg_nu.show();",_fired='^new_user_dlg',dlg_login=dlg.js_widget,dlg_nu=self.login_newUser(pane,dlg).js_widget)
+
+
+
+        pane.dataController("dlg_login.hide();dlg_cu.show();",dlg_login=dlg.js_widget,
+                    dlg_cu=self.login_confirmUserDialog(pane,dlg).js_widget,subscribe_confirmUserDialog=True)
+
 
         footer.dataController("""
         btn.setAttribute('disabled',true);
@@ -546,13 +587,14 @@ class FramedIndexLogin(BaseComponent):
         if not avatar:
             return result
         result['avatar'] = Bag(avatar.as_dict())
+        if avatar.status!='conf':
+            return result
         data = Bag()
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
         return result
-
 
     def onUserSelected(self,avatar,data=None):
         return
@@ -594,11 +636,34 @@ class FramedIndexLogin(BaseComponent):
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
         return self.avatar.as_dict()
+
+
+    @public_method
+    def login_confirmUser(self, email=None,user_id=None, **kwargs):
+        usertbl = self.db.table('adm.user')
+        recordBag = usertbl.record(pkey=user_id,for_update=True).output('bag')
+
+        userid = recordBag['id']
+        oldrec = Bag(recordBag)
+
+        recordBag['email'] = email
+        usertbl.update(recordBag,oldrec)
+        recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=userid,max_usages=1)
+        recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+        self.getService('mail').sendmail_template(recordBag,to_address=email,
+                                body='Dear $greetings set your password $link', subject='Password recovery',
+                                async=False)
+        self.db.commit()
+
+        return 'ok'
         
     @public_method
-    def login_confirmNewPassword(self, email=None, **kwargs):
+    def login_confirmNewPassword(self, email=None,username=None, **kwargs):
         usertbl = self.db.table('adm.user')
-        users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
+        if username:
+            users = usertbl.query(columns='$id', where='$username = :u', u=username).fetch()
+        else:
+            users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
         if not users:
             return 'err'
         for u in users:
