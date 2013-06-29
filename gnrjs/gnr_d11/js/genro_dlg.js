@@ -612,7 +612,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     _prepareThIframeUrl:function(kw){
-        var prefix = kw.lookup? '/sys/lookuptables/':'sys/thpage/';
+        var prefix = kw.lookup? '/sys/lookuptables/':'/sys/thpage/';
         var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
