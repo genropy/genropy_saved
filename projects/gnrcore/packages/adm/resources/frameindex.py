@@ -444,7 +444,7 @@ class FramedIndexLogin(BaseComponent):
     @property
     def loginPreference(self):
         if not hasattr(self,'_loginPreference'):
-            self._loginPreference = self.getPreference('general',pkg='adm')
+            self._loginPreference = self.getPreference('general',pkg='adm') or Bag()
         return self._loginPreference
 
     @struct_method
@@ -586,8 +586,11 @@ class FramedIndexLogin(BaseComponent):
         avatar = self.application.getAvatar(user, password=password,authenticate=True)
         if not avatar:
             return result
+        status = getattr(avatar,'status',None)
+        if not status:
+            avatar.extra_kwargs['status'] = 'conf'
         result['avatar'] = Bag(avatar.as_dict())
-        if avatar.status!='conf':
+        if avatar.status != 'conf':
             return result
         data = Bag()
         self.onUserSelected(avatar,data)
