@@ -2518,6 +2518,9 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         }
     },
     created: function(widget, savedAttrs, sourceNode) {
+        if(sourceNode.attr.noIcon){
+            return
+        }
         var focusNode;
         var curNode = sourceNode;
         genro.dom.addClass(widget.focusNode,'comboArrowTextbox')

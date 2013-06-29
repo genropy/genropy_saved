@@ -653,9 +653,10 @@ class FramedIndexLogin(BaseComponent):
         usertbl.update(recordBag,oldrec)
         recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=userid,max_usages=1)
         recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+        body = self.loginPreference['confirm_user_tpl'] or 'Dear $greetings to confirm click $link'
         self.getService('mail').sendmail_template(recordBag,to_address=email,
-                                body='Dear $greetings set your password $link', subject='Password recovery',
-                                async=False)
+                                body=body, subject=self.loginPreference['subject'] or 'Password recovery',
+                                async=False,html=True)
         self.db.commit()
 
         return 'ok'
@@ -675,9 +676,11 @@ class FramedIndexLogin(BaseComponent):
             recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=recordBag['id'],max_usages=1)
             self.db.commit()
             recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+            body = self.loginPreference['confirm_password_tpl'] or 'Dear $greetings set your password $link'
+
             self.getService('mail').sendmail_template(recordBag,to_address=email,
-                                    body='Dear $greetings set your password $link', subject='Password recovery',
-                                    async=False)
+                                    body=body, subject=self.loginPreference['confirm_password_subject'] or 'Password recovery',
+                                    async=False,html=True)
         return 'ok'
             #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
 

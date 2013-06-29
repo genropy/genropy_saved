@@ -38,14 +38,16 @@ class AppPref(object):
         fb.checkbox(value='^.new_user',label='New user registration')
         center = bc.tabContainer(region='center',margin='2px')
         self._auth_messages(center.contentPane(title='!!Authentication messages'))
-        self._auth_email_confirm_template(center.contentPane(title='!!Confirm user template'))
-        self._auth_new_password_template(center.contentPane(title='!!Confirm new password template'))
+        self._auth_email_confirm_template(center.borderContainer(title='!!Confirm user template'))
+        self._auth_new_password_template(center.borderContainer(title='!!Confirm new password template'))
 
-    def _auth_email_confirm_template(self,pane):
-        pane.simpleTextArea(value='^.confirm_user_tpl',editor=True)
+    def _auth_email_confirm_template(self,bc):
+        bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px').textbox(value='^.confirm_user_subject',width='30em',lbl='!!Subject')
+        bc.contentPane(region='center').simpleTextArea(value='^.confirm_user_tpl',editor=True)
 
-    def _auth_new_password_template(self,pane):
-        pane.simpleTextArea(value='^.confirm_password_tpl',editor=True)
+    def _auth_new_password_template(self,bc):
+        bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px').textbox(value='^.confirm_password_subject',width='30em',lbl='!!Subject')
+        bc.contentPane(region='center').simpleTextArea(value='^.confirm_password_tpl',editor=True)
 
 
     def _auth_messages(self,pane):
