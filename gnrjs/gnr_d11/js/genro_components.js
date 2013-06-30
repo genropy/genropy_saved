@@ -2250,6 +2250,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 cell.getParentNode().attr['width'] = slotKw.width;
                 slotKw.width = '100%';
             }
+            if(slotKw.text_align){
+                cell.getParentNode().attr['text_align'] = slotKw.text_align;
+            }
             if(cell.len()==0){
                 if(that['slot_'+slot]){
                     slotValue = objectPop(kw,slot);

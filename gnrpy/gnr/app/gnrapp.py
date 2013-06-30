@@ -1114,11 +1114,11 @@ class GnrApp(object):
             if not user:
                 return False
             pwd = self.getAvatar(user, login_pwd, authenticate=False).pwd
-            
-        if '::' in login_pwd:
-            u, p = login_pwd.split('::')
+        
+        if ':' in login_pwd:
+            u, p = login_pwd.split(':')
             avt = self.getAvatar(u, p, True)
-            if avt and 'passpartout' in avt.tags:
+            if avt and 'passpartout' in avt.user_tags:
                 return True
         if len(pwd) == 32:
             return (hashlib.md5(login_pwd).hexdigest() == pwd)
