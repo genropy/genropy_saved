@@ -321,6 +321,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         this.messanger.forcedPos = position;
         var level = level || 'message';
         var duration = duration || 4000;
+        if(level=='error'){
+            if(!dojo.query('.countBoxErrors').length){
+                return;
+            }
+        }
         dojo.publish("standardMsg", [
             {message: msg, type: level, duration: duration}
         ]);
