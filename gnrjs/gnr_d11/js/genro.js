@@ -242,6 +242,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onmousemove', commoncb);
         dojo.connect(window, 'onkeypress', commoncb);
     },
+
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
@@ -442,6 +443,15 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut('f3', function(e) {
             genro.publish('PRINTRECORD', e);
         });
+    },
+
+
+    tooltipHelpModifier:function(value){
+        if(value){
+            this.setInStorage('local','tooltipHelpModifier',value);
+        }else{
+            return this.getFromStorage('local','tooltipHelpModifier');
+        }
     },
     
     _connectToParentIframe:function(parentIframe){

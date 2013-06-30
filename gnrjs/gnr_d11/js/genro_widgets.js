@@ -2093,7 +2093,11 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
     },
 
     patch__onHover: function(/*Event*/ e) {
-        if (genro.wdg.filterEvent(e, this.modifiers, this.validclass)) {
+        var defaultMod;
+        if(this.tooltip_type=='help'){
+            defaultMod = genro.tooltipHelpModifier();
+        }
+        if (genro.wdg.filterEvent(e, (this.modifiers || defaultMod), this.validclass)) {
             this._onHover_replaced.call(this, e);
         }
     }
