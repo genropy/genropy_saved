@@ -1222,6 +1222,7 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         if('disabled' in attr && this.widgetRootNode.getRelativeData(attr.disabled)){
+            cbBlur.call(this);
             return;
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
