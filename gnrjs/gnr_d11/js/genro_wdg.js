@@ -1221,12 +1221,18 @@ dojo.declare("gnr.GridEditor", null, {
             var dt = convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
-        if('disabled' in attr && this.widgetRootNode.getRelativeData(attr.disabled)){
-            var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
-            if (rc) {
-                this.startEdit(rc.row, rc.col);
+        if('disabled' in attr){
+            var disabledpath = attr.disabled.slice(1);
+            if(disabledpath[0]=='.'){
+                disabledpath = '.' + rowLabel + disabledpath;
             }
-            return;
+            if(this.widgetRootNode.getRelativeData(disabledpath)){
+                var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
+                if (rc) {
+                    this.startEdit(rc.row, rc.col);
+                }
+                return;
+            }
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
