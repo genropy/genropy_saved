@@ -474,6 +474,9 @@ class FramedIndexLogin(BaseComponent):
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _if='user&&password',_else='SET gnr.avatar = null;',
                         _onResult="""var avatar = result.getItem('avatar');
+                                    if (!avatar){
+                                        return;
+                                    }
                                     if(avatar.getItem('status')!='conf'){
                                         SET gnr.avatar = avatar;
                                         genro.publish('confirmUserDialog');
