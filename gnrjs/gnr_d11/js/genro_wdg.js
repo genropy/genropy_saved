@@ -1222,7 +1222,10 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         if('disabled' in attr && this.widgetRootNode.getRelativeData(attr.disabled)){
-            cbBlur.call(this);
+            var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
+            if (rc) {
+                this.startEdit(rc.row, rc.col);
+            }
             return;
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
