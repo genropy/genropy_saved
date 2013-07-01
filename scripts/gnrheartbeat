@@ -104,7 +104,7 @@ def get_site_url(site_name):
         
 if __name__ == '__main__':
     site_name = options.site or args[0]
-    if not site_name.startswith('http://'):
+    if not site_name.startswith('http://') or site_name.startswith('https://'):
         site_url=get_site_url(site_name)
     else:
         site_url=site_name
