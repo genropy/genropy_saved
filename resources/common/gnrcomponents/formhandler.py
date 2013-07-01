@@ -134,6 +134,7 @@ class FormHandler(BaseComponent):
                                         }
                                         genro.publish(pref+'_load',kw);
                                     }else{
+
                                         genro.publish(pref+'_goToRecord',$1.pkey);
                                     }
                                     """
@@ -175,6 +176,7 @@ class FormHandler(BaseComponent):
         else:
             formRoot = pane._makeFormRoot(formId,formRoot=pane,form_kwargs=kwargs)
         default_kwargs = default_kwargs or dict()
+        kwargs['subscribe_form_%s_goToRecord' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
         kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
         kwargs['_iframeAttr'] = dict(main_th_formResource=formResource,src=src,main=main,**main_kwargs)
