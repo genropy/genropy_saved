@@ -43,15 +43,15 @@ class ServiceHandlerManager(object):
         for service in services:
             kw = dict(service.attr)
             resource = kw.pop('resource')
-            service_name = kw.pop('service_type',service.label)
+            service_type = kw.pop('service_type',service.label)
             resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
-            modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_name,resmodule))
-            assert modules,'Missing module %s for service %s '  %(resmodule,service_name)    
+            modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))
+            assert modules,'Missing module %s for service %s '  %(resmodule,service_type)    
             module = modules[0]
             try:
                 module = gnrImport(module)
                 service_class = getattr(module,resclass)
-                self.add(service_class,service_name=service_name,**kw)
+                self.add(service_class,service_name=service.label,**kw)
             except ImportError, import_error:
                 log.exception("Could not import %s"%module)
                 log.exception(str(import_error))
