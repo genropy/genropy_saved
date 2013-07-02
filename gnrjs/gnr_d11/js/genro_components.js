@@ -1107,13 +1107,15 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
                 node = src.removeChild(children[0]);
                 node.setAttribute('orig_idx',idx);
                 genro.dom.addClass(node,'pe_node');
-                dest.appendChild(node);
-                if(dest.clientHeight+this.extra_bottom>=page.clientHeight){
+                dest.appendChild(node);                
+                if((dest.clientHeight+this.extra_bottom>=page.clientHeight) || (node.innerHTML.indexOf('--//--')>=0)){
                     node = dest.removeChild(node);
                     page = this.addPage();
                     dest = document.createElement('div');
                     page.appendChild(dest);
-                    dest.appendChild(node);
+                    if(node.innerHTML.indexOf('--//--')<0){
+                        dest.appendChild(node);
+                    }
                 }
                 idx++;
             }
