@@ -265,9 +265,15 @@ class GnrHtmlBuilder(object):
                         [visible_if=""]{
                             display:none;
                         }
+                        [hidden_if]{
+                            display:none;
+                        }
                         """, media='print')
         self.body.style("""
                         [visible_if=""]{
+                            display:none;
+                        }
+                        [hidden_if]{
                             display:none;
                         }
             """)
