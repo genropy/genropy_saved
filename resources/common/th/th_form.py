@@ -117,8 +117,12 @@ class TableHandlerForm(BaseComponent):
         readOnly = options.get('readOnly')
         modal = options.get('modal',False)
         autoSave = options.get('autoSave',False)
+        draftIfInvalid= options.get('draftIfInvalid',False)
+        allowSaveInvalid= options.get('allowSaveInvalid',draftIfInvalid)
+        form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
             form.store.attributes.update(autoSave=autoSave)
+
         form.dataController(""" if(reason=='nochange' && modal){return;}
                                 genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),titledialog);""",
                             reason="^.controller.save_failed",_if='reason',

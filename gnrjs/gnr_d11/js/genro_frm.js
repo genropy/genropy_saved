@@ -95,8 +95,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return this.sourceNode.getParentNode().getFormHandler();
     },
     canBeSaved:function(){
-        return !this.opStatus && this.record_changed && this.isValid();
+        return !this.opStatus && this.record_changed && (this.isValid() || this.allowSaveInvalid);
     },
+
     doAutoSave:function(){
         var that = this;
         if(this.canBeSaved() && !this.isNewRecord()){
@@ -745,7 +746,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
             var invalid = !this.isValid();
-            if (invalid) {
+            if (invalid && !this.allowSaveInvalid) {
                 this.fireControllerData('save_failed','invalid');
                 return 'invalid:'+invalid;
             }
@@ -1182,6 +1183,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         return status;
     },
+
+    checkInvalidDraft:function(){
+        if(this.draftIfInvalid){
+            this.setDraft(!this.isValid());
+        }
+    },
+
     updateStatus:function(){
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
@@ -1222,6 +1230,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
         }
+        this.checkInvalidDraft();
     },
     checkInvalidFields: function() {
         var node, sourceNode, changekey;
