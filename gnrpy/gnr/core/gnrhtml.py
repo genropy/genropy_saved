@@ -268,6 +268,12 @@ class GnrHtmlBuilder(object):
                         [hidden_if]{
                             display:none;
                         }
+                        [hidden_if=""]{
+                            display:block;
+                        }
+                        span[hidden_if=""]{
+                            display:inline;
+                        }
                         """, media='print')
         self.body.style("""
                         [visible_if=""]{
@@ -275,6 +281,12 @@ class GnrHtmlBuilder(object):
                         }
                         [hidden_if]{
                             display:none;
+                        }
+                        div[hidden_if=""]{
+                            display:block;
+                        }
+                        span[hidden_if=""]{
+                            display:inline;
                         }
             """)
         self.body.style("""

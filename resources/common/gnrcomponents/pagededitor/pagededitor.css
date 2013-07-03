@@ -39,3 +39,6 @@
 [hidden_if='']{
     display:block;
 }
+span[hidden_if='']{
+    display:inline;
+}
