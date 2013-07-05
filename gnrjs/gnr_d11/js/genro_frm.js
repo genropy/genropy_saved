@@ -275,16 +275,18 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     validateFromDatasource: function(sourceNode, value, trigger_reason) {
         // called when a widget changes its value because of a databag change, not an user action
         if (trigger_reason == 'container') {
-            var result = genro.vld.validateInLoading(sourceNode, value);
+            this.addPendingValidation(sourceNode);
+            //var result = genro.vld.validateInLoading(sourceNode, value);
         } else if (trigger_reason == 'node') {
             var result = genro.vld.validate(sourceNode, value);
             //console.log("value: " +value+" result: "+ result.toSource());
             if (result['modified']) {
                 sourceNode.widget.setValue(result['value']);
             }
+            sourceNode.setValidationError(result);
+            sourceNode.updateValidationStatus();
         }
-        sourceNode.setValidationError(result);
-        sourceNode.updateValidationStatus();
+
         //this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
     reload: function(kw) {
@@ -550,6 +552,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onDeleted');
     },
 
+
+
     loaded: function(data) {
         var controllerData = this.getControllerData();
         controllerData.setItem('temp',null);
@@ -589,15 +593,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             };
             this.applyDisabledStatus();
             //this.focus()
+            this.handlePendingValidations()
             var that = this;
             var parentForm = this.getParentForm();
-            if(parentForm && parentForm.currentFocused){
-                return;
+            if(!parentForm || !parentForm.currentFocused){
+                setTimeout(function(){ 
+                    that.focus();
+                },1);
             }
-            setTimeout(function(){ 
 
-                that.focus();
-            },1);
         }
     },
     
@@ -824,7 +828,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 });
             }
             return deferred;
-
         }
     },
     lazyReload:function(result){
@@ -1035,7 +1038,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if (((data.len() > 0) && (data.__isRealChange)) || (!result)) {
                 var result = result || new gnr.GnrBag();
                 var recordNode = record.getParentNode();
-                var resultattr = objectExtract(recordNode.attr, '_pkey,_newrecord,lastTS,mode,one_one', true);
+                var resultattr = objectExtract(recordNode.attr, '_pkey,_newrecord,lastTS,mode,one_one,_invalidFields', true);
                 result.setItem(recordNode.label, data, resultattr);
                 result.__isRealChange = data.__isRealChange;
             }
@@ -1136,6 +1139,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var res =  datanode.isChildOf(this.getFormData());
         return res;
     },
+
     updateInvalidField:function(sourceNode, changepath) {
         var changeDataNode = genro.getDataNode(changepath);
         if(!this.isNodeInFormData(changeDataNode)){
@@ -1150,9 +1154,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         var invalidfields = this.getInvalidFields();
         var invalidnodes = invalidfields.getItem(changekey);
-
         var sourceNode_id = sourceNode.getStringId();
+        var isInvalid;
         if (sourceNode.hasValidationError()) {
+            isInvalid = true;
             //console.log("add validation error: "+changekey);
             if (!invalidnodes) {
                 invalidnodes = {};
@@ -1160,17 +1165,61 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             invalidnodes[sourceNode_id] = sourceNode;
         } else {
+            isInvalid = false;
             //console.log("remove validation error: "+changekey);
             objectPop(invalidnodes, sourceNode_id);
             if (!objectNotEmpty(invalidnodes)) {
                 invalidfields.pop(changekey);
             }
         }
+        if(this.allowSaveInvalid && this.getCurrentPkey() && !this.opStatus){
+            this.setRecordInvalidFields(changeDataNode,isInvalid)
+        }
         this.updateStatus();
     },
+
+
+    setRecordInvalidFields:function(changeDataNode,invalid){
+        var _invalidFields = changeDataNode.getParentNode().attr['_invalidFields'] || {};
+        if(invalid){
+            _invalidFields[changeDataNode.label] = true;
+        }else{
+            delete _invalidFields[changeDataNode.label];
+        }
+        changeDataNode.getParentNode().attr['_invalidFields'] = _invalidFields;
+    },
+
+
+    handlePendingValidations:function(){
+        if(objectNotEmpty(this._pendingValidations)){
+            var that = this;
+            var _pendingValidations = this._pendingValidations;
+            this._pendingValidations = null
+            for(var k in _pendingValidations){
+                this.resolvePendingValidation(_pendingValidations[k]);
+            }
+        }
+    },
+
+    resolvePendingValidation:function(sourceNode){
+        var vpath = sourceNode.absDatapath(sourceNode.attr.value);
+        var datanode = genro.getDataNode(vpath);
+        var _invalidFields = datanode.getParentNode().attr['_invalidFields'] || {};
+        var result = genro.vld.validate(sourceNode,sourceNode.getAttributeFromDatasource('value'),false,
+                                true,(datanode.label in _invalidFields)?null:['notnull']);
+        sourceNode.setValidationError(result);
+        sourceNode.updateValidationStatus();
+    },
+
+    addPendingValidation:function(sourceNode){
+        this._pendingValidations = this._pendingValidations || {};
+        this._pendingValidations[sourceNode._id] = sourceNode;
+    },
+
     isValid:function(){
         return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
+
     registeredGridsStatus:function(){
         var status = null;
         for(var k in this.gridEditors){
@@ -1182,12 +1231,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
         return status;
-    },
-
-    checkInvalidDraft:function(){
-        if(this.draftIfInvalid){
-            this.setDraft(!this.isValid());
-        }
     },
 
     updateStatus:function(){
@@ -1230,7 +1273,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
         }
-        this.checkInvalidDraft();
     },
     checkInvalidFields: function() {
         var node, sourceNode, changekey;
@@ -1280,6 +1322,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     resetInvalidFields:function(){
+        console.log('reset invalid fields')
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
         this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
         this.updateStatus();
@@ -1327,13 +1370,9 @@ dojo.declare("gnr.GnrValidator", null, {
     getCurrentValidations: function(sourceNode) {
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
-    validateInLoading: function(sourceNode, value) {
+    validate: function(sourceNode, value, userChange,validateOnly,validationTags) {
         var validations = this.getCurrentValidations(sourceNode);
-        return this._validate(sourceNode, value, validations, ['notnull']);
-    },
-    validate: function(sourceNode, value, userChange,validateOnly) {
-        var validations = this.getCurrentValidations(sourceNode);
-        var result = this._validate(sourceNode, value, validations, this.validationTags, userChange); //userChange added by sporcari
+        var result = this._validate(sourceNode, value, validations, validationTags || this.validationTags, userChange); //userChange added by sporcari
         if(!validateOnly){
             this.exitValidation(result, sourceNode, validations, userChange);
         }

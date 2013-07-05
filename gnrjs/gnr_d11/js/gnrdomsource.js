@@ -1290,6 +1290,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(this.hasValidations()){
                             var formHandler = this.getFormHandler();
                             if (formHandler) {
+
                                 formHandler.validateFromDatasource(this, value, trigger_reason);
                             }
                         }
@@ -1531,7 +1532,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.updateValidationClasses();
             this.widget.state = this.hasValidationError() ? 'Error' : null;
             this.widget._setStateClass();
-
             if(this.form){
                 this.form.updateInvalidField(this, this.attrDatapath('value'));
             }
@@ -1543,7 +1543,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var domnode = this.widget.cellNode;
         } else {
             var domnode = this.widget.focusNode; //(this.widget.stateNode||this.widget.domNode);
-
         }
         if (this.isValidationRequired()) {
             genro.dom.addClass(domnode, 'gnrrequired');

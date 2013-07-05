@@ -1192,6 +1192,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             recInfo['_logical_deleted'] = True
         if tblobj.draftField and record[tblobj.draftField]:
             recInfo['_draft'] = True
+
+        invalidFields_fld = tblobj.attributes.get('invalidFields')
+        if invalidFields_fld and record[invalidFields_fld]:
+            recInfo['_invalidFields'] =  dict([(k,True) for k in record[invalidFields_fld].split(',')])
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)

@@ -940,6 +940,7 @@ class SqlTable(GnrObject):
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
+        invalidFields = recordClusterAttr.get('_invalidFields')
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
@@ -985,6 +986,10 @@ class SqlTable(GnrObject):
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
             main_record[from_fld] = rel_record[to_fld]
+        if invalidFields:
+            invalidFields_fld = self.attributes.get('invalidFields')
+            if invalidFields_fld:
+                main_record[invalidFields_fld] = ','.join(invalidFields.keys())
         if isNew:
             self.insert(main_record,onBagColumns=onBagColumns)
         elif main_changeSet:
