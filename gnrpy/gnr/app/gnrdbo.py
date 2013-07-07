@@ -121,7 +121,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,md5=False,
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=False,hierarchical=False,
                   group='zzz', group_name='!!System',
                   multidb=None,df=None,counter_kwargs=None):
@@ -236,9 +236,19 @@ class TableBase(object):
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
         if multidb:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
-        if invalidFields:
-            tbl.attributes['invalidFields'] = '__invalid_fields'
-            tbl.column('__invalid_fields',name_long='!!Invalids',group=group,_sysfield=True)
+            
+
+        if invalidFields or invalidRelations:
+            if invalidFields:
+                tbl.attributes['invalidFields'] = '__invalid_fields'
+                tbl.column('__invalid_fields',name_long='!!Invalids',group=group,_sysfield=True)
+                r = ['( $__invalid_fields IS NOT NULL )']
+            else:
+                r = []
+            if invalidRelations:
+                for rel in invalidRelations.split(','):
+                    r.append('%s.__is_invalid' %rel)
+            tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
         sync = tbl.attributes.get('sync')
         if sync:
             tbl.column('__syncaux','B',group=group,

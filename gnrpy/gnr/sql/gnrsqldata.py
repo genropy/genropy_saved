@@ -255,7 +255,8 @@ class SqlQueryCompiler(object):
         pw = tuple(newpath+[basealias])
         if pw in self.aliases: # if the requested join table is yet added by previous columns
             if pw in self._explodingTables:
-                self.cpl.explodingColumns.append(self._currColKey)
+                if not self._currColKey in self.cpl.explodingColumns:
+                    self.cpl.explodingColumns.append(self._currColKey)
             return self.aliases[pw], newpath # return the joint table alias
         alias = 't%i' % len(self.aliases)    # else add it to the join clauses
         self.aliases[pw] = alias
@@ -307,7 +308,8 @@ class SqlQueryCompiler(object):
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
         # the columns causing the increment of rows number are saved for use by SqlSelection._aggregateRows
         if manyrelation:
-            self.cpl.explodingColumns.append(self._currColKey)
+            if not self._currColKey in self.cpl.explodingColumns:
+                self.cpl.explodingColumns.append(self._currColKey)
             self._explodingTables.append(pw)
             self._explodingRows = True
             
@@ -639,7 +641,7 @@ class SqlQueryCompiler(object):
         self.cpl.where = self._recordWhere(where=where)
         
         self.cpl.columns = ',\n       '.join(self.fieldlist)
-        self.cpl.limit = 2
+        #self.cpl.limit = 2
         self.cpl.for_update = for_update
         return self.cpl
             
@@ -665,6 +667,7 @@ class SqlQueryCompiler(object):
             if column is None:
                 # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
+            self._currColKey = col_name
             field = self.getFieldAlias(column.name)
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
@@ -1180,6 +1183,9 @@ class SqlSelection(object):
                             sr = masterRow[subfld].setdefault(d[v[2]],{})
                             sr[v[1]] = d[k]
             data = newdata
+            for d in data:
+                for col in mixColumns:
+                    d[col] = self.dbtable.fieldAggregate(col,d[col],onSelection=True)
         return data
         
     def setKey(self, key):
@@ -2065,7 +2071,10 @@ class SqlRecord(object):
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
             cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
+            index = cursor.index
             cursor.close()
+            if self.compiled.explodingColumns and len(data)>1:
+                data = self.aggregateRecords(data,index)
             if len(data) == 1:
                 self._result = data[0]
             elif len(data) == 0:
@@ -2078,6 +2087,7 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.ignoreDuplicate:
+                    print
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(
@@ -2085,7 +2095,22 @@ class SqlRecord(object):
                                                                                             self.compiled.get_sqltext(
                                                                                                     self.db), params))
         return self._result
-        
+
+
+    def aggregateRecords(self,data,index):
+        resultmap = self.compiled.resultmap
+        mapdict = dict(resultmap.digest('#k,#a.as'))
+        explodingColumns = [(mapdict[k],k) for k in self.compiled.explodingColumns]
+        result = dict(data[0])
+        for col,fld in explodingColumns:
+            result[col] = [result[col]]
+        for d in data[1:]:
+            for col,fld in explodingColumns:
+                result[col].append(d[col])
+        for col,fld in explodingColumns:
+            result[col] = self.dbtable.fieldAggregate(fld,result[col])
+        return [result]
+
     def _set_result(self,result):
         self._result = Bag()
 

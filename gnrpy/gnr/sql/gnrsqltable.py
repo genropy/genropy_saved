@@ -693,6 +693,29 @@ class SqlTable(GnrObject):
                 return True
         return False
 
+    def fieldAggregate(self,field,data,onSelection=False):
+        handler = getattr(self,'aggregate_%s' %field,None)
+        if handler:
+            return handler(data)
+        fieldattr = self.model.column(field).attributes
+        dtype = fieldattr.get('dtype','A')
+        aggregator = fieldattr.get('aggregator')
+        aggregator = fieldattr.get('aggregator_record',aggregator) if not onSelection else fieldattr.get('aggregator_selection',aggregator)
+        if aggregator==False:
+            return data
+        if dtype in ('A','T'):
+            data.sort()
+            data = (aggregator or ',').join(data)
+        elif dtype=='B':
+            data = not (False in data) if (aggregator or 'AND')=='AND' else (True in data)
+        elif dtype in ('R','L','N'):
+            data = sum(data)
+        else:
+            data.sort()
+            data = (aggregator or ',').join([gnrstring.toText(d) for d in data])
+        return data
+
+
     def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
         
@@ -941,6 +964,7 @@ class SqlTable(GnrObject):
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
         invalidFields = recordClusterAttr.get('_invalidFields')
+        print 'INVALID FIELDS',invalidFields
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
@@ -985,11 +1009,11 @@ class SqlTable(GnrObject):
             rel_record = rel_tblobj.writeRecordCluster(rel_recordCluster, rel_recordClusterAttr)
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
-            main_record[from_fld] = rel_record[to_fld]
-        if invalidFields:
+            main_record[from_fld] = rel_record[to_fld]            
+        if self.attributes.get('invalidFields'):
             invalidFields_fld = self.attributes.get('invalidFields')
-            if invalidFields_fld:
-                main_record[invalidFields_fld] = ','.join(invalidFields.keys())
+            main_record[invalidFields_fld] = ','.join(invalidFields.keys()) if invalidFields else None
+            
         if isNew:
             self.insert(main_record,onBagColumns=onBagColumns)
         elif main_changeSet:
