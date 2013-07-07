@@ -1177,7 +1177,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     startTouchDevice:function() {
         document.body.ontouchmove = function(e) {
-            e.preventDefault();
+            //e.preventDefault();
         };
         document.body.onorientationchange = function(e) {
             genro.setData('touch.orientation', window.orientation);
