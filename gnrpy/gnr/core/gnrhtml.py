@@ -285,6 +285,12 @@ class GnrHtmlBuilder(object):
                         div[hidden_if=""]{
                             display:block;
                         }
+                        tr[hidden_if=""]{
+                            display:table-row;
+                        }
+                        table[hidden_if=""]{
+                            display:table;
+                        }
                         span[hidden_if=""]{
                             display:inline;
                         }
