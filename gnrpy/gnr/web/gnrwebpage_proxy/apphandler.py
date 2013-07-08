@@ -40,7 +40,7 @@ from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
+from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveException, GnrSqlDeleteException
@@ -1195,7 +1195,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         invalidFields_fld = tblobj.attributes.get('invalidFields')
         if invalidFields_fld and record[invalidFields_fld]:
-            recInfo['_invalidFields'] =  dict([(k,True) for k in record[invalidFields_fld].split(',')])
+            recInfo['_invalidFields'] = fromJson(record[invalidFields_fld])
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)

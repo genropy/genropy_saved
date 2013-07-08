@@ -961,7 +961,6 @@ class SqlTable(GnrObject):
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
         invalidFields = recordClusterAttr.get('_invalidFields')
-        print 'INVALID FIELDS',invalidFields
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
@@ -1009,7 +1008,7 @@ class SqlTable(GnrObject):
             main_record[from_fld] = rel_record[to_fld]            
         if self.attributes.get('invalidFields'):
             invalidFields_fld = self.attributes.get('invalidFields')
-            main_record[invalidFields_fld] = ','.join(invalidFields.keys()) if invalidFields else None
+            main_record[invalidFields_fld] = gnrstring.toJsonJS(invalidFields) if invalidFields else None
             
         if isNew:
             self.insert(main_record,onBagColumns=onBagColumns)

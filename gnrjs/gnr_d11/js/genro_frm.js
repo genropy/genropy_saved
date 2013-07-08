@@ -1173,16 +1173,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
         if(this.allowSaveInvalid && this.getCurrentPkey() && !this.opStatus){
-            this.setRecordInvalidFields(changeDataNode,isInvalid)
+            this.setRecordInvalidFields(changeDataNode,isInvalid,sourceNode._validations)
         }
         this.updateStatus();
     },
 
 
-    setRecordInvalidFields:function(changeDataNode,invalid){
+    setRecordInvalidFields:function(changeDataNode,invalid,validationsDict){
         var _invalidFields = changeDataNode.getParentNode().attr['_invalidFields'] || {};
         if(invalid){
-            _invalidFields[changeDataNode.label] = true;
+            _invalidFields[changeDataNode.label] = {error:validationsDict.error,fieldcaption:changeDataNode.attr.name_long || changeDataNode.label};
         }else{
             delete _invalidFields[changeDataNode.label];
         }
