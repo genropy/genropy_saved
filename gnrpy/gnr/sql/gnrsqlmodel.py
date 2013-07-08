@@ -1242,10 +1242,12 @@ class AliasColumnWrapper(DbModelObj):
         colalias_attributes.pop('tag')
         colalias_attributes.pop('relation_path')
         mixedattributes.update(colalias_attributes)
-        mixedattributes.pop('virtual_column', None)
+        virtual_column = mixedattributes.pop('virtual_column', None)
+        if virtual_column:
+            self.sqlclass = 'virtual_column'
         self.originalColumn = originalColumn
         self.attributes = mixedattributes
-        
+
     def __getattr__(self,name):
         return getattr(self.originalColumn,name)
         

@@ -1185,7 +1185,7 @@ class SqlSelection(object):
             data = newdata
             for d in data:
                 for col in mixColumns:
-                    d[col] = self.dbtable.fieldAggregate(col,d[col],onSelection=True)
+                    d[col] = self.dbtable.fieldAggregate(col,d[col],fieldattr= self.colAttrs[col],onSelection=True)
         return data
         
     def setKey(self, key):
@@ -2108,7 +2108,7 @@ class SqlRecord(object):
             for col,fld in explodingColumns:
                 result[col].append(d[col])
         for col,fld in explodingColumns:
-            result[col] = self.dbtable.fieldAggregate(fld,result[col])
+            result[col] = self.dbtable.fieldAggregate(fld,result[col],fieldattr=resultmap.getAttr(fld))
         return [result]
 
     def _set_result(self,result):

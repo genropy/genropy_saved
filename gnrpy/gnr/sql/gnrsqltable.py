@@ -693,21 +693,18 @@ class SqlTable(GnrObject):
                 return True
         return False
 
-    def fieldAggregate(self,field,data,onSelection=False):
+    def fieldAggregate(self,field,data,fieldattr=None,onSelection=False):
         handler = getattr(self,'aggregate_%s' %field,None)
         if handler:
             return handler(data)
-        fieldattr = self.model.column(field).attributes
         dtype = fieldattr.get('dtype','A')
         aggregator = fieldattr.get('aggregator')
         aggregator = fieldattr.get('aggregator_record',aggregator) if not onSelection else fieldattr.get('aggregator_selection',aggregator)
         if aggregator==False:
             return data
-        if dtype in ('A','T'):
-            data.sort()
-            data = (aggregator or ',').join(data)
-        elif dtype=='B':
-            data = not (False in data) if (aggregator or 'AND')=='AND' else (True in data)
+        if dtype=='B':
+            dd = [d or False for d in data]
+            data = not (False in dd) if (aggregator or 'AND')=='AND' else (True in dd)
         elif dtype in ('R','L','N'):
             data = sum(data)
         else:
