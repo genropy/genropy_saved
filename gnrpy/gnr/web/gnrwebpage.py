@@ -68,6 +68,14 @@ def formulaColumn(*args,**fcpars):
     
 class GnrWebPageException(GnrException):
     pass
+
+class GnrUnsupportedBrowserException(GnrException):
+    pass
+
+class GnrMaintenanceException(GnrException):
+    pass
+
+
 class GnrMissingResourceException(GnrException):
     pass
 
@@ -671,6 +679,9 @@ class GnrWebPage(GnrBaseWebPage):
             
     def rootPage(self,*args, **kwargs):
         """TODO"""
+        user_agent = self.request.headers.get('User-Agent', '')
+        if 'MSIE' in user_agent and not 'chromeframe' in user_agent:
+            raise GnrUnsupportedBrowserException
         self.charset = 'utf-8'
         arg_dict = self.build_arg_dict(**kwargs)
         tpl = self.pagetemplate

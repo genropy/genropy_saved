@@ -5,6 +5,7 @@ from weberror.evalexception import EvalException
 from paste.exceptions.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from gnr.web.gnrwebapp import GnrWsgiWebApp
+from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
 import glob
 import re
@@ -672,6 +673,11 @@ class GnrWsgiSite(object):
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
+            except GnrUnsupportedBrowserException, e:
+                return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
+            except GnrMaintenanceException, e:
+                return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
+            
             except Exception:
                 raise
             finally:
@@ -681,6 +687,11 @@ class GnrWsgiSite(object):
             
             return response(environ, start_response)
             
+    def serve_htmlPage(self, htmlPageName, environ, start_response):
+        uri = self.dummyPage.getResourceUri(htmlPageName)
+        if uri:
+            path_list = uri[1:].split('/')
+            return self.statics.static_dispatcher(path_list, environ, start_response)
 
     def setResultInResponse(self, result, response, totaltime=None):
         """TODO
