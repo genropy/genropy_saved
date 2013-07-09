@@ -376,7 +376,7 @@ class DynamicForm(BaseComponent):
         
         bc.contentPane(region='center',padding='10px').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
-                                                    datapath='#FORM.dynamicFormTester.data')
+                                                    datapath='#FORM.dynamicFormTester.data',_if='showpreview',showpreview='^#FORM.dynamicFormTester.showpreview')
 
 
     @struct_method
@@ -607,8 +607,9 @@ class DynamicForm(BaseComponent):
                 attr['validate_notnull']  = "^#WORKSPACE.%s.do_validations" %attr['code']
                 tpv = (condition,"sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
             attr['row_hidden'] = """==function(sourceNode){
+                                        var __c = dynamicFormHandler.executeFormula(sourceNode,"%s",'hidden');
                                         try{
-                                            if(%s){
+                                            if(__c){
                                                 %s
                                                 return false;
                                             }else{
