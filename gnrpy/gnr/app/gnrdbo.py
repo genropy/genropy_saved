@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace
+from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -267,6 +267,16 @@ class TableBase(object):
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
+
+
+    def invalidFieldsBag(self,record):
+        if not record['__invalid_fields']:
+            return
+        result = Bag()
+        invdict = fromJson(record['__invalid_fields'])
+        for k,v in invdict.items():
+            result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
+        return result
 
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
