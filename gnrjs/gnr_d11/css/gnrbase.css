@@ -3786,15 +3786,15 @@ div[disabled='true']{
 
 .branchtree .dijitTreeExpando{
     height: 15px;
-    width: 12px;
+    width: 16px;
     cursor: pointer;
 }
 
 .branchtree .dijitTreeExpando.dijitTreeExpandoClosed{
-    background: url(icons/base10/tinyCloseBranch.png) no-repeat left center;
+    background: url(icons/base10/tinyCloseBranch.png) no-repeat center center;
 }
 .branchtree .dijitTreeExpando.dijitTreeExpandoOpened{
-    background: url(icons/base10/tinyOpenBranch.png) no-repeat left center;
+    background: url(icons/base10/tinyOpenBranch.png) no-repeat center center;
 }
 
 .branchtree .dijitTreeExpandoLeaf{
