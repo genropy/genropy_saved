@@ -158,7 +158,7 @@ class HTableTree(BaseComponent):
     js_requires='th/th_tree'
 
     @struct_method
-    def ht_hdbselect(self,pane,caption_field=None,treeMode=None,**kwargs):
+    def ht_hdbselect(self,pane,caption_field=None,treeMode=None,folderSelectable=False,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
         menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(dbselect))
@@ -166,16 +166,17 @@ class HTableTree(BaseComponent):
         attr['_hdbselect'] = True
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
-        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
+        if not folderSelectable:
+            attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
         pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
                         condition=dbselect_condition,
                         condition_kwargs=dbselect_condition_kwargs,
                         cacheTime=0,caption_field=caption_field,dbstore=kwargs.get('_storename'))
         if treeMode:
-            menunode = dbselect.menu(modifiers='*',attachTo=dbselect,_class='menupane').menuItem().div(height='300px',width='100%',overflow='auto')
-            menunode.div().tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
+            menunode = dbselect.menu(modifiers='*',bbattachTo=dbselect,_class='menupane').menuItem().div(max_height='350px',max_width='400px',overflow='auto')
+            menunode.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
                          hideValues=True,autoCollapse=True,excludeRoot=True,
-                         labelAttribute='caption',openOnClick=True,
+                         labelAttribute='caption',openOnClick=not folderSelectable,
                          selectedLabelClass='selectedTreeNode',_class="branchtree noIcon")
         else:
             dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
