@@ -473,6 +473,16 @@ function objectKeys(obj) {
     }
     return keys;
 }
+
+
+function objectValues(obj) {
+    var values = [];
+    for (var prop in obj) {
+        values.push(obj[prop]);
+    }
+    return values;
+}
+
 function objectFuncReplace(obj, funcname, func) {
     var oldfunc = obj[funcname];
     obj[funcname] = func;
