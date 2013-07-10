@@ -857,23 +857,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (this.attr._lazyBuild){
             var that = this;
             var cbtest;
-            if(this.attr._lazyBuild=='delayed'){
-                cbtest= function(){
-                    console.log('ASPETTO')
-                    return genro._pageStarted;
-                }
-            }else{
-                cbtest= function(){
-                    return genro.dom.isVisible(that);
-                }
+            cbtest= function(){
+                return genro.dom.isVisible(that) || that._buildNow;
             }
             this.watch('lazyBuildWait',cbtest,
                     function(){
                         console.log('ORA COSTRUISCO')
                         that.lazyBuildFinalize(newobj);
                     });
-
-
         }else{
             this._buildChildren(newobj);
         }
@@ -898,6 +889,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this._built = true;
         this.onNodeBuilt(newobj);
         return newobj;
+    },
+
+    buildNow:function(){
+        this._buildNow=true;
     },
     
     onNodeBuilt:function(newobj){
