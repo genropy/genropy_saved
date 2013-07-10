@@ -697,7 +697,7 @@ class SqlTable(GnrObject):
         handler = getattr(self,'aggregate_%s' %field,None)
         if handler:
             return handler(data)
-        dtype = fieldattr.get('dtype','A')
+        dtype = fieldattr.get('dataType',None) or fieldattr.get('dtype','A') 
         aggregator = fieldattr.get('aggregator')
         aggregator = fieldattr.get('aggregator_record',aggregator) if not onSelection else fieldattr.get('aggregator_selection',aggregator)
         if aggregator==False:
@@ -706,7 +706,18 @@ class SqlTable(GnrObject):
             dd = [d or False for d in data]
             data = not (False in dd) if (aggregator or 'AND')=='AND' else (True in dd)
         elif dtype in ('R','L','N'):
-            data = sum(data)
+            aggregator = aggregator or 'SUM'
+            dd = filter(lambda r: r is not None, data)
+            if not dd:
+                data = None
+            elif aggregator=='SUM':
+                data = sum(dd)
+            elif aggregator=='MAX':
+                data = max(dd)
+            elif aggregator=='MIN':
+                data = min(dd)
+            elif aggregator=='AVG':
+                data = sum(dd)/len(dd) if len(dd) else 0
         else:
             data.sort()
             data = (aggregator or ',').join([gnrstring.toText(d) for d in data])
