@@ -856,11 +856,24 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if (this.attr._lazyBuild){
             var that = this;
-            this.watch('isVisible',function(){
-                return genro.dom.isVisible(that);
-            },function(){
-                that.lazyBuildFinalize(newobj);
-            });
+            var cbtest;
+            if(this.attr._lazyBuild=='delayed'){
+                cbtest= function(){
+                    console.log('ASPETTO')
+                    return genro._pageStarted;
+                }
+            }else{
+                cbtest= function(){
+                    return genro.dom.isVisible(that);
+                }
+            }
+            this.watch('lazyBuildWait',cbtest,
+                    function(){
+                        console.log('ORA COSTRUISCO')
+                        that.lazyBuildFinalize(newobj);
+                    });
+
+
         }else{
             this._buildChildren(newobj);
         }

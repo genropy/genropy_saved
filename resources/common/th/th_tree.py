@@ -187,7 +187,7 @@ class HTableTree(BaseComponent):
     @extract_kwargs(related=True)
     @struct_method
     def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,
-                               dbstore=None,root_id=None,columns=None,related_kwargs=None,**kwargs):
+                               dbstore=None,root_id=None,columns=None,related_kwargs=None,resolved=False,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
@@ -204,6 +204,10 @@ class HTableTree(BaseComponent):
                                                 root_id=root_id,columns=columns)
         b.setItem('root',v,caption=tblobj.name_long,
                                                 child_count=1,pkey='',treeIdentifier='_root_')
+        if resolved:
+            def cb(self,*args,**kwargs):
+                pass
+            b.walk(cb)
         d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
 
         return d
@@ -261,7 +265,7 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,excludeRoot=None,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True,_class='noIcon')
@@ -269,7 +273,7 @@ class HTableTree(BaseComponent):
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,**condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**condition_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
