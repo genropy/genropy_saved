@@ -24,7 +24,7 @@ class FrameIndex(BaseComponent):
     css_requires='frameindex,public'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
     custom_plugin_list = None
-    index_url = None
+    index_url = 'html_pages/splashscreen.html'
     indexTab = False
     hideLeftPlugins = False
     auth_preference = 'admin'
