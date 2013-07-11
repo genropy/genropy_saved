@@ -1313,15 +1313,17 @@ class SqlSelection(object):
             self.analyzeBag.makePicklable()
         saved = self.dbtable, self._data, self._filtered_data
         self.dbtable, self._data, self._filtered_data = None, 'frozen', 'frozen' * bool(self._filtered_data) or None
-        f = file('%s.pik' % self.freezepath, 'w')
-        cPickle.dump(self, f)
-        f.close()
+        selection_path = '%s.pik' % self.freezepath
+        dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
+        with os.fdopen(dumpfile_handle, "w") as f:
+            cPickle.dump(self, f)
+        shutil.move(dumpfile_path, selection_path)
         self.dbtable, self._data, self._filtered_data = saved
         
     def _freeze_data(self, readwrite):
         pik_path = '%s_data.pik' % self.freezepath
         if readwrite == 'w':
-            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "w") as f:
                 cPickle.dump(self._data, f)
             shutil.move(dumpfile_path, pik_path)
@@ -1336,12 +1338,14 @@ class SqlSelection(object):
             if os.path.isfile(fpath):
                 os.remove(fpath)
         else:
-            f = file(fpath, readwrite)
             if readwrite == 'w':
-                cPickle.dump(self._filtered_data, f)
+                dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_filtered',suffix='.pik')
+                with os.fdopen(dumpfile_handle, "w") as f:
+                    cPickle.dump(self._filtered_data, f)
+                shutil.move(dumpfile_path, fpath)
             else:
-                self._filtered_data = cPickle.load(f)
-            f.close()
+                with open(fpath) as f:
+                    self._filtered_data = cPickle.load(f)
             
     def freeze(self, fpath, autocreate=False):
         """TODO

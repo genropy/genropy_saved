@@ -671,9 +671,8 @@ class GnrSqlDb(GnrObject):
         filename = '%s.pik' % fpath
         if not os.path.exists(filename):
             return
-        f = file('%s.pik' % fpath, 'r')
-        selection = cPickle.load(f)
-        f.close()
+        with open('%s.pik' % fpath) as f:
+            selection = cPickle.load(f)
         selection.dbtable = self.table(selection.tablename)
         return selection
         
