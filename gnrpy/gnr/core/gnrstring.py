@@ -438,6 +438,8 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
+    if not myString:
+        return ''
     templateBag=None
     if hasattr(myString, '_htraverse'):
         templateBag = myString.deepcopy()
