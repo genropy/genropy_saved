@@ -301,6 +301,8 @@ class ResourceLoader(object):
         #curdir = os.path.dirname(os.path.join(pagesPath, path))
         #resourcePkg = None
         result = [] # result is now empty
+        fpath = os.path.join(self.site_path, 'resources')
+        self._appendPathIfExists(result, fpath) # we add a custom resource folder for current package
         if pkg: # for index page or other pages at root level (out of any package)
             #resourcePkg = self.gnrapp.packages[pkg].attributes.get('resourcePkg')
             fpath = os.path.join(self.site_path, '_custom', pkg, '_resources')
@@ -370,6 +372,7 @@ class ResourceLoader(object):
     def site_resources(self):
         """TODO"""
         resources = Bag()
+        resources['site'] = os.path.join(self.site_path, 'resources')
         resources_list = [(resource.label, resource.attr.get('path')) for resource in
                           self.site.config['resources'] or []]
         for label, rsrc_path in resources_list:
