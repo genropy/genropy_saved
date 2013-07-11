@@ -718,6 +718,8 @@ class SqlTable(GnrObject):
                 data = min(dd)
             elif aggregator=='AVG':
                 data = sum(dd)/len(dd) if len(dd) else 0
+            elif aggregator=='CNT':
+                data = len(data) if data else 0
         else:
             data.sort()
             data = (aggregator or ',').join(uniquify([gnrstring.toText(d) for d in data]))
