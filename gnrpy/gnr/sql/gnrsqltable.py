@@ -26,7 +26,7 @@ __version__ = '1.0b'
 import os
 
 from gnr.core import gnrstring
-from gnr.core.gnrlang import GnrObject,getUuid
+from gnr.core.gnrlang import GnrObject,getUuid,uniquify
 from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
@@ -720,7 +720,7 @@ class SqlTable(GnrObject):
                 data = sum(dd)/len(dd) if len(dd) else 0
         else:
             data.sort()
-            data = (aggregator or ',').join([gnrstring.toText(d) for d in data])
+            data = (aggregator or ',').join(uniquify([gnrstring.toText(d) for d in data]))
         return data
 
 
