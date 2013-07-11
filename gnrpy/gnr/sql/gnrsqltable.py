@@ -534,7 +534,7 @@ class SqlTable(GnrObject):
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])
                 manytable = self.db.table(subtable)
-                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False).fetch()
+                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False,bagFields=True).fetch()
                 for dupRec in duplicatedRecords:
                     for r in rows:
                         r = dict(r)
