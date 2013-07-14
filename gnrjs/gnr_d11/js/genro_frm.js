@@ -1322,7 +1322,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     resetInvalidFields:function(){
-        console.log('reset invalid fields')
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
         this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
         this.updateStatus();

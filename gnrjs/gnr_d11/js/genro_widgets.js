@@ -423,7 +423,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             var callback = dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
             var kbhandler = function(evt) {
                 if (evt.keyCode == genro.PATCHED_KEYS.ENTER) {
-                    console.log('after enter')
                     evt.target.blur();
                     setTimeout(callback, 100);
                 }
@@ -502,7 +501,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         sourceNode.subscribe('onSetValueInData',function(value){
             var n = genro.getDataNode(npath);
             if(sourceNode.form){
-                console.log('onSetValueInData',value)
                 sourceNode.form.setKeptData(npath.replace(sourceNode.absDatapath()+'.',''),value,n.attr._keep);
             }
         });
@@ -2203,7 +2201,6 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         var modifier = eventToString(e);
         var action = inattr.action;
         var sourceNode = this.sourceNode;
-        console.log('click do in button')
         if (action) {
             //funcCreate(action).call(this,e);
             funcApply(action, objectUpdate(sourceNode.currentAttributes(), {event:e,_counter:count}), sourceNode);

@@ -583,13 +583,11 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 var cached = this.cached_values[id];
                 var age = (new Date()-cached.ts)/1000;
                 if(age<this.cache_time){
-                    console.log('serve valore in cache')
                     dojo.hitch(scope, request.onItem)(cached.result);
                     return;  
                 }
             }
             if (isNullOrBlank(id)){
-                console.log('ID NULL OR BLANK')
                 dojo.hitch(scope, request.onItem)(null);
                 return;     
             }
@@ -627,7 +625,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 } else {
                     result = null;
                 }
-                console.log('salva in cache')
                 this.cached_values[request.identity] = {'result':result,'ts':new Date()};
                 //if (result) {
                     if(!result){
