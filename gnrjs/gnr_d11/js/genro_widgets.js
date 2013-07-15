@@ -6587,7 +6587,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
       	var p;
       	for (var k in checked_attr){
       		p = checked_attr[k];
-      		if(':' in p){
+      		if(p.indexOf(':')>=0){
       			p = p.split(':');
       			checked_attr[k] = p[0]
       			checked_attr_joiners[k] = p[1];
