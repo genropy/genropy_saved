@@ -29,8 +29,8 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('name')
         fb.field('company_id')
         fb.field('user_id')
@@ -40,6 +40,9 @@ class Form(BaseComponent):
         fb.field('phone')
         fb.field('skype')
         fb.field('chat')
+        bc.contentPane(region='center').inlineTableHandler(relation='@public_keys',viewResource='ViewFromPerson')
+
+
 
 
     def th_options(self):
