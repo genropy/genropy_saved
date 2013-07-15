@@ -862,7 +862,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             this.watch('lazyBuildWait',cbtest,
                     function(){
-                        console.log('ORA COSTRUISCO')
                         that.lazyBuildFinalize(newobj);
                     });
         }else{

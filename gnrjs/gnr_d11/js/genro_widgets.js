@@ -6108,7 +6108,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             // #4617:
             // if value is now more choices or previous choices, revert
             // the value
-            console.log('SET BLUR VALUE')
+            //console.log('SET BLUR VALUE')
             var displayedValue=this.getDisplayedValue();
             var lastValueReported=this._lastValueReported;
             var value;
