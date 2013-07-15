@@ -6583,13 +6583,23 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
         }
         var checked_attr = objectExtract(this.sourceNode.attr,'checked_*',true)
+      	var checked_attr_joiners = {};
+      	var p;
+      	for (var k in checked_attr){
+      		p = checked_attr[k];
+      		if(':' in p){
+      			p = p.split(':');
+      			checked_attr[k] = p[0]
+      			checked_attr_joiners[k] = p[1];
+      		}
+      	}
         var checkedPaths = this.sourceNode.attr.checkedPaths;
         if(objectNotEmpty(checked_attr)){
-            this.updateCheckedAttr(checked_attr,checkedPaths)
+            this.updateCheckedAttr(checked_attr,checkedPaths,checked_attr_joiners)
         }
     },
     
-    mixin_updateCheckedAttr:function(checked_attr,checkedPaths){
+    mixin_updateCheckedAttr:function(checked_attr,checkedPaths,checked_attr_joiners){
         var propagate = this.sourceNode.attr.checkChildren!==false;
         var walkmode = this.sourceNode.attr.eagerCheck ? null : 'static';
         var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
@@ -6599,6 +6609,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         for(var k in checked_attr){
             result[k] = [];
         }
+
         store.walk(function(n){
             var v = n.getValue(walkmode);
             if(propagate && (v instanceof gnr.GnrBag )&& (v.len()>0)){
@@ -6619,7 +6630,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
         },walkmode);
         for(var k in checked_attr){
-            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(','))
+            this.sourceNode.setRelativeData(checked_attr[k],result[k].join((checked_attr_joiners[k] || ',')))
         }
         if(checkedPaths){
             this.sourceNode.setRelativeData(checkedPaths,cp.join(','),null,null,this);
