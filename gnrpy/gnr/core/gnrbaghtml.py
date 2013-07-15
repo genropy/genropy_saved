@@ -306,7 +306,7 @@ class BagToHtml(object):
         self.defineCustomStyles()
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        self.grid_body_height = self.grid_height - self.grid_header_height - self.grid_footer_height
+        self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             
