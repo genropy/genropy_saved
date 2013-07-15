@@ -5,7 +5,7 @@ class Table(object):
         tbl =  pkg.table('sync',pkey='id',name_long='!!Sync')
         self.sysFields(tbl)
         tbl.column('sync_utc','DH',name_long='!!Sync utc')
-        tbl.column('sync_origin_id',name_long='!!Sync origin').relation('client_db.id',realtion_name='sync_items')
+        tbl.column('sync_origin_id',name_long='!!Sync origin').relation('client_db.id',relation_name='sync_items')
 
         tbl.column('sync_table',name_long='!!Table')
         tbl.column('sync_pkey',name_long='!!Sync table pkey')
