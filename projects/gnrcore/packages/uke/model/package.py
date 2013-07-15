@@ -2,7 +2,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('package',pkey='id',name_long='!!Package',
+        tbl =  pkg.table('package',pkey='package_identifier',name_long='!!Package',
                       name_plural='!!Packages',rowcaption='$package_identifier',caption_field='package_identifier')
         self.sysFields(tbl)
         tbl.column('code',name_long='!!Code',validate_notnull=True,validate_notnull_error='!!Required',_sendback=True,unmodifiable=True)
