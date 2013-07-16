@@ -835,9 +835,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setCurrentPkey(savedPkey);
         var data = this.getFormData();
         data.walk(function(n){ delete n.attr._loadedValue},'static');
-        if(result.savedAttr.lastTS){
-            data.getParentNode().attr.lastTS = result.savedAttr.lastTS;
-            data.setItem('__mod_ts',convertFromText(result.savedAttr.lastTS),null,{doTrigger:false});
+        var savedAttr = result.savedAttr;
+        if(savedAttr){
+            if(savedAttr.lastTS){
+                data.getParentNode().attr.lastTS = result.savedAttr.lastTS;
+                data.setItem('__mod_ts',convertFromText(result.savedAttr.lastTS),null,{doTrigger:false});
+            }
+            var relatedLastTs = objectExtract(result.savedAttr,'lastTS_*');
+            var rn,t;
+            for (var k in relatedLastTs){
+                rn = data.getNode('@'+k);
+                t = relatedLastTs[k];
+                rn.attr.lastTS = t;
+                rn.getValue().setItem('__mod_ts',convertFromText(t),null,{doTrigger:false})
+            }
         }
         this.setOpStatus();
         this.__last_save = new Date()

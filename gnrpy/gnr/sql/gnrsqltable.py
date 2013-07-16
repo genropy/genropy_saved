@@ -1018,7 +1018,9 @@ class SqlTable(GnrObject):
             rel_record = rel_tblobj.writeRecordCluster(rel_recordCluster, rel_recordClusterAttr)
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
-            main_record[from_fld] = rel_record[to_fld]            
+            main_record[from_fld] = rel_record[to_fld]  
+            recordClusterAttr['lastTS_%s' %rel_name] = str(rel_record[rel_tblobj.lastTS]) if rel_tblobj.lastTS else None
+          
         if self.attributes.get('invalidFields'):
             invalidFields_fld = self.attributes.get('invalidFields')
             main_record[invalidFields_fld] = gnrstring.toJsonJS(invalidFields) if invalidFields else None
