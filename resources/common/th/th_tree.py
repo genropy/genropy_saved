@@ -268,7 +268,7 @@ class HTableTree(BaseComponent):
                         moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True,_class='noIcon')
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True)
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
@@ -307,7 +307,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
 
     @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,_class=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
@@ -315,8 +315,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        
-        hviewTree = box.hviewTree(table=table,caption_field=caption_field,**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -340,7 +339,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         return hviewTree
     
     @struct_method
-    def ht_hviewTree(self,box,table=None,picker=None,**kwargs):  
+    def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
         if picker: 
             bar = box.slotToolbar('*,treePicker,2',height='20px')
         pane = box.div(position='relative',height='100%',padding='2px')
@@ -349,7 +348,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
-                          selectedPath='.tree.path',margin='2px')
+                          selectedPath='.tree.path',margin='2px',_class=_class)
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
