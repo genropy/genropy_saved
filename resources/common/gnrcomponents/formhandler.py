@@ -236,7 +236,9 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
         pane.formButton(topic='deleteItem',
                         iconClass="iconbox delete_record",parentForm=parentForm,
-                        disabled='^.controller.protect_delete',tip='==disabled?_msg_protect_delete:_msg_delete',
+                        disabled='==_newrecord||_protected',
+                        _newrecord='^.controller.is_newrecord',
+                        _protected='^.controller.protect_delete',tip='==_protected?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
     @struct_method          

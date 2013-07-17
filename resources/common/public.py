@@ -206,18 +206,12 @@ class PublicSlots(BaseComponent):
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
         box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
         if self.public_partitioned is True:
-            kw = dictExtract(self.tblobj.attributes,'partition_')
-            public_partitioned = dict()
-            public_partitioned['field'] = kw.keys()[0]
-            public_partitioned['path'] = kw[public_partitioned['field']]
-            public_partitioned['table'] = self.tblobj.column(public_partitioned['field']).relatedColumn().table.fullname
-            self.public_partitioned = public_partitioned
+            self.public_partitioned = self.tblobj.partitionParameters
         kw = self.public_partitioned
         partition_field = kw['field']
         partition_path = kw['path']
         table = kw['table']
         related_tblobj = self.db.table(table)
-
         if not self.rootenv[partition_path]:
             fb = box.formbuilder(cols=1,border_spacing='0')
             fb.dbSelect(value='^current.%s' %partition_field,
@@ -227,6 +221,7 @@ class PublicSlots(BaseComponent):
         
         pane.data('current.%s' %partition_field,self.rootenv[partition_path],
                     serverpath='currenv.%s' %partition_path,dbenv=True)
+
 
 
     @struct_method
@@ -358,6 +353,8 @@ class TableHandlerMain(BaseComponent):
         lockable = kwargs.pop('lockable',True)
         if th_options['partitioned']:
             self.public_partitioned = th_options['partitioned']
+            if self.public_partitioned is True:
+                self.public_partitioned = self.tblobj.partitionParameters
         if insidePublic:
             pbl_root = root = root.rootContentPane(datapath=tablecode)
         else:

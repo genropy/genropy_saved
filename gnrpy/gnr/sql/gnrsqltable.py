@@ -209,6 +209,15 @@ class SqlTable(GnrObject):
         
         :param name: TODO"""
         return self.model.fullRelationPath(name)
+
+    @property
+    def partitionParameters(self):
+        kw = dictExtract(self.attributes,'partition_')
+        result = dict()
+        result['field'] = kw.keys()[0]
+        result['path'] = kw[result['field']]
+        result['table'] = self.column(result['field']).relatedColumn().table.fullname
+        return result
         
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
