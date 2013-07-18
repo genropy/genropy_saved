@@ -276,6 +276,11 @@ class GnrWsgiSite(object):
         else:
             self.site_path = PathResolver().site_name_to_path(script_path)
         self.site_name = site_name or os.path.basename(self.site_path)
+        site_parent=(os.path.dirname(self.site_path))
+        if site_parent.endswith('sites'):
+            self.project_name = os.path.basename(os.path.dirname(site_parent))
+        else:
+            self.project_name = None
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
