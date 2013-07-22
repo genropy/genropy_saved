@@ -440,7 +440,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
@@ -536,10 +536,13 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
-                                                genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
+                                                if(%s){
+                                                    genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
                                                                                         relation_table:'%s',maintable:'%s'},null,null,'POST');
-                                                """ %(dragTable,fkey_name,relation_table,maintable)
+                                                }
+                                                
+                                                """ %('relationValue' if not dropOnRoot else 'true',dragTable,fkey_name,relation_table,maintable)
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
