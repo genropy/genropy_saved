@@ -540,6 +540,8 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
                                                                                         relation_table:'%s',maintable:'%s'},null,null,'POST');
+                                                }else{
+                                                    return false;
                                                 }
                                                 
                                                 """ %('relationValue' if not dropOnRoot else 'true',dragTable,fkey_name,relation_table,maintable)
