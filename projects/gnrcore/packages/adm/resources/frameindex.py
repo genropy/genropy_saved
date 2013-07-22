@@ -653,6 +653,7 @@ class FramedIndexLogin(BaseComponent):
         oldrec = Bag(recordBag)
 
         recordBag['email'] = email
+        recordBag['status'] = 'wait'
         usertbl.update(recordBag,oldrec)
         recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=userid,max_usages=1)
         recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
