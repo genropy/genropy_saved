@@ -23,7 +23,7 @@ class Table(object):
                    validate_notnull=True, validate_case='c', validate_notnull_error='!!Mandatory field')
         tbl.column('registration_date', 'D', name_long='!!Registration Date')
         tbl.column('auth_tags', name_long='!!Authorization Tags')
-        tbl.column('status', name_long='!!Status', size='4',
+        tbl.column('status', name_long='!!Status', size=':4',
                    values='!!new:New,wait:Waiting,conf:Confirmed,banned:Banned',_sendback=True)
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
