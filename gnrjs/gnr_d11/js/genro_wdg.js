@@ -813,7 +813,7 @@ dojo.declare("gnr.GridEditor", null, {
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
-        var gridstore = this.grid.collectionStore();
+        var gridstore = this.grid.collectionStore?this.grid.collectionStore():null;
         if(gridstore){
             return !gridstore.locked;
         }
