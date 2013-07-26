@@ -170,7 +170,7 @@ class TableHandlerView(BaseComponent):
         if dflt:
             pane.data('.current',dflt)
         pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
-                        mandatory=getattr(m,'mandatory',True), )
+                        mandatory=getattr(m,'mandatory',True))
 
         pane.dataController("""
             if(!currentSection){
@@ -187,8 +187,7 @@ class TableHandlerView(BaseComponent):
                 FIRE .#parent.#parent.runQueryDo;
             }
             """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
-            storeServerTime='=.#parent.#parent.store?servertime')#,
-            #_onBuilt=True)
+            storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
             #_init=True)
 
     @struct_method
