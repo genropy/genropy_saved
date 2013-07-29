@@ -2129,7 +2129,7 @@ class GnrGridStruct(GnrStructData):
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,template=None,template_name=None,table=None,**kwargs):
+                   zoom=False,template_name=None,table=None,**kwargs):
         tableobj = self.tblobj
         if table:
             tableobj = self.page.db.table(table)
@@ -2176,7 +2176,7 @@ class GnrGridStruct(GnrStructData):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
                 cellpars['zoom_page'] = zoomPage
             cellpars['zoom_table'] = zoomtbl.dbtable.fullname
-        return self.cell(field=_as or field,**cellpars)
+        return self.cell(field=_as or field, **cellpars)
 
     def fields(self, columns, unit='em', totalWidth=None):
         """TODO
