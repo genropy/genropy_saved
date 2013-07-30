@@ -342,6 +342,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
         var dflt = kw['dflt'];
         var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
+        var mandatory = objectPop(kw,'mandatory');
+
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
@@ -350,7 +352,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                     }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
-        bar._('button','confirm',{'label':'Confirm',command:'confirm'});
+        var confirmbtnKW = {'label':'Confirm',command:'confirm'};
+        if(mandatory){
+            confirmbtnKW.disabled = '^.promptvalue?=#v';
+        }
+        bar._('button','confirm',confirmbtnKW);
         var kwbox = {padding:'10px'};
         if(remote){
             kwbox['remote'] = remote;
