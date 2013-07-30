@@ -94,6 +94,19 @@ class TableHandlerView(BaseComponent):
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
 
+
+
+        frame.dataController("""if(!firedkw.res_type){return;}
+                            var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table,sourcepage_id:batch_sourcepage_id};
+                            objectUpdate(kw,firedkw);
+                            if(kw.template_id){
+                                kw.extra_parameters = new gnr.GnrBag({template_id:objectPop(kw,'template_id'),table:kw.table});
+                                kw.table = null;
+                            }
+                            th_view_batch_caller(kw);
+                            """,batch_selectionName=frameCode,batch_gridId='%s_grid' %frameCode,batch_table=table,
+                    batch_sourcepage_id=self.page_id,firedkw='^.th_batch_run',_if='firedkw')
+
         if preview_kwargs:
             frame.grid.attributes.update(preview_kwargs=preview_kwargs)
             frame.grid.tooltip(callback="""
@@ -261,20 +274,9 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
         table = inattr['table']
         pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
-                    action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            if($1.template_id){
-                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
-                                kw.table = null;
-                            }
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
-                    batch_sourcepage_id=self.page_id)
+                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=flags or options.get('print_flags'),
                         from_resource=from_resource or options.get('print_from_resource',True),cacheTime=5)
@@ -287,18 +289,8 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        th_root = inattr['th_root']
-        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            if($1.template_id){
-                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
-                                kw.table = null;
-                            }
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
-                    batch_sourcepage_id=self.page_id)
+        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',
+                        action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=flags or options.get('mail_flags'),
                         from_resource=from_resource or options.get('mail_from_resource',True),cacheTime=5)
@@ -337,14 +329,9 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceActions(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        th_root = inattr['th_root']
         pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
-                    batch_sourcepage_id=self.page_id,_class='smallmenu')
+                            FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
+                            """,_class='smallmenu')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
         
     @struct_method
