@@ -347,6 +347,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
+                                                        var v = genro.getData('gnr.promptDlg.promptvalue');
+                                                        if(mandatory && (v==null || v=='')){
+                                                            return;
+                                                        }
                                                         funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
                                                         genro.setData('gnr.promptDlg.promptvalue',null);
                                                     }
@@ -354,7 +358,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
         if(mandatory){
-            confirmbtnKW.disabled = '^.promptvalue?=!#v';
+            confirmbtnKW.disabled = '^.promptvalue?=(#v==null) || (#v=="")';
         }
         bar._('button','confirm',confirmbtnKW);
         var kwbox = {padding:'10px'};
