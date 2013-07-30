@@ -354,7 +354,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
         var confirmbtnKW = {'label':'Confirm',command:'confirm'};
         if(mandatory){
-            confirmbtnKW.disabled = '^.promptvalue?=#v';
+            confirmbtnKW.disabled = '^.promptvalue?=!#v';
         }
         bar._('button','confirm',confirmbtnKW);
         var kwbox = {padding:'10px'};
