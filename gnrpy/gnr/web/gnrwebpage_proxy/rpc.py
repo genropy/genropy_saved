@@ -10,6 +10,7 @@ from gnr.core.gnrbag import Bag,BagNode
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+from gnr.core.gnrlang import GnrException
 import os
 import base64
 import mimetypes
@@ -84,7 +85,8 @@ class GnrWebRpc(GnrBaseProxy):
         while node:
             node = src.getNodeByAttr('_notallowed',True)
             if node:
-                assert not self.page.isGuest,'you must be logged'
+                if self.page.isGuest:
+                    raise GnrException('!!User connection lost.')
                 node.parentbag.popNode(node.label)
 
 
