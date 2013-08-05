@@ -23,7 +23,7 @@ from gnr.core.gnrhtml import GnrHtmlBuilder
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('htmltemplate', pkey='id', name_long='!!Letterhead',
-                        name_plural='!!Letterheads', rowcaption='name')
+                        name_plural='!!Letterheads', rowcaption='name',noTestForMerge=True)
         self.sysFields(tbl)
         tbl.column('name', name_long='!!Name',validate_notnull=True)
         tbl.column('username', name_long='!!Username')
@@ -44,6 +44,8 @@ class Table(object):
             return self.record(pkey=letterhead_id).output('bag')['data']
         templatelist = name.split(',')
         f = self.query(where='$name IN :names', names=templatelist, columns='name,version,data').fetchAsDict(key='name')
+        if not f:
+            return
         templatebase = Bag(f[templatelist[0]]['data'])
         if len(templatelist) > 1:
             pass

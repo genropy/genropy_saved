@@ -43,6 +43,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.gridEditors = {};
         this.opStatus = null;
         this.locked = this.locked || false;
+        this.parentLock = this.parentLock ==null? 'auto':this.parentLock;
         this.current_field = null;
         this.controllerPath = controllerPath;
         if(!this.store){
@@ -59,7 +60,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,reload,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
+        this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -93,6 +94,23 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getParentForm:function(){
         return this.sourceNode.getParentNode().getFormHandler();
     },
+    canBeSaved:function(){
+        return !this.opStatus && this.record_changed && this.isValid();
+    },
+    doAutoSave:function(){
+        var that = this;
+        if(this.canBeSaved() && !this.isNewRecord()){
+             genro.callAfter(function(){
+                that.lazySave();
+             },this.autoSave,this.sourceNode,'autoSaveForm');
+        }
+    },
+
+    lazySave:function(){
+        if(this.canBeSaved()){
+            this.save({onSaved:'lazyReload'});
+        }
+    },
 
     onStartForm:function(kw){
         var kw = kw || {};
@@ -109,14 +127,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
             if(this.store.autoSave){
-                this.autoSave = this.store.autoSave===true?1000:this.store.autoSave;
-                this.sourceNode.watch('autoSave',
-                        function(){
-                                    if(that.record_changed && that.isValid() && !that.isNewRecord()){
-                                        that.save({onSaved:'lazyReload'});
-                                   };
-                                   return false;},
-                        function(){},that.autoSave);
+                this.autoSave = this.store.autoSave===true?2000:this.store.autoSave;
+                dojo.connect(this,'updateStatus',this.doAutoSave)
             }
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
             if(startKey){
@@ -127,7 +139,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(startKey){
                 var that = this;
                 this.sourceNode.watch('pageStarted',function(){return genro._pageStarted},function(){
-                    console.log('inizio form')
                     that.load({destPkey:startKey});
                 });
             }
@@ -148,12 +159,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var parentStore = this.store.parentStore;
             if(parentStore){
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
-                    that.setLocked(kw.locked);
+                    if(that.parentLock=='auto'){
+                        that.setLocked(kw.locked);
+                    }
+                    that.publish('onParentLockChange',kw);
                 },this.sourceNode);
                 this.locked = parentStore.locked;
             }else if (parentForm){
                 parentForm.subscribe('onLockChange',function(kw){
-                    that.setLocked(kw.locked);
+                    if(that.parentLock=='auto'){
+                        that.setLocked(kw.locked);
+                    }
                 },null,this.sourceNode);
                 this.locked = parentForm.locked;
             }
@@ -274,6 +290,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
+    goToRecord:function(pkey){
+        if(pkey!=this.getCurrentPkey()){
+            this.load({destPkey:pkey});
+        }
+    },
+
     load: function(kw) {
         if(this.opStatus=='loading'){
             return;
@@ -315,7 +337,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
-        if (this.changed && kw.destPkey &&(currentPkey=='*newrecord*' || (kw.destPkey != currentPkey))) {
+        if (!kw.discardChanges && this.changed && kw.destPkey &&(currentPkey=='*newrecord*' || (kw.destPkey != currentPkey))) {
             if(kw.modifiers=='Shift' || this.autoSave){
                 this.save(kw);
             }else{
@@ -363,15 +385,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             var that = this;
             if(command=='deleteItem'){
-                var r = this.store.deleteItem(kw.pkey,kw);
-                if(kw.onDeleted){
-                    var onDeleted = funcCreate(kw.onDeleted,'result',this);
-                    if(r instanceof dojo.Deferred){
-                        r.addCallback(onDeleted);
-                    }else{
-                        onDeleted(r);
-                    }
-                }
+                this.do_deleteItem(kw);
             }else{
                 if(kw.cancelCb){
                     kw.cancelCb();
@@ -381,6 +395,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     
+    do_deleteItem:function(kw){
+        kw = {}
+        kw.pkey = kw.pkey || this.getCurrentPkey();
+        var r = this.store.deleteItem(kw.pkey,kw);
+        if(kw.onDeleted){
+            var onDeleted = funcCreate(kw.onDeleted,'result',this);
+            if(r instanceof dojo.Deferred){
+                r.addCallback(onDeleted);
+            }else{
+                onDeleted(r);
+            }
+        }
+    },
     
     pendingChangesAnswer:function(kw){
         var command = objectPop(kw,'command');
@@ -515,11 +542,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     deleted:function(result,kw){
-        var destPkey = kw.destPkey || '*norecord*';
+        var destPkey = kw.destPkey || '*dismiss*';
         this.load({destPkey:destPkey});
         this.publish('message',{message:this.msg_deleted,sound:'$ondeleted'});
         this.publish('onDeleted');
     },
+
     loaded: function(data) {
         var controllerData = this.getControllerData();
         controllerData.setItem('temp',null);
@@ -797,6 +825,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             data.setItem('__mod_ts',convertFromText(result.savedAttr.lastTS),null,{doTrigger:false});
         }
         this.setOpStatus();
+        this.__last_save = new Date()
     },
 
     setKeptData:function(valuepath,value,set){
@@ -877,7 +906,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
         var protect_write = this.getDataNodeAttributes()._protect_write;
-        if (parentForm){
+        if (parentForm && this.parentLock=='auto'){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
         return protect_write || this.readOnly || false;

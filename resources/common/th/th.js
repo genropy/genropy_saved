@@ -189,6 +189,13 @@ dojo.declare("gnr.LinkerManager", null, {
         this.embedded = sourceNode.attr._embedded;
         this.dialog_kwargs = sourceNode.attr._dialog_kwargs;
         this.default_kwargs = sourceNode.attr._default_kwargs;
+        this.sourceNode.registerSubscription('changeInTable',this,function(kw){
+            if(kw.table==this.table){
+                if(this.sourceNode.getRelativeData(this.fieldpath)==kw.pkey){
+                    this.sourceNode.getRelativeData(this.resolverpath).getParentNode().getValue('reload');
+                }
+            }
+        });
     },
     
     openLinker:function(focus){
@@ -222,10 +229,9 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     setCurrentPkey:function(pkey){
         var currkey = this.sourceNode.getRelativeData(this.fieldpath);
-        this.sourceNode.getChild('selector').widget.setValue(pkey,true);
-        if(currkey==pkey){
-            this.sourceNode.getRelativeData(this.resolverpath).getParentNode().getValue('reload');
-        }
+        var dbselect = this.sourceNode.getChild('selector').widget;
+        genro.publish('changeInTable',{pkey:pkey,table:this.table})
+        dbselect.setValue(pkey,true);
     },    
     openrecord:function(pkey){
         if(this.form.locked){
@@ -410,6 +416,10 @@ dojo.declare("gnr.IframeFormManager", null, {
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }
         this.iframeForm.load({destPkey:pkey});
+        var g = genro;
+        this.iframeForm.subscribe('onSaved',function(){
+            g.ping();
+        });
         if(this.formStoreKwargs.parentStore){
             this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         }

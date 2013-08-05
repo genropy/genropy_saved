@@ -10,9 +10,12 @@ from gnr.core.gnrdecorator import extract_kwargs
 
 class FrameGridSlots(BaseComponent):
     @struct_method
-    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,**kwargs):
+    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,rawData=True,parameters=None,**kwargs):
         kwargs.setdefault('visible',enable)
+        parameters = parameters or dict()
+        mode = parameters.get('mode','xls')
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
+                                opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,**kwargs) 
        
     @struct_method
@@ -27,7 +30,7 @@ class FrameGridSlots(BaseComponent):
         kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """
                                                                           var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && n.attr._protect_delete});
                                                                             var currDisabled = GET .disabledButton;
-                                                                          this.widget.setDisabled(currDisabled || hasProtectRow);
+                                                                          this.widget.setAttribute('disabled',currDisabled || hasProtectRow);
                                                                           """
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,disabled=disabled,**kwargs)
     

@@ -49,6 +49,8 @@ class Table(object):
             record = self.record(id, mode='record', ignoreMissing=True)
         else:
             record = self.record(objtype=objtype, mode='record', ignoreMissing=True, **kwargs)
+        if not record:
+            return None,None
         data = record.pop('data')
         metadata = record.asDict(ascii=True)
         metadata['pkey'] = metadata['id']

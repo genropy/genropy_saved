@@ -96,12 +96,23 @@ class GnrSqlBusinessLogicException(GnrSqlException):
     """
     code = 'GNRSQL-021'
     description = '!!Genro SQL Business Logic Exception'
-    caption = '!!The requested operation violates the internal business logic'
+    caption = '!!The requested operation violates the internal business logic: %(msg)s'
+
+
+class GnrSqlStandardException(GnrSqlException):
+    """Standard Genro SQL Business Logic Exception
+    
+    * **code**: GNRSQL-021
+    * **description**: Genro SQL Business Logic Exception
+    """
+    code = 'GNRSQL-023'
+    description = '!!%(description)s'
+    caption = '!!%(msg)s'
 
 class GnrSqlNotExistingColumnException(GnrSqlException):
     """Standard Genro SQL Business Logic Exception
     
-    * **code**: GNRSQL-021
+    * **code**: GNRSQL-022
     * **description**: Genro SQL Business Logic Exception
     """
     code = 'GNRSQL-081'
@@ -115,6 +126,7 @@ EXCEPTIONS = {'save': GnrSqlSaveException,
               'protect_delete': GnrSqlProtectDeleteException,
               'protect_validate': GnrSqlProtectValidateException,
               'business_logic':GnrSqlBusinessLogicException,
+              'standard':GnrSqlStandardException,
               'not_existing_column':GnrSqlNotExistingColumnException}
               
 class SqlTable(GnrObject):
@@ -484,15 +496,16 @@ class SqlTable(GnrObject):
                 joinkey = joiner['one_relation'].split('.')[-1]
                 updater = dict()
                 updater[fkey] = destRecord[joinkey]
-                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey])
+                updatedpkeys = tblobj.batchUpdate(updater,where='$%s=:spkey' %fkey,spkey=sourceRecord[joinkey],_raw_update=True)
                 moved_relations.setItem('relations.%s' %tblname.replace('.','_'), ','.join(updatedpkeys),tblname=tblname,fkey=fkey)
         if self.model.column('__moved_related') is not None:
-            oldsource = dict(sourceRecord)
+            old_record = dict(sourceRecord)
             moved_relations.setItem('destPkey',destPkey)
+            moved_relations = moved_relations.toXml()
             sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
-            self.update(sourceRecord,oldsource)
+            self.raw_update(sourceRecord,old_record=old_record)
         else:
-            self.delete(sourcePkey)
+            self.raw_delete(sourcePkey)
             
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
@@ -642,7 +655,7 @@ class SqlTable(GnrObject):
             if not _raw_update:
                 self.update(new_row, row,pkey=record_pkey)
             else:
-                self.raw_update(new_row,pkey=record_pkey)
+                self.raw_update(new_row,old_record=row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -777,8 +790,11 @@ class SqlTable(GnrObject):
             self.delete(r)
             # if not self.trigger_onDeleting:
             #  sql delete where
+
+    def notifyDbUpdate(self,record):
+        self.db.notifyDbUpdate(self,record)
             
-    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None, **kwargs):
+    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False, **kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -791,6 +807,9 @@ class SqlTable(GnrObject):
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             sel = _wrapper(sel, **(_wrapperKwargs or dict()))
+        if _notifyOnly:
+            self.notifyDbUpdate(sel)
+            return
         for row in sel:
             row._notUserChange = True
             self.update(row, old_record=dict(row))
@@ -827,6 +846,7 @@ class SqlTable(GnrObject):
         :param mode: TODO
         :param nowait: boolean. TODO"""
         self.db.adapter.lockTable(self, mode, nowait)
+
         
     def insert(self, record, **kwargs):
         """Insert a single record
@@ -840,8 +860,8 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
-    def raw_update(self,record=None,pkey=None,**kwargs):
-        self.db.raw_update(self, record, pkey=pkey,**kwargs)
+    def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
+        self.db.raw_update(self, record, pkey=pkey,old_record=old_record,**kwargs)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
@@ -920,20 +940,20 @@ class SqlTable(GnrObject):
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
-        noTestForMerge = self.pkg.attributes.get('noTestForMerge')
+        noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
         if isNew:
             main_record = main_changeSet
         else:
-            old_record = self.record(pkey, for_update=True).output('bag', resolver_one=False, resolver_many=False)
+            old_record = self.record(pkey, for_update=True,bagFields=True).output('bag', resolver_one=False, resolver_many=False)
             main_record = old_record.deepcopy()
             if main_changeSet or toDelete:
                 lastTs = recordClusterAttr.get('lastTS')
                 changed_TS = lastTs and (lastTs != str(main_record[self.lastTS]))
                 if changed_TS and (self.noChangeMerge or toDelete):
                     raise self.exception("save", record=main_record,
-                                         msg="Another user modified the record.Operation aborted")
+                                         msg="Another user modified the record.Operation aborted changed_TS %s  lastTs %s " %(changed_TS,lastTs))
                 if toDelete:
                     self.delete(old_record)
                     return

@@ -53,7 +53,7 @@ class Form(BaseComponent):
 class FormFromClient(Form):
     py_requires='gnrcomponents/framegrid:BagGrid'
     def th_form(self,form):
-        tc = form.center.tabContainer()
+        tc = form.center.tabContainer(datapath='.record')
         self.main_instancetab(tc.borderContainer(title='Info'))
         for pkgname, handler in [(c.split('_')[1], getattr(self, c)) for c in dir(self) if
                                  c.startswith('hostedinstance_')]:
@@ -65,38 +65,20 @@ class FormFromClient(Form):
     def main_instancetab(self, bc):
         pane = bc.contentPane(region='top')
         pane.div('!!Manage instances', _class='pbl_roundedGroupLabel')
-        fb = pane.formbuilder(cols=1, border_spacing='6px')
-        fb.field('code', width='15em', lbl='!!Instance Name')
-        pane.dataRpc('.$creation_result', 'createInst', instance_code='=.code', instance_exists='=.$instance_exists',
-                     site_exists='=.$site_exists',
-                     _fired='^.$create', _onResult='FIRE .$created', _userChanges=True)
-        pane.dataController("""
-                if (site_path){
-                SET .site_path=site_path;
-                SET .$site_exists=true;
-                }
-                if (instance_path){
-                SET .path=instance_path;
-                SET .$instance_exists=true;
-                }
-                """, site_path='=.$creation_result.site_path',
-                            instance_path='=.$creation_result.instance_path',
-                            _fired='^.$created', _userChanges=True)
+        fb = pane.formbuilder(cols=2, border_spacing='6px')
+        fb.field('code', width='15em', lbl='!!Instance Name',validate_notnull=True,disabled='^#FORM.record.active')
+        fb.button('Activate',action='FIRE #FORM.activate_instance',hidden='^#FORM.record.id?=!#v',disabled='^#FORM.controller.changed')
+        fb.dataRpc('dummy',self.activateInstance,_fired='^#FORM.activate_instance',_onResult='this.form.reload();',instance_id='=#FORM.record.id',_lockScreen=True)
+        bc.contentPane(region='center',datapath='#FORM').inlineTableHandler(relation='@slots',viewResource='ViewFromInstance')
 
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('type', name='Slot type', width='15em',edit=dict(dbtable='hosting.slot_type',
-                            columns='$code,$description', rowcaption='$code',
-                            exclude=True, hasDownArrow=True))
-            r.cell('qty', name='Qty', width='4em', dtype='I',edit=True)
-            return struct
-
-        bc.contentPane(region='center').bagGrid(title='!!Slot configuration',
-                                  storepath='#FORM.record.slot_configuration', struct=struct,
-                                  datapath='#FORM.confGrid',
-                                autoWidth=True,
-                                  add_action=True, del_action=True)
-
+    @public_method
+    def activateInstance(self,instance_id=None):
+        instanctbl = self.db.table('hosting.instance')
+        record = instanctbl.record(pkey=instance_id,for_update=True).output('dict')
+        instanctbl.activate_instance(record)
+        oldrecord = dict(record)
+        record['active'] = True
+        instanctbl.update(record,oldrecord)
 
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):

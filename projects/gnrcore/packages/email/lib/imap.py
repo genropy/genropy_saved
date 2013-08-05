@@ -6,6 +6,7 @@ from email.generator import Generator as EmailGenerator
 from gnr.core.gnrlang import getUuid
 import chardet
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import slugify
 import StringIO
 detach_dir = '.'
 import os
@@ -74,8 +75,10 @@ class ImapReceiver(object):
         new_mail['subject'] = mail['Subject']
         if encoding:
             new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
-        datetuple = email.Utils.parsedate(mail['Date'].replace('.',':')) #some emails have '.' instead of ':' for time format
-        new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
+        date = mail['Date']
+        if date:
+            datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
+            new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
@@ -119,6 +122,7 @@ class ImapReceiver(object):
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
         fname = '%i_%s' %(self.atc_counter,fname)
+        fname = slugify(fname)
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename

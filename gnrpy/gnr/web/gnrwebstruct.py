@@ -42,7 +42,7 @@ def cellFromField(field,tableobj):
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
-    if hasattr(fldobj,'sql_formula') and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
@@ -783,7 +783,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','MultiButton','PaletteGroup','PagedHtml', 'PalettePane','PaletteMap','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
-             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
+             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
@@ -1505,7 +1505,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         fieldobj = tblobj.column(fld)
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
-        wdgattr = self.wdgAttributesFromColumn(fieldobj, **kwargs)     
+        wdgattr = self.wdgAttributesFromColumn(fieldobj, fld=fld,**kwargs)     
         if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld != tblobj.fullRelationPath(fld)):
             wdgattr.setdefault('readOnly', True)
             wdgattr['_virtual_column'] = fld
@@ -1519,7 +1519,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['value'] = '^.%s' % fld
         return wdgattr
         
-    def wdgAttributesFromColumn(self, fieldobj, **kwargs):
+    def wdgAttributesFromColumn(self, fieldobj,fld=None, **kwargs):
         """TODO
         
         :param fieldobj: TODO
@@ -1561,16 +1561,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     else:
                         zoomPage = lnktblobj.fullname.replace('.', '/')
                     result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
-                    result['lbl_pkey'] = '^.%s' % fieldobj.name
+                    result['lbl_pkey'] = '^.%s' %fld
                 else:
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
                         pass
                     else:
-                        result['lbl__zoomKw'] = dictExtract(kwargs,'zoom_') #,slice_prefix=False)
+                        zoomKw = dictExtract(kwargs,'zoom_')
+                        zoomKw.setdefault('formOnly',False)
+                        result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
                         result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
                         result['lbl__zoomKw_title'] = lnktblobj.name_plural or lnktblobj.name_long
-                        result['lbl__zoomKw_pkey'] = '=.%s' % fieldobj.name
+                        result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
                 result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
                 result['lbl_class'] = 'gnrzoomlabel'
@@ -2085,10 +2087,17 @@ class GnrGridStruct(GnrStructData):
                   , dtype='B', **kwargs)
                   
 
+    def templatecell(self,field,name=None,template=None,table=None,**kwargs):
+        table = table or self.tblobj.fullname
+        tpl = self.page.loadTemplate('%s:%s' %(table,template))
+        tplattr = tpl.getAttr('main')
+        return self.cell(field,name=name,calculated=True,template_columns=('%(columns)s,%(virtual_columns)s' %tplattr).strip(','),template=template)
+
+
     def fieldcell(self, field, 
                 _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None,
-                   zoom=False,table=None,**kwargs):
+                   zoom=False,template_name=None,table=None,**kwargs):
         tableobj = self.tblobj
         if table:
             tableobj = self.page.db.table(table)
@@ -2102,12 +2111,18 @@ class GnrGridStruct(GnrStructData):
             kwargs['relating_column'] = _as
             kwargs['related_column'] = tbl_caption_field
 
+
         if not tableobj:
             self.root._missing_table = True
             return
         fldobj = tableobj.column(field)
         cellpars = cellFromField(field,tableobj)
         cellpars.update(kwargs)
+        template_name = template_name or fldobj.attributes.get('template_name')
+        if template_name:
+            tpl = self.page.loadTemplate('%s:%s' %(tableobj.fullname,template_name))
+            tplattr = tpl.getAttr('main')
+            cellpars['template_columns'] = ('%(columns)s,%(virtual_columns)s' %tplattr).strip(',')
         loc = locals()
         for attr in ('name','width','dtype','classes','cellClasses','headerClasses'):
             cellpars[attr] = loc[attr] or cellpars.get(attr)
@@ -2129,7 +2144,7 @@ class GnrGridStruct(GnrStructData):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
                 cellpars['zoom_page'] = zoomPage
             cellpars['zoom_table'] = zoomtbl.dbtable.fullname
-        return self.cell(field=_as or field,**cellpars)
+        return self.cell(field=_as or field, **cellpars)
 
     def fields(self, columns, unit='em', totalWidth=None):
         """TODO

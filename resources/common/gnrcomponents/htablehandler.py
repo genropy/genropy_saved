@@ -758,7 +758,7 @@ class HTableHandler(HTableHandlerBase):
             connect_ondblclick = 'SET .selectedPage = "edit";'
         elif editMode == 'dlg':
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
-        tree = center.hTableTree(storepath='.tree.store',nodeId='%s_tree' %nodeId,table=table,onChecked=onChecked,
+        tree = center.hTableTreeLegacy(storepath='.tree.store',nodeId='%s_tree' %nodeId,table=table,onChecked=onChecked,
                                 connect_ondblclick=connect_ondblclick)
         treeattr = tree.attributes
         moverCode = 'mover_%s' %table.replace('.','_')
@@ -770,7 +770,7 @@ class HTableHandler(HTableHandlerBase):
             bar.picker.htableTypePicker(picker)
         
     @struct_method
-    def ht_hTableTree(self,pane,nodeId=None,storepath=None,table=None,dragCode=None,**kwargs):
+    def ht_hTableTreeLegacy(self,pane,nodeId=None,storepath=None,table=None,dragCode=None,**kwargs):
         tablecode = table.replace('.','_')
         nodeId = nodeId or '%s_tree' %tablecode
         dragCode = dragCode or '%s_record' %tablecode

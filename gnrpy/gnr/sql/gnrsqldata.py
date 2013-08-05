@@ -76,7 +76,8 @@ class SqlCompiledQuery(object):
         self.for_update = None
         self.explodingColumns = []
         self.aggregateDict = {}
-        
+        self.pyColumns = []
+ 
     def get_sqltext(self, db):
         """Compile the sql query string based on current query parameters and the specific db
         adapter for the current db in use.
@@ -208,6 +209,9 @@ class SqlQueryCompiler(object):
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
 
                 return sql_formula
+            elif fldalias.py_method:
+                self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                return 'NULL'
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
@@ -988,6 +992,7 @@ class SqlQuery(object):
         
     def _dofetch(self, pyWhere=None):
         """private: called by _get_selection"""
+
         if pyWhere:
             cursor, rowset = self.serverfetch(arraysize=100)
             index = cursor.index
@@ -1005,6 +1010,12 @@ class SqlQuery(object):
                 return index, data            
             data = cursor.fetchall() or []
             index = cursor.index
+        if self.compiled.pyColumns:
+            for field,handler in self.compiled.pyColumns:
+                if handler:
+                    for d in data:
+                        d[field] = handler(d,field=field)
+
         return index, data
         
     def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):

@@ -71,7 +71,12 @@ var dynamicFormHandler = {
             if(extractstr){
                 objectExtract(kw,extractstr);
             }
-            return funcApply('return '+expression,sourceNode.evaluateOnNode(kw),sourceNode);
+            var result = funcApply('return '+expression,sourceNode.evaluateOnNode(kw),sourceNode);
+            var result_type= sourceNode.attr.result_type;
+            if((result_type=='N' || result_type=='L' || result_type=='R') && isNaN(result)){
+                result = null;
+            }
+            return result;
         }catch(e){
             alert("Wrong formula:"+e.toString());
             return 'error';

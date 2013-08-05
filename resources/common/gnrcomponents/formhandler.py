@@ -126,12 +126,17 @@ class FormHandler(BaseComponent):
                                                     this.publish('editrow',{pkey:"*newrecord*"});
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
-                                    var topic = 'form_'+this.attr._linkedFormId+'_load';
-                                    var kw = {destPkey:$1.pkey};
-                                    if($1.default_kw){
-                                        kw.default_kw = $1.default_kw;
+                                    var pref = 'form_'+this.attr._linkedFormId;
+                                    if($1.pkey=='*newrecord*'){
+                                        var kw = {destPkey:$1.pkey};
+                                        if($1.default_kw){
+                                            kw.default_kw = $1.default_kw;
+                                        }
+                                        genro.publish(pref+'_load',kw);
+                                    }else{
+
+                                        genro.publish(pref+'_goToRecord',$1.pkey);
                                     }
-                                    genro.publish(topic,kw);
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridsubscribers['onExternalChanged']= """
@@ -171,6 +176,7 @@ class FormHandler(BaseComponent):
         else:
             formRoot = pane._makeFormRoot(formId,formRoot=pane,form_kwargs=kwargs)
         default_kwargs = default_kwargs or dict()
+        kwargs['subscribe_form_%s_goToRecord' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
         kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
         kwargs['_iframeAttr'] = dict(main_th_formResource=formResource,src=src,main=main,**main_kwargs)
@@ -286,7 +292,7 @@ class FormHandler(BaseComponent):
                         this.setRelativeData('#FORM.record.%s',value?new Date():null);  
                         this.form.save();
                     }
-                    """ %logicalDeletionField)
+                    """ %logicalDeletionField,parentForm=False)
         box.dataController("""SET #FORM.controller.do_logical_delete = logical_del_ts!=null;""",
                         logical_del_ts='^#FORM.record.%s' %logicalDeletionField)
 

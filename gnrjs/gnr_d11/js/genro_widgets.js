@@ -81,6 +81,11 @@ gnr.columnsFromStruct = function(struct, columns) {
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
         var fld = node.attr.field;
+        if(node.attr.template_columns){
+            node.attr.template_columns.split(',').forEach(function(n){
+                arrayPushNoDup(columns,(n[0]=='$' || n[0]=='@')?n:'$'+n);
+            });
+        }
         if (node.attr['calculated'] || (fld && fld.indexOf(':')>=0)) {
             continue;
         }
@@ -754,7 +759,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     connectChangeEvent:function(widget) {
         if ('onChange' in widget) {
             dojo.connect(widget, 'onChange', dojo.hitch(this, function(val) {
-                this.onChanged(widget, val);
+                if(!widget.disabled){
+                    this.onChanged(widget, val);
+                }
             }));
         }
     },
@@ -2031,7 +2038,8 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
 
     onClick:function(e) {
         var inattr = this.getInheritedAttributes();
-        var _delay = '_delay' in inattr? inattr._delay: 100;
+        //var _delay = '_delay' in inattr? inattr._delay: 100;
+        var _delay = inattr._delay;
         if(!_delay){
             return this.widget._onClickDo(e,inattr);
         }
@@ -3888,6 +3896,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.selection.select(sel);
         }
     },
+
+    patch_onCellDblClick:function(e){
+        if(dojo.isIE){
+            this.edit.setEditCell(this._click[1].cell, this._click[1].rowIndex);
+        }else if( /*patch_start*/ this._click[0] /*patch_end*/&& this._click[0].rowIndex != this._click[1].rowIndex){ 
+            this.edit.setEditCell(this._click[0].cell, this._click[0].rowIndex);
+        }else{
+            this.edit.setEditCell(e.cell, e.rowIndex);
+        }
+        this.onRowDblClick(e);
+
+    },
     
     mixin_setStorepath:function(val, kw) {
         if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
@@ -5334,7 +5354,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
         kwargs['struct'] = this.structbag();
-        
+        kwargs['_sourceNode'] = this.sourceNode;
         var cb = function(result){
             genro.download(result);
         };
@@ -5756,10 +5776,19 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         var store;
         savedAttrs['record'] = objectPop(storeAttrs, 'record');
         attributes.searchAttr = storeAttrs['caption'] || 'caption';
-        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr});
+        store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr,_parentSourceNode:sourceNode});
 
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
-        store._parentSourceNode = sourceNode;
+
+        sourceNode.registerSubscription('changeInTable',sourceNode,function(kw){
+            if(this.attr.dbtable==kw.table){
+                this.widget.clearCache(kw.pkey);
+            }
+        });
+
+
+
+        //store._parentSourceNode = sourceNode;
         resolverAttrs._sourceNode = sourceNode;
         //resolverAttrs.sync = true
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
@@ -5772,6 +5801,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         attributes.ignoreCase = (attributes.ignoreCase == false) ? false : true;
         //store._remote;
         attributes.store = store;
+
         return savedAttrs;
     },
     
@@ -5784,6 +5814,9 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     },
     mixin_setDbtable:function(value) {
         this.store.rootDataNode()._resolver.kwargs.dbtable = value;
+    },
+    mixin_clearCache:function(pkey){
+        this.store.clearCache(pkey);
     },
     mixin_setCondition:function(value,kw){
         var vpath = this.sourceNode.attr.value;
