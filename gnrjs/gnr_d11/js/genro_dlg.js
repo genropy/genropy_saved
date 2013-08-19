@@ -514,6 +514,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         zoomAttr['paletteCode']  = zoomAttr['pkey']+(zoomAttr['formResource'] || '');
         var mode = objectPop(zoomAttr,'mode') || 'palette';
+
         if(mode=='palette'){
             this.zoomPalette(zoomAttr);
         }else if(mode=='page' && genro.root_page_id){
@@ -521,7 +522,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
-            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
+            pageKw['readOnly'] = objectPop(zoomAttr,'readOnly');
+            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
     },
 
@@ -642,6 +644,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         if(kw.main_call){
             urlKw['main_call'] = kw.main_call;
+        }
+        if (kw.readOnly){
+            urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
         urlKw['th_from_package'] = genro.getData("gnr.package");
