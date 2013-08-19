@@ -522,7 +522,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
-            pageKw['readOnly'] = objectPop(zoomAttr,'readOnly');
             genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
     },

@@ -125,9 +125,6 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.unique){
             urlPars.ts = new Date().getMilliseconds()
         }
-        if (kw.readOnly){
-            urlPars['readOnly'] = kw.readOnly;
-        }
         if(table){
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
