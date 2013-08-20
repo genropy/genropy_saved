@@ -199,24 +199,27 @@ class TemplateEditor(TemplateEditorBase):
         r.cell('mask', name='Mask', width='20em')
 
     def _te_info_top(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
+        fb = pane.div(margin='5px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
                                                 tdl_width='5em',datapath='.data.metadata')
         fb.textbox(value='^.author',lbl='!!Author',tdf_width='12em')
         fb.numberTextBox(value='^.version',lbl='!!Version',width='4em')
-        fb.dateTextBox(value='^.date',lbl='!!Date')
+        fb.dateTextBox(value='^.date',lbl='!!Date',width='6em')
         fb.checkbox(value='^.is_print',label='!!Print')
         fb.checkbox(value='^.is_mail',label='!!Mail')
+        fb.checkbox(value='^.is_row',label='!!Row')
+        fb.numberTextBox(value='^.row_height',width='3em',hidden='^.is_row?=!#v',lbl_hidden='^.is_row?=!#v',lbl='Height')
         fb.dataController("""var result = [];
                              if(is_mail){result.push('is_mail');}
                              if(is_print){result.push('is_print');}
+                             if(is_row){result.push('is_row');}
                              if(flags){result.push(flags);}
                              SET #ANCHOR.userobject_meta.flags = result.join(',');""",
-                        is_mail="^.is_mail",is_print='^.is_print',flags='^.flags')
+                        is_mail="^.is_mail",is_print='^.is_print',is_row='^.is_row',flags='^.flags')
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
-                    lbl='!!Letterhead',hasDownArrow=True)
+                    lbl='!!Letterhead',hasDownArrow=True,colspan=3)
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
         if self.isDeveloper():
-            fb.textbox(value='^.flags',lbl='!!Flags',colspan=5)
+            fb.textbox(value='^#ANCHOR.userobject_meta.flags',lbl='!!Flags',colspan=7)
     
     @extract_kwargs(fieldsTree=dict(slice_prefix=False))
     def _te_info_vars(self,bc,table=None,datasourcepath=None,fieldsTree_kwargs=None,**kwargs):
