@@ -319,6 +319,8 @@ class BagToHtml(object):
                 nodes = lines.getNodes()
             elif hasattr(lines, 'next'):
                 nodes = list(lines)
+            else:
+                nodes = lines
             lastNode = nodes[-1] 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)

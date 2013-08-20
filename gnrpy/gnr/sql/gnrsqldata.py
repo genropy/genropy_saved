@@ -1688,11 +1688,11 @@ class SqlSelection(object):
             result.append(gnrstring.templateReplace(rowtemplate,dict(r),safeMode=True))
         return joiner.join(result)
 
-    def out_records(self, outsource):
+    def out_records(self, outsource,virtual_columns=None):
         """TODO
         
         :param outsource: TODO"""
-        return [self.dbtable.record(r[0][1], mode='bag') for r in outsource]
+        return [self.dbtable.record(r[0][1], mode='bag',virtual_columns=virtual_columns) for r in outsource]
         
     def iter_records(self, outsource):
         """TODO
