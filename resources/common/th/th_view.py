@@ -16,8 +16,7 @@ class TableHandlerView(BaseComponent):
                      th/th_picker:THPicker,
                      gnrcomponents/framegrid:FrameGrid,
                      gnrcomponents/tpleditor:PaletteTemplateEditor,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller
+                     gnrcomponents/batch_handler/batch_handler:TableScriptRunner
                      """
                          
     @extract_kwargs(condition=True)
@@ -97,15 +96,14 @@ class TableHandlerView(BaseComponent):
 
 
         frame.dataController("""if(!firedkw.res_type){return;}
-                            var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table,sourcepage_id:batch_sourcepage_id};
+                            var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
                             if(kw.template_id){
                                 kw.extra_parameters = new gnr.GnrBag({template_id:objectPop(kw,'template_id'),table:kw.table});
                                 kw.table = null;
                             }
                             th_view_batch_caller(kw);
-                            """,batch_selectionName=frameCode,batch_gridId='%s_grid' %frameCode,batch_table=table,
-                    batch_sourcepage_id=self.page_id,firedkw='^.th_batch_run',_if='firedkw')
+                            """,batch_selectionName=frameCode,batch_gridId='%s_grid' %frameCode,batch_table=table,firedkw='^.th_batch_run',_if='firedkw')
 
         if preview_kwargs:
             frame.grid.attributes.update(preview_kwargs=preview_kwargs)

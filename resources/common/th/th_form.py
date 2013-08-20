@@ -13,7 +13,7 @@ from gnr.core.gnrdict import dictExtract
 
 
 class TableHandlerForm(BaseComponent):
-    py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller"
+    py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptRunner"
 
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
@@ -227,6 +227,5 @@ class TableHandlerForm(BaseComponent):
                             kw['pkey'] = this.form.getCurrentPkey();
                             genro.publish("table_script_run",kw)
                             """,
-                    batch_table=table,batch_res_type='print',
-                    batch_sourcepage_id=self.page_id)
+                    batch_table=table,batch_res_type='print')
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
