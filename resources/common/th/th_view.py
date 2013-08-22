@@ -643,6 +643,9 @@ class THViewUtils(BaseComponent):
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
+        if self.pagename.startswith('thpage'):
+            #compatibility old saved views
+            userobjects.update(self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='thpage_%s' % gridId,table=table))
         if len(userobjects)>0:
             result.update(userobjects)
         result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,gridId=gridId)

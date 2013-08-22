@@ -123,7 +123,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.response.add_header('Pragma', 'no-cache')
         self._htmlHeaders = []
         self._pendingContext = []
-        self.pagename = os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
@@ -173,6 +172,10 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         pass
         
+    @property
+    def pagename(self):
+        return os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
+
     @property
     def call_args(self):
         """TODO"""
