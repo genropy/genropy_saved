@@ -57,9 +57,9 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
-                base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
@@ -146,7 +146,9 @@ class TableHandlerView(BaseComponent):
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
+        confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
+        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+
         gridId = '%s_grid' %th_root
         confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
                                         action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
@@ -252,10 +254,12 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         table = inattr['table']
         gridId = '%s_grid' %th_root
-        pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
-                    margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
-                    color='#555',datapath='.grid').menu(storepath='.structMenuBag',
-                _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+       #b = pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
+       #            margin='1px',overflow='hidden',text_align='left',cursor='pointer',display='inline-block',
+       #            color='#555',datapath='.grid')
+
+        b = pane.div(_class='iconbox list',datapath='.grid')
+        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
         pane.dataController("genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);",currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId,th_root=th_root)
@@ -267,8 +271,8 @@ class TableHandlerView(BaseComponent):
         pane.data('.grid.resource_structs',q)
         
 
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -635,10 +639,11 @@ class THViewUtils(BaseComponent):
         return menu
 
     @public_method
-    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,**kwargs):
+    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,currentView=None,**kwargs):
         result = Bag()
+        currentView = currentView or favoriteViewPath or '__baseview__'
         gridId = '%s_grid' %th_root
-        result.setItem('__baseview__', None,caption='Base View',gridId=gridId)
+        result.setItem('__baseview__', None,caption='Base View',gridId=gridId,checked = currentView=='__baseview__')
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
@@ -648,15 +653,19 @@ class THViewUtils(BaseComponent):
             userobjects.update(self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='thpage_%s' % gridId,table=table))
         if len(userobjects)>0:
             result.update(userobjects)
-        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,gridId=gridId)
+        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,currentView=currentView,gridId=gridId)
         return result
     
-    def _th_checkFavoriteLine(self,node,favPath=None,gridId=None):
+    def _th_checkFavoriteLine(self,node,favPath=None,currentView=None,gridId=None):
         if node.attr.get('code'):
             if gridId:
                 node.attr['gridId'] = gridId
-            if node.attr['code'] == favPath:
+            if node.attr['code'] == currentView:
+                print 'curr',node.attr['code']
+                node.attr['checked'] = True
+            elif node.attr['code'] == favPath:
                 node.attr['favorite'] = True
+            
         else:
             node.attr['favorite'] = None
         
