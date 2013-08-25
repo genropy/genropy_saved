@@ -657,7 +657,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(this.editorPars){
-            if (sourceNode.form && !sourceNode.attr.parentForm==false){
+            if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
             }
             sourceNode.subscribe('onNewDatastore',function(){
