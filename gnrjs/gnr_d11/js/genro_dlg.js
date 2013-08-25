@@ -507,7 +507,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var structbag = grid.structbag();
         var cellattr = structbag.getNode('view_0.rows_0.#'+cellIndex).attr;
         var zoomAttr = objectExtract(cellattr,'zoom_*',true);
-        zoomAttr['pkey'] = grid.currRenderedRow[zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier];
+        zoomAttr['pkey'] = grid.currRenderedRow[(zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier).replace(/\./g, '_').replace(/@/g, '_')];
         zoomAttr['main_call'] = 'main_form';
         zoomAttr['evt'] = evt;
         zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]

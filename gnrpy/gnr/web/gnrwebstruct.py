@@ -2168,7 +2168,7 @@ class GnrGridStruct(GnrStructData):
                     ridx = relfldlst.index('@%s' % zoom)
                 zoomtbl = tableobj.column('.'.join(relfldlst[0:ridx + 1])).parent
                 relfldlst[ridx] = relfldlst[ridx][1:]
-                cellpars['zoom_pkey'] = '.'.join(relfldlst[0:ridx + 1])
+                cellpars['zoom_pkey'] = cellpars.get('zoom_pkey') or '.'.join(relfldlst[0:ridx + 1])
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
                 cellpars['zoom_pkey'] = field
