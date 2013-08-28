@@ -157,6 +157,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
+        
+        self.onIniting(request_args, request_kwargs)
+        self._call_args = request_args or tuple()
+        self._call_kwargs = dict(request_kwargs)
         if not getattr(self,'skip_connection', False):
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
             self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
@@ -164,10 +168,6 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
-        self.onIniting(request_args, request_kwargs)
-        self._call_args = request_args or tuple()
-        self._call_kwargs = dict(request_kwargs)
-        
     def onPreIniting(self, *request_args, **request_kwargs):
         """TODO"""
         pass
