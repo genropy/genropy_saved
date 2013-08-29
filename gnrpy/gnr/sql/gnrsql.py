@@ -351,11 +351,9 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        #if 'adm.user' == dbtable:
-        #    print x
+       #if 'adm.userobject' == dbtable:
+       #    print 'sqlargs',sqlargs
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
-        if not 'env_workdate' in envargs:
-            envargs['env_workdate'] = self.workdate
         envargs.update(sqlargs or {})
         if storename is False:
             storename = self.rootstore

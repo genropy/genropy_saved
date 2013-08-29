@@ -248,12 +248,12 @@ class FrameIndex(BaseComponent):
                             },1);""",subscribe_selectIframePage=True)
 
         scattr = sc.attributes
-        scattr['subscribe_reloadFrame'] = """
-                                            if($1=='indexpage'){
+        scattr['subscribe_reloadFrame'] = """var currentPage = GET selectedFrame
+                                            if(currentPage=='indexpage'){
                                                 genro.pageReload();
                                                 return;
                                             }
-                                            genro.framedIndexManager.reloadSelectedIframe($1);
+                                            genro.framedIndexManager.reloadSelectedIframe(currentPage,$1);
                                             """
         scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"        
         scattr['subscribe_destroyFrames'] = """
@@ -310,7 +310,7 @@ class FrameIndex(BaseComponent):
 
     def btn_refresh(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
-                                                      connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
+                                                      connect_onclick="PUBLISH reloadFrame=genro.dom.getEventModifiers($1);")               
 
     def btn_delete(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',

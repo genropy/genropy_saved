@@ -1,3 +1,5 @@
+from gnr.core.gnrlang import  GnrException
+
 try:
     import cups
 
@@ -25,6 +27,10 @@ from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrdecorator import extract_kwargs
 import sys
 
+
+class PrintHandlerError(GnrException):
+    pass
+    
 class PrinterConnection(GnrBaseService):
     """TODO"""
     service_name='print'

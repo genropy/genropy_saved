@@ -429,6 +429,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         var childDataChanges = envelope.getItem('childDataChanges');
         if(childDataChanges){
+            console.log('childDataChanges',childDataChanges)
             childDataChanges.forEach(function(n){
                 var w = genro.getChildFramePage(n.label);
                 w.genro.rpc.setDatachangesInData(n._value);

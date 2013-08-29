@@ -242,7 +242,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
         };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
-                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;",
+                                        title:'Developer tools ['+genro._('gnr.pagename')+']',
                                         width:'500px'});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
@@ -287,9 +287,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var frame = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'framePane',frameCode:'devSqlDebug'});
         var top = frame._('slotBar',{side:'top',slots:'5,activator,5,clearConsole,*,stackButtons,5',toolbar:true});
         top._('checkbox','activator',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
-        top._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null)'});
+        top._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);'});
         var sc = frame._('stackContainer',{side:'center'});
-        genro.setData('gnr.debugger.main', new gnr.GnrBag());
+        if(!genro.getData('gnr.debugger.main')){
+            genro.setData('gnr.debugger.main', new gnr.GnrBag());
+        }
         this.sqlDebugPalette_gridView(sc);
         this.sqlDebugPalette_treeView(sc);
 
@@ -307,6 +309,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         rowstruct.setItem('cell_2', null, {field:'sql_count',name:'Sql count',width:'8em',dtype:'N'});
         rowstruct.setItem('cell_3', null, {field:'sql_total_time',name:'Sql time',width:'8em',dtype:'N'});
         rowstruct.setItem('cell_4', null, {field:'debug_info',name:'Debug info',width:'10em'});
+        rowstruct.setItem('cell_5', null, {field:'delta_time',name:'RPC-SQL',width:'8em',dtype:'N'});
+
 
         genro.setData('gnr.debugger.rpccall_grid.struct.view_0.row_0', rowstruct);
         var rpcgrid = top._('includedView',{nodeId:'sql_debugger_grid_rpccall',storepath:'gnr.debugger.main',
@@ -315,6 +319,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
         rpcgrid._('dataController',{script:'SET gnr.debugger.sqlquery_grid.store = sind!=-1?mainbag.getItem("#"+sind).deepCopy():null;',
                                     sind:'^gnr.debugger.rpccall_grid.currentRowIndex',mainbag:'=gnr.debugger.main',_if:'mainbag && mainbag.len()'})
+        rpcgrid._('dataController',{script:'SET gnr.debugger.sqlquery_grid.store = null;',mainbag:'^gnr.debugger.main',_delay:1})
+
         
         var center = bc._('framePane',{frameCode:'debugger_sqlgrid',region:'center',_class:'pbl_roundedGroup',margin:'2px'});
         center._('contentPane',{side:'top',_class:'pbl_roundedGroupLabel'})._('div',{'innerHTML':'Sql query grid'})

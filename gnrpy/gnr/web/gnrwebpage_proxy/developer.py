@@ -49,6 +49,8 @@ class GnrWebDeveloper(GnrBaseProxy):
             #attributes['_method_parameters'] = call_kwargs
             attributes['sql_count'] = len(self._debug_calls)
             attributes['sql_total_time'] = self._debug_calls.sum('#a._execution_time')
+            attributes['delta_time'] = attributes['rpc_time'] - attributes['sql_total_time']
+
             page.setInClientData(path, self._debug_calls,attributes=attributes)
 
     def onDroppedMover(self,file_path=None):
