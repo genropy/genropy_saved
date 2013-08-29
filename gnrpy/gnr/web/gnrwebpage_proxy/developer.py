@@ -8,6 +8,7 @@
 
 import os
 import datetime
+from time import time
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
@@ -24,21 +25,31 @@ class GnrWebDeveloper(GnrBaseProxy):
         if debugopt and debugtype in debugopt:
             getattr(self, 'output_%s' % debugtype)(page, **kwargs)
 
-    def output_sql(self, page, sql=None, sqlargs=None, dbtable=None, error=None):
+    def output_sql(self, page, sql=None, sqlargs=None, dbtable=None, error=None,delta_time=None):
         dbtable = dbtable or '-no table-'
         kwargs=dict(sqlargs)
         kwargs.update(sqlargs)
         value = sql
         if error:
             kwargs['sqlerror'] = str(error)
-        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,
+        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_dbtable=dbtable,
                                   **kwargs)
 
     def event_onCollectDatachanges(self):
         page = self.page
         if page.debugopt and self._debug_calls:
             path = 'gnr.debugger.main.c_%s' % self.page.callcounter
-            page.setInClientData(path, self._debug_calls)
+            attributes=dict(rpc_time=time()-page._start_time)
+            call_kwargs = dict(page._call_kwargs)
+            attributes['methodname'] = call_kwargs.pop('method') 
+            call_kwargs.pop('_lastUserEventTs',None)
+            if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
+                call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
+            attributes['debug_info'] = call_kwargs.pop('_debug_info',None)
+            #attributes['_method_parameters'] = call_kwargs
+            attributes['sql_count'] = len(self._debug_calls)
+            attributes['sql_total_time'] = self._debug_calls.sum('#a._execution_time')
+            page.setInClientData(path, self._debug_calls,attributes=attributes)
 
     def onDroppedMover(self,file_path=None):
         import tarfile

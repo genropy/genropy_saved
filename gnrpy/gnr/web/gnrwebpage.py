@@ -24,6 +24,7 @@
 #Copyright (c) 2007 Softwell. All rights reserved.
 
 import urllib
+from time import time
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
@@ -98,6 +99,7 @@ class GnrWebPage(GnrBaseWebPage):
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
+        self._start_time = time()
         self.site = site
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None

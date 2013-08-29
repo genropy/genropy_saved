@@ -30,6 +30,7 @@ gnrlogger = logging.getLogger(__name__)
 import cPickle
 import os
 import shutil
+from time import time
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrlang import importModule, GnrException
@@ -350,6 +351,8 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
+        #if 'adm.user' == dbtable:
+        #    print x
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
@@ -373,6 +376,7 @@ class GnrSqlDb(GnrObject):
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
             try:
+                t_0 = time()
                 if not cursor:
                     if cursorname:
                         if cursorname == '*':
@@ -386,7 +390,7 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable)
+                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
