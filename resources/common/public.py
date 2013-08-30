@@ -528,9 +528,7 @@ class TableHandlerMain(BaseComponent):
                     title = formtitle;
                 }else{
                     title = viewtitle;
-
                     totalrows = hardQueryLimitOver?'<span style="color:#FF3519;">'+totalrows+'</span>' :totalrows;
-                    console.log(hardQueryLimitOver,totalrows)
                     if(totalRowCount!==null){
                         title = title +' ('+totalrows+'/'+totalRowCount+')';                    
                     }

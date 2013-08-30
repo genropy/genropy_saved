@@ -49,6 +49,7 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
 dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
+        //this.patchConsole();
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
@@ -69,6 +70,17 @@ dojo.declare('gnr.GenroClient', null, {
         this.formatter = gnrformatter;
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
+
+    patchConsole:function(){
+        console.zlog = console.log;
+        console.log = function(){
+            if(!arguments[0]){
+                genro.bp(true)
+            }
+            console.zlog(arguments);
+        };
+    },
+
     genroInit:function() {
         this.startTime = new Date();
         this.lastTime = this.startTime;

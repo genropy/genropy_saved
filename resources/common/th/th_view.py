@@ -85,7 +85,8 @@ class TableHandlerView(BaseComponent):
                                struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});" if loadingHider else None,
+                               grid_loadingHider=loadingHider,
+                               grid_selfsubscribe_loadingData="this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -192,11 +193,12 @@ class TableHandlerView(BaseComponent):
             }            
             var sectionNode = sectionbag.getNode(currentSection);
             FIRE .#parent.#parent.clearStore;
+            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
             if(variable_struct){
                 SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
-            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
-            if(storeServerTime!=null){
+            var loadingData = GET .#parent.#parent.grid.loadingData;
+            if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
             """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),

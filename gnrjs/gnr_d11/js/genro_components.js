@@ -2454,6 +2454,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          objectPop(skw,'nodeId')
          objectPop(skw,'_onCalling');
          objectPop(skw,'_onResult');
+         objectPop(skw,'columns');
 
          var selectionStarter = sourceNode._('dataController',skw).getParentNode();
          objectPop(kw,'_onStart');
@@ -2562,11 +2563,20 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+    onChangedView:function(){
+        var oldColumns = this.storeNode._currentColumns || '';
+        gnr.getGridColumns(this.storeNode);
+        var newColumns = this.storeNode._currentColumns || '';
+        if(isEqual(oldColumns.split(',').sort(),newColumns.split(',').sort())){
+            return;
+        }
+        if(this.len(true)>0){
+            this.loadData();
+            //console.log('onChangedView for real');
+        }
+        
+    },
 
-   // loadData:function(){
-   //     genro.callAfter(this._loadDataDo,50,this,'_loadDataDo');
-   // },
-    
     loadData:function(){
         var that = this;
         this.loadingData = true;

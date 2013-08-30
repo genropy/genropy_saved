@@ -4385,6 +4385,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.setEditableColumns();
         }
         this.setChangeManager();
+        if(this.sourceNode._useStore){
+            var store = this.collectionStore();
+            if(store){
+                store.onChangedView();
+            }
+        }
     },
 
     mixin_absIndex: function(idx,reverse) {
