@@ -3632,6 +3632,29 @@ div[disabled='true']{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
 }
+.debug_params{
+    background:#EFEFEF;
+}
+
+.debug_params .formattedBagTable{
+    margin: 2px;
+}
+
+.debug_params .formattedBagTable td{
+    padding-top:1px;
+    padding-bottom:1px;
+    padding-left:3px;
+    padding-right:3px;
+    border: 1px solid #666;
+    background: white;
+}
+
+.debug_params .formattedBagTable td:first-child{
+    background: #666;
+    color:white;
+    border: 1px solid white;
+}
+
 .formattedBagTable tr td{
     padding-left:2px;
     padding-right:2px;

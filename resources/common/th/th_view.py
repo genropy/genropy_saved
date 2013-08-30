@@ -273,8 +273,8 @@ class TableHandlerView(BaseComponent):
         pane.data('.grid.resource_structs',q)
         
 
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30,)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()

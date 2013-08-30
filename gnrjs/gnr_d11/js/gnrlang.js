@@ -70,7 +70,32 @@ function bagAsObj(bag) {
         result[n.label] = n.getValue();
     });
     return result;
-}
+};
+
+function objectAsGrid(obj,labels){
+    var labels = labels || 'label,value';
+    labels = labels.split(',');
+    var result = new gnr.GnrBag();
+    if(!obj){
+        return result;
+    }
+    var i=0;
+    var v;
+    for(var k in obj){
+        v = new gnr.GnrBag();
+        v.setItem(labels[0],k);
+        v.setItem(labels[1],obj[k]);
+        result.setItem('r_'+i,v);
+        i++;
+    }
+    result.sort('#k');
+    return result;
+};
+function objectAsHTMLTable(obj,labels){
+    var labels = labels || 'label,value';
+    var b = objectAsGrid(obj);
+    return b.asHtmlTable({cells:labels});
+};
 
 function arrayContains(arr, item) {
     for (var i = 0; i < arr.length; i++) {

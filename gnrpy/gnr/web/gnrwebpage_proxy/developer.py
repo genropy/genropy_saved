@@ -29,7 +29,9 @@ class GnrWebDeveloper(GnrBaseProxy):
         dbtable = dbtable or '-no table-'
         kwargs=dict(sqlargs)
         kwargs.update(sqlargs)
-        value = sql
+        if sqlargs and sql:
+            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
+            value = sql %(formatted_sqlargs)
         if error:
             kwargs['sqlerror'] = str(error)
         self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_dbtable=dbtable,
@@ -41,7 +43,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             path = 'gnr.debugger.main.c_%s' % self.page.callcounter
             attributes=dict(rpc_time=time()-page._start_time)
             call_kwargs = dict(page._call_kwargs)
-            attributes['methodname'] = call_kwargs.pop('method') 
+            attributes['methodname'] = call_kwargs.pop('method')
             call_kwargs.pop('_lastUserEventTs',None)
             if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
                 call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
@@ -50,6 +52,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             attributes['sql_count'] = len(self._debug_calls)
             attributes['sql_total_time'] = self._debug_calls.sum('#a._execution_time')
             attributes['delta_time'] = attributes['rpc_time'] - attributes['sql_total_time']
+            attributes['r_count'] = self.page.callcounter
 
             page.setInClientData(path, self._debug_calls,attributes=attributes)
 
