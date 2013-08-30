@@ -2563,11 +2563,11 @@ dojo.declare("gnr.stores._Collection",null,{
         return result;
     },
 
-    loadData:function(){
-        genro.callAfter(this._loadDataDo,50,this,'_loadDataDo');
-    },
+   // loadData:function(){
+   //     genro.callAfter(this._loadDataDo,50,this,'_loadDataDo');
+   // },
     
-    _loadDataDo:function(){
+    loadData:function(){
         var that = this;
         this.loadingData = true;
         this.gridBroadcast(function(grid){
