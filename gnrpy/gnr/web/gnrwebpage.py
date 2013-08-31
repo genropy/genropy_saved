@@ -1458,8 +1458,9 @@ class GnrWebPage(GnrBaseWebPage):
             else:
                 with self.clientPage(page_id=page_id) as clientPage:
                     clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
-                    
-    def rpc_sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
+          
+    @public_method          
+    def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
         """TODO
         
         :param message: TODO

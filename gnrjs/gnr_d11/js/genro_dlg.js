@@ -229,17 +229,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_alert');
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
         var title = msgattr['title'] || 'Message from ' + msgattr['from_user'];
-        var dlg = node._('dialog', {nodeId:'_dlg_alert', title:'', toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'})._('div');
-        var tbl = dlg._('table', {});
-        tbl = tbl._('tbody', {});
-        var r = tbl._('tr');
-        r._('td', {content:'From'});
-        r._('td', {})._('div', {innerHTML:msgattr['from_user']});
-        r = tbl._('tr');
-        r._('td', {content:'Message'});
-        r._('td', {})._('div', {innerHTML:msgtext});
-        node.unfreeze();
-        genro.wdgById('_dlg_alert').show();
+        genro.dlg.alert(msgtext,title)
     },
 
     ask: function(title, msg, buttons, resultPathOrActions,kw) {
