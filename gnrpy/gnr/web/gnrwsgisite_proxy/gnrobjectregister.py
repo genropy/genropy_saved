@@ -293,6 +293,8 @@ class SiteRegister(object):
 
     @lock_page
     def new_page(self, page_id, page, data=None):
+        #if page.pagename=='headless':
+        #    print x
         page_item = self.p_register.create(page_id, page, data)
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
