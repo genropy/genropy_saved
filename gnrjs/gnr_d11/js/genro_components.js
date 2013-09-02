@@ -2882,6 +2882,9 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             });
         }
     },
+    onChangedView:function(){
+        return;
+    },
 
     getRowByIdx:function(idx){
         return ;
