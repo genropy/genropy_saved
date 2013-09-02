@@ -210,6 +210,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
         var sourceNode = callKwargs['_sourceNode'];
+        var sysrpc = objectPop(callKwargs,'sysrpc');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
@@ -237,7 +238,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         kw.handleAs = kw.handleAs || 'xml';
         this.register_call(kw);
         var xhrResult;
-        genro.lastRpc = new Date();
+        if(!sysrpc){
+            genro.lastRpc = new Date();
+        }
         if (genro.debugRpc) {
             this.debugRpc(kw);
         }

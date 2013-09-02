@@ -31,7 +31,9 @@ class MaintenancePlugin(BaseComponent):
         bar.exclude_guest.checkbox(value='^.exclude_guest',label='!!Exclude guest')
         center.data('.connectedUsers.exclude_guest',True)
         center.dataRpc('dummy',self.maintenance_update_data,_tab='^left.selected',exclude_guest='=.connectedUsers.exclude_guest',
-            _if='_tab=="maintenance"',_onResult='SET gnr.maintenance.data.user = result.popNode("users");SET gnr.maintenance.data.pages = result.popNode("pages")',_timing=2)
+            _if='_tab=="maintenance"',
+            _onResult='SET gnr.maintenance.data.user = result.popNode("users");SET gnr.maintenance.data.pages = result.popNode("pages")',_timing=2,
+            sysrpc=True)
         pagesframe = center.contentPane(title='Pages').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
                         storepath='gnr.maintenance.data.pages',addrow=False,delrow=False,datapath='.currentPages',
                         title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
