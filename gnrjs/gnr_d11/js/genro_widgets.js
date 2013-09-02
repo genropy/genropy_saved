@@ -4056,7 +4056,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     
     mixin_setStorepath:function(val, kw) {
         if(kw.reason=='initStore'){
-            console.log('initing store')
+            return;
         }
         else if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
             if (kw.evt == 'fired') {
