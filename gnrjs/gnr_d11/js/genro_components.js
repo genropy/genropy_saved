@@ -2509,6 +2509,9 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows';
         storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
         return store;
+     },
+     onChangedView:function(){
+        return;
      }
 });
 
