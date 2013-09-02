@@ -2571,36 +2571,11 @@ dojo.declare("gnr.stores._Collection",null,{
         return result;
     },
     onChangedView:function(){
-        var oldColumns = this.storeNode._currentColumns || '';
-        gnr.getGridColumns(this.storeNode);
-        var newColumns = this.storeNode._currentColumns || '';
-        if(isEqual(oldColumns.split(',').sort(),newColumns.split(',').sort())){
-            return;
-        }
-        if(this.len(true)>0){
-            this.loadData();
-            //console.log('onChangedView for real');
-        }
-        
+        return;
     },
-
     loadData:function(){
-        var that = this;
-        this.loadingData = true;
-        this.gridBroadcast(function(grid){
-            grid.sourceNode.publish('loadingData',{loading:true});
-        });
-        var cb = function(result){
-            that.onLoaded(result);
-            that.resetFilter();
-            that.loadingData = false;
-            that.gridBroadcast(function(grid){
-                grid.sourceNode.publish('loadingData',{loading:false});
-            });
-        };
-        return this.runQuery(cb);
+        return;
     },
-
 
     onStartEditItem:function(form){
         this._editingForm = form;
@@ -2885,9 +2860,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             });
         }
     },
-    onChangedView:function(){
-        return;
-    },
+
 
     getRowByIdx:function(idx){
         return ;
@@ -3053,6 +3026,37 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         }
     },
 
+    loadData:function(){
+        var that = this;
+        this.loadingData = true;
+        this.gridBroadcast(function(grid){
+            grid.sourceNode.publish('loadingData',{loading:true});
+        });
+        var cb = function(result){
+            that.onLoaded(result);
+            that.resetFilter();
+            that.loadingData = false;
+            that.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+            });
+        };
+        return this.runQuery(cb);
+    },
+
+
+    onChangedView:function(){
+        var oldColumns = this.storeNode._currentColumns || '';
+        gnr.getGridColumns(this.storeNode);
+        var newColumns = this.storeNode._currentColumns || '';
+        if(isEqual(oldColumns.split(',').sort(),newColumns.split(',').sort())){
+            return;
+        }
+        if(this.len(true)>0){
+            this.loadData();
+            //console.log('onChangedView for real');
+        }
+        
+    },
     currentPkeys:function(caption_field){
         var data = this.getData();
         var result = [];
