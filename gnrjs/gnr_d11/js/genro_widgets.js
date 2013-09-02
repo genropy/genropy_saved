@@ -4030,7 +4030,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             storebag.sort(sortedBy);
         }
         this.sourceNode.publish('onNewDatastore');
-        this.updateRowCount();
+        this.updateRowCount('*');
         this.restoreSelectedRows();
     },
     mixin_restoreSelectedRows:function(){
@@ -4055,7 +4055,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     
     mixin_setStorepath:function(val, kw) {
-        if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
+        if(kw.reason=='initStore'){
+            console.log('initing store')
+        }
+        else if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
             if (kw.evt == 'fired') {
                 var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
                 var storenode = genro._data.getNode(storepath);
@@ -4340,6 +4343,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
             this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
+            //this.prevFilterValue = this.currentFilterValue;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
         } else if (flag == 'load') {
@@ -4351,6 +4355,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
                     this.prevFirstVisibleRow = null; 
                 }
             }
+           //if(this.prevFilterValue){
+           //    this.applyFilter(this.prevFilterValue);
+           //    this.prevFilterValue = null;
+           //}
         }
     },
 

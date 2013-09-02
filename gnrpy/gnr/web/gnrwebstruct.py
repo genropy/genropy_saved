@@ -972,6 +972,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
+        #self.data(storepath,Bag())
         return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
 
     def onDbChanges(self, action=None, table=None, **kwargs):

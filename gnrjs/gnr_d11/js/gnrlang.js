@@ -1035,6 +1035,25 @@ var gnrformatter = {
             }
             return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
         }
+        if(format=='DHMS'){
+            var r = []
+            var curr = value;
+            r.push(curr%60+'s');
+            curr = Math.floor(curr/60);
+            if(curr){
+                r.push(curr%60+'m');
+                curr = Math.floor(curr/60);
+                if(curr){
+                    r.push(curr%24+'h');
+                    curr = Math.floor(curr/24);
+                    if(curr){
+                        r.push(curr+'d');
+                    }
+                }
+            }
+            r.reverse();
+            return r.join(' ')
+        }
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){

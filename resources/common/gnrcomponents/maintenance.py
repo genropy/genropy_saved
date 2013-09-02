@@ -13,6 +13,12 @@ class MaintenancePlugin(BaseComponent):
         """!!Maintenance"""
         frame = pane.framePane(datapath='gnr.maintenance')
         bc = frame.center.borderContainer()
+
+        bc.css('.disconnected .dojoxGrid-cell', "color:red !important;")
+        bc.css('.inactive .dojoxGrid-cell', "color:orange !important;")
+        bc.css('.no_children .dojoxGrid-cell', "color:yellow !important;")
+
+
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
         top.div('!!Backups',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(cols=1,border_spacing='3px')
@@ -25,39 +31,65 @@ class MaintenancePlugin(BaseComponent):
 
         center = bc.tabContainer(region='center')
         userframe = center.frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
-                        storepath='gnr.maintenance.data.user',addrow=False,delrow=False,datapath='.connectedUsers',
+                        addrow=False,delrow=False,datapath='.connectedUsers',
                         title='Users',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        #center.data('gnr.maintenance.data',Bag())
+        userframe.grid.bagStore(storepath='gnr.maintenance.data.user',storeType='AttributesBagRows',
+                                data='^gnr.maintenance.data.loaded_users',selfUpdate=True)
         bar = userframe.top.slotBar('2,exclude_guest,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
         bar.exclude_guest.checkbox(value='^.exclude_guest',label='!!Exclude guest')
         center.data('.connectedUsers.exclude_guest',True)
         center.dataRpc('dummy',self.maintenance_update_data,_tab='^left.selected',exclude_guest='=.connectedUsers.exclude_guest',
             _if='_tab=="maintenance"',
-            _onResult='SET gnr.maintenance.data.user = result.popNode("users");SET gnr.maintenance.data.pages = result.popNode("pages")',_timing=2,
+            _onResult="""SET gnr.maintenance.data.loaded_users = result.popNode("users");
+                         SET gnr.maintenance.data.loaded_connections = result.popNode("connections");
+                         SET gnr.maintenance.data.loaded_pages = result.popNode("pages");""",_timing=5,
             sysrpc=True)
         pagesframe = center.contentPane(title='Pages').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
-                        storepath='gnr.maintenance.data.pages',addrow=False,delrow=False,datapath='.currentPages',
+                        datapath='.currentPages',
                         title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
-
+        pagesframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
+                                data='^gnr.maintenance.data.loaded_pages',selfUpdate=True)
         bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
+
+        connectionframe = center.contentPane(title='Connections').frameGrid(frameCode='currentConnections',struct=self._connection_grid_struct,
+                        datapath='.currentConnections',
+                        title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        connectionframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
+                                data='^gnr.maintenance.data.loaded_connections',selfUpdate=True)
+        bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()
         #r.cell('register_item_id', width='14em', name='Page id')
         r.cell('user', width='6em', name='User')
         r.cell('user_ip', width='6em', name='User ip')
-        r.cell('start_ts', width='11em', name='Start', dtype='DH')
+        #r.cell('start_ts', width='11em', name='Start', dtype='DH')
         r.cell('pagename', width='8em', name='Pagename')
-        r.cell('age', width='4em', dtype='L', name='Age')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
-        r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
+        r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
+        #r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
+        r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
+
+
+    def _connection_grid_struct(self, struct):
+        r = struct.view().rows()
+        #r.cell('register_item_id', width='14em', name='Connection id')
+        r.cell('user', width='6em', name='User')
+        r.cell('user_ip', width='8em', name='IP')
+        r.cell('browser_name', width='10em', name='Browser')
+        r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
+        #r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+        r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
     def connected_users_struct(self,struct):
         r = struct.view().rows()
         r.cell('user', width='6em', name='User')
-        r.cell('start_ts', width='11em', dtype='DH', name='Started')
-        r.cell('age', width='4em', dtype='L', name='Age')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
-        r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
+        r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
+       # r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
+        r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
     def btn_maintenance(self,pane,**kwargs):
         if 'admin' in self.userTags:
@@ -72,7 +104,9 @@ class MaintenancePlugin(BaseComponent):
                 continue
             _customClasses = []
             item['_pkey'] = key
+            item['alive'] = True
             if item['last_rpc_age'] > 60:
+                item['alive'] = False
                 _customClasses.append('disconnected')
             elif item['last_event_age'] > 60:
                 _customClasses.append('inactive')

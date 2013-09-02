@@ -2499,6 +2499,10 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
      createContent:function(sourceNode, kw,children) {
+        if(kw.data){
+            kw.selfUpdate = kw.selfUpdate || false;
+            kw.script = "this.store.loadData(data,selfUpdate);";
+        }
         var store = sourceNode._('dataController',kw);
         var storeNode = store.getParentNode();
         var identifier = objectPop(kw,'_identifier') || '_pkey';
@@ -2521,7 +2525,7 @@ dojo.declare("gnr.stores._Collection",null,{
     constructor:function(node,kw){
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
-        this.storeNode.setRelativeData(this.storepath,null);
+        this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
         this.locked = null;
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):false;
         for (var k in kw){
@@ -2862,6 +2866,23 @@ dojo.declare("gnr.stores._Collection",null,{
 });
 
 dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
+    loadData:function(data,selfUpdate){
+        if(selfUpdate){
+            dojo.forEach(this.linkedGrids(),function(grid){
+                grid.selectionKeeper('save');
+                grid._batchUpdating = true;
+            });
+        }
+        data = data?data.deepCopy(): new gnr.GnrBag();
+        this.storeNode.setRelativeData(this.storepath,data);
+        if(selfUpdate){
+            dojo.forEach(this.linkedGrids(),function(grid){
+                grid.applyFilter(true);
+                grid.restoreSelectedRows();
+            });
+        }
+    },
+
     getRowByIdx:function(idx){
         return ;
     },

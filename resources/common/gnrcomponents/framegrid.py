@@ -84,7 +84,8 @@ class FrameGrid(BaseComponent):
 
     @extract_kwargs(default=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,**kwargs):
+    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
+                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:
