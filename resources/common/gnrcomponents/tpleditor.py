@@ -463,13 +463,7 @@ class PaletteTemplateEditor(TemplateEditor):
     @public_method
     def te_menuTemplates(self,table=None):
         result = Bag()
-        #from_resources = None #todo
         from_userobject = self.db.table('adm.userobject').userObjectMenu(table,'template') #todo
-        from_doctemplate = Bag()
-        f = self.db.table('adm.doctemplate').query(where='$maintable=:t',t=table).fetch()
-        for r in f:
-            from_doctemplate.setItem(r['pkey'],None,caption=r['name'],tplmode='doctemplate',pkey=r['pkey'])
-        result.update(from_doctemplate)
         for n in from_userobject:
             result.setItem(n.label,None,tplmode='userobject',**n.attr)
         result.setItem('__newtpl__',None,caption='!!New Template')
@@ -478,19 +472,11 @@ class PaletteTemplateEditor(TemplateEditor):
     @public_method
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):
         record = None
-        if tplmode=='doctemplate':
-            tblobj = self.db.table('adm.doctemplate')
-            record = tblobj.record(for_update=True,pkey=pkey).output('dict')
-            record['varsbag'] = data['varsbag']
-            record['content'] = data['content']
-            tblobj.update(record)
-            self.db.commit()
-        elif tplmode == 'userobject':
-            if data['metadata.email']:
-                data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
-            data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-            pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
-            record.pop('data')
+        if data['metadata.email']:
+            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
+        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
+        pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
+        record.pop('data')
         return record
         
 class ChunkEditor(PaletteTemplateEditor):
