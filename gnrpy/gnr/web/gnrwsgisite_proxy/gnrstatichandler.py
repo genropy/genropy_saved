@@ -149,8 +149,7 @@ class VolumesStaticHandler(StaticHandler):
             self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
 
     def url(self, volume, *args, **kwargs):
-        vpath = self.volumes.get(volume,volume)
-        return '%s_vol/%s/%s' % (self.home_uri, vpath, '/'.join(args))
+        return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
 
     def path(self, volume, *args, **kwargs):
         vpath = self.volumes.get(volume,volume)
