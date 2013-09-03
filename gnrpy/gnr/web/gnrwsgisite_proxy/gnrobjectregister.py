@@ -297,18 +297,48 @@ class SiteRegister(object):
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
         self.c_register.update_lastused(page_item['connection_id'],datetime.now())
+        return page_item
+
+    def cleanup(self):
+        lastSiteCleanup = getattr(self.site,'_lastCleanUp',None)
+        print 'lastSiteCleanup',lastSiteCleanup,self.site.cleanup_interval
+        if not lastSiteCleanup:
+            self.site._lastCleanUp = time.time()
+            return 
+        if time.time()-lastSiteCleanup<self.site.cleanup_interval:
+            return
         with self.sd.locked(self.cleanup_key):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
-            if lastCleanupTs and (thisCleanupTs - lastCleanupTs > self.site.cleanup_interval):
-                max_age = int(self.site.config['connection_timeout'] or 7200)
-                self.cleanup(cascade=True, max_age=max_age, onlyGuest=False)
-                self.cleanup(cascade=True, max_age=360, onlyGuest=True)  # FIXME!!
-                self.sd.set(self.cleanup_key, thisCleanupTs, 0)
             if not lastCleanupTs:
                 self.sd.set(self.cleanup_key, thisCleanupTs, 0)
+                return
+            if (thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval:
+                for page_id, page in self.pages().items():
+                    page_last_rpc_age = page.get('last_rpc_age')
+                    if (page_last_rpc_age and (page_last_rpc_age > self.site.page_max_age)):
+                        self.drop_page(page_id)
+                for connection_id, connection in self.connections().items():
+                    connection_last_rpc_age = connection.get('last_rpc_age')
+                    if (connection_last_rpc_age and connection_last_rpc_age > self.site.connection_max_age):
+                        self.drop_connection(connection_id)
+                for user, user_item in self.users().items():
+                    user_last_rpc_age = user_item.get('last_rpc_age')
+                    if (user_last_rpc_age and user_last_rpc_age > self.site.user_max_age):
+                        self.drop_user(user)
+                self.sd.set(self.cleanup_key, thisCleanupTs, 0)
+                self.site._lastCleanUp = thisCleanupTs
 
-        return page_item
+    def cleanup_page_connection(self, max_age=300):
+        for page_id, page in self.pages().items():
+            page_last_rpc_age = page.get('last_rpc_age')
+            if (page_last_rpc_age and (page_last_rpc_age > max_age)):
+                self.drop_page(page_id)
+        for connection_id, connection in self.connections().items():
+            connection_last_rpc_age = connection.get('last_rpc_age')
+            if (connection_last_rpc_age and connection_last_rpc_age > max_age):
+                self.drop_connection(connection_id)
+
 
     def get_user(self, user):
         return self.u_register.read(user)
@@ -346,6 +376,10 @@ class SiteRegister(object):
         if not page_item:
             return
         self.pop_pages_from_connection(page_item['connection_id'], page_item, delete_if_empty=cascade)
+
+    @lock_user
+    def drop_user(self,user):
+        self.u_register.pop(user)
 
     def connectionStore(self, connection_id, triggered=False):
         return self.c_register.make_store(connection_id, triggered=triggered)
@@ -390,22 +424,7 @@ class SiteRegister(object):
     def tree(self):
         return PagesTreeResolver()
 
-    def cleanup(self, max_age=300, cascade=False, onlyGuest=False):
-        for page_id, page in self.pages().items():
-            page_last_rpc_age = page.get('last_rpc_age')
-            guest_page = (page.get('user') or '').startswith('guest_')
-            #if (page_last_rpc_age and page_last_rpc_age > max_age) and ((guest_page or not onlyGuest):
-            
-            if (page_last_rpc_age and page_last_rpc_age > max_age) and ((guest_page and onlyGuest) or not onlyGuest):
-                self.drop_page(page_id, cascade=cascade)
-        for connection_id, connection in self.connections().items():
-            connection_last_rpc_age = connection.get('last_rpc_age')
-            guest_connection = onlyGuest and (connection.get('user') or '').startswith('guest_')
-            if (connection_last_rpc_age and connection_last_rpc_age > max_age) and ((guest_connection and onlyGuest) or not onlyGuest):
-                self.drop_connection(connection_id, cascade=cascade)
-
-
-    def cleanup_(self, max_age=30, cascade=False):
+    def full_cleanup(self, max_age=30, cascade=False):
         with self.u_register as user_register:
             with self.c_register as connection_register:
                 with self.p_register as page_register:

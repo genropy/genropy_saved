@@ -287,14 +287,9 @@ class GnrWsgiSite(object):
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
             
-        if _config:
-            self.config = _config
-        else:
-            self.config = self.load_site_config()
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
-        self.cleanup_interval = self.config['cleanup_interval'] or 300
-        self.page_max_age = self.config['page_max_age'] or 600
-        self.user_max_age = self.config['user_max_age'] or 1200
+
+        self.config = self.load_site_config()
+        self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
@@ -325,7 +320,6 @@ class GnrWsgiSite(object):
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
-
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
@@ -342,6 +336,13 @@ class GnrWsgiSite(object):
             self.gnrapp.importFromSourceInstance(options.source_instance)
             self.db.commit()
             print 'End of import'
+
+        cleanup = self.custom_config.getAttr('cleanup') or dict()
+        self.cleanup_interval = int(cleanup.get('interval') or 120)
+        self.page_max_age = int(cleanup.get('page_max_age') or 120)
+        self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+        self.user_max_age = int(cleanup.get('user_max_age') or 1800)
+
 
 
     #def addSiteServices(self):
@@ -536,7 +537,26 @@ class GnrWsgiSite(object):
         else:
             site_config = Bag(site_config_path)
         return site_config
-        
+
+    @property
+    def custom_config(self):
+        if not getattr(self,'_custom_config',None):
+            custom_config = Bag(self.config)
+            preferenceConfig = self.getPreference(path='site_config',pkg='sys')
+            if preferenceConfig is not None:
+                for pathlist,node in preferenceConfig.getIndex():
+                    v = node.value
+                    attr = node.attr
+                    currnode = custom_config.getNode(pathlist,autocreate=True)
+                    for k,v in attr.items():
+                        if v not in ('',None):
+                            currnode.attr[k] = v
+                    if v and not isinstance(v,Bag):
+                        currnode.value = v
+            self._custom_config = custom_config
+        return self._custom_config
+
+
     def _get_sitemap(self):
         return self.resource_loader.sitemap
         
@@ -609,6 +629,7 @@ class GnrWsgiSite(object):
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
         path_list = self.get_path_list(request.path_info)
+        self.register.cleanup()
         if path_list == ['favicon.ico']:
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
@@ -1163,7 +1184,6 @@ class GnrWsgiSite(object):
         #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
-
         page_item = self.register.refresh(page_id, _lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)

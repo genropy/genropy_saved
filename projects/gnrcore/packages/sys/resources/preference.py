@@ -50,6 +50,16 @@ class AppPref(object):
         dev = tc.contentPane(title='Developer')
         dev.button('Flush memcached',action='genro.serverCall("_resetMemcached");',_tags='admin')
 
+        self.site_config_override(tc.contentPane(title='!!Site config',datapath='.site_config'))
+
+    def site_config_override(self,pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.numberTextBox(value='^.cleanup?interval',lbl='Cleanup interval',placeholder=self.site.config['cleanup?interval'])
+        fb.numberTextBox(value='^.cleanup?page_max_age',lbl='Page max age',placeholder=self.site.config['cleanup?page_max_age'])
+        fb.numberTextBox(value='^.cleanup?connection_max_age',lbl='Connection max age',placeholder=self.site.config['cleanup?connection_max_age'])
+        fb.numberTextBox(value='^.cleanup?user_max_age',lbl='User max age',placeholder=self.site.config['cleanup?user_max_age'])
+
+
     @public_method
     def _resetMemcached(self):
         self.site.shared_data.flush_all()
