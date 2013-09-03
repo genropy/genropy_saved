@@ -57,7 +57,6 @@ class AppPref(object):
         fb.numberTextBox(value='^.cleanup?interval',lbl='Cleanup interval',placeholder=self.site.config['cleanup?interval'])
         fb.numberTextBox(value='^.cleanup?page_max_age',lbl='Page max age',placeholder=self.site.config['cleanup?page_max_age'])
         fb.numberTextBox(value='^.cleanup?connection_max_age',lbl='Connection max age',placeholder=self.site.config['cleanup?connection_max_age'])
-        fb.numberTextBox(value='^.cleanup?user_max_age',lbl='User max age',placeholder=self.site.config['cleanup?user_max_age'])
 
 
     @public_method

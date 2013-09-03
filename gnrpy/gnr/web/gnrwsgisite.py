@@ -341,8 +341,6 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
-        self.user_max_age = int(cleanup.get('user_max_age') or 1800)
-
 
 
     #def addSiteServices(self):

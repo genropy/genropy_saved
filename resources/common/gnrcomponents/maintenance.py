@@ -55,7 +55,6 @@ class MaintenancePlugin(BaseComponent):
                                 data='^gnr.maintenance.data.loaded_users',selfUpdate=True)
         bar = userframe.top.slotBar('2,exclude_guest,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
         bar.exclude_guest.checkbox(value='^.exclude_guest',label='!!Exclude guest')
-        frame.data('.connectedUsers.exclude_guest',True)
         frame.dataRpc('dummy',self.maintenance_update_data,_tab='^left.selected',exclude_guest='=.connectedUsers.exclude_guest',
             _if='_tab=="maintenance"',
             _onResult="""SET gnr.maintenance.data.loaded_users = result.popNode("users");
@@ -115,7 +114,7 @@ class MaintenancePlugin(BaseComponent):
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
     def btn_maintenance(self,pane,**kwargs):
-        if 'superadmin' in self.userTags:
+        if 'superadmin' in self.userTags or '_DEV_' in self.userTags:
             pane.div(_class='button_block iframetab').div(_class='gear',tip='!!Maintenance',
                         connect_onclick="""SET left.selected='maintenance';genro.getFrameNode('standard_index').publish('showLeft');""",
                         nodeId='plugin_block_maintenance')
