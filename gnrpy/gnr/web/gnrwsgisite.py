@@ -543,7 +543,7 @@ class GnrWsgiSite(object):
         if not getattr(self,'_custom_config',None):
             custom_config = Bag(self.config)
             preferenceConfig = self.getPreference(path='site_config',pkg='sys')
-            if preferenceConfig is not None:
+            if preferenceConfig is not None and preferenceConfig is not '':
                 for pathlist,node in preferenceConfig.getIndex():
                     v = node.value
                     attr = node.attr
