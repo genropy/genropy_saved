@@ -83,7 +83,7 @@ class MaintenancePlugin(BaseComponent):
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()
-        #r.cell('register_item_id', width='14em', name='Page id')
+        r.cell('register_item_id', width='14em', name='Page id')
         r.cell('user', width='6em', name='User')
         r.cell('user_ip', width='6em', name='User ip')
         #r.cell('start_ts', width='11em', name='Start', dtype='DH')

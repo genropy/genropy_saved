@@ -227,41 +227,41 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg);
     },
-    childUserEvent:function(childgenro){
-        genro._lastUserEventTs = new Date();
-        genro.onUserEvent();
-    },
-    
-    _registerUserEvents:function() {
-        var cb;
-        genro._lastUserEventTs = new Date();
-        if(this.root_page_id){
-            var rootgenro = this.mainGenroWindow.genro;
-            that = this;
-            cb = function(){
-                rootgenro.childUserEvent(that);
-            }
-        }else{
-            cb = genro.onUserEvent;
-        }
-        var commoncb = function(){
-            if(genro.userInfoCb.length>0){
-                dojo.forEach(genro.userInfoCb,function(cb){cb()});
-                genro.userInfoCb = [];
-            }
-            cb();
-        }
-        dojo.connect(window, 'onmousemove', commoncb);
-        dojo.connect(window, 'onkeypress', commoncb);
-    },
 
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
 
+    childUserEvent:function(childgenro){
+        genro._lastUserEventTs = new Date();
+        genro.onUserEvent();
+    },
+
+    _registerUserEvents:function(){
+        var cb = function(){
+            genro._lastUserEventTs = new Date();
+            if(genro.root_page_id){
+                genro.mainGenroWindow.genro.childUserEvent();
+            }else{
+                genro.onUserEvent();
+            }
+            genro.execUserInfoCb();
+        };
+        dojo.connect(window, 'onclick', cb);
+        dojo.connect(window, 'onmousemove', cb);
+        dojo.connect(window, 'onkeypress', cb);
+    },
+    
+    execUserInfoCb:function(){
+        if(genro.userInfoCb.length>0){
+            var userInfoCb = genro.userInfoCb;
+            genro.userInfoCb = [];
+            dojo.forEach(userInfoCb,function(cb){cb()});
+        }
+    },
+
     onUserEvent:function() {
         if (genro.user_polling > 0) {
-            genro._lastUserEventTs = new Date();
             if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':'user'});
             }
@@ -509,7 +509,7 @@ dojo.declare('gnr.GenroClient', null, {
         var result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
-                _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
+                var _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
                 r[f.genro.page_id] = objectUpdate({_lastUserEventTs:_lastUserEventTs},f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
                 f.genro.getChildrenInfo(r);

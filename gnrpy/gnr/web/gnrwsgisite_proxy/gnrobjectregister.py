@@ -293,8 +293,6 @@ class SiteRegister(object):
 
     @lock_page
     def new_page(self, page_id, page, data=None):
-        #if page.pagename=='headless':
-        #    print x
         page_item = self.p_register.create(page_id, page, data)
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
@@ -620,7 +618,7 @@ class PageRegister(BaseRegister):
             subscribed_tables = subscribed_tables.split(',')
         register_item = dict(
                 register_item_id=register_item_id,
-                pagename=page.basename,
+                pagename=page.pagename,
                 connection_id=page.connection_id,
                 start_ts=start_ts,
                 _new=True,
