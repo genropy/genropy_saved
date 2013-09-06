@@ -829,6 +829,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
+        kwargs['servertime'] = datetime.datetime.now()
         favicon = self.site.config['favicon?name']
         if favicon:
             arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)

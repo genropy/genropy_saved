@@ -213,7 +213,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var sysrpc = objectPop(callKwargs,'sysrpc');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
-        callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
+        callKwargs._lastUserEventTs = genro.getServerLastTs();
         callKwargs._pageProfilers = genro.getTimeProfilers();
        //if(genro.root_page_id){
        //    callKwargs._root_page_id = genro.root_page_id;

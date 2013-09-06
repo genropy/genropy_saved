@@ -57,6 +57,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.debugopt = kwargs.startArgs.debugopt || null;
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
+        this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
+        this.serverTimeDelta = this.serverTime - new Date();
         this.lockingElements = {};
         this.debugRpc = false;
         this.polling_enabled = false;
@@ -518,6 +520,9 @@ dojo.declare('gnr.GenroClient', null, {
     getValueFromFrame: function(object_name, attribute_name, dtype){
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
+    getServerLastTs:function(){
+        return genro._lastUserEventTs?asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH'):new Date();
+    },
 
     getTimeProfilers:function(){
         return dojo.toJson(this.timeProfilers);
@@ -527,9 +532,7 @@ dojo.declare('gnr.GenroClient', null, {
         var result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
-                var _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
-                var kw = {_lastUserEventTs:_lastUserEventTs};
-                kw._pageProfilers = f.genro.getTimeProfilers();
+                var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers()};
                 r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
                 f.genro.getChildrenInfo(r);

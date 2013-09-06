@@ -103,12 +103,12 @@ class MaintenancePlugin(BaseComponent):
                         sqlt[idx] = Math.floor(p['sqlt']*1000);
                         i++;
                 });
-                //result.setItem('nc',null,nc);
-                //result.setItem('st',null,st);
-                //result.setItem('sqlc',null,sqlc);
-                //result.setItem('sqlt',null,sqlt);
+                result.setItem('nc',null,nc);
+                result.setItem('st',null,st);
+                result.setItem('sqlc',null,sqlc);
+                result.setItem('sqlt',null,sqlt);
             }
-            //SET gnr.maintenance.data.current_page_profile = result;
+            SET gnr.maintenance.data.current_page_profile = result;
             """,current_page_id='^.grid.selectedId',data='^gnr.maintenance.data.pages',_if='current_page_id')
 
         profileframe = profilepane.frameGrid(frameCode='currentProfile',struct=self._profile_grid_struct,
