@@ -1191,7 +1191,6 @@ class GnrWsgiSite(object):
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
         _pageProfilers = kwargs.get('_pageProfilers')
-        print '_pageProfilers',_pageProfilers
         page_item = self.register.refresh(page_id, _lastUserEventTs,pageProfilers=_pageProfilers)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
@@ -1201,7 +1200,6 @@ class GnrWsgiSite(object):
             for k,v in _children_pages_info.items():
                 child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 child_pageProfilers = v.pop('_pageProfilers', None)
-                print 'child_pageProfilers',child_pageProfilers
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
                 if child_lastUserEventTs:
                     child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)

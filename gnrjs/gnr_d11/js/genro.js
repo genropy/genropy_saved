@@ -70,7 +70,10 @@ dojo.declare('gnr.GenroClient', null, {
         this.formatter = gnrformatter;
         this.timeProfilers = [];
         this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
-
+        for (var i = 0; i < 20; i++) {
+            this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
+        };
+        
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
 

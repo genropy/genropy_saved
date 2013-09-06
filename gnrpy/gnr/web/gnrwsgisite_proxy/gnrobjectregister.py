@@ -465,7 +465,6 @@ class BaseRegister(object):
         last_used = self.sd.get(last_used_key)
         if last_used:
             ts = max(last_used[1], ts) if ts else last_used[1]
-        print 'pageProfilers,update_lastused',pageProfilers
         self.sd.set(last_used_key, (datetime.now(), ts,pageProfilers), 0)
         
     def read(self, register_item_id):

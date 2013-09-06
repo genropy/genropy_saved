@@ -39,12 +39,12 @@ class MaintenancePlugin(BaseComponent):
         messageframe = bc.framePane(region='bottom',height='150px',_class='pbl_roundedGroup',margin='2px')
         messageframe.top.slotBar('2,vtitle,*',vtitle='!!Message',_class='pbl_roundedGroupLabel')
         footer = messageframe.bottom.slotBar('2,flush,*,userMessage,2',_class='slotbar_dialog_footer')
-        messageframe.center.simpleTextArea(value='^maintenance.userframe.message')
+        messageframe.center.simpleTextArea(value='^gnr.maintenance.userframe.message')
         footer.userMessage.button('Service message',action='FIRE gnr.maintenance.logout_message')
         footer.dataRpc('dummy',self.sendMessageToClient,_fired='^gnr.maintenance.logout_message',
                         message='==_message || _def_message',
                         _def_message='!!The system is going to be restarted. Finish your pending tasks',
-                        _message='=maintenance.userframe.message',
+                        _message='=gnr.maintenance.userframe.message',
                         pageId='*',filters='*')
         footer.flush.button('Flush memcached',action='FIRE .resetMemcached')
         footer.dataRpc('dummy',self._maintenance_resetMemcached,_fired='^.resetMemcached',_ask='!!You are going to stop every user activity')
@@ -53,6 +53,7 @@ class MaintenancePlugin(BaseComponent):
         userframe = bc.contentPane(region='center').frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
                                                                         grid_userSets='.sets',
                                                                             datapath='.connectedUsers',margin='2px',_class='pbl_roundedGroup')
+        userframe.grid.data('.sorted','username:a')
         userframe.grid.bagStore(storepath='gnr.maintenance.data.user',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_users',selfUpdate=True)
@@ -65,21 +66,71 @@ class MaintenancePlugin(BaseComponent):
                          SET gnr.maintenance.data.loaded_pages = result.popNode("pages");""",_timing=5,
             sysrpc=True)
 
-        pagesframe = sc.contentPane(title='Pages').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
+        pagebc = sc.borderContainer(title='Pages')
+        profilepane = pagebc.contentPane(region='bottom',height='200px')
+        pagesframe = pagebc.contentPane(region='center').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
                         datapath='.currentPages',
                         title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        pagesframe.grid.data('.sorted','age:d')
         pagesframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_pages',selfUpdate=True)
         bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
 
+        #pagesframe.dataController("""
+        #    var result = new gnr.GnrBag();
+#
+#
+        #    if(current_page_id && data && data.len()){
+        #        var n = data.getNodeByAttr('_pkey',current_page_id);
+        #        var r = n.attr;
+        #        var profile = dojo.fromJson(r['profile']);
+        #        var rowlist = ['nc','st','sqlc','sqlt'];
+        #        var i,idx;
+        #        if(!profile){
+        #            return;
+        #        }
+        #        i = 0;
+        #        var nc = {rheader:'nc'};
+        #        var st = {rheader:'st'};
+        #        var sqlc = {rheader:'sqlc'};
+        #        var sqlt = {rheader:'sqlt'};
+        #        profile.forEach(function(p){
+        #                idx='v_'+i;
+        #                nc[idx] = p['nc']
+        #                st[idx] = Math.floor(p['st']*1000);
+        #                sqlc[idx] = p['sqlc']
+        #                sqlt[idx] = Math.floor(p['sqlt']*1000);
+        #                i++;
+        #        });
+        #        //result.setItem('nc',null,nc);
+        #        //result.setItem('st',null,st);
+        #        //result.setItem('sqlc',null,sqlc);
+        #        //result.setItem('sqlt',null,sqlt);
+        #    }
+        #    //SET gnr.maintenance.data.current_page_profile = result;
+        #    """,current_page_id='^.grid.selectedId',data='^gnr.maintenance.data.pages',_if='current_page_id')
+
+        profileframe = profilepane.frameGrid(frameCode='currentProfile',struct=self._profile_grid_struct,
+                        datapath='.currentProfile',
+                        pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        profileframe.grid.bagStore(storepath='gnr.maintenance.data.profile',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
+                                data='^gnr.maintenance.data.current_page_profile',selfUpdate=True)
+
+        profileframe.top.slotBar('2,vtitle,*',vtitle='!!Rpc details',_class='pbl_roundedGroupLabel')
+
+
         connectionframe = sc.contentPane(title='Connections').frameGrid(frameCode='currentConnections',struct=self._connection_grid_struct,
                         datapath='.currentConnections',
                         title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        connectionframe.grid.data('.sorted','age:d')
         connectionframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_connections',selfUpdate=True)
         bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
+
+
 
     @public_method
     def _maintenance_resetMemcached(self):
@@ -87,7 +138,7 @@ class MaintenancePlugin(BaseComponent):
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()
-        r.cell('register_item_id', width='14em', name='Page id')
+        r.cell('register_item_id', width='14em', name='Page id',hidden=True)
         r.cell('user', width='6em', name='User')
         r.cell('user_ip', width='6em', name='User ip')
         #r.cell('start_ts', width='11em', name='Start', dtype='DH')
@@ -96,10 +147,16 @@ class MaintenancePlugin(BaseComponent):
         #r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         
-        r.cell('page_profile',width='8em',name='Page profile')
+        r.cell('page_profile',width='9em',name='Page profile')
         
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
+
+    def _profile_grid_struct(self, struct):
+        r = struct.view().rows()
+        r.cell('rheader',width='6em',name=' ')
+        for i in range(20):
+            r.cell('v_%i' %i,width='4em',name='T %i' %i)
 
     def _connection_grid_struct(self, struct):
         r = struct.view().rows()
@@ -145,7 +202,7 @@ class MaintenancePlugin(BaseComponent):
             item.pop('datachanges', None)
             if child_name is None:
                 self.maintenance_cellServerProfile(item)
-            result.setItem(key, None, _customClasses=' '.join(_customClasses),username=key, **item)
+            result.setItem(key, None, _customClasses=' '.join(_customClasses), **item)
         return result
 
 
@@ -156,16 +213,18 @@ class MaintenancePlugin(BaseComponent):
         result = []
         for n in profiles:
             st = n['st']
-            if st<=1:
+            if st==0:
+                color = 'gray'
+            elif st<=2:
                 color = 'green'
-            elif st<2:
+            elif st<4:
                 color = 'yellow'
-            elif st<5:
+            elif st<6:
                 color = 'orange'
             else:
                 color = 'red'
             c = dict(height=1+n['nc']/4,color=color)
-            result.append('<div style="background:%(color)s;height:%(height)ipx; width:3px; display:inline-block;"></div>' %c)
+            result.append('<div style="background:%(color)s;height:%(height)ipx; width:3px; display:inline-block;margin-right:1px;"></div>' %c)
         item['page_profile'] = '<div>%s</div>'  %''.join(result)
 
 

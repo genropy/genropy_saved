@@ -2853,9 +2853,13 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         }
         data = data?data.deepCopy(): new gnr.GnrBag();
         this.storeNode.setRelativeData(this.storepath,data);
+        if(this.sortedBy){
+            this.sort();
+        }
         if(selfUpdate){
             dojo.forEach(this.linkedGrids(),function(grid){
                 grid.applyFilter(true);
+                grid._batchUpdating = false;
                 grid.restoreSelectedRows();
             });
         }

@@ -1196,6 +1196,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         genro.setData('touch.event.' + path, b);
     },
     scrollableTable:function(domnode, gridbag, kw) {
+        var max_height = kw.max_height || '180px';
         var columns = kw.columns;
         var headers = kw.headers;
         var tblclass = kw.tblclass;
@@ -1205,7 +1206,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         thead = thead + "<th style='width:11px; background-color:transparent;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
-        var item,r, value,_customClasses;
+        var item,r, value,v,_customClasses;
         var tbl = ["<tbody>"];
         for (var i = 0; i < nodes.length; i++) {
             r = "";
@@ -1221,7 +1222,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
-                value = item[columns[k]] || '&nbsp';
+                v =  item[columns[k]];
+                value = v==null?'&nbsp':v;
                 r = r + "<td>" + _F(value)+"</td>";
             }
             tbl.push("<tr id='" + nodes[i].label + "' "+_customClasses+">" + r + "</tr>");
@@ -1232,7 +1234,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
             var cgr_h = cgr ? '<colgroup>' + cgr + '<col width=11 /></colgroup>' : '';
             var cgr_b = cgr ? '<colgroup>' + cgr + '</colgroup>' : '';
-            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div style="overflow-y:auto;overflow-x:hidden;max-height:180px;"><table>' + cgr_b + tbody + '</table></div></div>';
+            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div style="overflow-y:auto;overflow-x:hidden;max-height:'+max_height+';"><table>' + cgr_b + tbody + '</table></div></div>';
         };
         domnode.innerHTML = cbf('');
         var cb = function() {
