@@ -77,39 +77,39 @@ class MaintenancePlugin(BaseComponent):
                                 data='^gnr.maintenance.data.loaded_pages',selfUpdate=True)
         bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
 
-        #pagesframe.dataController("""
-        #    var result = new gnr.GnrBag();
-#
-#
-        #    if(current_page_id && data && data.len()){
-        #        var n = data.getNodeByAttr('_pkey',current_page_id);
-        #        var r = n.attr;
-        #        var profile = dojo.fromJson(r['profile']);
-        #        var rowlist = ['nc','st','sqlc','sqlt'];
-        #        var i,idx;
-        #        if(!profile){
-        #            return;
-        #        }
-        #        i = 0;
-        #        var nc = {rheader:'nc'};
-        #        var st = {rheader:'st'};
-        #        var sqlc = {rheader:'sqlc'};
-        #        var sqlt = {rheader:'sqlt'};
-        #        profile.forEach(function(p){
-        #                idx='v_'+i;
-        #                nc[idx] = p['nc']
-        #                st[idx] = Math.floor(p['st']*1000);
-        #                sqlc[idx] = p['sqlc']
-        #                sqlt[idx] = Math.floor(p['sqlt']*1000);
-        #                i++;
-        #        });
-        #        //result.setItem('nc',null,nc);
-        #        //result.setItem('st',null,st);
-        #        //result.setItem('sqlc',null,sqlc);
-        #        //result.setItem('sqlt',null,sqlt);
-        #    }
-        #    //SET gnr.maintenance.data.current_page_profile = result;
-        #    """,current_page_id='^.grid.selectedId',data='^gnr.maintenance.data.pages',_if='current_page_id')
+        pagesframe.dataController("""
+            var result = new gnr.GnrBag();
+        
+        
+            if(current_page_id && data && data.len()){
+                var n = data.getNodeByAttr('_pkey',current_page_id);
+                var r = n.attr;
+                var profile = dojo.fromJson(r['profile']);
+                var rowlist = ['nc','st','sqlc','sqlt'];
+                var i,idx;
+                if(!profile){
+                    return;
+                }
+                i = 0;
+                var nc = {rheader:'nc'};
+                var st = {rheader:'st'};
+                var sqlc = {rheader:'sqlc'};
+                var sqlt = {rheader:'sqlt'};
+                profile.forEach(function(p){
+                        idx='v_'+i;
+                        nc[idx] = p['nc']
+                        st[idx] = Math.floor(p['st']*1000);
+                        sqlc[idx] = p['sqlc']
+                        sqlt[idx] = Math.floor(p['sqlt']*1000);
+                        i++;
+                });
+                //result.setItem('nc',null,nc);
+                //result.setItem('st',null,st);
+                //result.setItem('sqlc',null,sqlc);
+                //result.setItem('sqlt',null,sqlt);
+            }
+            //SET gnr.maintenance.data.current_page_profile = result;
+            """,current_page_id='^.grid.selectedId',data='^gnr.maintenance.data.pages',_if='current_page_id')
 
         profileframe = profilepane.frameGrid(frameCode='currentProfile',struct=self._profile_grid_struct,
                         datapath='.currentProfile',
