@@ -391,6 +391,7 @@ class GnrSqlDb(GnrObject):
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
                     self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
+            
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))

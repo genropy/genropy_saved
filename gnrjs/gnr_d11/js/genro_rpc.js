@@ -214,6 +214,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
+        callKwargs._pageProfilers = genro.getTimeProfilers();
        //if(genro.root_page_id){
        //    callKwargs._root_page_id = genro.root_page_id;
        //}
@@ -412,6 +413,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         ;
     },
+
     resultHandler: function(response, ioArgs, currentAttr) {
         this.unregister_call(ioArgs);
         var envelope = new gnr.GnrBag();
@@ -423,6 +425,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             console.log(response);
             return;
         }
+        this.profileTime(ioArgs.xhr);
         var envNode = envelope.getNode('result');
         var resultAsNode = (envelope.getItem('resultType') == 'node') || currentAttr;
         var changenode,attr,value, changepath,serverpath, as_fired,reason;
@@ -467,6 +470,17 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             return envNode.getValue();
         }
 
+    },
+
+    profileTime:function(xhr){
+        var servertime =  parseFloat(xhr.getResponseHeader('X-GnrTime') || 0);
+        var sqltime = parseFloat(xhr.getResponseHeader('X-GnrSqlTime') || 0);
+        var sqlcount = parseFloat(xhr.getResponseHeader('X-GnrSqlCount') || 0);
+        var cp = genro.currProfilers;
+        cp.nc = cp.nc + 1;
+        cp.st = cp.st + servertime;
+        cp.sqlt = cp.sqlt + sqltime;
+        cp.sqlc = cp.sqlc + sqlcount;
     },
 
     getRecordCount:function(field, value, cb,kw) {

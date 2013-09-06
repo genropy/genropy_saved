@@ -306,7 +306,7 @@ class SiteRegister(object):
         with self.sd.locked(self.cleanup_key):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
-            if not thisCleanupTs or ((thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval):
+            if not lastCleanupTs or ((thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval):
                 for page_id, page in self.pages().items():
                     page_last_rpc_age = page.get('last_rpc_age')
                     if (page_last_rpc_age and (page_last_rpc_age > self.site.page_max_age)):
@@ -375,10 +375,10 @@ class SiteRegister(object):
     def pageStore(self, page_id, triggered=False):
         return self.p_register.make_store(page_id, triggered=triggered)
 
-    def refresh(self, page_id, ts=None):
+    def refresh(self, page_id, ts=None,pageProfilers=None):
         page_item = self.p_register.read(page_id)
         if  page_item:
-            self.p_register.update_lastused(page_id, ts)
+            self.p_register.update_lastused(page_id, ts,pageProfilers=pageProfilers)
             self.c_register.update_lastused(page_item['connection_id'], ts)
             self.u_register.update_lastused(page_item['user'], ts)
         return page_item
@@ -408,6 +408,13 @@ class SiteRegister(object):
 
     def tree(self):
         return PagesTreeResolver()
+
+    def getPageProfile(self,page_id):
+        lskey = self.site.register.lastused_key(page_id)
+        if lskey:
+            last_used = self.site.register.sd.get(lskey)
+            if last_used and len(last_used)==3:
+                return last_used[2]
 
     def full_cleanup(self, max_age=30, cascade=False):
         with self.u_register as user_register:
@@ -453,12 +460,13 @@ class BaseRegister(object):
         return '%s_LU_%s' % (self.prefix, register_item_id)
         
     @lock_item
-    def update_lastused(self, register_item_id, ts=None):
+    def update_lastused(self, register_item_id, ts=None,pageProfilers=None):
         last_used_key = self.lastused_key(register_item_id)
         last_used = self.sd.get(last_used_key)
         if last_used:
             ts = max(last_used[1], ts) if ts else last_used[1]
-        self.sd.set(last_used_key, (datetime.now(), ts), 0)
+        print 'pageProfilers,update_lastused',pageProfilers
+        self.sd.set(last_used_key, (datetime.now(), ts,pageProfilers), 0)
         
     def read(self, register_item_id):
         register_item = self.sd.get(self.item_key(register_item_id))
@@ -561,7 +569,7 @@ class BaseRegister(object):
         last_used = last_used or self.sd.get(self.lastused_key(register_item['register_item_id']))
         if not last_used:
             return
-        register_item['last_ts'], register_item['last_user_ts'] = last_used
+        register_item['last_ts'], register_item['last_user_ts'],register_item['profile'] = last_used
         register_item['age'] = age('start_ts')
         register_item['last_rpc_age'] = age('last_ts')
         register_item['last_event_age'] = age('last_user_ts')

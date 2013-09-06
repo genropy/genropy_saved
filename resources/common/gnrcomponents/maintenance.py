@@ -7,6 +7,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrstring import fromJson
+
 
 class MaintenancePlugin(BaseComponent):
     def mainLeft_maintenance(self, pane):
@@ -52,6 +54,7 @@ class MaintenancePlugin(BaseComponent):
                                                                         grid_userSets='.sets',
                                                                             datapath='.connectedUsers',margin='2px',_class='pbl_roundedGroup')
         userframe.grid.bagStore(storepath='gnr.maintenance.data.user',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_users',selfUpdate=True)
         bar = userframe.top.slotBar('2,exclude_guest,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
         bar.exclude_guest.checkbox(value='^.exclude_guest',label='!!Exclude guest')
@@ -66,6 +69,7 @@ class MaintenancePlugin(BaseComponent):
                         datapath='.currentPages',
                         title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
         pagesframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_pages',selfUpdate=True)
         bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
 
@@ -73,6 +77,7 @@ class MaintenancePlugin(BaseComponent):
                         datapath='.currentConnections',
                         title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
         connectionframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_connections',selfUpdate=True)
         bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
 
@@ -90,6 +95,9 @@ class MaintenancePlugin(BaseComponent):
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
         #r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        
+        r.cell('page_profile',width='8em',name='Page profile')
+        
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
 
@@ -135,8 +143,31 @@ class MaintenancePlugin(BaseComponent):
             if child_name and not item[child_name]:
                 _customClasses.append('no_children')
             item.pop('datachanges', None)
+            if child_name is None:
+                self.maintenance_cellServerProfile(item)
             result.setItem(key, None, _customClasses=' '.join(_customClasses),username=key, **item)
         return result
+
+
+    def maintenance_cellServerProfile(self,item):
+        if not item['profile']:
+            return
+        profiles = fromJson(item['profile'])
+        result = []
+        for n in profiles:
+            st = n['st']
+            if st<=1:
+                color = 'green'
+            elif st<2:
+                color = 'yellow'
+            elif st<5:
+                color = 'orange'
+            else:
+                color = 'red'
+            c = dict(height=1+n['nc']/4,color=color)
+            result.append('<div style="background:%(color)s;height:%(height)ipx; width:3px; display:inline-block;"></div>' %c)
+        item['page_profile'] = '<div>%s</div>'  %''.join(result)
+
 
     @public_method
     def maintenance_update_data(self, exclude_guest=None,**kwargs):

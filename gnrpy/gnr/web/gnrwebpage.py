@@ -100,6 +100,9 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self._start_time = time()
+        self.sql_count = 0
+        self.sql_time = 0
+
         self.site = site
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
@@ -399,6 +402,7 @@ class GnrWebPage(GnrBaseWebPage):
         #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         parameters = kwargs
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
+        self._pageProfilers = parameters.pop('_pageProfilers', None)
         self.site.handle_clientchanges(self.page_id, parameters)
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):

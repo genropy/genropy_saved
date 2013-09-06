@@ -24,6 +24,8 @@ import mimetypes
 from gnr.core.gnrsys import expandpath
 import cPickle
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdecorator import extract_kwargs
+
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
@@ -650,7 +652,7 @@ class GnrWsgiSite(object):
                 result = self.serve_ping(response, environ, start_response, **request_kwargs)
                 if not isinstance(result, basestring):
                     return result
-                response = self.setResultInResponse(result, response, totaltime=time() - t)
+                response = self.setResultInResponse(result, response, info_GnrTime=time() - t)
                 self.cleanup()
             except Exception,exc:
                 raise 
@@ -707,7 +709,7 @@ class GnrWsgiSite(object):
             finally:
                 self.onServedPage(page)
                 self.cleanup()
-            response = self.setResultInResponse(result, response, totaltime=time() - t)
+            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count)
             
             return response(environ, start_response)
             
@@ -717,14 +719,15 @@ class GnrWsgiSite(object):
             path_list = uri[1:].split('/')
             return self.statics.static_dispatcher(path_list, environ, start_response)
 
-    def setResultInResponse(self, result, response, totaltime=None):
+    @extract_kwargs(info=True)
+    def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
         """TODO
         
         :param result: TODO
         :param response: TODO
         :param totaltime: TODO"""
-        if totaltime:
-            response.headers['X-GnrTime'] = str(totaltime)
+        for k,v in info_kwargs.items():
+            response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
             response.content_type = 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
@@ -1041,10 +1044,15 @@ class GnrWsgiSite(object):
         Press ``Ctrl+Shift+D`` to open the debug pane in your browser
         
         :param debugtype: string (values: 'sql' or 'py')"""
+
         if self.currentPage:
             page = self.currentPage
+            #print 'ffff',self.debug,page.isDeveloper()
             if self.debug or page.isDeveloper():
                 page.developer.output(debugtype, **kwargs)
+            if debugtype=='sql':
+                page.sql_count = page.sql_count + 1
+                page.sql_time = page.sql_time + kwargs.get('delta_time',0)
                 
     def onDbCommitted(self):
         """TODO"""
@@ -1182,7 +1190,9 @@ class GnrWsgiSite(object):
         #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
-        page_item = self.register.refresh(page_id, _lastUserEventTs)
+        _pageProfilers = kwargs.get('_pageProfilers')
+        print '_pageProfilers',_pageProfilers
+        page_item = self.register.refresh(page_id, _lastUserEventTs,pageProfilers=_pageProfilers)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
         catalog = self.gnrapp.catalog
@@ -1190,10 +1200,12 @@ class GnrWsgiSite(object):
         if _children_pages_info:
             for k,v in _children_pages_info.items():
                 child_lastUserEventTs = v.pop('_lastUserEventTs', None)
+                child_pageProfilers = v.pop('_pageProfilers', None)
+                print 'child_pageProfilers',child_pageProfilers
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
                 if child_lastUserEventTs:
                     child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
-                    self.register.refresh(k, child_lastUserEventTs)
+                    self.register.refresh(k, child_lastUserEventTs,pageProfilers=child_pageProfilers)
         envelope = Bag(dict(result=None))
         user=page_item['user']
         datachanges = self.get_datachanges(page_id, user=user)            

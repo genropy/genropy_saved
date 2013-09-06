@@ -68,6 +68,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.ext={};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
+        this.timeProfilers = [];
+        this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
+
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
 
@@ -250,6 +253,13 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onclick', cb);
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
+        setInterval(function(){
+            genro.timeProfilers.push(genro.currProfilers);
+            if(genro.timeProfilers.length>20){
+                genro.timeProfilers = genro.timeProfilers.slice(-20);
+            }
+            genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
+        },15000);
     },
     
     execUserInfoCb:function(){
@@ -505,12 +515,19 @@ dojo.declare('gnr.GenroClient', null, {
     getValueFromFrame: function(object_name, attribute_name, dtype){
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
+
+    getTimeProfilers:function(){
+        return dojo.toJson(this.timeProfilers);
+    },
+
     getChildrenInfo:function(result){
         var result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
                 var _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
-                r[f.genro.page_id] = objectUpdate({_lastUserEventTs:_lastUserEventTs},f.genro._serverstore_changes);
+                var kw = {_lastUserEventTs:_lastUserEventTs};
+                kw._pageProfilers = f.genro.getTimeProfilers();
+                r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
                 f.genro.getChildrenInfo(r);
             }
