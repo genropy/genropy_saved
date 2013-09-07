@@ -1064,13 +1064,15 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setSourceText:function(value,kw,trigger_reason){    
-        //if(trigger_reason!='container'){
+        if(trigger_reason!='container'){
             this.paginate();
-        //}
+        }
     },
 
     gnrwdg_onPaginating:function(){
         var pagesDomNode = this.pagesRoot.domNode;
+        this.pagesDomNodeParent = pagesDomNode.parentNode;
+        dojo.body().appendChild(pagesDomNode);
         var sn = this.sourceNode;
         this.sourceBag = sn.getRelativeData(this.datasource).deepCopy();
         this.sourceBag.setItem('pp','#PP');
@@ -1084,6 +1086,7 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
 
     gnrwdg_onPaginated:function(){
         var pagesDomNode = this.pagesRoot.domNode;
+        this.pagesDomNodeParent.appendChild(pagesDomNode)
         pagesDomNode.innerHTML = pagesDomNode.innerHTML.replace(/\#PP/g, pagesDomNode.childElementCount);
         pagesDomNode.style.zoom = this.currentZoom;
         pagesDomNode.style.visibility ='visible';
@@ -1091,7 +1094,7 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
 
     gnrwdg_paginate:function(){
         var sourceHtml = this.sourceNode.getRelativeData(this.sourceTextPath);
-        var pagesDomNode = this.pagesRoot.domNode
+        var pagesDomNode = this.pagesRoot.domNode;
         pagesDomNode.innerHTML = '';
         if(sourceHtml){
             this.onPaginating();
