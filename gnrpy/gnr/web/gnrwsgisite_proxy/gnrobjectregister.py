@@ -307,20 +307,16 @@ class SiteRegister(object):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
             if not lastCleanupTs or ((thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval):
-                print 'START CLEANUP',thisCleanupTs
                 for page_id, page in self.pages().items():
                     page_last_rpc_age = page.get('last_rpc_age')
                     if (page_last_rpc_age and (page_last_rpc_age > self.site.page_max_age)):
-                        print 'dropping page',page_id,page_last_rpc_age,self.site.page_max_age
                         self.drop_page(page_id)
                 for connection_id, connection in self.connections().items():
                     connection_last_rpc_age = connection.get('last_rpc_age')
                     if (connection_last_rpc_age and connection_last_rpc_age > self.site.connection_max_age):
-                        print 'dropping connection',connection_id,connection_last_rpc_age,self.site.connection_max_age
                         self.drop_connection(connection_id,cascade=True)
                 self.sd.set(self.cleanup_key, thisCleanupTs, 0)
                 self.site._lastCleanUp = thisCleanupTs
-                print 'END CLEANUP'
 
     def cleanup_page_connection(self, max_age=300):
         for page_id, page in self.pages().items():
