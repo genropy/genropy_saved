@@ -76,11 +76,8 @@ class MaintenancePlugin(BaseComponent):
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_pages',selfUpdate=True)
         bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
-
         pagesframe.dataController("""
             var result = new gnr.GnrBag();
-        
-        
             if(current_page_id && data && data.len()){
                 var n = data.getNodeByAttr('_pkey',current_page_id);
                 var r = n.attr;
@@ -110,14 +107,14 @@ class MaintenancePlugin(BaseComponent):
             }
             SET gnr.maintenance.data.current_page_profile = result;
             """,current_page_id='^.grid.selectedId',data='^gnr.maintenance.data.pages',_if='current_page_id')
-
+        
         profileframe = profilepane.frameGrid(frameCode='currentProfile',struct=self._profile_grid_struct,
                         datapath='.currentProfile',
                         pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
         profileframe.grid.bagStore(storepath='gnr.maintenance.data.profile',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.current_page_profile',selfUpdate=True)
-
+        
         profileframe.top.slotBar('2,vtitle,*',vtitle='!!Rpc details',_class='pbl_roundedGroupLabel')
 
 
@@ -125,7 +122,7 @@ class MaintenancePlugin(BaseComponent):
                         datapath='.currentConnections',
                         title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
         connectionframe.grid.data('.sorted','age:d')
-        connectionframe.grid.bagStore(storepath='gnr.maintenance.data.pages',storeType='AttributesBagRows',
+        connectionframe.grid.bagStore(storepath='gnr.maintenance.data.connections',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_connections',selfUpdate=True)
         bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
