@@ -521,7 +521,7 @@ dojo.declare('gnr.GenroClient', null, {
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
     getServerLastTs:function(){
-        return genro._lastUserEventTs?asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH'):new Date();
+        return asTypedTxt(new Date((genro._lastUserEventTs||new Date()).getTime()+(genro.serverTimeDelta || 0)),'DH')
     },
 
     getTimeProfilers:function(){
