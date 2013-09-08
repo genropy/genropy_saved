@@ -1521,8 +1521,13 @@ dojo.declare('gnr.GenroClient', null, {
             objToCall['obj'][objToConnect['func']].apply(objToCall['obj'], arguments);
         }
     },
-    pageReload:function(params) {
+
+    pageReload:function(params,replaceParams) {
         if (params) {
+            if (!replaceParams){
+                var oldparams = parseURL(window.location)['params'] || {};
+                params = objectUpdate(params || {},oldparams);
+            }
             if (objectNotEmpty(params)) {
                 params['_no_cache_'] = genro.getCounter();
                 var plist = [];
@@ -1537,6 +1542,7 @@ dojo.declare('gnr.GenroClient', null, {
             window.location.reload();
         }
     },
+
     pageBack:function() {
         window.history.back();
     },

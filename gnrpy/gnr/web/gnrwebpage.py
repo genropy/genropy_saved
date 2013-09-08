@@ -173,6 +173,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
+            
     def onPreIniting(self, *request_args, **request_kwargs):
         """TODO"""
         pass

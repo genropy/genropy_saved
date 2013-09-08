@@ -212,7 +212,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            iframe.sourceNode._genro.pageReload({debugopt:modifiers=='Shift'?'sql':null});
+            iframe.sourceNode._genro.pageReload({debugopt:modifiers=='Shift'?'sql':null,pageReloading:true});
         }
     },
 
