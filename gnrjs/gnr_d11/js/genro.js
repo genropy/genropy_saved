@@ -72,7 +72,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.formatter = gnrformatter;
         this.timeProfilers = [];
         this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
-        for (var i = 0; i < 20; i++) {
+        this.profile_count = 4;
+        for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         };
         
@@ -260,8 +261,8 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onkeypress', cb);
         setInterval(function(){
             genro.timeProfilers.push(genro.currProfilers);
-            if(genro.timeProfilers.length>20){
-                genro.timeProfilers = genro.timeProfilers.slice(-20);
+            if(genro.timeProfilers.length>this.profile_count){
+                genro.timeProfilers = genro.timeProfilers.slice(-this.profile_count);
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);

@@ -615,7 +615,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if(!genro.root_page_id){
             pingKw._children_pages_info = genro.getChildrenInfo();
         }
-        this._serverCall(pingKw, xhrKwargs, 'GET');
+        this._serverCall(pingKw, xhrKwargs, 'POST');
     },
     setPollingStatus:function(status) {
         genro.pollingRunning = status;
