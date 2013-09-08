@@ -141,6 +141,8 @@ class MaintenancePlugin(BaseComponent):
         r.cell('register_item_id', width='14em', name='Page id',hidden=True)
         r.cell('user', width='6em', name='User')
         r.cell('user_ip', width='6em', name='User ip')
+        r.cell('connection_id', width='6em', name='Connection id')
+
         #r.cell('start_ts', width='11em', name='Start', dtype='DH')
         r.cell('pagename', width='8em', name='Pagename')
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
@@ -160,14 +162,15 @@ class MaintenancePlugin(BaseComponent):
 
     def _connection_grid_struct(self, struct):
         r = struct.view().rows()
-        #r.cell('register_item_id', width='14em', name='Connection id')
+        r.cell('register_item_id', width='14em', name='Connection id')
         r.cell('user', width='6em', name='User')
         r.cell('user_ip', width='8em', name='IP')
-        r.cell('browser_name', width='10em', name='Browser')
+        
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
         r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
+        r.cell('browser_name',dtype='T',name='Browser')
 
     def connected_users_struct(self,struct):
         r = struct.view().rows()
@@ -187,6 +190,8 @@ class MaintenancePlugin(BaseComponent):
     def _maintenance_get_items(self, items, child_name=None,exclude_guest=None, **kwargs):
         result = Bag()
         for key, item in items.items():
+            item = dict(item)
+            item.pop('data',None)
             if exclude_guest and ( key.startswith('guest_') or item.get('user','').startswith('guest_')):
                 continue
             _customClasses = []
@@ -237,3 +242,8 @@ class MaintenancePlugin(BaseComponent):
         pages = self.site.register.pages()
         result['pages'] = self._maintenance_get_items(pages,exclude_guest=exclude_guest)
         return result
+
+
+
+
+
