@@ -605,8 +605,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 return result;
             }),
             'error': dojo.hitch(this, function(response, ioArgs) {
-                genro.rpc.errorHandler(response, ioArgs);
                 genro.rpc.setPollingStatus(false);
+                genro.rpc.errorHandler(response, ioArgs);
             }),
             'sync': false,
             'preventCache': false
