@@ -213,8 +213,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var sysrpc = objectPop(callKwargs,'sysrpc');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
-        callKwargs._lastUserEventTs = genro.getServerLastTs();
-        callKwargs._pageProfilers = genro.getTimeProfilers();
        //if(genro.root_page_id){
        //    callKwargs._root_page_id = genro.root_page_id;
        //}
@@ -615,6 +613,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if(!genro.root_page_id){
             pingKw._children_pages_info = genro.getChildrenInfo();
         }
+        pingKw._lastUserEventTs = genro.getServerLastTs();
+        pingKw._pageProfilers = genro.getTimeProfilers();
         this._serverCall(pingKw, xhrKwargs, 'POST');
     },
     setPollingStatus:function(status) {
