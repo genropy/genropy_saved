@@ -1598,11 +1598,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         pass
                     else:
                         zoomKw = dictExtract(kwargs,'zoom_')
+                        forcedTitle = zoomKw.pop('title', None)
                         zoomKw.setdefault('formOnly',False)
                         result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
                         result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
-                        result['lbl__zoomKw_title'] = lnktblobj.name_plural or lnktblobj.name_long
+                        result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
                         result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
                 result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])

@@ -453,11 +453,22 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
     
     zoomPaletteFromSourceNode:function(sourceNode,evt){
-        var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
+        var zoomAttr =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
         var attr = sourceNode.currentAttributes();
-        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'));
-        kw.evt = evt;
-        this.zoomPalette(kw);
+        objectUpdate(zoomAttr,objectExtract(attr,'_zoomKw_*'));
+        zoomAttr.evt = evt;
+        var mode = objectPop(zoomAttr,'mode') || 'palette';
+
+        if(mode=='palette'){
+            this.zoomPalette(zoomAttr);
+        }else if(mode=='page' && genro.root_page_id){
+            var pageKw = {};
+            zoomAttr['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            pageKw['subtab'] = true;
+            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
+        }
     },
     
     iframePalette:function(kw){
