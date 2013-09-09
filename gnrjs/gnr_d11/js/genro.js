@@ -261,8 +261,8 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onkeypress', cb);
         setInterval(function(){
             genro.timeProfilers.push(genro.currProfilers);
-            if(genro.timeProfilers.length>this.profile_count){
-                genro.timeProfilers = genro.timeProfilers.slice(-this.profile_count);
+            if(genro.timeProfilers.length>genro.profile_count){
+                genro.timeProfilers = genro.timeProfilers.slice(-genro.profile_count);
             }
             genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         },15000);
