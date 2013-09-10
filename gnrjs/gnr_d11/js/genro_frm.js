@@ -1938,6 +1938,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var that = this;
         var saver = this.handlers.save;
         var saveKw = objectUpdate({},kw);
+        var originalSaveKw = objectUpdate({},kw)
         var destPkey = objectPop(saveKw,'destPkey');
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         objectUpdate(kw,saveKw);
@@ -1980,7 +1981,7 @@ dojo.declare("gnr.formstores.Base", null, {
         };
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
         var data = form.getFormChanges();
-        var rpckw = objectUpdate({'data':data,'table':this.table},kw);
+        var rpckw = objectUpdate({'data':data,'table':this.table,save_kw:originalSaveKw},kw);
         if(onSaving){
             var dosave = funcApply(onSaving,rpckw,this);
             if(dosave===false){
