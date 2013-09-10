@@ -164,7 +164,7 @@ class MaintenancePlugin(BaseComponent):
         r.cell('user_ip', width='8em', name='IP')
         
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC',format='DHMS')
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
         r.cell('browser_name',dtype='T',name='Browser')

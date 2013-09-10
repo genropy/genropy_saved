@@ -73,6 +73,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.timeProfilers = [];
         this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         this.profile_count = 4;
+        this._lastUserEventTs = new Date()
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         };
@@ -242,7 +243,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     childUserEvent:function(childgenro){
-        genro._lastUserEventTs = new Date();
+        //genro._lastUserEventTs = new Date();
         genro.onUserEvent();
     },
 
@@ -522,7 +523,9 @@ dojo.declare('gnr.GenroClient', null, {
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
     getServerLastTs:function(){
-        return asTypedTxt(new Date((genro._lastUserEventTs||new Date()).getTime()+(genro.serverTimeDelta || 0)),'DH')
+        console.log('getServerLastTs kw',genro.page_id,(new Date()-genro._lastUserEventTs)/1000)
+
+        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH')
     },
 
     getTimeProfilers:function(){
@@ -536,7 +539,9 @@ dojo.declare('gnr.GenroClient', null, {
                 var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers()};
                 r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
+                console.log('entering recursion')
                 f.genro.getChildrenInfo(r);
+                console.log('exit recursion')
             }
         };
         dojo.forEach(window.frames,function(f){cb(f,result);});
