@@ -238,7 +238,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.register_call(kw);
         var xhrResult;
         if(!sysrpc){
-            genro.lastRpc = new Date();
+            genro._lastRpc = new Date();
         }
         if (genro.debugRpc) {
             this.debugRpc(kw);
@@ -614,7 +614,11 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             pingKw._children_pages_info = genro.getChildrenInfo();
         }
         pingKw._lastUserEventTs = genro.getServerLastTs();
+        pingKw._lastRpc = genro.getServerLastRpc();
+
         pingKw._pageProfilers = genro.getTimeProfilers();
+        pingKw.sysrpc = true;
+        genro.lastPing = new Date();
         this._serverCall(pingKw, xhrKwargs, 'POST');
     },
     setPollingStatus:function(status) {

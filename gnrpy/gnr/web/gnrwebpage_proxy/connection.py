@@ -158,7 +158,7 @@ class GnrWebConnection(GnrBaseProxy):
             _customClasses = []
             row['_pkey'] = user
             row['iconClass'] = 'greenLight'
-            if arguments['last_rpc_age'] > 60:
+            if arguments['last_refresh_age'] > 60:
                 _customClasses.append('user_disconnected')
                 row['iconClass'] = 'grayLight'
             elif arguments['last_event_age']>300:

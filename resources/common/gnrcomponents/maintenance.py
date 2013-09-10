@@ -143,7 +143,9 @@ class MaintenancePlugin(BaseComponent):
         #r.cell('start_ts', width='11em', name='Start', dtype='DH')
         r.cell('pagename', width='8em', name='Pagename')
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
-        r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
+        r.cell('last_refresh_age', width='6em', dtype='L', name='last refresh',format='DHMS')
+        r.cell('last_rpc_age', width='6em', dtype='L', name='last rpc',format='DHMS')
+
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         
         r.cell('page_profile',width='9em',name='Page profile')
@@ -164,7 +166,9 @@ class MaintenancePlugin(BaseComponent):
         r.cell('user_ip', width='8em', name='IP')
         
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC',format='DHMS')
+        r.cell('last_refresh_age', width='4em', dtype='L', name='L. refresh',format='DHMS')
+        r.cell('last_rpc_age', width='4em', dtype='L', name='L. Rpc',format='DHMS')
+
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
         r.cell('browser_name',dtype='T',name='Browser')
@@ -174,7 +178,8 @@ class MaintenancePlugin(BaseComponent):
         r.cell('_checked',userSets=True,name=' ')
         r.cell('user', width='6em', name='User')
         r.cell('age', width='8em', dtype='L', name='Conn.Time',format='DHMS')
-        r.cell('last_rpc_age', width='6em', dtype='L', name='Last RPC',format='DHMS')
+        r.cell('last_refresh_age', width='6em', dtype='L', name='last refresh',format='DHMS')
+        r.cell('last_rpc_age', width='6em', dtype='L', name='last rpc',format='DHMS')
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
@@ -194,7 +199,7 @@ class MaintenancePlugin(BaseComponent):
             _customClasses = []
             item['_pkey'] = key
             item['alive'] = True
-            if item['last_rpc_age'] > 60:
+            if item['last_refresh_age'] > 60:
                 item['alive'] = False
                 _customClasses.append('disconnected')
             elif item['last_event_age'] > 60:
