@@ -327,6 +327,7 @@ class FrameIndex(BaseComponent):
         
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""
+
     def loginboxPars(self):
         return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
 
@@ -334,7 +335,7 @@ class FramedIndexLogin(BaseComponent):
         pane.div(innerHTML='==rootenv.getFormattedValue();',rootenv='^gnr.rootenv',
                     height='80px',margin='3px',border='1px solid silver')
 
-    
+
     def loginSubititlePane(self,pane):
         pass
         
@@ -472,6 +473,7 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.user',lbl='!!Username',row_hidden=False)
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
+                        _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
                         _if='user&&password',_else='SET gnr.avatar = null;',
                         _onResult="""var avatar = result.getItem('avatar');
                                     if (!avatar){
@@ -584,7 +586,7 @@ class FramedIndexLogin(BaseComponent):
         return dict(error=login['error']) if login['error'] else False
 
     @public_method
-    def login_checkAvatar(self,password=None,user=None,**kwargs):
+    def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
         result = Bag()
         avatar = self.application.getAvatar(user, password=password,authenticate=True)
         if not avatar:
@@ -596,6 +598,7 @@ class FramedIndexLogin(BaseComponent):
         if avatar.status != 'conf':
             return result
         data = Bag()
+        data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         data.setItem('workdate',self.workdate, hidden= not canBeChanged)

@@ -25,6 +25,7 @@
 
 import urllib
 from time import time
+from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
@@ -735,6 +736,14 @@ class GnrWebPage(GnrBaseWebPage):
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
+
+    def clientDatetime(self,ts=None):
+        serverTimeDelta = self.rootenv['serverTimeDelta']
+        ts = ts or datetime.datetime.now()
+        if serverTimeDelta:
+            return ts-timedelta(milliseconds=serverTimeDelta)
+        return ts
+
     def getUuid(self):
         """TODO"""
         return getUuid()
