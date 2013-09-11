@@ -310,7 +310,10 @@ class SiteRegister(object):
                 for page_id, page in self.pages().items():
                     page_last_rpc_age = page.get('last_rpc_age')
                     if (page_last_rpc_age and (page_last_rpc_age > self.site.page_max_age)):
-                        self.log_drop_page(page_id,page,page_last_rpc_age,self.site.page_max_age)
+                        if page.get('user','').startswith('guest_'):
+                            self.drop_page(page_id)
+                        else:
+                            self.log_drop_page(page_id,page,page_last_rpc_age,self.site.page_max_age)
                     elif (page_last_rpc_age and (page_last_rpc_age > 3600)):
                         self.drop_page(page_id)
                 for connection_id, connection in self.connections().items():
@@ -358,7 +361,7 @@ class SiteRegister(object):
         self.pop_connections_from_user(user, connection_item, delete_if_empty=cascade or self.c_register.is_guest(connection_item))
 
     def log_drop_page(self,page_id=None,page=None,page_last_rpc_age=None,page_max_age=None):
-        print '\n\n IT SHOULD DROP THE PAGE ',page_id,page,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age
+        print '\n\n IT SHOULD DROP THE PAGE ',page_id,page.get('pagename',''),'\n',page,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age
 
         
     @lock_page
