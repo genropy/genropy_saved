@@ -358,7 +358,7 @@ class SiteRegister(object):
         self.pop_connections_from_user(user, connection_item, delete_if_empty=cascade or self.c_register.is_guest(connection_item))
 
     def log_drop_page(self,page_id=None,page=None,page_last_rpc_age=None,page_max_age=None):
-        print '\n\n IT SHOULD DROP THE PAGE ',page_id,page.pagename,page.user,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age
+        print '\n\n IT SHOULD DROP THE PAGE ',page_id,page,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age
 
         
     @lock_page
