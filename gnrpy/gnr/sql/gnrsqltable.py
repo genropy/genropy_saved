@@ -958,8 +958,9 @@ class SqlTable(GnrObject):
                         for row in sel:
                             rel_rec = dict(row)
                             rel_rec.pop('pkey',None)
+                            oldrec = dict(rel_rec)
                             rel_rec[mfld] = None
-                            relatedTable.update(rel_rec)
+                            relatedTable.update(rel_rec,oldrec)
                             
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record
