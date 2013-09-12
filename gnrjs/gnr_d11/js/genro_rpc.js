@@ -238,7 +238,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.register_call(kw);
         var xhrResult;
         if(!sysrpc){
-            genro.lastRpc = new Date();
+            genro._lastRpc = new Date();
         }
         if (genro.debugRpc) {
             this.debugRpc(kw);
@@ -599,12 +599,19 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'timeout': 10000,
             'load': dojo.hitch(this, function(response, ioArgs) {
                 var result = genro.rpc.resultHandler(response, ioArgs);
+                genro.callAfter(function(){
+                    genro.dom.removeClass(dojo.body(),'ping_start');
+                },1000);
+                
                 genro.rpc.setPollingStatus(false);
                 return result;
             }),
             'error': dojo.hitch(this, function(response, ioArgs) {
                 genro.rpc.setPollingStatus(false);
+                genro.dom.removeClass(dojo.body(),'ping_start');
+                genro.dom.addClass(dojo.body(),'ping_error');
                 genro.rpc.errorHandler(response, ioArgs);
+
             }),
             'sync': false,
             'preventCache': false
@@ -614,7 +621,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             pingKw._children_pages_info = genro.getChildrenInfo();
         }
         pingKw._lastUserEventTs = genro.getServerLastTs();
+        pingKw._lastRpc = genro.getServerLastRpc();
+
         pingKw._pageProfilers = genro.getTimeProfilers();
+        pingKw.sysrpc = true;
+        genro.lastPing = new Date();
+        genro.dom.removeClass(dojo.body(),'ping_error');
+        genro.dom.addClass(dojo.body(),'ping_start');
         this._serverCall(pingKw, xhrKwargs, 'POST');
     },
     setPollingStatus:function(status) {

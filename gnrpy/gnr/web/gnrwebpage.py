@@ -404,7 +404,9 @@ class GnrWebPage(GnrBaseWebPage):
         #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         parameters = kwargs
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
+        self._lastRpc = parameters.pop('_lastRpc', None)
         self._pageProfilers = parameters.pop('_pageProfilers', None)
+        #self.site.register.refresh(self.page_id,ts=self._lastUserEventTs,pageProfilers=self._pageProfilers)
         self.site.handle_clientchanges(self.page_id, parameters)
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):

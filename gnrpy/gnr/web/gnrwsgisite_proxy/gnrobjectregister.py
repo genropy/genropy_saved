@@ -296,7 +296,8 @@ class SiteRegister(object):
         page_item = self.p_register.create(page_id, page, data)
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
-        self.c_register.update_lastused(page_item['connection_id'],datetime.now())
+        start_ts = datetime.now()
+        self.c_register.update_lastused(page_item['connection_id'],start_ts,lastRpc=start_ts)
         return page_item
 
     def cleanup(self):
@@ -308,29 +309,24 @@ class SiteRegister(object):
             thisCleanupTs = time.time()
             if not lastCleanupTs or ((thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval):
                 for page_id, page in self.pages().items():
-                    page_last_rpc_age = page.get('last_rpc_age')
-                    if (page_last_rpc_age and (page_last_rpc_age > self.site.page_max_age)):
-                        if page.get('user','').startswith('guest_'):
-                            self.drop_page(page_id)
-                        else:
-                            self.log_drop_page(page_id,page,page_last_rpc_age,self.site.page_max_age)
-                    elif (page_last_rpc_age and (page_last_rpc_age > 3600)):
+                    page_last_refresh_age = page.get('last_refresh_age')
+                    if (page_last_refresh_age and (page_last_refresh_age > self.site.page_max_age)):
                         self.drop_page(page_id)
                 for connection_id, connection in self.connections().items():
-                    connection_last_rpc_age = connection.get('last_rpc_age')
-                    if (connection_last_rpc_age and connection_last_rpc_age > self.site.connection_max_age):
+                    connection_last_refresh_age = connection.get('last_refresh_age')
+                    if (connection_last_refresh_age and connection_last_refresh_age > self.site.connection_max_age):
                         self.drop_connection(connection_id,cascade=True)
                 self.sd.set(self.cleanup_key, thisCleanupTs, 0)
                 self.site._lastCleanUp = thisCleanupTs
 
     def cleanup_page_connection(self, max_age=300):
         for page_id, page in self.pages().items():
-            page_last_rpc_age = page.get('last_rpc_age')
-            if (page_last_rpc_age and (page_last_rpc_age > max_age)):
+            page_last_refresh_age = page.get('last_refresh_age')
+            if (page_last_refresh_age and (page_last_refresh_age > max_age)):
                 self.drop_page(page_id)
         for connection_id, connection in self.connections().items():
-            connection_last_rpc_age = connection.get('last_rpc_age')
-            if (connection_last_rpc_age and connection_last_rpc_age > max_age):
+            connection_last_refresh_age = connection.get('last_refresh_age')
+            if (connection_last_refresh_age and connection_last_refresh_age > max_age):
                 self.drop_connection(connection_id)
 
 
@@ -384,12 +380,12 @@ class SiteRegister(object):
     def pageStore(self, page_id, triggered=False):
         return self.p_register.make_store(page_id, triggered=triggered)
 
-    def refresh(self, page_id, ts=None,pageProfilers=None):
+    def refresh(self, page_id, ts=None,lastRpc=None,pageProfilers=None):
         page_item = self.p_register.read(page_id)
         if  page_item:
-            self.p_register.update_lastused(page_id, ts,pageProfilers=pageProfilers)
-            self.c_register.update_lastused(page_item['connection_id'], ts)
-            self.u_register.update_lastused(page_item['user'], ts)
+            self.p_register.update_lastused(page_id, ts,lastRpc=lastRpc,pageProfilers=pageProfilers)
+            self.c_register.update_lastused(page_item['connection_id'], ts,lastRpc=lastRpc)
+            self.u_register.update_lastused(page_item['user'], ts,lastRpc=lastRpc)
         return page_item
 
     def users(self, *args, **kwargs):
@@ -430,12 +426,12 @@ class SiteRegister(object):
             with self.c_register as connection_register:
                 with self.p_register as page_register:
                     for page_id, page in self.pages().items():
-                        if page['last_rpc_age'] > max_age:
+                        if page['last_refresh_age'] > max_age:
                             self.drop_page(page_id, page_register=page_register,
                                            connection_register=connection_register,
                                            user_register=user_register, cascade=cascade)
                     for connection_id, connection in self.connections().items():
-                        if connection['last_rpc_age'] > max_age:
+                        if connection['last_refresh_age'] > max_age:
                             self._drop_connection(connection_id, connection_register=connection_register,
                                                   user_register=user_register, cascade=cascade)
 
@@ -469,12 +465,12 @@ class BaseRegister(object):
         return '%s_LU_%s' % (self.prefix, register_item_id)
         
     @lock_item
-    def update_lastused(self, register_item_id, ts=None,pageProfilers=None):
+    def update_lastused(self, register_item_id, ts=None,lastRpc=None,pageProfilers=None):
         last_used_key = self.lastused_key(register_item_id)
         last_used = self.sd.get(last_used_key)
         if last_used:
             ts = max(last_used[1], ts) if ts else last_used[1]
-        self.sd.set(last_used_key, (datetime.now(), ts,pageProfilers), 0)
+        self.sd.set(last_used_key, (datetime.now(), ts,lastRpc,pageProfilers), 0)
         
     def read(self, register_item_id):
         register_item = self.sd.get(self.item_key(register_item_id))
@@ -577,9 +573,11 @@ class BaseRegister(object):
         last_used = last_used or self.sd.get(self.lastused_key(register_item['register_item_id']))
         if not last_used:
             return
-        register_item['last_ts'], register_item['last_user_ts'],register_item['profile'] = last_used
+        register_item['last_ts'], register_item['last_user_ts'],register_item['last_rpc_ts'],register_item['profile'] = last_used
         register_item['age'] = age('start_ts')
-        register_item['last_rpc_age'] = age('last_ts')
+        if register_item['last_rpc_ts']:
+            register_item['last_rpc_age'] = age('last_rpc_ts')
+        register_item['last_refresh_age'] = age('last_ts')
         register_item['last_event_age'] = age('last_user_ts')
 
     @lock_item
