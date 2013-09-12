@@ -202,7 +202,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -238,6 +238,9 @@ class FrameIndex(BaseComponent):
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'});""",url='adm/user_preference',
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
+
+
+        sb.debugping.div(_class='ping_semaphore')
                             
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',

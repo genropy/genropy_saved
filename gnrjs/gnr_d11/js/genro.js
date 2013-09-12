@@ -58,7 +58,8 @@ dojo.declare('gnr.GenroClient', null, {
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
-        this.serverTimeDelta = this.serverTime - new Date();
+        var start_ts = new Date();
+        this.serverTimeDelta = this.serverTime - start_ts;
         this.lockingElements = {};
         this.debugRpc = false;
         this.polling_enabled = false;
@@ -73,7 +74,10 @@ dojo.declare('gnr.GenroClient', null, {
         this.timeProfilers = [];
         this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
         this.profile_count = 4;
-        this._lastUserEventTs = new Date()
+        this.lastPing = start_ts;
+        this._lastUserEventTs = start_ts;
+        this._lastRpc = start_ts;
+
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         };
@@ -279,7 +283,7 @@ dojo.declare('gnr.GenroClient', null, {
 
     onUserEvent:function() {
         if (genro.user_polling > 0) {
-            if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
+            if ((genro._lastUserEventTs - genro.lastPing) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':'user'});
             }
         }
@@ -392,7 +396,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._registerUserEvents();
         if(!this.root_page_id){
             genro.auto_polling_handler = setInterval(function(){
-                if ((new Date() - genro.lastRpc) / 1000 > genro.user_polling) {
+                if ((new Date() - genro.lastPing) / 1000 > genro.user_polling) {
                     genro.rpc.ping({'reason':'auto'});
                 }
             },genro.auto_polling * 1000);
@@ -522,10 +526,13 @@ dojo.declare('gnr.GenroClient', null, {
     getValueFromFrame: function(object_name, attribute_name, dtype){
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
-    getServerLastTs:function(){
-        console.log('getServerLastTs kw',genro.page_id,(new Date()-genro._lastUserEventTs)/1000)
 
+    getServerLastTs:function(){
         return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH')
+    },
+
+    getServerLastRpc:function(){
+        return asTypedTxt(new Date(genro._lastRpc.getTime()+(genro.serverTimeDelta || 0)),'DH')
     },
 
     getTimeProfilers:function(){
@@ -536,7 +543,7 @@ dojo.declare('gnr.GenroClient', null, {
         var result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
-                var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers()};
+                var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers(),_lastRpc:f.genro.getServerLastRpc()};
                 r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
                 console.log('entering recursion')
