@@ -306,8 +306,10 @@ class DynamicForm(BaseComponent):
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
         bc.dataController("bc.setRegionVisible('bottom',prev)",bc=bc.js_widget,prev='^#FORM.dynamicFormTester.showpreview')
-        fb = bar.fbfields.formbuilder(cols=1, border_spacing='2px')
-        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='N. Col',width='3em',default_value=1)
+        fb = bar.fbfields.formbuilder(cols=2, border_spacing='2px')
+        fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='!!N. Col',width='3em',default_value=1)
+        fb.textbox(value='^#FORM.record.df_colswith',lbl='!!Colswith',width='10em')
+
         return th
 
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
@@ -435,13 +437,13 @@ class DynamicForm(BaseComponent):
                 if fields:
                     grp.dynamicFormGroup(fields=fields,ncol=ncol,global_vars=global_vars if gr_attr.get('global_namespace') else None,**kwargs)
         else:
-            ncol = df_tblobj.readColumns(columns='$df_fbcolumns',pkey=df_pkey)
+            ncol,colswith = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswith',pkey=df_pkey)
             fields = global_fields[df_pkey]
-            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(fields=fields,ncol=ncol,**kwargs)
+            pane.div(margin_right='10px',datapath=datapath).dynamicFormGroup(fields=fields,ncol=ncol,colswith=colswith or None,**kwargs)
 
     @struct_method
-    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,**kwargs):
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswith=None,**kwargs):
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswith=colswith,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
         fb.addDynamicFields(fields=fields,**kwargs)
 
     @struct_method
@@ -509,6 +511,9 @@ class DynamicForm(BaseComponent):
         self._df_handleFieldValidation(wdg_attr,fields=fields)
         code = wdg_attr.pop('code')
         getter = wdg_attr.pop('getter',None)
+        default_value = wdg_attr.pop('default_value',None)
+        if default_value is not None:
+            fb.data('.%s' %code,default_value)
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     

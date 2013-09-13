@@ -263,6 +263,7 @@ class TableBase(object):
         tbl.column('df_fields',dtype='X',group='_')
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
+        tbl.column('df_colswith',group='_')
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
