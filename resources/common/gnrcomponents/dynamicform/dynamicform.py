@@ -123,7 +123,7 @@ class View(BaseComponent):
         r.fieldcell('description', name='!!Description', width='15em')
         r.fieldcell('data_type', name='!!Type', width='10em')
         r.fieldcell('wdg_tag',name='!!Widget',width='10em')
-        r.fieldcell('mandatory', name='!!Mandatory',width='7em') 
+        r.fieldcell('mandatory', name='!!Mandatory',width='7em')
     
     def th_order(self):
         return '_row_count'
@@ -136,7 +136,7 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('description', name='!!Description', width='15em')
         r.cell('data_type', name='!!Type', width='10em')
         r.cell('wdg_tag',name='!!Widget',width='10em')
-        r.cell('mandatory', name='!!Mandatory',width='7em') 
+        r.cell('mandatory', name='!!Mandatory',width='7em')
 
     @customizable
     def df_fieldsBagForm(self,form):
