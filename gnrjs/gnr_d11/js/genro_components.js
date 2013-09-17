@@ -2564,6 +2564,12 @@ dojo.declare("gnr.stores._Collection",null,{
         this.linkedGrids().forEach(cb);
     },
 
+    someVisibleGrids:function(){
+        return this.linkedGrids().some(function(grid){
+            return genro.dom.isVisible(grid.sourceNode);
+        });
+    },
+
     runQuery:function(cb,runKwargs){
         var result =  this.storeNode.fireNode(runKwargs);
         if(result instanceof dojo.Deferred){
@@ -3034,6 +3040,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     },
 
     loadData:function(){
+        var that = this;
+        if(!this.someVisibleGrids()){
+            this.storeNode.watch('someVisibleGrids',function(){
+                return that.someVisibleGrids();
+            },function(){
+                that.loadingDataDo();
+            });
+            return;
+        }
+        this.loadingDataDo();
+    },
+
+    loadingDataDo:function(){
         var that = this;
         this.loadingData = true;
         this.gridBroadcast(function(grid){
