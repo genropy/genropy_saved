@@ -610,6 +610,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 genro.rpc.setPollingStatus(false);
                 genro.dom.removeClass(dojo.body(),'ping_start');
                 genro.dom.addClass(dojo.body(),'ping_error');
+                genro.playSound('ping');
+                
+                if(!genro._ping_error){
+                    genro._ping_error = true;
+                    genro.dlg.alert('This page generate a server error during a ping call. <br/> Please inform developers as soon as possible. <br/> Be ready to report any details to help bugfixing,','Error',null,null,{confirmCb:function(){genro.ping_error=false;}})
+                }
+                
                 genro.rpc.errorHandler(response, ioArgs);
 
             }),

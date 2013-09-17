@@ -2923,6 +2923,8 @@ body *{
 .ping_semaphore{
     height: 16px;
     width: 16px;
+    background: url(icons/base16/semaphore_gray.png) no-repeat center center;
+
     -webkit-transition-duration: 1s;
     -moz-transition-duration: 1s;
 }
