@@ -513,7 +513,8 @@ class DynamicForm(BaseComponent):
         getter = wdg_attr.pop('getter',None)
         default_value = wdg_attr.pop('default_value',None)
         if default_value is not None:
-            fb.data('.%s' %code,default_value)
+            fb.dataFormula('.%s' %code,'d', d=default_value,
+                            _if='this.form.isNewRecord()',_onBuilt=True)
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     
