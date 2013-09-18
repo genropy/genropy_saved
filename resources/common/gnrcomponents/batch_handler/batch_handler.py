@@ -31,9 +31,9 @@ class BatchMonitor(BaseComponent):
         pane.div(nodeId='bm_rootnode', _class='bm_rootnode')
         pane.dataRpc('dummy', self.setStoreSubscription, subscribe_batch_monitor_on=True,
                      storename='user', client_path='gnr.batch', active=True,
-                     _onResult='genro.rpc.setPolling(1,1);')
-        pane.dataRpc('dummy', self.setStoreSubscription, active=False, subscribe_batch_monitor_off=True,
-                     _onCalling='genro.rpc.setPolling();', storename='user')
+                     _onResult='genro.setFastPolling(true);')
+        pane.dataRpc('dummy', self.setStoreSubscription, active=False, _onCalling='genro.setFastPolling(false);',
+                    subscribe_batch_monitor_off=True,storename='user')
 
 class TableScriptHandler(BaseComponent):
     py_requires = 'gnrcomponents/printer_option_dialog:PrinterOption'

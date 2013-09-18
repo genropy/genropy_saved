@@ -32,10 +32,9 @@ class ChatComponent(BaseComponent):
     def ct_controller_main(self, pane):
         pane.dataRpc('dummy', 'setStoreSubscription', subscribe_chat_plugin_on=True,
                      storename='user', client_path='gnr.chat.msg', active=True,
-                    _onResult='genro.rpc.setPolling(2,2);')
+                    _onResult='genro.setFastPolling(true);')
         pane.dataRpc('dummy', 'setStoreSubscription', active=False, client_path='gnr.chat.msg',
-                    subscribe_chat_plugin_off=True, storename='user',
-                    _onCalling='genro.rpc.setPolling();')
+                    subscribe_chat_plugin_off=True, storename='user',_onCalling='genro.setFastPolling(false);')
 
         pane.dataController(""" var roomId = pars.getItem('roomId');
                                 var priority = pars.getItem('priority');

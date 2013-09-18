@@ -283,12 +283,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         return xhrResult;
     },
 
-    setPolling:function(auto_polling, user_polling) {
-        clearInterval(genro.auto_polling_handler);
-        genro.user_polling = user_polling == null ? genro._('gnr.polling.user_polling') : user_polling;
-        genro.auto_polling = auto_polling == null ? genro._('gnr.polling.auto_polling') : auto_polling;
-        genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
-    },
+    //setPolling:function(auto_polling, user_polling) {
+    //    clearInterval(genro.auto_polling_handler);
+    //    genro.user_polling = user_polling == null ? genro._('gnr.polling.user_polling') : user_polling;
+    //    genro.auto_polling = auto_polling == null ? genro._('gnr.polling.auto_polling') : auto_polling;
+    //    genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
+    //},
+
     debugRpc:function(kw) {
         var method = kw.content ? kw.content.method : '';
         method = method == 'resolverRecall' ? method + ' : ' + kw.content.resolverPars : method;

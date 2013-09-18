@@ -95,7 +95,9 @@
     color: black;
 }
 
+
 .bm_batchpane {
+    opacity: .5;
     position: relative;
     border: 1px solid gray;
     margin: 4px;
@@ -107,6 +109,10 @@
     -moz-box-shadow: 2px 2px 3px gray;
     -webkit-box-shadow: 2px 2px 3px gray;
 
+}
+
+.fast_polling .bm_batchpane{
+    opacity: 1;
 }
 
 .bm_batchlabel {

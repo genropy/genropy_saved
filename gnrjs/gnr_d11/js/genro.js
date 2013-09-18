@@ -76,6 +76,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.profile_count = 4;
         this.lastPing = start_ts;
         this._lastUserEventTs = start_ts;
+        this._lastChildUserEventTs = start_ts;
         this._lastRpc = start_ts;
 
         for (var i = 0; i < this.profile_count; i++) {
@@ -247,7 +248,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     childUserEvent:function(childgenro){
-        //genro._lastUserEventTs = new Date();
+        genro._lastChildUserEventTs = new Date();
         genro.onUserEvent();
     },
 
@@ -292,6 +293,11 @@ dojo.declare('gnr.GenroClient', null, {
                  genro.publish('screenlock');
             },genro.screenlock_timeout*1000*60,this,
             'screenlock');
+        }
+        if(genro.fast_polling){
+            if(!genro.fast_polling_limiter){
+                genro.setAutoPolling(true);
+            }
         }
 
     },
@@ -395,13 +401,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         this._registerUserEvents();
         if(!this.root_page_id){
-            genro.auto_polling_handler = setInterval(function(){
-                if ((new Date() - genro.lastPing) / 1000 > genro.user_polling) {
-                    genro.rpc.ping({'reason':'auto'});
-                }
-            },genro.auto_polling * 1000);
+            this.setAutoPolling();
         }
-
         dojo.subscribe('/dnd/move/start',function(mover){
             mover.page_id = genro.page_id;
             genro.mainGenroWindow.genro.currentDnDMover=mover;
@@ -457,6 +458,42 @@ dojo.declare('gnr.GenroClient', null, {
     parentFrameNode:function(){
         return window.frameElement?window.frameElement.sourceNode:null;
     },
+
+    setFastPolling:function(fast){
+        this.fast_polling = fast;
+        this.setAutoPolling(fast);
+    },
+
+    setAutoPolling:function(fast){
+        var delay = fast? 2 : genro.auto_polling;
+        if(genro.auto_polling_handler){
+            clearInterval(genro.auto_polling_handler)
+        }
+        genro.dom.removeClass('mainWindow','fast_polling');
+        genro.auto_polling_handler = setInterval(function(){
+                if ((new Date() - genro.lastPing) / 1000 > genro.user_polling) {
+                    genro.rpc.ping({'reason':'auto'});
+                }
+            },delay*1000);
+
+        if(delay<genro.auto_polling){
+            genro.dom.addClass('mainWindow','fast_polling');
+            var limiter = function(){
+                genro.fast_polling_limiter = setTimeout(function(){
+                    var ts = new Date();
+                    genro.fast_polling_limiter = null;
+                    var evtage = Math.min((ts - genro._lastUserEventTs),(ts-genro._lastChildUserEventTs))/1000;
+                    if(evtage>genro.user_polling){
+                        genro.setAutoPolling();
+                    }else{
+                        limiter();
+                    }
+                },genro.user_polling*10000);
+            }
+            limiter();
+        }
+    },
+
 
     windowMessageListener:function(){
         window.addEventListener("message", function(e){
@@ -546,9 +583,7 @@ dojo.declare('gnr.GenroClient', null, {
                 var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers(),_lastRpc:f.genro.getServerLastRpc()};
                 r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
-                console.log('entering recursion')
                 f.genro.getChildrenInfo(r);
-                console.log('exit recursion')
             }
         };
         dojo.forEach(window.frames,function(f){cb(f,result);});
