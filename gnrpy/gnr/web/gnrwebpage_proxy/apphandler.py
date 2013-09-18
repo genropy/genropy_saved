@@ -1081,6 +1081,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
+                      _resolver_kwargs=None,
                       _eager_level=0, onLoadingHandler=None,sample_kwargs=None,ignoreReadOnly=None,**kwargs):
         """TODO
         
