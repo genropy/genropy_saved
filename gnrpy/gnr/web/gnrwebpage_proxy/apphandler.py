@@ -273,7 +273,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None,resolver_kwargs=None,loadingParameters=None, **kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -297,11 +297,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkey in (None,
                     '') and not related_field in kwargs: # and (not kwargs): # related record from a newrecord or record without link
             pkey = '*newrecord*'
+        loadingParameters = loadingParameters or dict()
+        loadingParameters.update(resolver_kwargs or dict())
         record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
                                              sqlContextName=sqlContextName, virtual_columns=virtual_columns,_storename=_storename,
-                                             _eager_level=_eager_level,**kwargs)
+                                             _eager_level=_eager_level,loadingParameters=loadingParameters,**kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -1208,6 +1210,12 @@ class GnrWebAppHandler(GnrBaseProxy):
                 attr=n.attr
                 target_fld=str(attr['_target_fld'])
                 kwargs={}
+                resolver_kwargs = attr.get('_resolver_kwargs') or dict()
+                for k,v in resolver_kwargs.items():
+                    if str(v).startswith('='):
+                        v = v[1:]
+                        resolver_kwargs[k] = record.get(v[1:]) if v.startswith('.') else None
+                kwargs['resolver_kwargs'] = resolver_kwargs
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
                                                                         sqlContextName=attr.get('_sqlContextName'),

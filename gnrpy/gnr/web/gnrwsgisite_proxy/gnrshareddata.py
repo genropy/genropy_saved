@@ -71,15 +71,15 @@ class SharedLocker(object):
         self.reason = reason
 
     def __enter__(self):
-        self.timer_start = time()
+        self.timer_start = time.time()
         self.sd.lock(self.key, lock_time=self.lock_time,
                      max_retry=self.max_retry,
                      retry_time=self.retry_time)
-        self.timer_getlock = time()-self.timer_start
+        self.timer_getlock = time.time()-self.timer_start
         return self.sd
 
     def __exit__(self, exception_type, value, traceback):
-        self.timer_exec = time() - self.timer_getlock
+        self.timer_exec = time.time() - self.timer_getlock
         if exception_type:
             print 'error in locking execution %s' %self
         elif self.timer_exec>.5:
