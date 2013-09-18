@@ -37,7 +37,7 @@ import time
 def lock_item(func):
     def decore(self, obj, *args, **kwargs):
         key = obj if isinstance(obj, basestring) else obj['register_item_id']
-        with self.locked(self.item_key(key)):
+        with self.locked(self.item_key(key), caller=func.__name__):
             result = func(self, obj, *args, **kwargs)
             return result
 
@@ -46,7 +46,7 @@ def lock_item(func):
 def lock_page(func):
     def decore(self, key, *args, **kwargs):
         register = self.p_register
-        with register.locked(register.item_key(key)):
+        with register.locked(register.item_key(key), caller=func.__name__):
             result = func(self, key, *args, **kwargs)
             return result
 
@@ -591,8 +591,8 @@ class BaseRegister(object):
             register_item.update(kwargs)
             self.write(register_item)
 
-    def locked(self, key):
-        return self.sd.locked(key)
+    def locked(self, key, **kwargs):
+        return self.sd.locked(key, **kwargs)
 
     def lock_register_item(self, register_item_id, max_retry=None,
                            lock_time=None,

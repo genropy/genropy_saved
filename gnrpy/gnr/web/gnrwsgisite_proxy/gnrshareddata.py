@@ -36,7 +36,8 @@ import time
 from threading import RLock
 import thread
 
-MAX_RETRY = 50
+MAX_RETRY = 500
+DEBUG_LIMIT = 50
 RETRY_TIME = 0.01
 LOCK_TIME = 2
 
@@ -60,21 +61,33 @@ def locked_storage(func):
 class SharedLocker(object):
     def __init__(self, sd, key, max_retry=MAX_RETRY,
                  lock_time=LOCK_TIME,
-                 retry_time=RETRY_TIME):
+                 retry_time=RETRY_TIME,caller=None,reason=None):
         self.sd = sd
         self.key = key
         self.max_retry = max_retry
         self.lock_time = lock_time
         self.retry_time = retry_time
+        self.caller = caller
+        self.reason = reason
 
     def __enter__(self):
+        self.timer_start = time()
         self.sd.lock(self.key, lock_time=self.lock_time,
                      max_retry=self.max_retry,
                      retry_time=self.retry_time)
+        self.timer_getlock = time()-self.timer_start
         return self.sd
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exception_type, value, traceback):
+        self.timer_exec = time() - self.timer_getlock
+        if exception_type:
+            print 'error in locking execution %s' %self
+        elif self.timer_exec>.5:
+            print 'Long locking time %s' %self
         return self.sd.unlock(self.key)
+
+    def __str__(self):
+        return 'Locker: Key %s, Caller: %s, Reason: %s,  Getlock time: %i, Exec time %i' %(self.key, self.caller or '', self.reason or '', self.timer_getlock, self.timer_exec)
         
 class GnrSharedData(object):
     """TODO"""
@@ -82,11 +95,11 @@ class GnrSharedData(object):
         self.site = site
         self._locks = {}
 
-    def locked(self, key, max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
+    def locked(self, key, max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME, caller=None, reason=None):
         """TODO"""
         return SharedLocker(self, key, lock_time=lock_time,
                             max_retry=max_retry,
-                            retry_time=retry_time)
+                            retry_time=retry_time, caller=caller, reason=reason)
 
     def lockcount(self, key, delta):
         lockdict = self._locks.setdefault(thread.get_ident(), {})
@@ -108,6 +121,8 @@ class GnrSharedData(object):
         retry_time = retry_time or RETRY_TIME
         while k:
             if self.add('%s_lock' % key, True, expiry=lock_time):
+                if k > DEBUG_LIMIT:
+                    print  "TRIED TO LOCK AND GOT AFTER: %f" % (k / RETRY_TIME)
                 return True
             k -= 1
             time.sleep(retry_time)
@@ -307,6 +322,8 @@ class GnrSharedData_memcache(GnrSharedData):
         status = self.storage.add(self.key(key), value, time=exp_to_epoch(expiry))
         if status:
             return value
+        else:
+            print 'wrong status unable to add in memcache %s' %key
 
     def replace (self, key, value, expiry=0):
         status = self.storage.replace(self.key(key), value, time=exp_to_epoch(expiry))
