@@ -2264,6 +2264,8 @@ class SqlRecord(object):
         #else:
         if 'storefield' in joiner:
             info['_storefield'] = joiner['storefield']
+        if 'resolver_kwargs' in joiner:
+            info['_resolver_kwargs'] = joiner['resolver_kwargs']
         info['_resolver_name'] = resolver_one
         info['_sqlContextName'] = self.sqlContextName
         info['_auto_relation_value'] = mfld

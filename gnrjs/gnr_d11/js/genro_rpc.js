@@ -650,8 +650,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'target_fld':params._target_fld,
             'sqlContextName':params._sqlContextName,
             'virtual_columns':params._virtual_columns,
+            '_resolver_kwargs':params._resolver_kwargs,
             '_storename':params._storename};
         var storefield = params._storefield;
+        var resolver_kwargs = params._resolver_kwargs;
         kwargs.method = 'app.getRelatedRecord';
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
         resolver.updateAttr = true;
@@ -661,9 +663,21 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }else if(storefield===false){
                 kwargs['_storename'] = false;
             }
+            if(resolver_kwargs){
+                var parentRecordBag = this.getParentNode().getParentBag();
+                for(var k in resolver_kwargs){
+                    var p = resolver_kwargs[k];
+                    if((p+'').indexOf('=')==0){
+                        p = p.slice(1);
+                        resolver_kwargs[k] = p.indexOf('.')==0?parentRecordBag.getItem(p.slice(1)):genro.getData(p);
+                    }
+                }
+                kwargs['resolver_kwargs'] = resolver_kwargs;
+            }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];
             var loadingParameters = genro.getData('gnr.tables.' + table + '.loadingParameters');
+            //var resolverParameters = genro.getData('gnr.resolverParameters.xyz.@pippo_@caio_puza');
             var rowLoadingParameters = objectPop(kwargs, 'rowLoadingParameters');
             if (rowLoadingParameters) {
                 loadingParameters = loadingParameters || new gnr.GnrBag();

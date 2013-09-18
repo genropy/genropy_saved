@@ -24,6 +24,7 @@
 import logging
 
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import moduleDict
 from gnr.core.gnrstructures import GnrStructObj, GnrStructData
@@ -109,10 +110,12 @@ class DbModel(object):
         tbl = pkg.table(tbl)
         col = tbl.columns[col]
         return (pkg.name, tbl.name, col.name)
-        
+       
+    @extract_kwargs(resolver=True) 
     def addRelation(self, many_relation_tuple, oneColumn, mode=None,storename=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
-                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None):
+                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None,
+                    resolver_kwargs=None):
         """Add a relation in the current model.
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
@@ -168,7 +171,8 @@ class DbModel(object):
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename)
+                                   one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename,
+                                   resolver_kwargs=resolver_kwargs)
             self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
