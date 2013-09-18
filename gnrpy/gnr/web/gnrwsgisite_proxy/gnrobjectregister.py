@@ -55,7 +55,7 @@ def lock_page(func):
 def lock_connection(func):
     def decore(self, key, *args, **kwargs):
         register = self.c_register
-        with register.locked(register.item_key(key)):
+        with register.locked(register.item_key(key), caller=func.__name__):
             result = func(self, key, *args, **kwargs)
             return result
 
@@ -64,7 +64,7 @@ def lock_connection(func):
 def lock_user(func):
     def decore(self, key, *args, **kwargs):
         register = self.u_register
-        with register.locked(register.item_key(key)):
+        with register.locked(register.item_key(key), caller=func.__name__):
             result = func(self, key, *args, **kwargs)
             return result
 

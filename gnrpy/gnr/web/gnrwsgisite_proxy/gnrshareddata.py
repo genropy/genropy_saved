@@ -79,7 +79,7 @@ class SharedLocker(object):
         return self.sd
 
     def __exit__(self, exception_type, value, traceback):
-        self.timer_exec = time.time() - self.timer_getlock
+        self.timer_exec = time.time() - self.timer_start - self.timer_getlock
         if exception_type:
             print 'error in locking execution %s' %self
         elif self.timer_exec>.5:
@@ -87,7 +87,7 @@ class SharedLocker(object):
         return self.sd.unlock(self.key)
 
     def __str__(self):
-        return 'Locker: Key %s, Caller: %s, Reason: %s,  Getlock time: %i, Exec time %i' %(self.key, self.caller or '', self.reason or '', self.timer_getlock, self.timer_exec)
+        return 'Locker: Key %s, Caller: %s, Reason: %s,  Getlock time: %f, Exec time %f' %(self.key, self.caller or '', self.reason or '', self.timer_getlock, self.timer_exec)
         
 class GnrSharedData(object):
     """TODO"""
@@ -121,8 +121,8 @@ class GnrSharedData(object):
         retry_time = retry_time or RETRY_TIME
         while k:
             if self.add('%s_lock' % key, True, expiry=lock_time):
-                if k > DEBUG_LIMIT:
-                    print  "TRIED TO LOCK AND GOT AFTER: %f" % (k / RETRY_TIME)
+                if max_retry - k > DEBUG_LIMIT:
+                    print  "TRIED TO LOCK AND GOT AFTER: %f" % ((max_retry-k) / RETRY_TIME)
                 return True
             k -= 1
             time.sleep(retry_time)
