@@ -273,7 +273,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None,resolver_kwargs=None,loadingParameters=None, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None,resolver_kwargs=None,
+                             loadingParameters=None, _debug_info=None,**kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator

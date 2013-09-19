@@ -421,18 +421,16 @@ class ThLinker(BaseComponent):
                 kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition 
             else:
                 pane.dataController("""if(_reason!='container' && this.form.isNewRecord()){
+                    var linked_id  = GET #FORM.record.@%s.@%s.%s;
                     if(linked_id && linked_id!=curr_pkey){
                         this.form.reset();
                         this.form.load({destPkey:linked_id});
                     }
-                }""",fkey='^#FORM.record.%s' %field,linked_id='=#FORM.record.@%s.@%s.%s' %(field,manyrelfld,tblobj.pkey),
+                }""" %(field,manyrelfld,tblobj.pkey)
+                ,fkey='^#FORM.record.%s' %field,
                     curr_pkey='=#FORM.pkey')
-
                 _customclasscol = """(CASE WHEN @%s.%s IS NOT NUll THEN 'linked_row' ELSE '' END) AS _customclasses_existing""" %(manyrelfld,tblobj.pkey)
                 hiddenColumns = _customclasscol if not hiddenColumns else '%s,%s' %hiddenColumns
-
-
-
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',
