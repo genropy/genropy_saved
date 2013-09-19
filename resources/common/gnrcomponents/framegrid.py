@@ -82,10 +82,10 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         return frame
 
-    @extract_kwargs(default=True)
+    @extract_kwargs(default=True,store=True)
     @struct_method
     def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
-                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,**kwargs):
+                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,store_kwargs=True,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:

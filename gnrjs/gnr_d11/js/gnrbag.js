@@ -1240,16 +1240,14 @@ dojo.declare("gnr.GnrBag", null, {
      * @param {Object} path
      *
      */
+
     pop: function(path, doTrigger) {
-        var node = this.htraverse(path);
-        var obj = node.value;
-        var label = node.label;
-        if (obj != null) {
-            var n = obj._pop(label, doTrigger);
-            if (n)
-                return n.getValue();
+        var n = this.popNode(path, doTrigger);
+        if(n){
+            return n.getValue()
         }
     },
+
     delItem: function(path, doTrigger) {
         this.pop(path, doTrigger);
     },
