@@ -11,6 +11,7 @@ from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrlang import GnrException
+from time import time
 import os
 import base64
 import mimetypes
@@ -72,9 +73,12 @@ class GnrWebRpc(GnrBaseProxy):
         if dataChanges:
             envelope.setItem('dataChanges', dataChanges)
         page.response.content_type = "text/xml"
+        t0 = time()
         xmlresult = envelope.toXml(unresolved=True,
                                    translate_cb=page.localizer.translateText, omitUnknownTypes=True,
                                    catalog=page.catalog)
+        page.xml_deltatime = int((time()-t0)*1000)
+        page.xml_size = len(xmlresult)
         if page.isLocalizer():
             xmlresult = xmlresult.replace('*_localizerStatus*', page.localizer.status)
 

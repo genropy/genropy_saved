@@ -39,6 +39,7 @@ from gnr.core import gnrlist
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
+from gnr.core.gnrdecorator import debug_info
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
@@ -1025,7 +1026,7 @@ class SqlQuery(object):
         self.handlePyColumns(data)
 
         return index, data
-        
+
     def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):
         """Execute the query and return a SqlSelection
         
@@ -1217,7 +1218,7 @@ class SqlSelection(object):
         return self._keyDict
         
     keyDict = property(_get_keyDict)
-        
+    
     def output(self, mode, columns=None, offset=0, limit=None,
                filterCb=None, subtotal_rows=None, formats=None, locale=None, dfltFormats=None,
                asIterator=False, asText=False, **kwargs):

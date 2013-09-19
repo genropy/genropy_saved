@@ -147,7 +147,9 @@ class GnrWebPage(GnrBaseWebPage):
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.dynamic_js_requires= {}
         self.dynamic_css_requires= {}
-        self.debugopt = request_kwargs.pop('debugopt', None)
+        self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
+        debug_py = request_kwargs.pop('debug_py', None)
+        self.debug_py = False if boolean(debug_py) is not True else debug_py
         #self.polling_enabled = boolean(request_kwargs.pop('polling_enabled')) if 'polling_enabled' in request_kwargs else getattr(self, 'polling_enabled', True)
         self.callcounter = request_kwargs.pop('callcounter', None) or 'begin'
         if not hasattr(self, 'dojo_source'):
@@ -761,6 +763,9 @@ class GnrWebPage(GnrBaseWebPage):
     def htmlHeaders(self):
         """TODO"""
         pass
+
+    def debugger(self, debugtype, **kwargs):
+        self.site.debugger(debugtype, **kwargs)
     
     @property
     def pageArgs(self):
@@ -847,11 +852,15 @@ class GnrWebPage(GnrBaseWebPage):
             arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)
             arg_dict['favicon_ext'] = favicon.split('.')[1]
 
-        if self.debugopt:
-            kwargs['debugopt'] = self.debugopt
+        if self.debug_sql:
+            kwargs['debug_sql'] = self.debug_sql
+
+        if self.debug_py:
+            kwargs['debug_py'] = self.debug_py
+
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-            
+
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()

@@ -54,7 +54,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
-        this.debugopt = kwargs.startArgs.debugopt || null;
+        this.debug_sql = kwargs.startArgs.debug_sql;
+        this.debug_py = kwargs.startArgs.debug_py;
+
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
@@ -73,6 +75,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.formatter = gnrformatter;
         this.timeProfilers = [];
         this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
+        this.rpcHeaderInfo = {};
         this.profile_count = 4;
         this.lastPing = start_ts;
         this._lastUserEventTs = start_ts;
@@ -396,9 +399,8 @@ dojo.declare('gnr.GenroClient', null, {
         });
         genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
-        if (this.debugopt) {
-            genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
-        }
+        genro.setData('gnr.debugger.debug_sql',this.debug_sql);
+        genro.setData('gnr.debugger.debug_py',this.debug_py);
         this._registerUserEvents();
         if(!this.root_page_id){
             this.setAutoPolling();
@@ -922,10 +924,16 @@ dojo.declare('gnr.GenroClient', null, {
         genro.setData('gnr._dev.logger','');
     }
     ,
-    getCounter: function() {
-        this._counter = this._counter + 1;
-        return this._counter;
+    getCounter: function(what,reset) {
+        what = what?'_counter_'+what:'_counter';
+        if(reset==true){
+            this[what] = 0;
+        }else{
+            this[what] = (this[what] || 0)+1;
+        }
+        return this[what];
     },
+
     
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*

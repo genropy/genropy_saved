@@ -39,7 +39,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
-from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdecorator import extract_kwargs,public_method,debug_info
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
@@ -633,8 +633,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
         
-    
-    @public_method               
+    @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',

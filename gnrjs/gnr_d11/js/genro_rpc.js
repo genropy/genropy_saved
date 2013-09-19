@@ -219,6 +219,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var content = objectUpdate({}, callKwargs);
         content.page_id = this.application.page_id;
         var kw = objectUpdate({}, xhrKwargs);
+        kw.start_time = new Date();
         kw.url = kw.url || this.pageIndexUrl();
 
         if(sourceNode){
@@ -228,9 +229,14 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }
         }
 
-        if (this.application.debugopt) {
-            content.debugopt = this.application.debugopt;
-            content.callcounter = this.application.getCounter();
+        if (genro.debug_sql || genro.debug_py) {
+            if(genro.debug_py){
+                content.debug_py = genro.debug_py;
+            }
+            if(genro.debug_sql){
+                content.debug_sql = genro.debug_sql;
+            }
+            content.callcounter =  genro.getCounter('debug');   
         }
         kw.content = content;
         //kw.preventCache = kw.preventCache - just to remember that we can have it
@@ -425,6 +431,15 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             return;
         }
         this.profileTime(ioArgs.xhr);
+        if(genro.debug_sql || genro.debug_py){
+            var xmltime = parseFloat(ioArgs.xhr.getResponseHeader('X-GnrXMLTime') || 0);
+            var xmlsize = parseFloat(ioArgs.xhr.getResponseHeader('X-GnrXMLSize') || 0);
+            var callcounter = ioArgs.args.content.callcounter;
+            if(callcounter!=null){
+                genro.rpcHeaderInfo[callcounter] = {xml_time:xmltime,xml_size:xmlsize,total_time:new Date()-ioArgs.args.start_time};
+                //console.log('genro.rpcHeaderInfo',genro.rpcHeaderInfo)
+            }
+        }
         var envNode = envelope.getNode('result');
         var resultAsNode = (envelope.getItem('resultType') == 'node') || currentAttr;
         var changenode,attr,value, changepath,serverpath, as_fired,reason;

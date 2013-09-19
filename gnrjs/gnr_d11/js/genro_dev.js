@@ -284,29 +284,64 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-
+    _getHeaderInfo_getcell:function(row,field){
+        var h = genro.rpcHeaderInfo[row['r_count']];
+        return h?h[field]:'';
+    },
 
     sqlDebugPalette:function(parent){
         var bc = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'borderContainer',frameCode:'devSqlDebug',margin:'2px',rounded:4});
-        bc._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^gnr.debugger.sqldebug'});
+        bc._('dataController',{'script':"genro.debug_sql=sqldebug",'sqldebug':'^gnr.debugger.sqldebug'});
+        bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
 
         var top = bc._('framePane',{frameCode:'debugger_rpcgrid',region:'top',height:'200px',splitter:true,_class:'pbl_roundedGroup',margin:'2px',center_overflow:'hidden'});
-        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator,5,clearConsole,5',side:'top'})
+        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_py,activator_sql,5,clearConsole,5',side:'top'})
         topbar._('div','vtitle',{innerHTML:'RPC grid'})
-        topbar._('checkbox','activator',{'value':'^gnr.debugger.sqldebug','label':'Activate debug'});
-        topbar._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);'});
+        var sn = bc.getParentNode();
+        topbar._('checkbox','activator_py',{'value':'^gnr.debugger.pydebug','label':'Debug py',
+            validate_onAccept:function(value,userChange){
+                if(userChange){
+                    var currval = genro.getData('gnr.debugger.pydebug_methods') || '';
+                    genro.setData('gnr.debugger.pydebug_methods',currval);
+                    genro.dlg.prompt('Methods',{dflt:currval,widget:'simpleTextArea',action:function(value){
+                        sn.setRelativeData('gnr.debugger.pydebug_methods',value);
+                    }});
+                }
+            }
+        });
+
+        topbar._('checkbox','activator_sql',{'value':'^gnr.debugger.sqldebug','label':'Debug sql'});
+        topbar._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);genro.rpcHeaderInfo = {};genro.getCounter("debug",true);'});
         if(!genro.getData('gnr.debugger.main')){
             genro.setData('gnr.debugger.main', new gnr.GnrBag());
         }
         var rowstruct = new gnr.GnrBag();
-        rowstruct.setItem('cell_0', null, {field:'r_count',name:'Method',width:'3em'});
+        rowstruct.setItem('cell_0', null, {field:'r_count',name:'N',width:'2em'});
 
         rowstruct.setItem('cell_1', null, {field:'methodname',name:'Method',width:'18em'});
-        rowstruct.setItem('cell_2', null, {field:'rpc_time',name:'Server time',width:'8em',dtype:'N'});
-        rowstruct.setItem('cell_3', null, {field:'sql_count',name:'Sql count',width:'8em',dtype:'N'});
-        rowstruct.setItem('cell_4', null, {field:'sql_total_time',name:'Sql time',width:'8em',dtype:'N'});
         rowstruct.setItem('cell_5', null, {field:'debug_info',name:'Debug info',width:'15em'});
-        rowstruct.setItem('cell_6', null, {field:'delta_time',name:'RPC-SQL',width:'8em',dtype:'N'});
+        rowstruct.setItem('cell_9', null, {field:'total_time',name:'Total',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'total_time');
+        }});
+
+
+        rowstruct.setItem('cell_2', null, {field:'server_time',name:'Server',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_10', null, {field:'net_time',name:'Network',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'total_time')-row['server_time'];
+        }});
+
+        rowstruct.setItem('cell_8', null, {field:'xml_size',name:'Size(kb)',width:'4em',dtype:'N',_customGetter:function(row){
+            return Math.floor((genro.dev._getHeaderInfo_getcell(row,'xml_size')/1024));
+        }});
+        rowstruct.setItem('cell_7', null, {field:'xml_time',name:'XMLTime',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'xml_time')
+        }});
+
+        rowstruct.setItem('cell_3', null, {field:'sql_count',name:'N.Sql',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_4', null, {field:'sql_total_time',name:'Sql time',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_6', null, {field:'not_sql_time',name:'Py time',width:'4em',dtype:'N'});
+
+
 
 
         genro.setData('gnr.debugger.rpccall_grid.struct.view_0.row_0', rowstruct);
@@ -324,12 +359,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
 
         var rowstruct = new gnr.GnrBag();
-        rowstruct.setItem('cell_0', null, {field:'_dbtable',name:'Table',width:'10em'});
+        rowstruct.setItem('cell_0', null, {field:'_type',name:'T',width:'2em'});
+        rowstruct.setItem('cell_1', null, {field:'_description',name:'Description',width:'9em'});
         //rowstruct.setItem('cell_1', null, {field:'sqltext',name:'Server time',width:'20em'});
-        rowstruct.setItem('cell_3', null, {field:'_execution_time',name:'Time',width:'8em',dtype:'N'});
+        rowstruct.setItem('cell_2', null, {field:'_execution_time',name:'Time',width:'8em',dtype:'N'});
 
         genro.setData('gnr.debugger.sqlquery_grid.struct.view_0.row_0', rowstruct);
-        center._('contentPane',{region:'left',width:'200px',overflow:'hidden'})._('includedView',{nodeId:'sql_debugger_grid_sqlquery',storepath:'gnr.debugger.sqlquery_grid.store',
+        center._('contentPane',{region:'left',width:'220px',overflow:'hidden',splitter:true})._('includedView',{nodeId:'sql_debugger_grid_sqlquery',storepath:'gnr.debugger.sqlquery_grid.store',
                                 structpath:'gnr.debugger.sqlquery_grid.struct',datapath:'gnr.debugger.sqlquery_grid',relativeWorkspace:true,selectedIndex:'.currentRowIndex'});
         var tc = center._('tabContainer',{region:'center',margin:'2px'});
         tc._('dataController',{script:'var n=store.getNode("#"+currentRowIndex); if(n){this.setRelativeData(".output.sqltext",n._value);this.setRelativeData(".output.params",objectAsHTMLTable(n.attr))}',currentRowIndex:'^.currentRowIndex',store:'=.store',_if:'store',_else:'SET .output=null;',datapath:'gnr.debugger.sqlquery_grid'})

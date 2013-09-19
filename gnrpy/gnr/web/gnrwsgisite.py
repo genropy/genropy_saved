@@ -709,7 +709,7 @@ class GnrWsgiSite(object):
             finally:
                 self.onServedPage(page)
                 self.cleanup()
-            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count)
+            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None))
             
             return response(environ, start_response)
             
@@ -1044,7 +1044,6 @@ class GnrWsgiSite(object):
         Press ``Ctrl+Shift+D`` to open the debug pane in your browser
         
         :param debugtype: string (values: 'sql' or 'py')"""
-
         if self.currentPage:
             page = self.currentPage
             #print 'ffff',self.debug,page.isDeveloper()
