@@ -72,7 +72,9 @@ class ImapReceiver(object):
         new_mail['to_address'] = unicode(mail['To'])
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
+        print 'Convert ',mail['Subject']
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
+        print 'converted',new_mail['subject']
         date = mail['Date']
         if date:
             datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
