@@ -1221,7 +1221,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
                                                                         sqlContextName=attr.get('_sqlContextName'),
                                                                         virtual_columns=attr.get('_virtual_columns'),
-                                                                        _eager_level= _eager_level+1,
+                                                                        _eager_level= _eager_level+1,_storename=attr.get('_storename'),
                                                                         **kwargs)
                 n.value = relatedRecord
                 n.attr['_resolvedInfo'] = relatedInfo

@@ -33,7 +33,7 @@ class PublicBase(BaseComponent):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
-            pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
+            pane.dataRemote('gnr.user_record', 'app.getRecord', username=self.user,table=userTable)
         pane.data('gnr.workdate', self.workdate)
         
                               
