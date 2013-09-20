@@ -97,7 +97,15 @@ class ImapReceiver(object):
         encoding = encoding or chardet.detect(m)['encoding']
         print 'try with encode', encoding
         try:
-            return unicode(m.decode(encoding).encode('utf8'),errors='ignore')
+            z1 = m.decode(encoding)
+            print 'z1'
+            z2 = z1.encode('utf8')
+            print 'z2'
+            z3 = unicode(z2)
+            print 'z3'
+            return z3
+
+            #return unicode(m.decode(encoding).encode('utf8')) # unicode(value.decode('iso-8859-1').encode('utf8')) 
         except UnicodeDecodeError:
             encoding = chardet.detect(m)['encoding']
             print 'retry with encode', encoding
