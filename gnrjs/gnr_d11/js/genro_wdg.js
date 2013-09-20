@@ -175,10 +175,41 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         return handler;
     },
+
+    _prepareZoomEnvelope:function(newobj,zoomToFit){
+        var zoomEnvelope = document.createElement('div');
+        zoomEnvelope.style.display = 'inline-block';
+        newobj.appendChild(zoomEnvelope);
+        setInterval(function(){
+            zoomEnvelope.style.zoom = 1;
+            var originalDomnode = zoomEnvelope.parentNode;
+            var zoom_x = 1;
+            var zoom_y = 1;
+            var delta_x = 0;
+            var delta_y = 0;
+            if(zoomToFit===true || zoomToFit=='x'){
+                delta_x = zoomEnvelope.clientWidth - originalDomnode.clientWidth;
+            }
+            if(zoomToFit===true || zoomToFit=='y'){
+                delta_y = zoomEnvelope.clientHeight - originalDomnode.clientHeight;
+            }
+            if(delta_x>0){
+                zoom_x = originalDomnode.clientWidth/ zoomEnvelope.clientWidth;
+            }
+            if(delta_y>0){
+                zoom_x = originalDomnode.clientHeight/ zoomEnvelope.clientHeight;
+            }
+            zoomEnvelope.style.zoom =  Math.min(zoom_x,zoom_y);
+        },50);
+        return zoomEnvelope;
+    },
+
     create:function(tag, destination, attributes, ind, sourceNode) {
         var attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag,attributes,sourceNode);
+        var zoomToFit = objectPop(attributes,'zoomToFit')
+
         genro.assert(handler,'missing handler for tag:'+tag);
         if (handler._beforeCreation) {
             var goOn = handler._beforeCreation(attributes,sourceNode);
@@ -195,6 +226,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         } else {
             destination = handler._attachTo ? dojo.byId(handler._attachTo) : destination;
             domnode = this.makeDomNode(domtag, destination, ind);
+
         }
         if (typeof(ind) == 'object') {
             ind = -1; // should be index of domnode in destination ???
@@ -227,8 +259,12 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             }
             var extracted = objectExtract(attributes, '_*', {'_type':null}); // strip all attributes used only for triggering rebuild or as input for ==function
             newobj = this.createHtmlElement(domnode, attributes, kw, sourceNode);
+            if(zoomToFit){
+                newobj = this._prepareZoomEnvelope(newobj,zoomToFit);
+            }
             this.linkSourceNode(newobj, sourceNode, kw);
             newobj.gnr = handler;
+
         }
         else {//This is dojo widget
             newobj = this.createDojoWidget(tag, domnode, attributes, kw, sourceNode);

@@ -161,16 +161,20 @@ class FrameIndex(BaseComponent):
         menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
         menu.menuline('!!Clear favorites',code='clearfav')
-
-        tabroot = pane.div(connect_onclick="""
+        box = pane.div(zoomToFit='x',overflow='hidden')
+        tabroot = box.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
+                                                return;
+                                            }
+                                            if($1.target==this.domNode){
                                                 return;
                                             }
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
 
-                                            """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
+                                            """,margin_left='20px',
+                                            nodeId='frameindex_tab_button_root',white_space='nowrap')
         pane.dataController("""if(!data){
                                     if(indexTab){
                                         genro.callAfter(function(){
