@@ -72,10 +72,7 @@ class ImapReceiver(object):
         new_mail['to_address'] = unicode(mail['To'])
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
-        print 'Convert ',mail['Subject'],encoding
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
-        print 'converted',new_mail['subject']
-        z = Bag(new_mail).toXml()
         date = mail['Date']
         if date:
             datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
@@ -96,24 +93,12 @@ class ImapReceiver(object):
 
     def smartConverter(self,m,encoding=None):
         encoding = encoding or chardet.detect(m)['encoding']
-        print 'try with encode', encoding
         try:
-            z1 = m.decode(encoding)
-            print 'z1'
-            z2 = z1.encode('utf8')
-            print 'z2'
-            z3 = unicode(z2)
-            print 'z3'
-            z4 = unicode(z3)
-            print 'z4'
-            return z4
-
-            #return unicode(m.decode(encoding).encode('utf8')) # unicode(value.decode('iso-8859-1').encode('utf8')) 
+            return unicode(m.decode(encoding).encode('utf8'))
         except UnicodeDecodeError:
             encoding = chardet.detect(m)['encoding']
-            print 'retry with encode', encoding
             try:
-                return unicode(m.decode(encoding).encode('utf8'),errors='ignore')
+                return unicode(m.decode(encoding).encode('utf8'))
             except UnicodeDecodeError:
                 return unicode('')
 
@@ -178,10 +163,9 @@ class ImapReceiver(object):
                 return False
         encoding = mail.get_content_charset()
         b = Bag(mail)
-        if encoding:
-            for k,v in b.items():
-                if isinstance(v,basestring):
-                    b[k] =self.smartConverter(v,encoding)
+        for k,v in b.items():
+            if isinstance(v,basestring):
+                b[k] = self.smartConverter(v,encoding)
         new_mail['email_bag'] = b
         self.fillHeaders(mail, new_mail,encoding)
         if mail.get_content_maintype() not in ('multipart','image'):
@@ -205,7 +189,6 @@ class ImapReceiver(object):
             new_mail['body'] = g.group(2) if g else new_mail['body']
         else:
             new_mail['body'] = new_mail.get('body_plain')     
-
         return new_mail
             
 if __name__=='__main__':
