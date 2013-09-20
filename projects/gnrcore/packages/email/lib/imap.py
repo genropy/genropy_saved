@@ -75,6 +75,7 @@ class ImapReceiver(object):
         print 'Convert ',mail['Subject'],encoding
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         print 'converted',new_mail['subject']
+        z = new_mail.toXml()
         date = mail['Date']
         if date:
             datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
