@@ -72,7 +72,7 @@ class ImapReceiver(object):
         new_mail['to_address'] = unicode(mail['To'])
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
-        print 'Convert ',mail['Subject']
+        print 'Convert ',mail['Subject'],encoding
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         print 'converted',new_mail['subject']
         date = mail['Date']
@@ -100,7 +100,7 @@ class ImapReceiver(object):
         except UnicodeDecodeError:
             encoding = chardet.detect(m)['encoding']
             try:
-                return unicode(m.decode(encoding).encode('utf8'))
+                return unicode(m.decode(encoding).encode('utf8'),errors='ignore')
             except UnicodeDecodeError:
                 return unicode('')
 
