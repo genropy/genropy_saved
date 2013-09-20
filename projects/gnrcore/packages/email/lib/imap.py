@@ -93,6 +93,8 @@ class ImapReceiver(object):
 
     def smartConverter(self,m,encoding=None):
         encoding = encoding or chardet.detect(m)['encoding']
+        if not encoding:
+            return unicode(m,errors='ignore')
         try:
             return unicode(m.decode(encoding).encode('utf8'))
         except UnicodeDecodeError:
