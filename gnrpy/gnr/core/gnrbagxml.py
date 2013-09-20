@@ -388,7 +388,7 @@ class BagToXml(object):
                 if isinstance(value, BagAsXml):
                     print x
                 try:
-                    value = unicode(value)
+                    value = unicode(value,errors='ignore')
                 except Exception, e:
                     raise e
                     #raise '%s: %s' % (str(tagName), value)
