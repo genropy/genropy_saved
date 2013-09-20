@@ -99,6 +99,7 @@ class ImapReceiver(object):
             return unicode(m.decode(encoding).encode('utf8'))
         except UnicodeDecodeError:
             encoding = chardet.detect(m)['encoding']
+            print 'retry with encode', encoding
             try:
                 return unicode(m.decode(encoding).encode('utf8'),errors='ignore')
             except UnicodeDecodeError:
