@@ -1310,7 +1310,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         s=self.child('slot',childname=slot)
         s.frame = frame
         parameter = None
+        slotCode = slot
         if '@' in slot:
+            slotCode = slot.replace('@','_')
             slot,parameter = slot.split('@')
         slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
         if not slothandle:
@@ -1321,7 +1323,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if slothandle:
             kw = dict()
             kw[slot] = toolbarArgs.pop(slot,parameter)
-            kw.update(dictExtract(toolbarArgs,'%s_' %slot,True))
+            kw.update(dictExtract(toolbarArgs,'%s_' %slotCode,True))
             kw['frameCode'] = frameCode
             slothandle(**kw)
             
@@ -1351,6 +1353,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         #se ritorni la toolbar hai una toolbar vuota 
     
+    def slotbar_updateslotsattr(self,**kwargs):
+        self.attributes.update(kwargs)
+        toolbarArgs = self.attributes
+        slotstr = toolbarArgs['slots']
+        slots = slotstr.split(',')
+        slotbarCode= toolbarArgs.get('slotbarCode')
+        inattr = self.getInheritedAttributes()
+        frameCode = inattr.get('frameCode')
+        namespace = inattr.get('namespace')
+        frame = self.parent.parent
+        prefix = slotbarCode or frameCode
+        for slot in slots:
+            if slot!='*' and slot!='|' and not slot.isdigit():
+                self.pop(slot)
+                self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,toolbarArgs=toolbarArgs)
+
     def slotbar_replaceslots(self, toReplace, replaceStr,**kwargs):
         """Allow to redefine the preset bars of the :ref:`slotBars <slotbar>` and the
         :ref:`slotToolbars <slotbar>`

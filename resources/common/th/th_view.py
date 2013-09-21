@@ -19,7 +19,7 @@ class TableHandlerView(BaseComponent):
                      gnrcomponents/batch_handler/batch_handler:TableScriptRunner
                      """
                          
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,store=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
@@ -34,8 +34,8 @@ class TableHandlerView(BaseComponent):
                                  condition=condition,condition_kwargs=condition_kwargs,**kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
-            for hook in hooks.values():
-                hook(getattr(view,side))
+            for k in sorted(hooks.keys()):
+                hooks[k](getattr(view,side))
         viewhook = self._th_hook('view',mangler=frameCode)
         if viewhook:
             viewhook(view)
@@ -45,7 +45,8 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
+                       store_kwargs=None,parentForm=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -91,8 +92,10 @@ class TableHandlerView(BaseComponent):
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table)
+        store_kwargs = store_kwargs or dict()
+        store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,store_kwargs=store_kwargs)
 
 
 
@@ -184,7 +187,7 @@ class TableHandlerView(BaseComponent):
         if dflt:
             pane.data('.current',dflt)
         pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
-                        mandatory=getattr(m,'mandatory',True))
+                        mandatory=getattr(m,'mandatory',True),**kwargs)
 
         pane.dataController("""
             if(!currentSection){
@@ -340,7 +343,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None,title=None):
+                        virtualStore=None,condition=None,unlinkdict=None,title=None,store_kwargs=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -409,6 +412,7 @@ class TableHandlerView(BaseComponent):
         _else = None
         if _if:
             _else = "this.store.clear();"
+        store_kwargs.update(condPars)
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
@@ -451,7 +455,7 @@ class TableHandlerView(BaseComponent):
                                }
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
-                               **condPars)
+                               **store_kwargs)
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:

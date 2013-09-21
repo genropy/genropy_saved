@@ -2543,7 +2543,7 @@ dojo.declare("gnr.stores._Collection",null,{
                 console.log('setLocked published for the store of the grid')
                 that.setLocked(v);
             });
-            var parentForm = that.storeNode.getFormHandler();
+            var parentForm = that.storeNode.attr.parentForm===false? false:that.storeNode.getFormHandler();
             if(parentForm){
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);

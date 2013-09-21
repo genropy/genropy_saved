@@ -453,11 +453,6 @@ cursorZoom_plus{
     padding-top: 1px;
 }
 
-.gnrfield.tag_div>div{
-    padding-top: 2px;
-    min-height: 14px;
-    line-height: normal;
-}
 .gnrfield.tag_checkbox label{
     color: #707070;
 }
