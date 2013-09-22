@@ -573,7 +573,7 @@ class BaseRegister(object):
         last_used = last_used or self.sd.get(self.lastused_key(register_item['register_item_id']))
         if not last_used:
             return
-        print 'last_used: ',last_used
+        # print 'last_used: ',last_used  This is 4 pars returned not three
         register_item['last_ts'], register_item['last_user_ts'],register_item['last_rpc_ts'],register_item['profile'],temp = last_used
         register_item['age'] = age('start_ts')
         if register_item['last_rpc_ts']:
