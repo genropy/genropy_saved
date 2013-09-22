@@ -113,7 +113,7 @@ class TableHandlerView(BaseComponent):
             frame.grid.attributes.update(preview_kwargs=preview_kwargs)
             frame.grid.tooltip(callback="""
                     var r = n;
-                    while(r.gridRowIndex==null){
+                    while(!r || r.gridRowIndex==null){
                         r = r.parentElement;
                     }
                     var grid = dijit.getEnclosingWidget(n).grid;
@@ -123,7 +123,7 @@ class TableHandlerView(BaseComponent):
                     var tpl = preview_kwargs.tpl;
                     tpl = tpl==true?'preview':preview_kwargs.tpl;
                     return genro.serverCall('renderTemplate',{record_id:pkey,table:table,tplname:tpl,missingMessage:'Preview not available'},null,null,'POST');
-                """,modifiers='Shift',validclass='dojoxGrid-cell,cellContent')
+                """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
 
