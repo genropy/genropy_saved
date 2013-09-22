@@ -574,7 +574,7 @@ class BaseRegister(object):
         if not last_used:
             return
         # print 'last_used: ',last_used  This is 4 pars returned not three
-        register_item['last_ts'], register_item['last_user_ts'],register_item['last_rpc_ts'],register_item['profile'],temp = last_used
+        register_item['last_ts'], register_item['last_user_ts'],register_item['last_rpc_ts'],register_item['profile'] = last_used
         register_item['age'] = age('start_ts')
         if register_item['last_rpc_ts']:
             register_item['last_rpc_age'] = age('last_rpc_ts')
