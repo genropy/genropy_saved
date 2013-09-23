@@ -193,17 +193,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         conn = curs.connection
         if psycopg2.__version__.startswith('2.0'):
             selector = curs
-            pg_go = curs.isready
+            #pg_go = curs.isready
         else:
             selector = conn
-            pg_go = conn.poll
+            #pg_go = conn.poll
         while listening:
             if select.select([selector], [], [], timeout) == ([], [], []):
                 if onTimeout != None:
                     listening = onTimeout()
             else:
-                if pg_go():
-                    if onNotify != None:
+                if psycopg2.__version__.startswith('2.0'):
+                    if curs.isready() and onNotify != None:
+                        listening = onNotify(conn.notifies.pop())
+                else:
+                    conn.poll()
+                    while conn.notifies and listening and onNotify != None:
                         listening = onNotify(conn.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
         

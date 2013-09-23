@@ -115,6 +115,10 @@ class TransactionManager4D(object):
         if not record_data:
             return
         record_data = record_data.asDict(ascii=True, lower=True)
+        tbl = self.db.table('%s.%s' % (pkg, table))
+        if hasattr(tbl, 'sync_prepare'):
+            #print 'sync_prepare'
+            tbl.sync_prepare(record_data, data)
         for tr, attr in data.digest('#v,#a'):
             from_attr = attr['from'].lower()
             if '.' in from_attr:
@@ -132,4 +136,4 @@ class TransactionManager4D(object):
             self.db.table(tablepath).insertOrUpdate(data)
         elif action == 'DEL':
             self.db.table(tablepath).delete(data)
-        self.db.commit()
+        self.db.commit() # is ok to commit here? Every single opertion of a 4d transaction is committed separately

@@ -109,6 +109,7 @@ def gnr4dNetBag (host4D, method, params=None):
 
     #xml = params.toXml(encoding='iso-8859-1')
     xml = unicode(params.toXml(mode4d=True, encoding='iso-8859-1'), encoding='iso-8859-1')
+    #print xml
     result = server.GNT_NetBags_Server(FourD_Arg1=xml)
     return Bag(result)
 

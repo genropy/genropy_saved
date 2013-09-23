@@ -31,7 +31,7 @@ class GnrCustomWebPage(object):
 
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
-        fb.dbselect(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia')
+        fb.textbox(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia')
 
         fb.numbertextbox(value='^.qty',lbl='Quantitativo')
         fb.numbertextbox(value='^.colli',lbl='Colli',validate_notnull=True,validate_notnull_error='!!Required')
@@ -47,6 +47,7 @@ class GnrCustomWebPage(object):
         top.dataController('SET gridstore = dati.deepCopy();',dati='=.dati',_fired='^zzz',_onStart=True)
         frame = top.bagGrid(frameCode='test_view',title='Test',struct=self.gridstruct,height='300px',gridEditor=False,
                             table='glbl.localita',storepath='gridstore',pbl_classes=True,grid_selfDragRows=True)
+                            
         myform = frame.grid.linkedForm(frameCode='test_form',
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='300px',dialog_width='300px',
@@ -55,7 +56,7 @@ class GnrCustomWebPage(object):
 
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
-        fb.dbselect(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia',selected_nome='.provincia_nome')
+        fb.textbox(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia',selected_nome='.provincia_nome')
 
         fb.numbertextbox(value='^.qty',lbl='Quantitativo')
         fb.numbertextbox(value='^.colli',lbl='Colli',validate_notnull=True,validate_notnull_error='!!Required')

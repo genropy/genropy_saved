@@ -1310,7 +1310,7 @@ class SqlTable(GnrObject):
             fields = [f.lstrip('$') for f in fields]
             if not isinstance(record, Bag):
                 fields = [self.db.colToAs(f) for f in fields]
-            cols = [(c, gnrstring.toText(record[c])) for c in fields]
+            cols = [(c, gnrstring.toText(record[c], locale=self.db.locale)) for c in fields]
             if '$' in mask:
                 caption = gnrstring.templateReplace(mask, dict(cols))
             else:
