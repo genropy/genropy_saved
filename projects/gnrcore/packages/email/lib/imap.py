@@ -92,6 +92,8 @@ class ImapReceiver(object):
             new_mail['body_plain'] = self.smartConverter(content,encoding)
 
     def smartConverter(self,m,encoding=None):
+        if not m:
+            return
         encoding = encoding or chardet.detect(m)['encoding']
         if not encoding:
             return unicode(m,errors='ignore')

@@ -213,6 +213,8 @@ class SqlTable(GnrObject):
     @property
     def partitionParameters(self):
         kw = dictExtract(self.attributes,'partition_')
+        if not kw:
+            return
         result = dict()
         result['field'] = kw.keys()[0]
         result['path'] = kw[result['field']]
