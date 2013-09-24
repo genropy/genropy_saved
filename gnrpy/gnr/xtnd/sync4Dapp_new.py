@@ -374,7 +374,7 @@ class GnrAppSync4D(GnrApp):
 
         self.transaction4d.writeTransaction(mode='sync', action=attr['mode'],
                                             maintable='%s.%s' % (pkg, tbl),
-                                            data=data.toXml(),
+                                            data=data, #data.toXml(),
                                             request_id=attr.get('sy_id'),
                                             file_name=file_name,
                                             queue_id='sync4d',
@@ -390,7 +390,7 @@ class GnrAppSync4D(GnrApp):
             pkg, tbl = b['FROM'].lower().lstrip('_').split('_', 1)
         self.transaction4d.writeTransaction(mode='import', action=b['MODE'],
                                             maintable='%s.%s' % (pkg, tbl),
-                                            data=b['DATA'].toXml(),
+                                            data=b['DATA'], #.toXml(),
                                             file_name=file_name,
                                             queue_id='sync4d'
                                             )

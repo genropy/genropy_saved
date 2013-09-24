@@ -1146,7 +1146,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
                        caption=tblobj.recordCaption(record, newrecord),
-                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename)
+                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename,
+                       from_fld=from_fld)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
             recInfo['_protect_write'] = not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)

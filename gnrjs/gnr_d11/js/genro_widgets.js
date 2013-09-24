@@ -1566,6 +1566,13 @@ dojo.declare("gnr.widgets.TitlePane", gnr.widgets.baseDojo, {
     }
 });
 
+dojo.declare("gnr.widgets.ResizeHandle", gnr.widgets.baseDojo, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'ResizeHandle';
+        genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
+    }
+});
 dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'div';

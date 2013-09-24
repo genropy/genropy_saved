@@ -72,7 +72,7 @@ try:
                 k = k[0]
             value = self.data[k]
             if not value:
-                value = self.data(as_name)
+                value = self.data[as_name]
             format = None
             mask = None
             formattedValue = None

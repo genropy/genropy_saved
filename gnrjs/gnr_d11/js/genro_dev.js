@@ -112,7 +112,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             if (!debug_url) {
                 console.log('RESPONSE',response,'ioArgs',ioArgs,responseText)
                 if (genro.isDeveloper){
-                    var title = 'Server error ' +ioArgs.content.method || '';
+                    var title = 'Server error ' +ioArgs.args.content.method || '';
                     genro.dlg.quickPalette('error_palette_'+genro.getCounter(),{height:'500px',width:'700px',maxable:true,title:title},
                         {innerHTML:responseText,position:'absolute',top:0,left:0,right:0,bottom:0,overflow:'auto'});
                 }else{
