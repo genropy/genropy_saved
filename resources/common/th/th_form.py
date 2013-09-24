@@ -159,7 +159,6 @@ class TableHandlerForm(BaseComponent):
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.abort();')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')  
-          
         elif showtoolbar:
             default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if options.get('duplicate'):
@@ -173,11 +172,10 @@ class TableHandlerForm(BaseComponent):
             if options.get('printMenu'):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
-
             if options.get('copypaste'):
                 extra_slots.append('form_copypaste')
             if options.get('linker'):
-                default_slots = default_slots.replace('form_delete','')
+                default_slots = default_slots.replace('form_delete',','.join(extra_slots) if extra_slots else '')
                 default_slots = default_slots.replace('form_add','')
                 #default_slots = default_slots.replace('locker','') 
             table = form.getInheritedAttributes()['table']  
