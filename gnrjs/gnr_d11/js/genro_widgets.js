@@ -1268,6 +1268,24 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         var handler = (p==parseInt(p))?'setSelected':'setSelectedPage';
         this[handler](p);
     },
+    patch_selectChild:function(page){
+        var sourceNode = this.sourceNode;
+        if(sourceNode.attr.nodeId){
+            var oldselected = this.selectedChildWidget;
+            if(oldselected){
+                var oldpagename = oldselected.sourceNode.attr.pageName;
+                if(oldpagename){
+                    sourceNode.publish('hiding', {pageName:oldpagename});
+                }
+            }
+            var newpagename = page.sourceNode.attr.pageName;
+            if(newpagename){
+                sourceNode.publish('showing', {pageName:newpagename});
+            }
+        }
+        this.selectChild_replaced(page);
+    },
+
     mixin_setSelected:function(p) {
         var child = this.getChildren()[p || 0];
         if (this.getSelected() != child) {
@@ -1301,6 +1319,7 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
     mixin_getChildIndex:function(obj) {
         return dojo.indexOf(this.getChildren(), obj);
     },
+
 
     onShowHideChild:function(widget, child, st) {
         if (widget._duringLayoutCall) {
