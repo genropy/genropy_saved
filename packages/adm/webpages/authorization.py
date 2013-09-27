@@ -26,6 +26,9 @@ class GnrCustomWebPage(object):
     def barTitle(self):
         return '!!Authorization'
 
+    def queryBase(self):
+        return dict(column='code',op='contains', val='%', runOnStart=True)
+
     def lstBase(self, struct):
         r = struct.view().rows()
         r.fieldcell('@user_id.username', width='15em', name='!!Created by')
