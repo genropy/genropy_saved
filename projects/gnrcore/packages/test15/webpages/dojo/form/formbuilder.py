@@ -12,7 +12,8 @@ class GnrCustomWebPage(object):
         """Basic formbuilder"""
         fb = pane.formbuilder(cols=2, border_spacing='3px', width='100%', fld_width='30px')
         fb.textbox(value='^.aaa', lbl='aaa', width='100%')
-        fb.textbox(value='^.bb', lbl='bb')
+        fb.data('.bb','piero')
+        fb.textbox(value='^.bb', lbl='bb',readOnly=True)
         fb.textbox(value='^.cc', lbl='cc', width='100%', colspan=2)
         
         b = Bag()
