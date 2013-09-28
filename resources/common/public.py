@@ -225,6 +225,7 @@ class PublicSlots(BaseComponent):
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
+        pane.dataController('PUBLISH public_changed_partition = v;',v='^current.%s' %partition_field)
         pane.data('current.%s' %partition_field,current_partition_value,
                     serverpath='rootenv.%s' %partition_path,dbenv=True)
 
@@ -385,7 +386,7 @@ class TableHandlerMain(BaseComponent):
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
-            th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
+            th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:

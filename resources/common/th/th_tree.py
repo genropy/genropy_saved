@@ -288,7 +288,12 @@ class HTableTree(BaseComponent):
                                                 function(result){
                                                 });""" %table
             treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
-        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",
+                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.dataController("""storebag.getNode("root").getValue('reload');""",
+                            storebag='=%s' %treeattr['storepath'],
+                            treeNode=tree,subscribe_public_changed_partition=True)
+
         if root_id:
             pane.dataController("""
                 var rootNode = storebag.getNode("root");
