@@ -214,7 +214,7 @@ class PublicSlots(BaseComponent):
         related_tblobj = self.db.table(table)
         current_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
-        partitionioning_pkeys = self.db.table('adm.user').partitionioning_pkeys()
+        partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
         if not partitionioning_pkeys and current_partition_value:
             partitionioning_pkeys = [current_partition_value]
         partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
