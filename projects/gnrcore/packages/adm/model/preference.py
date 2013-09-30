@@ -33,7 +33,7 @@ class Table(object):
             userpref = self.db.table('adm.user').getPreference(path='*',username=username)
             if userpref:
                 preferences.update(userpref)
-        return preferences.filter(lambda n: n.attr.get('dbenv'))
+        return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
 
 
