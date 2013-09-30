@@ -242,6 +242,10 @@ class GnrWebPage(GnrBaseWebPage):
                         data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
             data['pageArgs'] = kwargs
             data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
+            if self.application.db.package('adm'):
+                prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
+                if prefenv:
+                    data['prefenv'] = prefenv
             return self.site.register.new_page(self.page_id, self, data=data)
 
     def get_call_handler(self, request_args, request_kwargs):
@@ -331,6 +335,7 @@ class GnrWebPage(GnrBaseWebPage):
         def addToStoreDbEnv(n,_pathlist=None):
             if n.attr.get('dbenv'):
                 path = n.label if n.attr['dbenv'] is True else n.attr['dbenv']
+                print 'envpat',path
                 storeDbEnv[path] = n.value
         _pathlist = []
         pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
