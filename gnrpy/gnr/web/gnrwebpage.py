@@ -335,7 +335,6 @@ class GnrWebPage(GnrBaseWebPage):
         def addToStoreDbEnv(n,_pathlist=None):
             if n.attr.get('dbenv'):
                 path = n.label if n.attr['dbenv'] is True else n.attr['dbenv']
-                print 'envpat',path
                 storeDbEnv[path] = n.value
         _pathlist = []
         pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
