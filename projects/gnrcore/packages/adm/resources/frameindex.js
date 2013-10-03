@@ -4,8 +4,8 @@ var loginManager = {
         var notification_data = genro.serverCall('_table.adm.user_notification.getNotification',{pkey:notification_id});
         var dlg = genro.dlg.quickDialog(notification_data['title'],{_showParent:true,width:'900px',datapath:'notification',background:'white'});
         var box = dlg.center._('div',{overflow:'auto',height:'500px',overflow:'auto',padding:'10px'});
-        box._('div',{innerHTML:notification_data.notification,border:'1px solid silver'});
-        var bar = dlg.bottom._('slotBar',{slots:'cancel,*,confirm_checkbox,2,confirm'});
+        box._('div',{innerHTML:notification_data.notification,border:'1px solid transparent',padding:'10px'});
+        var bar = dlg.bottom._('slotBar',{slots:'cancel,*,confirm_checkbox,2,confirm',height:'22px'});
         bar._('button','cancel',{'label':'Cancel',command:'cancel',action:function(){genro.logout();}});
         bar._('checkbox','confirm_checkbox',{value:'^.confirm',label:(notification_data.confirm_label || 'Confirm')})
         bar._('button','confirm',{'label':'Confirm',command:'confirm',disabled:'^.confirm?=!#v',action:function(){

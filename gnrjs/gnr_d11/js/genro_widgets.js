@@ -6638,7 +6638,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
       		}
       	}
         var checkedPaths = this.sourceNode.attr.checkedPaths;
-        if(objectNotEmpty(checked_attr)){
+        if(objectNotEmpty(checked_attr) || checkedPaths){
             this.updateCheckedAttr(checked_attr,checkedPaths,checked_attr_joiners)
         }
     },
@@ -6674,7 +6674,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
         },walkmode);
         for(var k in checked_attr){
-            this.sourceNode.setRelativeData(checked_attr[k],result[k].join((checked_attr_joiners[k] || ',')))
+            this.sourceNode.setRelativeData(checked_attr[k],result[k].join(checked_attr_joiners[k] || ','))
         }
         if(checkedPaths){
             this.sourceNode.setRelativeData(checkedPaths,cp.join(','),null,null,this);
@@ -6818,7 +6818,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
 
     mixin_setCheckedPaths:function(path,kw){
-        if (kw.reason == this) {
+        if (kw.reason == this || kw.reason=='autocreate') {
             return;
         }
         var store = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
