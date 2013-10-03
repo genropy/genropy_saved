@@ -148,13 +148,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs.close()
         conn.close()
         
-    def dump(self, filename,dbname=None):
+    def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump an existing database
         
         :param filename: db name"""
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
-        return call(['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename])
+        extras = extras or []
+        args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
+        return call(args)
         
     def restore(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
