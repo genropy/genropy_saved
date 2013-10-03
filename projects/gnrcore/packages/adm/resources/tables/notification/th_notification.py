@@ -26,7 +26,8 @@ class Form(BaseComponent):
         fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('title')
         fb.field('confirm_label',width='20em')
-
+        fb.field('tag_rule',width='20em')
+        fb.field('all_users',width='20em',html_label=True)
         fb.field('letterhead_id')
         sc = bc.stackContainer(region='center')
 

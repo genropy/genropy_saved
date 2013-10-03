@@ -1,5 +1,5 @@
 var loginManager = {
-    notificationManager:function(notification_id,onNotificationCb){
+    notificationManager:function(notification_id){
         genro.setData('notification.confirm',null);
         var notification_data = genro.serverCall('_table.adm.user_notification.getNotification',{pkey:notification_id});
         var dlg = genro.dlg.quickDialog(notification_data['title'],{_showParent:true,width:'900px',datapath:'notification',background:'white'});
@@ -13,7 +13,7 @@ var loginManager = {
                                                             function(n_id){
                                                                 dlg.close_action();
                                                                 if(n_id){
-                                                                    loginManager.notificationManager(n_id,onNotificationCb);
+                                                                    loginManager.notificationManager(n_id);
                                                                 }
                                                             }
                                                     )

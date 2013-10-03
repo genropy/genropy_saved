@@ -37,4 +37,28 @@ class Table(object):
 
     def nextUserNotification(self,user_id=None):
         f = self.query(where='$user_id=:uid AND $confirmed IS NOT TRUE',uid=user_id,limit=1,order_by='$__ins_ts asc').fetch()
-        return f[0]['id'] if f else None
+        user_notification_id = f[0]['id'] if f else None
+        if user_notification_id:
+            return user_notification_id
+        
+
+    def updateGenericNotification(self,user_id=None,user_tags=None):
+        generic_notification = self.db.table('adm.notification').query(where="""($all_users IS TRUE OR $tag_rule IS NOT NULL )
+                                                                                AND NOT $existing_for_current_user""",uid=user_id).fetch()
+        commit = False
+        for n in generic_notification:
+            if n['all_users'] or self.db.application.checkResourcePermission(n['tag_rule'],user_tags):
+                commit = True
+                self.insert(dict(user_id=user_id,notification_id=n['id']))
+        if commit:
+            self.db.commit()
+
+
+
+
+
+
+
+
+
+        
