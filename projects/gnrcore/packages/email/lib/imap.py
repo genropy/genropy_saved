@@ -105,6 +105,8 @@ class ImapReceiver(object):
                 return unicode(m.decode(encoding).encode('utf8'))
             except UnicodeDecodeError:
                 return unicode('')
+        except LookupError:
+            return unicode('')
 
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
