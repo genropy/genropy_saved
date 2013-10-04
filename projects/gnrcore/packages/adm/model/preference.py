@@ -29,10 +29,14 @@ class Table(object):
 
     def envPreferences(self,username=None):
         preferences = self.getPreference('*')
+
         if username:
             userpref = self.db.table('adm.user').getPreference(path='*',username=username)
             if userpref:
-                preferences.update(userpref)
+                if preferences:
+                    preferences.update(userpref)
+                else:
+                    preferences = userpref
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
 
