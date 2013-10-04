@@ -34,10 +34,8 @@ class PagedEditor(BaseComponent):
         bar = right.slotBar('0,previewPane,0',closable=True,width='270px',preview_height='100%',splitter=True,border_left='1px solid silver')
         bar.previewPane.pagedHtml(sourceText=value,pagedText=pagedText,letterheads='^#WORKSPACE.letterheads',editor=editor,
                                 printAction=printAction,bodyStyle=bodyStyle,datasource=datasource,extra_bottom=extra_bottom,**tpl_kwargs)
-        frame.dataRpc('#WORKSPACE.letterheads',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id',_userChanges=True,
+        frame.dataRpc('#WORKSPACE.letterheads',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id',#_userChanges=True,
                         _fired='^#WORKSPACE.reload_letterhead')
-        frame.dataController('if(!letterheads && letterhead_id){FIRE #WORKSPACE.reload_letterhead;}',letterheads='=#WORKSPACE.letterheads',
-                            pagedText=pagedText,letterhead_id=(letterhead_id or '').replace('^','='),_userChanges=True)
         frame._editor = editor
         return frame
 

@@ -204,7 +204,7 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
-        box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
+        box = pane.div(margin_top='2px') 
         if self.public_partitioned is True:
             self.public_partitioned = self.tblobj.partitionParameters
         kw = self.public_partitioned
@@ -212,17 +212,22 @@ class PublicSlots(BaseComponent):
         partition_path = kw['path']
         table = kw['table']
         related_tblobj = self.db.table(table)
-        if not self.rootenv[partition_path]:
-            fb = box.formbuilder(cols=1,border_spacing='0')
-            fb.dbSelect(value='^current.%s' %partition_field,
-                        dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
-                        hasDownArrow=True,font_size='.8em',lbl_color='white',
-                        color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        
-        pane.data('current.%s' %partition_field,self.rootenv[partition_path],
-                    serverpath='currenv.%s' %partition_path,dbenv=True)
-
-
+        current_partition_value = self.rootenv[partition_path]
+        fb = box.formbuilder(cols=1,border_spacing='0')
+        partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
+        if not partitionioning_pkeys and current_partition_value:
+            partitionioning_pkeys = [current_partition_value]
+        partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
+        readOnly = len(partitionioning_pkeys) == 1
+        fb.dbSelect(value='^current.%s' %partition_field,
+                            condition=partition_condition,condition_pk=partitionioning_pkeys,
+                            readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
+                            dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
+                            hasDownArrow=True,font_size='.8em',lbl_color='white',
+                            color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
+        pane.dataController('PUBLISH public_changed_partition = v;',v='^current.%s' %partition_field)
+        pane.data('current.%s' %partition_field,current_partition_value,
+                    serverpath='rootenv.%s' %partition_path,dbenv=True)
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
@@ -381,7 +386,7 @@ class TableHandlerMain(BaseComponent):
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
-            th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
+            th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:
@@ -389,7 +394,7 @@ class TableHandlerMain(BaseComponent):
             if th['form.top.bar.form_add']:
                 th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form'] and partition_kwargs:
-                th.form.dataController("SET gnr.partition_selector.hidden = pkey?true:false;",pkey='^#FORM.pkey')
+                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar

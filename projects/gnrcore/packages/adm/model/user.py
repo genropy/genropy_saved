@@ -35,6 +35,10 @@ class Table(object):
 
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 
+
+    def partitionioning_pkeys(self):
+        return None
+        
     def createPassword(self):
         password = getUuid()[0:6]
         return password

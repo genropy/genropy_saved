@@ -349,12 +349,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             cb = dojo.hitch(this, function(response, ioArgs) {
                 var result = preprocessor(response, ioArgs);
                 var error = (result && typeof(result) == 'object') ? result.error : null;
-                try {
-                    async_cb(result, error);
-                } catch(e) {
-                    console.error(e);
-                    throw e;
-                }
+                genro.safetry(function(){
+                    return async_cb(result, error);
+                });
                 return result;
             });
             //sync = false;
@@ -449,7 +446,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         var childDataChanges = envelope.getItem('childDataChanges');
         if(childDataChanges){
-            console.log('childDataChanges',childDataChanges)
             childDataChanges.forEach(function(n){
                 var w = genro.getChildFramePage(n.label);
                 w.genro.rpc.setDatachangesInData(n._value);

@@ -205,6 +205,17 @@ dojo.declare('gnr.GenroClient', null, {
             console[level || 'error'](msg);
         }
     },
+
+    safetry:function(cb){
+        try{
+            return cb();
+        }catch(e){
+            console.error(e.message);
+            console.log(e.stack);
+        }
+
+    },
+
     bp:function(aux) {
         console.log('bp ',arguments);
         if (aux===true){
