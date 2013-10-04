@@ -43,8 +43,8 @@
 
 ._common_d11 .dojoxFloatingPane {
     border-radius: 4px;
-    box-shadow: 4px 4px 6px #403b3b;
-    border: 0px;
+    box-shadow: 3px 3px 4px #666;
+    border-color:silver;
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
@@ -58,6 +58,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     font-size: .9em;
+    border:0;
 }
 
 /* @end */
