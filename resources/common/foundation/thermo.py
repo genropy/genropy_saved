@@ -40,10 +40,10 @@ class Thermo(BaseComponent):
         d.div(width='100%', height='4em').div(margin='auto').button('Stop',
                                                                     action='genro.wdgById("%s").onAskCancel();' % dlgid)
 
-        pane.dataController('genro.wdgById(dlgid).show();genro.rpc.setPolling(%s);' % pollingFreq, dlgid=dlgid,
-                            fired=fired)
-        pane.dataController('genro.wdgById(dlgid).hide();genro.rpc.setPolling();', dlgid=dlgid,
-                            _fired='^_thermo.%s.c.end' % thermoId)
+        pane.dataController('genro.wdgById(dlgid).show();', dlgid=dlgid,
+                            fired=fired) # genro.rpc.setPolling(%s);  % pollingFreq
+        pane.dataController('genro.wdgById(dlgid).hide();', dlgid=dlgid,
+                            _fired='^_thermo.%s.c.end' % thermoId) # genro.rpc.setPolling();
 
 
     def setNewThermo(self, thermoId, level, progress, maximum, message='', indeterminate=False, lazy=True):
