@@ -108,7 +108,7 @@ class TransactionManager4D(object):
         for record_data in data.values():
             if record_data:
                 self.db.table(tablepath).insertOrUpdate(record_data.asDict(ascii=True, lower=True))
-        self.db.commit()
+        #self.db.commit()
 
     def do_sync_trigger(self, data, pkg, table, action):
         record_data = data.pop('data')
@@ -136,4 +136,4 @@ class TransactionManager4D(object):
             self.db.table(tablepath).insertOrUpdate(data)
         elif action == 'DEL':
             self.db.table(tablepath).delete(data)
-        self.db.commit() # is ok to commit here? Every single opertion of a 4d transaction is committed separately
+        #self.db.commit() # is ok to commit here? Every single opertion of a 4d transaction is committed separately
