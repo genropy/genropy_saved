@@ -210,7 +210,7 @@ class HTableTree(BaseComponent):
                 tree_kwargs['openOnClick'] = not folderSelectable
                 tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
                 menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
-                pane.div().treemenu(storepath=menupath,table=attr['dbtable'],condition=dbselect_condition,
+                dbselect.treemenu(storepath=menupath,table=attr['dbtable'],condition=dbselect_condition,
                                     condition_kwargs=dbselect_condition_kwargs,modifiers='*',
                                     caption_field=caption_field,cacheTime=cacheTime,
                                     menuId=connectedMenu,dbstore=kwargs.get('_storename'),**tree_kwargs)
@@ -236,7 +236,7 @@ class HTableTree(BaseComponent):
                         condition=condition,
                         condition_kwargs=condition_kwargs,
                         cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
-        menu = pane.menu(modifiers=modifiers,_class='menupane',id=menuId,connect_onOpeningPopup="""
+        menu = pane.menu(modifiers=modifiers,_class='menupane',connectToParent=False,id=menuId,connect_onOpeningPopup="""
                 var dbselect =  dijit.getEnclosingWidget(this.widget.originalContextTarget);
                 var dbselectNode =  dijit.getEnclosingWidget(this.widget.originalContextTarget).sourceNode;
                 var currvalue = dbselect.getValue();
