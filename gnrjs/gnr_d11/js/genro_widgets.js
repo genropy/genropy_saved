@@ -6866,7 +6866,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         paths = paths.split(',');
         var that = this;
         var treeNode;
-        console.log('SET CHECKEDPATHS',paths);
         paths.forEach(function(path){
             var n = store.getNode(path);
             if(n){

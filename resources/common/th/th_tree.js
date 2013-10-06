@@ -50,7 +50,8 @@ var THTree = {
         if(n){
             return n.getFullpath(null, tree.model.store.rootData());
         }else{
-            return 'root.'+genro.serverCall('ht_pathFromPkey',{pkey:pkey,table:table});
+            var storeNode = store.getParentNode();
+            return genro.serverCall('ht_pathFromPkey',{pkey:pkey,table:storeNode.attr['table'],dbstore:storeNode.attr['dbstore']});
         }
     },
 

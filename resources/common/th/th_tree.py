@@ -180,7 +180,7 @@ class HTableTree(BaseComponent):
                         cacheTime=cacheTime,caption_field=caption_field,dbstore=kwargs.get('_storename'))
         if treeMode:
             menunode = dbselect.menu(modifiers='*',attachTo=dbselect,_class='menupane').menuItem().div(max_height='350px',max_width='400px',overflow='auto')
-            menunode.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
+            menunode.div(margin='4px').tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
                          hideValues=True,autoCollapse=True,excludeRoot=True,
                          labelAttribute='caption',openOnClick=not folderSelectable,
                          selectedLabelClass='selectedTreeNode',_class="branchtree noIcon")
@@ -230,7 +230,7 @@ class HTableTree(BaseComponent):
 
     @struct_method
     def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
-                    caption_field=None,dbstore=None,modifiers=None,max_height=None,max_width=None,menuId=None,**kwargs):
+                    caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
 
         pane.dataRemote(storepath,self.ht_remoteHtableViewStore,table=table,
                         condition=condition,
@@ -249,8 +249,8 @@ class HTableTree(BaseComponent):
                     pathToSelect = THTree.fullPathByIdentifier(treeWdg,store,currvalue);
                 }
                 treeWdg.setSelectedPath(null,{value:pathToSelect});
-            """ %storepath)
-        menuItem = menu.menuItem().div(max_height=max_height or '350px',max_width= max_width or '400px',overflow='auto')
+            """ %(storepath))
+        menuItem = menu.menuItem().div(max_height=max_height or '350px',min_width= min_width or '300px',overflow='auto')
         menuItem.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %storepath,
                          hideValues=True,autoCollapse=True,excludeRoot=True,
                          labelAttribute='caption',selectedLabelClass='selectedTreeNode',
@@ -323,16 +323,12 @@ class HTableTree(BaseComponent):
             self.db.commit()
 
     @public_method
-    def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
+    def ht_pathFromPkey(self,table=None,pkey=None,dbstore=None):
         tblobj = self.db.table(table)
-        if not hfield:
-            hierarchical = tblobj.attributes['hierarchical']
-            hfield = hierarchical.split(',')[0]
-        hdescription = tblobj.readColumns(columns='$hierarchical_%s' %hfield,pkey=pkey)
-        where = " ( :hdescription = $hierarchical_%s ) OR ( :hdescription ILIKE $hierarchical_%s || :suffix) " %(hfield,hfield)
-        f = tblobj.query(where=where,hdescription=hdescription,suffix='/%%',order_by='$hierarchical_%s' %hfield).fetch()
-        if f:
-            return '.'.join([r['pkey'] for r in f])
+        hierarchical_pkey =  tblobj.readColumns(columns='$hierarchical_pkey',pkey=pkey,_storename=dbstore)
+        path = hierarchical_pkey.replace('/','.')
+        return path
+
         
     
     @extract_kwargs(condition=dict(slice_prefix=False),related=True)
