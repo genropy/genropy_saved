@@ -517,9 +517,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         return value;
     },
-    attrDatapath: function(attrname) {
+    attrDatapath: function(attrname,targetNode) {
+        targetNode = targetNode || this;
         if (!attrname) {
-            return this.absDatapath();
+            return targetNode.absDatapath();
         }
         var attrvalue = this.attr[attrname];
         var path = null;
@@ -527,7 +528,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (this.isPointerPath(attrvalue)) {
                 attrvalue = attrvalue.slice(1);
             }
-            path = this.absDatapath(attrvalue);
+            path = targetNode.absDatapath(attrvalue);
         }
         return path;
     },

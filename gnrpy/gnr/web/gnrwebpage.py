@@ -101,6 +101,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self._start_time = time()
+        self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
 

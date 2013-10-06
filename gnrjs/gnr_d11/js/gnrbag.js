@@ -363,7 +363,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     },
     
     
-    attributeOwnerNode:function(attrname,attrvalue){
+    attributeOwnerNode:function(attrname,attrvalue,caseInsensitive){
         var curr = this;
         var currattr = curr.attr || {};
         if(arguments.length==1){
@@ -376,6 +376,10 @@ dojo.declare("gnr.GnrBagNode", null, {
                 while(curr && !dojo.some(attrname,function(n){return (n in curr.attr)})){
                     curr = curr.getParentNode();
                 }
+            }
+        }else if(caseInsensitive){
+            while(curr && (curr.attr[attrname] || '').toLowerCase()!=(attrvalue || '').toLowerCase()){
+                curr = curr.getParentNode();
             }
         }else{
             while(curr && curr.attr[attrname]!=attrvalue){

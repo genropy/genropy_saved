@@ -2069,13 +2069,19 @@ versionpatch_11__contextMouse: function (e) {
     },
     mixin_onOpeningPopup:function(popupKwargs){
         var kw = this.sourceNode.currentAttributes();
-        if(kw.attachTo){
-            var attachTo = kw.attachTo.widget;
-            popupKwargs.popup.domNode.style.width = attachTo.domNode.clientWidth+'px';
-            popupKwargs.orient = this.isLeftToRight() ? {'BL':'TL', 'BR':'TR', 'TL':'BL', 'TR':'BR'}: {'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'};
-            popupKwargs.parent = attachTo;
-            popupKwargs.around = attachTo.domNode;
+        var aroundWidget = kw.attachTo? kw.attachTo.widget:null;
+
+        if(!aroundWidget && this.originalContextTarget){
+            aroundWidget = dijit.getEnclosingWidget(this.originalContextTarget);
         }
+        if(aroundWidget){
+            this.placeAround(popupKwargs,aroundWidget);
+        }
+    },
+    mixin_placeAround:function(popupKwargs,widget){
+        popupKwargs.popup.domNode.style.width = widget.domNode.clientWidth+'px';
+        popupKwargs.orient = this.isLeftToRight() ? {'BL':'TL', 'BR':'TR', 'TL':'BL', 'TR':'BR'}: {'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'};
+        popupKwargs.around = widget.domNode;
     }
 
 });
@@ -5990,6 +5996,8 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         attributes.ignoreCase = (attributes.ignoreCase == false) ? false : true;
         //store._remote;
         attributes.store = store;
+        savedAttrs['connectedArrowMenu'] = sourceNode.attr.connectedMenu;
+        savedAttrs['connectedMenu'] = null
 
         return savedAttrs;
     },
@@ -6064,6 +6072,18 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             if (dojo.isSafari) {
                 dojo.connect(widget.focusNode, 'onkeydown', widget, '_onKeyPress');
             }
+        }
+        if(savedAttrs.connectedArrowMenu && widget.downArrowNode){
+            var connectedMenu = savedAttrs.connectedArrowMenu; 
+            genro.src.onBuiltCall(function(){
+                var menu = dijit.byId(connectedMenu);
+                if(menu){
+                    menu.bindDomNode(widget.downArrowNode);
+                    widget._downArrowMenu = true;
+                }
+            });
+            
+            
         }
         //dojo.connect(widget, '_doSelect', widget,'_onDoSelect');                 
     }
@@ -6486,6 +6506,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
         }
     },
+
+
     
     
     fillDragInfo:function(dragInfo) {
@@ -6528,6 +6550,18 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         return ck;
     },
+
+    mixin_collapseAll:function(curr){
+        var curr = curr || this.rootNode;
+        var tree = this;
+        dojo.forEach(curr.getChildren(), function(n) {
+            if (n.isExpanded) {
+                tree.collapseAll(n);
+                tree._collapseNode(n);
+            }
+        });
+    },
+
     mixin_applyFilter:function(search){
         var treeNodes=dojo.query('.dijitTreeNode',this.domNode);
         treeNodes.removeClass('hidden');
@@ -6917,10 +6951,20 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         return this.currentSelectedNode ? this.currentSelectedNode.item == item : false;
     },
 
+    mixin_getContainingtMenu:function(){
+        return this.sourceNode.attributeOwnerNode('tag','menu',true);
+    },
+
     mixin__updateSelect: function(item, node) {
         var modifiers = objectPop(node, '__eventmodifier');
         var reason = this;
         var attributes = {};
+        var setterNode = this.sourceNode;
+        var countainingMenu = this.getContainingtMenu();
+        if(countainingMenu){
+            var targetWdg = dijit.getEnclosingWidget(countainingMenu.widget.originalContextTarget);
+            setterNode = targetWdg? targetWdg.sourceNode:setterNode;
+        }
         if (modifiers) {
             attributes._modifiers = modifiers;
         }
@@ -6931,25 +6975,25 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             item = node.getParent().item;
         }
         if (this.sourceNode.attr.selectedLabel) {
-            var path = this.sourceNode.attrDatapath('selectedLabel');
-            this.sourceNode.setRelativeData(path, item.label, attributes, null, reason);
+            var path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
+            setterNode.setRelativeData(path, item.label, attributes, null, reason);
         }
         if (this.sourceNode.attr.selectedItem) {
-            var path = this.sourceNode.attrDatapath('selectedItem');
-            this.sourceNode.setRelativeData(path, item, attributes, null, reason);
+            var path = this.sourceNode.attrDatapath('selectedItem',setterNode);
+            setterNode.setRelativeData(path, item, attributes, null, reason);
         }
         if (this.sourceNode.attr.selectedPath) {
-            var path = this.sourceNode.attrDatapath('selectedPath', reason);
+            var path = this.sourceNode.attrDatapath('selectedPath', setterNode);
             var root = this.model.store.rootData();
-            this.sourceNode.setRelativeData(path, item.getFullpath(null, root), objectUpdate(attributes, item.attr), null, reason);
+            setterNode.setRelativeData(path, item.getFullpath(null, root), objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         for (var sel in selattr) {
-            var path = this.sourceNode.attrDatapath('selected_' + sel);
-            this.sourceNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
+            var path = this.sourceNode.attrDatapath('selected_' + sel,setterNode);
+            setterNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
         }
         if(this.sourceNode.attr.onSelectedFire){
-            this.sourceNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
+            setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
         }
     }
 });
