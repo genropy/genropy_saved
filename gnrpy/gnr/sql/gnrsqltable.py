@@ -516,7 +516,7 @@ class SqlTable(GnrObject):
             sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
             self.raw_update(sourceRecord,old_record=old_record)
         else:
-            self.raw_delete(sourcePkey)
+            self.delete(sourcePkey)
             
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
