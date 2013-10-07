@@ -215,8 +215,7 @@ class HTableTree(BaseComponent):
                                     caption_field=caption_field,cacheTime=cacheTime,
                                     menuId=connectedMenu,dbstore=kwargs.get('_storename'),**tree_kwargs)
                 currentHMenu[connectedMenu] = currentHMenu
-            else:
-                attr['connectedMenu'] = connectedMenu
+            attr['connectedMenu'] = connectedMenu
 
         else:
             menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)

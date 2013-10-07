@@ -1907,7 +1907,9 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 if (!(('dropDown' in  parentWidget) || ('popup' in parentWidget ))) {
                     if(parentWidget.downArrowNode){
                         parentWidget._downArrowMenu = true;
-                        widget.bindDomNode(parentWidget.downArrowNode);
+                        if(parentWidget.sourceNode.attr.connectedMenu!=sourceNode.attr.id){
+                            widget.bindDomNode(parentWidget.downArrowNode);
+                        }
                     }else{
                          widget.bindDomNode(parentWidget.domNode);
                     }
@@ -2072,13 +2074,16 @@ versionpatch_11__contextMouse: function (e) {
         var aroundWidget = kw.attachTo? kw.attachTo.widget:null;
 
         if(!aroundWidget && this.originalContextTarget){
-            aroundWidget = dijit.getEnclosingWidget(this.originalContextTarget);
+            var enclosingWidget = dijit.getEnclosingWidget(this.originalContextTarget);
+            if(enclosingWidget.sourceNode.attr.connectedMenu == this.sourceNode.attr.id){
+                aroundWidget = enclosingWidget;
+            }
         }
         if(aroundWidget){
-            this.placeAround(popupKwargs,aroundWidget);
+            this.gnrPlaceAround(popupKwargs,aroundWidget);
         }
     },
-    mixin_placeAround:function(popupKwargs,widget){
+    mixin_gnrPlaceAround:function(popupKwargs,widget){
         popupKwargs.popup.domNode.style.width = widget.domNode.clientWidth+'px';
         popupKwargs.orient = this.isLeftToRight() ? {'BL':'TL', 'BR':'TR', 'TL':'BL', 'TR':'BR'}: {'BR':'TR', 'BL':'TL', 'TR':'BR', 'TL':'BL'};
         popupKwargs.around = widget.domNode;
