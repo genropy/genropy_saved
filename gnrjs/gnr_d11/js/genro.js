@@ -366,6 +366,9 @@ dojo.declare('gnr.GenroClient', null, {
         if (window.frameElement && window.parent.genro){
             this.mainGenroWindow = window.parent.genro.mainGenroWindow;
             this.root_page_id = this.mainGenroWindow.genro.page_id;
+            this.parent_page_id = window.parent.genro.page_id;
+            this.startArgs['_root_page_id'] = this.root_page_id;
+            this.startArgs['_parent_page_id'] = this.parent_page_id;
         }
         var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {

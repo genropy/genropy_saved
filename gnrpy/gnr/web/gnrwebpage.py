@@ -162,6 +162,7 @@ class GnrWebPage(GnrBaseWebPage):
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
         self.root_page_id = None
+        self.parent_page_id = None
         self.sourcepage_id = request_kwargs.pop('sourcepage_id', None)
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
@@ -221,6 +222,8 @@ class GnrWebPage(GnrBaseWebPage):
                                                  self._environ)
             self.page_id = page_id
             self.root_page_id = page_item['data'].getItem('root_page_id')
+            self.parent_page_id = page_item['data'].getItem('parent_page_id')
+
             return page_item
         else:
             if self._call_handler_type in ('pageCall', 'externalCall'):
@@ -229,18 +232,18 @@ class GnrWebPage(GnrBaseWebPage):
                 self.connection.create()
             self.page_id = getUuid()
             workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
-            self.root_page_id = kwargs.pop('_root_page_id', None)
-            if self.root_page_id:
-                data = self.pageStore(page_id=self.root_page_id).data
-                data['root_page_id'] = self.root_page_id
-            else:
-                connectionStore = self.connectionStore()
-                data = Bag()
-                if self.avatar:
-                    data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
-                    cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
-                    if cookie:
-                        data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
+            #self.root_page_id = kwargs.pop('_root_page_id', None)
+            #if self.root_page_id:
+            #    data = self.pageStore(page_id=self.root_page_id).data
+            #    data['root_page_id'] = self.root_page_id
+            #else:
+            connectionStore = self.connectionStore()
+            data = Bag()
+            if self.avatar:
+                data['rootenv'] = connectionStore.getItem('defaultRootenv') #or Bag()
+                cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+                if cookie:
+                    data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
             data['pageArgs'] = kwargs
             data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
             if self.application.db.package('adm'):
@@ -1506,7 +1509,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._package_folder
     package_folder = property(_get_package_folder)
     
-    def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
+    def rpc_main(self, _auth=AUTH_OK, debugger=None,_parent_page_id=None,_root_page_id=None, **kwargs):
         """The first method loaded in a Genro application
         
         :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
@@ -1522,6 +1525,14 @@ class GnrWebPage(GnrBaseWebPage):
                     self.main_root(page, **kwargs)
                     return (page, pageattr)
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
+                self.parent_page_id = _parent_page_id
+                self.root_page_id = _root_page_id
+                if self.parent_page_id:
+                    default_rootenv = self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
+                    with self.pageStore() as store:
+                        store.setItem('root_page_id',self.root_page_id)
+                        store.setItem('parent_page_id',self.parent_page_id)
+                        store.setItem('rootenv',default_rootenv)
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)

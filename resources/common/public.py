@@ -32,8 +32,15 @@ class PublicBase(BaseComponent):
     def onMain_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
+        pane.dataController()
         if not self.isGuest and userTable:
             pane.dataRemote('gnr.user_record', 'app.getRecord', username=self.user,table=userTable)
+        if not getattr(self,'public_partitioned',None) and self.rootenv['partition_kw']:
+            partition_kw = self.rootenv['partition_kw']
+            partition_path = partition_kw['path']
+            partition_field = partition_kw['field']
+            pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
+            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='rootenv.%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -225,9 +232,11 @@ class PublicSlots(BaseComponent):
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        pane.dataController('PUBLISH public_changed_partition = v;',v='^current.%s' %partition_field)
+        pane.dataController('genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});',v='^current.%s' %partition_field)
         pane.data('current.%s' %partition_field,current_partition_value,
                     serverpath='rootenv.%s' %partition_path,dbenv=True)
+        with self.pageStore() as store:
+            store.setItem('rootenv.partition_kw',kw)
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
