@@ -41,9 +41,9 @@ class Table(object):
 
 
 
-    def setPreference(self, path, value, pkg=''):
+    def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
         record = self.loadPreference(for_update=True)
-        record['data.%s.%s' % (pkg, path)] = value
+        record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
         self.savePreference(record)
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):
