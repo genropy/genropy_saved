@@ -157,38 +157,6 @@ class TableHandlerTreeResolver(BagResolver):
 class HTableTree(BaseComponent):
     js_requires='th/th_tree'
 
-    @struct_method
-    def ht_hdbselect_old(self,pane,caption_field=None,treeMode=None,folderSelectable=False,storeCode=None,cacheTime=None,**kwargs):
-        dbselect = pane.dbselect(**kwargs)
-        attr = dbselect.attributes
-        menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],(storeCode or id(dbselect)))
-        attr['hasDownArrow'] = True
-        attr['_hdbselect'] = True
-        dbselect_condition = attr.get('condition')
-        dbselect_condition_kwargs = dictExtract(attr,'condition_')
-        if not folderSelectable:
-            attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-
-        hdbselectstores = self.workspace.setdefault('hdbselectstores',{})
-        if not storeCode or not (storeCode in hdbselectstores):
-            if storeCode:
-                hdbselectstores[storeCode] = True
-            cacheTime = cacheTime or self.db.table(attr['dbtable']).attributes.get('cacheTime') or -1
-            pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],childname=storeCode,
-                        condition=dbselect_condition,
-                        condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=cacheTime,caption_field=caption_field,dbstore=kwargs.get('_storename'))
-        if treeMode:
-            menunode = dbselect.menu(modifiers='*',attachTo=dbselect,_class='menupane').menuItem().div(max_height='350px',max_width='400px',overflow='auto')
-            menunode.div(margin='4px').tree(storepath='%s.root' %menupath,selected_pkey=kwargs.get('value').replace('^',''),
-                         hideValues=True,autoCollapse=True,excludeRoot=True,
-                         labelAttribute='caption',openOnClick=not folderSelectable,
-                         selectedLabelClass='selectedTreeNode',_class="branchtree noIcon")
-        else:
-            dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
-                        #selected_pkey=attr['value'].replace('^','')
-                      )
     @extract_kwargs(tree=True)
     @struct_method
     def ht_hdbselect(self,pane,caption_field=None,treeMode=None,folderSelectable=False,cacheTime=None,connectedMenu=None,tree_kwargs=None,**kwargs):
@@ -204,28 +172,17 @@ class HTableTree(BaseComponent):
         attr['_hdbselect'] = True
         dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
         connectedMenu = connectedMenu or 'hmenu_%s' %dbselect_nodeId
-        if treeMode:
-            currentHMenu = self.workspace.setdefault('hmenu',{})
-            if not connectedMenu in currentHMenu:
-                tree_kwargs['openOnClick'] = not folderSelectable
-                tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
-                menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
-                dbselect.treemenu(storepath=menupath,table=attr['dbtable'],condition=dbselect_condition,
-                                    condition_kwargs=dbselect_condition_kwargs,modifiers='*',
-                                    caption_field=caption_field,cacheTime=cacheTime,
-                                    menuId=connectedMenu,dbstore=kwargs.get('_storename'),**tree_kwargs)
-                currentHMenu[connectedMenu] = currentHMenu
-            attr['connectedMenu'] = connectedMenu
-
-        else:
+        currentHMenu = self.workspace.setdefault('hmenu',{})
+        if not connectedMenu in currentHMenu:
+            tree_kwargs['openOnClick'] = not folderSelectable
+            tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
             menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
-            cacheTime = cacheTime or self.db.table(attr['dbtable']).attributes.get('cacheTime') or -1
-            pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
-                        condition=dbselect_condition,
-                        condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=cacheTime,caption_field=caption_field,dbstore=kwargs.get('_storename'))
-            dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);""")
+            dbselect.treemenu(storepath=menupath,table=attr['dbtable'],condition=dbselect_condition,
+                                condition_kwargs=dbselect_condition_kwargs,modifiers='*',
+                                caption_field=caption_field,cacheTime=cacheTime,
+                                menuId=connectedMenu,dbstore=kwargs.get('_storename'),**tree_kwargs)
+            currentHMenu[connectedMenu] = currentHMenu
+        attr['connectedMenu'] = connectedMenu
 
 
     @struct_method
