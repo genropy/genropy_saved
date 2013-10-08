@@ -985,7 +985,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 });
 dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
-        var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource');
+        var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource,letterhead_id');
         kw['height'] = '100%';
         kw['position'] = 'relative';
         kw['background'] = 'white';
@@ -1000,6 +1000,7 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         gnrwdg.editorNode = pagingKw.editor;
         sourceNode.attr.sourceText = pagingKw.sourceText;
         sourceNode.attr.letterheads = pagingKw.letterheads;
+        sourceNode.attr.letterhead_id = pagingKw.letterhead_id;
 
         sourceNode.subscribe('paginate',function(){
             gnrwdg.paginate();
@@ -1034,7 +1035,14 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         this.editorNode.externalWidget.gnr_highlightChild(c);
     },
 
-    gnrwdg_setLetterheads:function(letterheads){
+   //gnrwdg_setLetterheads:function(letterheads){
+   //    this.paginate();
+   //},
+
+    gnrwdg_setLetterhead_id:function(letterhead_id,kw,reason){
+        if(reason=='container'){
+            return;
+        }
         this.paginate();
     },
 

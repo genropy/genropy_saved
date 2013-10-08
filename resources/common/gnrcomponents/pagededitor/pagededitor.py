@@ -32,10 +32,10 @@ class PagedEditor(BaseComponent):
         center = frame.center.contentPane(overflow='hidden')
         editor = center.ckeditor(value=value,**editor_kwargs)
         bar = right.slotBar('0,previewPane,0',closable=True,width='270px',preview_height='100%',splitter=True,border_left='1px solid silver')
-        bar.previewPane.pagedHtml(sourceText=value,pagedText=pagedText,letterheads='^#WORKSPACE.letterheads',editor=editor,
+        bar.previewPane.pagedHtml(sourceText=value,pagedText=pagedText,letterheads='^#WORKSPACE.letterheads',editor=editor,letterhead_id=letterhead_id,
                                 printAction=printAction,bodyStyle=bodyStyle,datasource=datasource,extra_bottom=extra_bottom,**tpl_kwargs)
-        frame.dataRpc('#WORKSPACE.letterheads',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id',#_userChanges=True,
-                        _fired='^#WORKSPACE.reload_letterhead')
+        
+        frame.dataRemote('#WORKSPACE.letterheads',self._pe_getLetterhead,letterhead_id=letterhead_id,_if='letterhead_id')#_userChanges=True)
         frame._editor = editor
         return frame
 
