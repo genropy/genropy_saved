@@ -1,4 +1,5 @@
-# -*- coding: UTF-8 -*-
+
+# # -*- coding: UTF-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # module gnrbag : an advanced data storage system
@@ -29,10 +30,10 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
-class RemoteBagStore(object):
+class RemoteBagInstance(object):
     def __init__(self):
         self.store=Bag()
-        
+ 
     def __getattr__(self,name):
         store = self.store
         if not hasattr(store,name):
@@ -60,9 +61,9 @@ class RemoteBagServer(object):
         self.host = host or PYRO_HOST
         self.port = port or PYRO_PORT
         self.hmac_key =  str(hmac_key or PYRO_HMAC_KEY)
-        self.run()
+        self.start()
 
-    def run(self):
+    def start(self):
         Pyro4.config.HMAC_KEY = self.hmac_key
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         self.daemon = Pyro4.Daemon(host=self.host,port=self.port)
@@ -70,14 +71,22 @@ class RemoteBagServer(object):
         print "uri=",self.main_uri
         self.daemon.requestLoop()
 
-    def remoteBag(self,name):
+    def store_get(self,name):
         if not name in self.uridict:
-            newbag = RemoteBagStore()
-            self.uridict[name] = self.daemon.register(newbag,name)
+            newbag = RemoteBagInstance()
+            self.uridict[name] = self.daemon.register(newbag,'remotebag_%s'%name)
             self.stores[name] = newbag
         return self.uridict[name]
     
-       
+    def store_remove(self,name):
+        if name in self.stores:
+            self.daemon.unregister(self.stores[name])
+            self.stores.pop(name) 
+            self.uridict.pop(name) 
+        
+    def store_list(self):
+        return self.stores.keys()
+        
 class RemoteSubBag():
     def __init__(self,parent,rootpath):
         self.parent = parent
@@ -100,13 +109,16 @@ class RemoteBagProxy():
 
     def subBag(self,subpath):
         return RemoteSubBag(self,subpath)
-    
+        
+    def __str__(self):
+        return self.proxy.asString()
+        
     def __getattr__(self,name):
         if not hasattr(Bag,name):
             raise AttributeError("RemoteBag has no attribute '%s'" % name)
         return getattr(self.proxy,name)
 
-class RemoteBagClient(object):
+class RemoteBagStore(object):
     def __init__(self,uri=None,port=None,host=None,hmac_key=None):
         host = host or PYRO_HOST
         port = port or PYRO_PORT
@@ -115,9 +127,15 @@ class RemoteBagClient(object):
         uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
         self.proxy=Pyro4.Proxy(uri)
         
-    def remoteBag(self,name):
-        uri= self.proxy.remoteBag(name)
+    def __call__(self,name):
+        uri= self.proxy.store_get(name)
         return RemoteBagProxy(uri)
+        
+    def stores(self):
+        return self.proxy.store_list()
+
+    def remove(self,name):
+        return self.proxy.store_remove(name)
         
 def main():
     remotebag = RemoteBagServer()
