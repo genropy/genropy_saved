@@ -997,7 +997,9 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         gnrwdg.pagedTextPath = pagingKw.pagedText.replace('^','');
         gnrwdg.letterheadsPath = pagingKw.letterheads.replace('^','');
         gnrwdg.sourceTextPath = pagingKw.sourceText.replace('^','');
-        gnrwdg.editorNode = pagingKw.editor;
+        if(pagingKw.editor){
+            gnrwdg.editorNode = sourceNode.currentFromDatasource(pagingKw.editor);
+        }
         sourceNode.attr.sourceText = pagingKw.sourceText;
         sourceNode.attr.letterheads = pagingKw.letterheads;
         sourceNode.attr.letterhead_id = pagingKw.letterhead_id;
@@ -1032,7 +1034,9 @@ dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
         }else{
             var c=-1;
         }
-        this.editorNode.externalWidget.gnr_highlightChild(c);
+        if(this.editorNode){
+            this.editorNode.externalWidget.gnr_highlightChild(c);
+        }
     },
 
    //gnrwdg_setLetterheads:function(letterheads){
