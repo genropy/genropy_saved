@@ -1,16 +1,18 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 CKEDITOR.plugins.add( 'link',
 {
+	requires : [ 'fakeobjects', 'dialog' ],
 	init : function( editor )
 	{
 		// Add the link and unlink buttons.
 		editor.addCommand( 'link', new CKEDITOR.dialogCommand( 'link' ) );
 		editor.addCommand( 'anchor', new CKEDITOR.dialogCommand( 'anchor' ) );
 		editor.addCommand( 'unlink', new CKEDITOR.unlinkCommand() );
+		editor.addCommand( 'removeAnchor', new CKEDITOR.removeAnchorCommand() );
 		editor.ui.addButton( 'Link',
 			{
 				label : editor.lang.link.toolbar,
@@ -108,7 +110,16 @@ CKEDITOR.plugins.add( 'link',
 					{
 						label : editor.lang.anchor.menu,
 						command : 'anchor',
-						group : 'anchor'
+						group : 'anchor',
+						order : 1
+					},
+
+					removeAnchor :
+					{
+						label : editor.lang.anchor.remove,
+						command : 'removeAnchor',
+						group : 'anchor',
+						order : 5
 					},
 
 					link :
@@ -148,7 +159,7 @@ CKEDITOR.plugins.add( 'link',
 						menu = { link : CKEDITOR.TRISTATE_OFF, unlink : CKEDITOR.TRISTATE_OFF };
 
 					if ( anchor && anchor.hasAttribute( 'name' ) )
-						menu.anchor = CKEDITOR.TRISTATE_OFF;
+						menu.anchor = menu.removeAnchor = CKEDITOR.TRISTATE_OFF;
 
 					return menu;
 				});
@@ -230,9 +241,7 @@ CKEDITOR.plugins.add( 'link',
 					}
 				});
 		}
-	},
-
-	requires : [ 'fakeobjects' ]
+	}
 } );
 
 CKEDITOR.plugins.link =
@@ -327,6 +336,34 @@ CKEDITOR.unlinkCommand.prototype =
 	},
 
 	startDisabled : true
+};
+
+CKEDITOR.removeAnchorCommand = function(){};
+CKEDITOR.removeAnchorCommand.prototype =
+{
+	/** @ignore */
+	exec : function( editor )
+	{
+		var sel = editor.getSelection(),
+			bms = sel.createBookmarks(),
+			anchor;
+		if ( sel && ( anchor = sel.getSelectedElement() ) && ( CKEDITOR.plugins.link.fakeAnchor && !anchor.getChildCount() ? CKEDITOR.plugins.link.tryRestoreFakeAnchor( editor, anchor ) : anchor.is( 'a' ) ) )
+			anchor.remove( 1 );
+		else
+		{
+			if ( ( anchor = CKEDITOR.plugins.link.getSelectedLink( editor ) ) )
+			{
+				if ( anchor.hasAttribute( 'href' ) )
+				{
+					anchor.removeAttributes( { name : 1, 'data-cke-saved-name' : 1 } );
+					anchor.removeClass( 'cke_anchor' );
+				}
+				else
+					anchor.remove( 1 );
+			}
+		}
+		sel.selectBookmarks( bms );
+	}
 };
 
 CKEDITOR.tools.extend( CKEDITOR.config,

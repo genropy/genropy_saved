@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['en-gb'] =
@@ -31,7 +31,8 @@ CKEDITOR.lang['en-gb'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Rich text editor, %1, press ALT 0 for help.',
+	editorTitle : 'Rich text editor, %1', // MISSING
+	editorHelp : 'Press ALT 0 for help', // MISSING
 
 	// ARIA descriptions.
 	toolbars	: 'Editor toolbars', // MISSING
@@ -119,8 +120,13 @@ CKEDITOR.lang['en-gb'] =
 		alignTop		: 'Top',
 		alignMiddle		: 'Middle',
 		alignBottom		: 'Bottom',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'Height must be a number.',
 		invalidWidth	: 'Width must be a number.',
+		invalidCssLength	: 'Value specified for the "%1" field must be a positive number with or without a valid CSS measurement unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
+		invalidHtmlLength	: 'Value specified for the "%1" field must be a positive number with or without a valid HTML measurement unit (px or %).', // MISSING
+		invalidInlineStyle	: 'Value specified for the inline style must consist of one or more tuples with the format of "name : value", separated by semi-colons.', // MISSING
+		cssLengthTooltip	: 'Enter a number for a value in pixels or a number with a valid CSS unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, unavailable</span>'
@@ -201,7 +207,8 @@ CKEDITOR.lang['en-gb'] =
 		menu		: 'Edit Anchor',
 		title		: 'Anchor Properties',
 		name		: 'Anchor Name',
-		errorName	: 'Please type the anchor name'
+		errorName	: 'Please type the anchor name',
+		remove		: 'Remove Anchor' // MISSING
 	},
 
 	// List style dialog
@@ -237,6 +244,7 @@ CKEDITOR.lang['en-gb'] =
 		findWhat			: 'Find what:',
 		replaceWith			: 'Replace with:',
 		notFoundMsg			: 'The specified text was not found.',
+		findOptions			: 'Find Options', // MISSING
 		matchCase			: 'Match case',
 		matchWord			: 'Match whole word',
 		matchCyclic			: 'Match cyclic',
@@ -413,7 +421,6 @@ CKEDITOR.lang['en-gb'] =
 		upload		: 'Upload',
 		alt			: 'Alternative Text',
 		lockRatio	: 'Lock Ratio',
-		unlockRatio	: 'Unlock Ratio',
 		resetSize	: 'Reset Size',
 		border		: 'Border',
 		hSpace		: 'HSpace',
@@ -691,7 +698,7 @@ CKEDITOR.lang['en-gb'] =
 		ignoreAll		: 'Ignore All',
 		addWord			: 'Add Word',
 		emptyDic		: 'Dictionary name should not be empty.',
-
+		noSuggestions	: 'No suggestions',
 		optionsTab		: 'Options',
 		allCaps			: 'Ignore All-Caps Words',
 		ignoreDomainNames : 'Ignore Domain Names',

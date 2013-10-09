@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['ca'] =
@@ -31,7 +31,8 @@ CKEDITOR.lang['ca'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Editor de text enriquit, %1, prem ALT 0 per obtenir ajuda.',
+	editorTitle : 'Rich text editor, %1', // MISSING
+	editorHelp : 'Press ALT 0 for help', // MISSING
 
 	// ARIA descriptions.
 	toolbars	: 'Editor toolbars', // MISSING
@@ -119,8 +120,13 @@ CKEDITOR.lang['ca'] =
 		alignTop		: 'Superior',
 		alignMiddle		: 'Centre',
 		alignBottom		: 'Inferior',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'L\'alçada ha de ser un nombre.',
 		invalidWidth	: 'L\'amplada ha de ser un nombre.',
+		invalidCssLength	: 'Value specified for the "%1" field must be a positive number with or without a valid CSS measurement unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
+		invalidHtmlLength	: 'Value specified for the "%1" field must be a positive number with or without a valid HTML measurement unit (px or %).', // MISSING
+		invalidInlineStyle	: 'Value specified for the inline style must consist of one or more tuples with the format of "name : value", separated by semi-colons.', // MISSING
+		cssLengthTooltip	: 'Enter a number for a value in pixels or a number with a valid CSS unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, no disponible</span>'
@@ -201,7 +207,8 @@ CKEDITOR.lang['ca'] =
 		menu		: 'Propietats de l\'àncora',
 		title		: 'Propietats de l\'àncora',
 		name		: 'Nom de l\'àncora',
-		errorName	: 'Si us plau, escriviu el nom de l\'ancora'
+		errorName	: 'Si us plau, escriviu el nom de l\'ancora',
+		remove		: 'Remove Anchor' // MISSING
 	},
 
 	// List style dialog
@@ -237,6 +244,7 @@ CKEDITOR.lang['ca'] =
 		findWhat			: 'Cerca:',
 		replaceWith			: 'Remplaça amb:',
 		notFoundMsg			: 'El text especificat no s\'ha trobat.',
+		findOptions			: 'Find Options', // MISSING
 		matchCase			: 'Distingeix majúscules/minúscules',
 		matchWord			: 'Només paraules completes',
 		matchCyclic			: 'Match cyclic',
@@ -413,7 +421,6 @@ CKEDITOR.lang['ca'] =
 		upload		: 'Puja',
 		alt			: 'Text alternatiu',
 		lockRatio	: 'Bloqueja les proporcions',
-		unlockRatio	: 'Desbloqueja el ràtio',
 		resetSize	: 'Restaura la mida',
 		border		: 'Vora',
 		hSpace		: 'Espaiat horit.',
@@ -691,7 +698,7 @@ CKEDITOR.lang['ca'] =
 		ignoreAll		: 'Ignora\'ls tots',
 		addWord			: 'Afegeix una paraula',
 		emptyDic		: 'El nom del diccionari no hauria d\'estar buit.',
-
+		noSuggestions	: 'Cap suggeriment',
 		optionsTab		: 'Opcions',
 		allCaps			: 'Ignora paraules en majúscules',
 		ignoreDomainNames : 'Ignora els noms de domini',
@@ -770,40 +777,40 @@ CKEDITOR.lang['ca'] =
 
 	docprops :
 	{
-		label : 'Document Properties', // MISSING
-		title : 'Document Properties', // MISSING
+		label : 'Propietats del document',
+		title : 'Propietats del document',
 		design : 'Design', // MISSING
-		meta : 'Meta Tags', // MISSING
-		chooseColor : 'Choose', // MISSING
-		other : 'Other...', // MISSING
-		docTitle :	'Page Title', // MISSING
-		charset : 	'Character Set Encoding', // MISSING
-		charsetOther : 'Other Character Set Encoding', // MISSING
+		meta : 'Metadades',
+		chooseColor : 'Trieu',
+		other : '<altre>',
+		docTitle :	'Títol de la pàgina',
+		charset : 	'Codificació de conjunt de caràcters',
+		charsetOther : 'Una altra codificació de caràcters',
 		charsetASCII : 'ASCII', // MISSING
-		charsetCE : 'Central European', // MISSING
-		charsetCT : 'Chinese Traditional (Big5)', // MISSING
-		charsetCR : 'Cyrillic', // MISSING
-		charsetGR : 'Greek', // MISSING
-		charsetJP : 'Japanese', // MISSING
-		charsetKR : 'Korean', // MISSING
-		charsetTR : 'Turkish', // MISSING
+		charsetCE : 'Centreeuropeu',
+		charsetCT : 'Xinès tradicional (Big5)',
+		charsetCR : 'Ciríl·lic',
+		charsetGR : 'Grec',
+		charsetJP : 'Japonès',
+		charsetKR : 'Coreà',
+		charsetTR : 'Turc',
 		charsetUN : 'Unicode (UTF-8)', // MISSING
-		charsetWE : 'Western European', // MISSING
-		docType : 'Document Type Heading', // MISSING
-		docTypeOther : 'Other Document Type Heading', // MISSING
-		xhtmlDec : 'Include XHTML Declarations', // MISSING
-		bgColor : 'Background Color', // MISSING
-		bgImage : 'Background Image URL', // MISSING
-		bgFixed : 'Non-scrolling (Fixed) Background', // MISSING
-		txtColor : 'Text Color', // MISSING
-		margin : 'Page Margins', // MISSING
-		marginTop : 'Top', // MISSING
-		marginLeft : 'Left', // MISSING
-		marginRight : 'Right', // MISSING
-		marginBottom : 'Bottom', // MISSING
-		metaKeywords : 'Document Indexing Keywords (comma separated)', // MISSING
-		metaDescription : 'Document Description', // MISSING
-		metaAuthor : 'Author', // MISSING
+		charsetWE : 'Europeu occidental',
+		docType : 'Capçalera de tipus de document',
+		docTypeOther : 'Un altra capçalera de tipus de document',
+		xhtmlDec : 'Incloure declaracions XHTML',
+		bgColor : 'Color de fons',
+		bgImage : 'URL de la imatge de fons',
+		bgFixed : 'Fons fixe',
+		txtColor : 'Color de Text',
+		margin : 'Marges de pàgina',
+		marginTop : 'Cap',
+		marginLeft : 'Esquerra',
+		marginRight : 'Dreta',
+		marginBottom : 'Peu',
+		metaKeywords : 'Mots clau per a indexació (separats per coma)',
+		metaDescription : 'Descripció del document',
+		metaAuthor : 'Autor',
 		metaCopyright : 'Copyright', // MISSING
 		previewHtml : '<p>This is some <strong>sample text</strong>. You are using <a href="javascript:void(0)">CKEditor</a>.</p>' // MISSING
 	}

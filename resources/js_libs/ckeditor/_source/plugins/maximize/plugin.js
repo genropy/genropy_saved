@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -154,7 +154,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 			editor.addCommand( 'maximize',
 				{
-					modes : { wysiwyg : 1, source : 1 },
+					// Disabled on iOS (#8307).
+					modes : { wysiwyg : !CKEDITOR.env.iOS, source : !CKEDITOR.env.iOS },
 					readOnly : 1,
 					editorFocus : false,
 					exec : function()
