@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['ja'] =
@@ -31,7 +31,8 @@ CKEDITOR.lang['ja'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'リッチテキストエディタ, %1, ヘルプは ALT 0 を押してください',
+	editorTitle : 'リッチテキストエディタ, %1',
+	editorHelp : 'ヘルプは ALT 0 を押してください',
 
 	// ARIA descriptions.
 	toolbars	: 'Editor toolbars', // MISSING
@@ -119,8 +120,13 @@ CKEDITOR.lang['ja'] =
 		alignTop		: '上',
 		alignMiddle		: '中央',
 		alignBottom		: '下',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: '高さは数値で入力してください。',
 		invalidWidth	: '幅は数値で入力してください。',
+		invalidCssLength	: 'Value specified for the "%1" field must be a positive number with or without a valid CSS measurement unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
+		invalidHtmlLength	: 'Value specified for the "%1" field must be a positive number with or without a valid HTML measurement unit (px or %).', // MISSING
+		invalidInlineStyle	: 'Value specified for the inline style must consist of one or more tuples with the format of "name : value", separated by semi-colons.', // MISSING
+		cssLengthTooltip	: 'Enter a number for a value in pixels or a number with a valid CSS unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, 利用不可能</span>'
@@ -201,7 +207,8 @@ CKEDITOR.lang['ja'] =
 		menu		: 'アンカー プロパティ',
 		title		: 'アンカー プロパティ',
 		name		: 'アンカー名',
-		errorName	: 'アンカー名を必ず入力してください。'
+		errorName	: 'アンカー名を必ず入力してください。',
+		remove		: 'Remove Anchor' // MISSING
 	},
 
 	// List style dialog
@@ -237,6 +244,7 @@ CKEDITOR.lang['ja'] =
 		findWhat			: '検索する文字列:',
 		replaceWith			: '置換えする文字列:',
 		notFoundMsg			: '指定された文字列は見つかりませんでした。',
+		findOptions			: 'Find Options', // MISSING
 		matchCase			: '大文字と小文字を区別する',
 		matchWord			: '単語単位で探す',
 		matchCyclic			: '一周する',
@@ -413,7 +421,6 @@ CKEDITOR.lang['ja'] =
 		upload		: 'アップロード',
 		alt			: '代替テキスト',
 		lockRatio	: 'ロック比率',
-		unlockRatio	: 'アンロック比率',
 		resetSize	: 'サイズリセット',
 		border		: 'ボーダー',
 		hSpace		: '横間隔',
@@ -691,7 +698,7 @@ CKEDITOR.lang['ja'] =
 		ignoreAll		: 'すべて無視',
 		addWord			: '語句追加',
 		emptyDic		: '辞書名は必ず入力してください',
-
+		noSuggestions	: '該当なし',
 		optionsTab		: 'オプション',
 		allCaps			: '全て大文字の単語を無視',
 		ignoreDomainNames : 'ドメイン名を無視',
@@ -770,15 +777,15 @@ CKEDITOR.lang['ja'] =
 
 	docprops :
 	{
-		label : 'Document Properties', // MISSING
-		title : 'Document Properties', // MISSING
+		label : '文書 プロパティ',
+		title : '文書 プロパティ',
 		design : 'Design', // MISSING
-		meta : 'Meta Tags', // MISSING
-		chooseColor : 'Choose', // MISSING
-		other : 'Other...', // MISSING
-		docTitle :	'Page Title', // MISSING
-		charset : 	'Character Set Encoding', // MISSING
-		charsetOther : 'Other Character Set Encoding', // MISSING
+		meta : 'メタデータ',
+		chooseColor : '色の選択',
+		other : '<その他の>',
+		docTitle :	'ページタイトル',
+		charset : 	'文字セット符号化',
+		charsetOther : '他の文字セット符号化',
 		charsetASCII : 'ASCII', // MISSING
 		charsetCE : 'Central European', // MISSING
 		charsetCT : 'Chinese Traditional (Big5)', // MISSING
@@ -788,23 +795,23 @@ CKEDITOR.lang['ja'] =
 		charsetKR : 'Korean', // MISSING
 		charsetTR : 'Turkish', // MISSING
 		charsetUN : 'Unicode (UTF-8)', // MISSING
-		charsetWE : 'Western European', // MISSING
-		docType : 'Document Type Heading', // MISSING
-		docTypeOther : 'Other Document Type Heading', // MISSING
-		xhtmlDec : 'Include XHTML Declarations', // MISSING
-		bgColor : 'Background Color', // MISSING
-		bgImage : 'Background Image URL', // MISSING
-		bgFixed : 'Non-scrolling (Fixed) Background', // MISSING
-		txtColor : 'Text Color', // MISSING
-		margin : 'Page Margins', // MISSING
-		marginTop : 'Top', // MISSING
-		marginLeft : 'Left', // MISSING
-		marginRight : 'Right', // MISSING
-		marginBottom : 'Bottom', // MISSING
-		metaKeywords : 'Document Indexing Keywords (comma separated)', // MISSING
-		metaDescription : 'Document Description', // MISSING
-		metaAuthor : 'Author', // MISSING
-		metaCopyright : 'Copyright', // MISSING
+		charsetWE : 'Western European',
+		docType : '文書タイプヘッダー',
+		docTypeOther : 'その他文書タイプヘッダー',
+		xhtmlDec : 'XHTML宣言をインクルード',
+		bgColor : '背景色',
+		bgImage : '背景画像 URL',
+		bgFixed : 'スクロールしない背景',
+		txtColor : 'テキスト色',
+		margin : 'ページ・マージン',
+		marginTop : '上部',
+		marginLeft : '左',
+		marginRight : '右',
+		marginBottom : '下部',
+		metaKeywords : '文書のキーワード(カンマ区切り)',
+		metaDescription : '文書の概要',
+		metaAuthor : '文書の作者',
+		metaCopyright : '文書の著作権',
 		previewHtml : '<p>This is some <strong>sample text</strong>. You are using <a href="javascript:void(0)">CKEditor</a>.</p>' // MISSING
 	}
 };

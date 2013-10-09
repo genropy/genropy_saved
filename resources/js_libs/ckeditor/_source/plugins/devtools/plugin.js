@@ -1,11 +1,11 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 CKEDITOR.plugins.add( 'devtools',
 {
-	lang : [ 'en' ],
+	lang : [ 'en', 'bg', 'cs', 'cy', 'da', 'de', 'el', 'eo', 'et', 'fa', 'fi', 'fr', 'gu', 'he', 'hr', 'it', 'ku', 'nb', 'nl', 'no', 'pl', 'pt-br', 'sk', 'tr', 'ug', 'uk', 'vi', 'zh-cn' ],
 
 	init : function( editor )
 	{
@@ -127,15 +127,15 @@ CKEDITOR.plugins.add( 'devtools',
 })();
 
 /**
- * A function that returns the text to be displayed inside the developer tooltip when hovering over a dialog UI element.
- * There are 4 parameters that are being passed into the function: editor, dialog, element, tab name.
+ * A function that returns the text to be displayed inside the Developer Tools tooltip when hovering over a dialog UI element.
+ * There are 4 parameters that are being passed into the function: editor, dialog window, element, tab name.
  * @name editor.config.devtools_textCallback
  * @since 3.6
  * @type Function
  * @default (see example)
  * @example
  * // This is actually the default value.
- * // Show dialog name, tab id and element id.
+ * // Show dialog window name, tab ID, and element ID.
  * config.devtools_textCallback = function( editor, dialog, element, tabName )
  * {
  * 	var lang = editor.lang.devTools,
@@ -158,7 +158,7 @@ CKEDITOR.plugins.add( 'devtools',
  */
 
 /**
- * A setting that holds CSS rules to be injected do page and contain styles to be applied to the tooltip element.
+ * A setting that stores CSS rules to be injected into the page with styles to be applied to the tooltip element.
  * @name CKEDITOR.config.devtools_styles
  * @since 3.6
  * @type String

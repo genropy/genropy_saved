@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -18,7 +18,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		( CKEDITOR.env.ie6Compat ?
 		  [
 			'.%1 table.%2,',
-			 '.%1 table.%2 td, .%1 table.%2 th,',
+			 '.%1 table.%2 td, .%1 table.%2 th',
 			 '{',
 				'border : #d3d3d3 1px dotted',
 			 '}'
@@ -115,7 +115,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 									cssClass = attributes[ 'class' ],
 									border = parseInt( attributes.border, 10 );
 
-								if ( !border || border <= 0 )
+								if ( ( !border || border <= 0 ) && ( !cssClass || cssClass.indexOf( showBorderClassName ) == -1 ) )
 									attributes[ 'class' ] = ( cssClass || '' ) + ' ' + showBorderClassName;
 							}
 						}

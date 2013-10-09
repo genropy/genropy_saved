@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -158,11 +158,17 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				 4 : close of tag;
 				 */
 
-				// Opening tag
-				if ( ( part = parts[ 1 ] ) )
+				part = ( parts[ 1 ] || parts[ 3 ] || '' ).toLowerCase();
+				// Unrecognized tags should be delivered as a simple text (#7860).
+				if ( part && !bbcodeMap[ part ] )
 				{
-					part = part.toLowerCase();
+					this.onText( parts[ 0 ] );
+					continue;
+				}
 
+				// Opening tag
+				if ( parts[ 1 ] )
+				{
 					var tagName = bbcodeMap[ part ],
 							attribs = {},
 							styles = {},
@@ -201,7 +207,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					this.onTagOpen( tagName, attribs, CKEDITOR.dtd.$empty[ tagName ] );
 				}
 				// Closing tag
-				else if ( ( part = parts[ 3 ] ) )
+				else if ( parts[ 3 ] )
 					this.onTagClose( bbcodeMap[ part ] );
 			}
 
@@ -560,19 +566,33 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						this.lineBreak( 1 );
 
 					this.write( '[', tag );
-					var option = attributes.option;
-					option && this.write( '=', option );
-					this.write( ']' );
+				}
+			},
 
+			openTagClose : function( tag )
+			{
+
+				if ( tag == 'br' )
+					this._.output.push( '\n' );
+				else if ( tag in bbcodeMap )
+				{
+					this.write( ']' );
 					if ( this.getRule( tag, 'breakAfterOpen' ) )
 						this.lineBreak( 1 );
 				}
-				else if ( tag == 'br' )
-					this._.output.push( '\n' );
 			},
 
-			openTagClose : function() { },
-			attribute : function() { },
+			attribute : function( name, val )
+			{
+				if ( name == 'option' )
+				{
+					// Force simply ampersand in attributes.
+					if ( typeof val == 'string' )
+						val = val.replace( /&amp;/g, '&' );
+
+					this.write( '=', val );
+				}
+			},
 
 			closeTag : function( tag )
 			{
@@ -872,8 +892,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 			  editor.dataProcessor.writer = BBCodeWriter;
 
-			  editor.on( 'editingBlockReady', function ()
+			  editor.on( 'beforeSetMode', function( evt )
 			  {
+				  evt.removeListener();
 				  var wysiwyg = editor._.modes[ 'wysiwyg' ];
 				  wysiwyg.loadData = CKEDITOR.tools.override( wysiwyg.loadData, function( org )
 				  {
