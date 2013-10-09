@@ -2075,7 +2075,8 @@ versionpatch_11__contextMouse: function (e) {
 
         if(!aroundWidget && this.originalContextTarget){
             var enclosingWidget = dijit.getEnclosingWidget(this.originalContextTarget);
-            if(enclosingWidget.sourceNode.attr.connectedMenu == this.sourceNode.attr.id){
+            var cmenu = enclosingWidget.sourceNode.attr.connectedMenu;
+            if(cmenu && == this.sourceNode.attr.id){
                 aroundWidget = enclosingWidget;
             }
         }

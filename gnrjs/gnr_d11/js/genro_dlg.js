@@ -324,14 +324,16 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     
     prompt: function(title, kw,sourceNode) {
         var kw = kw || {};
+        var dlg_kw = objectExtract(kw,'dlg_*');
         var msg = kw.msg;
         var confirmCb = kw.action || '';
+        var cancelCb = kw.cancelCb;
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
 
 
         var dflt = kw['dflt'];
-        var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
+        var dlg = genro.dlg.quickDialog(title,objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'},dlg_kw));
         var mandatory = objectPop(kw,'mandatory');
 
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
@@ -343,6 +345,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                         }
                                                         funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
                                                         genro.setData('gnr.promptDlg.promptvalue',null);
+                                                    }else if(this.attr.command == 'cancel' && cancelCb){
+                                                        funcApply(cancelCb,{},(sourceNode||this));
                                                     }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
@@ -437,7 +441,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
             dlg.getParentNode().widget.hide(); 
             setTimeout(function(){
-                dlg.getParentNode().getParentNode().clearValue();
+                var ndlg =dlg.getParentNode();
+                ndlg.getParentNode()._value.popNode(ndlg.label);
             },500);
             
         };
