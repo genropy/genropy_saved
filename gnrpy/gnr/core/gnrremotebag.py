@@ -108,20 +108,22 @@ class RemoteBag(object):
     @wrapper
     def __str__(self):
         return self.proxy.asString()
-        
     @wrapper 
     def __getitem__(self,*args,**kwargs):
         return self.proxy.__getitem__(*args,**kwargs)
-        
     @wrapper 
     def __setitem__(self,*args,**kwargs):
         return self.proxy.__setitem__(*args,**kwargs)
-    
     @wrapper 
     def __len__(self,*args,**kwargs):
         return self.proxy.__len__(*args,**kwargs)
-        
-        
+    @wrapper 
+    def __contains__(self,*args,**kwargs):
+        return self.proxy.__contains__(*args,**kwargs)
+    @wrapper 
+    def __eq__(self,*args,**kwargs):
+        return self.proxy.__eq__(*args,**kwargs)
+
     def __getattr__(self,name):
         if not hasattr(Bag,name):
             raise AttributeError("RemoteBag has no attribute '%s'" % name)
