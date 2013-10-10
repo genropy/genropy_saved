@@ -381,10 +381,10 @@ class GnrHtmlBuilder(object):
             if not firstpage and self.nextLetterhead:
                 self.htmlTemplate = self.nextLetterhead
             self.nextLetterhead = self.htmlTemplate.pop('next_letterhead')
-            tplpage = self.prepareTplLayout(letterhead_root)
+            letterhead_root = self.prepareTplLayout(letterhead_root)
         if firstpage and self.print_button:
-            tplpage.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
-        return tplpage
+            letterhead_root.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
+        return letterhead_root
             
     def styleForLayout(self):
         """TODO"""
