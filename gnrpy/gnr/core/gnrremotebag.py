@@ -30,6 +30,15 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
+
+def wrapper(func):
+        def decore(self,*args,**kwargs):
+            if self.rootpath:
+                kwargs['_pyrosubbag'] = self.rootpath
+            return func(self,*args,**kwargs)
+        return decore
+
+#------------------------------- SERVER SIDE ---------------------------
 class RemoteBagInstance(object):
     def __init__(self):
         self.store=Bag()
@@ -86,15 +95,38 @@ class RemoteBagServer(object):
         
     def store_list(self):
         return self.stores.keys()
-        
-class RemoteSubBag():
-    def __init__(self,parent,rootpath):
-        self.parent = parent
-        self.rootpath = rootpath
 
+class RemoteBag(object):
+    def __init__(self,uri=None,parent=None,rootpath=None):
+        self.proxy=Pyro4.Proxy(uri) if uri else None
+        self.parent=parent
+        self.rootpath=rootpath
+
+    def subBag(self,path):
+        return RemoteBag(parent=self,rootpath=path)
+        
+    @wrapper
+    def __str__(self):
+        return self.proxy.asString()
+        
+    @wrapper 
+    def __getitem__(self,*args,**kwargs):
+        return self.proxy.__getitem__(*args,**kwargs)
+        
+    @wrapper 
+    def __setitem__(self,*args,**kwargs):
+        return self.proxy.__setitem__(*args,**kwargs)
+    
+    @wrapper 
+    def __len__(self,*args,**kwargs):
+        return self.proxy.__len__(*args,**kwargs)
+        
+        
     def __getattr__(self,name):
         if not hasattr(Bag,name):
             raise AttributeError("RemoteBag has no attribute '%s'" % name)
+        if self.proxy:
+            return getattr(self.proxy,name)
         h = getattr(self.parent.proxy,name) 
         if not callable(h):
             return h
@@ -102,21 +134,6 @@ class RemoteSubBag():
             kwargs['_pyrosubbag'] = self.rootpath
             return h(*args,**kwargs)
         return decore
-
-class RemoteBagProxy():
-    def __init__(self,uri):
-        self.proxy=Pyro4.Proxy(uri)
-
-    def subBag(self,subpath):
-        return RemoteSubBag(self,subpath)
-        
-    def __str__(self):
-        return self.proxy.asString()
-        
-    def __getattr__(self,name):
-        if not hasattr(Bag,name):
-            raise AttributeError("RemoteBag has no attribute '%s'" % name)
-        return getattr(self.proxy,name)
 
 class RemoteBagClient(object):
     def __init__(self,uri=None,port=None,host=None,hmac_key=None):
@@ -128,9 +145,9 @@ class RemoteBagClient(object):
         uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
         self.proxy=Pyro4.Proxy(uri)
         
-    def get(self,name):
+    def __call__(self,name):
         uri= self.proxy.store_get(name)
-        return RemoteBagProxy(uri)
+        return RemoteBag(uri=uri)
         
     def stores(self):
         return self.proxy.store_list()
@@ -140,7 +157,7 @@ class RemoteBagClient(object):
         
 def test_simple():
     rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    test_bag = rbc.get('test_simple')
+    test_bag = rbc('test_simple')
     test_bag['foo'] = 23
     assert test_bag['foo']==23, 'broken'
     print len(test_bag)
@@ -148,7 +165,7 @@ def test_simple():
 
 def test_subBag():
     rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    bag = rbc.get('test_subBag')
+    bag = rbc('test_subBag')
     bag['dati.persone.p1.nome'] = 'Mario'
     bag['dati.persone.p1.cognome'] = 'Rossi'
     bag['dati.persone.p1.eta'] = 40
@@ -156,6 +173,7 @@ def test_subBag():
     bag['dati.persone.p2.nome'] = 'Luigi'
     bag['dati.persone.p2.cognome'] = 'Bianchi'
     bag['dati.persone.p2.eta'] = 30
+    print bag
     z=bag.getItem('dati.persone')
     print z.asString()
     p1 = bag.subBag('dati.persone.p1')
@@ -166,7 +184,7 @@ def test_subBag():
     print 'OK'
 def test_client():
     client= RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    mybag=client.get('mybag')
+    mybag=client('mybag')
     mybag['data.people.p1.name']='John'
     mybag['data.people.p1.surname']='Brown'
     mybag['data.people.p1.age']=36
@@ -179,5 +197,5 @@ def test_client():
         
 if __name__=="__main__":
     test_simple()
-    test_subBag()
     test_client()
+    test_subBag()
