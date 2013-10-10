@@ -118,16 +118,17 @@ class RemoteBagProxy():
             raise AttributeError("RemoteBag has no attribute '%s'" % name)
         return getattr(self.proxy,name)
 
-class RemoteBagStore(object):
+class RemoteBagClient(object):
     def __init__(self,uri=None,port=None,host=None,hmac_key=None):
         host = host or PYRO_HOST
         port = port or PYRO_PORT
         hmac_key = str(hmac_key or PYRO_HMAC_KEY)
         Pyro4.config.HMAC_KEY = hmac_key
+        Pyro4.config.SERIALIZER = 'pickle'
         uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
         self.proxy=Pyro4.Proxy(uri)
         
-    def __call__(self,name):
+    def get(self,name):
         uri= self.proxy.store_get(name)
         return RemoteBagProxy(uri)
         
@@ -137,10 +138,46 @@ class RemoteBagStore(object):
     def remove(self,name):
         return self.proxy.store_remove(name)
         
-def main():
-    remotebag = RemoteBagServer()
-    remotebag.run()
+def test_simple():
+    rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
+    test_bag = rbc.get('test_simple')
+    test_bag['foo'] = 23
+    assert test_bag['foo']==23, 'broken'
+    print len(test_bag)
+    print 'OK'
 
+def test_subBag():
+    rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
+    bag = rbc.get('test_subBag')
+    bag['dati.persone.p1.nome'] = 'Mario'
+    bag['dati.persone.p1.cognome'] = 'Rossi'
+    bag['dati.persone.p1.eta'] = 40
 
+    bag['dati.persone.p2.nome'] = 'Luigi'
+    bag['dati.persone.p2.cognome'] = 'Bianchi'
+    bag['dati.persone.p2.eta'] = 30
+    z=bag.getItem('dati.persone')
+    print z.asString()
+    p1 = bag.subBag('dati.persone.p1')
+    print p1.asString()
+   #print p1['nome']
+   #p1['nome'] = 'Mariotto'
+   #assert p1['nome'] == bag['dati.persone.p1.nome'], 'test fallito'
+    print 'OK'
+def test_client():
+    client= RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
+    mybag=client.get('mybag')
+    mybag['data.people.p1.name']='John'
+    mybag['data.people.p1.surname']='Brown'
+    mybag['data.people.p1.age']=36
+    mybag['data.people.p2.name']='Mary'
+    mybag['data.people.p2.surname']='Smith'
+    mybag['data.people.p2.age']=29
+    m=mybag.getItem('data')
+    print 'data.people.p1.name',m
+
+        
 if __name__=="__main__":
-    main()
+    test_simple()
+    test_subBag()
+    test_client()
