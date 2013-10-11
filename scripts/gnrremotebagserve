@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+Start a remotebagserver
+"""
+from gnr.core.gnrremotebag import RemoteBagServer
+server = RemoteBagServer()
