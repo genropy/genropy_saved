@@ -32,15 +32,18 @@ PYRO_HMAC_KEY = 'supersecretkey'
 
 
 def wrapper(func):
-        def decore(self,*args,**kwargs):
-            if self.rootpath:
-                kwargs['_pyrosubbag'] = self.rootpath
-            return func(self,*args,**kwargs)
-        return decore
+    def decore(self,*args,**kwargs):
+        if self.rootpath:
+            kwargs['_pyrosubbag'] = self.rootpath
+        return func(self,*args,**kwargs)
+    return decore
 
 #------------------------------- SERVER SIDE ---------------------------
 class RemoteBagInstance(object):
-    def __init__(self):
+    class_prefix = 'M_'
+    def __init__(self,name,parent=None):
+        self.name = name
+        self.parent = parent
         self.store=Bag()
  
     def __getattr__(self,name):
@@ -62,15 +65,75 @@ class RemoteBagInstance(object):
             else:
                 return h(*args,**kwargs)
         return decore
+
+    def unregister(self,name=None):
+        pass
+
+    def registeringName(self):
+        return '%s_%s'%(self.parent.registeringName(), self.memberName()) 
+
+    def memberName(self):
+        return '%s%s'%(self.class_prefix, self.name)
+class RemoteBagServerBase(object):
+    def __init__(self,name = None,parent=None):
+        self.store = dict()
+        self.identifiers = dict()        
+        self.name = name
+        self.parent = parent
+        print parent
+        if parent is not None:
+            self.daemon = parent.daemon
+
+    def registeringName(self):
+        if self.parent is not None:
+            return '%s_%s'%(self.parent.registeringName(), self.memberName()) 
+        else:
+            return self.memberName()
+
+    def memberName(self):
+        return '%s%s'%(self.class_prefix, self.name)
+
+    def keys(self):
+        return self.store.keys()
+
+    def getUri(self,name):
+        if not name in self.identifiers:
+            child = self.child_factory(name,parent=self)
+            self.identifiers[name] = self.daemon.register(child, child.registeringName())
+            self.store[name] = child
+        return self.identifiers[name]
+
+    def unregister(self,name=None):
+        member = self.store.get(name)
+        if not member:
+            return
+        for child_name in member.keys():
+            member.unregister(child_name)
+        self.daemon.unregister(member)
+        self.store.pop(name) 
+        self.identifiers.pop(name)
+
+    def __len__(self):
+        return len(self.store)
+
+
+class RemoteBagRegister(RemoteBagServerBase):
+    class_prefix = 'R_'
+    child_factory = RemoteBagInstance
+
+class RemoteBagSpace(RemoteBagServerBase):
+    class_prefix = 'S_'
+    child_factory = RemoteBagRegister
         
-class RemoteBagServer(object):
+class RemoteBagServer(RemoteBagServerBase):
+    class_prefix = ''
+    child_factory = RemoteBagSpace
+
     def __init__(self,host=None,port=None,hmac_key=None):
-        self.stores = dict()
-        self.uridict= dict()
+        super(RemoteBagServer,self).__init__()
         self.host = host or PYRO_HOST
         self.port = port or PYRO_PORT
         self.hmac_key =  str(hmac_key or PYRO_HMAC_KEY)
-        self.start()
 
     def start(self):
         Pyro4.config.HMAC_KEY = self.hmac_key
@@ -80,21 +143,11 @@ class RemoteBagServer(object):
         print "uri=",self.main_uri
         self.daemon.requestLoop()
 
-    def store_get(self,name):
-        if not name in self.uridict:
-            newbag = RemoteBagInstance()
-            self.uridict[name] = self.daemon.register(newbag,'remotebag_%s'%name)
-            self.stores[name] = newbag
-        return self.uridict[name]
-    
-    def store_remove(self,name):
-        if name in self.stores:
-            self.daemon.unregister(self.stores[name])
-            self.stores.pop(name) 
-            self.uridict.pop(name) 
-        
-    def store_list(self):
-        return self.stores.keys()
+    def memberName(self):
+        return 'REMOTEBAG'
+
+
+#------------------------------- CLIENT SIDE ---------------------------
 
 class RemoteBag(object):
     def __init__(self,uri=None,parent=None,rootpath=None):
@@ -137,7 +190,30 @@ class RemoteBag(object):
             return h(*args,**kwargs)
         return decore
 
-class RemoteBagClient(object):
+class RemoteBagClientBase(object):
+    def __init__(self,uri):
+        self.proxy=Pyro4.Proxy(uri)
+
+    def __getitem__(self,name):
+        uri =  self.proxy.getUri(name)
+        return self.factory(uri)
+
+    def keys(self):
+        return self.proxy.keys()
+
+    def __len__(self):
+        return self.proxy.__len__()
+
+class RemoteBagClientRegister(RemoteBagClientBase):
+    factory = RemoteBag
+
+class RemoteBagClientSpace(RemoteBagClientBase):
+    factory = RemoteBagClientRegister
+
+
+class RemoteBagClient(RemoteBagClientBase):
+    factory = RemoteBagClientSpace
+
     def __init__(self,uri=None,port=None,host=None,hmac_key=None):
         host = host or PYRO_HOST
         port = port or PYRO_PORT
@@ -146,39 +222,73 @@ class RemoteBagClient(object):
         Pyro4.config.SERIALIZER = 'pickle'
         uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
         self.proxy=Pyro4.Proxy(uri)
+
         
     def __call__(self,name):
-        uri= self.proxy.store_get(name)
-        return RemoteBag(uri=uri)
-        
-    def stores(self):
-        return self.proxy.store_list()
+        return self[name]
+      
 
-    def remove(self,name):
-        return self.proxy.store_remove(name)
-        
+
+#class RemoteBagClient(object):
+#    def __init__(self,uri=None,port=None,host=None,hmac_key=None,space=None,register=None):
+#        host = host or PYRO_HOST
+#        port = port or PYRO_PORT
+#        hmac_key = str(hmac_key or PYRO_HMAC_KEY)
+#        Pyro4.config.HMAC_KEY = hmac_key
+#        Pyro4.config.SERIALIZER = 'pickle'
+#        uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
+#        self.proxy=Pyro4.Proxy(uri)
+#        self.space = space
+#        self.register = register
+#        
+#    def __call__(self,name):
+#        uri = self.proxy.store_getUri(name=name,space=self.space,register=self.register)
+#        return RemoteBag(uri=uri)
+#        
+#    def stores(self):
+#        return self.proxy.store_list(space=self.space,register=self.register)
+#
+#    def remove(self,name):
+#        return self.proxy.store_remove(name=name,space=self.space,register=self.register)
+#
+#    def spaces(self):
+#        return self.proxy.space_list()
+#
+
+
+#------------------------------- TEST SIDE ---------------------------
+
+
+
 def test_simple():
-    rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    test_bag = rbc('test_simple')
+    client = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
+    space = client['pippo']
+    register = space['pluto']
+    test_bag = register['test_simple']
     test_bag['foo'] = 23
     assert test_bag['foo']==23, 'broken'
     print len(test_bag)
+    print test_bag
     print 'OK'
 
-def test_subBag():
-    rbc = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    bag = rbc('test_subBag')
-    bag['dati.persone.p1.nome'] = 'Mario'
-    bag['dati.persone.p1.cognome'] = 'Rossi'
-    bag['dati.persone.p1.eta'] = 40
 
-    bag['dati.persone.p2.nome'] = 'Luigi'
-    bag['dati.persone.p2.cognome'] = 'Bianchi'
-    bag['dati.persone.p2.eta'] = 30
-    print bag
-    z=bag.getItem('dati.persone')
+
+def test_subBag():
+    client = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
+    space = client['cip']
+    register = space['ciop']
+    dati = register['dati']
+    dati['persone.p1.nome'] = 'Mario'
+    dati['persone.p1.cognome'] = 'Rossi'
+    dati['persone.p1.eta'] = 40
+
+    dati['persone.p2.nome'] = 'Luigi'
+    dati['persone.p2.cognome'] = 'Bianchi'
+    dati['persone.p2.eta'] = 30
+    print dati
+    z=dati.getItem('persone')
     print z.asString()
-    p1 = bag.subBag('dati.persone.p1')
+    p1 = dati.subBag('persone.p1')
     print p1.asString()
    #print p1['nome']
    #p1['nome'] = 'Mariotto'
@@ -186,7 +296,10 @@ def test_subBag():
     print 'OK'
 def test_client():
     client= RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
-    mybag=client('mybag')
+    space = client['frillo']
+    register = space['frullo']
+    mybag = register['dati']
+    
     mybag['data.people.p1.name']='John'
     mybag['data.people.p1.surname']='Brown'
     mybag['data.people.p1.age']=36

@@ -6,3 +6,4 @@ Start a remotebagserver
 """
 from gnr.core.gnrremotebag import RemoteBagServer
 server = RemoteBagServer()
+server.start()
