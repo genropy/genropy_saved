@@ -18,6 +18,7 @@ from time import time
 from datetime import datetime
 from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
+from gnr.core.gnrremotebag import RemoteBagClient
 from threading import RLock
 import thread
 import mimetypes
@@ -332,6 +333,7 @@ class GnrWsgiSite(object):
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
         self.register = SiteRegister(self)
+        self.sharedSpace=RemoteBagClient()
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:

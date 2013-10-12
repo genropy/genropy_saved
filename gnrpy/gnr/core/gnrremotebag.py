@@ -129,16 +129,25 @@ class RemoteBagServer(RemoteBagServerBase):
     class_prefix = ''
     child_factory = RemoteBagSpace
 
-    def __init__(self,host=None,port=None,hmac_key=None):
-        super(RemoteBagServer,self).__init__()
-        self.host = host or PYRO_HOST
-        self.port = port or PYRO_PORT
-        self.hmac_key =  str(hmac_key or PYRO_HMAC_KEY)
-
-    def start(self):
-        Pyro4.config.HMAC_KEY = self.hmac_key
+    def start(self,host=None,port=None,hmac_key=None,
+                      debug=False,compression=False,timeout=None,
+                      multiplex=False,polltimeout=None):
+        
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        self.daemon = Pyro4.Daemon(host=self.host,port=self.port)
+        
+        port=port or PYRO_PORT
+        host=host or PYRO_HOST
+        hmac_key=hmac_key or PYRO_HMAC_KEY
+        Pyro4.config.HMAC_KEY = str(hmac_key)
+        if compression:
+            Pyro4.config.COMPRESSION = True
+        if multiplex:
+            Pyro4.config.SERVERTYPE = "multiplex"
+        if timeout:
+            Pyro4.config.TIMEOUT = timeout
+        if polltimeout:
+            Pyro4.config.POLLTIMEOUT = timeout
+        self.daemon = Pyro4.Daemon(host=host,port=int(port))
         self.main_uri = self.daemon.register(self,'RemoteBagServer')
         print "uri=",self.main_uri
         self.daemon.requestLoop()
@@ -155,7 +164,7 @@ class RemoteBag(object):
         self.parent=parent
         self.rootpath=rootpath
 
-    def subBag(self,path):
+    def chunk(self,path):
         return RemoteBag(parent=self,rootpath=path)
         
     @wrapper
@@ -227,35 +236,6 @@ class RemoteBagClient(RemoteBagClientBase):
     def __call__(self,name):
         return self[name]
       
-
-
-#class RemoteBagClient(object):
-#    def __init__(self,uri=None,port=None,host=None,hmac_key=None,space=None,register=None):
-#        host = host or PYRO_HOST
-#        port = port or PYRO_PORT
-#        hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-#        Pyro4.config.HMAC_KEY = hmac_key
-#        Pyro4.config.SERIALIZER = 'pickle'
-#        uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
-#        self.proxy=Pyro4.Proxy(uri)
-#        self.space = space
-#        self.register = register
-#        
-#    def __call__(self,name):
-#        uri = self.proxy.store_getUri(name=name,space=self.space,register=self.register)
-#        return RemoteBag(uri=uri)
-#        
-#    def stores(self):
-#        return self.proxy.store_list(space=self.space,register=self.register)
-#
-#    def remove(self,name):
-#        return self.proxy.store_remove(name=name,space=self.space,register=self.register)
-#
-#    def spaces(self):
-#        return self.proxy.space_list()
-#
-
-
 #------------------------------- TEST SIDE ---------------------------
 
 
@@ -273,7 +253,7 @@ def test_simple():
 
 
 
-def test_subBag():
+def test_chunk():
     client = RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
     space = client['cip']
     register = space['ciop']
@@ -288,7 +268,7 @@ def test_subBag():
     print dati
     z=dati.getItem('persone')
     print z.asString()
-    p1 = dati.subBag('persone.p1')
+    p1 = dati.chunk('persone.p1')
     print p1.asString()
    #print p1['nome']
    #p1['nome'] = 'Mariotto'
@@ -313,4 +293,4 @@ def test_client():
 if __name__=="__main__":
     test_simple()
     test_client()
-    test_subBag()
+    test_chunk()
