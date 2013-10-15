@@ -71,7 +71,19 @@ var dynamicFormHandler = {
             if(extractstr){
                 objectExtract(kw,extractstr);
             }
-            var result = funcApply('return '+expression,sourceNode.evaluateOnNode(kw),sourceNode);
+            for (var attr in kw) {
+                var v = kw[attr];
+                kw[attr] = sourceNode.currentFromDatasource(v);
+                kw['F_'+attr] = '';
+                if(typeof(v) == 'string' && v!='' && v.indexOf('==')!=0 && (v[0]=='^' || v[0]=='=')){
+                    var formattedVal = sourceNode.currentFromDatasource(v+'?_formattedValue');
+                    var displayedVal = sourceNode.currentFromDatasource(v+'?_displayedValue');
+                    if(formattedVal || displayedVal){
+                        kw['F_'+attr] = formattedVal || displayedVal;
+                    }
+                }
+            }
+            var result = funcApply('return '+expression,kw,sourceNode);
             var result_type= sourceNode.attr.result_type;
             if((result_type=='N' || result_type=='L' || result_type=='R') && isNaN(result)){
                 result = null;
