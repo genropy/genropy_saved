@@ -397,12 +397,12 @@ class TableHandlerMain(BaseComponent):
         if getattr(self,'public_partitioned',None):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
-            partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+            #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:
                 th.view.top.bar.addrow.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add']:
                 th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
-            if th['form'] and partition_kwargs:
+            if th['form']: #and partition_kwargs:
                 th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
         self.root_tablehandler = th
         vstore = th.view.store
