@@ -1520,11 +1520,6 @@ class GnrWebPage(GnrBaseWebPage):
         #try :
         if True:
             if _auth == AUTH_OK:
-                avatar = self.avatar #force get_avatar
-                if hasattr(self, 'main_root'):
-                    self.main_root(page, **kwargs)
-                    return (page, pageattr)
-                    #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
                 self.parent_page_id = _parent_page_id
                 self.root_page_id = _root_page_id
                 if self.parent_page_id:
@@ -1533,6 +1528,11 @@ class GnrWebPage(GnrBaseWebPage):
                         store.setItem('root_page_id',self.root_page_id)
                         store.setItem('parent_page_id',self.parent_page_id)
                         store.setItem('rootenv',default_rootenv)
+                avatar = self.avatar #force get_avatar ?
+                if hasattr(self, 'main_root'):
+                    self.main_root(page, **kwargs)
+                    return (page, pageattr)
+                    #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
