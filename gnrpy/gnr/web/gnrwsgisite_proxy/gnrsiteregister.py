@@ -23,6 +23,7 @@
 import Pyro4
 from datetime import datetime
 from gnr.core.gnrbag import Bag
+import re
 
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
@@ -150,6 +151,7 @@ class PageRegister(BaseRegister):
         self.addRegisterItem(register_item)
         return register_item
 
+
     def drop(self,register_item_id=None,cascade=None):
         register_item = self.dropItem(register_item_id)
         if cascade:
@@ -158,13 +160,23 @@ class PageRegister(BaseRegister):
             if not n:
                 self.siteregister.drop_connection(connection_id)
 
+
+    def subscribed_table_page_keys(self,table):
+        return [k for k,v in self.items() if table in v['subscribed_tables']]
+
+    def subscribed_table_page_items(self,table):
+        return [(k,v) for k,v in self.items() if table in v['subscribed_tables']]
+
+    def subscribed_table_pages(self,table):
+        return [v for k,v in self.items() if table in v['subscribed_tables']]
+
+
+
     def connection_page_keys(self,connection_id):
         return [k for k,v in self.items() if v['connection_id'] == connection_id]
 
-
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
-
 
     def connection_pages(self,connection_id):
         return [v for k,v in self.items() if v['connection_id'] == connection_id]
@@ -175,8 +187,6 @@ class SiteRegister(object):
         self.p_register = PageRegister(self)
         self.c_register = ConnectionRegister(self)
         self.u_register = UserRegister(self)
-
-
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
                             user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None):
@@ -214,9 +224,47 @@ class SiteRegister(object):
         self.p_register.connection_pages(connection_id=connection_id)
 
 
+    def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
+        page_item = self.p_register.create(page_id, pagename = pagename,connection_id=connection_id,user=user,
+                                            user_id=user_ip,user_agent=user_agent, data=data)
+        return page_item
 
-    def pages(self,*args,**kwargs):
-        return self.siteregister.pages(*args,**kwargs)
+
+
+
+    def pages(self, connection_id=None, filters=None):
+        pages = self.p_register.values()
+
+        if not filters or filters == '*':
+            return pages
+
+        fltdict = dict()
+        for flt in filters.split(' AND '):
+            fltname, fltvalue = flt.split(':', 1)
+            fltdict[fltname] = fltvalue
+        filtered = dict()
+
+        def checkpage(page, fltname, fltval):
+            value = page[fltname]
+            if not value:
+                return
+            if not isinstance(value, basestring):
+                return fltval == value
+            try:
+                return re.match(fltval, value)
+            except:
+                return False
+
+        for page_id, page in pages.items():
+            page = Bag(page)
+            for fltname, fltval in fltdict.items():
+                if checkpage(page, fltname, fltval):
+                    filtered[page_id] = page
+        return filtered
+
+
+
+    ###################################### TO DO ######################################
 
     def refresh(self,*args,**kwargs):
         return self.siteregister.refresh(*args,**kwargs)
@@ -232,8 +280,7 @@ class SiteRegister(object):
 
     
 
-    def new_page(self,*args,**kwargs):
-        return self.siteregister.new_page(*args,**kwargs)
+
 
     def page(self,*args,**kwargs):
         return self.siteregister.page(*args,**kwargs)   
