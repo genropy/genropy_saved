@@ -91,7 +91,7 @@ class TableHandlerView(BaseComponent):
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
-        self._th_viewController(frame,table=table)
+        self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
@@ -595,7 +595,7 @@ class TableHandlerView(BaseComponent):
         fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
         
-    def _th_viewController(self,pane,table=None,th_root=None):
+    def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
         tblattr = dict(self.db.table(table).attributes)
         tblattr.pop('tag',None)
@@ -609,7 +609,7 @@ class TableHandlerView(BaseComponent):
                             """,show="^.showLogicalDeleted")
         pane.data('.showLogicalDeleted',showLogicalDeleted)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
-        pane.data('.tableRecordCount',options.get('tableRecordCount',True))
+        pane.data('.tableRecordCount',options.get('tableRecordCount',default_totalRowCount))
 
     def _prepareQueryBag(self,querybase,table=None):
         result = Bag()
