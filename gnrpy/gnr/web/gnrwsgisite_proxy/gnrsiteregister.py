@@ -22,11 +22,8 @@
 
 import Pyro4
 from datetime import datetime
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,BagResolver
 import re
-
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister as OldSiteRegister
-
 
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
@@ -54,9 +51,9 @@ class BaseRegister(object):
         return self.itemsData[register_item_id]
 
     def getItem(self,register_item_id,include_data=False):
-        item = self.registerItems[register_item_id]
+        item = self.registerItems.get(register_item_id)
         self.refresh(register_item_id)
-        if include_data:
+        if item and include_data:
             item['data'] = self.getData(register_item_id)
         return item
 
@@ -82,20 +79,20 @@ class BaseRegister(object):
 
 class UserRegister(BaseRegister):
     """docstring for UserRegister"""
-    def create(self, user, connection_item):
+    def create(self, user, user_id=None,user_name=None,user_tags=None,avatar_extra=None):
         register_item = dict(
                 register_item_id=user,
                 start_ts=datetime.now(),
-                _new=True,
                 user=user,
-                user_id=connection_item['user_id'],
-                user_name=connection_item['user_name'],
-                user_tags=connection_item['user_tags'],
-                avatar_extra=connection_item.get('avatar_extra'),
-                connections={}
-                )
+                user_id=user_id,
+                user_name=user_name,
+                user_tags=user_tags,
+                avatar_extra=avatar_extra)
         self.addRegisterItem(register_item)
         return register_item
+        
+    def drop(self,user):
+        self.dropItem(user)
 
 class ConnectionRegister(BaseRegister):
     """docstring for ConnectionRegister"""
@@ -130,8 +127,13 @@ class ConnectionRegister(BaseRegister):
     def user_connection_items(self,user):
         return [(k,v) for k,v in self.items() if v['user'] == user]
 
-    def user_connections(self,user):
-        return [v for k,v in self.items() if v['user'] == user]
+
+
+    def connections(self,user=None):
+        connections = self.values()
+        if user:
+            connections = [v for v in connections if v['user'] == user]
+        return connections
 
 class PageRegister(BaseRegister):
     """docstring for PageRegister"""
@@ -184,8 +186,14 @@ class PageRegister(BaseRegister):
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
 
-    def connection_pages(self,connection_id):
-        return [v for k,v in self.items() if v['connection_id'] == connection_id]
+    def pages(self,connection_id=None,user=None):
+        pages = self.values()
+        if connection_id:
+            pages = [v for v in pages if v['connection_id'] == connection_id]
+        if user:
+            pages = [v for v in pages if v['user'] == user]
+        return pages
+
 
 class SiteRegister(object):
     def __init__(self,server):
@@ -195,10 +203,13 @@ class SiteRegister(object):
         self.u_register = UserRegister(self)
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
-                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None):
+                            user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None):
         assert not self.c_register.exists(connection_id), 'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
+        if not self.u_register.exists(user):
+            self.new_user( user, user_id=user_id,user_name=user_name,user_tags=user_tags,avatar_extra=avatar_extra)
         connection_item = self.c_register.create(connection_id, connection_name=connection_name,user=user,user_id=user_id,
                             user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name)
+
         return connection_item
 
 
@@ -236,16 +247,20 @@ class SiteRegister(object):
         return page_item
 
 
+    def new_user(self,user=None, user_tags=None, user_id=None, user_name=None,
+                               avatar_extra=None):
+        user_item = self.u_register.create( user=user, user_tags=user_tags, user_id=user_id, user_name=user_name,
+                               avatar_extra=avatar_extra)
+        return user_item
+
     def subscribed_table_pages(self,table=None):
         return self.p_register.subscribed_table_pages(table)
 
-    def pages(self, connection_id=None,index_name=None, filters=None):
+    def pages(self, connection_id=None,user=None,index_name=None, filters=None):
         if index_name:
             print 'call subscribed_table_pages instead of pages'
             return self.subscribed_table_pages(index_name)
-
-        pages = self.p_register.values()
-
+        pages = self.p_register.pages(connection_id=connection_id,user=user)
         if not filters or filters == '*':
             return pages
 
@@ -279,8 +294,47 @@ class SiteRegister(object):
     def connection(self,connection_id):
         return self.c_register.getItem(connection_id)
 
+    def user(self,user):
+        return self.u_register.getItem(user)
+
+
     def users(self,*args,**kwargs):
         return self.u_register.values()
+
+    def connections(self,user=None):
+        return self.c_register.connections(user=user)
+ 
+
+    def change_connection_user(self, connection_id, user=None, user_tags=None, user_id=None, user_name=None,
+                               avatar_extra=None):
+        print 'aaaa'
+
+        connection_item = self.connection(connection_id)
+
+        olduser = connection_item['user']
+        newuser_item = self.user(user)
+        print 'bbb'
+        if not newuser_item:
+            newuser_item = self.new_user( user=user, user_tags=user_tags, user_id=user_id, user_name=user_name,
+                               avatar_extra=avatar_extra)
+        print 'ccc'
+
+        connection_item['user'] = user
+        connection_item['user_tags'] = user_tags
+        connection_item['user_name'] = user_name
+        connection_item['user_id'] = user_id
+        connection_item['avatar_extra'] = avatar_extra
+        print 'ddd'
+
+        for p in self.pages(connection_id=connection_id):
+            p['user'] = user
+        print 'eee'
+
+        if not self.c_register.connections(olduser):
+            self.drop_user(olduser)
+
+        print 'fff'
+
 
     ###################################### TO DO ######################################
 
@@ -292,17 +346,6 @@ class SiteRegister(object):
 
 
 
-
-
-
-    
-
-
-
-
-
-    def change_connection_user(self,*args,**kwargs):
-        return self.siteregister.change_connection_user(*args,**kwargs)    
 
   
 
@@ -352,7 +395,7 @@ class SiteRegisterClient(object):
     def new_connection(self, connection_id, connection):
         return self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
                                                     user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
-                                                    user_agent=connection.user_agent)
+                                                    user_agent=connection.user_agent,avatar_extra=connection.avatar_extra)
 
    # def page(self,*args,**kwargs):
    #     return self.siteregister.page(*args,**kwargs)
@@ -369,6 +412,11 @@ class SiteRegisterClient(object):
         pages =  self.siteregister.pages(*args,**kwargs)
         #adapt for old use 
         return self.adaptListToDict(pages)
+
+    def connections(self,user=None):
+        connections = self.siteregister.connections(user=user)
+        return self.adaptListToDict(connections)
+
 
     def adaptListToDict(self,l):
         return dict([(c['register_item_id'],c) for c in l])
@@ -428,11 +476,13 @@ class RegisterTester(object):
         self.newregister = SiteRegisterClient(oldregister.site)
         self.implemented = ['new_page','drop_page','page','pages',
                             'new_connection','drop_connection','connection','connections',
-                            'new_user','drop_user','user','users']
+                            'new_user','drop_user','user','users',
+                            'change_connection_user']
 
     def __getattr__(self,name):
         h = getattr(self.oldregister,name)
         if not name in self.implemented:
+            print 'NOT IMPLEMENTED',name
             return h
         if not callable(h):
             self._debug('property',name)
@@ -466,6 +516,78 @@ class PyroServer(object):
 
     def start(self):
         self.daemon.requestLoop()
+
+
+
+class RegisterResolver(BagResolver):
+    classKwargs = {'cacheTime': 1,
+                   'readOnly': False,
+                   'user': None,
+                   'connection_id': None,
+                   '_page': None
+    }
+    classArgs = ['user']
+
+
+    def load(self):
+        if not self.user:
+            return self.list_users()
+        elif not self.connection_id:
+            return self.list_connections(user=self.user)
+        else:
+            return self.list_pages(connection_id=self.connection_id)
+    @property
+    def register(self):
+        return self._page.site.register.newregister
+
+    def list_users(self):
+        usersDict = self.register.users()
+        result = Bag()
+        for user, item_user in usersDict.items():
+            item = Bag()
+            data = item_user.pop('data', None)
+            item_user.pop('datachanges', None)
+            item_user.pop('datachanges_idx', None)
+            #item['info'] = Bag([('%s-%s' % (k, str(v).replace('.', '_')), v) for k, v in item_user.items()])
+            item['data'] = data
+            item.setItem('connections', RegisterResolver(user=user), cacheTime=3)
+            result.setItem(user, item, user=user)
+        return result
+
+    def list_connections(self, user):
+        connectionsDict = self.register.connections(user=user)
+        result = Bag()
+        for connection_id, connection in connectionsDict.items():
+            delta = (datetime.now() - connection['start_ts']).seconds
+            user = connection['user'] or 'Anonymous'
+            connection_name = connection['connection_name']
+            itemlabel = '%s (%i)' % (connection_name, delta)
+            item = Bag()
+            data = connection.pop('data', None)
+            #item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in connection.items()])
+            item['data'] = data
+            item.setItem('pages', RegisterResolver(user=user, connection_id=connection_id), cacheTime=2)
+            result.setItem(itemlabel, item, user=user, connection_id=connection_id)
+        return result
+
+    def list_pages(self, connection_id):
+        pagesDict = self.register.pages(connection_id=connection_id)
+        result = Bag()
+        for page_id, page in pagesDict.items():
+            delta = (datetime.now() - page['start_ts']).seconds
+            pagename = page['pagename'].replace('.py', '')
+            itemlabel = '%s (%i)' % (pagename, delta)
+            item = Bag()
+            data = page.pop('data', None)
+            #item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
+            item['data'] = data
+            result.setItem(itemlabel, item, user=item['user'], connection_id=item['connection_id'], page_id=page_id)
+        return result     
+
+    def resolverSerialize(self):
+        attr = super(RegisterResolver, self).resolverSerialize()
+        attr['kwargs'].pop('_page',None)
+        return attr
 
 if __name__ == '__main__':
     s = PyroServer()
