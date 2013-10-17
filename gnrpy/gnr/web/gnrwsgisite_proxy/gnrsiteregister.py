@@ -188,8 +188,8 @@ class PageRegister(BaseRegister):
         return [v for k,v in self.items() if v['connection_id'] == connection_id]
 
 class SiteRegister(object):
-    def __init__(self,site):
-        self.site = site
+    def __init__(self,server):
+        self.server = server
         self.p_register = PageRegister(self)
         self.c_register = ConnectionRegister(self)
         self.u_register = UserRegister(self)
@@ -232,7 +232,7 @@ class SiteRegister(object):
 
     def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
         page_item = self.p_register.create(page_id, pagename = pagename,connection_id=connection_id,user=user,
-                                            user_id=user_ip,user_agent=user_agent, data=data)
+                                            user_ip=user_ip,user_agent=user_agent, data=data)
         return page_item
 
 
@@ -346,12 +346,12 @@ class SiteRegisterClient(object):
 
     def new_page(self, page_id, page, data=None):
         return self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
-                                            user_id=page.user_ip,user_agent=page.user_agent, data=data)
+                                            user_ip=page.user_ip,user_agent=page.user_agent, data=data)
 
 
     def new_connection(self, connection_id, connection):
         return self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
-                                                    user_id=connection.user_id,user_tags=connection.user_tags,ip=connection.ip,browser_name=connection.browser_name,
+                                                    user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
                                                     user_agent=connection.user_agent)
 
    # def page(self,*args,**kwargs):
@@ -371,7 +371,7 @@ class SiteRegisterClient(object):
         return self.adaptListToDict(pages)
 
     def adaptListToDict(self,l):
-        return dict([(c['register_item_id'],c) for c in c])
+        return dict([(c['register_item_id'],c) for c in l])
 
     def users(self,*args,**kwargs):
         users = self.siteregister.users(*args,**kwargs)
@@ -441,5 +441,38 @@ class RegisterTester(object):
             getattr(self.newregister,name)(*args,**kwargs)
             return h(*args,**kwargs)
         return decore
+
+class PyroServer(object):
+    def __init__(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
+        self.siteregister = SiteRegister(self)
+        Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
+        port=port or PYRO_PORT
+        host=host or PYRO_HOST
+        hmac_key=hmac_key or PYRO_HMAC_KEY
+        Pyro4.config.HMAC_KEY = str(hmac_key)
+        if compression:
+            Pyro4.config.COMPRESSION = True
+        if multiplex:
+            Pyro4.config.SERVERTYPE = "multiplex"
+        if timeout:
+            Pyro4.config.TIMEOUT = timeout
+        if polltimeout:
+            Pyro4.config.POLLTIMEOUT = timeout
+        self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        self.main_uri = self.daemon.register(self,'PyroServer')
+        self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
+
+        print "uri=",self.main_uri
+
+    def start(self):
+        self.daemon.requestLoop()
+
+if __name__ == '__main__':
+    s = PyroServer()
+    s.start()
+
+
+
+
 
 
