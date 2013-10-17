@@ -25,6 +25,9 @@ from datetime import datetime
 from gnr.core.gnrbag import Bag
 import re
 
+from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister as OldSiteRegister
+
+
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
@@ -50,6 +53,13 @@ class BaseRegister(object):
     def getData(self,register_item_id):
         return self.itemsData[register_item_id]
 
+    def getItem(self,register_item_id,include_data=False):
+        item = self.registerItems[register_item_id]
+        self.refresh(register_item_id)
+        if include_data:
+            item['data'] = self.getData(register_item_id)
+        return item
+
     def exists(self,register_item_id):
         return register_item_id in self.registerItems
 
@@ -67,8 +77,6 @@ class BaseRegister(object):
         self.itemsData.pop(register_item_id,None)
         self.itemsTS.pop(register_item_id,None)
         return register_item
-
-
 
 
 
@@ -146,8 +154,6 @@ class PageRegister(BaseRegister):
                 )
         if data:
             self.attachData(register_item_id,data)
-            #register_item['data'] = Bag(data)
-
         self.addRegisterItem(register_item)
         return register_item
 
@@ -230,9 +236,14 @@ class SiteRegister(object):
         return page_item
 
 
+    def subscribed_table_pages(self,table=None):
+        return self.p_register.subscribed_table_pages(table)
 
+    def pages(self, connection_id=None,index_name=None, filters=None):
+        if index_name:
+            print 'call subscribed_table_pages instead of pages'
+            return self.subscribed_table_pages(index_name)
 
-    def pages(self, connection_id=None, filters=None):
         pages = self.p_register.values()
 
         if not filters or filters == '*':
@@ -242,7 +253,7 @@ class SiteRegister(object):
         for flt in filters.split(' AND '):
             fltname, fltvalue = flt.split(':', 1)
             fltdict[fltname] = fltvalue
-        filtered = dict()
+        filtered = []
 
         def checkpage(page, fltname, fltval):
             value = page[fltname]
@@ -255,14 +266,21 @@ class SiteRegister(object):
             except:
                 return False
 
-        for page_id, page in pages.items():
+        for  page in pages.items():
             page = Bag(page)
             for fltname, fltval in fltdict.items():
                 if checkpage(page, fltname, fltval):
-                    filtered[page_id] = page
+                    filtered.append(page)
         return filtered
 
+    def page(self,page_id):
+        return self.p_register.getItem(page_id)
 
+    def connection(self,connection_id):
+        return self.c_register.getItem(connection_id)
+
+    def users(self,*args,**kwargs):
+        return self.u_register.values()
 
     ###################################### TO DO ######################################
 
@@ -272,8 +290,7 @@ class SiteRegister(object):
     def cleanup(self,*args,**kwargs):
         return self.siteregister.cleanup(*args,**kwargs)
 
-    def connection(self,*args,**kwargs):
-        return self.siteregister.connection(*args,**kwargs)
+
 
 
 
@@ -282,17 +299,12 @@ class SiteRegister(object):
 
 
 
-    def page(self,*args,**kwargs):
-        return self.siteregister.page(*args,**kwargs)   
+
 
     def change_connection_user(self,*args,**kwargs):
         return self.siteregister.change_connection_user(*args,**kwargs)    
 
-    def users(self,*args,**kwargs):
-        return self.siteregister.users(*args,**kwargs)   
-
-
-
+  
 
 
     def debug(self,mode,name,*args,**kwargs):
@@ -331,19 +343,6 @@ class SiteRegisterClient(object):
 
         #self.siteregister = SiteRegister(site)
 
-    def pages(self,*args,**kwargs):
-        return self.siteregister.pages(*args,**kwargs)
-
-    def refresh(self,*args,**kwargs):
-        return self.siteregister.refresh(*args,**kwargs)
-
-    def cleanup(self,*args,**kwargs):
-        return self.siteregister.cleanup(*args,**kwargs)
-
-    def connection(self,*args,**kwargs):
-        return self.siteregister.connection(*args,**kwargs)
-
-
 
     def new_page(self, page_id, page, data=None):
         return self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
@@ -355,24 +354,32 @@ class SiteRegisterClient(object):
                                                     user_id=connection.user_id,user_tags=connection.user_tags,ip=connection.ip,browser_name=connection.browser_name,
                                                     user_agent=connection.user_agent)
 
+   # def page(self,*args,**kwargs):
+   #     return self.siteregister.page(*args,**kwargs)
 
-    def page(self,*args,**kwargs):
-        return self.siteregister.page(*args,**kwargs)
 
-    def change_connection_user(self,*args,**kwargs):
-        return self.siteregister.change_connection_user(*args,**kwargs)    
+   #def drop_page(self,*args,**kwargs):
+   #    return self.siteregister.drop_page(*args,**kwargs)   
+
+
+   #def connection(self,*args,**kwargs):
+   #    return self.siteregister.connection(*args,**kwargs)
+
+    def pages(self,*args,**kwargs):
+        pages =  self.siteregister.pages(*args,**kwargs)
+        #adapt for old use 
+        return self.adaptListToDict(pages)
+
+    def adaptListToDict(self,l):
+        return dict([(c['register_item_id'],c) for c in c])
 
     def users(self,*args,**kwargs):
-        return self.siteregister.users(*args,**kwargs)   
-
-    def drop_page(self,*args,**kwargs):
-        return self.siteregister.drop_page(*args,**kwargs)   
-
-    def _debug(self,mode,name,*args,**kwargs):
-        print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
+        users = self.siteregister.users(*args,**kwargs)
+        #adapt for old use 
+        return self.adaptListToDict(users)  
 
 
-
+########################### NO REMAP ######################################
 
     def connectionStore(self,*args,**kwargs):
         return self.siteregister.connectionStore(*args,**kwargs)
@@ -381,8 +388,24 @@ class SiteRegisterClient(object):
         return self.siteregister.pageStore(*args,**kwargs)        
 
     def userStore(self,*args,**kwargs):
-        return self.siteregister.userStore(*args,**kwargs)    
+        return self.siteregister.userStore(*args,**kwargs)  
 
+############################## TO DO #######################################
+
+
+    def refresh(self,*args,**kwargs):
+        return self.siteregister.refresh(*args,**kwargs)
+
+    def cleanup(self,*args,**kwargs):
+        return self.siteregister.cleanup(*args,**kwargs)
+
+    def change_connection_user(self,*args,**kwargs):
+        return self.siteregister.change_connection_user(*args,**kwargs)    
+
+ 
+
+    def _debug(self,mode,name,*args,**kwargs):
+        print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
 
 
     def __getattr__(self,name):
@@ -396,9 +419,27 @@ class SiteRegisterClient(object):
         return decore
 
 
+##############################################################################
 
+class RegisterTester(object):
+    """docstring for RegisterTester"""
+    def __init__(self, oldregister):
+        self.oldregister = oldregister
+        self.newregister = SiteRegisterClient(oldregister.site)
+        self.implemented = ['new_page','drop_page','page','pages',
+                            'new_connection','drop_connection','connection','connections',
+                            'new_user','drop_user','user','users']
 
-
-
+    def __getattr__(self,name):
+        h = getattr(self.oldregister,name)
+        if not name in self.implemented:
+            return h
+        if not callable(h):
+            self._debug('property',name)
+            return h
+        def decore(*args,**kwargs):
+            getattr(self.newregister,name)(*args,**kwargs)
+            return h(*args,**kwargs)
+        return decore
 
 

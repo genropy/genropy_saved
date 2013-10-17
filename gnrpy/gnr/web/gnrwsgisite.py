@@ -36,6 +36,8 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
+from gnr.web.gnrwsgisite_proxy.gnrsiteregister import RegisterTester
+
 import warnings
 mimetypes.init()
 site_cache = {}
@@ -331,7 +333,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
-        self.register = SiteRegister(self)
+        self.register = RegisterTester(SiteRegister(self))
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
