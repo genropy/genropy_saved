@@ -379,29 +379,19 @@ class SiteRegister(object):
 
 
     def cleanup(self):
-        print 'time',time.time()
-        print 'last_cleanup',self.last_cleanup
-        print 'cleanup_interval',self.cleanup_interval
-        if time.time()-self.last_cleanup > self.cleanup_interval:
-            self.do_cleanup()
-
-    def do_cleanup(self):
-        print 'enter cleanup'
+        if time.time()-self.last_cleanup < self.cleanup_interval:
+            return
         now = datetime.now()
         for page in self.pages():
             last_refresh_ts = page.get('last_refresh_ts')
-            print 'page_last_refresh_ts',last_refresh_ts
             if last_refresh_ts and ((now - page['last_refresh_ts']).seconds > self.page_max_age):
                 self.drop_page(page['register_item_id'])
 
         for connection in self.connections():
             last_refresh_ts = connection.get('last_refresh_ts')
-            print 'connection_last_refresh_ts',last_refresh_ts
             if last_refresh_ts and ((now - connection['last_refresh_ts']).seconds > self.connection_max_age):
-                print 'dropping connection'
                 self.drop_connection(connection['register_item_id'],cascade=True)
         self.last_cleanup = time.time()
-        print 'exit cleanup'
 
 
     def debug(self,mode,name,*args,**kwargs):
@@ -516,7 +506,6 @@ class RegisterTester(object):
                             'change_connection_user','refresh','cleanup']
 
     def __getattr__(self,name):
-        print '\n ****************************',name
         h = getattr(self.oldregister,name)
         if not name in self.implemented:
             print 'NOT IMPLEMENTED',name
