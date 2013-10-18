@@ -22,12 +22,14 @@
 
 import Pyro4
 from datetime import datetime
+import time
 from gnr.core.gnrbag import Bag,BagResolver
 import re
 
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
+PYRO_MULTIPLEX = True
 
 class BaseRegister(object):
     """docstring for BaseRegister"""
@@ -42,9 +44,9 @@ class BaseRegister(object):
 
     def attachData(self,register_item_id,data):
         self.itemsData[register_item_id] = Bag(data)
-        self.refresh(register_item_id)
+        self.updateTS(register_item_id)
 
-    def refresh(self,register_item_id):
+    def updateTS(self,register_item_id):
         self.itemsTS[register_item_id] = datetime.now()
 
     def getData(self,register_item_id):
@@ -52,7 +54,7 @@ class BaseRegister(object):
 
     def getItem(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
-        self.refresh(register_item_id)
+        self.updateTS(register_item_id)
         if item and include_data:
             item['data'] = self.getData(register_item_id)
         return item
@@ -68,6 +70,30 @@ class BaseRegister(object):
 
     def values(self):
         return self.registerItems.values()
+
+    def updateItem(self,register_item_id,upddict):
+        item = self.registerItems.get(register_item_id)
+        if not item:
+            print 'missing register item ',register_item_id,self.registerName
+            return 
+        item.update(upddict)
+        self.updateTS(register_item_id)
+
+    def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
+        item = self.registerItems.get(register_item_id)
+        if not item:
+            print 'missing register item ',register_item_id,self.registerName
+            return 
+        
+        item['last_user_ts'] = max(item['last_user_ts'],last_user_ts) if item.get('last_user_ts') else last_user_ts
+        item['last_rpc_ts'] = max(item['last_rpc_ts'],last_rpc_ts) if item.get('last_rpc_ts') else last_rpc_ts
+        item['last_refresh_ts'] = max(item['last_refresh_ts'],refresh_ts) if item.get('last_refresh_ts') else refresh_ts
+        return item
+
+    @property
+    def registerName(self):
+        return self.__class__.__name__
+
 
     def dropItem(self,register_item_id):
         register_item = self.registerItems.pop(register_item_id,None)
@@ -134,9 +160,13 @@ class ConnectionRegister(BaseRegister):
         if user:
             connections = [v for v in connections if v['user'] == user]
         return connections
+        
 
 class PageRegister(BaseRegister):
-    """docstring for PageRegister"""
+    def __init__(self,*args,**kwargs):
+        super(PageRegister, self).__init__(*args,**kwargs)
+        self.pageProfilers = dict()
+
     def create(self, page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
         register_item_id = page_id
         start_ts = datetime.now()
@@ -162,9 +192,10 @@ class PageRegister(BaseRegister):
 
     def drop(self,register_item_id=None,cascade=None):
         register_item = self.dropItem(register_item_id)
+        self.pageProfilers.pop(register_item_id,None)
         if cascade:
             connection_id = register_item['connection_id']
-            n = self.siteregister.connectionPagesKeys(connection_id)
+            n = self.connection_page_keys(connection_id)
             if not n:
                 self.siteregister.drop_connection(connection_id)
 
@@ -194,6 +225,8 @@ class PageRegister(BaseRegister):
             pages = [v for v in pages if v['user'] == user]
         return pages
 
+    def updatePageProfilers(self,page_id,pageProfilers):
+        self.pageProfilers[page_id] = pageProfilers 
 
 class SiteRegister(object):
     def __init__(self,server):
@@ -201,6 +234,14 @@ class SiteRegister(object):
         self.p_register = PageRegister(self)
         self.c_register = ConnectionRegister(self)
         self.u_register = UserRegister(self)
+        self.last_cleanup = time.time()
+
+    def setConfiguration(self,cleanup=None):
+        cleanup = cleanup or dict()
+        self.cleanup_interval = int(cleanup.get('interval') or 120)
+        self.page_max_age = int(cleanup.get('page_max_age') or 120)
+        self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
 
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
                             user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None):
@@ -307,47 +348,60 @@ class SiteRegister(object):
 
     def change_connection_user(self, connection_id, user=None, user_tags=None, user_id=None, user_name=None,
                                avatar_extra=None):
-        print 'aaaa'
-
         connection_item = self.connection(connection_id)
 
         olduser = connection_item['user']
         newuser_item = self.user(user)
-        print 'bbb'
         if not newuser_item:
             newuser_item = self.new_user( user=user, user_tags=user_tags, user_id=user_id, user_name=user_name,
                                avatar_extra=avatar_extra)
-        print 'ccc'
-
         connection_item['user'] = user
         connection_item['user_tags'] = user_tags
         connection_item['user_name'] = user_name
         connection_item['user_id'] = user_id
         connection_item['avatar_extra'] = avatar_extra
-        print 'ddd'
-
         for p in self.pages(connection_id=connection_id):
             p['user'] = user
-        print 'eee'
-
         if not self.c_register.connections(olduser):
             self.drop_user(olduser)
 
-        print 'fff'
+
+    def refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
+        refresh_ts = datetime.now()
+        page = self.p_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        if not page:
+            return
+        self.p_register.updatePageProfilers(page_id,pageProfilers)
+        connection = self.c_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        if not connection:
+            return
+        self.u_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
 
 
-    ###################################### TO DO ######################################
+    def cleanup(self):
+        print 'time',time.time()
+        print 'last_cleanup',self.last_cleanup
+        print 'cleanup_interval',self.cleanup_interval
+        if time.time()-self.last_cleanup > self.cleanup_interval:
+            self.do_cleanup()
 
-    def refresh(self,*args,**kwargs):
-        return self.siteregister.refresh(*args,**kwargs)
+    def do_cleanup(self):
+        print 'enter cleanup'
+        now = datetime.now()
+        for page in self.pages():
+            last_refresh_ts = page.get('last_refresh_ts')
+            print 'page_last_refresh_ts',last_refresh_ts
+            if last_refresh_ts and ((now - page['last_refresh_ts']).seconds > self.page_max_age):
+                self.drop_page(page['register_item_id'])
 
-    def cleanup(self,*args,**kwargs):
-        return self.siteregister.cleanup(*args,**kwargs)
-
-
-
-
-  
+        for connection in self.connections():
+            last_refresh_ts = connection.get('last_refresh_ts')
+            print 'connection_last_refresh_ts',last_refresh_ts
+            if last_refresh_ts and ((now - connection['last_refresh_ts']).seconds > self.connection_max_age):
+                print 'dropping connection'
+                self.drop_connection(connection['register_item_id'],cascade=True)
+        self.last_cleanup = time.time()
+        print 'exit cleanup'
 
 
     def debug(self,mode,name,*args,**kwargs):
@@ -383,7 +437,7 @@ class SiteRegisterClient(object):
         uri = 'PYRO:SiteRegister@%s:%i' %(host,int(port))
         print 'URI',uri
         self.siteregister =  Pyro4.Proxy(uri)
-
+        self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
         #self.siteregister = SiteRegister(site)
 
 
@@ -397,16 +451,6 @@ class SiteRegisterClient(object):
                                                     user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
                                                     user_agent=connection.user_agent,avatar_extra=connection.avatar_extra)
 
-   # def page(self,*args,**kwargs):
-   #     return self.siteregister.page(*args,**kwargs)
-
-
-   #def drop_page(self,*args,**kwargs):
-   #    return self.siteregister.drop_page(*args,**kwargs)   
-
-
-   #def connection(self,*args,**kwargs):
-   #    return self.siteregister.connection(*args,**kwargs)
 
     def pages(self,*args,**kwargs):
         pages =  self.siteregister.pages(*args,**kwargs)
@@ -426,6 +470,9 @@ class SiteRegisterClient(object):
         #adapt for old use 
         return self.adaptListToDict(users)  
 
+    def refresh(self,page_id, ts=None,lastRpc=None,pageProfilers=None):
+        self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
+
 
 ########################### NO REMAP ######################################
 
@@ -440,17 +487,6 @@ class SiteRegisterClient(object):
 
 ############################## TO DO #######################################
 
-
-    def refresh(self,*args,**kwargs):
-        return self.siteregister.refresh(*args,**kwargs)
-
-    def cleanup(self,*args,**kwargs):
-        return self.siteregister.cleanup(*args,**kwargs)
-
-    def change_connection_user(self,*args,**kwargs):
-        return self.siteregister.change_connection_user(*args,**kwargs)    
-
- 
 
     def _debug(self,mode,name,*args,**kwargs):
         print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
@@ -477,9 +513,10 @@ class RegisterTester(object):
         self.implemented = ['new_page','drop_page','page','pages',
                             'new_connection','drop_connection','connection','connections',
                             'new_user','drop_user','user','users',
-                            'change_connection_user']
+                            'change_connection_user','refresh','cleanup']
 
     def __getattr__(self,name):
+        print '\n ****************************',name
         h = getattr(self.oldregister,name)
         if not name in self.implemented:
             print 'NOT IMPLEMENTED',name
@@ -499,6 +536,7 @@ class PyroServer(object):
         port=port or PYRO_PORT
         host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
+        multiplex = multiplex or PYRO_MULTIPLEX
         Pyro4.config.HMAC_KEY = str(hmac_key)
         if compression:
             Pyro4.config.COMPRESSION = True
@@ -548,7 +586,7 @@ class RegisterResolver(BagResolver):
             data = item_user.pop('data', None)
             item_user.pop('datachanges', None)
             item_user.pop('datachanges_idx', None)
-            #item['info'] = Bag([('%s-%s' % (k, str(v).replace('.', '_')), v) for k, v in item_user.items()])
+            item['info'] = Bag(item_user)
             item['data'] = data
             item.setItem('connections', RegisterResolver(user=user), cacheTime=3)
             result.setItem(user, item, user=user)
@@ -564,7 +602,7 @@ class RegisterResolver(BagResolver):
             itemlabel = '%s (%i)' % (connection_name, delta)
             item = Bag()
             data = connection.pop('data', None)
-            #item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in connection.items()])
+            item['info'] = Bag(connection)
             item['data'] = data
             item.setItem('pages', RegisterResolver(user=user, connection_id=connection_id), cacheTime=2)
             result.setItem(itemlabel, item, user=user, connection_id=connection_id)
@@ -579,7 +617,7 @@ class RegisterResolver(BagResolver):
             itemlabel = '%s (%i)' % (pagename, delta)
             item = Bag()
             data = page.pop('data', None)
-            #item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
+            item['info'] = Bag(page)
             item['data'] = data
             result.setItem(itemlabel, item, user=item['user'], connection_id=item['connection_id'], page_id=page_id)
         return result     
