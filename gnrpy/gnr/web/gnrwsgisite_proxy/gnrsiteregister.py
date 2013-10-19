@@ -24,12 +24,99 @@ import Pyro4
 from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
+from gnr.web.gnrwebpage import ClientDataChange
+
 import re
+
+BAG_INSTANCE = Bag()
 
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 PYRO_MULTIPLEX = True
+LOCK_MAX_RETRY = 100
+RETRY_DELAY = 0.01
+
+def remotebag_wrapper(func):
+    def decore(self,*args,**kwargs):
+        if self.rootpath:
+            kwargs['_pyrosubbag'] = self.rootpath
+        kwargs['_siteregister_register_name'] = self.register_name
+        kwargs['_siteregister_register_item_id'] = self.register_item_id
+        return func(self,*args,**kwargs)
+    return decore
+
+#------------------------------- REMOTEBAG server SIDE ---------------------------
+class RemoteStoreBagHandler(object):
+    def __init__(self,siteregister):
+        self.siteregister = siteregister
+ 
+    def __getattr__(self,name):
+        if name=='_pyroId':
+            return self._pyroId
+        def decore(*args,**kwargs):
+            register_name = kwargs.pop('_siteregister_register_name',None)
+            register_item_id = kwargs.pop('_siteregister_register_item_id',None)
+            store = self.siteregister.get_register_data(register_name,register_item_id)
+            if '_pyrosubbag' in kwargs:
+                _pyrosubbag = kwargs.pop('_pyrosubbag')
+                store = store.getItem(_pyrosubbag)
+            h = getattr(store,name)
+            if not h:
+                raise AttributeError("PyroSubBag at %s has no attribute '%s'" % (_pyrosubbag,name))
+            else:
+                return h(*args,**kwargs)
+
+        return decore
+
+
+#------------------------------- REMOTEBAG CLIENT SIDE ---------------------------
+
+class RemoteStoreBag(object):
+    def __init__(self,uri=None,register_name=None,register_item_id=None,rootpath=None):
+        self.register_name = register_name
+        self.register_item_id = register_item_id
+        self.rootpath = rootpath
+        self.uri = uri
+        self.proxy=Pyro4.Proxy(uri)
+
+    def chunk(self,path):
+        return RemoteStoreBag(uri=self.uri,register_name=self.register_name,register_item_id=self.register_item_id,rootpath=self.rootpath)
+        
+    @remotebag_wrapper
+    def __str__(self,*args,**kwargs):
+        return self.proxy.asString(*args,**kwargs)
+    @remotebag_wrapper 
+    def __getitem__(self,*args,**kwargs):
+        return self.proxy.__getitem__(*args,**kwargs)
+    @remotebag_wrapper 
+    def __setitem__(self,*args,**kwargs):
+        return self.proxy.__setitem__(*args,**kwargs)
+    @remotebag_wrapper 
+    def __len__(self,*args,**kwargs):
+        return self.proxy.__len__(*args,**kwargs)
+    @remotebag_wrapper 
+    def __contains__(self,*args,**kwargs):
+        return self.proxy.__contains__(*args,**kwargs)
+    @remotebag_wrapper 
+    def __eq__(self,*args,**kwargs):
+        return self.proxy.__eq__(*args,**kwargs)
+
+    def __getattr__(self,name):
+        h = getattr(self.proxy,name) 
+        if not callable(h):
+            return h
+        def decore(*args,**kwargs):
+            kwargs['_pyrosubbag'] = self.rootpath
+            kwargs['_siteregister_register_name'] = self.register_name
+            kwargs['_siteregister_register_item_id'] = self.register_item_id
+            return h(*args,**kwargs)
+        return decore
+
+#------------------------------- END REMOTEBAG  ---------------------------
+
+
+
 
 class BaseRegister(object):
     """docstring for BaseRegister"""
@@ -38,25 +125,41 @@ class BaseRegister(object):
         self.registerItems = dict() 
         self.itemsData = dict()
         self.itemsTS = dict()
+        self.locked_items = dict()
 
-    def addRegisterItem(self,register_item):
-        self.registerItems[register_item['register_item_id']] = register_item
+    def lock(self,register_item_id):
+        print 'locking ',self.registerName,register_item_id,
+        if not register_item_id in self.locked_items:
+            self.locked_items[register_item_id] = True
+            print 'ok'
+            return True
+        print 'failed'
+        return False
 
-    def attachData(self,register_item_id,data):
+    def unlock(self,register_item_id):
+        print 'unlocking ',self.registerName,register_item_id
+        self.locked_items.pop(register_item_id,None)
+
+    def addRegisterItem(self,register_item,data=None):
+        register_item_id = register_item['register_item_id']
+        self.registerItems[register_item_id] = register_item
         self.itemsData[register_item_id] = Bag(data)
-        self.updateTS(register_item_id)
+
+
+    def getRemoteData(self,register_item_id):
+        pass
 
     def updateTS(self,register_item_id):
         self.itemsTS[register_item_id] = datetime.now()
 
-    def getData(self,register_item_id):
+    def get_register_data(self,register_item_id):
         return self.itemsData[register_item_id]
 
-    def getItem(self,register_item_id,include_data=False):
+    def get_register_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
         self.updateTS(register_item_id)
         if item and include_data:
-            item['data'] = self.getData(register_item_id)
+            item['data'] = self.get_register_data(register_item_id)
         return item
 
     def exists(self,register_item_id):
@@ -113,7 +216,8 @@ class UserRegister(BaseRegister):
                 user_id=user_id,
                 user_name=user_name,
                 user_tags=user_tags,
-                avatar_extra=avatar_extra)
+                avatar_extra=avatar_extra,
+                register_name='user')
         self.addRegisterItem(register_item)
         return register_item
         
@@ -134,7 +238,8 @@ class ConnectionRegister(BaseRegister):
                 user_tags = user_tags,
                 user_ip=user_ip,
                 user_agent=user_agent,
-                browser_name=browser_name)
+                browser_name=browser_name,
+                register_name='connection')
 
         self.addRegisterItem(register_item)
         return register_item
@@ -182,11 +287,9 @@ class PageRegister(BaseRegister):
                 user_ip=user_ip,
                 user_agent=user_agent,
                 datachanges=list(),
-                subscribed_paths=set()
-                )
-        if data:
-            self.attachData(register_item_id,data)
-        self.addRegisterItem(register_item)
+                subscribed_paths=set(),
+                register_name='page')
+        self.addRegisterItem(register_item,data=data)
         return register_item
 
 
@@ -231,9 +334,11 @@ class PageRegister(BaseRegister):
 class SiteRegister(object):
     def __init__(self,server):
         self.server = server
-        self.p_register = PageRegister(self)
-        self.c_register = ConnectionRegister(self)
-        self.u_register = UserRegister(self)
+        self.page_register = PageRegister(self)
+        self.connection_register = ConnectionRegister(self)
+        self.user_register = UserRegister(self)
+        self.remotebag_handler = RemoteStoreBagHandler(self)
+        self.server.daemon.register(self.remotebag_handler,'RemoteData')
         self.last_cleanup = time.time()
 
     def setConfiguration(self,cleanup=None):
@@ -242,66 +347,65 @@ class SiteRegister(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
-
     def new_connection(self,connection_id,connection_name=None,user=None,user_id=None,
                             user_name=None,user_tags=None,user_ip=None,user_agent=None,browser_name=None,avatar_extra=None):
-        assert not self.c_register.exists(connection_id), 'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
-        if not self.u_register.exists(user):
+        assert not self.connection_register.exists(connection_id), 'SITEREGISTER ERROR: connection_id %s already registered' % connection_id
+        if not self.user_register.exists(user):
             self.new_user( user, user_id=user_id,user_name=user_name,user_tags=user_tags,avatar_extra=avatar_extra)
-        connection_item = self.c_register.create(connection_id, connection_name=connection_name,user=user,user_id=user_id,
+        connection_item = self.connection_register.create(connection_id, connection_name=connection_name,user=user,user_id=user_id,
                             user_name=user_name,user_tags=user_tags,user_ip=user_ip,user_agent=user_agent,browser_name=browser_name)
 
         return connection_item
 
 
     def drop_page(self,page_id, cascade=None):
-        return self.p_register.drop(page_id,cascade=cascade)   
+        return self.page_register.drop(page_id,cascade=cascade)   
 
     def drop_connection(self,connection_id,cascade=None):
-        self.c_register.drop(connection_id,cascade=cascade)
+        self.connection_register.drop(connection_id,cascade=cascade)
 
     def drop_user(self,user):
-        self.u_register.drop(user)
+        self.user_register.drop(user)
 
     def user_connection_keys(self,user):
-        self.c_register.user_connection_keys(user)
+        self.connection_register.user_connection_keys(user)
 
     def user_connection_items(self,user):
-        self.c_register.user_connection_items(user)
+        self.connection_register.user_connection_items(user)
 
     def user_connections(self,user):
-        self.c_register.user_connections(user)
+        self.connection_register.user_connections(user)
 
     def connection_page_keys(self,connection_id):
-        self.p_register.connection_page_keys(connection_id=connection_id)
+        self.page_register.connection_page_keys(connection_id=connection_id)
 
     def connection_page_items(self,connection_id):
-        self.p_register.connection_page_items(connection_id=connection_id)
+        self.page_register.connection_page_items(connection_id=connection_id)
 
     def connection_pages(self,connection_id):
-        self.p_register.connection_pages(connection_id=connection_id)
+        self.page_register.connection_pages(connection_id=connection_id)
 
 
     def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):
-        page_item = self.p_register.create(page_id, pagename = pagename,connection_id=connection_id,user=user,
+        page_item = self.page_register.create(page_id, pagename = pagename,connection_id=connection_id,user=user,
                                             user_ip=user_ip,user_agent=user_agent, data=data)
         return page_item
 
 
     def new_user(self,user=None, user_tags=None, user_id=None, user_name=None,
                                avatar_extra=None):
-        user_item = self.u_register.create( user=user, user_tags=user_tags, user_id=user_id, user_name=user_name,
+        user_item = self.user_register.create( user=user, user_tags=user_tags, user_id=user_id, user_name=user_name,
                                avatar_extra=avatar_extra)
         return user_item
 
     def subscribed_table_pages(self,table=None):
-        return self.p_register.subscribed_table_pages(table)
+        return self.page_register.subscribed_table_pages(table)
 
     def pages(self, connection_id=None,user=None,index_name=None, filters=None):
         if index_name:
             print 'call subscribed_table_pages instead of pages'
             return self.subscribed_table_pages(index_name)
-        pages = self.p_register.pages(connection_id=connection_id,user=user)
+        pages = self.page_register.pages(connection_id=connection_id,user=user)
         if not filters or filters == '*':
             return pages
 
@@ -330,20 +434,20 @@ class SiteRegister(object):
         return filtered
 
     def page(self,page_id):
-        return self.p_register.getItem(page_id)
+        return self.page_register.get_register_item(page_id)
 
     def connection(self,connection_id):
-        return self.c_register.getItem(connection_id)
+        return self.connection_register.get_register_item(connection_id)
 
     def user(self,user):
-        return self.u_register.getItem(user)
+        return self.user_register.get_register_item(user)
 
 
     def users(self,*args,**kwargs):
-        return self.u_register.values()
+        return self.user_register.values()
 
     def connections(self,user=None):
-        return self.c_register.connections(user=user)
+        return self.connection_register.connections(user=user)
  
 
     def change_connection_user(self, connection_id, user=None, user_tags=None, user_id=None, user_name=None,
@@ -362,20 +466,20 @@ class SiteRegister(object):
         connection_item['avatar_extra'] = avatar_extra
         for p in self.pages(connection_id=connection_id):
             p['user'] = user
-        if not self.c_register.connections(olduser):
+        if not self.connection_register.connections(olduser):
             self.drop_user(olduser)
 
 
     def refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
         refresh_ts = datetime.now()
-        page = self.p_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        page = self.page_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
         if not page:
             return
-        self.p_register.updatePageProfilers(page_id,pageProfilers)
-        connection = self.c_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        self.page_register.updatePageProfilers(page_id,pageProfilers)
+        connection = self.connection_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
         if not connection:
             return
-        self.u_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        self.user_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
 
 
     def cleanup(self):
@@ -394,29 +498,31 @@ class SiteRegister(object):
         self.last_cleanup = time.time()
 
 
-    def debug(self,mode,name,*args,**kwargs):
-        if not name in self.current:
-            print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
-            self.current[name] = True
+    def lock_register_item(self,register_name,register_item_id):
+        return self.get_register(register_name).lock(register_item_id)
 
-    def __getattr__(self,name):
-        h = getattr(self.siteregister,name)
-        if not callable(h):
-            self.debug('property',name)
-            return h
-        def decore(*args,**kwargs):
-            self.debug('callable',name,*args,**kwargs)
-            return h(*args,**kwargs)
-        return decore
+    def unlock_register_item(self,register_name,register_item_id):
+        return self.get_register(register_name).unlock(register_item_id)
 
+    def get_register(self,register_name):
+        return getattr(self,'%s_register' %register_name)
+
+
+    def get_register_item(self,register_name,register_item_id,include_data=False):
+        register = self.get_register(register_name)
+        print 'register',register 
+        register_item = register.get_register_item(register_item_id,include_data=include_data)
+        print 'register_item',register_item
+        return register_item
+
+    def get_register_data(self,register_name,register_item_id):
+        return self.get_register(register_name).get_register_data(register_item_id)
 
 
 
 ################################### CLIENT ##########################################
 
 class SiteRegisterClient(object):
- 
-
     def __init__(self,site,host=None,port=None,hmac_key=None):
         self.site = site
         host = host or PYRO_HOST
@@ -427,20 +533,24 @@ class SiteRegisterClient(object):
         uri = 'PYRO:SiteRegister@%s:%i' %(host,int(port))
         print 'URI',uri
         self.siteregister =  Pyro4.Proxy(uri)
+        self.remotebag_uri ='PYRO:RemoteData@%s:%i' %(host,int(port))
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
         #self.siteregister = SiteRegister(site)
 
 
     def new_page(self, page_id, page, data=None):
-        return self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
+        register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
                                             user_ip=page.user_ip,user_agent=page.user_agent, data=data)
+        self.add_data_to_register_item(register_item)
+        return register_item
 
 
     def new_connection(self, connection_id, connection):
-        return self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
+        register_item = self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
                                                     user_id=connection.user_id,user_tags=connection.user_tags,user_ip=connection.ip,browser_name=connection.browser_name,
                                                     user_agent=connection.user_agent,avatar_extra=connection.avatar_extra)
-
+        self.add_data_to_register_item(register_item)
+        return register_item
 
     def pages(self,*args,**kwargs):
         pages =  self.siteregister.pages(*args,**kwargs)
@@ -464,16 +574,34 @@ class SiteRegisterClient(object):
         self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
 
 
-########################### NO REMAP ######################################
 
-    def connectionStore(self,*args,**kwargs):
-        return self.siteregister.connectionStore(*args,**kwargs)
-        
-    def pageStore(self,*args,**kwargs):
-        return self.siteregister.pageStore(*args,**kwargs)        
+    def connectionStore(self, connection_id, triggered=False):
+        return self.make_store('connection',connection_id, triggered=triggered)
 
-    def userStore(self,*args,**kwargs):
-        return self.siteregister.userStore(*args,**kwargs)  
+    def userStore(self, user, triggered=False):
+        return self.make_store('user',user, triggered=triggered)
+
+    def pageStore(self, page_id, triggered=False):
+        return self.make_store('page',page_id, triggered=triggered)
+
+
+    def make_store(self, register_name,register_item_id, triggered=None):
+        return ServerStore(self, register_name,register_item_id=register_item_id, triggered=triggered)
+
+
+
+    def get_register_item(self,register_name,register_item_id,include_data=False):
+        lazy_data = include_data == 'lazy'
+        if include_data == 'lazy':
+            include_data = False
+        register_item = self.siteregister.get_register_item(register_name,register_item_id,include_data=include_data)
+        if lazy_data:
+            self.add_data_to_register_item(register_item)
+        return register_item
+
+    def add_data_to_register_item(self,register_item):
+        register_item['data'] = RemoteStoreBag(self.remotebag_uri, register_item['register_name'],register_item['register_item_id'])
+
 
 ############################## TO DO #######################################
 
@@ -485,10 +613,10 @@ class SiteRegisterClient(object):
     def __getattr__(self,name):
         h = getattr(self.siteregister,name)
         if not callable(h):
-            self._debug('property',name)
+            #self._debug('property',name)
             return h
         def decore(*args,**kwargs):
-            self._debug('callable',name,*args,**kwargs)
+            #self._debug('callable',name,*args,**kwargs)
             return h(*args,**kwargs)
         return decore
 
@@ -503,7 +631,8 @@ class RegisterTester(object):
         self.implemented = ['new_page','drop_page','page','pages',
                             'new_connection','drop_connection','connection','connections',
                             'new_user','drop_user','user','users',
-                            'change_connection_user','refresh','cleanup']
+                            'change_connection_user','refresh','cleanup',
+                            'userStore','connectionStore','pageStore']
 
     def __getattr__(self,name):
         h = getattr(self.oldregister,name)
@@ -514,13 +643,16 @@ class RegisterTester(object):
             self._debug('property',name)
             return h
         def decore(*args,**kwargs):
-            getattr(self.newregister,name)(*args,**kwargs)
-            return h(*args,**kwargs)
+            newresult = getattr(self.newregister,name)(*args,**kwargs)
+            #if name in ('userStore','connectionStore','pageStore'):
+            #    with newresult as store:
+            #        print 'testing store',args,kwargs,store
+            #oldresult = h(*args,**kwargs)
+            return newresult
         return decore
 
 class PyroServer(object):
     def __init__(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
-        self.siteregister = SiteRegister(self)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         port=port or PYRO_PORT
         host=host or PYRO_HOST
@@ -536,13 +668,137 @@ class PyroServer(object):
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
         self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        self.siteregister = SiteRegister(self)
         self.main_uri = self.daemon.register(self,'PyroServer')
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
-
         print "uri=",self.main_uri
 
     def start(self):
         self.daemon.requestLoop()
+
+########################################### SERVER STORE #######################################
+
+class ServerStore(object):
+    def __init__(self, parent,register_name=None, register_item_id=None, triggered=True,max_retry=None,retry_delay=None):
+        #self.parent = parent
+        self.siteregister = parent.siteregister
+        self.register_name = register_name
+        self.register_item_id = register_item_id
+        self.triggered = triggered
+        self.max_retry = max_retry or LOCK_MAX_RETRY
+        self.retry_delay = retry_delay or RETRY_DELAY
+        self._register_item = '*'
+
+    def __enter__(self):
+        k = 0
+        while not self.siteregister.lock_register_item(self.register_name,self.register_item_id):
+            time.sleep(self.retry_delay)
+            k += 1
+            if k>self.max_retry:
+                print '************UNABLE TO LOCK STORE : %s ITEM %s ***************' % (self.register_name, self.register_item_id)
+                return
+        return self
+
+    def __exit__(self, type, value, tb):
+        self.siteregister.unlock_register_item(self.register_name,self.register_item_id)
+        #if tb:
+        #    return
+        #if not self.register_item:
+        #    return
+        #data = self.data
+        #if data is not None:
+        #    data.unsubscribe('datachanges', any=True)
+        #self.parent.write(self.register_item)
+
+    @property
+    def data(self):
+        """TODO"""
+        if self.register_item:
+            return self.register_item['data']
+        else:
+            return Bag()
+
+    @property
+    def register_item(self):
+        """TODO"""
+        if self._register_item != '*':
+            return self._register_item
+        self._register_item = register_item = self.siteregister.get_register_item(self.register_name,self.register_item_id,include_data='lazy')
+        if not register_item:
+            return
+        data = register_item.get('data')
+        if data is None:
+            data = Bag()
+            register_item['data'] = data
+            register_item['datachanges'] = list()
+            register_item['datachanges_idx'] = 0
+            register_item['subscribed_paths'] = set()
+        if self.triggered and register_item['subscribed_paths']:
+            data.subscribe('datachanges', any=self._on_data_trigger)
+        return register_item
+
+
+
+    def reset_datachanges(self):
+        if self.register_item:
+            self.register_item['datachanges'] = list()
+            self.register_item['datachanges_idx'] = 0
+
+
+    def set_datachange(self, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
+        if not self.register_item:
+            return
+        datachanges = self.datachanges
+        self.register_item['datachanges_idx'] = self.register_item.get('datachanges_idx', 0)
+        self.register_item['datachanges_idx'] += 1
+        datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
+                                      reason=reason, change_idx=self.register_item['datachanges_idx'],
+                                      delete=delete)
+        if replace and datachange in datachanges:
+            datachanges.pop(datachanges.index(datachange))
+        datachanges.append(datachange)
+
+    def drop_datachanges(self, path):
+        self.datachanges[:] = [dc for dc in self.datachanges if not dc.path.startswith(path)]
+
+    def subscribe_path(self, path):
+        if self.register_item:
+            self.subscribed_paths.add(path)
+
+    def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None, **kwargs):
+        if evt == 'ins':
+            pathlist.append(node.label)
+        path = '.'.join(pathlist)
+        for subscribed in self.subscribed_paths:
+            if path.startswith(subscribed):
+                self.datachanges.append(
+                        ClientDataChange(path=path, value=node.value, reason='serverChange', attributes=node.attr))
+                break
+
+    def __getattr__(self, fname):
+        if hasattr(BAG_INSTANCE, fname):
+
+            return getattr(self.data, fname)
+        else:
+            raise AttributeError("register_item has no attribute '%s'" % fname)
+
+    @property
+    def datachanges(self):
+        """TODO"""
+        datachanges = []
+        if self.register_item:
+            datachanges = self.register_item.setdefault('datachanges', [])
+        return datachanges
+
+    @property
+    def subscribed_paths(self):
+        """TODO"""
+        if self.register_item:
+            return self.register_item['subscribed_paths']
+
+
+
+#################################### UTILS ####################################################################
 
 
 
