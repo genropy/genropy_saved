@@ -54,7 +54,8 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def validate_page_id(self, page_id):
-        return page_id in self.connection_item['pages']
+        pages = self.connection_item.get('pages') or self.page.site.register.pages(connection_id=self.connection_item['register_item_id'])
+        return page_id in pages
 
     def validate_connection(self, connection_id=None, user=None):
         connection_item = self.page.site.register.connection(connection_id)
