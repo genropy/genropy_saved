@@ -1028,16 +1028,15 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
             
     def clearRecordLocks(self, **kwargs):
-        """TODO"""
-        if 'sys' in self.gnrapp.db.packages:
-            return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
+        pass
+
             
     def onClosePage(self, page):
         """A method called on when a page is closed on the client
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        self.register.drop_page(page_id, cascade=False)
+        page.unregister()
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
         

@@ -25,6 +25,6 @@ class GnrCustomWebPage(object):
 
     @public_method
     def errormaker(self):
-        item = self.site.register.newregister.get_register_item('page',self.page_id,'lazy')
+        item = self.site.register.newregister.get_item(self.page_id,'lazy',register_name='page')
         item['data'].setItem('pippo',33)
         print x

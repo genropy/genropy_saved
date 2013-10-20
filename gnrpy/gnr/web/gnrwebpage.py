@@ -216,7 +216,7 @@ class GnrWebPage(GnrBaseWebPage):
             if not self.connection.validate_page_id(page_id):
                 raise self.site.client_exception('The referenced page_id is not valid in this connection',
                                                  self._environ)
-            page_item = self.site.register.page(page_id)
+            page_item = self.site.register.page(page_id,include_data='lazy')
             if not page_item:
                 raise self.site.client_exception('The referenced page_id is cannot be found in site register',
                                                  self._environ)
@@ -251,6 +251,11 @@ class GnrWebPage(GnrBaseWebPage):
                 if prefenv:
                     data['prefenv'] = prefenv
             return self.site.register.new_page(self.page_id, self, data=data)
+
+    def unregister(self):
+        self.site.register.drop_page(self.page_id, cascade=False)
+        self._dropped = True
+
 
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
@@ -1600,7 +1605,6 @@ class GnrWebPage(GnrBaseWebPage):
                 if typekit_code and False:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
-                #self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
                 root.div(id='auxDragImage')
                 root.div(id='srcHighlighter')
                 pageOptions = self.pageOptions or dict()
@@ -1691,51 +1695,7 @@ class GnrWebPage(GnrBaseWebPage):
     def getPageStoreData(self):
         """TODO"""
         return self.pageStore().getItem('')
-        
-    def mainLeftTop(self, pane):
-        """The main left top of the page
-        
-        :param pane: a :ref:`contentpane`"""
-        pass
-            
-    def mainLeftContent(self, parentBC, **kwargs):
-        """The main left content of the page
-        
-        :param parentBC: the root parent :ref:`bordercontainer`"""
-        plugin_list = getattr(self, 'plugin_list', None)
-        if not plugin_list or self.root_page_id:
-            return
-        bc = parentBC.borderContainer(_class='main_left_tab', width='200px', datapath='gnr.main_container.left',
-                                      **kwargs)
-        self.mainLeftTop(bc.contentPane(region='top', nodeId='gnr_main_left_top', id='gnr_main_left_top'))
-        bottom = bc.contentPane(region='bottom', nodeId='gnr_main_left_bottom', id='gnr_main_left_bottom',
-                                overflow='hidden')
-        plugin_dock = bottom.slotBar(slots='*,%s,*' %self.plugin_list)
-        sc = bc.stackContainer(selectedPage='^.selected', region='center', nodeId='gnr_main_left_center')
-        sc.dataController("""genro.publish(page+'_'+(selected?'on':'off'));
-                             genro.dom.setClass(genro.domById('plugin_block_'+page),'selected_plugin',selected);
-                            """,
-                          subscribe_gnr_main_left_center_selected=True)
-                          
-        sc.dataController("""
-                            var command= main_left_status[0]?'open':'close';
-                            genro.publish(page+'_'+(command=='open'?'on':'off'));
-                            """,
-                          subscribe_main_left_status=True,
-                          page='=.selected')
-                          
-        for plugin in self.plugin_list.split(','):
-            cb = getattr(self, 'mainLeft_%s' % plugin)
-            assert cb, 'Plugin %s not found' % plugin
-            cb(sc.contentPane(pageName=plugin))
-            sc.dataController("""
-                              PUBLISH main_left_set_status = true;
-                              SET .selected=plugin;
-                              """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-                              
-            getattr(plugin_dock,plugin).div(_class='plugin_block %s_icon' % plugin,
-                                            connect_onclick="""SET .selected="%s";""" % plugin,
-                                            id='plugin_block_%s' % plugin)
+
                                             
     def onMainCalls(self):
         """TODO"""

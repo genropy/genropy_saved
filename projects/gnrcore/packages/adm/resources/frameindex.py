@@ -591,6 +591,7 @@ class FramedIndexLogin(BaseComponent):
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
             with self.connectionStore() as store:
+                print x
                 store.setItem('defaultRootenv',rootenv)
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False

@@ -69,9 +69,10 @@ class GnrWebRpc(GnrBaseProxy):
         if page.isLocalizer():
             envelope['_localizerStatus'] = '*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
-        dataChanges = self.page.collectClientDatachanges()
-        if dataChanges:
-            envelope.setItem('dataChanges', dataChanges)
+        if not getattr(page,'_dropped',False):
+            dataChanges = self.page.collectClientDatachanges()
+            if dataChanges:
+                envelope.setItem('dataChanges', dataChanges)
         page.response.content_type = "text/xml"
         t0 = time()
         xmlresult = envelope.toXml(unresolved=True,

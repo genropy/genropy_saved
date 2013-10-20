@@ -57,7 +57,7 @@ class RemoteStoreBagHandler(object):
         def decore(*args,**kwargs):
             register_name = kwargs.pop('_siteregister_register_name',None)
             register_item_id = kwargs.pop('_siteregister_register_item_id',None)
-            store = self.siteregister.get_register_data(register_name,register_item_id)
+            store = self.siteregister.get_item_data(register_item_id,register_name=register_name)
             if '_pyrosubbag' in kwargs:
                 _pyrosubbag = kwargs.pop('_pyrosubbag')
                 store = store.getItem(_pyrosubbag)
@@ -127,7 +127,7 @@ class BaseRegister(object):
         self.itemsTS = dict()
         self.locked_items = dict()
 
-    def lock(self,register_item_id):
+    def lock_item(self,register_item_id):
         print 'locking ',self.registerName,register_item_id,
         if not register_item_id in self.locked_items:
             self.locked_items[register_item_id] = True
@@ -136,30 +136,43 @@ class BaseRegister(object):
         print 'failed'
         return False
 
-    def unlock(self,register_item_id):
+    def unlock_item(self,register_item_id):
         print 'unlocking ',self.registerName,register_item_id
         self.locked_items.pop(register_item_id,None)
 
     def addRegisterItem(self,register_item,data=None):
         register_item_id = register_item['register_item_id']
         self.registerItems[register_item_id] = register_item
-        self.itemsData[register_item_id] = Bag(data)
+        register_item['datachanges'] = list()
+        register_item['datachanges_idx'] = 0
+        register_item['subscribed_paths'] = set()
+        data = Bag(data)
+        data.subscribe('datachanges', any=lambda self,node,ind,evt,pathlist,**kwargs:  self._on_data_trigger(node,ind,evt,pathlist,register_item,**kwargs))
+        self.itemsData[register_item_id] = data
 
-
+    def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None,register_item=None, **kwargs):
+        if evt == 'ins':
+            pathlist.append(node.label)
+        path = '.'.join(pathlist)
+        for subscribed in register_item['subscribed_paths']:
+            if path.startswith(subscribed):
+                register_item['datachanges'].append(
+                        ClientDataChange(path=path, value=node.value, reason='serverChange', attributes=node.attr))
+                break
     def getRemoteData(self,register_item_id):
         pass
 
     def updateTS(self,register_item_id):
         self.itemsTS[register_item_id] = datetime.now()
 
-    def get_register_data(self,register_item_id):
+    def get_item_data(self,register_item_id):
         return self.itemsData[register_item_id]
 
-    def get_register_item(self,register_item_id,include_data=False):
+    def get_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
         self.updateTS(register_item_id)
         if item and include_data:
-            item['data'] = self.get_register_data(register_item_id)
+            item['data'] = self.get_item_data(register_item_id)
         return item
 
     def exists(self,register_item_id):
@@ -173,14 +186,6 @@ class BaseRegister(object):
 
     def values(self):
         return self.registerItems.values()
-
-    def updateItem(self,register_item_id,upddict):
-        item = self.registerItems.get(register_item_id)
-        if not item:
-            print 'missing register item ',register_item_id,self.registerName
-            return 
-        item.update(upddict)
-        self.updateTS(register_item_id)
 
     def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
         item = self.registerItems.get(register_item_id)
@@ -198,12 +203,42 @@ class BaseRegister(object):
         return self.__class__.__name__
 
 
-    def dropItem(self,register_item_id):
+    def drop_item(self,register_item_id):
         register_item = self.registerItems.pop(register_item_id,None)
         self.itemsData.pop(register_item_id,None)
         self.itemsTS.pop(register_item_id,None)
         return register_item
 
+    def update_item(self,register_item_id,upddict=None):
+        register_item = self.get_item(register_item_id)
+        register_item.update(upddict)
+        return register_item
+
+    def reset_datachanges(self,register_item_id):
+        return self.update_item(register_item_id,dict(datachanges=list(),datachanges_idx=0))
+
+
+    def set_datachange(self,register_item_id, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
+        register_item = self.get_item(register_item_id)
+
+        datachanges = register_item['datachanges']
+        register_item['datachanges_idx'] = register_item.get('datachanges_idx', 0)
+        register_item['datachanges_idx'] += 1
+        datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
+                                      reason=reason, change_idx=register_item['datachanges_idx'],
+                                      delete=delete)
+        if replace and datachange in datachanges:
+            datachanges.pop(datachanges.index(datachange))
+        datachanges.append(datachange)
+
+    def drop_datachanges(self,register_item_id, path):
+        register_item = self.get_item(register_item_id)
+        datachanges = register_item['datachanges']
+        datachanges[:] = [dc for dc in datachanges if not dc.path.startswith(path)]
+
+    def subscribe_path(self, register_item_id,path):
+        register_item = self.get_item(register_item_id)
+        register_item['subscribed_paths'].add(path)
 
 
 class UserRegister(BaseRegister):
@@ -222,7 +257,7 @@ class UserRegister(BaseRegister):
         return register_item
         
     def drop(self,user):
-        self.dropItem(user)
+        self.drop_item(user)
 
 class ConnectionRegister(BaseRegister):
     """docstring for ConnectionRegister"""
@@ -245,7 +280,7 @@ class ConnectionRegister(BaseRegister):
         return register_item
 
     def drop(self,register_item_id=None,cascade=None):
-        register_item = self.dropItem(register_item_id)
+        register_item = self.drop_item(register_item_id)
         if cascade:
             user = register_item['user']
             keys = self.user_connection_keys(user)
@@ -294,7 +329,7 @@ class PageRegister(BaseRegister):
 
 
     def drop(self,register_item_id=None,cascade=None):
-        register_item = self.dropItem(register_item_id)
+        register_item = self.drop_item(register_item_id)
         self.pageProfilers.pop(register_item_id,None)
         if cascade:
             connection_id = register_item['connection_id']
@@ -434,13 +469,13 @@ class SiteRegister(object):
         return filtered
 
     def page(self,page_id):
-        return self.page_register.get_register_item(page_id)
+        return self.page_register.get_item(page_id)
 
     def connection(self,connection_id):
-        return self.connection_register.get_register_item(connection_id)
+        return self.connection_register.get_item(connection_id)
 
     def user(self,user):
-        return self.user_register.get_register_item(user)
+        return self.user_register.get_item(user)
 
 
     def users(self,*args,**kwargs):
@@ -479,7 +514,7 @@ class SiteRegister(object):
         connection = self.connection_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
         if not connection:
             return
-        self.user_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        return self.user_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
 
 
     def cleanup(self):
@@ -498,28 +533,21 @@ class SiteRegister(object):
         self.last_cleanup = time.time()
 
 
-    def lock_register_item(self,register_name,register_item_id):
-        return self.get_register(register_name).lock(register_item_id)
-
-    def unlock_register_item(self,register_name,register_item_id):
-        return self.get_register(register_name).unlock(register_item_id)
-
     def get_register(self,register_name):
         return getattr(self,'%s_register' %register_name)
 
-
-    def get_register_item(self,register_name,register_item_id,include_data=False):
-        register = self.get_register(register_name)
-        print 'register',register 
-        register_item = register.get_register_item(register_item_id,include_data=include_data)
-        print 'register_item',register_item
-        return register_item
-
-    def get_register_data(self,register_name,register_item_id):
-        return self.get_register(register_name).get_register_data(register_item_id)
-
-
-
+    def __getattr__(self, fname):
+        if fname=='_pyroId':
+            return self._pyroId
+        def decore(*args,**kwargs):
+            register_name = kwargs.pop('register_name',None)
+            if not register_name:
+                return getattr(self,fname)(*args,**kwargs)
+            register = self.get_register(register_name)
+            h = getattr(register,fname)
+            return h(*args,**kwargs)
+        return decore
+        
 ################################### CLIENT ##########################################
 
 class SiteRegisterClient(object):
@@ -571,7 +599,7 @@ class SiteRegisterClient(object):
         return self.adaptListToDict(users)  
 
     def refresh(self,page_id, ts=None,lastRpc=None,pageProfilers=None):
-        self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
+        return self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
 
 
 
@@ -590,17 +618,28 @@ class SiteRegisterClient(object):
 
 
 
-    def get_register_item(self,register_name,register_item_id,include_data=False):
+    def get_item(self,register_item_id,include_data=False,register_name=None):
         lazy_data = include_data == 'lazy'
+        print 'include_data',include_data
         if include_data == 'lazy':
             include_data = False
-        register_item = self.siteregister.get_register_item(register_name,register_item_id,include_data=include_data)
+        register_item = self.siteregister.get_item(register_item_id,include_data=include_data,register_name=register_name)
         if lazy_data:
             self.add_data_to_register_item(register_item)
         return register_item
 
     def add_data_to_register_item(self,register_item):
+        print 'adding RemoteStoreBag'
         register_item['data'] = RemoteStoreBag(self.remotebag_uri, register_item['register_name'],register_item['register_item_id'])
+
+    def page(self,page_id,include_data=None):
+        return self.get_item(page_id,include_data=include_data,register_name='page')
+
+    def connection(self,connection_id,include_data=None):
+        return self.get_item(connection_id,include_data=include_data,register_name='connection')
+
+    def user(self,user,include_data=None):
+        return self.get_item(user,include_data=include_data,register_name='user')
 
 
 ############################## TO DO #######################################
@@ -691,7 +730,7 @@ class ServerStore(object):
 
     def __enter__(self):
         k = 0
-        while not self.siteregister.lock_register_item(self.register_name,self.register_item_id):
+        while not self.siteregister.lock_item(self.register_item_id,register_name=self.register_name):
             time.sleep(self.retry_delay)
             k += 1
             if k>self.max_retry:
@@ -700,7 +739,7 @@ class ServerStore(object):
         return self
 
     def __exit__(self, type, value, tb):
-        self.siteregister.unlock_register_item(self.register_name,self.register_item_id)
+        self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
         #if tb:
         #    return
         #if not self.register_item:
@@ -710,92 +749,54 @@ class ServerStore(object):
         #    data.unsubscribe('datachanges', any=True)
         #self.parent.write(self.register_item)
 
-    @property
-    def data(self):
-        """TODO"""
-        if self.register_item:
-            return self.register_item['data']
-        else:
-            return Bag()
-
-    @property
-    def register_item(self):
-        """TODO"""
-        if self._register_item != '*':
-            return self._register_item
-        self._register_item = register_item = self.siteregister.get_register_item(self.register_name,self.register_item_id,include_data='lazy')
-        if not register_item:
-            return
-        data = register_item.get('data')
-        if data is None:
-            data = Bag()
-            register_item['data'] = data
-            register_item['datachanges'] = list()
-            register_item['datachanges_idx'] = 0
-            register_item['subscribed_paths'] = set()
-        if self.triggered and register_item['subscribed_paths']:
-            data.subscribe('datachanges', any=self._on_data_trigger)
-        return register_item
-
-
-
     def reset_datachanges(self):
-        if self.register_item:
-            self.register_item['datachanges'] = list()
-            self.register_item['datachanges_idx'] = 0
+        return self.siteregister.reset_datachanges(self.register_item_id,register_name=self.register_name)
 
 
     def set_datachange(self, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
-        if not self.register_item:
-            return
-        datachanges = self.datachanges
-        self.register_item['datachanges_idx'] = self.register_item.get('datachanges_idx', 0)
-        self.register_item['datachanges_idx'] += 1
-        datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
-                                      reason=reason, change_idx=self.register_item['datachanges_idx'],
-                                      delete=delete)
-        if replace and datachange in datachanges:
-            datachanges.pop(datachanges.index(datachange))
-        datachanges.append(datachange)
+        return self.siteregister.set_datachange(self.register_item_id,path, value=value, attributes=attributes, fired=fired,
+                                                 reason=reason, replace=replace, delete=delete,register_name=self.register_name)
 
     def drop_datachanges(self, path):
-        self.datachanges[:] = [dc for dc in self.datachanges if not dc.path.startswith(path)]
+        self.siteregister.drop_datachanges(self.register_item_id,path,register_name=self.register_name)
 
     def subscribe_path(self, path):
-        if self.register_item:
-            self.subscribed_paths.add(path)
+        self.siteregister.subscribe_path(self.register_item_id,path,register_name=self.register_name)
 
-    def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None, **kwargs):
-        if evt == 'ins':
-            pathlist.append(node.label)
-        path = '.'.join(pathlist)
-        for subscribed in self.subscribed_paths:
-            if path.startswith(subscribed):
-                self.datachanges.append(
-                        ClientDataChange(path=path, value=node.value, reason='serverChange', attributes=node.attr))
-                break
+    @property
+    def register_item(self):
+        return self.siteregister.get_item(self.register_item_id,include_data='lazy',register_name=self.register_name)
 
-    def __getattr__(self, fname):
-        if hasattr(BAG_INSTANCE, fname):
-
-            return getattr(self.data, fname)
-        else:
-            raise AttributeError("register_item has no attribute '%s'" % fname)
+    @property
+    def data(self):
+        data = self.register_item['data']
+        if isinstance(data,Bag):
+            print zzz
+        print data
 
     @property
     def datachanges(self):
-        """TODO"""
-        datachanges = []
-        if self.register_item:
-            datachanges = self.register_item.setdefault('datachanges', [])
-        return datachanges
+        return self.register_item['datachanges']
 
     @property
     def subscribed_paths(self):
-        """TODO"""
-        if self.register_item:
-            return self.register_item['subscribed_paths']
+        return self.register_item['subscribed_paths']
 
+    def __getattr__(self, fname):
+        if hasattr(BAG_INSTANCE, fname):
+            def decore(*args,**kwargs):
+                data = self.data
+                if fname == 'setItem' or fname=='__setitem__':
+                    if data is None:
+                        print x
+                    print fname,args,kwargs,'DATA',data
+                return getattr(data, fname)(*args,**kwargs)
+                
+            return decore
+
+
+        else:
+            raise AttributeError("register_item has no attribute '%s'" % fname)
 
 
 #################################### UTILS ####################################################################
