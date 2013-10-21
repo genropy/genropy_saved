@@ -320,7 +320,14 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.setAutoPolling(true);
             }
         }
-
+        var now = new Date();
+        for (var k in genro.rpc.rpc_register){
+            var kw = genro.rpc.rpc_register[k];
+            var age = now-kw.__rpc_started;
+            if (age>5000){
+                console.warn('slow rpc pending',kw,age);
+            }
+        }
     },
     
     loginDialog:function(loginUrl){
