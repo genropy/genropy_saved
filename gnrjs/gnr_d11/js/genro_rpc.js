@@ -120,6 +120,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         //    console.log('rpc_level',this.rpc_level);
         //}
         kw['__rpc_counter'] = this.rpc_counter;
+        kw['__rpc_started'] = new Date();
         this.rpc_register['r_' + this.rpc_counter] = kw;
         //console.log('rpc level:'+this.rpc_level)
     },

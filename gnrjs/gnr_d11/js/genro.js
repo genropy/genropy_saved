@@ -259,6 +259,14 @@ dojo.declare('gnr.GenroClient', null, {
             },genro.screenlock_timeout*1000*60,this,
             'screenlock');
         }
+        var now = new Date();
+        for (var k in genro.rpc.rpc_register){
+            var kw = genro.rpc.rpc_register[k];
+            var age = now-kw.__rpc_started;
+            if (age>5000){
+                console.log('slow rpc pending',kw,age);
+            }
+        }
 
     },
     
