@@ -100,11 +100,11 @@ class GnrWebPage(GnrBaseWebPage):
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
+        self._inited = False
         self._start_time = time()
         self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
-
         self.site = site
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
@@ -178,6 +178,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
+        self._inited = True
             
     def onPreIniting(self, *request_args, **request_kwargs):
         """TODO"""
@@ -1011,14 +1012,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param storename: TODO
         :param client_path: TODO
         :param active: boolean. TODO"""
-        with self.pageStore() as store:
-            subscriptions = store.getItem('_subscriptions')
-            if subscriptions is None:
-                subscriptions = dict()
-                store.setItem('_subscriptions', subscriptions)
-            storesub = subscriptions.setdefault(storename, {})
-            pathsub = storesub.setdefault(client_path, {})
-            pathsub['on'] = active
+        self.site.register.setStoreSubscription(page_id=self.page_id,storename=storename, client_path=client_path, active=active)
             
     def clientPage(self, page_id=None):
         """TODO

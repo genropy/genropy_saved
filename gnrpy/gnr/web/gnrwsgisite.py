@@ -624,6 +624,7 @@ class GnrWsgiSite(object):
         
         :param environ: TODO
         :param start_response: TODO"""
+        self.currentPage = None
         t = time()
         request = Request(environ)
         self.currentRequest = request
@@ -1047,7 +1048,6 @@ class GnrWsgiSite(object):
         :param debugtype: string (values: 'sql' or 'py')"""
         if self.currentPage:
             page = self.currentPage
-            #print 'ffff',self.debug,page.isDeveloper()
             if self.debug or page.isDeveloper():
                 page.developer.output(debugtype, **kwargs)
             if debugtype=='sql':
@@ -1238,42 +1238,42 @@ class GnrWsgiSite(object):
         :param local_datachanges: TODO"""
         result = Bag()
         local_datachanges = local_datachanges or []
-        with self.register.pageStore(page_id) as pagestore:
-            external_datachanges = list(pagestore.datachanges) or []
-            subscriptions = pagestore.getItem('_subscriptions') or Bag()
-            pagestore.reset_datachanges()
-            store_datachanges = []
-            for storename, storesubscriptions in subscriptions.items():
-                store = self.register.userStore(user) if storename == 'user' else self.register.stores(storename)
-                with store:
-                    self._get_storechanges(store, storesubscriptions.items(), page_id, store_datachanges)
-                    
-            for j, change in enumerate(external_datachanges + local_datachanges + store_datachanges):
-                result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
-                               change_fired=change.fired, change_attr=change.attributes,
-                               change_ts=change.change_ts, change_delete=change.delete)
+        external_datachanges = self.register.get_datachanges(register_item_id=page_id,reset=True,register_name='page')
+        store_datachanges = self._get_storechanges(user,page_id)
+        for j, change in enumerate(external_datachanges + local_datachanges + store_datachanges):
+            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+                           change_fired=change.fired, change_attr=change.attributes,
+                           change_ts=change.change_ts, change_delete=change.delete)
         return result
         
-    def _get_storechanges(self, store, subscriptions, page_id, store_datachanges):
-        datachanges = store.datachanges
-        global_offsets = store.getItem('_subscriptions.offsets')
-        if global_offsets is None:
-            global_offsets = {}
-            store.setItem('_subscriptions.offsets', global_offsets)
-        for j, change in enumerate(datachanges):
-            changepath = change.path
-            change_idx = change.change_idx
-            for subpath, subdict in subscriptions:
-                if subdict['on'] and changepath.startswith(subpath):
-                    if change_idx > subdict.get('offset', 0):
-                        subdict['offset'] = change_idx
-                        change.attributes = change.attributes or {}
-                        if change_idx > global_offsets.get(subpath, 0):
-                            global_offsets[subpath] = change_idx
-                            change.attributes['_new_datachange'] = True
-                        else:
-                            change.attributes.pop('_new_datachange', None)
-                        store_datachanges.append(change)
+    def _get_storechanges(self, user, page_id):
+        with self.register.pageStore(page_id) as pageStore:
+            user_subscriptions = pageStore.getItem('_subscriptions.user')
+            if not user_subscriptions:
+                return []
+            store_datachanges = []
+            storesubscriptions_items = user_subscriptions.items()
+            with self.register.userStore(user) as store:
+                datachanges = store.datachanges
+                global_offsets = store.getItem('_subscriptions.offsets')
+                if global_offsets is None:
+                    global_offsets = {}
+                for j, change in enumerate(datachanges):
+                    changepath = change.path
+                    change_idx = change.change_idx
+                    for subpath, subdict in storesubscriptions_items:
+                        if subdict['on'] and changepath.startswith(subpath):
+                            if change_idx > subdict.get('offset', 0):
+                                subdict['offset'] = change_idx
+                                change.attributes = change.attributes or {}
+                                if change_idx > global_offsets.get(subpath, 0):
+                                    global_offsets[subpath] = change_idx
+                                    change.attributes['_new_datachange'] = True
+                                else:
+                                    change.attributes.pop('_new_datachange', None)
+                                store_datachanges.append(change)
+                store.setItem('_subscriptions.offsets', global_offsets)
+            pageStore.setItem('_subscriptions.user',user_subscriptions)
         return store_datachanges
         
     def handle_clientchanges(self, page_id=None, parameters=None):

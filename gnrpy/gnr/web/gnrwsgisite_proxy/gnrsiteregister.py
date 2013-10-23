@@ -137,7 +137,6 @@ class BaseRegister(object):
         return False
 
     def unlock_item(self,register_item_id):
-        print 'unlocking ',self.registerName,register_item_id
         self.locked_items.pop(register_item_id,None)
 
     def addRegisterItem(self,register_item,data=None):
@@ -218,14 +217,25 @@ class BaseRegister(object):
         register_item.update(upddict)
         return register_item
 
+    def get_datachanges(self,register_item_id,reset=False):
+        register_item = self.get_item(register_item_id)
+        if not register_item:
+            return
+        datachanges = register_item['datachanges']
+        if reset:
+            register_item['datachanges'] = []
+            register_item['datachanges_idx'] = 0
+        return datachanges
+
     def reset_datachanges(self,register_item_id):
         return self.update_item(register_item_id,dict(datachanges=list(),datachanges_idx=0))
 
 
     def set_datachange(self,register_item_id, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
         register_item = self.get_item(register_item_id)
-
         datachanges = register_item['datachanges']
+        print 'server set_datachange',self.registerName,register_item_id,path #,value,register_item
+
         register_item['datachanges_idx'] = register_item.get('datachanges_idx', 0)
         register_item['datachanges_idx'] += 1
         datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
@@ -233,9 +243,11 @@ class BaseRegister(object):
                                       delete=delete)
         if replace and datachange in datachanges:
             datachanges.pop(datachanges.index(datachange))
+        print 'datachanges len', len(datachanges)
         datachanges.append(datachange)
 
     def drop_datachanges(self,register_item_id, path):
+        print 'drop_datachanges',self.registerName,register_item_id
         register_item = self.get_item(register_item_id)
         datachanges = register_item['datachanges']
         datachanges[:] = [dc for dc in datachanges if not dc.path.startswith(path)]
@@ -380,6 +392,16 @@ class PageRegister(BaseRegister):
     def updatePageProfilers(self,page_id,pageProfilers):
         self.pageProfilers[page_id] = pageProfilers 
 
+    def setStoreSubscription(self,page_id,storename=None,client_path=None,active=None):
+        register_item_data = self.get_item_data(page_id)
+        subscription_path = '_subscriptions.%s' %storename
+        storesub = register_item_data.getItem(subscription_path)
+        if storesub is None:
+            storesub = dict()
+            register_item_data.setItem(subscription_path, storesub)
+        pathsub = storesub.setdefault(client_path, {})
+        pathsub['on'] = active
+
 class SiteRegister(object):
     def __init__(self,server):
         self.server = server
@@ -520,19 +542,14 @@ class SiteRegister(object):
 
 
     def do_refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
-        print 'SiteRegister do_refresh'
         refresh_ts = datetime.now()
         page = self.page_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
-        print 'page',page
         if not page:
             return
         self.page_register.updatePageProfilers(page_id,pageProfilers)
         connection = self.connection_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
-        print 'connection',connection
-
         if not connection:
             return
-        print 'refreshing user'
         return self.user_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
 
 
@@ -554,6 +571,10 @@ class SiteRegister(object):
 
     def get_register(self,register_name):
         return getattr(self,'%s_register' %register_name)
+
+    def setStoreSubscription(self,page_id,storename=None, client_path=None, active=None):
+        self.page_register.setStoreSubscription(page_id,storename=storename,client_path=client_path,active=active)
+            
 
     def __getattr__(self, fname):
         if fname=='_pyroId':
@@ -585,13 +606,11 @@ class SiteRegisterClient(object):
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
         #self.siteregister = SiteRegister(site)
 
-
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
                                             user_ip=page.user_ip,user_agent=page.user_agent, data=data)
         self.add_data_to_register_item(register_item)
         return register_item
-
 
     def new_connection(self, connection_id, connection):
         register_item = self.siteregister.new_connection(connection_id,connection_name = connection.connection_name,user=connection.user,
@@ -615,7 +634,6 @@ class SiteRegisterClient(object):
         connections = self.siteregister.connections(user=user,include_data=include_data)
         return self.adaptListToDict(connections,lazy_data=lazy_data)
 
-
     def adaptListToDict(self,l,lazy_data=None):
         return dict([(c['register_item_id'],self.add_data_to_register_item(c) if lazy_data else c) for c in l])
 
@@ -627,10 +645,7 @@ class SiteRegisterClient(object):
         return self.adaptListToDict(users,lazy_data=lazy_data)  
 
     def refresh(self,page_id, ts=None,lastRpc=None,pageProfilers=None):
-        print 'refresh'
         return self.siteregister.do_refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
-
-
 
     def connectionStore(self, connection_id, triggered=False):
         return self.make_store('connection',connection_id, triggered=triggered)
@@ -645,14 +660,12 @@ class SiteRegisterClient(object):
     def make_store(self, register_name,register_item_id, triggered=None):
         return ServerStore(self, register_name,register_item_id=register_item_id, triggered=triggered)
 
-
-
     def get_item(self,register_item_id,include_data=False,register_name=None):
         lazy_data = include_data == 'lazy'
         if include_data == 'lazy':
             include_data = False
         register_item = self.siteregister.get_item(register_item_id,include_data=include_data,register_name=register_name)
-        if lazy_data:
+        if register_item and lazy_data:
             self.add_data_to_register_item(register_item)
         return register_item
 
@@ -668,6 +681,7 @@ class SiteRegisterClient(object):
 
     def user(self,user,include_data=None):
         return self.get_item(user,include_data=include_data,register_name='user')
+
 
 
 ############################## TO DO #######################################
@@ -770,7 +784,7 @@ class ServerStore(object):
 
     def __exit__(self, type, value, tb):
         self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
-        print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
+        #print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
 
         #if tb:
         #    return
@@ -786,6 +800,7 @@ class ServerStore(object):
 
 
     def set_datachange(self, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
+        print 'store set_datachange',self.register_item_id,self.register_name,path #,value
         return self.siteregister.set_datachange(self.register_item_id,path, value=value, attributes=attributes, fired=fired,
                                                  reason=reason, replace=replace, delete=delete,register_name=self.register_name)
 
@@ -815,7 +830,8 @@ class ServerStore(object):
         if hasattr(BAG_INSTANCE, fname):
             def decore(*args,**kwargs):
                 data = self.data
-                return getattr(data, fname)(*args,**kwargs)
+                if data is not None:
+                    return getattr(data, fname)(*args,**kwargs)
                 
             return decore
 
