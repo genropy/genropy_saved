@@ -128,12 +128,12 @@ class BaseRegister(object):
         self.locked_items = dict()
 
     def lock_item(self,register_item_id):
-        print 'locking ',self.registerName,register_item_id,
+        #print 'locking ',self.registerName,register_item_id,
         if not register_item_id in self.locked_items:
             self.locked_items[register_item_id] = True
-            print 'ok'
+            #print 'ok'
             return True
-        print 'failed'
+        #print 'failed'
         return False
 
     def unlock_item(self,register_item_id):
@@ -147,7 +147,7 @@ class BaseRegister(object):
         register_item['datachanges_idx'] = 0
         register_item['subscribed_paths'] = set()
         data = Bag(data)
-        data.subscribe('datachanges', any=lambda self,node,ind,evt,pathlist,**kwargs:  self._on_data_trigger(node,ind,evt,pathlist,register_item,**kwargs))
+        data.subscribe('datachanges', any=lambda **kwargs:  self._on_data_trigger(register_item=register_item,**kwargs))
         self.itemsData[register_item_id] = data
 
     def _on_data_trigger(self, node=None, ind=None, evt=None, pathlist=None,register_item=None, **kwargs):
@@ -181,11 +181,15 @@ class BaseRegister(object):
     def keys(self):
         return self.registerItems.keys()
 
-    def items(self):
-        return self.registerItems.items()
+    def items(self,include_data=None):
+        if not include_data:
+            return self.registerItems.values()
+        return [(k,self.get_item(k,include_data=True)) for k in self.keys()]
 
-    def values(self):
-        return self.registerItems.values()
+    def values(self,include_data=False):
+        if not include_data:
+            return self.registerItems.values()
+        return [self.get_item(k,include_data=True) for k in self.keys()]
 
     def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
         item = self.registerItems.get(register_item_id)
@@ -240,6 +244,18 @@ class BaseRegister(object):
         register_item = self.get_item(register_item_id)
         register_item['subscribed_paths'].add(path)
 
+    def get_dbenv(self,register_item_id):
+        data = self.get_item_data(register_item_id)
+        dbenvbag = data.getItem('dbenv') or Bag()
+        dbenvbag.update((data.getItem('rootenv') or Bag()))     
+        def addToDbEnv(n,_pathlist=None):
+            if n.attr.get('dbenv'):
+                path = n.label if n.attr['dbenv'] is True else n.attr['dbenv']
+                dbenvbag[path] = n.value
+        _pathlist = []
+        data.walk(addToDbEnv,_pathlist=_pathlist)
+        return dbenvbag
+        
 
 class UserRegister(BaseRegister):
     """docstring for UserRegister"""
@@ -295,8 +311,8 @@ class ConnectionRegister(BaseRegister):
 
 
 
-    def connections(self,user=None):
-        connections = self.values()
+    def connections(self,user=None,include_data=None):
+        connections = self.values(include_data=include_data)
         if user:
             connections = [v for v in connections if v['user'] == user]
         return connections
@@ -347,16 +363,14 @@ class PageRegister(BaseRegister):
     def subscribed_table_pages(self,table):
         return [v for k,v in self.items() if table in v['subscribed_tables']]
 
-
-
     def connection_page_keys(self,connection_id):
         return [k for k,v in self.items() if v['connection_id'] == connection_id]
 
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
 
-    def pages(self,connection_id=None,user=None):
-        pages = self.values()
+    def pages(self,connection_id=None,user=None,include_data=None):
+        pages = self.values(include_data=include_data)
         if connection_id:
             pages = [v for v in pages if v['connection_id'] == connection_id]
         if user:
@@ -436,11 +450,11 @@ class SiteRegister(object):
     def subscribed_table_pages(self,table=None):
         return self.page_register.subscribed_table_pages(table)
 
-    def pages(self, connection_id=None,user=None,index_name=None, filters=None):
+    def pages(self, connection_id=None,user=None,index_name=None, filters=None,include_data=None):
         if index_name:
             print 'call subscribed_table_pages instead of pages'
             return self.subscribed_table_pages(index_name)
-        pages = self.page_register.pages(connection_id=connection_id,user=user)
+        pages = self.page_register.pages(connection_id=connection_id,user=user,include_data=include_data)
         if not filters or filters == '*':
             return pages
 
@@ -461,7 +475,7 @@ class SiteRegister(object):
             except:
                 return False
 
-        for  page in pages.items():
+        for page in pages:
             page = Bag(page)
             for fltname, fltval in fltdict.items():
                 if checkpage(page, fltname, fltval):
@@ -478,11 +492,11 @@ class SiteRegister(object):
         return self.user_register.get_item(user)
 
 
-    def users(self,*args,**kwargs):
-        return self.user_register.values()
+    def users(self,include_data=None):
+        return self.user_register.values(include_data)
 
-    def connections(self,user=None):
-        return self.connection_register.connections(user=user)
+    def connections(self,user=None,include_data=None):
+        return self.connection_register.connections(user=user,include_data=include_data)
  
 
     def change_connection_user(self, connection_id, user=None, user_tags=None, user_id=None, user_name=None,
@@ -505,15 +519,20 @@ class SiteRegister(object):
             self.drop_user(olduser)
 
 
-    def refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
+    def do_refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
+        print 'SiteRegister do_refresh'
         refresh_ts = datetime.now()
         page = self.page_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        print 'page',page
         if not page:
             return
         self.page_register.updatePageProfilers(page_id,pageProfilers)
         connection = self.connection_register.refresh(page['connection_id'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
+        print 'connection',connection
+
         if not connection:
             return
+        print 'refreshing user'
         return self.user_register.refresh(connection['user'],last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
 
 
@@ -547,6 +566,7 @@ class SiteRegister(object):
             h = getattr(register,fname)
             return h(*args,**kwargs)
         return decore
+
         
 ################################### CLIENT ##########################################
 
@@ -580,26 +600,35 @@ class SiteRegisterClient(object):
         self.add_data_to_register_item(register_item)
         return register_item
 
-    def pages(self,*args,**kwargs):
-        pages =  self.siteregister.pages(*args,**kwargs)
+    def pages(self,connection_id=None,user=None,index_name=None, filters=None,include_data=None):
+        lazy_data = include_data=='lazy'
+        if lazy_data:
+            include_data=False
+        pages =  self.siteregister.pages(connection_id=connection_id,user=user,index_name=index_name,filters=filters,include_data=include_data)
         #adapt for old use 
-        return self.adaptListToDict(pages)
+        return self.adaptListToDict(pages,lazy_data=lazy_data)
 
-    def connections(self,user=None):
-        connections = self.siteregister.connections(user=user)
-        return self.adaptListToDict(connections)
+    def connections(self,user=None,include_data=None):
+        lazy_data = include_data=='lazy'
+        if lazy_data:
+            include_data=False
+        connections = self.siteregister.connections(user=user,include_data=include_data)
+        return self.adaptListToDict(connections,lazy_data=lazy_data)
 
 
-    def adaptListToDict(self,l):
-        return dict([(c['register_item_id'],c) for c in l])
+    def adaptListToDict(self,l,lazy_data=None):
+        return dict([(c['register_item_id'],self.add_data_to_register_item(c) if lazy_data else c) for c in l])
 
-    def users(self,*args,**kwargs):
-        users = self.siteregister.users(*args,**kwargs)
-        #adapt for old use 
-        return self.adaptListToDict(users)  
+    def users(self,include_data=None):
+        lazy_data = include_data=='lazy'
+        if lazy_data:
+            include_data=False
+        users = self.siteregister.users(include_data=include_data)
+        return self.adaptListToDict(users,lazy_data=lazy_data)  
 
     def refresh(self,page_id, ts=None,lastRpc=None,pageProfilers=None):
-        return self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
+        print 'refresh'
+        return self.siteregister.do_refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
 
 
 
@@ -620,7 +649,6 @@ class SiteRegisterClient(object):
 
     def get_item(self,register_item_id,include_data=False,register_name=None):
         lazy_data = include_data == 'lazy'
-        print 'include_data',include_data
         if include_data == 'lazy':
             include_data = False
         register_item = self.siteregister.get_item(register_item_id,include_data=include_data,register_name=register_name)
@@ -629,8 +657,8 @@ class SiteRegisterClient(object):
         return register_item
 
     def add_data_to_register_item(self,register_item):
-        print 'adding RemoteStoreBag'
         register_item['data'] = RemoteStoreBag(self.remotebag_uri, register_item['register_name'],register_item['register_item_id'])
+        return register_item
 
     def page(self,page_id,include_data=None):
         return self.get_item(page_id,include_data=include_data,register_name='page')
@@ -720,7 +748,7 @@ class PyroServer(object):
 class ServerStore(object):
     def __init__(self, parent,register_name=None, register_item_id=None, triggered=True,max_retry=None,retry_delay=None):
         #self.parent = parent
-        self.siteregister = parent.siteregister
+        self.siteregister = parent #parent.siteregister
         self.register_name = register_name
         self.register_item_id = register_item_id
         self.triggered = triggered
@@ -730,16 +758,20 @@ class ServerStore(object):
 
     def __enter__(self):
         k = 0
+        self.start_locking_time = time.time()
         while not self.siteregister.lock_item(self.register_item_id,register_name=self.register_name):
             time.sleep(self.retry_delay)
             k += 1
             if k>self.max_retry:
                 print '************UNABLE TO LOCK STORE : %s ITEM %s ***************' % (self.register_name, self.register_item_id)
                 return
+        self.success_locking_time = time.time()
         return self
 
     def __exit__(self, type, value, tb):
         self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
+        print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
+
         #if tb:
         #    return
         #if not self.register_item:
@@ -769,11 +801,8 @@ class ServerStore(object):
 
     @property
     def data(self):
-        data = self.register_item['data']
-        if isinstance(data,Bag):
-            print zzz
-        print data
-
+        return self.register_item['data']
+        
     @property
     def datachanges(self):
         return self.register_item['datachanges']
@@ -786,10 +815,6 @@ class ServerStore(object):
         if hasattr(BAG_INSTANCE, fname):
             def decore(*args,**kwargs):
                 data = self.data
-                if fname == 'setItem' or fname=='__setitem__':
-                    if data is None:
-                        print x
-                    print fname,args,kwargs,'DATA',data
                 return getattr(data, fname)(*args,**kwargs)
                 
             return decore
@@ -822,10 +847,10 @@ class RegisterResolver(BagResolver):
             return self.list_pages(connection_id=self.connection_id)
     @property
     def register(self):
-        return self._page.site.register.newregister
+        return self._page.site.register
 
     def list_users(self):
-        usersDict = self.register.users()
+        usersDict = self.register.users(include_data=True)
         result = Bag()
         for user, item_user in usersDict.items():
             item = Bag()
@@ -839,7 +864,7 @@ class RegisterResolver(BagResolver):
         return result
 
     def list_connections(self, user):
-        connectionsDict = self.register.connections(user=user)
+        connectionsDict = self.register.connections(user=user,include_data=True)
         result = Bag()
         for connection_id, connection in connectionsDict.items():
             delta = (datetime.now() - connection['start_ts']).seconds
@@ -855,7 +880,7 @@ class RegisterResolver(BagResolver):
         return result
 
     def list_pages(self, connection_id):
-        pagesDict = self.register.pages(connection_id=connection_id)
+        pagesDict = self.register.pages(connection_id=connection_id,include_data=True)
         result = Bag()
         for page_id, page in pagesDict.items():
             delta = (datetime.now() - page['start_ts']).seconds

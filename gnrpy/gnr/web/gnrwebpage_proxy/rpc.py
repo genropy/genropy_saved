@@ -69,7 +69,7 @@ class GnrWebRpc(GnrBaseProxy):
         if page.isLocalizer():
             envelope['_localizerStatus'] = '*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
-        if not getattr(page,'_dropped',False):
+        if not getattr(page,'_closed',False):
             dataChanges = self.page.collectClientDatachanges()
             if dataChanges:
                 envelope.setItem('dataChanges', dataChanges)

@@ -148,6 +148,7 @@ class GnrWebConnection(GnrBaseProxy):
         users = self.page.site.register.users()
         result = Bag()
         exclude = exclude or []
+        now = self.page.clientDatetime()
         if isinstance(exclude, basestring):
             exclude = exclude.split(',')
         for user, arguments in users.items():
@@ -159,13 +160,16 @@ class GnrWebConnection(GnrBaseProxy):
             _customClasses = []
             row['_pkey'] = user
             row['iconClass'] = 'greenLight'
-            if arguments['last_refresh_age'] > 60:
+            last_refresh_age = (now - arguments['last_refresh_ts']).seconds
+            last_event_age = (now - arguments['last_user_ts']).seconds
+
+            if last_refresh_age > 60:
                 _customClasses.append('user_disconnected')
                 row['iconClass'] = 'grayLight'
-            elif arguments['last_event_age']>300:
+            elif last_event_age>300:
                 _customClasses.append('user_away')
                 row['iconClass'] = 'redLight'
-            elif arguments['last_event_age'] > 60:
+            elif last_event_age > 60:
                 _customClasses.append('user_idle')
                 row['iconClass'] = 'yellowLight'
             row['_customClasses'] = _customClasses

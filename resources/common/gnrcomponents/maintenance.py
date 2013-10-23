@@ -191,6 +191,8 @@ class MaintenancePlugin(BaseComponent):
             
     def _maintenance_get_items(self, items, child_name=None,exclude_guest=None, **kwargs):
         result = Bag()
+        now = self.clientDatetime()
+
         for key, item in items.items():
             item = dict(item)
             item.pop('data',None)
@@ -199,16 +201,20 @@ class MaintenancePlugin(BaseComponent):
             _customClasses = []
             item['_pkey'] = key
             item['alive'] = True
+            item['last_refresh_age'] = (now - item.get('last_refresh_ts',item['start_ts'])).seconds
+            item['last_event_age'] = (now - item.get('last_user_ts',item['start_ts'])).seconds
+            item['last_rpc_age'] = (now - item.get('last_rpc_ts',item['start_ts'])).seconds
+
             if item['last_refresh_age'] > 60:
                 item['alive'] = False
                 _customClasses.append('disconnected')
             elif item['last_event_age'] > 60:
                 _customClasses.append('inactive')
-            if child_name and not item[child_name]:
-                _customClasses.append('no_children')
+           #if child_name and not item[child_name]:
+           #    _customClasses.append('no_children')
             item.pop('datachanges', None)
-            if child_name is None:
-                self.maintenance_cellServerProfile(item)
+            #if child_name is None:
+            #    self.maintenance_cellServerProfile(item)
             result.setItem(key, None, _customClasses=' '.join(_customClasses), **item)
         return result
 

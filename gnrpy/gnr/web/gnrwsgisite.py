@@ -36,7 +36,7 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
-from gnr.web.gnrwsgisite_proxy.gnrsiteregister import RegisterTester
+from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 
 import warnings
 mimetypes.init()
@@ -333,7 +333,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
-        self.register = RegisterTester(SiteRegister(self))
+        self.register = SiteRegisterClient(self)
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -1036,10 +1036,10 @@ class GnrWsgiSite(object):
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        page.unregister()
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
-        
+        page._closed = True
+
     def debugger(self, debugtype, **kwargs):
         """Send debug information to the client, if debugging is enabled.
         Press ``Ctrl+Shift+D`` to open the debug pane in your browser

@@ -252,11 +252,6 @@ class GnrWebPage(GnrBaseWebPage):
                     data['prefenv'] = prefenv
             return self.site.register.new_page(self.page_id, self, data=data)
 
-    def unregister(self):
-        self.site.register.drop_page(self.page_id, cascade=False)
-        self._dropped = True
-
-
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
         
@@ -336,20 +331,7 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def dbCurrentEnv(self):
         return Bag(self.db.currentEnv)
-    
-    def _dbEnvFromPageStore(self):
-        pageStore = self.pageStore()
-        storeDbEnv = pageStore.getItem('dbenv') or Bag()   
-        storeDbEnv.update((pageStore.getItem('rootenv') or Bag()))     
-        def addToStoreDbEnv(n,_pathlist=None):
-            if n.attr.get('dbenv'):
-                path = n.label if n.attr['dbenv'] is True else n.attr['dbenv']
-                storeDbEnv[path] = n.value
-        _pathlist = []
-        pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
-        return storeDbEnv
-        
-    
+
     @property 
     def db(self):
         if not hasattr(self, '_db'):
@@ -359,7 +341,7 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
-            storeDbEnv = self._dbEnvFromPageStore()
+            storeDbEnv = self.site.register.get_dbenv(self.page_id,register_name='page')
             if len(storeDbEnv)>0:
                 self._db.updateEnv(**storeDbEnv.asDict(ascii=True))
             envPageArgs = dictExtract(self.pageArgs,'env_')
@@ -411,6 +393,8 @@ class GnrWebPage(GnrBaseWebPage):
         kwargs = self._call_kwargs
         result = self._call_handler(*args, **kwargs) 
         self._onEnd()
+        if getattr(self,'_closed',False):
+            self.site.register.drop_page(self.page_id, cascade=False)
         return result
         
     def _rpcDispatcher(self, *args, **kwargs):
@@ -760,6 +744,8 @@ class GnrWebPage(GnrBaseWebPage):
         if serverTimeDelta:
             return ts-timedelta(milliseconds=serverTimeDelta)
         return ts
+
+
 
     def getUuid(self):
         """TODO"""
