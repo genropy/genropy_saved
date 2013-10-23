@@ -1053,24 +1053,48 @@ class GnrWsgiSite(object):
             if debugtype=='sql':
                 page.sql_count = page.sql_count + 1
                 page.sql_time = page.sql_time + kwargs.get('delta_time',0)
-                
+
     def onDbCommitted(self):
         """TODO"""
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
         if not dbeventsDict:
             return
         page = self.currentPage
+        destination_pages = dict()
         for table,dbevents in dbeventsDict.items():
             if dbevents:
                 tblobj = self.db.table(table)
                 subscribers = self.register.pages(index_name=table)
                 if page and subscribers:
                     for page_id in subscribers.keys():
-                        page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
-                                            attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
-                                            page_id=page_id,public=True)
+                        destination_pages.setdefault(page_id,[]).append(dict(table=table,dbevents=dbevents,attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id),page_id=page_id,public=True))
+        for page_id, updates in destination_pages.items():
+            for upd in updates:
+                dbevents = upd.pop('dbevents')
+                table = upd.pop('table')
+                page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,**upd)
         
         self.db.updateEnv(env_transaction_id= None,dbevents=None)
+                
+   # def onDbCommitted_old(self):
+   #     """TODO"""
+   #     dbeventsDict= self.db.currentEnv.pop('dbevents',None)
+   #     if not dbeventsDict:
+   #         return
+   #     page = self.currentPage
+   #     for table,dbevents in dbeventsDict.items():
+   #         if dbevents:
+   #             tblobj = self.db.table(table)
+   #             subscribers = self.register.pages(index_name=table)
+   #             print 'fffff',subscribers,table
+   #             if page and subscribers:
+   #                 for page_id in subscribers.keys():
+   #                     print 'setting in client data',page_id,table,dbevents
+   #                     page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
+   #                                         attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
+   #                                         page_id=page_id,public=True)
+   #     
+   #     self.db.updateEnv(env_transaction_id= None,dbevents=None)
         
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """TODO

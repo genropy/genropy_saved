@@ -182,7 +182,7 @@ class BaseRegister(object):
 
     def items(self,include_data=None):
         if not include_data:
-            return self.registerItems.values()
+            return self.registerItems.items()
         return [(k,self.get_item(k,include_data=True)) for k in self.keys()]
 
     def values(self,include_data=False):
@@ -402,6 +402,16 @@ class PageRegister(BaseRegister):
         pathsub = storesub.setdefault(client_path, {})
         pathsub['on'] = active
 
+    def subscribeTable(self,page_id,table=None,subscribe=None):
+        register_item = self.get_item(page_id)
+        subscribed_tables = register_item['subscribed_tables']
+        if subscribe:
+            if not table in subscribed_tables:
+                subscribed_tables.append(table)
+        else:
+            if table in subscribed_tables:
+                subscribed_tables.remove(table)
+
 class SiteRegister(object):
     def __init__(self,server):
         self.server = server
@@ -575,6 +585,8 @@ class SiteRegister(object):
     def setStoreSubscription(self,page_id,storename=None, client_path=None, active=None):
         self.page_register.setStoreSubscription(page_id,storename=storename,client_path=client_path,active=active)
             
+    def subscribeTable(self,page_id,table,subscribe):
+        self.page_register.subscribeTable(page_id,table=table,subscribe=subscribe)
 
     def __getattr__(self, fname):
         if fname=='_pyroId':
