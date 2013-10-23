@@ -816,7 +816,8 @@ class ServerStore(object):
 
     @property
     def data(self):
-        return self.register_item['data']
+        if self.register_item:
+            return self.register_item['data']
         
     @property
     def datachanges(self):
