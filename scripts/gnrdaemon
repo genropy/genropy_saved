@@ -4,6 +4,12 @@
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrbag import Bag
 
+from time import time,sleep, localtime, strftime
+from subprocess import Popen, PIPE
+from threading import Thread
+import os
+
+
 import argparse
 import Pyro4
 
@@ -11,20 +17,185 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
+class GnrChildProcess(Thread):
+
+    def __init__(self, name, cmdlist, flush_output=True,daemon=False):
+        """ name: process name to be identified
+         cmd: string with command and arguments to execute
+         flush_output: send all stderr and stdout output to /dev/null."""
+        # Thread init
+        Thread.__init__(self)
+        
+        self.name = name
+        self.daemon = daemon
+        self.pid = None
+        self.stderr = None
+        self.stdout = None
+        self.stdin  = None
+       
+        # Private attrs
+        self._cmdlist = cmdlist
+        self._p = None
+        self._psh = None
+        self._stop = False
+        self._flush_output = flush_output
+
+
+    def _stop_program(self):
+        if self._p and self._p.poll() == None:
+            print '%s  <= Stopping process name "%s" ...' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
+            try:
+                self._p.terminate()
+                self._psh.terminate()
+                self._p.kill()
+                self._psh.kill()
+            except OSError:
+                pass
+
+
+    def _start_program(self):
+        print '%s  => Starting process name "%s" ...' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
+        if not self._flush_output:
+            so = PIPE
+        else:
+            so = file(os.devnull,'a')
+
+        self._p = Popen( self._cmdlist, stderr=so , stdout=so, stdin=PIPE )
+        self._psh = Popen('while [ -d /proc/%d ];do sleep 1; [ -d /proc/%d ] || kill -9 %d 2>/dev/null;done' % (self._p.pid, os.getpid(), self._p.pid), shell=True)
+        
+        # Set info
+        self.stdin = self._p.stdin
+        self.pid = self._p.pid
+      
+        # Set stdout and stderr to Popen ones
+        if not self._flush_output:
+            self.stdout = self._p.stdout
+            self.stderr = self._p.stderr
+
+
+    def stop(self):
+        """ stop() -> None
+        Stops process"""
+        self._stop = True
+        self._stop_program()
+
+    def isStopped(self):
+        """ isStopped() -> Bool
+        Checks if process is stopped."""
+        return self._stop
+
+    def run(self):
+        """ start()
+        Starts execution."""
+        print 'STARTING'
+        self._start_program()
+        while not self._stop:
+            self._p.wait()
+            if not self._stop:
+                self._stop_program()
+                print '%s  == Process name "%s" died. Restarting... ' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
+                sleep(1)
+                self._start_program()
+
+class GnrProcessManager(Thread):
+
+    def __init__(self,parent):
+        # Thread init
+        Thread.__init__(self)
+        # pylot_name:<Pylot>
+        self._children = {}
+        self._stop = False
+        self._parent = parent
+        
+    def stopped(self):
+        return self._stop
+
+    def stopChild(self, child_name):
+        "Stops given child name 'child_name'"
+        self._children[ child_name ].stop()
+        self._children.pop( child_name )
+        while self.checkChild( child_name ):
+            sleep(0.5)
+    
+    def stop(self):
+        "Stops all pylots."
+        for c in self._children.keys():
+            self.stopChild( c )
+        self._stop = True
+
+    def addChild(self, name, cmdlst, flush_output=True,daemon=None):
+        """ name: process name to be identified
+         cmd: string with command and arguments to execute
+         flush_output: send all stderr and stdout output to /dev/null."""
+        print 'adding',name,cmdlst
+        if self.stopped(): 
+            return
+        if self.checkChild( name ):
+            print "Child '%s' already exists !" % name
+            return False
+        print 'POPENING'
+        self._children[ name ] = GnrChildProcess( name, cmdlst, flush_output ,daemon=daemon)
+        self._children[ name ].start()
+        sleep(0.1)
+    
+    def checkChild(self, child_name):
+        if self.stopped(): return
+        """Checks if the child 'child_name' is still running.
+        Returns True if it so or False if not."""
+        if self._children.has_key( child_name ):
+            if not self._children[ child_name ].isStopped():
+                return True
+            else:
+                self._children.pop( child_name )
+        return False
+
+    def getChildren(self):
+        return self._children
+
+    def run(self):
+        self._stop = False
+        while not self._stop:
+            sleep(10)
+            # Clean pylots
+            for p in self._children.keys():
+                self.checkChild(p)
+
+
+
 class GnrDaemon(object):
     def __init__(self):
+        self.processManager = GnrProcessManager(self)
         self.running = False
+        self.nameServer = None
         self.siteregisters= dict()
 
 
     def start(self,host=None,port=None,hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None):
-        print 'OPTIONS',port
+        self.connectNameServer()
+        if not self.nameServer:
+            print 'unable to locate nameServer'
+            return
+        self.pyroConfig(host=host,port=port,hmac_key=hmac_key,debug=debug,
+                        compression=compression,timeout=timeout,
+                        multiplex=multiplex,polltimeout=polltimeout)
+        self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        self.main_uri = self.daemon.register(self,'GnrDaemon')
+        print "uri=",self.main_uri
+
+        self.nameServer.register('GnrDaemon',self.main_uri)
+        self.running = True
+        self.daemon.requestLoop(lambda : self.running)
+        
+    def pyroConfig(self,host=None,port=None,hmac_key=None,
+                      debug=False,compression=False,timeout=None,
+                      multiplex=False,polltimeout=None):
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         port=port or PYRO_PORT
         host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
+        print 'hmac_key',hmac_key
         Pyro4.config.HMAC_KEY = str(hmac_key)
         if compression:
             Pyro4.config.COMPRESSION = True
@@ -34,14 +205,29 @@ class GnrDaemon(object):
             Pyro4.config.TIMEOUT = timeout
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
-        self.daemon = Pyro4.Daemon(host=host,port=int(port))
-        self.main_uri = self.daemon.register(self,'GnrDaemon')
-        print "uri=",self.main_uri
-        self.running = True
-        self.daemon.requestLoop(lambda : self.running)
-    
+
+        
     def stop(self):
+        self.processManager.stop()
         self.running = False
+        
+    def connectNameServer(self):
+        try:
+            self.nameServer = Pyro4.naming.locateNS()
+        except Pyro4.errors.NamingError, e:
+            print 'starting ns'
+            self.processManager.addChild('nameServer',['python','-m', 'Pyro4.naming'],daemon=True)
+            s_time = time()
+            while not self.nameServer and (time()-s_time)<30:
+                try:
+                    print 'try locating ns'
+                    self.nameServer = Pyro4.naming.locateNS()
+                except Pyro4.errors.NamingError, e:
+                    print 'Not found'
+                    sleep(1)
+    
+    def registerOnNs(self):
+        ns = self.getNs()
     
     def addSiteRegister(self,sitename):
         if not sitename in self.siteregisters:
