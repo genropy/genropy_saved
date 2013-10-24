@@ -1,0 +1,107 @@
+#!/usr/bin/env python2.7
+# encoding: utf-8
+# 
+from gnr.core.gnrsys import expandpath
+from gnr.core.gnrbag import Bag
+
+import argparse
+import Pyro4
+
+PYRO_HOST = 'localhost'
+PYRO_PORT = 40004
+PYRO_HMAC_KEY = 'supersecretkey'
+
+class GnrDaemon(object):
+    def __init__(self):
+        self.running = False
+        self.siteregisters= dict()
+
+
+    def start(self,host=None,port=None,hmac_key=None,
+                      debug=False,compression=False,timeout=None,
+                      multiplex=False,polltimeout=None):
+        print 'OPTIONS',port
+        Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
+        port=port or PYRO_PORT
+        host=host or PYRO_HOST
+        hmac_key=hmac_key or PYRO_HMAC_KEY
+        Pyro4.config.HMAC_KEY = str(hmac_key)
+        if compression:
+            Pyro4.config.COMPRESSION = True
+        if multiplex:
+            Pyro4.config.SERVERTYPE = "multiplex"
+        if timeout:
+            Pyro4.config.TIMEOUT = timeout
+        if polltimeout:
+            Pyro4.config.POLLTIMEOUT = timeout
+        self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        self.main_uri = self.daemon.register(self,'GnrDaemon')
+        print "uri=",self.main_uri
+        self.running = True
+        self.daemon.requestLoop(lambda : self.running)
+    
+    def stop(self):
+        self.running = False
+    
+    def addSiteRegister(self,sitename):
+        if not sitename in self.siteregisters:
+            self.siteregisters[sitename] = True 
+    
+    def listSiteRegisters(self):
+        return self.siteregisters.keys()
+        
+
+def getOptions():
+    usage = "\ngnrdaemon"
+    parser = argparse.ArgumentParser(usage)
+    
+    parser.add_argument('-n', '--name',
+                      help="The name of the configured server")
+
+                          
+    parser.add_argument('-H', '--host',
+                      help="The binded host")
+                      
+    parser.add_argument('-P', '--port',
+                      help="The binded port" ,type=int)
+                      
+    parser.add_argument('-K', '--hmac_key',
+                      help="The secret key")
+                      
+    parser.add_argument('-t', '--timeout',type=float,
+                      help="Timeout")
+
+    parser.add_argument('-m', '--multiplex',action='store_false',
+                      help="Use multiplexed server")
+                      
+    parser.add_argument('--polltimeout',type=float,
+                      help="Use multiplexed server poll timeout")
+
+    parser.add_argument('-d', '--debug',
+                      action='store_false',
+                      help="Debug mode")
+                      
+    parser.add_argument('-c', '--compression',
+                      action='store_false',
+                      help="Enable compression")
+
+    arguments= parser.parse_args()
+    return arguments.__dict__
+    
+    
+
+if __name__=="__main__":
+    options=getOptions()
+    name=options.pop('name',None)
+    if name:
+        gnrdaemon = Bag(expandpath('~/.gnr/environment.xml'))['gnrdaemon']
+        assert gnrdaemon, 'Missing gnrdaemon configuration.'
+        gnrdaemon_config = gnrdaemon.getNode(name)
+        assert gnrdaemon_config,"Missing gnrdaemon '%s' configuration."% name
+        curropt=options
+        options = gnrdaemon_config.attr
+        for k,v in curropt.items():
+            if v:
+                options[k] = v
+    server = GnrDaemon()
+    server.start(**options)
