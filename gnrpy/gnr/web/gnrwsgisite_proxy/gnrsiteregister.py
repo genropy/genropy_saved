@@ -796,16 +796,7 @@ class ServerStore(object):
 
     def __exit__(self, type, value, tb):
         self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
-        #print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
-
-        #if tb:
-        #    return
-        #if not self.register_item:
-        #    return
-        #data = self.data
-        #if data is not None:
-        #    data.unsubscribe('datachanges', any=True)
-        #self.parent.write(self.register_item)
+        print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
 
     def reset_datachanges(self):
         return self.siteregister.reset_datachanges(self.register_item_id,register_name=self.register_name)
