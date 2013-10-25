@@ -5,7 +5,7 @@ from gnr.core.gnrsys import expandpath
 from gnr.core.gnrbag import Bag
 
 from time import time,sleep, localtime, strftime
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE,STDOUT
 from threading import Thread
 import os
 
@@ -56,13 +56,15 @@ class GnrChildProcess(Thread):
     def _start_program(self):
         print '%s  => Starting process name "%s" ...' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
         if not self._flush_output:
+            print 'USING PIP'
             so = PIPE
         else:
             so = file(os.devnull,'a')
-
-        self._p = Popen( self._cmdlist, stderr=so , stdout=so, stdin=PIPE )
+        self._p = Popen( self._cmdlist, stderr=STDOUT , stdout=so, stdin=PIPE )
+        print 'Process PID',self._p.pid
         self._psh = Popen('while [ -d /proc/%d ];do sleep 1; [ -d /proc/%d ] || kill -9 %d 2>/dev/null;done' % (self._p.pid, os.getpid(), self._p.pid), shell=True)
-        
+        print 'Process sh PID',self._psh.pid
+
         # Set info
         self.stdin = self._p.stdin
         self.pid = self._p.pid
@@ -89,14 +91,14 @@ class GnrChildProcess(Thread):
         Starts execution."""
         print 'STARTING'
         self._start_program()
-        while not self._stop:
-            self._p.wait()
-            if not self._stop:
-                self._stop_program()
-                print '%s  == Process name "%s" died. Restarting... ' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
-                sleep(1)
-                self._start_program()
-
+        #while not self._stop:
+        #    self._p.wait()
+        #    if not self._stop:
+        #        self._stop_program()
+        #        print '%s  == Process name "%s" died. Restarting... ' % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.name)
+        #        sleep(1)
+        #        self._start_program()
+        #
 class GnrProcessManager(Thread):
 
     def __init__(self,parent):
@@ -166,25 +168,19 @@ class GnrDaemon(object):
     def __init__(self):
         self.processManager = GnrProcessManager(self)
         self.running = False
-        self.nameServer = None
         self.siteregisters= dict()
+        self.siteregisters_uri = dict()
 
 
     def start(self,host=None,port=None,hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None):
-        self.connectNameServer()
-        if not self.nameServer:
-            print 'unable to locate nameServer'
-            return
         self.pyroConfig(host=host,port=port,hmac_key=hmac_key,debug=debug,
                         compression=compression,timeout=timeout,
                         multiplex=multiplex,polltimeout=polltimeout)
         self.daemon = Pyro4.Daemon(host=host,port=int(port))
         self.main_uri = self.daemon.register(self,'GnrDaemon')
         print "uri=",self.main_uri
-
-        self.nameServer.register('GnrDaemon',self.main_uri)
         self.running = True
         self.daemon.requestLoop(lambda : self.running)
         
@@ -194,9 +190,8 @@ class GnrDaemon(object):
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         port=port or PYRO_PORT
         host=host or PYRO_HOST
-        hmac_key=hmac_key or PYRO_HMAC_KEY
-        print 'hmac_key',hmac_key
-        Pyro4.config.HMAC_KEY = str(hmac_key)
+        self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
+        Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:
             Pyro4.config.COMPRESSION = True
         if multiplex:
@@ -205,37 +200,32 @@ class GnrDaemon(object):
             Pyro4.config.TIMEOUT = timeout
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
-
+    
+    def registerSiteName(self,sitename,site_uri):
+        self.siteregisters_uri[sitename] = site_uri
+        print 'registered ',sitename,site_uri
+    
+    def getSiteUri(self,sitename):
+        if sitename in self.siteregisters_uri:
+            return self.siteregisters_uri[sitename]
         
     def stop(self):
         self.processManager.stop()
         self.running = False
-        
-    def connectNameServer(self):
-        try:
-            self.nameServer = Pyro4.naming.locateNS()
-        except Pyro4.errors.NamingError, e:
-            print 'starting ns'
-            self.processManager.addChild('nameServer',['python','-m', 'Pyro4.naming'],daemon=True)
-            s_time = time()
-            while not self.nameServer and (time()-s_time)<30:
-                try:
-                    print 'try locating ns'
-                    self.nameServer = Pyro4.naming.locateNS()
-                except Pyro4.errors.NamingError, e:
-                    print 'Not found'
-                    sleep(1)
-    
-    def registerOnNs(self):
-        ns = self.getNs()
     
     def addSiteRegister(self,sitename):
         if not sitename in self.siteregisters:
+            print 'adding sitename',sitename
+            #self.processManager.addChild('siteregister_%s' %sitename,['gnrsiteregister','-s',"'%s'" %str(sitename),'-u',"'%s'" %str(self.main_uri),'-K',"'%s'" %self.hmac_key,'-m','-c'],daemon=True)
+            self.processManager.addChild('siteregister_%s' %sitename,['gnrsiteregister','-s',str(sitename),'-K',self.hmac_key],daemon=True)
+
             self.siteregisters[sitename] = True 
     
     def listSiteRegisters(self):
         return self.siteregisters.keys()
-        
+
+    def listSiteRegistersUri(self):
+        return self.siteregisters_uri.items()
 
 def getOptions():
     usage = "\ngnrdaemon"

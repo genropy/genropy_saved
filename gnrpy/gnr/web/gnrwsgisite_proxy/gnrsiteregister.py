@@ -744,10 +744,18 @@ class RegisterTester(object):
             return newresult
         return decore
 
-class PyroServer(object):
-    def __init__(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
+class GnrSiteRegisterServer(object):
+    def __init__(self,sitename=None,daemon_uri=None,debug=None):
+        self.sitename = sitename
+        self.gnr_daemon_uri = daemon_uri
+        self.debug = debug
+        print 'instanced register',self.sitename,self.gnr_daemon_uri
+
+    def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
+        pyrokw = dict(host=host)
+        if port != '*':
+            pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        port=port or PYRO_PORT
         host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
         multiplex = multiplex or PYRO_MULTIPLEX
@@ -760,13 +768,13 @@ class PyroServer(object):
             Pyro4.config.TIMEOUT = timeout
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
-        self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        self.daemon = Pyro4.Daemon(**pyrokw)
         self.siteregister = SiteRegister(self)
-        self.main_uri = self.daemon.register(self,'PyroServer')
+        self.main_uri = self.daemon.register(self,'SiteRegisterServer')
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
         print "uri=",self.main_uri
-
-    def start(self):
+        if self.gnr_daemon_uri:
+            Pyro4.Proxy(self.gnr_daemon_uri).registerSiteUri(self.sitename,self.main_uri)
         self.daemon.requestLoop()
 
 ########################################### SERVER STORE #######################################
