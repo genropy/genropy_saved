@@ -25,6 +25,8 @@ from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
+import pickle
+import os
 
 import re
 
@@ -267,7 +269,21 @@ class BaseRegister(object):
         _pathlist = []
         data.walk(addToDbEnv,_pathlist=_pathlist)
         return dbenvbag
-        
+      
+    def dump(self,storagefile):
+
+        pickle.dump(self.registerItems, storagefile)
+        pickle.dump(self.itemsData, storagefile)
+        pickle.dump(self.itemsTS, storagefile)
+        pickle.dump(self.locked_items, storagefile)
+
+    def load(self,storagefile):
+        self.registerItems = pickle.load(storagefile)
+        self.itemsData = pickle.load(storagefile)
+        self.itemsTS = pickle.load(storagefile)
+        self.locked_items = pickle.load(storagefile)
+
+
 
 class UserRegister(BaseRegister):
     """docstring for UserRegister"""
@@ -413,7 +429,7 @@ class PageRegister(BaseRegister):
                 subscribed_tables.remove(table)
 
 class SiteRegister(object):
-    def __init__(self,server):
+    def __init__(self,server,sitename=None,storage_path=None):
         self.server = server
         self.page_register = PageRegister(self)
         self.connection_register = ConnectionRegister(self)
@@ -421,6 +437,9 @@ class SiteRegister(object):
         self.remotebag_handler = RemoteStoreBagHandler(self)
         self.server.daemon.register(self.remotebag_handler,'RemoteData')
         self.last_cleanup = time.time()
+        self.sitename = sitename
+        self.storage_path = storage_path
+
 
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()
@@ -588,6 +607,24 @@ class SiteRegister(object):
     def subscribeTable(self,page_id,table,subscribe):
         self.page_register.subscribeTable(page_id,table=table,subscribe=subscribe)
 
+    def dump(self):
+        """TODO"""
+        with open(self.storage_path, 'w') as storagefile:
+            self.user_register.dump(storagefile)
+            self.connection_register.dump(storagefile)
+            self.page_register.dump(storagefile)
+
+    def load(self):
+        try:
+            with open(self.storage_path) as storagefile:
+                self.user_register.load(storagefile)
+                self.connection_register.load(storagefile)
+                self.page_register.load(storagefile)
+                return True
+        except EOFError:
+            return False
+        os.remove(self.storage_path)
+
     def __getattr__(self, fname):
         if fname=='_pyroId':
             return self._pyroId
@@ -604,22 +641,25 @@ class SiteRegister(object):
 ################################### CLIENT ##########################################
 
 class SiteRegisterClient(object):
+    STORAGE_PATH = 'siteregister_data.pik'
+
     def __init__(self,site):
         self.site = site
         self.siteregisterserver_uri = None
+        self.storage_path = os.path.join(self.site.site_path, self.STORAGE_PATH)
+
         daemonconfig = self.site.config.getAttr('gnrdaemon')
         daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
-        print '****,Daemon URI',daemon_uri
         Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
         try:
-            print self.gnrdaemon_proxy.ping()
+            self.gnrdaemon_proxy.ping()
         except Pyro4.errors.CommunicationError:
             raise Exception('GnrDaemon is not started')
         t_start = time.time()
         while not self.checkSiteRegisterServerUri() and (time.time()-t_start)<10:
-            print 'waiting SiteRegister'
+            pass
         self.siteregister_uri =self.siteregisterserver_uri.replace(':SiteRegisterServer@',':SiteRegister@')
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         self.remotebag_uri =self.siteregister_uri.replace(':SiteRegister@',':RemoteData@')
@@ -627,25 +667,9 @@ class SiteRegisterClient(object):
 
     def checkSiteRegisterServerUri(self):
         if not self.siteregisterserver_uri:
-            self.siteregisterserver_uri = self.gnrdaemon_proxy.getSiteUri(self.site.site_name,create=True)
+            self.siteregisterserver_uri = self.gnrdaemon_proxy.getSiteUri(self.site.site_name,create=True,storage_path=self.storage_path)
             time.sleep(1)
-            print 'waiting'
-        print 'siteregister_uri', self.siteregisterserver_uri
         return self.siteregisterserver_uri
-
-   #def __init__x(self,site,host=None,port=None,hmac_key=None):
-   #    self.site = site
-   #    host = host or PYRO_HOST
-   #    port = port or PYRO_PORT
-   #    hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-   #    Pyro4.config.HMAC_KEY = hmac_key
-   #    Pyro4.config.SERIALIZER = 'pickle'
-   #    uri = 'PYRO:SiteRegister@%s:%i' %(host,int(port))
-   #    print 'URI',uri
-   #    self.siteregister =  Pyro4.Proxy(uri)
-   #    self.remotebag_uri ='PYRO:RemoteData@%s:%i' %(host,int(port))
-   #    self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
-   #    #self.siteregister = SiteRegister(site)
 
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
@@ -697,7 +721,6 @@ class SiteRegisterClient(object):
     def pageStore(self, page_id, triggered=False):
         return self.make_store('page',page_id, triggered=triggered)
 
-
     def make_store(self, register_name,register_item_id, triggered=None):
         return ServerStore(self, register_name,register_item_id=register_item_id, triggered=triggered)
 
@@ -723,35 +746,39 @@ class SiteRegisterClient(object):
     def user(self,user,include_data=None):
         return self.get_item(user,include_data=include_data,register_name='user')
 
-
-
 ############################## TO DO #######################################
-
 
     def _debug(self,mode,name,*args,**kwargs):
         print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
 
+    def dump(self):
+        """TODO"""
+        self.siteregister.dump()
+        print 'DUMP REGISTER %s' %self.site.site_name
+
+    def load(self):
+        result = self.siteregister.load()
+        if result:
+            print 'SITEREGISTER %s LOADED' %self.site.site_name
+        else:
+            print 'UNABLE TO LOAD REGISTER %s' %self.site.site_name
 
     def __getattr__(self,name):
-        print '++++++++++++++++',name,'++++++++++++++++++++++'
         h = getattr(self.siteregister,name)
         if not callable(h):
-            #self._debug('property',name)
             return h
         def decore(*args,**kwargs):
-            #self._debug('callable',name,*args,**kwargs)
             return h(*args,**kwargs)
         return decore
-
 
 ##############################################################################
 
 class GnrSiteRegisterServer(object):
-    def __init__(self,sitename=None,daemon_uri=None,debug=None):
+    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,debug=None):
         self.sitename = sitename
         self.gnr_daemon_uri = daemon_uri
         self.debug = debug
-        print 'instanced register',self.sitename,self.gnr_daemon_uri
+        self.storage_path = storage_path
 
     def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
         pyrokw = dict(host=host)
@@ -771,7 +798,7 @@ class GnrSiteRegisterServer(object):
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
         self.daemon = Pyro4.Daemon(**pyrokw)
-        self.siteregister = SiteRegister(self)
+        self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
         print "uri=",self.main_uri
@@ -857,7 +884,6 @@ class ServerStore(object):
 #################################### UTILS ####################################################################
 
 
-
 class RegisterResolver(BagResolver):
     classKwargs = {'cacheTime': 1,
                    'readOnly': False,
@@ -927,13 +953,4 @@ class RegisterResolver(BagResolver):
         attr = super(RegisterResolver, self).resolverSerialize()
         attr['kwargs'].pop('_page',None)
         return attr
-
-if __name__ == '__main__':
-    s = PyroServer()
-    s.start()
-
-
-
-
-
 

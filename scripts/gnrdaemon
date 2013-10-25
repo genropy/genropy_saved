@@ -3,7 +3,7 @@
 # 
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrbag import Bag
-
+from datetime import datetime
 from time import time,sleep, localtime, strftime
 from multiprocessing import Process, Pipe
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
@@ -18,9 +18,9 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
-def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,debug=None):
+def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,storage_path=None,debug=None):
     print 'creating'
-    server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,debug=debug)
+    server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,storage_path=storage_path,debug=debug)
     print 'starting'
     server.start(host=host,hmac_key=hmac_key,port='*')
 
@@ -28,8 +28,7 @@ class GnrDaemon(object):
     def __init__(self):
         self.running = False
         self.siteregisters= dict()
-        self.siteregisters_uri = dict()
-
+        self.siteregisters_process = dict()
 
     def start(self,host=None,port=None,hmac_key=None,
                       debug=False,compression=False,timeout=None,
@@ -62,40 +61,49 @@ class GnrDaemon(object):
             Pyro4.config.POLLTIMEOUT = timeout
     
     def registerSiteName(self,sitename,site_uri):
-        self.siteregisters_uri[sitename] = site_uri
+        self.siteregisters[sitename]['uri'] = site_uri
         print 'registered ',sitename,site_uri
         
     def ping(self):
         return 'ping'
     
-    def getSiteUri(self,sitename=None,create=False):
-        if sitename in self.siteregisters_uri:
-            return self.siteregisters_uri[sitename]
+    def getSiteUri(self,sitename=None,create=False,storage_path=None):
+        if sitename in self.siteregisters and self.siteregisters[sitename]['uri']:
+            return self.siteregisters[sitename]['uri']
         elif create:
-            self.addSiteRegister(sitename)
+            self.addSiteRegister(sitename,storage_path=storage_path)
             return False
         
     def stop(self):
         self.processManager.stop()
         self.running = False
     
-    def addSiteRegister(self,sitename):
+    def addSiteRegister(self,sitename,storage_path=None):
         if not sitename in self.siteregisters:
             print 'adding sitename',sitename
-            childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key))
-            self.siteregisters[sitename] = childprocess
-            self.siteregisters_uri[sitename] = False
+            childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key,storage_path=storage_path))
+            self.siteregisters[sitename] = dict(sitename=sitename,uri=False,start_ts=datetime.now())
+            self.siteregisters_process[sitename] = childprocess
             childprocess.daemon = True
             childprocess.start()
         else:
             print 'ALREADY EXISTING ',sitename
-    
-    def listSiteRegisters(self):
-        return self.siteregisters.keys()
 
-    def listSiteRegistersUri(self):
-        return self.siteregisters_uri.items()
+    def siteRegisters(self):
+        return self.siteregisters.items()
+        
+    def siteregister_dump(self,sitename):
+        uri = self.siteregisters[sitename]['uri']
+        return Pyro4.Proxy(uri).dump()
+        
 
+    def siteregister_load(self,sitename):
+        uri = self.siteregisters[sitename]['uri']
+        return Pyro4.Proxy(uri).load()
+        
+    def siteregister_stop(self,sitename,dump=False):
+        pass
+        
 def getOptions():
     usage = "\ngnrdaemon"
     parser = argparse.ArgumentParser(usage)
