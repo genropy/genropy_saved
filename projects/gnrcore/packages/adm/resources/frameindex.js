@@ -14,6 +14,8 @@ var loginManager = {
                                                                 dlg.close_action();
                                                                 if(n_id){
                                                                     loginManager.notificationManager(n_id);
+                                                                }else{
+                                                                    genro.publish('end_notification')
                                                                 }
                                                             }
                                                     )

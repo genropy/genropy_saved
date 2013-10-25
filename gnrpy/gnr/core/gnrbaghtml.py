@@ -149,7 +149,7 @@ class BagToHtml(object):
         self.page_margin_right = float(d.get('page_margin_right')or self.htmlTemplate['main.page.right'] or self.page_margin_right)
         self.page_margin_bottom = float(d.get('page_margin_bottom') or self.htmlTemplate['main.page.bottom'] or self.page_margin_bottom)
         
-        self.page_header_height =d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height
+        self.page_header_height = float(d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height)
         self.page_footer_height = float(d.get('page_footer_height') or self.htmlTemplate['layout.bottom?height'] or self.page_footer_height)
         self.page_leftbar_width = float(d.get('page_leftbar_width') or self.htmlTemplate['layout.left?width'] or self.page_leftbar_width)
         self.page_rightbar_width = float(d.get('page_rightbar_width')or self.htmlTemplate['layout.right?width'] or self.page_rightbar_width)

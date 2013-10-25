@@ -320,7 +320,14 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.setAutoPolling(true);
             }
         }
-
+        var now = new Date();
+        for (var k in genro.rpc.rpc_register){
+            var kw = genro.rpc.rpc_register[k];
+            var age = now-kw.__rpc_started;
+            if (age>5000){
+                console.warn('slow rpc pending',kw,age);
+            }
+        }
     },
     
     loginDialog:function(loginUrl){
@@ -363,10 +370,13 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('** getting main **');
         this.mainGenroWindow = window;
         this.root_page_id = null;
+        if(this.startArgs['_parent_page_id']){
+            this.parent_page_id = this.startArgs['_parent_page_id'];
+        }
         if (window.frameElement && window.parent.genro){
             this.mainGenroWindow = window.parent.genro.mainGenroWindow;
             this.root_page_id = this.mainGenroWindow.genro.page_id;
-            this.parent_page_id = window.parent.genro.page_id;
+            this.parent_page_id = this.parent_page_id || window.parent.genro.page_id;
             this.startArgs['_root_page_id'] = this.root_page_id;
             this.startArgs['_parent_page_id'] = this.parent_page_id;
         }
@@ -1659,8 +1669,12 @@ dojo.declare('gnr.GenroClient', null, {
             newwindow.focus();
         }
     },
-    openBrowserTab:function(url,name){
+    openBrowserTab:function(url){
         window.open(url)
+    },
+    
+    childBrowserTab:function(url,parent_page_id){
+        window.open(genro.addParamsToUrl(url,{_parent_page_id:(parent_page_id || genro.page_id)}))
     },
     
 

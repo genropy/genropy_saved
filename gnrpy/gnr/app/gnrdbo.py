@@ -20,6 +20,14 @@ class GnrDboPackage(object):
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
             self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)
+
+    def partitionParameters(self):
+        partition= self.attributes.get('partition')
+        if not partition:
+            return
+        pkg,tbl,fld=partition.split('.')
+        return dict(table='%s.%s' % (pkg,tbl),field='%s_%s' % (tbl,fld), path='current_%s_%s' % (tbl,fld))
+    
             
     def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
         """Generate a new number from the specified counter and return it.
