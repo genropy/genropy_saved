@@ -604,19 +604,48 @@ class SiteRegister(object):
 ################################### CLIENT ##########################################
 
 class SiteRegisterClient(object):
-    def __init__(self,site,host=None,port=None,hmac_key=None):
+    def __init__(self,site):
         self.site = site
-        host = host or PYRO_HOST
-        port = port or PYRO_PORT
-        hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-        Pyro4.config.HMAC_KEY = hmac_key
+        self.siteregisterserver_uri = None
+        daemonconfig = self.site.config.getAttr('gnrdaemon')
+        daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
+        print '****,Daemon URI',daemon_uri
+        Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
-        uri = 'PYRO:SiteRegister@%s:%i' %(host,int(port))
-        print 'URI',uri
-        self.siteregister =  Pyro4.Proxy(uri)
-        self.remotebag_uri ='PYRO:RemoteData@%s:%i' %(host,int(port))
+        self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
+        try:
+            print self.gnrdaemon_proxy.ping()
+        except Pyro4.errors.CommunicationError:
+            raise Exception('GnrDaemon is not started')
+        t_start = time.time()
+        while not self.checkSiteRegisterServerUri() and (time.time()-t_start)<10:
+            print 'waiting SiteRegister'
+        self.siteregister_uri =self.siteregisterserver_uri.replace(':SiteRegisterServer@',':SiteRegister@')
+        self.siteregister = Pyro4.Proxy(self.siteregister_uri)
+        self.remotebag_uri =self.siteregister_uri.replace(':SiteRegister@',':RemoteData@')
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
-        #self.siteregister = SiteRegister(site)
+
+    def checkSiteRegisterServerUri(self):
+        if not self.siteregisterserver_uri:
+            self.siteregisterserver_uri = self.gnrdaemon_proxy.getSiteUri(self.site.site_name,create=True)
+            time.sleep(1)
+            print 'waiting'
+        print 'siteregister_uri', self.siteregisterserver_uri
+        return self.siteregisterserver_uri
+
+   #def __init__x(self,site,host=None,port=None,hmac_key=None):
+   #    self.site = site
+   #    host = host or PYRO_HOST
+   #    port = port or PYRO_PORT
+   #    hmac_key = str(hmac_key or PYRO_HMAC_KEY)
+   #    Pyro4.config.HMAC_KEY = hmac_key
+   #    Pyro4.config.SERIALIZER = 'pickle'
+   #    uri = 'PYRO:SiteRegister@%s:%i' %(host,int(port))
+   #    print 'URI',uri
+   #    self.siteregister =  Pyro4.Proxy(uri)
+   #    self.remotebag_uri ='PYRO:RemoteData@%s:%i' %(host,int(port))
+   #    self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
+   #    #self.siteregister = SiteRegister(site)
 
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
@@ -704,6 +733,7 @@ class SiteRegisterClient(object):
 
 
     def __getattr__(self,name):
+        print '++++++++++++++++',name,'++++++++++++++++++++++'
         h = getattr(self.siteregister,name)
         if not callable(h):
             #self._debug('property',name)
@@ -715,34 +745,6 @@ class SiteRegisterClient(object):
 
 
 ##############################################################################
-
-class RegisterTester(object):
-    """docstring for RegisterTester"""
-    def __init__(self, oldregister):
-        self.oldregister = oldregister
-        self.newregister = SiteRegisterClient(oldregister.site)
-        self.implemented = ['new_page','drop_page','page','pages',
-                            'new_connection','drop_connection','connection','connections',
-                            'new_user','drop_user','user','users',
-                            'change_connection_user','refresh','cleanup',
-                            'userStore','connectionStore','pageStore']
-
-    def __getattr__(self,name):
-        h = getattr(self.oldregister,name)
-        if not name in self.implemented:
-            print 'NOT IMPLEMENTED',name
-            return h
-        if not callable(h):
-            self._debug('property',name)
-            return h
-        def decore(*args,**kwargs):
-            newresult = getattr(self.newregister,name)(*args,**kwargs)
-            #if name in ('userStore','connectionStore','pageStore'):
-            #    with newresult as store:
-            #        print 'testing store',args,kwargs,store
-            #oldresult = h(*args,**kwargs)
-            return newresult
-        return decore
 
 class GnrSiteRegisterServer(object):
     def __init__(self,sitename=None,daemon_uri=None,debug=None):
@@ -774,7 +776,7 @@ class GnrSiteRegisterServer(object):
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
         print "uri=",self.main_uri
         if self.gnr_daemon_uri:
-            Pyro4.Proxy(self.gnr_daemon_uri).registerSiteUri(self.sitename,self.main_uri)
+            Pyro4.Proxy(self.gnr_daemon_uri).registerSiteName(self.sitename,str(self.main_uri))
         self.daemon.requestLoop()
 
 ########################################### SERVER STORE #######################################
