@@ -506,18 +506,17 @@ class DbModelSrc(GnrStructData):
                        
         :param one_name: the one_to_many relation's name. e.g: 'movies'
         :param many_name: the many_to_one relation's name. e.g: 'director'
-        :param eager_one: boolean. If ``True`` the one_to_many relation is eager
-        :param eager_many: boolean. If ``True`` the many_to_one relation is eager
-        :param one_one: TODO
-        :param child: TODO
-        :param one_group: TODO
-        :param many_group: TODO
-        :param onUpdate: TODO
-        :param onUpdate_sql: TODO
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-        :param onDelete_sql: TODO
-        :param deferred: the same of the sql "DEFERRED". For more information, check the
-                         :ref:`sql_deferred` section
+        :param eager_one: boolean. If ``True`` the one_to_many relation is eager as much as possible. If False then not even the first relation is eager. If Lazy, then only the first related record is loaded in the first rpc.
+        :param eager_many: boolean. If ``True`` the many_to_one relation is eager ** DOES NOT CURRENTLY WORK **
+        :param one_one: instead of a bag of rows, you get directly the bag of the record. This means that you do not have to deal with the related many path, but have an easier path to deal with in both directions.
+        :param child: TODO ** Have forgotten **
+        :param one_group: In the query hpopup and view hTree, this is the label given for group that the columns will be displayed
+        :param many_group: In the query hpopup and view hTree, this is the label given for group that the columns will be displayed
+        :param onUpdate: cascade.  If you change the pkey, then all fkeys will receive new pkey value. If you have triggers in python then this will inform the triggers
+        :param onUpdate_sql: cascade. If you change the pkey, then all fkeys will receive new pkey value. No python triggers are informed. 
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise' | 'SetNull  Triggers are informed
+        :param onDelete_sql: 'C:cascade' | 'I:ignore' | 'R:raise' | 'SetNull  Triggers are not informed
+        :param deferred: the same of the sql "DEFERRED". This means that relational integrity is not checked until commit.
         :param relation_name: string. An attribute of the :ref:`table_relation`. It allows
                               to estabilish an alternative string for the :ref:`inverse_relation`.
                               For more information, check the :ref:`relation_name` section"""
