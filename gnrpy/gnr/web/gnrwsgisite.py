@@ -71,45 +71,45 @@ class GnrWebServerError(Exception):
 class PrintHandlerError(Exception):
     pass
     
-class LockInfo():
-    def __init__(self, val=False, **kwargs):
-        self._status = val
-        self.info = kwargs
-        
-    def __getattr__(self, attr):
-        return getattr(self._status, attr)
-        
-class SiteLock(object):
-    """TODO"""
-    def __init__(self, site, locked_path, expiry=600):
-        self.site = site
-        self.locked_path = locked_path
-        self.expiry = expiry or None
-        
-    def __enter__(self):
-        return self.acquire()
-        
-    def __exit__(self, type, value, traceback):
-        self.release()
-        
-    def acquire(self):
-        """TODO"""
-        page = self.site.currentPage
-        lockinfo = dict(user=page.user,
-                        page_id=page.page_id,
-                        connection_id=page.connection_id,
-                        currtime=time.time())
-                        
-        result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
-        if result:
-            return LockInfo(True)
-        else:
-            info = self.site.shared_data.get(self.locked_path)
-            return LockInfo(False, **info)
-            
-    def release(self):
-        """TODO"""
-        self.site.shared_data.delete(self.locked_path)
+#class LockInfo():
+#    def __init__(self, val=False, **kwargs):
+#        self._status = val
+#        self.info = kwargs
+#        
+#    def __getattr__(self, attr):
+#        return getattr(self._status, attr)
+#        
+#class SiteLock(object):
+#    """TODO"""
+#    def __init__(self, site, locked_path, expiry=600):
+#        self.site = site
+#        self.locked_path = locked_path
+#        self.expiry = expiry or None
+#        
+#    def __enter__(self):
+#        return self.acquire()
+#        
+#    def __exit__(self, type, value, traceback):
+#        self.release()
+#        
+#    def acquire(self):
+#        """TODO"""
+#        page = self.site.currentPage
+#        lockinfo = dict(user=page.user,
+#                        page_id=page.page_id,
+#                        connection_id=page.connection_id,
+#                        currtime=time.time())
+#                        
+#        result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
+#        if result:
+#            return LockInfo(True)
+#        else:
+#            info = self.site.shared_data.get(self.locked_path)
+#            return LockInfo(False, **info)
+#            
+#    def release(self):
+#        """TODO"""
+#        self.site.shared_data.delete(self.locked_path)
         
 class memoize(object):
     """TODO"""
@@ -214,22 +214,22 @@ cache = memoize()
 class GnrWsgiSite(object):
     """TODO"""
     #cache = memoize()
-    def siteLock(self, **kwargs):
-        """TODO"""
-        return SiteLock(self, **kwargs)
+   # def siteLock(self, **kwargs):
+   #     """TODO"""
+   #     return SiteLock(self, **kwargs)
         
-    @property
-    def shared_data(self):
-        """TODO"""
-        if not hasattr(self, '_shared_data'):
-            memcache_config = self.config['memcache']
-            if memcache_config:
-                self._shared_data = GnrSharedData_memcache(self, memcache_config,
-                                                           debug=self.config.getAttr('memcache').get('debug'))
-            else:
-                self._shared_data = GnrSharedData_dict(self)
-        return self._shared_data
-        
+   #@property
+   #def shared_data(self):
+   #    """TODO"""
+   #    if not hasattr(self, '_shared_data'):
+   #        memcache_config = self.config['memcache']
+   #        if memcache_config:
+   #            self._shared_data = GnrSharedData_memcache(self, memcache_config,
+   #                                                       debug=self.config.getAttr('memcache').get('debug'))
+   #        else:
+   #            self._shared_data = GnrSharedData_dict(self)
+   #    return self._shared_data
+   #    
     @property
     def guest_counter(self):
         """TODO"""
@@ -467,7 +467,8 @@ class GnrWsgiSite(object):
             
     def on_reloader_restart(self):
         """TODO"""
-        self.shared_data.dump()
+        pass
+        #self.shared_data.dump()
         
     def initializePackages(self):
         """TODO"""
@@ -617,7 +618,7 @@ class GnrWsgiSite(object):
         request = Request.blank('/sys/headless')
         response = Response()
         return self.resource_loader(['sys', 'headless'], request, response)
-
+    
     def dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
@@ -758,7 +759,7 @@ class GnrWsgiSite(object):
         """clean up"""
         self.currentPage = None
         self.db.closeConnection()
-        self.shared_data.disconnect_all()
+        #self.shared_data.disconnect_all()
         
     def serve_tool(self, path_list, environ, start_response, **kwargs):
         """TODO
