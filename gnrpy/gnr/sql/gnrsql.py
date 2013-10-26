@@ -364,12 +364,12 @@ class GnrSqlDb(GnrObject):
         if dbtable and not self.table(dbtable).use_dbstores():
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
+            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
            
                 sqlargs.pop(k)
                 sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
-                sql = re.sub(':%s(\W|$)' % k, sqllist, sql)
+                sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
             sql = re.sub(NOT_IN_OPERATOR_PATCH, ' TRUE', sql)    
             sql = re.sub(IN_OPERATOR_PATCH, ' FALSE', sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
