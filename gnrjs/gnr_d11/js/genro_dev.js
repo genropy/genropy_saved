@@ -78,6 +78,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         
 
     },
+    siteErrorStatus:function(siteError){
+        console.error('Site error:'+siteError)
+        //genro.dlg.alert('Site error',siteError);
+    },
+
     debugMessage: function(msg, level, duration) {
 
         var level = level || 'MESSAGE';

@@ -291,7 +291,7 @@ class GnrWsgiSite(object):
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
             
-
+        self.status = None
         self.config = self.load_site_config()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
@@ -354,6 +354,10 @@ class GnrWsgiSite(object):
     #        service_names=self.config['services'].digest('#k')
     #    if service_names:
     #        self.services.addSiteServices(service_names=service_names)
+
+    @property
+    def isInMaintenance(self):
+        return self.status is not None
             
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
@@ -619,7 +623,30 @@ class GnrWsgiSite(object):
         response = Response()
         return self.resource_loader(['sys', 'headless'], request, response)
     
+
     def dispatcher(self, environ, start_response):
+        if self.isInMaintenance:
+            return self.maintenanceDispatcher(environ, start_response)
+        else:
+            try:
+                return self._dispatcher(environ, start_response)
+            except self.register.errors.ConnectionClosedError:
+                self.status = 'Register:ConnectionClosedError'
+                return self.maintenanceDispatcher(environ, start_response)
+
+    def maintenanceDispatcher(self,environ, start_response):
+        request = Request(environ)
+        response = Response()
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        path_list = self.get_path_list(request.path_info)
+        if (path_list and path_list[0].startswith('_')) or ('method' in request_kwargs or 'rpc' in request_kwargs or '_plugin' in request_kwargs):
+            response = self.setResultInResponse('maintenance', response, info_GnrSiteError=str(self.status))
+            return response(environ, start_response)
+        else:
+            return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
+        
+
+    def _dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
         

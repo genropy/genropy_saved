@@ -418,6 +418,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     resultHandler: function(response, ioArgs, currentAttr) {
+        var siteError = ioArgs.xhr.getResponseHeader('X-GnrSiteError') 
+        if(siteError){
+            return genro.dev.siteErrorStatus(siteError);
+        }
         this.unregister_call(ioArgs);
         var envelope = new gnr.GnrBag();
         try {
