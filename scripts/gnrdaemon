@@ -24,6 +24,16 @@ def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,sto
     print 'starting'
     server.start(host=host,hmac_key=hmac_key,port='*')
 
+class GnrDaemonProxy(object):
+    def __init__(self,host=None,port=None,hmac_key=None,compression=False):
+        Pyro4.config.HMAC_KEY = str(hmac_key or PYRO_HMAC_KEY)
+        Pyro4.config.SERIALIZER = 'pickle'
+        Pyro4.config.COMPRESSION = True
+        self.uri = 'PYRO:GnrDaemon@%s:%s' %(host,port)
+    
+    def proxy(self):
+        return Pyro4.Proxy(self.uri)
+
 class GnrDaemon(object):
     def __init__(self):
         self.running = False
@@ -74,8 +84,8 @@ class GnrDaemon(object):
             self.addSiteRegister(sitename,storage_path=storage_path)
             return False
         
-    def stop(self):
-        self.processManager.stop()
+    def stop(self,saveStatus=True):
+        self.siteregister_stop('*',saveStatus=saveStatus)
         self.running = False
     
     def addSiteRegister(self,sitename,storage_path=None):
@@ -101,13 +111,19 @@ class GnrDaemon(object):
         uri = self.siteregisters[sitename]['uri']
         return Pyro4.Proxy(uri).load()
         
-    def siteregister_stop(self,sitename,dump=False):
-        pass
+    def siteregister_stop(self,sitename,saveStatus=False):
+        if sitename=='*':
+            for k in self.siteregisters:
+                self.siteregister_stop(k,saveStatus=saveStatus)
+            return
+        uri = self.siteregisters[sitename]['uri']
+        return Pyro4.Proxy(uri).stop(saveStatus=saveStatus)
+        
         
 def getOptions():
     usage = "\ngnrdaemon"
     parser = argparse.ArgumentParser(usage)
-          
+    parser.add_argument('command',nargs='?')
     parser.add_argument('-H', '--host',
                       help="The binded host")
                       
@@ -134,6 +150,10 @@ def getOptions():
                       action='store_false',
                       help="Enable compression")
 
+    parser.add_argument('-s', '--savestatus',
+                      action='store_true',
+                      help="Save status")
+
     arguments= parser.parse_args()
     return arguments.__dict__
     
@@ -146,5 +166,19 @@ if __name__=="__main__":
     for k,v in curropt.items():
         if v:
             options[k] = v
-    server = GnrDaemon()
-    server.start(**options)
+    command = options.pop('command',None)
+    if command == 'start' or not command:
+        server = GnrDaemon()
+        server.start(**options)
+    else:
+        p = GnrDaemonProxy(host=options.get('host'),port=options.get('port'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
+        proxy = p.proxy()
+        if command=='stop':
+            print 'savestatus',options.get('savestatus')
+            result = proxy.stop(saveStatus=options.get('savestatus'))   
+            print result
+        elif command in ('stopping','starting'):
+            result = getattr(proxy,command)()
+            print result
+        else:
+            print 'unknown command:%s' %command

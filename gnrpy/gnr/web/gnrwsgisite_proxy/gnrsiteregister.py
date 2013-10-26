@@ -647,27 +647,29 @@ class SiteRegisterClient(object):
         self.site = site
         self.siteregisterserver_uri = None
         self.storage_path = os.path.join(self.site.site_path, self.STORAGE_PATH)
+        self.errors = Pyro4.errors
 
         daemonconfig = self.site.config.getAttr('gnrdaemon')
         daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
         Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
-        try:
-            self.gnrdaemon_proxy.ping()
-        except Pyro4.errors.CommunicationError:
-            raise Exception('GnrDaemon is not started')
-        t_start = time.time()
-        while not self.checkSiteRegisterServerUri() and (time.time()-t_start)<10:
-            pass
+        with self.gnrdaemon_proxy as daemonProxy:
+            try:
+                daemonProxy.ping()
+            except Pyro4.errors.CommunicationError:
+                raise Exception('GnrDaemon is not started')
+            t_start = time.time()
+            while not self.checkSiteRegisterServerUri(daemonProxy) and (time.time()-t_start)<10:
+                pass
         self.siteregister_uri =self.siteregisterserver_uri.replace(':SiteRegisterServer@',':SiteRegister@')
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         self.remotebag_uri =self.siteregister_uri.replace(':SiteRegister@',':RemoteData@')
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
 
-    def checkSiteRegisterServerUri(self):
+    def checkSiteRegisterServerUri(self,daemonProxy):
         if not self.siteregisterserver_uri:
-            self.siteregisterserver_uri = self.gnrdaemon_proxy.getSiteUri(self.site.site_name,create=True,storage_path=self.storage_path)
+            self.siteregisterserver_uri = daemonProxy.getSiteUri(self.site.site_name,create=True,storage_path=self.storage_path)
             time.sleep(1)
         return self.siteregisterserver_uri
 
@@ -779,6 +781,25 @@ class GnrSiteRegisterServer(object):
         self.gnr_daemon_uri = daemon_uri
         self.debug = debug
         self.storage_path = storage_path
+        self._running = False
+    
+    def running(self):
+        return self._running
+
+    def run(self,loadStatus=False):
+        self._running = True
+        if loadStatus:
+            self.siteregister.load()
+        self.daemon.requestLoop(self.running)
+
+    def stop(self,saveStatus=False):
+        print 'stopping'
+        if saveStatus:
+            print 'SAVING STATUS',self.storage_path
+            self.siteregister.dump()
+            print 'SAVED STATUS STATUS'
+
+        self._running = False
 
     def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
         pyrokw = dict(host=host)
@@ -804,7 +825,7 @@ class GnrSiteRegisterServer(object):
         print "uri=",self.main_uri
         if self.gnr_daemon_uri:
             Pyro4.Proxy(self.gnr_daemon_uri).registerSiteName(self.sitename,str(self.main_uri))
-        self.daemon.requestLoop()
+        self.run()
 
 ########################################### SERVER STORE #######################################
 
