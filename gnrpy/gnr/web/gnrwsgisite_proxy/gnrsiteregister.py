@@ -437,6 +437,12 @@ class PageRegister(BaseRegister):
             for page in subscribers:
                 self.set_datachange(page['register_item_id'],'gnr.dbchanges.%s' %table_code, dbevents,attributes=dict(from_page_id=origin_page_id))
 
+    def setPendingContext(self,page_id,pendingContext):
+        data = self.get_item_data(page_id)
+        for serverpath,value,attr in pendingContext:
+            data.setItem(serverpath, value, attr)
+            self.subscribe_path(page_id,serverpath)
+
 
 class SiteRegister(object):
     def __init__(self,server,sitename=None,storage_path=None):
@@ -904,10 +910,7 @@ class ServerStore(object):
                 data = self.data
                 if data is not None:
                     return getattr(data, fname)(*args,**kwargs)
-                
             return decore
-
-
         else:
             raise AttributeError("register_item has no attribute '%s'" % fname)
 

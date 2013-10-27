@@ -1634,10 +1634,7 @@ class GnrWebPage(GnrBaseWebPage):
                         if v:
                             page.script('genro.dom.loadJs("%s")' %v)
                 if self._pendingContext:
-                    with self.pageStore() as store:
-                        for serverpath,value,attr in self._pendingContext:
-                            store.setItem(serverpath, value, attr)
-                            store.subscribe_path(serverpath)
+                    self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
                 if self.user:
                     self.site.pageLog('open')
 
