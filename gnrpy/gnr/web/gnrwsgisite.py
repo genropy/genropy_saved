@@ -1085,60 +1085,11 @@ class GnrWsgiSite(object):
     def onDbCommitted(self):
         """TODO"""
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
-        if not dbeventsDict:
-            return
-        page = self.currentPage
-        destination_pages = dict()
-        for table,dbevents in dbeventsDict.items():
-            if dbevents:
-                tblobj = self.db.table(table)
-                subscribers = self.register.pages(index_name=table)
-                if page and subscribers:
-                    for page_id in subscribers.keys():
-                        destination_pages.setdefault(page_id,[]).append(dict(table=table,dbevents=dbevents,attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id),page_id=page_id,public=True))
-        for page_id, updates in destination_pages.items():
-            for upd in updates:
-                dbevents = upd.pop('dbevents')
-                table = upd.pop('table')
-                page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,**upd)
-        
-        self.db.updateEnv(env_transaction_id= None,dbevents=None)
-                
-   # def onDbCommitted_old(self):
-   #     """TODO"""
-   #     dbeventsDict= self.db.currentEnv.pop('dbevents',None)
-   #     if not dbeventsDict:
-   #         return
-   #     page = self.currentPage
-   #     for table,dbevents in dbeventsDict.items():
-   #         if dbevents:
-   #             tblobj = self.db.table(table)
-   #             subscribers = self.register.pages(index_name=table)
-   #             print 'fffff',subscribers,table
-   #             if page and subscribers:
-   #                 for page_id in subscribers.keys():
-   #                     print 'setting in client data',page_id,table,dbevents
-   #                     page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
-   #                                         attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
-   #                                         page_id=page_id,public=True)
-   #     
-   #     self.db.updateEnv(env_transaction_id= None,dbevents=None)
-        
-    def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """TODO
-        
-        :param tblobj: the table object
-        :param record: TODO
-        :param event: TODO
-        :param old_record: TODO"""
-        if tblobj.attributes.get('broadcast') == '*old*':
-            subscribers = self.register.pages(index_name=tblobj.fullname)
-            value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
+        if dbeventsDict:
             page = self.currentPage
-            for page_id in subscribers.keys():
-                page.setInClientData('gnr.dbevent.%s' % tblobj.fullname.replace('.', '_'), value,
-                                     attributes=dict(dbevent=event,pkey=value[tblobj.pkey],pkeycol=tblobj.pkey), page_id=page_id)
-                                     
+            self.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
+            self.db.updateEnv(env_transaction_id= None,dbevents=None)
+        
     def sendMessageToClient(self, value, pageId=None, filters=None, origin=None, msg_path=None):
         """Send a message
         
