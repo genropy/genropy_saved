@@ -438,11 +438,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-
             dlg.getParentNode().widget.hide(); 
             setTimeout(function(){
                 var ndlg =dlg.getParentNode();
-                ndlg.getParentNode()._value.popNode(ndlg.label);
+                if(ndlg){
+                    ndlg.getParentNode()._value.popNode(ndlg.label);
+                }
             },500);
             
         };
