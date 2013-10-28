@@ -240,8 +240,6 @@ class BaseRegister(object):
     def set_datachange(self,register_item_id, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
         register_item = self.get_item(register_item_id)
         datachanges = register_item['datachanges']
-        print 'server set_datachange',self.registerName,register_item_id,path #,value,register_item
-
         register_item['datachanges_idx'] = register_item.get('datachanges_idx', 0)
         register_item['datachanges_idx'] += 1
         datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
@@ -249,11 +247,9 @@ class BaseRegister(object):
                                       delete=delete)
         if replace and datachange in datachanges:
             datachanges.pop(datachanges.index(datachange))
-        print 'datachanges len', len(datachanges)
         datachanges.append(datachange)
 
     def drop_datachanges(self,register_item_id, path):
-        print 'drop_datachanges',self.registerName,register_item_id
         register_item = self.get_item(register_item_id)
         datachanges = register_item['datachanges']
         datachanges[:] = [dc for dc in datachanges if not dc.path.startswith(path)]
@@ -987,14 +983,13 @@ class ServerStore(object):
 
     def __exit__(self, type, value, tb):
         self.siteregister.unlock_item(self.register_item_id,register_name=self.register_name)
-        print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
+        #print 'locked',self.register_name,self.register_item_id,'time to lock',self.success_locking_time-self.start_locking_time,'locking time',time.time()-self.success_locking_time
 
     def reset_datachanges(self):
         return self.siteregister.reset_datachanges(self.register_item_id,register_name=self.register_name)
 
 
     def set_datachange(self, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
-        print 'store set_datachange',self.register_item_id,self.register_name,path #,value
         return self.siteregister.set_datachange(self.register_item_id,path, value=value, attributes=attributes, fired=fired,
                                                  reason=reason, replace=replace, delete=delete,register_name=self.register_name)
 
