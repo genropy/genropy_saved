@@ -235,8 +235,7 @@ class PublicSlots(BaseComponent):
         pane.dataController('genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});',v='^current.%s' %partition_field)
         pane.data('current.%s' %partition_field,current_partition_value,
                     serverpath='rootenv.%s' %partition_path,dbenv=True)
-        with self.pageStore() as store:
-            store.setItem('rootenv.partition_kw',kw)
+        self.pageStore().setItem('rootenv.partition_kw',kw)
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  

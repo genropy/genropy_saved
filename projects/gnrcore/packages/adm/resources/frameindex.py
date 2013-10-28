@@ -590,8 +590,7 @@ class FramedIndexLogin(BaseComponent):
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
-            with self.connectionStore() as store:
-                store.setItem('defaultRootenv',rootenv)
+            self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False
 
@@ -650,8 +649,7 @@ class FramedIndexLogin(BaseComponent):
         rootenv['workdate'] = rootenv['workdate'] or td
         if rootenv['workdate'] != td:
             rootenv['custom_workdate'] = True
-        with self.pageStore() as store:
-            store.setItem('rootenv',rootenv)
+        self.pageStore().setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
         result = self.avatar.as_dict()

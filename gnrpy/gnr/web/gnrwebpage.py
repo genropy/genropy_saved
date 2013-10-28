@@ -1501,10 +1501,7 @@ class GnrWebPage(GnrBaseWebPage):
                 self.root_page_id = _root_page_id
                 if self.parent_page_id:
                     default_rootenv = self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
-                    with self.pageStore() as store:
-                        store.setItem('root_page_id',self.root_page_id)
-                        store.setItem('parent_page_id',self.parent_page_id)
-                        store.setItem('rootenv',default_rootenv)
+                    self.pageStore().update(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=default_rootenv))
                 avatar = self.avatar #force get_avatar ?
                 if hasattr(self, 'main_root'):
                     self.main_root(page, **kwargs)

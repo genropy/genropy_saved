@@ -219,6 +219,8 @@ class BaseRegister(object):
         register_item.update(upddict)
         return register_item
 
+
+
     def get_datachanges(self,register_item_id,reset=False):
         register_item = self.get_item(register_item_id)
         if not register_item:
@@ -443,6 +445,12 @@ class PageRegister(BaseRegister):
             data.setItem(serverpath, value, attr)
             self.subscribe_path(page_id,serverpath)
 
+    def updateLocalization(self,page_id=None,localizer_dict=None):
+        localization = {}
+        data = self.get_item_data(page_id)
+        localization.update(data.getItem('localization') or {})
+        localization.update(localizer_dict)
+        data.setItem('localization', localization)
 
 class SiteRegister(object):
     def __init__(self,server,sitename=None,storage_path=None):
@@ -622,6 +630,37 @@ class SiteRegister(object):
             
     def subscribeTable(self,page_id,table,subscribe):
         self.page_register.subscribeTable(page_id,table=table,subscribe=subscribe)
+
+    def subscription_storechanges(self, user, page_id):
+        external_datachanges = self.page_register.get_datachanges(register_item_id=page_id,reset=True)
+        page_item_data = self.page_register.get_item_data(page_id)
+        user_subscriptions = page_item_data.getItem('_subscriptions.user')
+        if not user_subscriptions:
+            return external_datachanges
+        store_datachanges = []
+        datachanges = self.user_register.get_datachanges(user)
+        user_item_data = self.user_register.get_item_data(user)
+        storesubscriptions_items = user_subscriptions.items()
+        global_offsets = user_item_data.getItem('_subscriptions.offsets')
+        if global_offsets is None:
+            global_offsets = {}
+            user_item_data.setItem('_subscriptions.offsets', global_offsets)
+        for j, change in enumerate(datachanges):
+            changepath = change.path
+            change_idx = change.change_idx
+            for subpath, subdict in storesubscriptions_items:
+                if subdict['on'] and changepath.startswith(subpath):
+                    if change_idx > subdict.get('offset', 0):
+                        subdict['offset'] = change_idx
+                        change.attributes = change.attributes or {}
+                        if change_idx > global_offsets.get(subpath, 0):
+                            global_offsets[subpath] = change_idx
+                            change.attributes['_new_datachange'] = True
+                        else:
+                            change.attributes.pop('_new_datachange', None)
+                        store_datachanges.append(change)
+        return external_datachanges+store_datachanges
+
 
     def dump(self):
         """TODO"""
