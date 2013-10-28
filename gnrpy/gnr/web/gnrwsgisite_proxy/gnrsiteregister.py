@@ -613,7 +613,6 @@ class SiteRegister(object):
             last_refresh_ts = page.get('last_refresh_ts')
             if last_refresh_ts and ((now - page['last_refresh_ts']).seconds > self.page_max_age):
                 self.drop_page(page['register_item_id'])
-
         for connection in self.connections():
             last_refresh_ts = connection.get('last_refresh_ts')
             if last_refresh_ts and ((now - connection['last_refresh_ts']).seconds > self.connection_max_age):
@@ -682,7 +681,7 @@ class SiteRegister(object):
                     child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
                 if child_lastRpc:
                     child_lastRpc = catalog.fromTypedText(child_lastRpc)
-                    self.refresh(k, child_lastUserEventTs,last_rpc_ts=child_lastRpc,pageProfilers=child_pageProfilers)
+                self.refresh(k, child_lastUserEventTs,last_rpc_ts=child_lastRpc,pageProfilers=child_pageProfilers)
         envelope = Bag(dict(result=None))
         user=page_item['user']
         datachanges = self.handle_ping_get_datachanges(page_id, user=user)            

@@ -8,6 +8,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import fromJson
+from datetime import datetime
 
 
 class MaintenancePlugin(BaseComponent):
@@ -191,7 +192,7 @@ class MaintenancePlugin(BaseComponent):
             
     def _maintenance_get_items(self, items, child_name=None,exclude_guest=None, **kwargs):
         result = Bag()
-        now = self.clientDatetime()
+        now = datetime.now()
 
         for key, item in items.items():
             item = dict(item)

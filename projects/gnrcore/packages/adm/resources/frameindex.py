@@ -630,10 +630,8 @@ class FramedIndexLogin(BaseComponent):
                 self.doLogin(autologin,authenticate=authenticate)
                 canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),self.avatar.user_tags)
                 newrootenv.setItem('workdate',self.workdate, hidden= not canBeChanged,editable=True)
-                with self.pageStore() as pagestore:
-                    pagestore.setItem('rootenv',newrootenv)
-                with self.connectionStore() as connectionstore:
-                    connectionstore.setItem('defaultRootenv',Bag(newrootenv))
+                self.pageStore().setItem('rootenv',newrootenv)
+                self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
             else:
                 return 'login'
         elif new_window:
