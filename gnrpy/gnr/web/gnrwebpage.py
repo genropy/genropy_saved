@@ -401,13 +401,16 @@ class GnrWebPage(GnrBaseWebPage):
     def _rpcDispatcher(self, *args, **kwargs):
         method = kwargs.pop('method',None)
         mode = kwargs.pop('mode','bag')
+        _serverstore_changes = kwargs.pop('_serverstore_changes',None)
+
         #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         parameters = kwargs
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
         self._lastRpc = parameters.pop('_lastRpc', None)
         self._pageProfilers = parameters.pop('_pageProfilers', None)
         #self.site.register.refresh(self.page_id,ts=self._lastUserEventTs,pageProfilers=self._pageProfilers)
-        self.site.handle_clientchanges(self.page_id, parameters)
+        if _serverstore_changes:
+            self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
@@ -678,9 +681,14 @@ class GnrWebPage(GnrBaseWebPage):
     def collectClientDatachanges(self):
         """TODO"""
         self._publish_event('onCollectDatachanges')
-        result = self.site.get_datachanges(self.page_id, user=self.user,
-                                           local_datachanges=self.local_datachanges)
+        store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id)
+        result = Bag()
+        for j, change in enumerate(self.local_datachanges + store_datachanges):
+            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+                           change_fired=change.fired, change_attr=change.attributes,
+                           change_ts=change.change_ts, change_delete=change.delete)
         return result
+
         
     def _subscribe_event(self, event, caller):
         assert hasattr(caller, 'event_%s' % event)

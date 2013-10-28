@@ -1183,86 +1183,13 @@ class GnrWsgiSite(object):
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
         
     def serve_ping(self, response, environ, start_response, page_id=None, reason=None, **kwargs):
-        """TODO
-        
-        :param response: TODO
-        :param environ: TODO
-        :param start_response: TODO
-        :param page_id: TODO
-        :param reason: TODO"""
-        #kwargs = self.parse_kwargs(kwargs)
-        _children_pages_info= kwargs.get('_children_pages_info')
-        _lastUserEventTs = kwargs.get('_lastUserEventTs')
-        _lastRpc = kwargs.get('_lastRpc')
-        _pageProfilers = kwargs.get('_pageProfilers')
-        page_item = self.register.refresh(page_id, _lastUserEventTs,lastRpc=_lastRpc,pageProfilers=_pageProfilers)
-        if not page_item:
-            return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
-        catalog = self.gnrapp.catalog
-        self.handle_clientchanges(page_id, kwargs)
-        if _children_pages_info:
-            for k,v in _children_pages_info.items():
-                child_lastUserEventTs = v.pop('_lastUserEventTs', None)
-                child_lastRpc = v.pop('_lastRpc', None)
-
-                child_pageProfilers = v.pop('_pageProfilers', None)
-                self.handle_clientchanges(k, {'_serverstore_changes':v})
-                if child_lastUserEventTs:
-                    child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
-                if child_lastRpc:
-                    child_lastRpc = catalog.fromTypedText(child_lastRpc)
-                    self.register.refresh(k, child_lastUserEventTs,lastRpc=child_lastRpc,pageProfilers=child_pageProfilers)
-        envelope = Bag(dict(result=None))
-        user=page_item['user']
-        datachanges = self.get_datachanges(page_id, user=user)            
-        if datachanges:
-            envelope.setItem('dataChanges', datachanges)
-        if _children_pages_info:
-            for k in _children_pages_info.keys():
-                datachanges = self.get_datachanges(k, user=user)
-                if datachanges:
-                    envelope.setItem('childDataChanges.%s' %k, datachanges)
         response.content_type = "text/xml"
-        lastBatchUpdate = self.register.userStore(user).getItem('lastBatchUpdate')
-        if lastBatchUpdate:
-            if (datetime.now()-lastBatchUpdate).seconds<5:
-                envelope.setItem('runningBatch',True)
-            else:
-                with self.register.userStore(user) as store:
-                    store.setItem('lastBatchUpdate',None)
-        result = envelope.toXml(unresolved=True, omitUnknownTypes=True)
-        return result
-        
-    def get_datachanges(self, page_id, user=None, local_datachanges=None):
-        """TODO
-        
-        :param page_id: TODO
-        :param user: the username
-        :param local_datachanges: TODO"""
-        result = Bag()
-        local_datachanges = local_datachanges or []
-        store_datachanges = self.register.subscription_storechanges(user,page_id)
-        for j, change in enumerate(local_datachanges + store_datachanges):
-            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
-                           change_fired=change.fired, change_attr=change.attributes,
-                           change_ts=change.change_ts, change_delete=change.delete)
-        return result
-
-        
-    def handle_clientchanges(self, page_id=None, parameters=None):
-        """TODO
-        
-        :param page_id: TODO
-        :param parameters: TODO"""
-        if '_serverstore_changes' in parameters:
-            serverstore_changes = parameters.pop('_serverstore_changes', None)
-            if serverstore_changes:
-                serverstore_changes = self.parse_kwargs(serverstore_changes)
-                with self.register.pageStore(page_id, triggered=False) as store:
-                    if store:
-                        for k, v in serverstore_changes.items():
-                            store.setItem(k, v)
-                            
+        result = self.register.handle_ping(page_id=page_id,reason=reason,**kwargs)
+        if result is False:
+            self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
+        else:
+            return result.toXml(unresolved=True, omitUnknownTypes=True)
+                                  
     def parse_kwargs(self, kwargs):
         """TODO
         :param kwargs: the kw arguments

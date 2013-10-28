@@ -25,6 +25,8 @@ from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
+from gnr.core.gnrclasses import GnrClassCatalog
+
 import pickle
 import os
 
@@ -463,6 +465,7 @@ class SiteRegister(object):
         self.last_cleanup = time.time()
         self.sitename = sitename
         self.storage_path = storage_path
+        self.catalog = GnrClassCatalog()
 
 
     def setConfiguration(self,cleanup=None):
@@ -594,7 +597,7 @@ class SiteRegister(object):
             self.drop_user(olduser)
 
 
-    def do_refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
+    def refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
         refresh_ts = datetime.now()
         page = self.page_register.refresh(page_id,last_user_ts=last_user_ts,last_rpc_ts=last_rpc_ts,refresh_ts=refresh_ts)
         if not page:
@@ -661,6 +664,81 @@ class SiteRegister(object):
                         store_datachanges.append(change)
         return external_datachanges+store_datachanges
 
+    def handle_ping(self, page_id=None, reason=None, _serverstore_changes=None,**kwargs):
+        _children_pages_info= kwargs.get('_children_pages_info')
+        _lastUserEventTs = kwargs.get('_lastUserEventTs')
+        _lastRpc = kwargs.get('_lastRpc')
+        _pageProfilers = kwargs.get('_pageProfilers')
+        page_item = self.refresh(page_id, _lastUserEventTs,last_rpc_ts=_lastRpc,pageProfilers=_pageProfilers)
+        if not page_item:
+            return False
+        catalog = self.catalog
+        if _serverstore_changes:
+            self.set_serverstore_changes(page_id, _serverstore_changes)
+        if _children_pages_info:
+            for k,v in _children_pages_info.items():
+                child_lastUserEventTs = v.pop('_lastUserEventTs', None)
+                child_lastRpc = v.pop('_lastRpc', None)
+                child_pageProfilers = v.pop('_pageProfilers', None)
+                if v:
+                    self.set_serverstore_changes(k, v)
+                if child_lastUserEventTs:
+                    child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
+                if child_lastRpc:
+                    child_lastRpc = catalog.fromTypedText(child_lastRpc)
+                    self.refresh(k, child_lastUserEventTs,last_rpc_ts=child_lastRpc,pageProfilers=child_pageProfilers)
+        envelope = Bag(dict(result=None))
+        user=page_item['user']
+        datachanges = self.handle_ping_get_datachanges(page_id, user=user)            
+        if datachanges:
+            envelope.setItem('dataChanges', datachanges)
+        if _children_pages_info:
+            for k in _children_pages_info.keys():
+                datachanges = self.handle_ping_get_datachanges(k, user=user)
+                if datachanges:
+                    envelope.setItem('childDataChanges.%s' %k, datachanges)
+        user_register_data = self.user_register.get_item_data(user)
+        lastBatchUpdate = user_register_data.getItem('lastBatchUpdate')
+        if lastBatchUpdate:
+            if (datetime.now()-lastBatchUpdate).seconds<5:
+                envelope.setItem('runningBatch',True)
+            else:
+                user_register_data.setItem('lastBatchUpdate',None)
+        return envelope
+
+    def handle_ping_get_datachanges(self, page_id, user=None):
+        result = Bag()
+        store_datachanges = self.subscription_storechanges(user,page_id)
+        for j, change in enumerate(store_datachanges):
+            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+                           change_fired=change.fired, change_attr=change.attributes,
+                           change_ts=change.change_ts, change_delete=change.delete)
+        return result
+        
+    def set_serverstore_changes(self, page_id=None, datachanges=None):
+        page_item_data = self.page_register.get_item_data(page_id)
+        for k, v in datachanges.items():
+            page_item_data.setItem(k, v)
+
+    def parse_kwargs(self, kwargs):
+        """TODO
+        :param kwargs: the kw arguments
+        """
+        catalog = self.catalog
+        result = dict()
+        for k, v in kwargs.items():
+            k = k.strip()
+            if isinstance(v, basestring):
+                try:
+                    v = catalog.fromTypedText(v)
+                    if isinstance(v, basestring):
+                        v = v.decode('utf-8')
+                    result[k] = v
+                except Exception, e:
+                    raise e
+            else:
+                result[k] = v
+        return result
 
     def dump(self):
         """TODO"""
@@ -767,7 +845,7 @@ class SiteRegisterClient(object):
         return self.adaptListToDict(users,lazy_data=lazy_data)  
 
     def refresh(self,page_id, ts=None,lastRpc=None,pageProfilers=None):
-        return self.siteregister.do_refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
+        return self.siteregister.refresh(page_id,last_user_ts=ts,last_rpc_ts=lastRpc,pageProfilers=pageProfilers)
 
     def connectionStore(self, connection_id, triggered=False):
         return self.make_store('connection',connection_id, triggered=triggered)
