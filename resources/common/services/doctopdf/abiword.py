@@ -18,4 +18,4 @@ class Main(GnrBaseService):
             call(['abiword', '--to=pdf',path])
         except Exception:
             return path
-        return path.replace('.doc','pdf')
+        return path.replace('.doc','.pdf')
