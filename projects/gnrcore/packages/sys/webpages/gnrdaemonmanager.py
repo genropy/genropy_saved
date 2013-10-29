@@ -221,7 +221,6 @@ class GnrCustomWebPage(object):
         for item in items:
             item = dict(item)
             key = item['register_item_id']
-            print 'key',key
             item.pop('data',None)
             if exclude_guest and ( key.startswith('guest_') or item.get('user','').startswith('guest_')):
                 continue
