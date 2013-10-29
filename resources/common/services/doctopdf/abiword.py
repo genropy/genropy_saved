@@ -7,6 +7,7 @@
 
 from gnr.core.gnrbaseservice import GnrBaseService
 from subprocess import call
+import os
 
 
 class Main(GnrBaseService):
@@ -14,8 +15,10 @@ class Main(GnrBaseService):
         self.parent = parent
 
     def convert(self,path):
-        try:
-            call(['abiword', '--to=pdf',path])
-        except Exception:
-            return path
-        return path.replace('.doc','.pdf')
+        print 'path',path
+        result = call(['abiword', '--to=pdf',path])
+        if result !=0:
+            return None
+        name,ext = os.path.splitext(path)
+
+        return '%s.pdf' %name
