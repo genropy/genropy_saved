@@ -202,6 +202,7 @@ class MaintenancePlugin(BaseComponent):
             _customClasses = []
             item['_pkey'] = key
             item['alive'] = True
+            item['age'] = (now - item['start_ts']).seconds
             item['last_refresh_age'] = (now - item.get('last_refresh_ts',item['start_ts'])).seconds
             item['last_event_age'] = (now - item.get('last_user_ts',item['start_ts'])).seconds
             item['last_rpc_age'] = (now - item.get('last_rpc_ts',item['start_ts'])).seconds

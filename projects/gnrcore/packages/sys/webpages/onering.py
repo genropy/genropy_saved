@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
 
 
     def windowTitle(self):
-        return '!!Register explorer'
+        return '!!One Ring'
 
     def sitesStruct(self,struct):
         r = struct.view().rows()
