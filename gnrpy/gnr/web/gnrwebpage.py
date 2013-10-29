@@ -415,7 +415,13 @@ class GnrWebPage(GnrBaseWebPage):
         if not method in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         if self.isDeveloper() or self.site.force_debug:
-            result = self.rpc(method=method, _auth=auth, **parameters)
+            try:
+                result = self.rpc(method=method, _auth=auth, **parameters)
+            except GnrException,e:
+                self.rpc.error = 'gnrexception'
+                result = str(e)
+            except Exception,e:
+                raise
         else:
             try:
                 result = self.rpc(method=method, _auth=auth, **parameters)
