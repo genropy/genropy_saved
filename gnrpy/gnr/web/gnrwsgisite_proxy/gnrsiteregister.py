@@ -221,8 +221,6 @@ class BaseRegister(object):
         register_item.update(upddict)
         return register_item
 
-
-
     def get_datachanges(self,register_item_id,reset=False):
         register_item = self.get_item(register_item_id)
         if not register_item:
@@ -449,6 +447,21 @@ class PageRegister(BaseRegister):
         localization.update(data.getItem('localization') or {})
         localization.update(localizer_dict)
         data.setItem('localization', localization)
+
+    def setInClientData(self,path, value=None, attributes=None, page_id=None, filters=None,
+                        fired=False, reason=None, public=False, replace=False):
+        if filters:
+            pages = self.pages(filters=filters)
+        else:
+            pages = [page_id]
+        for page_id in pages:
+            if isinstance(path, Bag):
+                changeBag = path
+                for changeNode in changeBag:
+                    attr = changeNode.attr
+                    self.set_datachange(page_id,path=attr.pop('_client_path'),value=changeNode.value,attributes=attr, fired=attr.pop('fired', None))
+            else:
+                self.set_datachange(page_id,value,reason=reason, attributes=attributes, fired=fired)
 
 class SiteRegister(object):
     def __init__(self,server,sitename=None,storage_path=None):
