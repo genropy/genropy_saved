@@ -34,14 +34,15 @@ class GnrCustomWebPage(object):
         self.sitesFrame(top)
         self.siteControlPane(top)
 
-        center = bc.borderContainer(region='center',background='whitesmoke')
-        self.userConnectionPages(center)
+        self.userConnectionPages(bc.framePane(frameCode='ucp_filtered',region='center'))
 
-    def userConnectionPages(self,bc):
-        self.ucp_filtered(bc.framePane(frameCode='ucp_filtered',region='left',width='50%'))
-        self.ucp_global(bc.borderContainer(region='center',background='red'))
 
-    def ucp_filtered(self,frame):
+    def userConnectionPages(self,frame):
+        frame.dataRpc('dummy',self.loadSelectedSiteSituation,
+            _onResult="""SET current_site.data.loaded_users = result.popNode("users");
+                         SET current_site.data.loaded_connections = result.popNode("connections");
+                         SET current_site.data.loaded_pages = result.popNode("pages");""",_timing=3,
+            sysrpc=True,selected_uri='^main.uri')
         frame.css('.disconnected .dojoxGrid-cell', "color:red !important;")
         frame.css('.inactive .dojoxGrid-cell', "color:orange !important;")
         frame.css('.no_children .dojoxGrid-cell', "color:yellow !important;")
@@ -50,31 +51,86 @@ class GnrCustomWebPage(object):
 
 
         sc = frame.center.stackContainer()
+        self.userFrame(sc.borderContainer(title='Users',design='sidebar'))
+        self.connectionFrame(sc.contentPane(title='Connections'))
+        self.pagesFrame(sc.borderContainer(title='Pages'))
 
-        bc = sc.borderContainer(title='Users')
-        userframe = bc.contentPane(region='center').frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
-                                                                        grid_userSets='.sets',
+        
+
+    def userFrame(self,bc):
+        userframe = bc.contentPane(region='left',width='450px',splitter=True).frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
+                                                                            grid_multiSelect=False,grid_autoSelect=True,
                                                                             datapath='.connectedUsers',margin='2px',_class='pbl_roundedGroup')
         userframe.grid.data('.sorted','username:a')
-        userframe.grid.bagStore(storepath='upc_filtered.data.user',storeType='AttributesBagRows',
+        userframe.grid.bagStore(storepath='current_site.data.user',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
-                                data='^upc_filtered.data.loaded_users',selfUpdate=True)
-        bar = userframe.top.slotBar('2,*,searchOn,2',_class='pbl_roundedGroupLabel')
-        frame.dataRpc('dummy',self.loadSelectedSiteSituation,
-            _onResult="""SET upc_filtered.data.loaded_users = result.popNode("users");
-                         SET upc_filtered.data.loaded_connections = result.popNode("connections");
-                         SET upc_filtered.data.loaded_pages = result.popNode("pages");""",_timing=5,
-            sysrpc=True,selected_uri='=main.uri')
-        pagebc = sc.borderContainer(title='Pages')
-        profilepane = pagebc.contentPane(region='bottom',height='200px')
-        pagesframe = pagebc.contentPane(region='center').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
+                                data='^current_site.data.loaded_users',selfUpdate=True)
+        userframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='',_class='pbl_roundedGroupLabel')
+        userframe.grid.dataController("""var filteredConnection = allconnections.deepCopy()
+            var cnodes = filteredConnection.getNodes();
+            var n;
+            for(var i =0; i<cnodes.length; i++){
+                n = cnodes[i];
+                if(n.attr.user!=currentUser){
+                    filteredConnection.popNode(n.label);
+                }
+            }
+            FIRE current_site.data.loaded_filtered_connections = filteredConnection;
+            """,currentUser='^.selectedId',allconnections='=current_site.data.connections')
+
+
+        connectionframe = bc.contentPane(region='top',height='150px',splitter=True).frameGrid(frameCode='connectionFiltered',struct=self._connection_filtered_grid_struct,
+                                                                    grid_autoSelect=True,
+                                                                    datapath='.connectionFiltered',margin='2px',_class='pbl_roundedGroup')
+
+        connectionframe.grid.data('.sorted','age:d')
+        connectionframe.grid.bagStore(storepath='current_site.data.filtered_connections',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
+                                data='^current_site.data.loaded_filtered_connections',selfUpdate=True)
+        connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
+
+        connectionframe.grid.dataController("""
+            var filteredPages = allpages.deepCopy()
+            var cnodes = filteredPages.getNodes();
+            var n;
+            for(var i =0; i<cnodes.length; i++){
+                n = cnodes[i];
+                if(n.attr.connection_id!=connection_id){
+                    filteredPages.popNode(n.label);
+                }
+            }
+            FIRE current_site.data.loaded_filtered_pages = filteredPages;
+            """,connection_id='^.selectedId',allpages='=current_site.data.pages')
+        pagesframe = bc.contentPane(region='center').frameGrid(frameCode='currentFilteredPages',struct=self._page_filtered_grid_struct,
+                        datapath='.currentFilteredPages',
+                        title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        pagesframe.grid.data('.sorted','age:d')
+        pagesframe.grid.bagStore(storepath='current_site.data.filtered_pages',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
+                                data='^current_site.data.loaded_filtered_pages',selfUpdate=True)
+        pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
+
+
+    def connectionFrame(self,pane):
+        connectionframe = pane.frameGrid(frameCode='currentConnections',struct=self._connection_grid_struct,
+                        datapath='.currentConnections',
+                        title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
+        connectionframe.grid.data('.sorted','age:d')
+        connectionframe.grid.bagStore(storepath='current_site.data.connections',storeType='AttributesBagRows',
+                                sortedBy='=.grid.sorted',
+                                data='^current_site.data.loaded_connections',selfUpdate=True)
+        connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
+
+    def pagesFrame(self,bc):
+        profilepane = bc.contentPane(region='bottom',height='200px')
+        pagesframe = bc.contentPane(region='center').frameGrid(frameCode='currentPages',struct=self._page_grid_struct,
                         datapath='.currentPages',
                         title='Pages',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
         pagesframe.grid.data('.sorted','age:d')
-        pagesframe.grid.bagStore(storepath='upc_filtered.data.pages',storeType='AttributesBagRows',
+        pagesframe.grid.bagStore(storepath='current_site.data.pages',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
-                                data='^upc_filtered.data.loaded_pages',selfUpdate=True)
-        bar = pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
+                                data='^current_site.data.loaded_pages',selfUpdate=True)
+        pagesframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connected user',_class='pbl_roundedGroupLabel')
         pagesframe.dataController("""
             var result = new gnr.GnrBag();
             if(current_page_id && data && data.len()){
@@ -104,31 +160,16 @@ class GnrCustomWebPage(object):
                 result.setItem('sqlc',null,sqlc);
                 result.setItem('sqlt',null,sqlt);
             }
-            SET upc_filtered.data.current_page_profile = result;
-            """,current_page_id='^.grid.selectedId',data='^upc_filtered.data.pages',_if='current_page_id')
+            SET current_site.data.current_page_profile = result;
+            """,current_page_id='^.grid.selectedId',data='^current_site.data.pages',_if='current_page_id')
         
         profileframe = profilepane.frameGrid(frameCode='currentProfile',struct=self._profile_grid_struct,
                         datapath='.currentProfile',
                         pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
-        profileframe.grid.bagStore(storepath='upc_filtered.data.profile',storeType='AttributesBagRows',
+        profileframe.grid.bagStore(storepath='current_site.data.profile',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
-                                data='^upc_filtered.data.current_page_profile',selfUpdate=True)
-        
+                                data='^current_site.data.current_page_profile',selfUpdate=True)
         profileframe.top.slotBar('2,vtitle,*',vtitle='!!Rpc details',_class='pbl_roundedGroupLabel')
-
-
-        connectionframe = sc.contentPane(title='Connections').frameGrid(frameCode='currentConnections',struct=self._connection_grid_struct,
-                        datapath='.currentConnections',
-                        title='Connections',pbl_classes=True,margin='2px',_class='pbl_roundedGroup')
-        connectionframe.grid.data('.sorted','age:d')
-        connectionframe.grid.bagStore(storepath='upc_filtered.data.connections',storeType='AttributesBagRows',
-                                sortedBy='=.grid.sorted',
-                                data='^upc_filtered.data.loaded_connections',selfUpdate=True)
-        bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
-
-
-    def ucp_global(self,bc):
-        pass
 
     def sitesFrame(self,bc):
         frame = bc.frameGrid(frameCode='runningSites',region='left',datapath='runningSites',
@@ -138,7 +179,7 @@ class GnrCustomWebPage(object):
         frame.grid.bagStore(storepath='runningSites.store',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^runningSites.loaded_data',selfUpdate=True)
-        bc.dataRpc('runningSites.loaded_data',self.runningSites,_timing=5,_onStart=True)
+        bc.dataRpc('runningSites.loaded_data',self.runningSites,_onStart=True)
         bc.dataRpc('dummy',self.daemonCommands,command='^runningSites.command',sitename='=main.sitename')
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
@@ -158,6 +199,7 @@ class GnrCustomWebPage(object):
             register_proxy = Pyro4.Proxy(selected_uri)
 
             return self.maintenance_update_data(register_proxy)
+        return Bag()
 
 
     def _page_grid_struct(self, struct):
@@ -180,6 +222,21 @@ class GnrCustomWebPage(object):
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
 
+    def _page_filtered_grid_struct(self, struct):
+        r = struct.view().rows()
+        r.cell('register_item_id', width='14em', name='Page id',hidden=True)
+        #r.cell('start_ts', width='11em', name='Start', dtype='DH')
+        r.cell('pagename', width='8em', name='Pagename')
+        r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
+        r.cell('last_refresh_age', width='6em', dtype='L', name='last refresh',format='DHMS')
+        r.cell('last_rpc_age', width='6em', dtype='L', name='last rpc',format='DHMS')
+
+        r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        
+        r.cell('page_profile',width='9em',name='Page profile')
+        
+        r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
+
     def _profile_grid_struct(self, struct):
         r = struct.view().rows()
         r.cell('rheader',width='6em',name=' ')
@@ -197,6 +254,17 @@ class GnrCustomWebPage(object):
         r.cell('last_rpc_age', width='4em', dtype='L', name='L. Rpc',format='DHMS')
 
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
+        r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
+        r.cell('browser_name',dtype='T',name='Browser')
+
+
+    def _connection_filtered_grid_struct(self, struct):
+        r = struct.view().rows()
+        r.cell('register_item_id', width='14em', name='Connection id')
+        r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
+        r.cell('last_refresh_age', width='7em', dtype='L', name='L. refresh',format='DHMS')
+        r.cell('last_rpc_age', width='7em', dtype='L', name='L. Rpc',format='DHMS')
+        r.cell('last_event_age', width='8em', dtype='L', name='Last Act.',format='DHMS')
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
         r.cell('browser_name',dtype='T',name='Browser')
 
@@ -227,10 +295,10 @@ class GnrCustomWebPage(object):
             _customClasses = []
             item['_pkey'] = key
             item['alive'] = True
+            item['age'] = (now - item.get('start_ts')).seconds
             item['last_refresh_age'] = (now - item.get('last_refresh_ts',item['start_ts'])).seconds
             item['last_event_age'] = (now - item.get('last_user_ts',item['start_ts'])).seconds
             item['last_rpc_age'] = (now - item.get('last_rpc_ts',item['start_ts'])).seconds
-
             if item['last_refresh_age'] > 60:
                 item['alive'] = False
                 _customClasses.append('disconnected')
@@ -281,7 +349,6 @@ class GnrCustomWebPage(object):
 
     def connected_users_struct(self,struct):
         r = struct.view().rows()
-        r.cell('_checked',userSets=True,name=' ')
         r.cell('user', width='6em', name='User')
         r.cell('age', width='8em', dtype='L', name='Conn.Time',format='DHMS')
         r.cell('last_refresh_age', width='6em', dtype='L', name='last refresh',format='DHMS')
