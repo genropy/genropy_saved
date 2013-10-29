@@ -1186,7 +1186,7 @@ class GnrWsgiSite(object):
         response.content_type = "text/xml"
         result = self.register.handle_ping(page_id=page_id,reason=reason,**kwargs)
         if result is False:
-            self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
+            return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
         else:
             return result.toXml(unresolved=True, omitUnknownTypes=True)
                                   
