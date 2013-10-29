@@ -461,7 +461,7 @@ class PageRegister(BaseRegister):
                     attr = changeNode.attr
                     self.set_datachange(page_id,path=attr.pop('_client_path'),value=changeNode.value,attributes=attr, fired=attr.pop('fired', None))
             else:
-                self.set_datachange(page_id,value,reason=reason, attributes=attributes, fired=fired)
+                self.set_datachange(page_id,path=path,value=value,reason=reason, attributes=attributes, fired=fired)
 
 class SiteRegister(object):
     def __init__(self,server,sitename=None,storage_path=None):
@@ -647,6 +647,7 @@ class SiteRegister(object):
         page_item_data = self.page_register.get_item_data(page_id)
         user_subscriptions = page_item_data.getItem('_subscriptions.user')
         if not user_subscriptions:
+            print 'external_datachanges',external_datachanges
             return external_datachanges
         store_datachanges = []
         datachanges = self.user_register.get_datachanges(user)

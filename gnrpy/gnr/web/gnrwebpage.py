@@ -113,7 +113,6 @@ class GnrWebPage(GnrBaseWebPage):
         self._environ = environ
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
-        self.local_datachanges = list()
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
         self.packageId = packageId
@@ -689,7 +688,8 @@ class GnrWebPage(GnrBaseWebPage):
         self._publish_event('onCollectDatachanges')
         store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id)
         result = Bag()
-        for j, change in enumerate(self.local_datachanges + store_datachanges):
+        print 'store_datachanges',store_datachanges
+        for j, change in enumerate(store_datachanges):
             result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
                            change_ts=change.change_ts, change_delete=change.delete)
@@ -945,7 +945,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                                           exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
         
-    def get_bodyclasses(self):   #  ancora necessario _common_d11?
+    def get_bodyclasses(self):   #  is still necessary _common_d11?
         """TODO"""
         return '%s _common_d11 pkg_%s page_%s %s' % (
         self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
@@ -1019,12 +1019,6 @@ class GnrWebPage(GnrBaseWebPage):
         :param client_path: TODO
         :param active: boolean. TODO"""
         self.site.register.setStoreSubscription(page_id=self.page_id,storename=storename, client_path=client_path, active=active)
-            
-    def clientPage(self, page_id=None):
-        """TODO
-        
-        :param page_id: the id of the page"""
-        return ClientPageHandler(self, page_id or self.page_id)
         
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
@@ -1051,14 +1045,6 @@ class GnrWebPage(GnrBaseWebPage):
             return self._parentdirpath
             
     parentdirpath = property(_get_parentdirpath)
-        
-#    @property
-#    def subscribedTablesDict(self):
-#        """Return a dict of subscribed tables. Every element is a list
-#           of *page_id*\'s that subscribe that page"""
-#        if not hasattr(self, '_subscribedTablesDict'):
-#            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
-#        return self._subscribedTablesDict
         
     @property
     def application(self):
@@ -1452,37 +1438,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
 
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
-                        fired=False, reason=None, public=False, replace=False):
-        """TODO
-        
-        :param path: TODO
-        :param value: TODO
-        :param attributes: TODO
-        :param page_id: TODO
-        :param filters: TODO
-        :param fired: TODO
-        :param reason: TODO
-        :param public: TODO
-        :param replace: TODO"""
-        if filters:
-            pages = self.site.register.pages(filters=filters)
-        else:
-            pages = [page_id]
-        for page_id in pages:
-            if not public and (page_id is None or page_id == self.page_id):
-                if isinstance(path, Bag):
-                    changeBag = path
-                    for changeNode in changeBag:
-                        attr = changeNode.attr
-                        datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
-                                                      attributes=attr, fired=attr.pop('fired', None))
-                        self.local_datachanges.append(datachange)
-                else:
-                    datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
-                    self.local_datachanges.append(datachange)
-            else:
-                with self.clientPage(page_id=page_id) as clientPage:
-                    clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
+                        fired=False, reason=None, replace=False,public=None):
+        if public is not None:
+            print 'public in setInClientData is not more necessary remove it'
+        self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,register_name='page')
+
           
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
@@ -1844,18 +1805,6 @@ class GnrWebPage(GnrBaseWebPage):
                                           **kwargs)
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
         return result
-        
-    def rpc_setInClientPage(self, pageId=None, changepath=None, value=None, fired=None, attr=None, reason=None):
-        """TODO
-        
-        :param pageId: TODO. 
-        :param changepath: TODO. 
-        :param value: TODO. 
-        :param fired: TODO. 
-        :param attr: TODO. 
-        :param reason: TODO. """
-        with self.clientPage(pageId) as clientPage:
-            clientPage.set(changepath, value, attr=attr, reason=reason, fired=fired)
             
     def getAuxInstance(self, name):
         """TODO"""
@@ -2149,44 +2098,6 @@ class GnrGenshiPage(GnrWebPage):
         
     def genshi_template(self):
         """TODO"""
-        pass
-        
-class ClientPageHandler(object):
-    """proxi to make actions on a client page"""
-    def __init__(self, parent_page, page_id=None):
-        self.parent_page = parent_page
-        self.page_id = page_id or parent_page.page_id
-        self.pageStore = self.parent_page.pageStore(page_id=self.page_id)
-        self.store = None
-        
-    def set(self, path, value, attributes=None, fired=None, reason=None, replace=False):
-        """TODO"""
-        self.store.set_datachange(path, value, attributes=attributes, fired=fired, reason=reason, replace=replace)
-        
-    def __enter__(self):
-        self.store = self.pageStore.__enter__()
-        return self
-        
-    def __exit__(self, type, value, tb):
-        self.pageStore.__exit__(type, value, tb)
-        
-    def jsexec(self, path, value, **kwargs):
-        """TODO"""
-        pass
-        
-    def copyData(self, srcpath, dstpath=None, page_id=None):
-        """TODO
-        
-        :param srcpath: TODO
-        :param dstpath: TODO
-        :param page_id: TODO
-        
-        Let's see some examples::
-        
-            self.clientPage(page_id="nknnn").copyData('foo.bar','spam.egg') # copy on MY page
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx') # copy on the xxxxxx page
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',pageStore=True) # copy on my pageStore
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx' ,pageStore=True) # copy on the pageStore of the xxxx page"""
         pass
         
 class ClientDataChange(object):
