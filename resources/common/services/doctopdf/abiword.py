@@ -15,7 +15,6 @@ class Main(GnrBaseService):
         self.parent = parent
 
     def convert(self,path):
-        print ddddokok
         result = call(['abiword', '--to=pdf',path])
         if result !=0:
             return None
