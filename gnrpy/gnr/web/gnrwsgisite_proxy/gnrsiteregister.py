@@ -647,7 +647,6 @@ class SiteRegister(object):
         page_item_data = self.page_register.get_item_data(page_id)
         user_subscriptions = page_item_data.getItem('_subscriptions.user')
         if not user_subscriptions:
-            print 'external_datachanges',external_datachanges
             return external_datachanges
         store_datachanges = []
         datachanges = self.user_register.get_datachanges(user)

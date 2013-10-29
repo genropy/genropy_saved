@@ -1089,20 +1089,7 @@ class GnrWsgiSite(object):
             page = self.currentPage
             self.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
             self.db.updateEnv(env_transaction_id= None,dbevents=None)
-        
-    def sendMessageToClient(self, value, pageId=None, filters=None, origin=None, msg_path=None):
-        """Send a message
-        
-        :param value: TODO
-        :param pageId: TODO
-        :param filters: TODO
-        :param origin: TODO
-        :param msg_path: TODO"""
-        from_page, from_user = (origin.page_id, origin.user) if origin else (None, '*Server*')
-        self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
-                                         page_id=pageId, filters=filters,
-                                         attributes=dict(from_user=from_user, from_page=from_page))
-                                         
+                                 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())

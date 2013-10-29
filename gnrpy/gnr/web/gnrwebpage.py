@@ -129,6 +129,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.response.add_header('Pragma', 'no-cache')
         self._htmlHeaders = []
         self._pendingContext = []
+        self.local_datachanges = []
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
@@ -688,8 +689,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._publish_event('onCollectDatachanges')
         store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id)
         result = Bag()
-        print 'store_datachanges',store_datachanges
-        for j, change in enumerate(store_datachanges):
+        for j, change in enumerate(self.local_datachanges+store_datachanges):
             result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
                            change_ts=change.change_ts, change_delete=change.delete)
@@ -1439,21 +1439,26 @@ class GnrWebPage(GnrBaseWebPage):
 
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
-        if public is not None:
-            print 'public in setInClientData is not more necessary remove it'
-        self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+        if public or filters or page_id:
+            self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
                         fired=fired, reason=reason, replace=replace,register_name='page')
-
-          
+        elif isinstance(path, Bag):
+            changeBag = path
+            for changeNode in changeBag:
+                attr = changeNode.attr
+                datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
+                    attributes=attr, fired=attr.pop('fired', None))
+                self.local_datachanges.append(datachange)
+        else:
+            datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
+            self.local_datachanges.append(datachange)
+            
     @public_method          
     def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
-        """TODO
-        
-        :param message: TODO
-        :param page_id: TODO
-        :param filters: TODO
-        :param msg_path: TODO"""
-        self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
+        self.setInClientData(msg_path or 'gnr.servermsg', message,
+                                         page_id=pageId, filters=filters,
+                                         attributes=dict(from_user=self.user, from_page=self.page_id))
+
         
     def _get_package_folder(self):
         if not hasattr(self, '_package_folder'):
