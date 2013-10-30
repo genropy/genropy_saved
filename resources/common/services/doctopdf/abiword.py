@@ -18,6 +18,7 @@ class Main(GnrBaseService):
         if not dest_path:
             dirname, basename = os.path.split(src_path)
             dest_dir = os.path.join(dirname, 'converted_pdf')
+            print dest_dir
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
             dest_name = '%s.pdf'%os.path.splitext(basename)[0]
