@@ -16,7 +16,12 @@ class Main(GnrBaseService):
 
     def convert(self,src_path, dest_path=None):
         if not dest_path:
-            dest_path = '%s.pdf'%os.path.splitext(src_path)[0]
+            dirname, basename = os.path.split(src_path)
+            dest_dir = os.path.join(dirname, 'converted_pdf')
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir)
+            dest_name = '%s.pdf'%os.path.splitext(basename)[0]
+            dest_path = os.path.join(dest_dir, dest_name)
         name,ext = os.path.splitext(dest_path)
         counter = 0
         while os.path.exists(dest_path):
