@@ -14,10 +14,16 @@ class Main(GnrBaseService):
     def __init__(self, parent=None):
         self.parent = parent
 
-    def convert(self,path):
-        result = call(['abiword', '--to=pdf',path])
+    def convert(self,src_path, dest_path=None):
+        if not dest_path:
+            dest_path = '%s.pdf'%os.path.splitext(src_path)[0]
+        name,ext = os.path.splitext(dest_path)
+        counter = 0
+        while os.path.exists(dest_path):
+            dest_path = '%s_%i%s'%(name,counter,ext)
+            counter +=1
+        call_list = ['abiword', '--to=pdf','-o %s'%dest_path, src_path]
+        result = call(call_list)
         if result !=0:
             return None
-        name,ext = os.path.splitext(path)
-
-        return '%s.pdf' %name
+        return dest_path
