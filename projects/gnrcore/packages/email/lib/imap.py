@@ -156,7 +156,7 @@ class ImapReceiver(object):
             filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
                                                        autocreate=-1)
         else:
-            filepath = os.path.join(['mail', self.account_id, year,month,message_id, filename])
+            filepath = os.path.join('mail', self.account_id, year,month,message_id, filename)
         fname,ext = os.path.splitext(filepath)
         counter = 0
         while os.path.isfile(filepath):
