@@ -28,9 +28,13 @@ class Main(GnrBaseService):
         while os.path.exists(dest_path):
             dest_path = '%s_%i%s'%(name,counter,ext)
             counter +=1
-        call_list = ['abiword', '--to=pdf', os.path.abspath(src_path), '-o', os.path.abspath(dest_path)]
+        return_path = dest_path
+        if not os.path.isabs(src_path):
+            src_path = self.site.getStaticPath('site:%s'%src_path, autocreate=-1)
+            dest_path = self.site.getStaticPath('site:%s'%dest_path, autocreate=-1)
+        call_list = ['abiword', '--to=pdf', src_path, '-o', dest_path]
         print call_list
         result = call(call_list)
         if result !=0:
             return None
-        return dest_path
+        return return_path
