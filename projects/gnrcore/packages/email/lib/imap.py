@@ -148,7 +148,7 @@ class ImapReceiver(object):
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
-    def getAttachmentPath(self,date=date,filename=filename, message_id = message_id):
+    def getAttachmentPath(self,date=None,filename=None, message_id = None):
         year = str(date.year)
         month = '%02i' %date.month
         filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
