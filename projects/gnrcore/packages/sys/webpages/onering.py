@@ -25,7 +25,9 @@ class GnrCustomWebPage(object):
     def sitesStruct(self,struct):
         r = struct.view().rows()
         r.cell('sitename', width='10em',name='Site name')
-        r.cell('uri',width='20em',name='Site uri')
+        r.cell('register_uri',width='20em',name='Register uri')
+        r.cell('server_uri',width='20em',name='Server uri')
+
         r.cell('start_ts',width='10em',name='Started',dtype='DH')
 
     def main(self, root, **kwargs):
@@ -42,7 +44,7 @@ class GnrCustomWebPage(object):
             _onResult="""SET current_site.data.loaded_users = result.popNode("users");
                          SET current_site.data.loaded_connections = result.popNode("connections");
                          SET current_site.data.loaded_pages = result.popNode("pages");""",_timing=3,
-            sysrpc=True,selected_uri='^main.uri')
+            sysrpc=True,selected_register_uri='^main.register_uri')
         frame.css('.disconnected .dojoxGrid-cell', "color:red !important;")
         frame.css('.inactive .dojoxGrid-cell', "color:orange !important;")
         frame.css('.no_children .dojoxGrid-cell', "color:yellow !important;")
@@ -65,7 +67,7 @@ class GnrCustomWebPage(object):
         userframe.grid.bagStore(storepath='current_site.data.user',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^current_site.data.loaded_users',selfUpdate=True)
-        userframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='',_class='pbl_roundedGroupLabel')
+        userframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='User',_class='pbl_roundedGroupLabel')
         userframe.grid.dataController("""var filteredConnection = allconnections.deepCopy()
             var cnodes = filteredConnection.getNodes();
             var n;
@@ -175,7 +177,8 @@ class GnrCustomWebPage(object):
         frame = bc.frameGrid(frameCode='runningSites',region='left',datapath='runningSites',
                     width='450px',
                    struct=self.sitesStruct,_class='pbl_roundedGroup',
-                   grid_selected_sitename='main.sitename',grid_selected_uri='main.uri',margin='2px')
+                   grid_selected_sitename='main.sitename',grid_selected_register_uri='main.register_uri',
+                   grid_selected_server_uri='main.server_uri',margin='2px')
         frame.grid.bagStore(storepath='runningSites.store',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^runningSites.loaded_data',selfUpdate=True)
@@ -187,17 +190,19 @@ class GnrCustomWebPage(object):
         top = bc.contentPane(region='center',background='silver')
         fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.div('^main.sitename')
-        fb.div('^main.uri')
-        fb.button('dump current',fire_dump='runningSites.command')
+        fb.div('^main.register_uri')
+        fb.div('^main.server_uri')
+
+        #fb.button('dump current',fire_dump='runningSites.command')
         fb.button('stop current',fire_stop='runningSites.command')
-        fb.button('load current',fire_load='runningSites.command')
+        #fb.button('load current',fire_load='runningSites.command')
+        fb.button('Restart current',fire_restart='runningSites.command')
+        fb.button('Restart All',fire_restart_all='runningSites.command')
 
     @public_method
-    def loadSelectedSiteSituation(self,selected_uri=None):
-        if selected_uri:
-            selected_uri = selected_uri.replace(':SiteRegisterServer@',':SiteRegister@')
-            register_proxy = Pyro4.Proxy(selected_uri)
-
+    def loadSelectedSiteSituation(self,selected_register_uri=None):
+        if selected_register_uri:
+            register_proxy = Pyro4.Proxy(selected_register_uri)
             return self.maintenance_update_data(register_proxy)
         return Bag()
 

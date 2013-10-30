@@ -18,11 +18,11 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
-def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,storage_path=None,debug=None):
+def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,storage_path=None,debug=None,autorestore=False):
     print 'creating'
     server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,storage_path=storage_path,debug=debug)
     print 'starting'
-    server.start(host=host,hmac_key=hmac_key,port='*')
+    server.start(host=host,hmac_key=hmac_key,port='*',autorestore=autorestore)
 
 class GnrDaemonProxy(object):
     def __init__(self,host=None,port=None,hmac_key=None,compression=False):
@@ -70,54 +70,81 @@ class GnrDaemon(object):
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
     
-    def registerSiteName(self,sitename,site_uri):
-        self.siteregisters[sitename]['uri'] = site_uri
-        print 'registered ',sitename,site_uri
+    def onRegisterStart(self,sitename,server_uri=None,register_uri=None):
+        self.siteregisters[sitename]['server_uri'] = server_uri
+        self.siteregisters[sitename]['register_uri'] = register_uri
+
+        print 'registered ',sitename,server_uri
+
+    def onRegisterStop(self,sitename=None):
+        print 'onRegisterStop',sitename
+        self.siteregisters.pop(sitename,None)
+        self.siteregisters_process.pop(sitename,None)
         
-    def ping(self):
+    def ping(self,**kwargs):
         return 'ping'
     
-    def getSiteUri(self,sitename=None,create=False,storage_path=None):
-        if sitename in self.siteregisters and self.siteregisters[sitename]['uri']:
-            return self.siteregisters[sitename]['uri']
+    def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,**kwargs):
+        if sitename in self.siteregisters and self.siteregisters[sitename]['server_uri']:
+            return self.siteregisters[sitename]
         elif create:
-            self.addSiteRegister(sitename,storage_path=storage_path)
-            return False
+            self.addSiteRegister(sitename,storage_path=storage_path,autorestore=autorestore)
+            return dict()
         
-    def stop(self,saveStatus=True):
+    def stop(self,saveStatus=False,**kwargs):
         self.siteregister_stop('*',saveStatus=saveStatus)
         self.running = False
+
+    def restart(self,**kwargs):
+        self.stop(saveStatus=True)
+
     
-    def addSiteRegister(self,sitename,storage_path=None):
+    def addSiteRegister(self,sitename,storage_path=None,autorestore=False):
         if not sitename in self.siteregisters:
             print 'adding sitename',sitename
-            childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key,storage_path=storage_path))
-            self.siteregisters[sitename] = dict(sitename=sitename,uri=False,start_ts=datetime.now())
+            process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key,
+                                    storage_path=storage_path,autorestore=autorestore)
+            childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
+            self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,register_uri=False,start_ts=datetime.now())
             self.siteregisters_process[sitename] = childprocess
             childprocess.daemon = True
             childprocess.start()
         else:
             print 'ALREADY EXISTING ',sitename
 
-    def siteRegisters(self):
+    def siteRegisters(self,**kwargs):
         return self.siteregisters.items()
         
-    def siteregister_dump(self,sitename):
-        uri = self.siteregisters[sitename]['uri']
-        return Pyro4.Proxy(uri).dump()
+    def siteregister_dump(self,sitename=None,**kwargs):
+        uri = self.siteregisters[sitename]['register_uri']
+        with Pyro4.Proxy(uri) as proxy:
+            return proxy.dump()
         
 
-    def siteregister_load(self,sitename):
-        uri = self.siteregisters[sitename]['uri']
-        return Pyro4.Proxy(uri).load()
-        
-    def siteregister_stop(self,sitename,saveStatus=False):
+    #def siteregister_load(self,sitename,**kwargs):
+    #    uri = self.siteregisters[sitename]['uri']
+    #    return Pyro4.Proxy(uri).load()
+    #    
+
+    def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
+        result = None
         if sitename=='*':
             for k in self.siteregisters:
                 self.siteregister_stop(k,saveStatus=saveStatus)
             return
-        uri = self.siteregisters[sitename]['uri']
-        return Pyro4.Proxy(uri).stop(saveStatus=saveStatus)
+        uri = self.siteregisters[sitename]['server_uri']
+        print 'before proxing',uri
+        with Pyro4.Proxy(uri) as proxy:
+            print 'before stop',saveStatus
+            result = proxy.stop(saveStatus=saveStatus)
+
+            print 'stopped',proxy
+        self.onRegisterStop(sitename)
+        return result
+
+    def siteregister_restart(self,sitename=None,**kwargs):
+        self.siteregister_stop(sitename,True)
+
         
         
 def getOptions():
@@ -154,6 +181,9 @@ def getOptions():
                       action='store_true',
                       help="Save status")
 
+    parser.add_argument('-n', '--sitename',
+                      help="Sitename")
+
     arguments= parser.parse_args()
     return arguments.__dict__
     
@@ -177,8 +207,14 @@ if __name__=="__main__":
             print 'savestatus',options.get('savestatus')
             result = proxy.stop(saveStatus=options.get('savestatus'))   
             print result
+        elif command =='restart':
+            result = proxy.restart('*')
         elif command in ('stopping','starting'):
             result = getattr(proxy,command)()
             print result
         else:
-            print 'unknown command:%s' %command
+            h = getattr(proxy,command,None)
+            if h:
+                print h(**options)
+            else:
+                print 'unknown command:%s' %command

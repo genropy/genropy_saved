@@ -333,7 +333,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
-        self.register = SiteRegisterClient(self)
+        self._register = None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -346,14 +346,11 @@ class GnrWsgiSite(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
-
-    #def addSiteServices(self):
-    #    """TODO"""
-    #    service_names=[]
-    #    if 'services' in self.config:
-    #        service_names=self.config['services'].digest('#k')
-    #    if service_names:
-    #        self.services.addSiteServices(service_names=service_names)
+    @property
+    def register(self):
+        if not self._register:
+            self._register = SiteRegisterClient(self)
+        return self._register
 
     @property
     def isInMaintenance(self):
@@ -631,7 +628,8 @@ class GnrWsgiSite(object):
             try:
                 return self._dispatcher(environ, start_response)
             except self.register.errors.ConnectionClosedError:
-                self.status = 'Register:ConnectionClosedError'
+                #self.status = 'Register:ConnectionClosedError'
+                self._register = None
                 return self.maintenanceDispatcher(environ, start_response)
 
     def maintenanceDispatcher(self,environ, start_response):

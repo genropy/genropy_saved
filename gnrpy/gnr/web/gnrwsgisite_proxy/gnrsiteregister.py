@@ -761,10 +761,14 @@ class SiteRegister(object):
                 self.user_register.load(storagefile)
                 self.connection_register.load(storagefile)
                 self.page_register.load(storagefile)
-                return True
+            loadedpath = self.storage_path.replace('.pik','_loaded.pik')
+            if os.path.exists(loadedpath):
+                os.remove(loadedpath)
+            os.rename(self.storage_path,loadedpath)
+            return True
         except EOFError:
             return False
-        os.remove(self.storage_path)
+
 
     def __getattr__(self, fname):
         if fname=='_pyroId':
@@ -787,6 +791,7 @@ class SiteRegisterClient(object):
     def __init__(self,site):
         self.site = site
         self.siteregisterserver_uri = None
+        self.siteregister_uri = None
         self.storage_path = os.path.join(self.site.site_path, self.STORAGE_PATH)
         self.errors = Pyro4.errors
 
@@ -795,24 +800,39 @@ class SiteRegisterClient(object):
         Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
+        
         with self.gnrdaemon_proxy as daemonProxy:
-            try:
-                daemonProxy.ping()
-            except Pyro4.errors.CommunicationError:
+            if not self.runningDaemon(daemonProxy):
                 raise Exception('GnrDaemon is not started')
             t_start = time.time()
-            while not self.checkSiteRegisterServerUri(daemonProxy) and (time.time()-t_start)<10:
+            while not self.checkSiteRegisterServerUri(daemonProxy) and (time.time()-t_start)<2:
                 pass
-        self.siteregister_uri =self.siteregisterserver_uri.replace(':SiteRegisterServer@',':SiteRegister@')
+        print 'creating proxy',self.siteregister_uri,self.siteregisterserver_uri
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         self.remotebag_uri =self.siteregister_uri.replace(':SiteRegister@',':RemoteData@')
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
 
+
     def checkSiteRegisterServerUri(self,daemonProxy):
         if not self.siteregisterserver_uri:
-            self.siteregisterserver_uri = daemonProxy.getSiteUri(self.site.site_name,create=True,storage_path=self.storage_path)
-            time.sleep(1)
+            info = daemonProxy.getSite(self.site.site_name,create=True,storage_path=self.storage_path,autorestore=True)
+            self.siteregisterserver_uri = info.get('server_uri',False)
+            if not self.siteregisterserver_uri:
+                time.sleep(1)
+            else:
+                self.siteregister_uri = info['register_uri']
         return self.siteregisterserver_uri
+
+    def runningDaemon(self,daemonProxy):
+        t_start = time.time()
+        while (time.time()-t_start)<2:
+            try:
+                daemonProxy.ping()
+                return True
+            except Pyro4.errors.CommunicationError:
+                pass
+        return False
+
 
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
@@ -927,22 +947,21 @@ class GnrSiteRegisterServer(object):
     def running(self):
         return self._running
 
-    def run(self,loadStatus=False):
+    def run(self,autorestore=False):
         self._running = True
-        if loadStatus:
+        if autorestore:
             self.siteregister.load()
         self.daemon.requestLoop(self.running)
 
     def stop(self,saveStatus=False):
-        print 'stopping'
+        print 'stopping',saveStatus
         if saveStatus:
             print 'SAVING STATUS',self.storage_path
             self.siteregister.dump()
             print 'SAVED STATUS STATUS'
-
         self._running = False
 
-    def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None):
+    def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None,autorestore=False):
         pyrokw = dict(host=host)
         if port != '*':
             pyrokw['port'] = int(port or PYRO_PORT)
@@ -961,12 +980,15 @@ class GnrSiteRegisterServer(object):
             Pyro4.config.POLLTIMEOUT = timeout
         self.daemon = Pyro4.Daemon(**pyrokw)
         self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
+        autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
+        print 'autorestore',autorestore,os.path.exists(self.storage_path)
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
         print "uri=",self.main_uri
         if self.gnr_daemon_uri:
-            Pyro4.Proxy(self.gnr_daemon_uri).registerSiteName(self.sitename,str(self.main_uri))
-        self.run()
+            with Pyro4.Proxy(self.gnr_daemon_uri) as proxy:
+                proxy.onRegisterStart(self.sitename,str(self.main_uri),str(self.register_uri))
+        self.run(autorestore=autorestore)
 
 ########################################### SERVER STORE #######################################
 

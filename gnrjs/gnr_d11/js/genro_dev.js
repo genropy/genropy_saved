@@ -79,8 +79,28 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
     siteErrorStatus:function(siteError){
-        console.error('Site error:'+siteError)
-        //genro.dlg.alert('Site error',siteError);
+        this.siteLockedStatus(true);
+        var that = this;
+        setTimeout(function(){
+            that.siteLockedStatus(false);
+        },5000)
+    },
+
+    siteLockedStatus:function(set){
+        console.log('setting lockedstatus')
+        var maingenro = genro.mainGenroWindow.genro;
+        var sn = maingenro.nodeById('_gnrRoot');
+        if(set){
+            if(!maingenro.site_locked){
+                maingenro.site_locked = true;
+                maingenro.polling_enabled = false;
+                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
+            }
+        }else{
+            maingenro.site_locked = false;
+            maingenro.polling_enabled = true;
+            sn.setHiderLayer(false);
+        }
     },
 
     debugMessage: function(msg, level, duration) {
@@ -100,7 +120,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return;
         }
         else if (status == 412) {
-            genro.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
+            var mainGenroWindow = genro.mainGenroWindow.genro;
+            mainGenroWindow.polling_enabled = false;
+            mainGenroWindow.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
         } else if (status == 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');

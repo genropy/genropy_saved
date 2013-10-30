@@ -619,8 +619,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 genro.callAfter(function(){
                     genro.dom.removeClass(dojo.body(),'ping_start');
                 },1000);
-                
                 genro.rpc.setPollingStatus(false);
+               
                 return result;
             }),
             'error': dojo.hitch(this, function(response, ioArgs) {

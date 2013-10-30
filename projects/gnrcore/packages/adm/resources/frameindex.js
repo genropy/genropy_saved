@@ -150,7 +150,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             genro.callAfter(function(){
                 n.attr.hasBeenCreated = true;
             },1);
-            genro.callAfter(cb,700,this,'creating')
+            genro.callAfter(cb,500,this,'creating')
         }else{
             cb();
         }
