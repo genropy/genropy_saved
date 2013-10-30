@@ -136,7 +136,8 @@ class ImapReceiver(object):
         #month = '%02i' %date.month
 
         #new_attachment['path'] = os.path.join('mail',self.account_id, year,month,new_mail['id'], filename)
-        new_attachment['path'] = attachment_path
+        new_attachment['path'] = self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'],
+                        relative=True)
         
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
@@ -148,12 +149,14 @@ class ImapReceiver(object):
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
-    def getAttachmentPath(self,date=None,filename=None, message_id = None):
+    def getAttachmentPath(self,date=None,filename=None, message_id = None, relative=None):
         year = str(date.year)
         month = '%02i' %date.month
-        filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
+        if not relative:
+            filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
                                                        autocreate=-1)
-        
+        else:
+            filepath = os.path.join(['mail', self.account_id, year,month,message_id, filename])
         fname,ext = os.path.splitext(filepath)
         counter = 0
         while os.path.isfile(filepath):
