@@ -738,7 +738,7 @@ class AttachmentTable(GnrDboTable):
         if os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
             pdf_staticpath = docConverter.convert(site.getStaticPath('site:%s' % attachment['filepath']))
             pdf_record = dict(filepath=pdf_staticpath,
-                        mimetype=attachment['mime_type'],
+                        mimetype=attachment['mimetype'],
                         description=os.path.basename(pdf_staticpath),
                         maintable_id=attachment['maintable_id'])
             self.insert(pdf_record)
