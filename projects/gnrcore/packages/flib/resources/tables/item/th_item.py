@@ -95,12 +95,13 @@ class Form(BaseComponent):
         pane = form.record
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',
                               margin_top='1em')
-        fb.field('title', lbl='!!Title')
-        fb.field('description', lbl='!!Description')
-        fb.field('url', lbl='!!Url')
-        fb.field('path', lbl='!!Path')
-        fb.field('thumb_url', lbl='!!Url')
-        fb.field('thumb_path', lbl='!!Path')
-        fb.field('file_type', lbl='!!File type')
-        fb.field('ext', lbl='!!Extension')
-        fb.field('username', lbl='!!User')
+        width='60em'
+        fb.field('title', lbl='!!Title', width=width)
+        fb.field('description', lbl='!!Description', width=width)
+        fb.field('url', lbl='!!Url', width=width)
+        fb.field('path', lbl='!!Path', width=width)
+        fb.field('thumb_url', lbl='!!Url', width=width)
+        fb.field('thumb_path', lbl='!!Path', width=width)
+        fb.field('file_type', lbl='!!File type', width=width)
+        fb.field('ext', lbl='!!Extension', width=width)
+        fb.field('username', lbl='!!User', width=width)
