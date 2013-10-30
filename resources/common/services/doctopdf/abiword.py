@@ -28,7 +28,7 @@ class Main(GnrBaseService):
         while os.path.exists(dest_path):
             dest_path = '%s_%i%s'%(name,counter,ext)
             counter +=1
-        call_list = ['abiword', '--to=pdf', src_path, '-o', dest_path]
+        call_list = ['abiword', '--to=pdf', os.path.abspath(src_path), '-o', os.path.abspath(dest_path)]
         print call_list
         result = call(call_list)
         if result !=0:
