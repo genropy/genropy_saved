@@ -30,8 +30,8 @@ class Main(GnrBaseService):
             counter +=1
         return_path = dest_path
         if not os.path.isabs(src_path):
-            src_path = self.site.getStaticPath('site:%s'%src_path, autocreate=-1)
-            dest_path = self.site.getStaticPath('site:%s'%dest_path, autocreate=-1)
+            src_path = self.parent.getStaticPath('site:%s'%src_path, autocreate=-1)
+            dest_path = self.parent.getStaticPath('site:%s'%dest_path, autocreate=-1)
         call_list = ['abiword', '--to=pdf', src_path, '-o', dest_path]
         print call_list
         result = call(call_list)
