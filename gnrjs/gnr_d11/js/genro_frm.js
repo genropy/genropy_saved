@@ -840,7 +840,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var savedPkey = result.savedPkey;
         this.setCurrentPkey(savedPkey);
         var data = this.getFormData();
-        data.walk(function(n){ delete n.attr._loadedValue},'static');
+        var sentData = objectPop(result,'_sent_data');
+        var sentRecord = sentData.pop('record');
+        sentRecord.walk(function(n){
+            var currN = data.getNode(n.label);
+            if(currN._value==n._value){
+                delete currN.attr._loadedValue;
+            }else{
+                currN.attr._loadedValue = n._value;
+            }
+        },'static');
         var savedAttr = result.savedAttr;
         if(savedAttr){
             if(savedAttr.lastTS){
@@ -1599,6 +1608,9 @@ dojo.declare("gnr.GnrValidator", null, {
     },
     
     validate_remote: function(param, value, sourceNode, parameters) {
+        if(value==null){
+            return;
+        }
         var rpcresult = genro.rpc.remoteCall(param, objectUpdate({'value':value}, parameters), null, 'POST');
         if(parameters['_onResult']){
             var kw = objectUpdate({},parameters);
@@ -1609,7 +1621,7 @@ dojo.declare("gnr.GnrValidator", null, {
             var result = {};
             result['errorcode'] = rpcresult.getItem('errorcode');
             result['iswarning'] = rpcresult.getItem('iswarning');
-            if (rpcresult.getItem('value')) {
+            if (rpcresult.getNode('value')) {
                 result['value'] = rpcresult.getItem('value');
             }
             var datachanges = rpcresult.getItem('data');
@@ -1955,7 +1967,8 @@ dojo.declare("gnr.formstores.Base", null, {
 
         //kw._autoreload = null;
         var autoreload =kw._autoreload;
-        
+        var data = form.getFormChanges();
+
         var cb = function(result){
             if (result){
                 var resultDict={};
@@ -1976,11 +1989,11 @@ dojo.declare("gnr.formstores.Base", null, {
                     
                 }
             }
+            resultDict._sent_data = data;
             that.saved(resultDict);
             return resultDict;
         };
-        this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
-        var data = form.getFormChanges();
+        this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';        
         var rpckw = objectUpdate({'data':data,'table':this.table,save_kw:originalSaveKw},kw);
         if(onSaving){
             var dosave = funcApply(onSaving,rpckw,this);

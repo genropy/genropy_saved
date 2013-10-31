@@ -1152,6 +1152,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.setAttr(this._original_attributes,true);
             this._original_attributes=null;
         }
+        var autocreate = kw.reason =='autocreate';
         var attr = attr || 'value';
         var path;
         var value = null;
@@ -1297,8 +1298,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     if (trgevt != 'del') {
                         if(this.hasValidations()){
                             var formHandler = this.getFormHandler();
-                            if (formHandler) {
-
+                            if (formHandler && !autocreate) {
                                 formHandler.validateFromDatasource(this, value, trigger_reason);
                             }
                         }

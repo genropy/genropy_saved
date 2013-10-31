@@ -395,13 +395,35 @@ class PageRegister(BaseRegister):
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
 
-    def pages(self,connection_id=None,user=None,include_data=None):
+    def pages(self,connection_id=None,user=None,include_data=None,filters=None):
         pages = self.values(include_data=include_data)
         if connection_id:
             pages = [v for v in pages if v['connection_id'] == connection_id]
         if user:
             pages = [v for v in pages if v['user'] == user]
-        return pages
+        if not filters or filters == '*':
+            return pages
+        fltdict = dict()
+        for flt in filters.split(' AND '):
+            fltname, fltvalue = flt.split(':', 1)
+            fltdict[fltname] = fltvalue
+        filtered = []
+        def checkpage(page, fltname, fltval):
+            value = page[fltname]
+            if not value:
+                return
+            if not isinstance(value, basestring):
+                return fltval == value
+            try:
+                return re.match(fltval, value)
+            except:
+                return False
+        for page in pages:
+            page = Bag(page)
+            for fltname, fltval in fltdict.items():
+                if checkpage(page, fltname, fltval):
+                    filtered.append(page)
+        return filtered
 
     def updatePageProfilers(self,page_id,pageProfilers):
         self.pageProfilers[page_id] = pageProfilers 
@@ -451,7 +473,7 @@ class PageRegister(BaseRegister):
     def setInClientData(self,path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         if filters:
-            pages = self.pages(filters=filters)
+            pages = [p['register_item_id'] for p in self.pages(filters=filters)]
         else:
             pages = [page_id]
         for page_id in pages:
@@ -541,33 +563,8 @@ class SiteRegister(object):
         if index_name:
             print 'call subscribed_table_pages instead of pages'
             return self.subscribed_table_pages(index_name)
-        pages = self.page_register.pages(connection_id=connection_id,user=user,include_data=include_data)
-        if not filters or filters == '*':
-            return pages
-
-        fltdict = dict()
-        for flt in filters.split(' AND '):
-            fltname, fltvalue = flt.split(':', 1)
-            fltdict[fltname] = fltvalue
-        filtered = []
-
-        def checkpage(page, fltname, fltval):
-            value = page[fltname]
-            if not value:
-                return
-            if not isinstance(value, basestring):
-                return fltval == value
-            try:
-                return re.match(fltval, value)
-            except:
-                return False
-
-        for page in pages:
-            page = Bag(page)
-            for fltname, fltval in fltdict.items():
-                if checkpage(page, fltname, fltval):
-                    filtered.append(page)
-        return filtered
+        return self.page_register.pages(connection_id=connection_id,user=user,filters=filters,include_data=include_data)
+        
 
     def page(self,page_id):
         return self.page_register.get_item(page_id)
