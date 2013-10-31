@@ -373,20 +373,20 @@ class DbModelSrc(GnrStructData):
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
         :param default: the default value of the column
-        :param notnull: TODO
+        :param notnull: This sets the 'Mandatory. attribute in the database
         :param unique: boolean. Same of the sql UNIQUE
         :param indexed: boolean. If ``True``, allow to create an index for the column data
                         (speed up the queries on the indexed column)
-        :param sqlname: TODO
-        :param comment: the column's comment
+        :param sqlname: You can set a different sqlname that the one in the model if required.  Only use if you know what you are doing.
+        :param comment: The column's comment
         :param name_short: the :ref:`name_short` of the column
         :param name_long: the :ref:`name_long` of the column
         :param name_full: the :ref:`name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section
-        :param onInserting: TODO
-        :param onUpdating: TODO
-        :param onDeleting: TODO"""
+        :param onInserting: This sets the method name which is triggered when a record is inserted.  useful for adding a code for example
+        :param onUpdating: This sets the method name which is triggered when a record is updated
+        :param onDeleting: This sets the method name which is triggered when a record is deleted"""
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
