@@ -270,9 +270,13 @@ class BagToXml(object):
         #                           xmlMode=True)
         
         elif self.mode4d and (nodeValue and (isinstance(nodeValue, list) or isinstance(nodeValue, tuple))):
+            if node.label[:3] in ('AR_','AL_','AT_','AD_','AH_','AB_'):
+                cls4d = node.label[:2] # if variable name specify array type, use it
+            else:
+                cls4d = 'A%s' % self.catalog.getClassKey(nodeValue[0])
             result = self.buildTag(node.label,
                        '\n'.join([self.buildTag('C', c) for c in nodeValue]),
-                       node.attr, cls='A%s' % self.catalog.getClassKey(nodeValue[0]),
+                       node.attr, cls=cls4d,
                        xmlMode=True)
 
         else:

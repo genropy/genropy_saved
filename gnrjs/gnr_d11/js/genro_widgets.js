@@ -842,7 +842,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             value = validateresult['value'];
             objectExtract(valueAttr, '_validation*');
             var formHandler = sourceNode.getFormHandler();
-            var fldname = datanode.attr.name_long || datanode.label;
+            var fldname = sourceNode.attr._valuelabel || datanode.attr.name_long || datanode.label;
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
                 if(validateresult.error && formHandler){

@@ -169,7 +169,7 @@ class BaseRegister(object):
         self.itemsTS[register_item_id] = datetime.now()
 
     def get_item_data(self,register_item_id):
-        return self.itemsData[register_item_id]
+        return self.itemsData.get(register_item_id)
 
     def get_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
@@ -197,7 +197,7 @@ class BaseRegister(object):
     def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
         item = self.registerItems.get(register_item_id)
         if not item:
-            print 'missing register item ',register_item_id,self.registerName
+            #print 'missing register item ',register_item_id,self.registerName
             return 
         
         item['last_user_ts'] = max(item['last_user_ts'],last_user_ts) if item.get('last_user_ts') else last_user_ts
@@ -395,13 +395,35 @@ class PageRegister(BaseRegister):
     def connection_page_items(self,connection_id):
         return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
 
-    def pages(self,connection_id=None,user=None,include_data=None):
+    def pages(self,connection_id=None,user=None,include_data=None,filters=None):
         pages = self.values(include_data=include_data)
         if connection_id:
             pages = [v for v in pages if v['connection_id'] == connection_id]
         if user:
             pages = [v for v in pages if v['user'] == user]
-        return pages
+        if not filters or filters == '*':
+            return pages
+        fltdict = dict()
+        for flt in filters.split(' AND '):
+            fltname, fltvalue = flt.split(':', 1)
+            fltdict[fltname] = fltvalue
+        filtered = []
+        def checkpage(page, fltname, fltval):
+            value = page[fltname]
+            if not value:
+                return
+            if not isinstance(value, basestring):
+                return fltval == value
+            try:
+                return re.match(fltval, value)
+            except:
+                return False
+        for page in pages:
+            page = Bag(page)
+            for fltname, fltval in fltdict.items():
+                if checkpage(page, fltname, fltval):
+                    filtered.append(page)
+        return filtered
 
     def updatePageProfilers(self,page_id,pageProfilers):
         self.pageProfilers[page_id] = pageProfilers 
@@ -451,7 +473,7 @@ class PageRegister(BaseRegister):
     def setInClientData(self,path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         if filters:
-            pages = self.pages(filters=filters)
+            pages = [p['register_item_id'] for p in self.pages(filters=filters)]
         else:
             pages = [page_id]
         for page_id in pages:
@@ -541,33 +563,8 @@ class SiteRegister(object):
         if index_name:
             print 'call subscribed_table_pages instead of pages'
             return self.subscribed_table_pages(index_name)
-        pages = self.page_register.pages(connection_id=connection_id,user=user,include_data=include_data)
-        if not filters or filters == '*':
-            return pages
-
-        fltdict = dict()
-        for flt in filters.split(' AND '):
-            fltname, fltvalue = flt.split(':', 1)
-            fltdict[fltname] = fltvalue
-        filtered = []
-
-        def checkpage(page, fltname, fltval):
-            value = page[fltname]
-            if not value:
-                return
-            if not isinstance(value, basestring):
-                return fltval == value
-            try:
-                return re.match(fltval, value)
-            except:
-                return False
-
-        for page in pages:
-            page = Bag(page)
-            for fltname, fltval in fltdict.items():
-                if checkpage(page, fltname, fltval):
-                    filtered.append(page)
-        return filtered
+        return self.page_register.pages(connection_id=connection_id,user=user,filters=filters,include_data=include_data)
+        
 
     def page(self,page_id):
         return self.page_register.get_item(page_id)
@@ -623,12 +620,14 @@ class SiteRegister(object):
             return
         now = datetime.now()
         for page in self.pages():
-            last_refresh_ts = page.get('last_refresh_ts')
-            if last_refresh_ts and ((now - page['last_refresh_ts']).seconds > self.page_max_age):
+            page_max_age = self.page_max_age if not page['user'].startswith('guest_') else 40
+            last_refresh_ts = page.get('last_refresh_ts') or page.get('start_ts')
+            if ((now - last_refresh_ts).seconds > page_max_age):
                 self.drop_page(page['register_item_id'])
         for connection in self.connections():
-            last_refresh_ts = connection.get('last_refresh_ts')
-            if last_refresh_ts and ((now - connection['last_refresh_ts']).seconds > self.connection_max_age):
+            last_refresh_ts = connection.get('last_refresh_ts') or  connection.get('start_ts')
+            connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else 40
+            if (now - last_refresh_ts).seconds > connection_max_age:
                 self.drop_connection(connection['register_item_id'],cascade=True)
         self.last_cleanup = time.time()
 
@@ -645,6 +644,8 @@ class SiteRegister(object):
     def subscription_storechanges(self, user, page_id):
         external_datachanges = self.page_register.get_datachanges(register_item_id=page_id,reset=True)
         page_item_data = self.page_register.get_item_data(page_id)
+        if not page_item_data:
+            return external_datachanges
         user_subscriptions = page_item_data.getItem('_subscriptions.user')
         if not user_subscriptions:
             return external_datachanges
