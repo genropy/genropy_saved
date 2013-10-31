@@ -630,7 +630,7 @@ class SiteRegister(object):
         for connection in self.connections():
             last_refresh_ts = connection.get('last_refresh_ts') or  connection.get('start_ts')
             connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else 40
-            if (now - connection['last_refresh_ts']).seconds > connection_max_age:
+            if (now - connection_max_age).seconds > connection_max_age:
                 self.drop_connection(connection['register_item_id'],cascade=True)
         self.last_cleanup = time.time()
 
