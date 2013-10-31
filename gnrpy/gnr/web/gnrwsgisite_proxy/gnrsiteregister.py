@@ -197,7 +197,7 @@ class BaseRegister(object):
     def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
         item = self.registerItems.get(register_item_id)
         if not item:
-            print 'missing register item ',register_item_id,self.registerName
+            #print 'missing register item ',register_item_id,self.registerName
             return 
         
         item['last_user_ts'] = max(item['last_user_ts'],last_user_ts) if item.get('last_user_ts') else last_user_ts
