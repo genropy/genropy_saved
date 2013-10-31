@@ -623,12 +623,14 @@ class SiteRegister(object):
             return
         now = datetime.now()
         for page in self.pages():
-            last_refresh_ts = page.get('last_refresh_ts')
-            if last_refresh_ts and ((now - page['last_refresh_ts']).seconds > self.page_max_age):
+            page_max_age = self.page_max_age if not page['user'].startswith('guest_') else 40
+            last_refresh_ts = page.get('last_refresh_ts') or page.get('start_ts')
+            if ((now - last_refresh_ts).seconds > page_max_age):
                 self.drop_page(page['register_item_id'])
         for connection in self.connections():
-            last_refresh_ts = connection.get('last_refresh_ts')
-            if last_refresh_ts and ((now - connection['last_refresh_ts']).seconds > self.connection_max_age):
+            last_refresh_ts = connection.get('last_refresh_ts') or  connection.get('start_ts')
+            connection_max_age = self.connection_max_age if not connection['user'].startswith('guest_') else 40
+            if (now - connection['last_refresh_ts']).seconds > connection_max_age:
                 self.drop_connection(connection['register_item_id'],cascade=True)
         self.last_cleanup = time.time()
 
