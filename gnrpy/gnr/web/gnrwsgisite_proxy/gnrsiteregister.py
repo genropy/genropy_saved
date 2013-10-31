@@ -169,7 +169,7 @@ class BaseRegister(object):
         self.itemsTS[register_item_id] = datetime.now()
 
     def get_item_data(self,register_item_id):
-        return self.itemsData[register_item_id]
+        return self.itemsData.get(register_item_id)
 
     def get_item(self,register_item_id,include_data=False):
         item = self.registerItems.get(register_item_id)
@@ -645,6 +645,8 @@ class SiteRegister(object):
     def subscription_storechanges(self, user, page_id):
         external_datachanges = self.page_register.get_datachanges(register_item_id=page_id,reset=True)
         page_item_data = self.page_register.get_item_data(page_id)
+        if not page_item_data:
+            return external_datachanges
         user_subscriptions = page_item_data.getItem('_subscriptions.user')
         if not user_subscriptions:
             return external_datachanges
