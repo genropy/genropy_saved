@@ -211,6 +211,7 @@
     padding-top: 5px;
     background-image: -webkit-gradient(linear, left top, right bottom, from(#0073E7), to(#E1E9E9));
     background-image: -moz-linear-gradient(180deg, #0073E7, #E1E9E9);
+	text-indent: 2px;
 }
 
 .pbl_roundedGroupBottom {
