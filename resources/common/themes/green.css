@@ -227,6 +227,7 @@
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#8ed9af), to(#a9c9ae));
     background-image: -moz-linear-gradient(-90deg, #8ed9af, #a9c9ae);
     color: #4b4955;
+	text-indent: 2px;
 }
 
 .pbl_roundedGroupVertical{

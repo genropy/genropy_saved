@@ -238,6 +238,7 @@
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#DCC8C8), to(#CBB4B4));
     background-image: -moz-linear-gradient(-90deg, #DCC8C8, #CBB4B4);
     color: #555;
+	text-indent: 2px;
 }
 
 .pbl_roundedGroupVertical{
