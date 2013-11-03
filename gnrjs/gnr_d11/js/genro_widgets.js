@@ -2138,6 +2138,10 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
         }
     }
     ,
+   //patch_close:function(){
+   //    return 'for debugging tooltip'
+   //},
+
     attributes_mixin_postCreate: function() {
         if (dojo_version == '1.1') {
             if (this.srcNodeRef) {

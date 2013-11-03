@@ -263,6 +263,65 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     
+    getSemaphoreStatus:function(){
+        var i;
+        if(this.status=='noItem'){
+            return '<div class="form_errorslogger">No record loaded</div>';
+        }
+        if(this.status=='readOnly'){
+            return '<div class="form_errorslogger">Read Only</div>';
+        }
+        if(this.status=='ok'){
+            return '<div class="form_okmessage">No changes to save</div>';
+        }
+        if(this.status=='changed'){
+            if (this.isNewRecord()){
+                return 'The record can be saved';
+            }
+            var changes = this.getChangesLogger()
+            var content = new gnr.GnrBag();
+            i = 0;
+            changes.forEach(function(n){
+                if(n.attr.from!=n.attr.to){
+                    var r = new gnr.GnrBag();
+                    r.setItem('fieldname','<div style="font-weight: bold;">'+n.attr._valuelabel+'</div>',{_valuelabel:'Field'});
+                    r.setItem('from',n.attr.from,{_valuelabel:'From'});
+                    r.setItem('to',n.attr.to,{_valuelabel:'To'});
+                    content.setItem('r_'+i,r)
+                }
+                i++;
+            });
+            var c = content.asHtmlTable({cells:'fieldname,from,to',headers:true})
+            return '<div class="form_changeslogger">Changed fields</div><div class="form_contentlogger">'+c+'</div>';
+        } 
+        if(this.status=='error'){
+            var content = new gnr.GnrBag();
+            var invfields = this.getInvalidFields();
+            var invdojo = this.getInvalidDojo();
+            i = 0;
+            if(invfields){
+                invfields.forEach(function(n){
+                    var sn = objectValues(n.getValue())[0];
+                    var r = new gnr.GnrBag();
+                    r.setItem('fieldname','<div style="font-weight: bold;">'+sn.getElementLabel()+'</div>',{_valuelabel:'Field'});
+                    r.setItem('error',sn._validations.error,{_valuelabel:'Error'});
+                    i++;
+                    content.setItem('r_'+i,r)
+                });
+
+            }
+            if(invdojo){
+                invdojo.forEach(function(n){
+                    var r = new gnr.GnrBag();
+                    r.setItem('fieldname','<div style="font-weight: bold;">'+n.attr._valuelabel+'</div>',{_valuelabel:'Field'});
+                    r.setItem('error','Invalid data',{_valuelabel:'Error'});
+                    content.setItem('r_'+i,r)
+                });
+            }
+            content = content.asHtmlTable({cells:'fieldname,error',headers:true});
+            return '<div class="form_errorslogger">Wrong fields</div><div class="form_contentlogger">'+content+'</div>';
+        }
+    },
 
     dismiss:function(modifiers){
         this.publish('navigationEvent',{'command':'dismiss',modifiers:modifiers});
@@ -1080,6 +1139,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
          return;
          }*/
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
+            var invalidFields = this.getInvalidFields();
+            var invalidDojo = this.getInvalidDojo()
+            var ck = this.getChangeKey(kw.node)
+            if(invalidFields && invalidFields.len()){
+                invalidFields._nodes.forEach(function(n){
+                    if(n.label.indexOf(ck)==0){
+                        invalidFields.popNode(n.label);
+                    }
+                })
+            }
             return;
         }
         if( kw.value==kw.oldvalue || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
@@ -1105,7 +1174,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
 
                 if (changed) {
-                    changes.setItem(changekey, null);
+                    changes.setItem(changekey, null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():kw.node.label,
+                                                    from:kw.oldvalue,to:kw.value});
                 } else if (changed === false) {
                     changes.pop(changekey);
                 }
@@ -1317,7 +1387,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     dojoValidation:function(wdg,isValid){
-        var node_identifier=wdg.sourceNode.getStringId();
+        var sn = wdg.sourceNode;
+        var node_identifier= sn.getStringId();
         var dojoValid=this.getInvalidDojo();
         var changedNode = genro.getDataNode(wdg.sourceNode.absDatapath(wdg.sourceNode.attr.value));
         if(!this.isNodeInFormData(changedNode)){
@@ -1326,7 +1397,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
-            dojoValid.setItem(node_identifier,null);
+            dojoValid.setItem(node_identifier,'Invalid value',{_valuelabel:sn.getElementLabel()});
         }
         this.updateStatus();
     },

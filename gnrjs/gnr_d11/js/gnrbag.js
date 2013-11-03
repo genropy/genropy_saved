@@ -601,7 +601,8 @@ dojo.declare("gnr.GnrBag", null, {
             if(headers===true){
                 headers = '';
                 this.getItem('#0').forEach(function(n){
-                    headers+=','+(n.attr._valuelabel || n.attr.name_long || stringCapitalize(n.label));
+                    var calclabel = (n.attr._valuelabel || n.attr.name_long || stringCapitalize(n.label));
+                    headers+=headers?','+calclabel:calclabel;
                 })
             }
             h = '<thead>';

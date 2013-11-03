@@ -1500,14 +1500,20 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this._validations.required = validation_result.required;
         this.updateValidationClasses();
     },
+
     setValidations: function() {
         this._validations = {};
     },
+
     hasValidations: function() {
         if (this._validations) {
             return true;
         }
     },
+    getElementLabel:function(){
+        return this.attr._valuelabel || this.attr.field_name_long || this.attr.name_long || stringCapitalize(this.label);
+    },
+
     unwatch:function(watchId){
         if (this.watches && this.watches[watchId]){
             clearInterval(this.watches[watchId]);

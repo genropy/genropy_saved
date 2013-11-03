@@ -3001,6 +3001,43 @@ body *{
 .form_new_record{
     
 }
+.form_errorslogger{
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color:red;
+    font-variant: small-caps;
+}
+.form_changeslogger{
+    text-align: center;
+
+    font-size: 1.2em;
+    font-weight: bold;
+    color:orange;
+    font-variant: small-caps;
+}
+
+.form_okmessage{
+    text-align: center;
+
+    font-size: 1.2em;
+    font-weight: bold;
+    color:green;
+    font-variant: small-caps;   
+}
+
+
+.form_contentlogger{
+    margin-top:6px; 
+}
+.form_contentlogger .formattedBagTable tr td {
+    color: #666;
+    font-size: 1em;
+    padding: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+    border:1px dotted silver;
+}
 
 .dijitDialog .form_activeForm{
     -moz-box-shadow: none;
