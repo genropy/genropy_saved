@@ -719,6 +719,7 @@ class SiteRegister(object):
         result = Bag()
         store_datachanges = self.subscription_storechanges(user,page_id)
         if store_datachanges:
+            store_datachanges = self.parse_kwargs(store_datachanges)
             for j, change in enumerate(store_datachanges):
                 result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
@@ -726,6 +727,7 @@ class SiteRegister(object):
         return result
         
     def set_serverstore_changes(self, page_id=None, datachanges=None):
+        datachanges = self.parse_kwargs(datachanges)
         page_item_data = self.page_register.get_item_data(page_id)
         for k, v in datachanges.items():
             page_item_data.setItem(k, v)

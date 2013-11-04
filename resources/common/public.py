@@ -226,12 +226,13 @@ class PublicSlots(BaseComponent):
             partitionioning_pkeys = [current_partition_value]
         partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
         readOnly = len(partitionioning_pkeys) == 1
-        fb.dbSelect(value='^current.%s' %partition_field,
+        fb.dbSelect(value='^current.current_partition_value',
                             condition=partition_condition,condition_pk=partitionioning_pkeys,
                             readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
+        fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
         pane.dataController('genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});',v='^current.%s' %partition_field)
         pane.data('current.%s' %partition_field,current_partition_value,
                     serverpath='rootenv.%s' %partition_path,dbenv=True)
