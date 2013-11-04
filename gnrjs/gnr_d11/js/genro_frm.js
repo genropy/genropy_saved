@@ -226,9 +226,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for (var k in this._register){
             node = this._register[k];
             localdisabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
-            this._register[k].setDisabled(disabled || localdisabled);
+            node.setDisabled(disabled || localdisabled);
         }
     },
+
+    resetKeepable:function(){
+        for (var k in this._register){
+            node = this._register[k];
+            if (node.attr.keepable){
+                node.widget.setKeeper(false);
+            }
+        }
+    },
+
     isDisabled:function(){
         return this.locked || this.status=='readOnly' || this.status=='noItem';
     },
@@ -2041,8 +2051,8 @@ dojo.declare("gnr.formstores.Base", null, {
         var data = form.getFormChanges();
 
         var cb = function(result){
+            var resultDict={};
             if (result){
-                var resultDict={};
                 if (result.error){
                     resultDict['error'] = result.error;
                 }
@@ -2057,7 +2067,6 @@ dojo.declare("gnr.formstores.Base", null, {
                     var pkeyNode=result;
                     resultDict.savedPkey=pkeyNode.getValue();
                     resultDict.savedAttr=pkeyNode.attr;
-                    
                 }
             }
             resultDict._sent_data = data;
