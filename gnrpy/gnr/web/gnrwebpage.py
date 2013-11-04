@@ -687,9 +687,10 @@ class GnrWebPage(GnrBaseWebPage):
     def collectClientDatachanges(self):
         """TODO"""
         self._publish_event('onCollectDatachanges')
-        store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id)
+        store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id) or []
         result = Bag()
-        for j, change in enumerate(self.local_datachanges+store_datachanges):
+        local_datachanges = self.local_datachanges or []
+        for j, change in enumerate(local_datachanges+store_datachanges):
             result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
                            change_ts=change.change_ts, change_delete=change.delete)

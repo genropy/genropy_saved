@@ -718,8 +718,9 @@ class SiteRegister(object):
     def handle_ping_get_datachanges(self, page_id, user=None):
         result = Bag()
         store_datachanges = self.subscription_storechanges(user,page_id)
-        for j, change in enumerate(store_datachanges):
-            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+        if store_datachanges:
+            for j, change in enumerate(store_datachanges):
+                result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
                            change_ts=change.change_ts, change_delete=change.delete)
         return result
