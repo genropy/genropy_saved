@@ -327,7 +327,7 @@ class FrameIndex(BaseComponent):
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
         return self.package.attributes.get('name_long')
