@@ -4375,7 +4375,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.reload(true);
     },
 
-    mixin_selectionKeeper:function(flag) {
+    mixin_selectionKeeper:function(flag,loadkw) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
             var identifier = this._identifier;
@@ -4385,10 +4385,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
             this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
+
+            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow}
             //this.prevFilterValue = this.currentFilterValue;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
         } else if (flag == 'load') {
+            loadkw = loadkw || this._saved_selections;
+            if(loadkw){
+                this.prevSelectedIdentifiers = loadkw.prevSelectedIdentifiers;
+                this.prevFirstVisibleRow = loadkw.prevFirstVisibleRow;
+                this._saved_selections = null;
+            }
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
                 this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
                 this.prevSelectedIdentifiers = null;
