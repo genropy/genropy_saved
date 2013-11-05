@@ -127,14 +127,14 @@ dojo.declare('gnr.GenroClient', null, {
             if (exit) {
                 return exit;
             }
-            //if(!genro.root_page_id){
+            if(!genro.root_page_id){
                 var rootenv = genro.getData('gnr.rootenv');
                 if(rootenv){
                     var b = new gnr.GnrBag();
                     b.setItem('rootenv',rootenv,{page_id:genro.page_id});
                     dojo.cookie(genro.getData('gnr.siteName')+'_dying_'+genro.getData('gnr.package')+'_'+genro.getData('gnr.pagename'),b.toXml(),{'expires':new Date((new Date().getTime()+2000))});
                 }
-            //}            
+            }            
         };
         window.onunload = function(e) {
             genro.onWindowUnload(e);
