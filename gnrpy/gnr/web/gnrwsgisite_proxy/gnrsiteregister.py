@@ -719,7 +719,6 @@ class SiteRegister(object):
         result = Bag()
         store_datachanges = self.subscription_storechanges(user,page_id)
         if store_datachanges:
-            store_datachanges = self.parse_kwargs(store_datachanges)
             for j, change in enumerate(store_datachanges):
                 result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
                            change_fired=change.fired, change_attr=change.attributes,
@@ -727,30 +726,22 @@ class SiteRegister(object):
         return result
         
     def set_serverstore_changes(self, page_id=None, datachanges=None):
-        datachanges = self.parse_kwargs(datachanges)
         page_item_data = self.page_register.get_item_data(page_id)
         for k, v in datachanges.items():
-            page_item_data.setItem(k, v)
+            page_item_data.setItem(k, self._parse_change_value(v))
 
-    def parse_kwargs(self, kwargs):
-        """TODO
-        :param kwargs: the kw arguments
-        """
-        catalog = self.catalog
-        result = dict()
-        for k, v in kwargs.items():
-            k = k.strip()
-            if isinstance(v, basestring):
-                try:
-                    v = catalog.fromTypedText(v)
-                    if isinstance(v, basestring):
-                        v = v.decode('utf-8')
-                    result[k] = v
-                except Exception, e:
-                    raise e
-            else:
-                result[k] = v
-        return result
+
+    def _parse_change_value(self, change_value):
+        if isinstance(change_value, basestring):
+            try:
+                v = self.catalog.fromTypedText(change_value)
+                if isinstance(v, basestring):
+                    v = v.decode('utf-8')
+                return v
+            except Exception, e:
+                raise e
+        return change_value
+
 
     def dump(self):
         """TODO"""
