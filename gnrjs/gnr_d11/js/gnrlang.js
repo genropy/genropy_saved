@@ -815,7 +815,13 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            return new Date(value.split('.')[0].replace(/\-/g, '/'));
+            date_array = value.split('.')[0].split(/\W/);
+            c = [0,-1,0,0,0,0];
+            for (var i=0;i<date_array.length;i++){
+                c[i]+=parseInt(date_array[i]);
+            };
+            return new Date(c[0],c[1],c[2],c[3],c[4],c[5]);
+            //return new Date(value.split('.')[0].replace(/\-/g, '/'));
         }
     }
     else if (t == 'H') {
