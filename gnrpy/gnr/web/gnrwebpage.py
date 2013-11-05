@@ -232,25 +232,25 @@ class GnrWebPage(GnrBaseWebPage):
             if not self.connection.connection_id:
                 self.connection.create()
             self.page_id = getUuid()
-            workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
+            #workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
             #self.root_page_id = kwargs.pop('_root_page_id', None)
             #if self.root_page_id:
             #    data = self.pageStore(page_id=self.root_page_id).data
             #    data['root_page_id'] = self.root_page_id
             #else:
-            connectionStore = self.connectionStore()
+            #connectionStore = self.connectionStore()
             data = Bag()
-            if self.avatar:
-                data['rootenv'] = connectionStore.getItem('defaultRootenv') #or Bag()
-                cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
-                if cookie:
-                    data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
+            #if self.avatar:
+            #    data['rootenv'] = connectionStore.getItem('defaultRootenv') #or Bag()
+            #    cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+            #    if cookie:
+            #        data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
             data['pageArgs'] = kwargs
-            data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
-            if self.application.db.package('adm'):
-                prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
-                if prefenv:
-                    data['prefenv'] = prefenv
+            #data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
+            #if self.application.db.package('adm'):
+            #    prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
+            #    if prefenv:
+            #        data['prefenv'] = prefenv
             return self.site.register.new_page(self.page_id, self, data=data)
 
     def get_call_handler(self, request_args, request_kwargs):
@@ -1480,10 +1480,12 @@ class GnrWebPage(GnrBaseWebPage):
             if _auth == AUTH_OK:
                 self.parent_page_id = _parent_page_id
                 self.root_page_id = _root_page_id
-                if self.parent_page_id:
-                    default_rootenv = self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
-                    self.pageStore().update(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=default_rootenv))
-                avatar = self.avatar #force get_avatar ?
+                rootenv = self.getStartRootenv()
+                prefenv = Bag()
+                if self.application.db.package('adm'):
+                    prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
+                data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
+                self.pageStore().update(data)
                 if hasattr(self, 'main_root'):
                     self.main_root(page, **kwargs)
                     return (page, pageattr)
@@ -1509,7 +1511,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.page_id',self.page_id)
                 page.data('gnr.package',self.package.name)
                 page.data('gnr.root_page_id',self.root_page_id)
-                page.data('gnr.workdate',self.workdate,serverpath='rootenv.workdate')
+                page.data('gnr.workdate', self.workdate) #serverpath='rootenv.workdate')
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
@@ -1634,6 +1636,19 @@ class GnrWebPage(GnrBaseWebPage):
             #except Exception,err:
         else:
             return (self._errorPage(err), pageattr)
+
+    def getStartRootenv(self):
+        cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+        if cookie:
+            return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
+
+        if not self.root_page_id: #page not in framedindex or framedindex itself
+            connectionStore = self.connectionStore()
+            return connectionStore.getItem('defaultRootenv')
+        return self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
+        
+    
+
             
     def onMain(self): #You CAN override this !
         """TODO"""

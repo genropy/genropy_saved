@@ -233,7 +233,7 @@ class PublicSlots(BaseComponent):
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
         fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
-        pane.dataController('genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});',v='^current.%s' %partition_field)
+        pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
         pane.data('current.current_partition_value',current_partition_value)
         pane.data('current.%s' %partition_field,current_partition_value,
                     serverpath='rootenv.%s' %partition_path,dbenv=True)
