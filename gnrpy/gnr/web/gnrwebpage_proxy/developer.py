@@ -15,9 +15,13 @@ from gnr.core.gnrdecorator import public_method
 
 class GnrWebDeveloper(GnrBaseProxy):
     def init(self, **kwargs):
-        self.db = self.page.db
+        #self.db = self.page.db
         self.debug = getattr(self.page, 'debug', False)
         self._debug_calls = Bag()
+
+    @property
+    def db(self):
+        return self.page.db
 
     def output(self, debugtype, **kwargs):
         page = self.page

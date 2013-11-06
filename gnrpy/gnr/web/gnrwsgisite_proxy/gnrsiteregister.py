@@ -299,6 +299,7 @@ class UserRegister(BaseRegister):
         return register_item
         
     def drop(self,user):
+        self.siteregister.drop_connections(user)
         self.drop_item(user)
 
 class ConnectionRegister(BaseRegister):
@@ -322,6 +323,7 @@ class ConnectionRegister(BaseRegister):
         return register_item
 
     def drop(self,register_item_id=None,cascade=None):
+        self.siteregister.drop_pages(register_item_id)
         register_item = self.drop_item(register_item_id)
         if cascade:
             user = register_item['user']
@@ -516,8 +518,16 @@ class SiteRegister(object):
         return connection_item
 
 
+    def drop_pages(self,connection_id):
+        for page_id in self.connection_page_keys(connection_id):
+            self.drop_page(page_id)
+
     def drop_page(self,page_id, cascade=None):
         return self.page_register.drop(page_id,cascade=cascade)   
+
+    def drop_connections(self,user):
+        for connection_id in self.user_connection_keys(user):
+            self.drop_connection(connection_id)
 
     def drop_connection(self,connection_id,cascade=None):
         self.connection_register.drop(connection_id,cascade=cascade)
@@ -526,22 +536,22 @@ class SiteRegister(object):
         self.user_register.drop(user)
 
     def user_connection_keys(self,user):
-        self.connection_register.user_connection_keys(user)
+        return self.connection_register.user_connection_keys(user)
 
     def user_connection_items(self,user):
-        self.connection_register.user_connection_items(user)
+        return self.connection_register.user_connection_items(user)
 
     def user_connections(self,user):
-        self.connection_register.user_connections(user)
+        return self.connection_register.user_connections(user)
 
     def connection_page_keys(self,connection_id):
-        self.page_register.connection_page_keys(connection_id=connection_id)
+        return self.page_register.connection_page_keys(connection_id=connection_id)
 
     def connection_page_items(self,connection_id):
-        self.page_register.connection_page_items(connection_id=connection_id)
+        return self.page_register.connection_page_items(connection_id=connection_id)
 
     def connection_pages(self,connection_id):
-        self.page_register.connection_pages(connection_id=connection_id)
+        return self.page_register.connection_pages(connection_id=connection_id)
 
 
     def new_page(self,page_id,pagename=None,connection_id=None,subscribed_tables=None,user=None,user_ip=None,user_agent=None ,data=None):

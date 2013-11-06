@@ -317,7 +317,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     @property 
     def db(self):
-        if not hasattr(self, '_db'):
+        if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename)
@@ -333,8 +333,7 @@ class GnrWebPage(GnrBaseWebPage):
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
-        return self._db
-        
+        return self._db    
         
     def _get_workdate(self):
         if not self._workdate:
@@ -1466,6 +1465,7 @@ class GnrWebPage(GnrBaseWebPage):
                 prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
             data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
             self.pageStore().update(data)
+            self._db = None #resetting db property after setting dbenv
             if hasattr(self, 'main_root'):
                 self.main_root(page, **kwargs)
                 return (page, pageattr)
@@ -1599,9 +1599,9 @@ class GnrWebPage(GnrBaseWebPage):
    
 
     def getStartRootenv(self):
-        cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
-        if cookie:
-            return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
+        #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+        #if cookie:
+        #    return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
         if not self.root_page_id: #page not in framedindex or framedindex itself
             connectionStore = self.connectionStore()
             return connectionStore.getItem('defaultRootenv')

@@ -911,8 +911,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var data = this.getFormData();
         var sentData = objectPop(result,'_sent_data');
         var sentRecord = sentData.pop('record');
+        sentRecord.setBackRef();
         sentRecord.walk(function(n){
-            var currN = data.getNode(n.label);
+            if(n._value instanceof gnr.GnrBag){
+                return
+            }
+            var p = n.getFullpath();
+            var currN = data.getNode(p);
             if(currN._value==n._value){
                 delete currN.attr._loadedValue;
             }else{
@@ -1106,6 +1111,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 else if (value instanceof gnr.GnrBag) {
                     sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
                     if (sendBag) {
+                        value = value.deepCopy();
                         value.walk(function(n){
                             if('_loadedValue' in n.attr){
                                 var loadedValue = objectPop(n.attr,'_loadedValue');

@@ -141,7 +141,7 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def rpc_logout(self):
-        self.change_user()
+        self.page.site.register.drop_user(user=self.user)
 
     @public_method
     def connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):
