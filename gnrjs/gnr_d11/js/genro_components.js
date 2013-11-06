@@ -3394,7 +3394,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 dojo.forEach(grid.selection.getSelected(), function(idx) {
                     prevSelected[grid.rowIdByIndex(idx)] = true;
                 });
-                grid.selectionKeeper('save');
+                grid._saved_selections = grid.selectionKeeper('save');
             });
             this.storeNode.setRelativeData('.query.prevSelectedDict',prevSelected);
 

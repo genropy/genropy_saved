@@ -592,7 +592,7 @@ class SqlTable(GnrObject):
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
-              addPkeyColumn=True, locale=None,
+              addPkeyColumn=True,ignorePartition=False, locale=None,
               mode=None,_storename=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
@@ -631,6 +631,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
+                         ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
                          **kwargs)
         return query

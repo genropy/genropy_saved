@@ -412,6 +412,7 @@ class SqlQueryCompiler(object):
                       relationDict=None,
                       bagFields=False,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
+                      ignorePartition=False,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -487,7 +488,7 @@ class SqlQueryCompiler(object):
             where = ' AND '.join(wherelist)
 
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-        if partition_kwargs:
+        if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
             for k,v in partition_kwargs.items():
                 if currentEnv.get(v):
@@ -854,6 +855,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
+                 ignorePartition=False,
                  addPkeyColumn=True, locale=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -868,6 +870,7 @@ class SqlQuery(object):
         self.sqlparams.update(kwargs)
         self.excludeLogicalDeleted = excludeLogicalDeleted
         self.excludeDraft = excludeDraft
+        self.ignorePartition = ignorePartition
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
         self.storename = _storename
@@ -927,6 +930,7 @@ class SqlQuery(object):
                                                                   excludeLogicalDeleted=self.excludeLogicalDeleted,
                                                                   excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
+                                                                  ignorePartition=self.ignorePartition,
                                                                   **self.querypars)
                                                                   
     def cursor(self):
