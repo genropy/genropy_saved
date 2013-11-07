@@ -40,7 +40,7 @@ class PublicBase(BaseComponent):
             partition_path = partition_kw['path']
             partition_field = partition_kw['field']
             pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
-            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='rootenv.%s' %partition_path,dbenv=True)
+            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='current_%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -219,11 +219,11 @@ class PublicSlots(BaseComponent):
         partition_path = kw['path']
         table = kw['table']
         related_tblobj = self.db.table(table)
-        current_partition_value = self.rootenv[partition_path]
+        default_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
         partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
-        if not partitionioning_pkeys and current_partition_value:
-            partitionioning_pkeys = [current_partition_value]
+        if not partitionioning_pkeys and default_partition_value:
+            partitionioning_pkeys = [default_partition_value]
         partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
         readOnly = len(partitionioning_pkeys) == 1
         fb.dbSelect(value='^current.current_partition_value',
@@ -234,9 +234,9 @@ class PublicSlots(BaseComponent):
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
         fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
         pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
-        pane.data('current.current_partition_value',current_partition_value)
-        pane.data('current.%s' %partition_field,current_partition_value,
-                    serverpath='rootenv.%s' %partition_path,dbenv=True)
+        pane.data('current.current_partition_value',default_partition_value)
+        pane.data('current.%s' %partition_field,default_partition_value,
+                    serverpath='current_%s' %partition_path,dbenv=True)
         self.pageStore().setItem('rootenv.partition_kw',kw)
 
     @struct_method

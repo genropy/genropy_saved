@@ -1324,7 +1324,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 selectHandler = self.dbSelect_default
             order_list = []
-            preferred = preferred or tblobj.attributes.get('preferred')
+            preferred = tblobj.attributes.get('preferred') if preferred is None else preferred
             if preferred:
                 order_list.append('%s desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)

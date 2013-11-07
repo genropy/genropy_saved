@@ -491,8 +491,8 @@ class SqlQueryCompiler(object):
         if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
             for k,v in partition_kwargs.items():
-                if currentEnv.get(v):
-                    wherelist.append('( $%s=:env_%s )' % (k,v))
+                if currentEnv.get('current_%s' %v):
+                    wherelist.append('( $%s=:env_current_%s )' % (k,v))
             where = ' AND '.join(wherelist)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
