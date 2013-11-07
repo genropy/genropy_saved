@@ -7025,8 +7025,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var that = this;
         if(objectNotEmpty(crop)){
             var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
-            innerImage.cr_width=crop.width
-            innerImage.cr_height=crop.height
+            innerImage.cr_width=crop.width;
+            innerImage.cr_height=crop.height;
+            innerImage['onerror'] = "this.sourceNode.setRelativeData(this.sourceNode.attr.src,null);"
             attr.tag = 'div';
             objectUpdate(attr,crop)
             attr.overflow='hidden';
@@ -7274,12 +7275,14 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         }
     }
 });
+
 dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
     constructor: function(application) {
         this._domtag = 'img';
          this._default_ext='png,jpg,jpeg,gif';
     }
 });
+
 dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'embed';
