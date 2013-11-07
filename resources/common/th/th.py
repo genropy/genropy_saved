@@ -470,7 +470,7 @@ class ThLinker(BaseComponent):
     @extract_kwargs(template=True)
     @struct_method 
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
-                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,**kwargs):
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,editEnabled=True,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
@@ -482,7 +482,7 @@ class ThLinker(BaseComponent):
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
-        if formResource or formUrl:
+        if editEnabled and formResource or formUrl:
             footer = frame.bottom.slotBar('*,linker_edit')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
