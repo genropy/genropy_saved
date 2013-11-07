@@ -3320,9 +3320,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         },null,'POST');
     },
     onDeletedRows:function(result){
-        if(result && result.error){
-            genro.dlg.alert(result.error,'Alert');
-        }
+        //if(result && result.error){
+        //    genro.dlg.alert(result.error,'Alert');
+        //}
     },
 
     onLoaded:function(result){

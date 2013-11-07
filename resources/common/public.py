@@ -225,7 +225,7 @@ class PublicSlots(BaseComponent):
         if not partitionioning_pkeys and default_partition_value:
             partitionioning_pkeys = [default_partition_value]
         partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
-        readOnly = len(partitionioning_pkeys) == 1
+        readOnly = partitionioning_pkeys and len(partitionioning_pkeys) == 1
         fb.dbSelect(value='^current.current_partition_value',
                             condition=partition_condition,condition_pk=partitionioning_pkeys,
                             readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
