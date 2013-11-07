@@ -148,7 +148,7 @@ class GnrWebRpc(GnrBaseProxy):
         if file_handle is not None:
             f = file_handle.file
             content = f.read()
-            original_filename = file_handle.filename
+            original_filename = os.path.basename(file_handle.filename)
             original_ext = os.path.splitext(original_filename)[1]
             filename = filename or original_filename
         elif dataUrl:
