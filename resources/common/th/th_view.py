@@ -58,7 +58,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','batch_export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
@@ -96,9 +96,6 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,store_kwargs=store_kwargs)
-
-
-
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -135,17 +132,7 @@ class TableHandlerView(BaseComponent):
         bar.drawerStack.attributes['height'] = '100%'
         sc = bar.drawerStack.stackContainer(height='100%')
         sc.contentPane(background='red')
-        
-       #bar.confBar.slotToolbar('*,menuslot',menuslot='menu',height='20px',background='whitesmoke')
-       #tclass = bar.treeClassificator
-       #tclass.attributes['height']='100%'
-       #tclass.div(height='100%').('dragArea')
-       #bar.footerBar.slotToolbar('*,tools',tools='tools',height='20px')
-        
-   #@public_method
-   #def buildClassificator(self,pane):
-   #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
-        
+
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
@@ -340,7 +327,12 @@ class TableHandlerView(BaseComponent):
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
                             """,_class='smallmenu')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
-        
+      
+
+    @struct_method
+    def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
+        return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
+
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None,unlinkdict=None,title=None,store_kwargs=None):
