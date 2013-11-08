@@ -1553,6 +1553,7 @@ dojo.declare('gnr.GenroClient', null, {
 
     },
     logout:function() {
+        genro.lockScreen(true,'logout');
         this.serverCall('connection.logout', null, 'genro.gotoHome();');
     },
     remoteJson:function(method, params) {

@@ -470,7 +470,7 @@ class ThLinker(BaseComponent):
     @extract_kwargs(template=True)
     @struct_method 
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
-                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,editEnabled=True,**kwargs):
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,editEnabled=True,clientTemplate=False,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
@@ -478,7 +478,13 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        template = frame.templateChunk(template=template,table=linker.attributes['table'],
+        if clientTemplate:
+            template = frame.templateChunk(template=template,table=linker.attributes['table'],
+                                      datasource='^.@%s' %field,
+                                      visible=currpkey,margin='4px',
+                                      **template_kwargs)
+        else:
+            template = frame.templateChunk(template=template,table=linker.attributes['table'],
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)

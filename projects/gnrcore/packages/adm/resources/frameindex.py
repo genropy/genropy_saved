@@ -700,6 +700,8 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
+        if not gnrtoken:
+            return
         method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
         if kwargs.get('userid'):
             self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])
