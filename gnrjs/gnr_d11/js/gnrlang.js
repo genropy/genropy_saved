@@ -815,8 +815,8 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            date_array = value.split('.')[0].split(/\W/);
-            c = [0,-1,0,0,0,0];
+            var date_array = value.split('.')[0].split(/\W/);
+            var c = [0,-1,0,0,0,0];
             for (var i=0;i<date_array.length;i++){
                 c[i]+=parseInt(date_array[i]);
             };
