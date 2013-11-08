@@ -271,7 +271,6 @@ class MailSender(GnrBatch):
             yield row
             
     def process_chunk(self, chunk, **kwargs):
-        print x
         self.mail_handler.sendmail_template(chunk,
                                             to_address=self.to_address or chunk[self.doctemplate['meta.to_address']],
                                             body=self.doctemplate['content'], subject=self.doctemplate['meta.subject'],
