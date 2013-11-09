@@ -3543,6 +3543,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var valTextHtml = [];
             var innerHtml = [];
             var idx = 0;
+            var rn; 
+            var innerHtmlTxt = sel.length>20?'<div style="width:600px;text-align:center;">'+sel.length+' '+widget.sourceNode.attr.item_name_plural+' </div>':null;
             dojo.forEach(sel, function(k) {
                 var rdata = widget.rowByIndex(k);
                 pkeys.push(widget.rowIdentity(rdata));
@@ -3557,12 +3559,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     r_xml.push('<' + field + '>' + v + '</' + field + '>');
                     r_html.push('<td name="' + field + '">' + v + '</td>');
                 });
-                innerHtml.push(widget.views.views[0].rowNodes[k].innerHTML);
+                if(!innerHtmlTxt){
+                    rn = widget.views.views[0].rowNodes[k];
+                    if(rn){
+                        innerHtml.push(rn.innerHTML);
+                    }
+                }
                 valTextPlain.push(r.join('\t'));
                 valTextXml.push('<r_' + idx + '>' + r_xml.join('') + '</r_' + idx + '>');
                 valTextHtml.push('<tr>' + r_html.join('') + '</tr>');
                 idx = idx + 1;
             });
+            
             var selfDragRows = dragInfo.sourceNode.attr.selfDragRows;
             if (typeof(selfDragRows) == 'function') {
                 selfDragRows = selfDragRows(dragInfo);
@@ -3584,8 +3592,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 var auxnode = document.createElement('div');
                 dojo.addClass(auxnode,'rowsetdragging');
                 dragInfo.dragImageNode.appendChild(auxnode);
-                auxnode.innerHTML = innerHtml.join('');
-                
+                auxnode.innerHTML = innerHtmlTxt || innerHtml.join('');
                 dojo.addClass(dragInfo.dragImageNode, 'rowsetdragging_background');
                 auxDragImage.appendChild(dragInfo.dragImageNode);
                 dragInfo.event.dataTransfer.setDragImage(auxDragImage, 0, 0);

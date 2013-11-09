@@ -31,7 +31,8 @@ class TableHandlerView(BaseComponent):
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,original_kwargs=kwargs)             
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
-                                 condition=condition,condition_kwargs=condition_kwargs,**kwargs)
+                                 condition=condition,condition_kwargs=condition_kwargs,
+                                 **kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -82,6 +83,8 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = configurable
+        grid_kwargs['item_name_singular'] = self.db.table(table).name_long
+        grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',

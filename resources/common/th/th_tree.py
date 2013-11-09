@@ -567,7 +567,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 }return true;
                                                 """  
 
-        treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
+        treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey || null;
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
