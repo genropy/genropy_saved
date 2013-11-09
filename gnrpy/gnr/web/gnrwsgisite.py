@@ -15,7 +15,6 @@ import urllib
 
 
 from time import time
-from datetime import datetime
 from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
 from threading import RLock
@@ -34,8 +33,6 @@ from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
-from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 
 import warnings
