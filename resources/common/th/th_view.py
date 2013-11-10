@@ -178,7 +178,6 @@ class TableHandlerView(BaseComponent):
             pane.data('.current',dflt)
         pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
                         mandatory=getattr(m,'mandatory',True),**kwargs)
-
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
@@ -190,11 +189,19 @@ class TableHandlerView(BaseComponent):
             if(variable_struct){
                 SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
+
+            var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
+            var viewNode = genro.getFrameNode(th_root);
+            if(oldSectionValue){
+                genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
+            }
+            genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
             var loadingData = GET .#parent.#parent.grid.loadingData;
             if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
             """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
+            th_root=th_root,secname=sections,
             storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
             #_init=True)
 
