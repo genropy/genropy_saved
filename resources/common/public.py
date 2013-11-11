@@ -40,7 +40,7 @@ class PublicBase(BaseComponent):
             partition_path = partition_kw['path']
             partition_field = partition_kw['field']
             pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
-            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='current_%s' %partition_path,dbenv=True)
+            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='rootenv.current_%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -236,7 +236,7 @@ class PublicSlots(BaseComponent):
         pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
         pane.data('current.current_partition_value',default_partition_value)
         pane.data('current.%s' %partition_field,default_partition_value,
-                    serverpath='current_%s' %partition_path,dbenv=True)
+                    serverpath='rootenv.current_%s' %partition_path,dbenv=True)
         self.pageStore().setItem('rootenv.partition_kw',kw)
 
     @struct_method
