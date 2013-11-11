@@ -262,7 +262,7 @@ class GnrWsgiSite(object):
         return self.wsgiapp(environ, start_response)
         
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,
-                 options=None, remotesshdb=None):
+                 options=None):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
@@ -308,7 +308,6 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
         self.option_restore = options.restore if options else None
-        self.remotesshdb = remotesshdb
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -933,7 +932,7 @@ class GnrWsgiSite(object):
                 restorepath = None
         if self.remote_db:
             instance_path = '%s:%s' %(instance_path,self.remote_db)
-        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotesshdb=self.remotesshdb)
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
             if os.path.isfile(restorepath):

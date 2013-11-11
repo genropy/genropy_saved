@@ -27,7 +27,6 @@ class GnrCustomWebPage(object):
         r.cell('sitename', width='10em',name='Site name')
         r.cell('register_uri',width='20em',name='Register uri')
         r.cell('server_uri',width='20em',name='Server uri')
-
         r.cell('start_ts',width='10em',name='Started',dtype='DH')
 
     def main(self, root, **kwargs):
@@ -35,7 +34,6 @@ class GnrCustomWebPage(object):
         top = bc.borderContainer(region='top',height='200px',splitter=True)
         self.sitesFrame(top)
         self.siteControlPane(top)
-
         self.userConnectionPages(bc.framePane(frameCode='ucp_filtered',region='center'))
 
 
