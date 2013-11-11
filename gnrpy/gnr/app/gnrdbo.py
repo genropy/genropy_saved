@@ -724,6 +724,25 @@ class AttachmentTable(GnrDboTable):
             record['text_content'] = text_content
             self.update(record,old_record=old_record)
             self.db.commit()
+
+
+    def insertPdfFromDocAtc(self, attachment):
+        """Creates a pdf version of a .doc/.docx attachment and inserts the a sibling record referring to it.
+            Returns the new pdf attachment record
+        :param attachment: source attachment record or pket"""
+
+        if isinstance(attachment, basestring):
+            attachment = self.recordAs(attachment, mode='dict')
+        site = self.db.application.site
+        docConverter = site.getService('doctopdf')
+        if os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
+            pdf_staticpath = docConverter.convert(attachment['filepath'])
+            pdf_record = dict(filepath=pdf_staticpath,
+                        mimetype=attachment['mimetype'],
+                        description=os.path.basename(pdf_staticpath),
+                        maintable_id=attachment['maintable_id'])
+            self.insert(pdf_record)
+        return pdf_record
         
     def trigger_onDeletedAtc(self,record,**kwargs):
         site = self.db.application.site
