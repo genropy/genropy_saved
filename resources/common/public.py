@@ -163,12 +163,7 @@ class Public(PublicBase):
     css_requires = 'public'
     plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
-    py_requires = """foundation/menu:MenuLink,
-                     foundation/dialogs,
-                     foundation/macrowidgets,
-                     public:PublicSlots,
-                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                     gnrcomponents/chat_component/chat_component:ChatComponent"""
+    py_requires = """public:PublicSlots,foundation/macrowidgets"""
 
     def mainLeftContent(self,pane,**kwargs):
         return
