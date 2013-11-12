@@ -78,6 +78,9 @@ class Package(GnrDboPackage):
             for storename in stores:
                 app.db.use_store(storename)
 
+    def adaptHostedTable(self,table):
+        pass
+
 class Table(GnrDboTable):
     def use_dbstores(self):
         return True
