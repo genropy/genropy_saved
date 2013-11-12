@@ -713,6 +713,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isRegisteredWidget:function(wdg){
         return (wdg.sourceNode._id in this._register);
     },
+
+    isEmptyForm:function(){
+        var has_filled_field = objectValues(this._register).some(function(n){
+                                                                var v = n.getAttributeFromDatasource('value');
+                                                                if (!isNullOrBlank(v)){
+                                                                    return true;
+                                                                }
+                                                            })
+        return !has_filled_field;
+    },
+
     onFocusElement:function(wdg){
         if(this.isRegisteredWidget(wdg) && (typeof(wdg.focus)=='function')){
             this.currentFocused = wdg;
