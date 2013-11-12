@@ -7,7 +7,6 @@ from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 import atexit
-from gnr.core.gnrssh import SshTunnel,normalized_sshtunnel_parameters
 
 
 import Pyro4
@@ -163,6 +162,7 @@ class GnrDaemon(object):
 
     def sshtunnel_get(self,ssh_host=None,ssh_port=None, ssh_user=None, ssh_password=None, 
                      forwarded_port=None,forwarded_host=None,**kwargs):
+        from gnr.core.gnrssh import normalized_sshtunnel_parameters
         ssh_parameters = normalized_sshtunnel_parameters(ssh_host=ssh_host,ssh_port=ssh_port,ssh_user=ssh_user,ssh_password=ssh_password,
                                         forwarded_port=forwarded_port,forwarded_host=forwarded_host)
         tunnelKey = '%(ssh_host)s:%(ssh_port)s - %(forwarded_host)s:%(forwarded_port)s' %ssh_parameters
@@ -172,6 +172,7 @@ class GnrDaemon(object):
 
     def sshtunnel_create(self,ssh_host=None,ssh_port=None, ssh_user=None, ssh_password=None, 
                      forwarded_port=None,forwarded_host=None,**kwargs):
+        from gnr.core.gnrssh import SshTunnel
         tunnel = SshTunnel(forwarded_port=int(forwarded_port), forwarded_host=forwarded_host,
                 ssh_host=ssh_host, ssh_port=int(ssh_port), 
                 username=ssh_user, password=ssh_password)
