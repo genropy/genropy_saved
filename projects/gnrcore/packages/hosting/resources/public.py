@@ -27,7 +27,7 @@ class TableHandlerMain(BaseComponent):
     
 
     def __viewCustomizationHosting(self,view): #poi ci passo il th direttamente
-        bar = view.top.bar.replaceSlots('addrow','addrow,hosting_propagate')        
+        bar = view.top.slotToolbar('5,htitle,*,hosting_propagate,5',childname='host',_position='<bar',htitle='Hosting bar')        
         bar.hosting_propagate.slotButton('!!Hosting propagate',iconClass='iconbox globe',disabled='^.disabledButton',action='FIRE .hostingDialog')
         bar.dataController("""genro.dlg.prompt(t,{remote:rc},function(result){});
             """,_fired='^.hostingDialog',t='!!Hosted instance',rc=self.hostedInstanceDialogContent)
