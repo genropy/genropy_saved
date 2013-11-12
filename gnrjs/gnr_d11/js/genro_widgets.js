@@ -3436,7 +3436,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     }
                     if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
                         if(!rowBag.getNode('_rowEditorStatus')){
-                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'3em',
+                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
                                                                 field:'_rowEditorStatus',
                                                                 cellClasses:'rowEditorStatus',
                                                                 headerClasses:'rowEditorStatus',
@@ -3449,6 +3449,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
+                    if(sourceNode.attr.rowStatusColumn){
+                        row.push({dtype:'B',field:'_statusIcon',name:' ',width:'20px',_customGetter:function(){
+                            return '<div class="_statusIcon"></div>'
+                        }})
+                    }
                     var that = this;
                     rowBag.forEach(function(n){
                         cell = that.structFromBag_cell(sourceNode,n);
@@ -3890,6 +3895,9 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
     patch_onStyleRow:function(row) {
         var attr = this.rowByIndex(row.index);
         if (attr) {
+            if (attr._is_readonly_row){
+                row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+            }
             if (attr._customClasses) {
                 var customClasses = null;
                 if ( typeof(attr._customClasses)=='function'){
@@ -4219,6 +4227,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     patch_onStyleRow:function(row) {
         var attr = this.rowCached(row.index);
         var customClasses = null;
+        if (attr._is_readonly_row){
+            row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+        }
         if(this.rowCustomClassesCb){
             row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');
         }

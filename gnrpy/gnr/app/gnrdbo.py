@@ -130,9 +130,10 @@ class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=False,hierarchical=False,
+                  counter=False,hierarchical=False,useProtectionTags=None,
                   group='zzz', group_name='!!System',
-                  multidb=None,df=None,counter_kwargs=None):
+                  multidb=None,
+                  df=None,counter_kwargs=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -172,6 +173,10 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
+        if useProtectionTags:
+            tbl.attributes['protectionColumn'] = '__is_protected_row'
+            tbl.column('__protection_tag', name_long='!!Protection tags', group=group,_sysfield=True,_sendback=True)
+            tbl.formulaColumn('__is_protected_row',""" NOT ('%%,'|| $__protection_tag || ',%%' ILIKE ',' || :env_userTags || ',')""",dtype='B')
         
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
@@ -244,8 +249,6 @@ class TableBase(object):
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
         if multidb:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
-            
-
         if invalidFields or invalidRelations:
             if invalidFields:
                 tbl.attributes['invalidFields'] = '__invalid_fields'
@@ -677,6 +680,12 @@ class GnrDboTable(TableBase):
         return valuesset
 
         
+class HostedTable(GnrDboTable):
+    
+    def hosting_config(self,tbl,mode=None):
+        if mode=='slave' and self.db.application.config['hosting?instance']:
+            tbl.attributes['readOnly'] = True
+
 
 
 class AttachmentTable(GnrDboTable):
@@ -1253,7 +1262,6 @@ class Table_userobject(TableBase):
         sel = self.query(columns='$id, $code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist, $flags',
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
-                    
                          
         sel.filter(checkUserObj)
         return sel
@@ -1343,6 +1351,7 @@ class Table_recordtag(TableBase):
         :param old_record: TODO"""
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
+
             
 class Table_recordtag_link(TableBase):
     """TODO"""

@@ -1146,6 +1146,9 @@ dojo.declare("gnr.GridEditor", null, {
         var fldDict = this.columns[colname];
         var gridcell = fldDict.attr.gridcell || colname;
         var rowDataNode = grid.dataNodeByIndex(row);
+        if(rowDataNode && rowDataNode.attr._is_readonly_row){
+            return;
+        }
         var datachanged = false;
         var editedRowId=null;
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {

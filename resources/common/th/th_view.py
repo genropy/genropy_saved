@@ -86,11 +86,12 @@ class TableHandlerView(BaseComponent):
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
-                               struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
-                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_loadingHider=loadingHider,
-                               grid_selfsubscribe_loadingData="this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
+                               struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
+                               datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
+                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,
+                               grid_loadingHider = loadingHider,
+                               grid_rowStatusColumn = self.db.table(table).attributes.get('protectionColumn'),
+                               grid_selfsubscribe_loadingData = "this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   

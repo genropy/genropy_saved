@@ -811,6 +811,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
+
+        if tblobj.attributes.get('protectionColumn'):
+            columns = '%s, $%s AS _is_readonly_row' %(columns,tblobj.attributes.get('protectionColumn'))
         return columns,external_queries
     
     def _externalQueries(self,selection=None,external_queries=None):
@@ -1149,8 +1152,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                        from_fld=from_fld)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
-            recInfo['_protect_write'] = not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
-            recInfo['_protect_delete'] = not tblobj.check_deletable(record)
+            recInfo['_protect_write'] =  tblobj._islocked_write(record) or not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
+            recInfo['_protect_delete'] = tblobj._islocked_delete(record) or not tblobj.check_deletable(record)
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}

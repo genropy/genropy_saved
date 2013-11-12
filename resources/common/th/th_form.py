@@ -22,6 +22,7 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         options = self._th_hook('options',mangler=frameCode,dflt=dict())()
         options['readOnly'] = options.get('readOnly',readOnly)
+
        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
@@ -145,7 +146,6 @@ class TableHandlerForm(BaseComponent):
             if navigation is not False:
                 navigation = True
         if readOnly:
-            slots = '*'
             form.attributes.update(form_readOnly=True)
         if options.get('saveOnChange'):
             form.attributes.update(form_saveOnChange=True)
@@ -156,11 +156,11 @@ class TableHandlerForm(BaseComponent):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v',hidden=readOnly)
             bar.cancel.button('!!Cancel',action='this.form.abort();')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')  
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
-            default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if options.get('duplicate'):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
