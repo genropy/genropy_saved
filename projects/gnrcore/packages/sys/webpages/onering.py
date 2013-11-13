@@ -168,11 +168,12 @@ class GnrCustomWebPage(object):
         frame = pane.frameGrid(frameCode='runningSites',datapath='runningSites',
                    struct=self.sitesStruct,_class='pbl_roundedGroup',
                     grid_autoSelect=True,
-                   grid_selected_sitename='main.sitename',
+                   grid_selected_sitename='main.selected_sitename',
                    margin='2px')
         frame.grid.bagStore(storepath='runningSites.store',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^runningSites.loaded_data',selfUpdate=True)
+        pane.dataController("SET main.sitename=selected_sitename;",selected_sitename='^main.selected_sitename')
         pane.dataRpc('runningSites.loaded_data',self.runningSites,_onStart=True,_timing=5)
         pane.dataRpc('dummy',self.daemonCommands,command='^runningSites.command',sitename='=main.sitename')
 
@@ -180,9 +181,9 @@ class GnrCustomWebPage(object):
             _onResult="""SET current_site.data.loaded_users = result.popNode("users");
                          SET current_site.data.loaded_connections = result.popNode("connections");
                          SET current_site.data.loaded_pages = result.popNode("pages");
-                         SET current_site.record = result.pop('site_situation')
                          """,_timing=3,
             sysrpc=True,sitename='^main.sitename')
+        frame.dataRpc('current_site.record',self.getSiteRecord,sitename='^main.sitename')
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
     def siteControlPane(self,frame):
@@ -214,10 +215,17 @@ class GnrCustomWebPage(object):
     def loadSelectedSiteSituation(self,sitename=None):
         with self.site.register.gnrdaemon_proxy.siteRegisterProxy(sitename) as register_proxy:
             result = self.maintenance_update_data(register_proxy)
-            maintenance = register_proxy.isInMaintenance()
-            result.setItem('site_situation',Bag(dict(sitename=sitename,maintenance=maintenance,allowed_users=register_proxy.allowedUser())))
+            
             return result
         return Bag()
+
+    @public_method
+    def getSiteRecord(self,sitename=None):
+        result = Bag()
+        with self.site.register.gnrdaemon_proxy.siteRegisterProxy(sitename) as register_proxy:
+            maintenance = register_proxy.isInMaintenance()
+            result.setItem('site_situation',Bag(dict(sitename=sitename,maintenance=maintenance,allowed_users=register_proxy.allowedUsers())))
+        return result
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()
@@ -302,7 +310,7 @@ class GnrCustomWebPage(object):
             v['_pkey'] = v['sitename']
             with Pyro4.Proxy(v['register_uri']) as proxy:
                 v['active'] = not proxy.isInMaintenance()
-                v['allowed_users'] = proxy.allowedUser()
+                v['allowed_users'] = proxy.allowedUsers()
             result.setItem(k,None,**v)
         return result
 

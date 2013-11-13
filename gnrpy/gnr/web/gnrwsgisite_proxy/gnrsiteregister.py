@@ -792,11 +792,11 @@ class SiteRegister(object):
     def isInMaintenance(self,user=None):
         if not self.maintenance or user=='*forced*':
             return False
-        if not user:
+        if not user or not self.allowed_users:
             return self.maintenance
         return not user in self.allowed_users
 
-    def allowedUser(self):
+    def allowedUsers(self):
         return self.allowed_users
 
     def __getattr__(self, fname):
