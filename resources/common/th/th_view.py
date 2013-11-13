@@ -177,32 +177,37 @@ class TableHandlerView(BaseComponent):
         dflt = getattr(m,'default',None)
         if dflt:
             pane.data('.current',dflt)
-        pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
+        multivalue=getattr(m,'multivalue',False)
+        variable_struct = getattr(m,'variable_struct',False)
+        if multivalue and variable_struct:
+            raise Exception('multivalue cannot be set with variable_struct')
+        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,
                         mandatory=getattr(m,'mandatory',True),**kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
                 PUT .current = currentSection;
-            }            
-            var sectionNode = sectionbag.getNode(currentSection);
-            FIRE .#parent.#parent.clearStore;
-            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
-            if(variable_struct){
-                SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
-
-            var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
-            var viewNode = genro.getFrameNode(th_root);
-            if(oldSectionValue){
-                genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
-            }
-            genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
+            if(!multivalue){
+                var sectionNode = sectionbag.getNode(currentSection);
+                FIRE .#parent.#parent.clearStore;
+                SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
+                if(variable_struct){
+                    SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
+                }
+                var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
+                var viewNode = genro.getFrameNode(th_root);
+                if(oldSectionValue){
+                    genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
+                }
+                genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
+            }         
             var loadingData = GET .#parent.#parent.grid.loadingData;
             if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
-            """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
-            th_root=th_root,secname=sections,
+            """,currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
+            th_root=th_root,secname=sections,multivalue=multivalue,
             storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
             #_init=True)
 
