@@ -116,6 +116,7 @@ class GnrDaemon(object):
     def restart(self,**kwargs):
         self.stop(saveStatus=True)
 
+
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False):
         if not sitename in self.siteregisters:
@@ -132,11 +133,20 @@ class GnrDaemon(object):
 
     def siteRegisters(self,**kwargs):
         return self.siteregisters.items()
+
+    def siteRegisterProxy(self,sitename):
+        return Pyro4.Proxy(self.siteregisters[sitename]['register_uri'])
         
     def siteregister_dump(self,sitename=None,**kwargs):
         uri = self.siteregisters[sitename]['register_uri']
         with Pyro4.Proxy(uri) as proxy:
             return proxy.dump()
+
+
+    def setSiteInMaintenance(self,sitename,status=None,allowed_users=None):
+        uri = self.siteregisters[sitename]['register_uri']
+        with Pyro4.Proxy(uri) as proxy:
+            return proxy.setMaintenance(status,allowed_users=allowed_users)
 
     def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
         result = None
@@ -149,7 +159,6 @@ class GnrDaemon(object):
         with Pyro4.Proxy(uri) as proxy:
             print 'before stop',saveStatus
             result = proxy.stop(saveStatus=saveStatus)
-
             print 'stopped',proxy
         self.onRegisterStop(sitename)
         return result

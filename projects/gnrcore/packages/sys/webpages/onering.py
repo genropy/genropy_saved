@@ -25,38 +25,31 @@ class GnrCustomWebPage(object):
     def sitesStruct(self,struct):
         r = struct.view().rows()
         r.cell('sitename', width='10em',name='Site name')
-        r.cell('register_uri',width='20em',name='Register uri')
-        r.cell('server_uri',width='20em',name='Server uri')
+        #r.cell('register_uri',width='20em',name='Register uri')
+        #r.cell('server_uri',width='20em',name='Server uri')
         r.cell('start_ts',width='10em',name='Started',dtype='DH')
+        r.cell('active',width='20px',name='S',dtype='B',semaphore=True)
+        r.cell('allowed_users',width='25em',name='Allowed users')
 
     def main(self, root, **kwargs):
         bc = root.borderContainer(datapath='main')
-        top = bc.borderContainer(region='top',height='200px',splitter=True)
-        self.sitesFrame(top)
-        self.siteControlPane(top)
+        top = bc.borderContainer(region='top',height='250px',splitter=True)
+        self.sitesFrame(top.contentPane(width='500px',region='left'))
+        self.siteControlPane(top.framePane(region='center',gradient_from='whitesmoke',gradient_to='white',gradient_deg=90))
         self.userConnectionPages(bc.framePane(frameCode='ucp_filtered',region='center'))
 
 
     def userConnectionPages(self,frame):
-        frame.dataRpc('dummy',self.loadSelectedSiteSituation,
-            _onResult="""SET current_site.data.loaded_users = result.popNode("users");
-                         SET current_site.data.loaded_connections = result.popNode("connections");
-                         SET current_site.data.loaded_pages = result.popNode("pages");""",_timing=3,
-            sysrpc=True,selected_register_uri='^main.register_uri')
         frame.css('.disconnected .dojoxGrid-cell', "color:red !important;")
         frame.css('.inactive .dojoxGrid-cell', "color:orange !important;")
         frame.css('.no_children .dojoxGrid-cell', "color:yellow !important;")
         bar = frame.top.slotToolbar('5,stackButtons,*,cleanIdle,5')
         bar.cleanIdle.button('Clean')
-
-
         sc = frame.center.stackContainer()
         self.userFrame(sc.borderContainer(title='Users',design='sidebar'))
         self.connectionFrame(sc.contentPane(title='Connections'))
         self.pagesFrame(sc.borderContainer(title='Pages'))
-
         
-
     def userFrame(self,bc):
         userframe = bc.contentPane(region='left',width='450px',splitter=True).frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
                                                                             grid_multiSelect=False,grid_autoSelect=True,
@@ -171,39 +164,60 @@ class GnrCustomWebPage(object):
                                 data='^current_site.data.current_page_profile',selfUpdate=True)
         profileframe.top.slotBar('2,vtitle,*',vtitle='!!Rpc details',_class='pbl_roundedGroupLabel')
 
-    def sitesFrame(self,bc):
-        frame = bc.frameGrid(frameCode='runningSites',region='left',datapath='runningSites',
-                    width='450px',
+    def sitesFrame(self,pane):
+        frame = pane.frameGrid(frameCode='runningSites',datapath='runningSites',
                    struct=self.sitesStruct,_class='pbl_roundedGroup',
-                   grid_selected_sitename='main.sitename',grid_selected_register_uri='main.register_uri',
-                   grid_selected_server_uri='main.server_uri',margin='2px')
+                    grid_autoSelect=True,
+                   grid_selected_sitename='main.sitename',
+                   margin='2px')
         frame.grid.bagStore(storepath='runningSites.store',storeType='AttributesBagRows',
                                 sortedBy='=.grid.sorted',
                                 data='^runningSites.loaded_data',selfUpdate=True)
-        bc.dataRpc('runningSites.loaded_data',self.runningSites,_onStart=True)
-        bc.dataRpc('dummy',self.daemonCommands,command='^runningSites.command',sitename='=main.sitename')
+        pane.dataRpc('runningSites.loaded_data',self.runningSites,_onStart=True,_timing=5)
+        pane.dataRpc('dummy',self.daemonCommands,command='^runningSites.command',sitename='=main.sitename')
+
+        frame.dataRpc('dummy',self.loadSelectedSiteSituation,
+            _onResult="""SET current_site.data.loaded_users = result.popNode("users");
+                         SET current_site.data.loaded_connections = result.popNode("connections");
+                         SET current_site.data.loaded_pages = result.popNode("pages");
+                         SET current_site.record = result.pop('site_situation')
+                         """,_timing=3,
+            sysrpc=True,sitename='^main.sitename')
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
-    def siteControlPane(self,bc):
-        top = bc.contentPane(region='center',background='silver')
-        fb = top.formbuilder(cols=1,border_spacing='3px')
-        fb.div('^main.sitename')
-        fb.div('^main.register_uri')
-        fb.div('^main.server_uri')
-
+    def siteControlPane(self,frame):
+        bar = frame.top.slotBar('10,stitle,*,stop_button,2,restart_button,2',height='30px',background='#444')
+        bar.stitle.div('^current_site.record.sitename',height='30px',font_size='22px',color='white',text_align='center')
         #fb.button('dump current',fire_dump='runningSites.command')
-        fb.button('stop current',fire_stop='runningSites.command')
+        bar.stop_button.button('Stop current',fire_stop='runningSites.command')
         #fb.button('load current',fire_load='runningSites.command')
-        fb.button('Restart current',fire_restart='runningSites.command')
-        fb.button('Restart All',fire_restart_all='runningSites.command')
+        bar.restart_button.button('Restart current',fire_restart='runningSites.command')
+        #fb.button('Restart All',fire_restart_all='runningSites.command',colspan=2)
+
+        fb = frame.formbuilder(cols=2,border_spacing='3px',datapath='current_site.record',margin_top='5ex')
+        fb.checkbox(value='^.maintenance',label='Maintenance',validate_onAccept="""if(userChange){
+                                                                                                if(!value){
+                                                                                                    SET .allowed_users = null;
+                                                                                                }
+                                                                                                FIRE main.setInMaintenance = value;
+                                                                                         }""")
+        fb.textbox(value='^.allowed_users',lbl='Allowed user',validate_onAccept="""if(userChange){
+                                                                                                if(GET .maintenance){
+                                                                                                    FIRE main.setInMaintenance = value;
+                                                                                                }
+                                                                                         }""",width='30em')
+
+        fb.dataRpc('dummy',self.setInMaintenance,sitename='=main.sitename',status='^main.setInMaintenance',allowed_users='=.allowed_users')
+
 
     @public_method
-    def loadSelectedSiteSituation(self,selected_register_uri=None):
-        if selected_register_uri:
-            register_proxy = Pyro4.Proxy(selected_register_uri)
-            return self.maintenance_update_data(register_proxy)
+    def loadSelectedSiteSituation(self,sitename=None):
+        with self.site.register.gnrdaemon_proxy.siteRegisterProxy(sitename) as register_proxy:
+            result = self.maintenance_update_data(register_proxy)
+            maintenance = register_proxy.isInMaintenance()
+            result.setItem('site_situation',Bag(dict(sitename=sitename,maintenance=maintenance,allowed_users=register_proxy.allowedUser())))
+            return result
         return Bag()
-
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()
@@ -233,11 +247,8 @@ class GnrCustomWebPage(object):
         r.cell('age', width='6em', dtype='L', name='Conn.Time',format='DHMS')
         r.cell('last_refresh_age', width='6em', dtype='L', name='last refresh',format='DHMS')
         r.cell('last_rpc_age', width='6em', dtype='L', name='last rpc',format='DHMS')
-
         r.cell('last_event_age', width='6em', dtype='L', name='Last Act.',format='DHMS')
-        
         r.cell('page_profile',width='9em',name='Page profile')
-        
         r.cell('alive',width='4em',semaphore=True,name='Alive',dtype='B')
 
     def _profile_grid_struct(self, struct):
@@ -275,12 +286,23 @@ class GnrCustomWebPage(object):
     def daemonCommands(self,command=None,sitename=None):
         return getattr(self.site.register.gnrdaemon_proxy,'siteregister_%s' %command,None)(sitename)
         
+    @public_method
+    def setInMaintenance(self,sitename=None,status=None,allowed_users=None):
+        self.site.register.gnrdaemon_proxy.setSiteInMaintenance(sitename=sitename,status=status,allowed_users=allowed_users)
+
+   
 
     @public_method
     def runningSites(self):
         result = Bag()
-        sites = self.site.register.gnrdaemon_proxy.siteRegisters()
+        proxy = self.site.register.gnrdaemon_proxy
+        sites = proxy.siteRegisters()
         for k, v in sites:
+            v = dict(v)
+            v['_pkey'] = v['sitename']
+            with Pyro4.Proxy(v['register_uri']) as proxy:
+                v['active'] = not proxy.isInMaintenance()
+                v['allowed_users'] = proxy.allowedUser()
             result.setItem(k,None,**v)
         return result
 

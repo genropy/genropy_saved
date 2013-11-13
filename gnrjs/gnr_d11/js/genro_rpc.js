@@ -419,11 +419,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     resultHandler: function(response, ioArgs, currentAttr) {
         this.unregister_call(ioArgs);
-        var siteError = ioArgs.xhr.getResponseHeader('X-GnrSiteError') 
-        if(siteError){
-            return genro.dev.siteErrorStatus(siteError);
-        }
-        
+        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
+        genro.dev.siteLockedStatus(siteMaintenance!=null);
         var envelope = new gnr.GnrBag();
         try {
             envelope.fromXmlDoc(response, genro.clsdict);

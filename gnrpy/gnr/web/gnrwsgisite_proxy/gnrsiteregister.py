@@ -472,6 +472,13 @@ class PageRegister(BaseRegister):
         localization.update(localizer_dict)
         data.setItem('localization', localization)
 
+    def pageInMaintenance(self,page_id=None):
+        page_item = self.get_item(page_id)
+        if not page_item:
+            return
+        user = page_item['user']
+        return self.siteregister.isInMaintenance(user)
+
     def setInClientData(self,path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         if filters:
@@ -499,7 +506,8 @@ class SiteRegister(object):
         self.sitename = sitename
         self.storage_path = storage_path
         self.catalog = GnrClassCatalog()
-
+        self.maintenance = False
+        self.allowed_users = None
 
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()
@@ -611,7 +619,6 @@ class SiteRegister(object):
             p['user'] = user
         if not self.connection_register.connections(olduser):
             self.drop_user(olduser)
-
 
     def refresh(self, page_id, last_user_ts=None,last_rpc_ts=None,pageProfilers=None):
         refresh_ts = datetime.now()
@@ -774,6 +781,23 @@ class SiteRegister(object):
         except EOFError:
             return False
 
+    def setMaintenance(self,status,allowed_users=None):
+        if status is False:
+            self.allowed_users = None
+            self.maintenance = False
+        else:
+            self.allowed_users = allowed_users
+            self.maintenance = True
+
+    def isInMaintenance(self,user=None):
+        if not self.maintenance or user=='*forced*':
+            return False
+        if not user:
+            return self.maintenance
+        return not user in self.allowed_users
+
+    def allowedUser(self):
+        return self.allowed_users
 
     def __getattr__(self, fname):
         if fname=='_pyroId':

@@ -78,27 +78,21 @@ dojo.declare("gnr.GnrDevHandler", null, {
         
 
     },
-    siteErrorStatus:function(siteError){
-        this.siteLockedStatus(true);
-        var that = this;
-        setTimeout(function(){
-            that.siteLockedStatus(false);
-        },5000)
-    },
+
 
     siteLockedStatus:function(set){
-        console.log('setting lockedstatus')
         var maingenro = genro.mainGenroWindow.genro;
         var sn = maingenro.nodeById('_gnrRoot');
+        if(!sn){
+            return;
+        }
         if(set){
             if(!maingenro.site_locked){
                 maingenro.site_locked = true;
-                maingenro.polling_enabled = false;
                 sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
             }
-        }else{
+        }else if (maingenro.site_locked){
             maingenro.site_locked = false;
-            maingenro.polling_enabled = true;
             sn.setHiderLayer(false);
         }
     },

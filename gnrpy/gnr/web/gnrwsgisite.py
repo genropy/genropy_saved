@@ -27,6 +27,7 @@ from gnr.core.gnrdecorator import extract_kwargs
 
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
+from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.services.gnrmail import WebMailHandler
@@ -268,6 +269,7 @@ class GnrWsgiSite(object):
         counter = int(counter or '0')
         self._currentPages = {}
         self._currentRequests = {}
+        self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
         if site_name and ':' in site_name:
@@ -288,7 +290,6 @@ class GnrWsgiSite(object):
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
             
-        self.status = None
         self.config = self.load_site_config()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
@@ -348,10 +349,6 @@ class GnrWsgiSite(object):
             self._register = SiteRegisterClient(self)
         return self._register
 
-    @property
-    def isInMaintenance(self):
-        return self.status is not None
-            
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
         
@@ -617,24 +614,45 @@ class GnrWsgiSite(object):
         return self.resource_loader(['sys', 'headless'], request, response)
     
 
+    @property
+    def isInMaintenance(self):
+        request = self.currentRequest
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        path_list = self.get_path_list(request.path_info)
+        first_segment = path_list[0] if path_list else ''
+        if request_kwargs.get('forcedlogin') or (first_segment.startswith('_') and first_segment!='_ping'):
+            return False
+        elif 'page_id' in request_kwargs:
+            self.currentMaintenance = 'maintenance' if self.register.pageInMaintenance(page_id=request_kwargs['page_id'],register_name='page') else None
+            if not self.currentMaintenance or (first_segment == '_ping'):
+                return False
+            return True
+        else:
+            r = GnrWebRequest(request)
+            c = r.get_cookie(self.site_name,'marshal', secret=self.config['secret'])
+            user = c.value.get('user') if c else None
+            return self.register.isInMaintenance(user)
+            
+
     def dispatcher(self, environ, start_response):
+        self.currentRequest = Request(environ)
         if self.isInMaintenance:
             return self.maintenanceDispatcher(environ, start_response)
         else:
             try:
                 return self._dispatcher(environ, start_response)
             except self.register.errors.ConnectionClosedError:
-                #self.status = 'Register:ConnectionClosedError'
+                self.currentMaintenance = 'register_error'
                 self._register = None
                 return self.maintenanceDispatcher(environ, start_response)
 
     def maintenanceDispatcher(self,environ, start_response):
-        request = Request(environ)
+        request = self.currentRequest
         response = Response()
         request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
         path_list = self.get_path_list(request.path_info)
         if (path_list and path_list[0].startswith('_')) or ('method' in request_kwargs or 'rpc' in request_kwargs or '_plugin' in request_kwargs):
-            response = self.setResultInResponse('maintenance', response, info_GnrSiteError=str(self.status))
+            response = self.setResultInResponse('maintenance', response, info_GnrSiteMaintenance=self.currentMaintenance)
             return response(environ, start_response)
         else:
             return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
@@ -648,8 +666,7 @@ class GnrWsgiSite(object):
         :param start_response: TODO"""
         self.currentPage = None
         t = time()
-        request = Request(environ)
-        self.currentRequest = request
+        request = self.currentRequest
         response = Response()
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
@@ -677,7 +694,7 @@ class GnrWsgiSite(object):
                 result = self.serve_ping(response, environ, start_response, **request_kwargs)
                 if not isinstance(result, basestring):
                     return result
-                response = self.setResultInResponse(result, response, info_GnrTime=time() - t)
+                response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSiteMaintenance=self.currentMaintenance)
                 self.cleanup()
             except Exception,exc:
                 raise 
@@ -734,7 +751,9 @@ class GnrWsgiSite(object):
             finally:
                 self.onServedPage(page)
                 self.cleanup()
-            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None))
+            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
+                                                                info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
+                                                                info_GnrSiteMaintenance=self.currentMaintenance)
             
             return response(environ, start_response)
             
@@ -752,7 +771,8 @@ class GnrWsgiSite(object):
         :param response: TODO
         :param totaltime: TODO"""
         for k,v in info_kwargs.items():
-            response.headers['X-%s' %k] = str(v)
+            if v is not None:
+                response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
             response.content_type = 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
@@ -1094,6 +1114,16 @@ class GnrWsgiSite(object):
         
     currentPage = property(_get_currentPage, _set_currentPage)
 
+
+    def _get_currentMaintenance(self):
+        """property currentPage it returns the page currently used in this thread"""
+        return self._currentMaintenances.get(thread.get_ident())
+        
+    def _set_currentMaintenance(self, page):
+        """set currentPage for this thread"""
+        self._currentMaintenances[thread.get_ident()] = page
+        
+    currentMaintenance = property(_get_currentMaintenance, _set_currentMaintenance)
 
     def _get_currentRequest(self):
         """property currentRequest it returns the request currently used in this thread"""
