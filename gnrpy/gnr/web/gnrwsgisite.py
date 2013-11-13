@@ -761,7 +761,7 @@ class GnrWsgiSite(object):
         uri = self.dummyPage.getResourceUri(htmlPageName)
         if uri:
             path_list = uri[1:].split('/')
-            return self.statics.static_dispatcher(path_list, environ, start_response)
+            return self.statics.static_dispatcher(path_list, environ, start_response,nocache=True)
 
     @extract_kwargs(info=True)
     def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
