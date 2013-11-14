@@ -363,7 +363,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         else{
             kwbox.width=dlg_kw.width;
-            console.log('kwbox',kwbox)
             var box = dlg.center._('div',kwbox);
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});

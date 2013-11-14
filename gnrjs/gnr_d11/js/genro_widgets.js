@@ -2264,6 +2264,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             if(ask_params && (ask_params.shiftToSkip===false || !e.shiftKey)){
                 var promptkw = objectUpdate({},sourceNode._ask_params);
                 promptkw.fields = promptkw.fields.map(function(kw){
+                    kw = objectUpdate({},kw);
                     if(kw['name'] in action_attributes){
                         kw['default_value'] = action_attributes[kw['name']];
                     }
