@@ -74,7 +74,7 @@ class BaseResourceExport(BaseResourceBatch):
         for view in struct.values():
             for row in view.values():
                 for cell in row:
-                    if cell.getAttr('hidden'):
+                    if cell.getAttr('hidden') is True:
                         continue
                     col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
                     self.columns.append(col)

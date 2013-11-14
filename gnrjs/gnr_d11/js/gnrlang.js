@@ -1520,6 +1520,8 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);
     }
+    argNames.push('__orig_kw');
+    argValues.push(parsobj);
     var func = funcCreate(fnc, argNames.join(','),scope,showError);
     var result = func.apply(scope, argValues);
     return result;

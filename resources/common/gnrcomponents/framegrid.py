@@ -14,9 +14,19 @@ class FrameGridSlots(BaseComponent):
         kwargs.setdefault('visible',enable)
         parameters = parameters or dict()
         mode = parameters.get('mode','xls')
-        return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
+        gridattr = pane.frame.grid.attributes
+        table = gridattr.get('table')
+        placeholder = table.replace('.','_') if table else None
+        return pane.slotButton(label='!!Export',publish='serverAction',
+                                command='export',opt_export_mode=mode or 'xls',
+                                
                                 opt_downloadAs=parameters.get('downloadAs'),
-                                opt_rawData=rawData, iconClass=_class,**kwargs) 
+                                opt_rawData=rawData, iconClass=_class,
+                                ask=dict(title='Export selection',shiftToSkip=True,
+                                        fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
+                                                dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode')]),
+
+                                **kwargs) 
        
     @struct_method
     def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,**kwargs):

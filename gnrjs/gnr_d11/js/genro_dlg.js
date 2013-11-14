@@ -330,12 +330,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var cancelCb = kw.cancelCb;
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
-
-
         var dflt = kw['dflt'];
-        var dlg = genro.dlg.quickDialog(title,objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'},dlg_kw));
+        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
+        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white',autoSize:true},dlg_kw);
+        var dlg = genro.dlg.quickDialog(title,dlg_kw);
         var mandatory = objectPop(kw,'mandatory');
-
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
@@ -363,25 +362,24 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             dlg.center._('div',kwbox);
         }
         else{
+            kwbox.width=dlg_kw.width;
+            console.log('kwbox',kwbox)
             var box = dlg.center._('div',kwbox);
             if(msg){
                 box._('div',{innerHTML:msg,color:'#666',margin_bottom:'10px'});
             }
-            
             if(typeof(wdg)=='string'){
                 var fb = genro.dev.formbuilder(box,1,{border_spacing:'1px',width:'100%',fld_width:'100%'});
                 fb.addField(wdg,objectUpdate({value:'^.promptvalue',lbl:kw.lbl,lbl_color:'#666',lbl_text_align:'right'},objectExtract(kw,'wdg_*')));
             }else{
                 var fb = genro.dev.formbuilder(box,1,{border_spacing:'4px',width:'100%',fld_width:'100%',datapath:'.promptvalue'});
                 wdg.forEach(function(n){
-                    var w = objectPop(n,'wdg');
+                    var w = objectPop(n,'wdg','textbox');
                     fb.addField(w,objectUpdate({lbl_color:'#666',lbl_text_align:'right'},n));
                 })
             }
         }
         dlg.show_action();
-        genro.setData('gnr.promptDlg.promptvalue',dflt || null);
-
 
     },
     paletteMap:function(kw) {
@@ -426,7 +424,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     quickDialog: function(title,kw) {
-        var kw = kw || {};
+        var kw = objectUpdate({},kw);
         genro.src.getNode()._('div', '_dlg_quick');
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
