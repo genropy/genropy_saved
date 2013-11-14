@@ -89,7 +89,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         if(set){
             if(!maingenro.site_locked){
                 maingenro.site_locked = true;
-                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
+                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998,message_color:'white',message_font_size:'30pt',
+                                    message_background:'red',message_padding:'20px',message_margin:'20%'});
             }
         }else if (maingenro.site_locked){
             maingenro.site_locked = false;
