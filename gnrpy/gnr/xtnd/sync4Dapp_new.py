@@ -192,6 +192,9 @@ class GnrAppSync4D(GnrApp):
         super(GnrAppSync4D,self).__init__(*args,**kwargs)
     
     def onIniting(self):
+        print "XXXXXXXXXXXXXXXXXXXXXX"
+        print self.config
+
         basepath = self.config.getAttr('packages', 'path')
         if not basepath:
             basepath = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))

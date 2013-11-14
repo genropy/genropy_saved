@@ -186,6 +186,7 @@ class Struct4D(object):
 
 class GnrAppSync4D(GnrApp):
     def onIniting(self):
+        print "XXXXXXXXXXXXXXXXXXX self.config"
         basepath = self.config.getAttr('packages', 'path')
         self.s4d = Struct4D(self.instanceFolder, basepath)
         self.checkChanges = False

@@ -352,6 +352,7 @@ class GnrPackagePlugin(object):
 class GnrPackage(object):
     """TODO"""
     def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
+        print pkg_id
         self.id = pkg_id
         filename = filename or pkg_id
         self.application = application
@@ -569,6 +570,7 @@ class GnrApp(object):
         self.kwargs = kwargs
         self.packages = Bag()
         self.packagesIdByPath = {}
+        print "yyyyyyyyyyy"
         self.config = self.load_instance_config()
         self.instanceMenu = self.load_instance_menu()
 
