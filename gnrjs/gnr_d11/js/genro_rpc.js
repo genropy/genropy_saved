@@ -419,6 +419,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
     resultHandler: function(response, ioArgs, currentAttr) {
         this.unregister_call(ioArgs);
+        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
+        genro.dev.siteLockedStatus(siteMaintenance!=null);
         var envelope = new gnr.GnrBag();
         try {
             envelope.fromXmlDoc(response, genro.clsdict);
@@ -615,8 +617,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 genro.callAfter(function(){
                     genro.dom.removeClass(dojo.body(),'ping_start');
                 },1000);
-                
                 genro.rpc.setPollingStatus(false);
+               
                 return result;
             }),
             'error': dojo.hitch(this, function(response, ioArgs) {

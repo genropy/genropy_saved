@@ -129,36 +129,36 @@ class GnrReloaderMonitor(Monitor):
                 os._exit(3)
                 break
             time.sleep(self.poll_interval)
-def stop_tunnel(tunnel):
-    tunnel.stop()
+#def stop_tunnel(tunnel):
+#    tunnel.stop()
 
-def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
-            db_user=None, db_password=None, db_host=None, db_port=None,first_run=None,**kwargs):
-    from gnr.core.gnrssh import SshTunnel
-    import getpass
-    ssh_host = ssh_host
-    ssh_port = ssh_port
-    username = ssh_user
-    forwarded_port = db_port
-    forwarded_host = db_host
-    if not ssh_password:
-        password = getpass.getpass('Enter SSH password:')
-    else:
-        password = ssh_password
-        if first_run:
-            cont = ''
-            while not (cont and cont[0] in ('Y','y','S','s')):
-                cont = raw_input('Press Y to continue with SSH remote connection ')
-
-
-    tunnel = SshTunnel(forwarded_port=forwarded_port, forwarded_host=forwarded_host,
-            ssh_host=ssh_host, ssh_port=ssh_port, 
-            username=username, password=password)
-    tunnel.prepare_tunnel()
-    local_port = tunnel.local_port
-    tunnel.serve_tunnel()
-    atexit.register(stop_tunnel, tunnel)
-    return local_port
+#def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
+#            db_user=None, db_password=None, db_host=None, db_port=None,first_run=None,**kwargs):
+#    from gnr.core.gnrssh import SshTunnel
+#    import getpass
+#    ssh_host = ssh_host
+#    ssh_port = ssh_port
+#    username = ssh_user
+#    forwarded_port = db_port
+#    forwarded_host = db_host
+#    if not ssh_password:
+#        password = getpass.getpass('Enter SSH password:')
+#    else:
+#        password = ssh_password
+#        if first_run:
+#            cont = ''
+#            while not (cont and cont[0] in ('Y','y','S','s')):
+#                cont = raw_input('Press Y to continue with SSH remote connection ')
+#
+#
+#    tunnel = SshTunnel(forwarded_port=forwarded_port, forwarded_host=forwarded_host,
+#            ssh_host=ssh_host, ssh_port=ssh_port, 
+#            username=username, password=password)
+#    tunnel.prepare_tunnel()
+#    local_port = tunnel.local_port
+#    tunnel.serve_tunnel()
+#    atexit.register(stop_tunnel, tunnel)
+#    return local_port
 
     
 def start_bonjour(host=None, port=None, server_name=None, server_description=None, home_uri=None):
@@ -299,12 +299,12 @@ class Server(object):
     parser.add_option('--source_instance',
                       dest='source_instance',
                       help="Import from instance")
-    parser.add_option('--remotesshdb',
-                      dest='remotesshdb',
-                      help="""Allow remote db connections over ssh tunnels.
-                      use connection string in the form: ssh_user@ssh_host:ssh_port/db_user:db_password@db_host:db_port
-                      if db part in the connection string is omitted the defaults from instanceconfig are used.
-                      ssh_port is defaulted to 22 if omitted""")
+   #parser.add_option('--remotesshdb',
+   #                  dest='remotesshdb',
+   #                  help="""Allow remote db connections over ssh tunnels.
+   #                  use connection string in the form: ssh_user@ssh_host:ssh_port/db_user:db_password@db_host:db_port
+   #                  if db part in the connection string is omitted the defaults from instanceconfig are used.
+   #                  ssh_port is defaulted to 22 if omitted""")
 
     if hasattr(os, 'setuid'):
     # I don't think these are available on Windows
@@ -353,7 +353,7 @@ class Server(object):
         self.site_script = site_script
         self.server_description = server_description
         self.server_name = server_name
-        self.remotesshdb = None
+        #self.remotesshdb = None
         (self.options, self.args) = self.parser.parse_args()
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
         self.load_gnr_config()
@@ -605,8 +605,8 @@ class Server(object):
         first_run = int(getattr(self.options, 'counter', 0) or 0) == 0
         if self.options.bonjour and first_run:
             self.set_bonjour()
-        if True or first_run:
-            self.handle_tunnel(first_run=first_run)
+       #if True or first_run:
+       #    self.handle_tunnel(first_run=first_run)
         if self.cmd:
             return self.check_cmd()
         self.check_logfile()
@@ -633,19 +633,19 @@ class Server(object):
             print msg
 
         self.serve()
-
-    def handle_tunnel(self,first_run=None):
-        if self.remote_db :
-            dbattrs = self.instance_config.getAttr('db' )
-            remote_db = self.instance_config.getAttr('remote_db.%s' %self.remote_db)
-            dbattrs.update(remote_db)
-            if dbattrs.get('ssh_host'):
-                conn_dict = self.get_tunnel_db_params(dbattrs['ssh_host'],dbattrs=dbattrs)
-                self.remotesshdb = self.setup_tunnel(conn_dict,first_run=first_run)
-        elif hasattr(self.options,'remotesshdb') and self.options.remotesshdb:
-            conn_dict = self.get_tunnel_db_params(self.options.remotesshdb)
-            self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict,first_run=first_run)
-
+#
+    #def handle_tunnel(self,first_run=None):
+    #    if self.remote_db :
+    #        dbattrs = self.instance_config.getAttr('db' )
+    #        remote_db = self.instance_config.getAttr('remote_db.%s' %self.remote_db)
+    #        dbattrs.update(remote_db)
+    #        if dbattrs.get('ssh_host'):
+    #            conn_dict = self.get_tunnel_db_params(dbattrs['ssh_host'],dbattrs=dbattrs)
+    #            self.remotesshdb = self.setup_tunnel(conn_dict,first_run=first_run)
+    #    elif hasattr(self.options,'remotesshdb') and self.options.remotesshdb:
+    #        conn_dict = self.get_tunnel_db_params(self.options.remotesshdb)
+    #        self.remotesshdb = self.setup_tunnel(conn_dict=conn_dict,first_run=first_run)
+#
 
     def serve(self):
         try:
@@ -653,7 +653,7 @@ class Server(object):
             gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, _config=self.siteconfig,
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
-                                    options=self.options, remotesshdb=self.remotesshdb)
+                                    options=self.options)
             GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
             httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:

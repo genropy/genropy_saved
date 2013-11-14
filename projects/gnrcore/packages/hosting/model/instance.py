@@ -10,7 +10,7 @@ import sys
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('instance', rowcaption='')
+        tbl = pkg.table('instance', rowcaption='code',name_long='Instance',name_plural='Instances')
         self.sysFields(tbl)
         tbl.column('code', size=':10', name_long='!!Instance Code')
         tbl.column('description', name_long='!!Instance Description')

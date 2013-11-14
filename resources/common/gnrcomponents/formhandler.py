@@ -198,16 +198,15 @@ class FormHandler(BaseComponent):
         
     @struct_method               
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
-        pane.div(_class='fh_semaphore',connect_onclick="""
+        s = pane.div(_class='fh_semaphore',connect_onclick="""
             if(genro.dom.getEventModifiers($1)=='Shift'){
                 if(this.form.status=='readOnly'){
-                   //objectPop(this.form.getDataNodeAttributes(),'_protect_write');
-                   //this.form.updateStatus();
-                   //this.form.applyDisabledStatus();
                     this.form.reload({ignoreReadOnly:true})
                 }
             }
             """)
+        s.tooltip(callback="return this.form.getSemaphoreStatus()")
+
     
     @struct_method          
     def fh_slotbar_form_formcommands(self,pane,**kwargs):

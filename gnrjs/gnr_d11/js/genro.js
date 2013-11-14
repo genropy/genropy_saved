@@ -80,6 +80,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastPing = start_ts;
         this._lastUserEventTs = start_ts;
         this._lastChildUserEventTs = start_ts;
+        this._lastGlobalUserEventTs = start_ts;
         this._lastRpc = start_ts;
 
         for (var i = 0; i < this.profile_count; i++) {
@@ -126,14 +127,14 @@ dojo.declare('gnr.GenroClient', null, {
             if (exit) {
                 return exit;
             }
-            if(!genro.root_page_id){
-                var rootenv = genro.getData('gnr.rootenv');
-                if(rootenv){
-                    var b = new gnr.GnrBag();
-                    b.setItem('rootenv',rootenv,{page_id:genro.page_id});
-                    dojo.cookie(genro.getData('gnr.siteName')+'_dying_'+genro.getData('gnr.package')+'_'+genro.getData('gnr.pagename'),b.toXml(),{'expires':new Date((new Date().getTime()+2000))});
-                }
-            }            
+            //if(!genro.root_page_id){
+            //    var rootenv = genro.getData('gnr.rootenv');
+            //    if(rootenv){
+            //        var b = new gnr.GnrBag();
+            //        b.setItem('rootenv',rootenv,{page_id:genro.page_id});
+            //        dojo.cookie(genro.getData('gnr.siteName')+'_dying_'+genro.getData('gnr.package')+'_'+genro.getData('gnr.pagename'),b.toXml(),{'expires':new Date((new Date().getTime()+2000))});
+            //    }
+            //}            
         };
         window.onunload = function(e) {
             genro.onWindowUnload(e);
@@ -263,12 +264,14 @@ dojo.declare('gnr.GenroClient', null, {
 
     childUserEvent:function(childgenro){
         genro._lastChildUserEventTs = new Date();
+        genro._lastGlobalUserEventTs = genro._lastChildUserEventTs > genro._lastUserEventTs? genro._lastChildUserEventTs:genro._lastUserEventTs;
         genro.onUserEvent();
     },
 
     _registerUserEvents:function(){
         var cb = function(){
             genro._lastUserEventTs = new Date();
+            genro._lastGlobalUserEventTs = new Date();
             if(genro.root_page_id){
                 genro.mainGenroWindow.genro.childUserEvent();
             }else{
@@ -304,7 +307,7 @@ dojo.declare('gnr.GenroClient', null, {
 
     onUserEvent:function() {
         if (genro.user_polling > 0) {
-            if ((genro._lastUserEventTs - genro.lastPing) / 1000 > genro.user_polling) {
+            if ((genro._lastGlobalUserEventTs - genro.lastPing) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':'user'});
             }
         }
@@ -514,7 +517,7 @@ dojo.declare('gnr.GenroClient', null, {
                 genro.fast_polling_limiter = setTimeout(function(){
                     var ts = new Date();
                     genro.fast_polling_limiter = null;
-                    var evtage = Math.min((ts - genro._lastUserEventTs),(ts-genro._lastChildUserEventTs))/1000;
+                    var evtage =(ts-genro._lastGlobalUserEventTs)/1000;
                     if(evtage>genro.user_polling){
                         genro.setAutoPolling();
                     }else{
@@ -1550,6 +1553,7 @@ dojo.declare('gnr.GenroClient', null, {
 
     },
     logout:function() {
+        genro.lockScreen(true,'logout');
         this.serverCall('connection.logout', null, 'genro.gotoHome();');
     },
     remoteJson:function(method, params) {

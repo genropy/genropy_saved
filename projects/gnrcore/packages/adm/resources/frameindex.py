@@ -327,7 +327,7 @@ class FrameIndex(BaseComponent):
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
         return self.package.attributes.get('name_long')
@@ -590,8 +590,7 @@ class FramedIndexLogin(BaseComponent):
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
-            with self.connectionStore() as store:
-                store.setItem('defaultRootenv',rootenv)
+            self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False
 
@@ -631,10 +630,8 @@ class FramedIndexLogin(BaseComponent):
                 self.doLogin(autologin,authenticate=authenticate)
                 canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),self.avatar.user_tags)
                 newrootenv.setItem('workdate',self.workdate, hidden= not canBeChanged,editable=True)
-                with self.pageStore() as pagestore:
-                    pagestore.setItem('rootenv',newrootenv)
-                with self.connectionStore() as connectionstore:
-                    connectionstore.setItem('defaultRootenv',Bag(newrootenv))
+                self.pageStore().setItem('rootenv',newrootenv)
+                self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
             else:
                 return 'login'
         elif new_window:
@@ -650,8 +647,7 @@ class FramedIndexLogin(BaseComponent):
         rootenv['workdate'] = rootenv['workdate'] or td
         if rootenv['workdate'] != td:
             rootenv['custom_workdate'] = True
-        with self.pageStore() as store:
-            store.setItem('rootenv',rootenv)
+        self.pageStore().setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
         result = self.avatar.as_dict()
@@ -704,6 +700,8 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
+        if not gnrtoken:
+            return
         method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
         if kwargs.get('userid'):
             self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])

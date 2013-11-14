@@ -72,8 +72,7 @@ class StoreTester(BaseComponent):
         return result
 
     def rpc_serverStoreSet(self, item_key=None, item_value=None, pageId=None):
-        with self.pageStore(pageId) as store:
-            store.setItem(item_key, item_value)
+        self.pageStore(pageId).setItem(item_key, item_value)
 
     def rpc_serverStoreGet(self, item_key=None, pageId=None):
         store = self.pageStore(pageId)

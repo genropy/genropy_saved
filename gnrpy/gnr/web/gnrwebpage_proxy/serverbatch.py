@@ -29,6 +29,7 @@ class GnrWebBatch(GnrBaseProxy):
         if not os.path.exists(self.page.userDocument('_batch_result')):
             return
         batch_results = [x for x in os.listdir(self.page.userDocument('_batch_result')) if not x.startswith('.')]
+        batch_to_remove = []
         with self.page.userStore(user) as store:
             already_registered_batch = [dc.path.split('.')[2] for dc in store.datachanges if
                                         dc.path.startswith('gnr.batch')]
@@ -37,7 +38,7 @@ class GnrWebBatch(GnrBaseProxy):
                 resultNode = result_doc.getNode('result')
                 batch_id = result_doc['batch_id']
                 if not resultNode or not 'url' in resultNode.attr:
-                    self.remove_batch(batch_id=batch_id)
+                    batch_to_remove.append(batch_id)
                     continue
                 if batch_id not in already_registered_batch:
                     batch_path = 'gnr.batch.%s' % batch_id
@@ -47,6 +48,9 @@ class GnrWebBatch(GnrBaseProxy):
                     store.set_datachange(batch_path, newbatch, reason='btc_create')
                     reason = 'btc_result_doc' if result_doc['result'] else 'btc_error_doc'
                     store.set_datachange(batch_path, result_doc, reason=reason)
+        if batch_to_remove:
+            self.remove_batch(batch_id=batch_to_remove)
+
 
 
     @property
@@ -140,6 +144,8 @@ class GnrWebBatch(GnrBaseProxy):
             userstore = self.page.userStore()
             batches = [dc.path.split('.')[2] for dc in userstore.datachanges if
                        (dc.reason == 'btc_error' or dc.reason == 'btc_end')]
+        elif isinstance(batch_id,list):
+            batches = batch_id
         else:
             batches = [batch_id]
         with self.page.userStore() as store:

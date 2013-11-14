@@ -842,7 +842,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             value = validateresult['value'];
             objectExtract(valueAttr, '_validation*');
             var formHandler = sourceNode.getFormHandler();
-            var fldname = datanode.attr.name_long || datanode.label;
+            var fldname = sourceNode.attr._valuelabel || datanode.attr.name_long || datanode.label;
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
                 if(validateresult.error && formHandler){
@@ -2138,6 +2138,10 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
         }
     }
     ,
+   //patch_close:function(){
+   //    return 'for debugging tooltip'
+   //},
+
     attributes_mixin_postCreate: function() {
         if (dojo_version == '1.1') {
             if (this.srcNodeRef) {
@@ -3432,7 +3436,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     }
                     if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
                         if(!rowBag.getNode('_rowEditorStatus')){
-                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'3em',
+                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
                                                                 field:'_rowEditorStatus',
                                                                 cellClasses:'rowEditorStatus',
                                                                 headerClasses:'rowEditorStatus',
@@ -3445,6 +3449,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
+                    if(sourceNode.attr.rowStatusColumn){
+                        row.push({dtype:'B',field:'_statusIcon',name:' ',width:'20px',_customGetter:function(){
+                            return '<div class="_statusIcon"></div>'
+                        }})
+                    }
                     var that = this;
                     rowBag.forEach(function(n){
                         cell = that.structFromBag_cell(sourceNode,n);
@@ -3539,6 +3548,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var valTextHtml = [];
             var innerHtml = [];
             var idx = 0;
+            var rn; 
+            var innerHtmlTxt = sel.length>20?'<div style="width:600px;text-align:center;">'+sel.length+' '+widget.sourceNode.attr.item_name_plural+' </div>':null;
             dojo.forEach(sel, function(k) {
                 var rdata = widget.rowByIndex(k);
                 pkeys.push(widget.rowIdentity(rdata));
@@ -3553,12 +3564,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     r_xml.push('<' + field + '>' + v + '</' + field + '>');
                     r_html.push('<td name="' + field + '">' + v + '</td>');
                 });
-                innerHtml.push(widget.views.views[0].rowNodes[k].innerHTML);
+                if(!innerHtmlTxt){
+                    rn = widget.views.views[0].rowNodes[k];
+                    if(rn){
+                        innerHtml.push(rn.innerHTML);
+                    }
+                }
                 valTextPlain.push(r.join('\t'));
                 valTextXml.push('<r_' + idx + '>' + r_xml.join('') + '</r_' + idx + '>');
                 valTextHtml.push('<tr>' + r_html.join('') + '</tr>');
                 idx = idx + 1;
             });
+            
             var selfDragRows = dragInfo.sourceNode.attr.selfDragRows;
             if (typeof(selfDragRows) == 'function') {
                 selfDragRows = selfDragRows(dragInfo);
@@ -3580,8 +3597,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 var auxnode = document.createElement('div');
                 dojo.addClass(auxnode,'rowsetdragging');
                 dragInfo.dragImageNode.appendChild(auxnode);
-                auxnode.innerHTML = innerHtml.join('');
-                
+                auxnode.innerHTML = innerHtmlTxt || innerHtml.join('');
                 dojo.addClass(dragInfo.dragImageNode, 'rowsetdragging_background');
                 auxDragImage.appendChild(dragInfo.dragImageNode);
                 dragInfo.event.dataTransfer.setDragImage(auxDragImage, 0, 0);
@@ -3879,6 +3895,9 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
     patch_onStyleRow:function(row) {
         var attr = this.rowByIndex(row.index);
         if (attr) {
+            if (attr._is_readonly_row){
+                row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+            }
             if (attr._customClasses) {
                 var customClasses = null;
                 if ( typeof(attr._customClasses)=='function'){
@@ -4208,6 +4227,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     patch_onStyleRow:function(row) {
         var attr = this.rowCached(row.index);
         var customClasses = null;
+        if (attr._is_readonly_row){
+            row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+        }
         if(this.rowCustomClassesCb){
             row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');
         }
@@ -4371,7 +4393,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.reload(true);
     },
 
-    mixin_selectionKeeper:function(flag) {
+    mixin_selectionKeeper:function(flag,loadkw) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
             var identifier = this._identifier;
@@ -4381,10 +4403,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
             this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
+
+            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow}
             //this.prevFilterValue = this.currentFilterValue;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
         } else if (flag == 'load') {
+            loadkw = loadkw || this._saved_selections;
+            if(loadkw){
+                this.prevSelectedIdentifiers = loadkw.prevSelectedIdentifiers;
+                this.prevFirstVisibleRow = loadkw.prevFirstVisibleRow;
+                this._saved_selections = null;
+            }
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
                 this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
                 this.prevSelectedIdentifiers = null;
@@ -5935,7 +5965,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,preferred');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
         }
@@ -7013,8 +7043,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var that = this;
         if(objectNotEmpty(crop)){
             var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
-            innerImage.cr_width=crop.width
-            innerImage.cr_height=crop.height
+            innerImage.cr_width=crop.width;
+            innerImage.cr_height=crop.height;
+            innerImage['onerror'] = "this.sourceNode.setRelativeData(this.sourceNode.attr.src,null);"
             attr.tag = 'div';
             objectUpdate(attr,crop)
             attr.overflow='hidden';
@@ -7262,12 +7293,14 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         }
     }
 });
+
 dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
     constructor: function(application) {
         this._domtag = 'img';
          this._default_ext='png,jpg,jpeg,gif';
     }
 });
+
 dojo.declare("gnr.widgets.embed", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'embed';

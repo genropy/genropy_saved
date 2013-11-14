@@ -1,30 +1,17 @@
 # -*- coding: UTF-8 -*-
 
-# chat_component.py
-# Created by Francesco Porcari on 2010-09-08.
+# untitled.py
+# Created by Francesco Porcari on 2011-04-07.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
-from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import fromJson
-from datetime import datetime
-
-
-class MaintenancePlugin(BaseComponent):
-    def mainLeft_maintenance(self, pane):
-        """!!Maintenance"""
-        frame = pane.framePane(datapath='gnr.maintenance')
-        tc = frame.center.tabContainer(margin='2px')
-        self.maintenance_backup(tc.framePane(title='Backup',margin='2px',rounded=4,border='1px solid silver'))
-        self.maintenance_register(tc.framePane(title='!!Users & Connections',margin='2px',rounded=4,border='1px solid silver'))
-
-    def maintenance_backup(self,frame):
-        bar = frame.top.slotToolbar('5,backup,*')
-        #top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
-        #top.div('!!Backups',_class='pbl_roundedGroupLabel')
-        #fb = top.formbuilder(cols=1,border_spacing='3px')
-        bar.backup.button('Complete Backup',action='PUBLISH table_script_run = {res_type:"action",resource:"dumpall",table:"adm.backup"};')
+"Test page description"
+class GnrCustomWebPage(object):
+    css_requires='csstest'
+    def windowTitle(self):
+        return 'newreg explorer'
+         
+    def main(self,pane,**kwargs):
+        self.maintenance_register(pane.framePane())
 
     def maintenance_register(self,frame):
         frame.css('.disconnected .dojoxGrid-cell', "color:red !important;")
@@ -192,8 +179,6 @@ class MaintenancePlugin(BaseComponent):
             
     def _maintenance_get_items(self, items, child_name=None,exclude_guest=None, **kwargs):
         result = Bag()
-        now = datetime.now()
-
         for key, item in items.items():
             item = dict(item)
             item.pop('data',None)
@@ -202,21 +187,16 @@ class MaintenancePlugin(BaseComponent):
             _customClasses = []
             item['_pkey'] = key
             item['alive'] = True
-            item['age'] = (now - item['start_ts']).seconds
-            item['last_refresh_age'] = (now - item.get('last_refresh_ts',item['start_ts'])).seconds
-            item['last_event_age'] = (now - item.get('last_user_ts',item['start_ts'])).seconds
-            item['last_rpc_age'] = (now - item.get('last_rpc_ts',item['start_ts'])).seconds
-
             if item['last_refresh_age'] > 60:
                 item['alive'] = False
                 _customClasses.append('disconnected')
             elif item['last_event_age'] > 60:
                 _customClasses.append('inactive')
-           #if child_name and not item[child_name]:
-           #    _customClasses.append('no_children')
+            if child_name and not item[child_name]:
+                _customClasses.append('no_children')
             item.pop('datachanges', None)
-            #if child_name is None:
-            #    self.maintenance_cellServerProfile(item)
+            if child_name is None:
+                self.maintenance_cellServerProfile(item)
             result.setItem(key, None, _customClasses=' '.join(_customClasses), **item)
         return result
 
@@ -252,8 +232,3 @@ class MaintenancePlugin(BaseComponent):
         pages = self.site.register.pages()
         result['pages'] = self._maintenance_get_items(pages,exclude_guest=exclude_guest)
         return result
-
-
-
-
-

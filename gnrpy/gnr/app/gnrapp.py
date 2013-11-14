@@ -551,7 +551,7 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
-                debug=False, restorepath=None,remotesshdb=None,**kwargs):
+                debug=False, restorepath=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -560,6 +560,7 @@ class GnrApp(object):
         if instanceFolder:
             if ':' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split(':',1)
+
             if not os.path.isdir(instanceFolder):
                 instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder or ''
@@ -574,14 +575,21 @@ class GnrApp(object):
 
         self.build_package_path()
         db_settings_path = os.path.join(self.instanceFolder, 'dbsettings.xml')
+
         if os.path.isfile(db_settings_path):
             db_credential = Bag(db_settings_path)
             self.config.update(db_credential)
         if custom_config:
             self.config.update(custom_config)
-        if remotesshdb:
-            db_node = self.config.getNode('db')
-            db_node.setAttr(remotesshdb)
+        if self.remote_db:
+            remote_db_node = self.config.getNode('remote_db.%s' %self.remote_db)
+            remotedbattr = remote_db_node.attr
+            if remotedbattr:
+                db_node = self.config.getNode('db')
+                sshattr = dict(db_node.attr)
+                sshattr.update(remotedbattr)
+                sshattr['forwarded_port'] = sshattr.pop('port')
+                db_node.attr['port'] = self.gnrdaemon.sshtunnel_port(**sshattr)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()
             #------ application instance customization-------
@@ -1315,13 +1323,23 @@ class GnrApp(object):
             return self
         if not name in self.aux_instances:
             instance_name = self.config['aux_instances.%s?name' % name] 
+            remote_db = self.config['aux_instances.%s?remote_db' % name] 
             if not check:
                 instance_name = instance_name or name
             if not instance_name:
                 return
+            if remote_db:
+                instance_name = '%s:%s' %(instance_name,remote_db)
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
-        
+    
+    @property
+    def gnrdaemon(self):
+        if not getattr(self,'_gnrdaemon',None):
+            from gnr.web.gnrdaemonhandler import GnrDaemonProxy
+            self._gnrdaemon = GnrDaemonProxy(use_environment=True).proxy() 
+        return self._gnrdaemon
+
 class GnrAvatar(object):
     """A class for avatar management
     

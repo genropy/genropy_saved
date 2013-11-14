@@ -15,7 +15,6 @@ import urllib
 
 
 from time import time
-from datetime import datetime
 from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
 from threading import RLock
@@ -28,14 +27,15 @@ from gnr.core.gnrdecorator import extract_kwargs
 
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrtaskhandler import TaskHandler
+from gnr.web.gnrwebreqresp import GnrWebRequest
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.services.gnrmail import WebMailHandler
 
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
-from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
-from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
+from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
+
 import warnings
 mimetypes.init()
 site_cache = {}
@@ -69,45 +69,45 @@ class GnrWebServerError(Exception):
 class PrintHandlerError(Exception):
     pass
     
-class LockInfo():
-    def __init__(self, val=False, **kwargs):
-        self._status = val
-        self.info = kwargs
-        
-    def __getattr__(self, attr):
-        return getattr(self._status, attr)
-        
-class SiteLock(object):
-    """TODO"""
-    def __init__(self, site, locked_path, expiry=600):
-        self.site = site
-        self.locked_path = locked_path
-        self.expiry = expiry or None
-        
-    def __enter__(self):
-        return self.acquire()
-        
-    def __exit__(self, type, value, traceback):
-        self.release()
-        
-    def acquire(self):
-        """TODO"""
-        page = self.site.currentPage
-        lockinfo = dict(user=page.user,
-                        page_id=page.page_id,
-                        connection_id=page.connection_id,
-                        currtime=time.time())
-                        
-        result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
-        if result:
-            return LockInfo(True)
-        else:
-            info = self.site.shared_data.get(self.locked_path)
-            return LockInfo(False, **info)
-            
-    def release(self):
-        """TODO"""
-        self.site.shared_data.delete(self.locked_path)
+#class LockInfo():
+#    def __init__(self, val=False, **kwargs):
+#        self._status = val
+#        self.info = kwargs
+#        
+#    def __getattr__(self, attr):
+#        return getattr(self._status, attr)
+#        
+#class SiteLock(object):
+#    """TODO"""
+#    def __init__(self, site, locked_path, expiry=600):
+#        self.site = site
+#        self.locked_path = locked_path
+#        self.expiry = expiry or None
+#        
+#    def __enter__(self):
+#        return self.acquire()
+#        
+#    def __exit__(self, type, value, traceback):
+#        self.release()
+#        
+#    def acquire(self):
+#        """TODO"""
+#        page = self.site.currentPage
+#        lockinfo = dict(user=page.user,
+#                        page_id=page.page_id,
+#                        connection_id=page.connection_id,
+#                        currtime=time.time())
+#                        
+#        result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
+#        if result:
+#            return LockInfo(True)
+#        else:
+#            info = self.site.shared_data.get(self.locked_path)
+#            return LockInfo(False, **info)
+#            
+#    def release(self):
+#        """TODO"""
+#        self.site.shared_data.delete(self.locked_path)
         
 class memoize(object):
     """TODO"""
@@ -212,22 +212,22 @@ cache = memoize()
 class GnrWsgiSite(object):
     """TODO"""
     #cache = memoize()
-    def siteLock(self, **kwargs):
-        """TODO"""
-        return SiteLock(self, **kwargs)
+   # def siteLock(self, **kwargs):
+   #     """TODO"""
+   #     return SiteLock(self, **kwargs)
         
-    @property
-    def shared_data(self):
-        """TODO"""
-        if not hasattr(self, '_shared_data'):
-            memcache_config = self.config['memcache']
-            if memcache_config:
-                self._shared_data = GnrSharedData_memcache(self, memcache_config,
-                                                           debug=self.config.getAttr('memcache').get('debug'))
-            else:
-                self._shared_data = GnrSharedData_dict(self)
-        return self._shared_data
-        
+   #@property
+   #def shared_data(self):
+   #    """TODO"""
+   #    if not hasattr(self, '_shared_data'):
+   #        memcache_config = self.config['memcache']
+   #        if memcache_config:
+   #            self._shared_data = GnrSharedData_memcache(self, memcache_config,
+   #                                                       debug=self.config.getAttr('memcache').get('debug'))
+   #        else:
+   #            self._shared_data = GnrSharedData_dict(self)
+   #    return self._shared_data
+   #    
     @property
     def guest_counter(self):
         """TODO"""
@@ -263,12 +263,13 @@ class GnrWsgiSite(object):
         return self.wsgiapp(environ, start_response)
         
     def __init__(self, script_path, site_name=None, _config=None, _gnrconfig=None, counter=None, noclean=None,
-                 options=None, remotesshdb=None):
+                 options=None):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
         self._currentPages = {}
         self._currentRequests = {}
+        self._currentMaintenances = {}
         abs_script_path = os.path.abspath(script_path)
         self.remote_db = ''
         if site_name and ':' in site_name:
@@ -289,7 +290,6 @@ class GnrWsgiSite(object):
             self.gnr_config = self.load_gnr_config()
             self.set_environment()
             
-
         self.config = self.load_site_config()
         self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
@@ -309,7 +309,6 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
         self.option_restore = options.restore if options else None
-        self.remotesshdb = remotesshdb
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -331,7 +330,7 @@ class GnrWsgiSite(object):
         self.mail_handler = self.addService(WebMailHandler, service_name='mail')
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
-        self.register = SiteRegister(self)
+        self._register = None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -344,15 +343,12 @@ class GnrWsgiSite(object):
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
 
+    @property
+    def register(self):
+        if not self._register:
+            self._register = SiteRegisterClient(self)
+        return self._register
 
-    #def addSiteServices(self):
-    #    """TODO"""
-    #    service_names=[]
-    #    if 'services' in self.config:
-    #        service_names=self.config['services'].digest('#k')
-    #    if service_names:
-    #        self.services.addSiteServices(service_names=service_names)
-            
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
         
@@ -465,7 +461,8 @@ class GnrWsgiSite(object):
             
     def on_reloader_restart(self):
         """TODO"""
-        self.shared_data.dump()
+        pass
+        #self.shared_data.dump()
         
     def initializePackages(self):
         """TODO"""
@@ -615,16 +612,61 @@ class GnrWsgiSite(object):
         request = Request.blank('/sys/headless')
         response = Response()
         return self.resource_loader(['sys', 'headless'], request, response)
+    
+
+    @property
+    def isInMaintenance(self):
+        request = self.currentRequest
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        path_list = self.get_path_list(request.path_info)
+        first_segment = path_list[0] if path_list else ''
+        if request_kwargs.get('forcedlogin') or (first_segment.startswith('_') and first_segment!='_ping'):
+            return False
+        elif 'page_id' in request_kwargs:
+            self.currentMaintenance = 'maintenance' if self.register.pageInMaintenance(page_id=request_kwargs['page_id'],register_name='page') else None
+            if not self.currentMaintenance or (first_segment == '_ping'):
+                return False
+            return True
+        else:
+            r = GnrWebRequest(request)
+            c = r.get_cookie(self.site_name,'marshal', secret=self.config['secret'])
+            user = c.value.get('user') if c else None
+            return self.register.isInMaintenance(user)
+            
 
     def dispatcher(self, environ, start_response):
+        self.currentRequest = Request(environ)
+        if self.isInMaintenance:
+            return self.maintenanceDispatcher(environ, start_response)
+        else:
+            try:
+                return self._dispatcher(environ, start_response)
+            except self.register.errors.ConnectionClosedError:
+                self.currentMaintenance = 'register_error'
+                self._register = None
+                return self.maintenanceDispatcher(environ, start_response)
+
+    def maintenanceDispatcher(self,environ, start_response):
+        request = self.currentRequest
+        response = Response()
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        path_list = self.get_path_list(request.path_info)
+        if (path_list and path_list[0].startswith('_')) or ('method' in request_kwargs or 'rpc' in request_kwargs or '_plugin' in request_kwargs):
+            response = self.setResultInResponse('maintenance', response, info_GnrSiteMaintenance=self.currentMaintenance)
+            return response(environ, start_response)
+        else:
+            return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
+        
+
+    def _dispatcher(self, environ, start_response):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
         
         :param environ: TODO
         :param start_response: TODO"""
+        self.currentPage = None
         t = time()
-        request = Request(environ)
-        self.currentRequest = request
+        request = self.currentRequest
         response = Response()
         self.external_host = self.config['wsgi?external_host'] or request.host_url
         # Url parsing start
@@ -652,7 +694,7 @@ class GnrWsgiSite(object):
                 result = self.serve_ping(response, environ, start_response, **request_kwargs)
                 if not isinstance(result, basestring):
                     return result
-                response = self.setResultInResponse(result, response, info_GnrTime=time() - t)
+                response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSiteMaintenance=self.currentMaintenance)
                 self.cleanup()
             except Exception,exc:
                 raise 
@@ -709,7 +751,9 @@ class GnrWsgiSite(object):
             finally:
                 self.onServedPage(page)
                 self.cleanup()
-            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None))
+            response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSqlTime=page.sql_time,info_GnrSqlCount=page.sql_count,
+                                                                info_GnrXMLTime=getattr(page,'xml_deltatime',None),info_GnrXMLSize=getattr(page,'xml_size',None),
+                                                                info_GnrSiteMaintenance=self.currentMaintenance)
             
             return response(environ, start_response)
             
@@ -717,7 +761,7 @@ class GnrWsgiSite(object):
         uri = self.dummyPage.getResourceUri(htmlPageName)
         if uri:
             path_list = uri[1:].split('/')
-            return self.statics.static_dispatcher(path_list, environ, start_response)
+            return self.statics.static_dispatcher(path_list, environ, start_response,nocache=True)
 
     @extract_kwargs(info=True)
     def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
@@ -727,7 +771,8 @@ class GnrWsgiSite(object):
         :param response: TODO
         :param totaltime: TODO"""
         for k,v in info_kwargs.items():
-            response.headers['X-%s' %k] = str(v)
+            if v is not None:
+                response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
             response.content_type = 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
@@ -755,7 +800,7 @@ class GnrWsgiSite(object):
         """clean up"""
         self.currentPage = None
         self.db.closeConnection()
-        self.shared_data.disconnect_all()
+        #self.shared_data.disconnect_all()
         
     def serve_tool(self, path_list, environ, start_response, **kwargs):
         """TODO
@@ -907,7 +952,7 @@ class GnrWsgiSite(object):
                 restorepath = None
         if self.remote_db:
             instance_path = '%s:%s' %(instance_path,self.remote_db)
-        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath, remotesshdb=self.remotesshdb)
+        app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
             if os.path.isfile(restorepath):
@@ -1026,19 +1071,18 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
             
     def clearRecordLocks(self, **kwargs):
-        """TODO"""
-        if 'sys' in self.gnrapp.db.packages:
-            return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
+        pass
+
             
     def onClosePage(self, page):
         """A method called on when a page is closed on the client
         
         :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
-        self.register.drop_page(page_id, cascade=False)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
-        
+        page._closed = True
+
     def debugger(self, debugtype, **kwargs):
         """Send debug information to the client, if debugging is enabled.
         Press ``Ctrl+Shift+D`` to open the debug pane in your browser
@@ -1046,59 +1090,20 @@ class GnrWsgiSite(object):
         :param debugtype: string (values: 'sql' or 'py')"""
         if self.currentPage:
             page = self.currentPage
-            #print 'ffff',self.debug,page.isDeveloper()
             if self.debug or page.isDeveloper():
                 page.developer.output(debugtype, **kwargs)
             if debugtype=='sql':
                 page.sql_count = page.sql_count + 1
                 page.sql_time = page.sql_time + kwargs.get('delta_time',0)
-                
+
     def onDbCommitted(self):
         """TODO"""
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
-        if not dbeventsDict:
-            return
-        page = self.currentPage
-        for table,dbevents in dbeventsDict.items():
-            if dbevents:
-                tblobj = self.db.table(table)
-                subscribers = self.register.pages(index_name=table)
-                if page and subscribers:
-                    for page_id in subscribers.keys():
-                        page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
-                                            attributes=dict(pkeycol=tblobj.pkey,from_page_id=page.page_id), 
-                                            page_id=page_id,public=True)
-        
-        self.db.updateEnv(env_transaction_id= None,dbevents=None)
-        
-    def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """TODO
-        
-        :param tblobj: the table object
-        :param record: TODO
-        :param event: TODO
-        :param old_record: TODO"""
-        if tblobj.attributes.get('broadcast') == '*old*':
-            subscribers = self.register.pages(index_name=tblobj.fullname)
-            value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
+        if dbeventsDict:
             page = self.currentPage
-            for page_id in subscribers.keys():
-                page.setInClientData('gnr.dbevent.%s' % tblobj.fullname.replace('.', '_'), value,
-                                     attributes=dict(dbevent=event,pkey=value[tblobj.pkey],pkeycol=tblobj.pkey), page_id=page_id)
-                                     
-    def sendMessageToClient(self, value, pageId=None, filters=None, origin=None, msg_path=None):
-        """Send a message
-        
-        :param value: TODO
-        :param pageId: TODO
-        :param filters: TODO
-        :param origin: TODO
-        :param msg_path: TODO"""
-        from_page, from_user = (origin.page_id, origin.user) if origin else (None, '*Server*')
-        self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
-                                         page_id=pageId, filters=filters,
-                                         attributes=dict(from_user=from_user, from_page=from_page))
-                                         
+            self.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
+            self.db.updateEnv(env_transaction_id= None,dbevents=None)
+                                 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())
@@ -1109,6 +1114,16 @@ class GnrWsgiSite(object):
         
     currentPage = property(_get_currentPage, _set_currentPage)
 
+
+    def _get_currentMaintenance(self):
+        """property currentPage it returns the page currently used in this thread"""
+        return self._currentMaintenances.get(thread.get_ident())
+        
+    def _set_currentMaintenance(self, page):
+        """set currentPage for this thread"""
+        self._currentMaintenances[thread.get_ident()] = page
+        
+    currentMaintenance = property(_get_currentMaintenance, _set_currentMaintenance)
 
     def _get_currentRequest(self):
         """property currentRequest it returns the request currently used in this thread"""
@@ -1179,116 +1194,13 @@ class GnrWsgiSite(object):
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
         
     def serve_ping(self, response, environ, start_response, page_id=None, reason=None, **kwargs):
-        """TODO
-        
-        :param response: TODO
-        :param environ: TODO
-        :param start_response: TODO
-        :param page_id: TODO
-        :param reason: TODO"""
-        #kwargs = self.parse_kwargs(kwargs)
-        _children_pages_info= kwargs.get('_children_pages_info')
-        _lastUserEventTs = kwargs.get('_lastUserEventTs')
-        _lastRpc = kwargs.get('_lastRpc')
-        _pageProfilers = kwargs.get('_pageProfilers')
-        page_item = self.register.refresh(page_id, _lastUserEventTs,lastRpc=_lastRpc,pageProfilers=_pageProfilers)
-        if not page_item:
-            return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
-        catalog = self.gnrapp.catalog
-        self.handle_clientchanges(page_id, kwargs)
-        if _children_pages_info:
-            for k,v in _children_pages_info.items():
-                child_lastUserEventTs = v.pop('_lastUserEventTs', None)
-                child_lastRpc = v.pop('_lastRpc', None)
-
-                child_pageProfilers = v.pop('_pageProfilers', None)
-                self.handle_clientchanges(k, {'_serverstore_changes':v})
-                if child_lastUserEventTs:
-                    child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
-                if child_lastRpc:
-                    child_lastRpc = catalog.fromTypedText(child_lastRpc)
-                    self.register.refresh(k, child_lastUserEventTs,lastRpc=child_lastRpc,pageProfilers=child_pageProfilers)
-        envelope = Bag(dict(result=None))
-        user=page_item['user']
-        datachanges = self.get_datachanges(page_id, user=user)            
-        if datachanges:
-            envelope.setItem('dataChanges', datachanges)
-        if _children_pages_info:
-            for k in _children_pages_info.keys():
-                datachanges = self.get_datachanges(k, user=user)
-                if datachanges:
-                    envelope.setItem('childDataChanges.%s' %k, datachanges)
         response.content_type = "text/xml"
-        lastBatchUpdate = self.register.userStore(user).getItem('lastBatchUpdate')
-        if lastBatchUpdate:
-            if (datetime.now()-lastBatchUpdate).seconds<5:
-                envelope.setItem('runningBatch',True)
-            else:
-                with self.register.userStore(user) as store:
-                    store.setItem('lastBatchUpdate',None)
-        result = envelope.toXml(unresolved=True, omitUnknownTypes=True)
-        return result
-        
-    def get_datachanges(self, page_id, user=None, local_datachanges=None):
-        """TODO
-        
-        :param page_id: TODO
-        :param user: the username
-        :param local_datachanges: TODO"""
-        result = Bag()
-        local_datachanges = local_datachanges or []
-        with self.register.pageStore(page_id) as pagestore:
-            external_datachanges = list(pagestore.datachanges) or []
-            subscriptions = pagestore.getItem('_subscriptions') or Bag()
-            pagestore.reset_datachanges()
-            store_datachanges = []
-            for storename, storesubscriptions in subscriptions.items():
-                store = self.register.userStore(user) if storename == 'user' else self.register.stores(storename)
-                with store:
-                    self._get_storechanges(store, storesubscriptions.items(), page_id, store_datachanges)
-                    
-            for j, change in enumerate(external_datachanges + local_datachanges + store_datachanges):
-                result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
-                               change_fired=change.fired, change_attr=change.attributes,
-                               change_ts=change.change_ts, change_delete=change.delete)
-        return result
-        
-    def _get_storechanges(self, store, subscriptions, page_id, store_datachanges):
-        datachanges = store.datachanges
-        global_offsets = store.getItem('_subscriptions.offsets')
-        if global_offsets is None:
-            global_offsets = {}
-            store.setItem('_subscriptions.offsets', global_offsets)
-        for j, change in enumerate(datachanges):
-            changepath = change.path
-            change_idx = change.change_idx
-            for subpath, subdict in subscriptions:
-                if subdict['on'] and changepath.startswith(subpath):
-                    if change_idx > subdict.get('offset', 0):
-                        subdict['offset'] = change_idx
-                        change.attributes = change.attributes or {}
-                        if change_idx > global_offsets.get(subpath, 0):
-                            global_offsets[subpath] = change_idx
-                            change.attributes['_new_datachange'] = True
-                        else:
-                            change.attributes.pop('_new_datachange', None)
-                        store_datachanges.append(change)
-        return store_datachanges
-        
-    def handle_clientchanges(self, page_id=None, parameters=None):
-        """TODO
-        
-        :param page_id: TODO
-        :param parameters: TODO"""
-        if '_serverstore_changes' in parameters:
-            serverstore_changes = parameters.pop('_serverstore_changes', None)
-            if serverstore_changes:
-                serverstore_changes = self.parse_kwargs(serverstore_changes)
-                with self.register.pageStore(page_id, triggered=False) as store:
-                    if store:
-                        for k, v in serverstore_changes.items():
-                            store.setItem(k, v)
-                            
+        result = self.register.handle_ping(page_id=page_id,reason=reason,**kwargs)
+        if result is False:
+            return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
+        else:
+            return result.toXml(unresolved=True, omitUnknownTypes=True)
+                                  
     def parse_kwargs(self, kwargs):
         """TODO
         :param kwargs: the kw arguments

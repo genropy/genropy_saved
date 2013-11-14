@@ -132,16 +132,29 @@ dojo.declare("gnr.FramedIndexManager", null, {
     selectIframePage:function(kw){
         var openKw = objectPop(kw,'openKw');
         var rootPageName = this.createIframeRootPage(kw);
-        this.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
-        if(openKw){
-            var that = this;
-            this.stackSourceNode.watch('loadingOpenKw',function(){
-                return that.getCurrentIframe(rootPageName);
-            },function(){
-                var iframe = that.getCurrentIframe(rootPageName);
-                iframe.gnr.postMessage(iframe.sourceNode,openKw);
-            })
+        var that = this;
+        var cb = function(){
+            that.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
+            if(openKw){
+                that.stackSourceNode.watch('loadingOpenKw',function(){
+                    return that.getCurrentIframe(rootPageName);
+                },function(){
+                    var iframe = that.getCurrentIframe(rootPageName);
+                    iframe.gnr.postMessage(iframe.sourceNode,openKw);
+                })
+            }
+        };
+        var n = this.iframesbag.getNode(kw.rootPageName);
+        var hasBeenSelected = this.iframesbag.getNode(kw.rootPageName).attr.hasBeenCreated;
+        if(!hasBeenSelected){
+            genro.callAfter(function(){
+                n.attr.hasBeenCreated = true;
+            },1);
+            genro.callAfter(cb,500,this,'creating')
+        }else{
+            cb();
         }
+        
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
     
@@ -331,7 +344,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
                     startPage = pageName;
                 }
             },'static');
-            that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+            setTimeout(function(){
+                that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+            },100);
         }
     },
 

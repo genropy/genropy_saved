@@ -417,7 +417,7 @@ class PaletteTemplateEditor(TemplateEditor):
             }
         """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
                 pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template',user=self.user)
-        infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
+        infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""
             if(genro.isDeveloper && modifiers=='Shift'){

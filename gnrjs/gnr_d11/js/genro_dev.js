@@ -78,6 +78,25 @@ dojo.declare("gnr.GnrDevHandler", null, {
         
 
     },
+
+
+    siteLockedStatus:function(set){
+        var maingenro = genro.mainGenroWindow.genro;
+        var sn = maingenro.nodeById('_gnrRoot');
+        if(!sn){
+            return;
+        }
+        if(set){
+            if(!maingenro.site_locked){
+                maingenro.site_locked = true;
+                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
+            }
+        }else if (maingenro.site_locked){
+            maingenro.site_locked = false;
+            sn.setHiderLayer(false);
+        }
+    },
+
     debugMessage: function(msg, level, duration) {
 
         var level = level || 'MESSAGE';
@@ -95,7 +114,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return;
         }
         else if (status == 412) {
-            genro.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
+            var mainGenroWindow = genro.mainGenroWindow.genro;
+            mainGenroWindow.polling_enabled = false;
+            mainGenroWindow.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
         } else if (status == 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');

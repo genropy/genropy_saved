@@ -592,7 +592,7 @@ class SqlTable(GnrObject):
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
-              addPkeyColumn=True, locale=None,
+              addPkeyColumn=True,ignorePartition=False, locale=None,
               mode=None,_storename=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
@@ -631,6 +631,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
+                         ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
                          **kwargs)
         return query
@@ -1224,7 +1225,28 @@ class SqlTable(GnrObject):
         :param old_record: TODO"""
         print 'You should override for diagnostic'
         return
+
+    def _isReadOnly(self,record):
+        if self.attributes.get('readOnly'):
+            return True
+        if '__protection_tag' in record:
+            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+
+    def _islocked_write(self,record):
+        return self._isReadOnly(record) or self.islocked_write(record)
     
+    def islocked_write(self,record):
+        #OVERRIDE THIS
+        pass
+
+    def _islocked_delete(self,record):
+        return self._isReadOnly(record) or self.attributes.get('readOnly') or self.islocked_delete(record)
+
+    def islocked_delete(self,record):
+        #OVERRIDE THIS
+        pass
+
+
     def check_updatable(self, record,ignoreReadOnly=None):
         """TODO
         

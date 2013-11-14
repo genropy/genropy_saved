@@ -44,7 +44,8 @@ class Table(object):
 
     def updateGenericNotification(self,user_id=None,user_tags=None):
         generic_notification = self.db.table('adm.notification').query(where="""($all_users IS TRUE OR $tag_rule IS NOT NULL )
-                                                                                AND NOT $existing_for_current_user""",uid=user_id).fetch()
+                                                                                AND NOT $existing_for_current_user
+                                                                                """,env_user_id=user_id).fetch()
         commit = False
         for n in generic_notification:
             if n['all_users'] or self.db.application.checkResourcePermission(n['tag_rule'],user_tags):

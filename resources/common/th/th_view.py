@@ -31,7 +31,8 @@ class TableHandlerView(BaseComponent):
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,original_kwargs=kwargs)             
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
-                                 condition=condition,condition_kwargs=condition_kwargs,**kwargs)
+                                 condition=condition,condition_kwargs=condition_kwargs,
+                                 **kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for k in sorted(hooks.keys()):
@@ -58,7 +59,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','batch_export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
@@ -82,12 +83,15 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = configurable
+        grid_kwargs['item_name_singular'] = self.db.table(table).name_long
+        grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
-                               struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
-                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_loadingHider=loadingHider,
-                               grid_selfsubscribe_loadingData="this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
+                               struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
+                               datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
+                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,
+                               grid_loadingHider = loadingHider,
+                               grid_rowStatusColumn = self.db.table(table).attributes.get('protectionColumn'),
+                               grid_selfsubscribe_loadingData = "this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -96,9 +100,6 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,store_kwargs=store_kwargs)
-
-
-
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -135,17 +136,7 @@ class TableHandlerView(BaseComponent):
         bar.drawerStack.attributes['height'] = '100%'
         sc = bar.drawerStack.stackContainer(height='100%')
         sc.contentPane(background='red')
-        
-       #bar.confBar.slotToolbar('*,menuslot',menuslot='menu',height='20px',background='whitesmoke')
-       #tclass = bar.treeClassificator
-       #tclass.attributes['height']='100%'
-       #tclass.div(height='100%').('dragArea')
-       #bar.footerBar.slotToolbar('*,tools',tools='tools',height='20px')
-        
-   #@public_method
-   #def buildClassificator(self,pane):
-   #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
-        
+
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
@@ -186,25 +177,37 @@ class TableHandlerView(BaseComponent):
         dflt = getattr(m,'default',None)
         if dflt:
             pane.data('.current',dflt)
-        pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
+        multivalue=getattr(m,'multivalue',False)
+        variable_struct = getattr(m,'variable_struct',False)
+        if multivalue and variable_struct:
+            raise Exception('multivalue cannot be set with variable_struct')
+        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,
                         mandatory=getattr(m,'mandatory',True),**kwargs)
-
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
                 PUT .current = currentSection;
-            }            
-            var sectionNode = sectionbag.getNode(currentSection);
-            FIRE .#parent.#parent.clearStore;
-            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
-            if(variable_struct){
-                SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
+            if(!multivalue){
+                var sectionNode = sectionbag.getNode(currentSection);
+                FIRE .#parent.#parent.clearStore;
+                SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
+                if(variable_struct){
+                    SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
+                }
+                var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
+                var viewNode = genro.getFrameNode(th_root);
+                if(oldSectionValue){
+                    genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
+                }
+                genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
+            }         
             var loadingData = GET .#parent.#parent.grid.loadingData;
             if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
-            """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
+            """,currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
+            th_root=th_root,secname=sections,multivalue=multivalue,
             storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
             #_init=True)
 
@@ -340,7 +343,12 @@ class TableHandlerView(BaseComponent):
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
                             """,_class='smallmenu')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
-        
+      
+
+    @struct_method
+    def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
+        return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
+
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None,unlinkdict=None,title=None,store_kwargs=None):

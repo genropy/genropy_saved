@@ -125,16 +125,20 @@ class ImapReceiver(object):
             att_data = part.get_payload(decode=True)
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
-        fname = '%i_%s' %(self.atc_counter,fname)
+        #fname = '%i_%s' %(self.atc_counter,fname)
         fname = slugify(fname)
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
         date = new_mail['send_date']
-        attachment_path =  self.getAttachmentPath(date,filename)
-        year = str(date.year)
-        month = '%02i' %date.month
-        new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
+        attachment_path =  self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'])
+        #year = str(date.year)
+        #month = '%02i' %date.month
+
+        #new_attachment['path'] = os.path.join('mail',self.account_id, year,month,new_mail['id'], filename)
+        new_attachment['path'] = self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'],
+                        relative=True)
+        
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
@@ -145,11 +149,23 @@ class ImapReceiver(object):
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
-    def getAttachmentPath(self,date,filename):
+    def getAttachmentPath(self,date=None,filename=None, message_id = None, relative=None):
         year = str(date.year)
         month = '%02i' %date.month
-        return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
+        if not relative:
+            filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
                                                        autocreate=-1)
+        else:
+            filepath = os.path.join('mail', self.account_id, year,month,message_id, filename)
+        fname,ext = os.path.splitext(filepath)
+        counter = 0
+        while os.path.isfile(filepath):
+            filepath = '%s_%i%s'%(fname,counter,ext)
+            counter += 1
+        return filepath
+            
+
+
         
     def createMessageRecord(self, emailid):
         new_mail = dict(account_id=self.account_id)

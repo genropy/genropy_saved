@@ -40,7 +40,7 @@ class PublicBase(BaseComponent):
             partition_path = partition_kw['path']
             partition_field = partition_kw['field']
             pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
-            pane.data('current.%s' %partition_field,self.rootenv[partition_path],serverpath='rootenv.%s' %partition_path,dbenv=True)
+            pane.data('current.%s' %partition_field,self.rootenv['current_%s' %partition_path],serverpath='rootenv.current_%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -163,12 +163,7 @@ class Public(PublicBase):
     css_requires = 'public'
     plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
-    py_requires = """foundation/menu:MenuLink,
-                     foundation/dialogs,
-                     foundation/macrowidgets,
-                     public:PublicSlots,
-                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                     gnrcomponents/chat_component/chat_component:ChatComponent"""
+    py_requires = """public:PublicSlots,foundation/macrowidgets"""
 
     def mainLeftContent(self,pane,**kwargs):
         return
@@ -219,24 +214,25 @@ class PublicSlots(BaseComponent):
         partition_path = kw['path']
         table = kw['table']
         related_tblobj = self.db.table(table)
-        current_partition_value = self.rootenv[partition_path]
+        default_partition_value = self.rootenv[partition_path]
         fb = box.formbuilder(cols=1,border_spacing='0')
         partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
-        if not partitionioning_pkeys and current_partition_value:
-            partitionioning_pkeys = [current_partition_value]
+        if not partitionioning_pkeys and default_partition_value:
+            partitionioning_pkeys = [default_partition_value]
         partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
-        readOnly = len(partitionioning_pkeys) == 1
-        fb.dbSelect(value='^current.%s' %partition_field,
+        readOnly = partitionioning_pkeys and len(partitionioning_pkeys) == 1
+        fb.dbSelect(value='^current.current_partition_value',
                             condition=partition_condition,condition_pk=partitionioning_pkeys,
                             readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
                             hasDownArrow=True,font_size='.8em',lbl_color='white',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        pane.dataController('genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});',v='^current.%s' %partition_field)
-        pane.data('current.%s' %partition_field,current_partition_value,
-                    serverpath='rootenv.%s' %partition_path,dbenv=True)
-        with self.pageStore() as store:
-            store.setItem('rootenv.partition_kw',kw)
+        fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
+        pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
+        pane.data('current.current_partition_value',default_partition_value)
+        pane.data('current.%s' %partition_field,default_partition_value,
+                    serverpath='rootenv.current_%s' %partition_path,dbenv=True)
+        self.pageStore().setItem('rootenv.partition_kw',kw)
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
