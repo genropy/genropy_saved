@@ -3401,7 +3401,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 
                 dojo.addClass(dragInfo.dragImageNode, 'rowsetdragging_background');
                 auxDragImage.appendChild(dragInfo.dragImageNode);
-                dragInfo.event.dataTransfer.setDragImage(auxDragImage, 0, 0);
+                dragInfo.event.dataTransfer.setDragImage(auxDragImage.firstChild, 0, 0);
                 setTimeout(function() {
                     auxDragImage.removeChild(dragInfo.dragImageNode);
                 }, 1);
