@@ -2744,11 +2744,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     mixin_openLinkedForm: function(e) {
         var idx = e.rowIndex;
-        genro.getForm(this.sourceNode.attr.linkedForm).openForm(idx, this.rowIdByIndex(idx));
+        this.sourceNode.publish('editrow',{pkey:this.rowIdByIndex(idx)})
     },
     mixin_linkedFormLoad: function(e) {
         var idx = e.rowIndex;
-        genro.getForm(this.sourceNode.attr.linkedForm).load({destPkey:this.rowIdByIndex(idx),destIdx:idx});
+        this.sourceNode.publish('editrow',{pkey:this.rowIdByIndex(idx)})
     },
     
     selfDragColumnsPrepare:function(sourceNode) {
