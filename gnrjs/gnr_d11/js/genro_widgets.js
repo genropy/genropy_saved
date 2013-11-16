@@ -230,6 +230,8 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 savedAttrs['speech'] = true;
             }
         }
+        savedAttrs['touchEvents'] = objectPop(attributes,'touchEvents');
+
         objectExtract(attributes, 'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
         objectExtract(attributes, 'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes, 'dropTarget');
@@ -328,7 +330,11 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 }
             }
         }
+
         var domNode = newobj.domNode || newobj;
+       //if('touchEvents' in savedAttrs){
+       //    genro.dom.connectTouchEvents(domNode,savedAttrs['touchEvents']);
+       //}
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
             if (typeof(menu) == 'string') {
@@ -3459,19 +3465,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
+                    if (genro.isTouchDevice) {
+                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
+                            'format_onclick':'this.widget.openLinkedForm(kw);',
+                            'width':'20px','calculated':true,
+                            'field':'_edit_record','name':' '};
+                        rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false,_position:0});
+                    }
 
                     if (!(rowBag instanceof gnr.GnrBag)) {
                         rowBag = new gnr.GnrBag();
                         rowsnodes[k].setValue(rowBag, false);
                     }
 
-                    if (genro.isTouchDevice) {
-                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
-                            'format_onclick':'this.widget.openLinkedForm(kw);',
-                            'width':'30px','calculated':true,
-                            'field':'_edit_record','name':' '};
-                        rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false});
-                    }
+
                     if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
                         if(!rowBag.getNode('_rowEditorStatus')){
                             rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
