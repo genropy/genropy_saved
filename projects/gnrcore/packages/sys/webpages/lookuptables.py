@@ -59,7 +59,7 @@ class GnrCustomWebPage(object):
     def remoteTh(self,pane,table=None,fixeed_table=None):
         pane.data('.mainth',Bag())
         if not table:
-            pane.div('!!Missing table')
+            pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px',color='#003366')
         else:
             saveButton = not fixeed_table
             semaphore = not fixeed_table
