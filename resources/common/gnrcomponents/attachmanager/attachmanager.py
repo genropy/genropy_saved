@@ -125,7 +125,7 @@ class AttachManager(BaseComponent):
 
     @struct_method
     def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
-        frame = pane.framePane(frameCode='attachmentPane_#',**kwargs)
+        frame = pane.framePane(frameCode='attachmentPane_#')
         bc = frame.center.borderContainer()
         th = bc.contentPane(region='left',width='400px',splitter=True,childname='atcgrid').inlineTableHandler(relation='@atc_attachments',
                                         viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
