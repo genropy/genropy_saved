@@ -230,6 +230,8 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 savedAttrs['speech'] = true;
             }
         }
+        savedAttrs['touchEvents'] = objectPop(attributes,'touchEvents');
+
         objectExtract(attributes, 'onDrop,onDrag,dragTag,dropTag,dragTypes,dropTypes');
         objectExtract(attributes, 'onDrop_*');
         savedAttrs['dropTarget'] = objectPop(attributes, 'dropTarget');
@@ -328,7 +330,11 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 }
             }
         }
+
         var domNode = newobj.domNode || newobj;
+       //if('touchEvents' in savedAttrs){
+       //    genro.dom.connectTouchEvents(domNode,savedAttrs['touchEvents']);
+       //}
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
             if (typeof(menu) == 'string') {
@@ -943,13 +949,23 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     patch_show:function(cb){
         this.onShowing();
         this.show_replaced(cb);
+        if(this.sourceNode.attr.autoSize){
+            genro.callAfter(this.autoSize,1,this,'autoSize');
+        }
     },
+    mixin_autoSize:function(){
+        if(this.containerNode.firstChild.scrollWidth>this.containerNode.firstChild.clientWidth){
+            this.containerNode.firstChild.style.width = this.containerNode.firstChild.scrollWidth+'px';
+        }
+    },
+
     mixin_onShowing:function(){},
     
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
         objectPop(attributes, 'position');
+        objectPop(attributes, 'autoSize');
         var closable = ('closable' in attributes) ? objectPop(attributes, 'closable') : false;
         attributes.title = attributes.title || '';
         if (!closable) {
@@ -2198,6 +2214,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['action'] = objectPop(attributes, 'action');
         savedAttrs['fire'] = objectPop(attributes, 'fire');
         savedAttrs['publish'] = objectPop(attributes, 'publish');
+        savedAttrs['ask_params'] = objectPop(attributes,'ask');
         var focusOnTab = objectPop(attributes,'focusOnTab');
         if(attributes.iconRight){
             attributes.templateString = "<div class=\"dijit dijitReset dijitLeft dijitInline\"\n\tdojoAttachEvent=\"onclick:_onButtonClick,onmouseenter:_onMouse,onmouseleave:_onMouse,onmousedown:_onMouse\"\n\twaiRole=\"presentation\"\n\t><button class=\"dijitReset dijitStretch dijitButtonNode dijitButtonContents\" dojoAttachPoint=\"focusNode,titleNode\"\n\t\ttype=\"${type}\" waiRole=\"button\" waiState=\"labelledby-${id}_label\"\n\t\t><div class=\"dijitReset dijitInline\"><center class=\"dijitReset dijitButtonText\" id=\"${id}_label\" dojoAttachPoint=\"containerNode\">${label}</center></div\n\t><span class=\"dijitReset dijitInline ${iconClass}\" dojoAttachPoint=\"iconNode\" \n \t\t\t><span class=\"dijitReset dijitToggleButtonIconChar\">&#10003;</span \n\t\t></span\n\t\t></button\n></div>\n";
@@ -2216,7 +2233,12 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             var buttonNode = dojo.query(".dijitButtonNode", widget.domNode)[0];
             dojo.style(buttonNode, savedAttrs['_style']);
         }
+        if(savedAttrs.ask_params){
+            sourceNode._ask_params = savedAttrs.ask_params;
+        }
+
     },
+
 
     onClick:function(e) {
         var inattr = this.getInheritedAttributes();
@@ -2238,14 +2260,36 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             that.widget._onClickDo(e,inattr,count);
         },_delay);
     },
-
     mixin__onClickDo:function(e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;
         var sourceNode = this.sourceNode;
         if (action) {
-            //funcCreate(action).call(this,e);
-            funcApply(action, objectUpdate(sourceNode.currentAttributes(), {event:e,_counter:count}), sourceNode);
+            var action_attributes = sourceNode.currentAttributes();
+            var ask_params = sourceNode._ask_params;
+            if(ask_params && (ask_params.shiftToSkip===false || !e.shiftKey)){
+                var promptkw = objectUpdate({},sourceNode._ask_params);
+                promptkw.fields = promptkw.fields.map(function(kw){
+                    kw = objectUpdate({},kw);
+                    if(kw['name'] in action_attributes){
+                        kw['default_value'] = action_attributes[kw['name']];
+                    }
+                    kw['value'] = '^.'+kw['name'];
+                    return kw;
+                })
+                promptkw.widget = objectPop(promptkw,'fields');
+                promptkw.action = function(result){
+                    if(result && result.len()){
+                        objectUpdate(action_attributes,result.asDict());
+                    }
+                    funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+                }
+
+                genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
+            }else{
+                funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
+            }
+            return;
         }
         if (sourceNode.attr.fire) {
             var s = eventToString(e) || true;
@@ -2706,11 +2750,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     mixin_openLinkedForm: function(e) {
         var idx = e.rowIndex;
-        genro.getForm(this.sourceNode.attr.linkedForm).openForm(idx, this.rowIdByIndex(idx));
+        this.sourceNode.publish('editrow',{pkey:this.rowIdByIndex(idx)})
     },
     mixin_linkedFormLoad: function(e) {
         var idx = e.rowIndex;
-        genro.getForm(this.sourceNode.attr.linkedForm).load({destPkey:this.rowIdByIndex(idx),destIdx:idx});
+        this.sourceNode.publish('editrow',{pkey:this.rowIdByIndex(idx)})
     },
     
     selfDragColumnsPrepare:function(sourceNode) {
@@ -3421,19 +3465,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 for (k = 0; k < rowsnodes.length; k++) {
 
                     rowBag = rowsnodes[k].getValue();
+                    if (genro.isTouchDevice) {
+                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
+                            'format_onclick':'this.widget.openLinkedForm(kw);',
+                            'width':'20px','calculated':true,
+                            'field':'_edit_record','name':' '};
+                        rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false,_position:0});
+                    }
 
                     if (!(rowBag instanceof gnr.GnrBag)) {
                         rowBag = new gnr.GnrBag();
                         rowsnodes[k].setValue(rowBag, false);
                     }
 
-                    if (genro.isTouchDevice) {
-                        var cellattr = {'format_isbutton':true,'format_buttonclass':'zoomIcon buttonIcon',
-                            'format_onclick':'this.widget.openLinkedForm(kw);',
-                            'width':'30px','calculated':true,
-                            'field':'_edit_record','name':' '};
-                        rowBag.setItem('cell_editor', null, cellattr, {doTrigger:false});
-                    }
+
                     if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
                         if(!rowBag.getNode('_rowEditorStatus')){
                             rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
@@ -5571,23 +5616,42 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
         kwargs['action'] = objectPop(kw,'command');
+        var sourceNode = this.sourceNode;
+        genro.lockScreen(true,sourceNode.getStringId());
         if (this.collectionStore().storeType=='VirtualSelection'){
             kwargs['selectionName'] = this.collectionStore().selectionName;
             kwargs['selectedRowidx'] = this.getSelectedRowidx();
         }else{
-            console.log(options['rawData']);
             kwargs['data'] = this.currentData(null, options['rawData']===true);
         }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
-        kwargs['struct'] = this.structbag();
-        kwargs['_sourceNode'] = this.sourceNode;
+        kwargs['struct'] =  this.getExportStruct();
+        kwargs['_sourceNode'] = sourceNode;
         var cb = function(result){
+            genro.lockScreen(false,sourceNode.getStringId());
             genro.download(result);
         };
         kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
+    },
+    mixin_getExportStruct:function(){
+        var struct = this.structbag().deepCopy();
+        var cells = struct.getItem('#0.#0');
+        var sourceNode = this.sourceNode;
+        cells._nodes.forEach(function(n){
+            if(!n.attr.hidden){
+                return;
+            }
+            if(n.attr.hidden==true || sourceNode.getRelativeData(n.attr.hidden)){
+                cells.popNode(n.label);
+                return;
+            }
+        });
+        return struct;
     }
+
+
 });
 
 

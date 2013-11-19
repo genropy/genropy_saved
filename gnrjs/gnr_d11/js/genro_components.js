@@ -1483,8 +1483,8 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
         if(!kw.action){
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
-            kw.opt = objectExtract(kw,'opt_*');
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),evt:event,opt:opt,_counter:_counter});";
+            //kw.opt = objectExtract(kw,'opt_*',true);
+            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
         }
         return sourceNode._('button',kw);
     }

@@ -1176,6 +1176,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return m.join();
     },
     startTouchDevice:function() {
+        dojo.addClass(document.body,'touchDevice')
         document.body.ontouchmove = function(e) {
             //e.preventDefault();
         };
@@ -1186,6 +1187,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
             genro.dom.logTouchEvent('gesture', e);
         });
 
+        //dojo.connect(document.body, 'touchstart',genro.dom,'touchEvent_start');
+        //dojo.connect(document.body, 'touchend',genro.dom,'touchEvent_end');
+        //dojo.connect(document.body, 'touchmove',genro.dom,'touchEvent_move');
+        //dojo.connect(document.body, 'touchcancel',genro.dom,'touchEvent_cancel');
+
+
     },
     logTouchEvent:function(path, e) {
 
@@ -1195,6 +1202,37 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         genro.setData('touch.event.' + path, b);
     },
+
+    connectTouchEvents:function(domNode,touchEvents){
+        dojo.connect(domNode,'touchstart',this.touchEvent_start);
+        dojo.connect(domNode,'touchend',this.touchEvent_start);
+
+    },
+
+    touchEvent_start:function(e){
+        console.log('touchEvent_start',e,e.target.id)
+
+    },
+
+    touchEvent_end:function(e){
+        console.log('touchEvent_end',e,e.target.id)
+
+    },
+
+    touchEvent_move:function(e){
+        console.log('touchEvent_move',e,e.target.id)
+
+
+    },
+
+
+    touchEvent_cancel:function(e){
+        console.log('touchEvent_cancel',e,e.target.id)
+
+ 
+    },
+
+
     scrollableTable:function(domnode, gridbag, kw) {
         var max_height = kw.max_height || '180px';
         var columns = kw.columns;

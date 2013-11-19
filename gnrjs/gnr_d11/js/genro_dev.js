@@ -89,7 +89,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
         if(set){
             if(!maingenro.site_locked){
                 maingenro.site_locked = true;
-                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
+                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998,message_color:'white',message_font_size:'30pt',
+                                    message_background:'red',message_padding:'20px',message_margin:'20%'});
             }
         }else if (maingenro.site_locked){
             maingenro.site_locked = false;
@@ -188,11 +189,16 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
-            var lblpars = {innerHTML:objectPop(kw, 'lbl')};
+            var lblpars = {innerHTML:objectPop(kw, 'lbl'),_class:'gnrfieldlabel'};
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);
             var res = tr._('td',objectUpdate({colspan:colspan},objectExtract(kw,'td_*')))._(tag, kw);
+            var default_value = objectPop(kw,'default_value');
+            var resNode = res.getParentNode();
+            if(default_value && resNode.attr.value){
+                resNode.setRelativeData(resNode.attr.value,default_value);
+            }
             this.col_count = this.col_count + colspan;
             return res;
         };

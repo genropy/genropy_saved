@@ -324,6 +324,8 @@ class TemplateEditor(TemplateEditorBase):
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        fb.simpleTextArea(value='^.attachments', lbl='!!Attachments',dropTypes = 'text/html')
+
         editorConstrain = editorConstrain or dict()
         constrain_height = editorConstrain.pop('constrain_height',False)
         constrain_width = editorConstrain.pop('constrain_width',False)

@@ -335,6 +335,8 @@ class BagToHtml(object):
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
                     if rowheight > availableSpace:
                         self._newPage()
+                    if not rowDataNode.value:
+                        continue
                     row = self.copyValue('body_grid').row(height=rowheight)
                     self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight
                     self.currColumn = 0

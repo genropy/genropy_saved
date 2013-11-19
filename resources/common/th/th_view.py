@@ -59,7 +59,7 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','batch_export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
                 base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
@@ -345,9 +345,9 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
       
 
-    @struct_method
-    def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
-        return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
+   # @struct_method
+   # def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
+   #     return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
 
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,

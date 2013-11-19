@@ -48,6 +48,7 @@ class Main(BaseResourceMail):
         data = self.get_template(template_address)
         self.compiledTemplate = Bag(data['compiled'])
         self.mail_pars = Bag(data['metadata.email_compiled'])
+        self.mail_pars['attachments'] = self.mail_pars.pop('attachments').split(',') if 'attachments' in self.mail_pars else []
         self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
         self.batch_parameters.setdefault('as_pdf',False)
         self.batch_title = data['summary'] or 'Mail'
@@ -74,14 +75,14 @@ class Main(BaseResourceMail):
                                 record=record, thermo=thermo, pdf=as_pdf,
                                 **self.batch_parameters)
         if result:
-            attachments = None
+            attachments = self.mail_pars['attachments']
             body = None
             if as_pdf:
-                attachments = [result]
+                attachments.append(result)
                 body = ''
             else:
                 body = result
-                attachments = None
+                attachments = attachments or None
             self.send_one_email(to_address=to_address,cc_address=cc_address,subject=subject,body=body,attachments=attachments)
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):

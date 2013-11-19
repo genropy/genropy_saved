@@ -13,11 +13,12 @@ from gnr.core.gnrstring import toText
 class CsvWriter(object):
     """docstring for CsVWriter"""
 
-    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None):
+    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,locale=None):
         self.headers = headers
         self.columns = columns
         self.coltypes = coltypes
         self.filepath = filepath
+        self.locale = locale
 
     def writeHeaders(self):
         self.result = ['\t'.join(self.headers)]
@@ -32,10 +33,10 @@ class CsvWriter(object):
         return txt
 
     def writeRow(self, row):
-        self.result.append('\t'.join([self.cleanCol(toText(row.get(col)), self.coltypes[col]) for col in self.columns]))
+        self.result.append('\t'.join([self.cleanCol(toText(row.get(col),locale=self.locale), self.coltypes[col]) for col in self.columns]))
 
     def workbookSave(self):
-        f = open('%s.csv' % self.filepath, 'w')
+        f = open(self.filepath, 'w')
         result = '\n'.join(self.result)
         f.write(result.encode('utf-8'))
         f.close()
@@ -74,7 +75,7 @@ class BaseResourceExport(BaseResourceBatch):
         for view in struct.values():
             for row in view.values():
                 for cell in row:
-                    if cell.getAttr('hidden'):
+                    if cell.getAttr('hidden') is True:
                         continue
                     col = self.db.colToAs(cell.getAttr('caption_field') or cell.getAttr('field'))
                     self.columns.append(col)
@@ -121,8 +122,10 @@ class BaseResourceExport(BaseResourceBatch):
             self.zippath = self.page.site.getStaticPath('page:output',export_mode,'%s.%s' % (self.filename, export_mode), autocreate=-1)
             self.page.site.zipFiles(file_list=[self.filepath],zipPath=self.zippath)
             self.filepath = self.zippath
-        self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,
-                                                   '%s.%s' % (self.filename, export_mode))
+        filename = self.filename
+        if not self.filename.endswith('.%s' %self.export_mode):
+            filename = '%s.%s' % (self.filename, export_mode)
+        self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,filename)
 
     def prepareFilePath(self, filename=None):
         if not filename:
