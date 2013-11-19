@@ -12,6 +12,7 @@ import re
 import logging
 import subprocess
 import urllib
+import urllib2
 
 
 from time import time
@@ -561,6 +562,13 @@ class GnrWsgiSite(object):
     
     def getPackageFolder(self,pkg):
         return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
+
+    def callExternalUrl(self,url,method=None,**kwargs):
+        kwargs = kwargs or dict()
+        if method:
+            url = '%s/%s' %(url,method)
+        url= urllib2.urlopen(url,urllib.urlencode(kwargs))
+        return url.read()
         
     def loadResource(self, pkg, *path):
         """TODO

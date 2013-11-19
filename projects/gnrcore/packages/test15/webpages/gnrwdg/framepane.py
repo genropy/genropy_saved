@@ -27,13 +27,14 @@ class GnrCustomWebPage(object):
     def test_1_slotbar_sidebar(self,pane):
         """Design: sidebar"""
         frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
-                               border='1px solid #bbb',margin='10px',
+                               border='1px solid #bbb',xmargin='10px',
                                center_background='gray',rounded=20,design='sidebar')
         #top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px') 
         #left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')
-        right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px') 
+        right = frame.right.slotToolbar(slots='30,pp,*',width='100px',_class='icon48')
+        right.pp.slotButton('aaa',iconClass='iconbox tray') 
         bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
-        bottom.foo.button('!!Save',iconClass="icnBaseOk",showLabel=False)
+        bottom.foo.slotButton('!!Save',iconClass="icnBaseOk",showLabel=False)
         
     def test_2_slotbar_headline(self,pane):
         """rounded"""

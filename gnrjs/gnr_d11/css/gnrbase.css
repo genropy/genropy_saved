@@ -2768,6 +2768,13 @@ body *{
 	padding-bottom: 1px;
 }
 
+.slotbar_vertical.slotbar_toolbar{
+    padding-top: 0px;
+    padding-bottom: 0px;  
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
 /*.slotbar_toolbar .dijitButtonNode {
 	background: none;
 	margin: 0px !important;
