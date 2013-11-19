@@ -22,7 +22,7 @@ class FmBagFromXml(object):
         for i, v in enumerate(data.values()):
             rec_bag = Bag()
             for count, f in enumerate(v.values()):
-                key = fieldnameBag.getNode('#%i'%count).getAttr('NAME')
+                key = fieldnameBag.getNode('#%i'%count).getAttr('NAME').replace(' ','_')
                 value =  f.getItem('DATA')
                 rec_bag[key] = value
                 if i==0:
