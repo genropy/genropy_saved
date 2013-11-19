@@ -57,6 +57,7 @@ class ImagesView(BaseComponent):
     
     def th_view(self,view):
         view.grid.attributes.update(draggable_row=False)
+
         
     @public_method
     def th_applymethod(self,selection):
@@ -64,10 +65,17 @@ class ImagesView(BaseComponent):
             ext_img = self.getResourceUri('filetype_icons/%s.png' % row['ext'][1:].lower())\
             or self.getResourceUri('filetype_icons/_blank.png')
             url = row['url'] or ext_img
+
+
             url = self.externalUrl(url)
             title = row['title']
             description = row['description']
-            return dict(image_drag="""<div><div>%s</div><img border=0 draggable="true" title="%s" src="%s" height="60px"/></div>""" %(title,description,url))
+            if row['ext'] not in ('jpg','png','jpeg'):
+                image_drag="""<div draggable="true"><div>%s</div><img border=0 draggable="false" title="%s" src="%s" height="60px"/>%s</div>""" %(title,description,ext_img,row['path'])
+            else:
+                image_drag="""<div><div>%s</div><img border=0 draggable="true" title="%s" src="%s" height="60px"/></div>""" %(title,description,url)
+
+            return dict(image_drag=image_drag)
         selection.apply(apply_thumb)
         
     def th_top_custom(self,top):
