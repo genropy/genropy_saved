@@ -15,6 +15,8 @@ class AnalyzingBag(Bag):
                     label = row[group]
             else:
                 label = group(row)
+            if label is None:
+                return ''
             if not isinstance(label, basestring):
                 label = str(label)
             return label
@@ -60,7 +62,8 @@ class AnalyzingBag(Bag):
             #rowind += 1
             currbag = self
             for gr in group_by:
-                label = groupLabel(row, gr).replace('.', '_') or '_'
+                label = groupLabel(row, gr)
+                label = label.replace('.', '_') or '_'
                 bagnode = currbag.getNode(label, autocreate=True)
                 if bagnode.value is None:
                     bagnode.setAttr(_pkey=self.nodeCounter)

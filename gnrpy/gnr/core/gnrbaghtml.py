@@ -142,17 +142,17 @@ class BagToHtml(object):
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(letterhead_id=self.letterhead_id,name=self.templates)
         d = self.__dict__
-        self.page_height = d.get('page_height') or self.htmlTemplate['main.page.height'] or self.page_height
-        self.page_width = d.get('page_width') or self.htmlTemplate['main.page.width'] or self.page_width
-        self.page_margin_top = d.get('page_margin_top') or self.htmlTemplate['main.page.top'] or self.page_margin_top
-        self.page_margin_left = d.get('page_margin_left')or self.htmlTemplate['main.page.left'] or self.page_margin_left
-        self.page_margin_right = d.get('page_margin_right')or self.htmlTemplate['main.page.right'] or self.page_margin_right
-        self.page_margin_bottom = d.get('page_margin_bottom') or self.htmlTemplate['main.page.bottom'] or self.page_margin_bottom
+        self.page_height = float(d.get('page_height') or self.htmlTemplate['main.page.height'] or self.page_height)
+        self.page_width = float(d.get('page_width') or self.htmlTemplate['main.page.width'] or self.page_width)
+        self.page_margin_top = float(d.get('page_margin_top') or self.htmlTemplate['main.page.top'] or self.page_margin_top)
+        self.page_margin_left = float(d.get('page_margin_left')or self.htmlTemplate['main.page.left'] or self.page_margin_left)
+        self.page_margin_right = float(d.get('page_margin_right')or self.htmlTemplate['main.page.right'] or self.page_margin_right)
+        self.page_margin_bottom = float(d.get('page_margin_bottom') or self.htmlTemplate['main.page.bottom'] or self.page_margin_bottom)
         
-        self.page_header_height =d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height
-        self.page_footer_height =d.get('page_footer_height') or self.htmlTemplate['layout.bottom?height'] or self.page_footer_height
-        self.page_leftbar_width = d.get('page_leftbar_width') or self.htmlTemplate['layout.left?width'] or self.page_leftbar_width
-        self.page_rightbar_width = d.get('page_rightbar_width')or self.htmlTemplate['layout.right?width'] or self.page_rightbar_width
+        self.page_header_height = float(d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height)
+        self.page_footer_height = float(d.get('page_footer_height') or self.htmlTemplate['layout.bottom?height'] or self.page_footer_height)
+        self.page_leftbar_width = float(d.get('page_leftbar_width') or self.htmlTemplate['layout.left?width'] or self.page_leftbar_width)
+        self.page_rightbar_width = float(d.get('page_rightbar_width')or self.htmlTemplate['layout.right?width'] or self.page_rightbar_width)
 
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
         """TODO
@@ -306,7 +306,7 @@ class BagToHtml(object):
         self.defineCustomStyles()
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        self.grid_body_height = self.grid_height - self.grid_header_height - self.grid_footer_height
+        self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             
@@ -319,6 +319,8 @@ class BagToHtml(object):
                 nodes = lines.getNodes()
             elif hasattr(lines, 'next'):
                 nodes = list(lines)
+            else:
+                nodes = lines
             lastNode = nodes[-1] 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)

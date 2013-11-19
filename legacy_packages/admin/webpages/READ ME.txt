@@ -1,5 +1,0 @@
-ENG:
-This folder includes the user interface webpages.
-
-ITA:
-Questa cartella contiene le pagineweb di interfaccia utente 

@@ -27,10 +27,23 @@ class Table(object):
             result = result['%s.%s' % (pkg, path)]
         return result or dflt
 
+    def envPreferences(self,username=None):
+        preferences = self.getPreference('*')
 
-    def setPreference(self, path, value, pkg=''):
+        if username:
+            userpref = self.db.table('adm.user').getPreference(path='*',username=username)
+            if userpref:
+                if preferences:
+                    preferences.update(userpref)
+                else:
+                    preferences = userpref
+        return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
+
+
+
+    def setPreference(self, path, value, pkg='',_attributes=None,**kwargs):
         record = self.loadPreference(for_update=True)
-        record['data.%s.%s' % (pkg, path)] = value
+        record.setItem('data.%s.%s' % (pkg, path), value,_attributes=_attributes,**kwargs)
         self.savePreference(record)
 
     def loadPreference(self, pkey=MAIN_PREFERENCE, for_update=False):

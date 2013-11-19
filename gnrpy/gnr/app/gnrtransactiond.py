@@ -170,7 +170,7 @@ class GnrAppTransactionAgent(GnrApp):
             trargs['execution_end'] = datetime.now()
             #self.db.execute("UPDATE gnr.gnr_transaction SET execution_start=:ts_start, execution_end=:ts_end WHERE id=:id;", ts_end=datetime.now(), **trargs)
             self.db.table(self.transaction_tname).update(trargs)
-            self.db.commit() # actually commit only modification to the transaction. do_ methods commits by themself
+            self.db.commit() # commit all: before was: actually commit only modification to the transaction. do_ methods commits by themself
             result = True
         except:
             self.db.rollback()

@@ -211,15 +211,16 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
         var sourceNode = callKwargs['_sourceNode'];
+        var sysrpc = objectPop(callKwargs,'sysrpc');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
-        callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
        //if(genro.root_page_id){
        //    callKwargs._root_page_id = genro.root_page_id;
        //}
         var content = objectUpdate({}, callKwargs);
         content.page_id = this.application.page_id;
         var kw = objectUpdate({}, xhrKwargs);
+        kw.start_time = new Date();
         kw.url = kw.url || this.pageIndexUrl();
 
         if(sourceNode){
@@ -229,16 +230,23 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }
         }
 
-        if (this.application.debugopt) {
-            content.debugopt = this.application.debugopt;
-            content.callcounter = this.application.getCounter();
+        if (genro.debug_sql || genro.debug_py) {
+            if(genro.debug_py){
+                content.debug_py = genro.debug_py;
+            }
+            if(genro.debug_sql){
+                content.debug_sql = genro.debug_sql;
+            }
+            content.callcounter =  genro.getCounter('debug');   
         }
         kw.content = content;
         //kw.preventCache = kw.preventCache - just to remember that we can have it
         kw.handleAs = kw.handleAs || 'xml';
         this.register_call(kw);
         var xhrResult;
-        genro.lastRpc = new Date();
+        if(!sysrpc){
+            genro._lastRpc = new Date();
+        }
         if (genro.debugRpc) {
             this.debugRpc(kw);
         }
@@ -282,12 +290,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         return xhrResult;
     },
 
-    setPolling:function(auto_polling, user_polling) {
-        clearInterval(genro.auto_polling_handler);
-        genro.user_polling = user_polling == null ? genro._('gnr.polling.user_polling') : user_polling;
-        genro.auto_polling = auto_polling == null ? genro._('gnr.polling.auto_polling') : auto_polling;
-        genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
-    },
+    //setPolling:function(auto_polling, user_polling) {
+    //    clearInterval(genro.auto_polling_handler);
+    //    genro.user_polling = user_polling == null ? genro._('gnr.polling.user_polling') : user_polling;
+    //    genro.auto_polling = auto_polling == null ? genro._('gnr.polling.auto_polling') : auto_polling;
+    //    genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
+    //},
+
     debugRpc:function(kw) {
         var method = kw.content ? kw.content.method : '';
         method = method == 'resolverRecall' ? method + ' : ' + kw.content.resolverPars : method;
@@ -341,12 +350,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             cb = dojo.hitch(this, function(response, ioArgs) {
                 var result = preprocessor(response, ioArgs);
                 var error = (result && typeof(result) == 'object') ? result.error : null;
-                try {
-                    async_cb(result, error);
-                } catch(e) {
-                    console.error(e);
-                    throw e;
-                }
+                genro.safetry(function(){
+                    return async_cb(result, error);
+                });
                 return result;
             });
             //sync = false;
@@ -410,8 +416,11 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         ;
     },
+
     resultHandler: function(response, ioArgs, currentAttr) {
         this.unregister_call(ioArgs);
+        var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
+        genro.dev.siteLockedStatus(siteMaintenance!=null);
         var envelope = new gnr.GnrBag();
         try {
             envelope.fromXmlDoc(response, genro.clsdict);
@@ -420,6 +429,16 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             console.log('error in fromXmlDoc');
             console.log(response);
             return;
+        }
+        this.profileTime(ioArgs.xhr);
+        if(genro.debug_sql || genro.debug_py){
+            var xmltime = parseFloat(ioArgs.xhr.getResponseHeader('X-GnrXMLTime') || 0);
+            var xmlsize = parseFloat(ioArgs.xhr.getResponseHeader('X-GnrXMLSize') || 0);
+            var callcounter = ioArgs.args.content.callcounter;
+            if(callcounter!=null){
+                genro.rpcHeaderInfo[callcounter] = {xml_time:xmltime,xml_size:xmlsize,total_time:new Date()-ioArgs.args.start_time};
+                //console.log('genro.rpcHeaderInfo',genro.rpcHeaderInfo)
+            }
         }
         var envNode = envelope.getNode('result');
         var resultAsNode = (envelope.getItem('resultType') == 'node') || currentAttr;
@@ -464,6 +483,17 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             return envNode.getValue();
         }
 
+    },
+
+    profileTime:function(xhr){
+        var servertime =  parseFloat(xhr.getResponseHeader('X-GnrTime') || 0);
+        var sqltime = parseFloat(xhr.getResponseHeader('X-GnrSqlTime') || 0);
+        var sqlcount = parseFloat(xhr.getResponseHeader('X-GnrSqlCount') || 0);
+        var cp = genro.currProfilers;
+        cp.nc = cp.nc + 1;
+        cp.st = cp.st + servertime;
+        cp.sqlt = cp.sqlt + sqltime;
+        cp.sqlc = cp.sqlc + sqlcount;
     },
 
     getRecordCount:function(field, value, cb,kw) {
@@ -584,12 +614,26 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'timeout': 10000,
             'load': dojo.hitch(this, function(response, ioArgs) {
                 var result = genro.rpc.resultHandler(response, ioArgs);
+                genro.callAfter(function(){
+                    genro.dom.removeClass(dojo.body(),'ping_start');
+                },1000);
                 genro.rpc.setPollingStatus(false);
+               
                 return result;
             }),
             'error': dojo.hitch(this, function(response, ioArgs) {
-                genro.rpc.errorHandler(response, ioArgs);
                 genro.rpc.setPollingStatus(false);
+                genro.dom.removeClass(dojo.body(),'ping_start');
+                genro.dom.addClass(dojo.body(),'ping_error');
+                //genro.playSound('ping');
+                
+                if(!genro._ping_error){
+                    genro._ping_error = true;
+                    //genro.dlg.alert('This page generate a server error during a ping call. <br/> Please inform developers as soon as possible. <br/> Be ready to report any details to help bugfixing,','Error',null,null,{confirmCb:function(){genro.ping_error=false;}})
+                }
+                
+                genro.rpc.errorHandler(response, ioArgs);
+
             }),
             'sync': false,
             'preventCache': false
@@ -598,7 +642,15 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if(!genro.root_page_id){
             pingKw._children_pages_info = genro.getChildrenInfo();
         }
-        this._serverCall(pingKw, xhrKwargs, 'GET');
+        pingKw._lastUserEventTs = genro.getServerLastTs();
+        pingKw._lastRpc = genro.getServerLastRpc();
+
+        pingKw._pageProfilers = genro.getTimeProfilers();
+        pingKw.sysrpc = true;
+        genro.lastPing = new Date();
+        genro.dom.removeClass(dojo.body(),'ping_error');
+        genro.dom.addClass(dojo.body(),'ping_start');
+        this._serverCall(pingKw, xhrKwargs, 'POST');
     },
     setPollingStatus:function(status) {
         genro.pollingRunning = status;
@@ -611,10 +663,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var sync = ('sync' in params) ? objectPop(params, 'sync') : true;
         var kwargs = { 'sync':sync,'from_fld':params._from_fld,
             'target_fld':params._target_fld,
+            '_debug_info':params._target_fld,
             'sqlContextName':params._sqlContextName,
             'virtual_columns':params._virtual_columns,
+            '_resolver_kwargs':params._resolver_kwargs,
             '_storename':params._storename};
         var storefield = params._storefield;
+        var resolver_kwargs = params._resolver_kwargs;
         kwargs.method = 'app.getRelatedRecord';
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
         resolver.updateAttr = true;
@@ -624,9 +679,21 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }else if(storefield===false){
                 kwargs['_storename'] = false;
             }
+            if(resolver_kwargs){
+                var parentRecordBag = this.getParentNode().getParentBag();
+                for(var k in resolver_kwargs){
+                    var p = resolver_kwargs[k];
+                    if((p+'').indexOf('=')==0){
+                        p = p.slice(1);
+                        resolver_kwargs[k] = p.indexOf('.')==0?parentRecordBag.getItem(p.slice(1)):genro.getData(p);
+                    }
+                }
+                kwargs['resolver_kwargs'] = resolver_kwargs;
+            }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];
             var loadingParameters = genro.getData('gnr.tables.' + table + '.loadingParameters');
+            //var resolverParameters = genro.getData('gnr.resolverParameters.xyz.@pippo_@caio_puza');
             var rowLoadingParameters = objectPop(kwargs, 'rowLoadingParameters');
             if (rowLoadingParameters) {
                 loadingParameters = loadingParameters || new gnr.GnrBag();
@@ -651,7 +718,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
             //TODO: move that feature to BagNode.setResolver
             var valNode = parentbag.getNode(resolver.relation_fld);
-            var reloader = function() {
+            var reloader = function(n,val,oldval) {
+                if( val==oldval || ( isNullOrBlank(val) && isNullOrBlank(oldval) ) ){
+                    return;
+                }
                 this.getParentNode().getValue('reload');
             };
             valNode._onChangedValue = dojo.hitch(resolver, reloader);
@@ -866,9 +936,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (kw.onProgress) sender.upload.addEventListener("progress", kw.onProgress, false);
         if (kw.onError) sender.upload.addEventListener("error", kw.onError || errorCb, false);
         if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
-        var filereader = new FileReader();
+        //var filereader = new FileReader();
         var onResult = objectPop(kw,'onResult');
-        content.append('file_handle',file);
+        if(typeof(file) == 'string'){
+            content.append('dataUrl',file);
+        }else{
+            content.append('file_handle',file);
+        }
         sender.open("POST", genro.rpc.pageIndexUrl(), true);
         if(onResult){
             dojo.connect(sender,'onload',onResult);

@@ -107,7 +107,7 @@ class SqlDbAdapter(object):
         """
         raise NotImplementedException()
 
-    def dump(self, filename,dbname=None):
+    def dump(self, filename,dbname=None,**kwargs):
         """-- IMPLEMENT THIS --
         Dump a database to a given path
         @param name: db name

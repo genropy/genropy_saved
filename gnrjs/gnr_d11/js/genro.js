@@ -49,13 +49,19 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
 dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
+        //this.patchConsole();
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
-        this.debugopt = kwargs.startArgs.debugopt || null;
+        this.debug_sql = kwargs.startArgs.debug_sql;
+        this.debug_py = kwargs.startArgs.debug_py;
+
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
+        this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
+        var start_ts = new Date();
+        this.serverTimeDelta = this.serverTime - start_ts;
         this.lockingElements = {};
         this.debugRpc = false;
         this.polling_enabled = false;
@@ -67,8 +73,33 @@ dojo.declare('gnr.GenroClient', null, {
         this.ext={};
         this.userInfoCb = [];
         this.formatter = gnrformatter;
+        this.timeProfilers = [];
+        this.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
+        this.rpcHeaderInfo = {};
+        this.profile_count = 4;
+        this.lastPing = start_ts;
+        this._lastUserEventTs = start_ts;
+        this._lastChildUserEventTs = start_ts;
+        this._lastGlobalUserEventTs = start_ts;
+        this._lastRpc = start_ts;
+
+        for (var i = 0; i < this.profile_count; i++) {
+            this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
+        };
+        
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
+
+    patchConsole:function(){
+        console.zlog = console.log;
+        console.log = function(){
+            if(!arguments[0]){
+                genro.bp(true)
+            }
+            console.zlog(arguments);
+        };
+    },
+
     genroInit:function() {
         this.startTime = new Date();
         this.lastTime = this.startTime;
@@ -96,14 +127,14 @@ dojo.declare('gnr.GenroClient', null, {
             if (exit) {
                 return exit;
             }
-            if(!genro.root_page_id){
-                var rootenv = genro.getData('gnr.rootenv');
-                if(rootenv){
-                    var b = new gnr.GnrBag();
-                    b.setItem('rootenv',rootenv,{page_id:genro.page_id});
-                    dojo.cookie(genro.getData('gnr.siteName')+'_dying_'+genro.getData('gnr.package')+'_'+genro.getData('gnr.pagename'),b.toXml(),{'expires':new Date((new Date().getTime()+2000))});
-                }
-            }            
+            //if(!genro.root_page_id){
+            //    var rootenv = genro.getData('gnr.rootenv');
+            //    if(rootenv){
+            //        var b = new gnr.GnrBag();
+            //        b.setItem('rootenv',rootenv,{page_id:genro.page_id});
+            //        dojo.cookie(genro.getData('gnr.siteName')+'_dying_'+genro.getData('gnr.package')+'_'+genro.getData('gnr.pagename'),b.toXml(),{'expires':new Date((new Date().getTime()+2000))});
+            //    }
+            //}            
         };
         window.onunload = function(e) {
             genro.onWindowUnload(e);
@@ -175,6 +206,17 @@ dojo.declare('gnr.GenroClient', null, {
             console[level || 'error'](msg);
         }
     },
+
+    safetry:function(cb){
+        try{
+            return cb();
+        }catch(e){
+            console.error(e.message);
+            console.log(e.stack);
+        }
+
+    },
+
     bp:function(aux) {
         console.log('bp ',arguments);
         if (aux===true){
@@ -215,59 +257,80 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg);
     },
-    childUserEvent:function(childgenro){
-        genro._lastUserEventTs = new Date();
-        genro.onUserEvent();
-    },
-    
-    _registerUserEvents:function() {
-        var cb;
-        genro._lastUserEventTs = new Date();
-        if(this.root_page_id){
-            var rootgenro = this.mainGenroWindow.genro;
-            that = this;
-            cb = function(){
-                rootgenro.childUserEvent(that);
-            }
-        }else{
-            cb = genro.onUserEvent;
-        }
-        var commoncb = function(){
-            if(genro.userInfoCb.length>0){
-                dojo.forEach(genro.userInfoCb,function(cb){cb()});
-                genro.userInfoCb = [];
-            }
-            cb();
-        }
-        dojo.connect(window, 'onmousemove', commoncb);
-        dojo.connect(window, 'onkeypress', commoncb);
-    },
+
     commandLink:function(href,content){
         return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
     },
 
+    childUserEvent:function(childgenro){
+        genro._lastChildUserEventTs = new Date();
+        genro._lastGlobalUserEventTs = genro._lastChildUserEventTs > genro._lastUserEventTs? genro._lastChildUserEventTs:genro._lastUserEventTs;
+        genro.onUserEvent();
+    },
+
+    _registerUserEvents:function(){
+        var cb = function(){
+            genro._lastUserEventTs = new Date();
+            genro._lastGlobalUserEventTs = new Date();
+            if(genro.root_page_id){
+                genro.mainGenroWindow.genro.childUserEvent();
+            }else{
+                genro.onUserEvent();
+            }
+            genro.execUserInfoCb();
+        };
+        dojo.connect(window, 'onclick', cb);
+        dojo.connect(window, 'onmousemove', cb);
+        dojo.connect(window, 'onkeypress', cb);
+        setInterval(function(){
+            genro.timeProfilers.push(genro.currProfilers);
+            if(genro.timeProfilers.length>genro.profile_count){
+                genro.timeProfilers = genro.timeProfilers.slice(-genro.profile_count);
+            }
+            genro.currProfilers = {nc:0,st:0,sqlt:0,sqlc:0};
+        },15000);
+    },
+    
+    execUserInfoCb:function(){
+        if(genro.userInfoCb.length>0){
+            var userInfoCb = genro.userInfoCb;
+            genro.userInfoCb = [];
+            dojo.forEach(userInfoCb,function(cb){cb()});
+        }
+    },
+    getScreenLockTimeout:function(){
+        if(!genro._screenlock_timeout){
+            genro._screenlock_timeout = genro.userPreference('adm.general.screenlock_timeout') || genro.appPreference('adm.general.screenlock_timeout') || -1;
+        }
+        return genro._screenlock_timeout;
+    },
+
     onUserEvent:function() {
         if (genro.user_polling > 0) {
-            genro._lastUserEventTs = new Date();
-            if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
+            if ((genro._lastGlobalUserEventTs - genro.lastPing) / 1000 > genro.user_polling) {
                 genro.rpc.ping({'reason':'user'});
             }
         }
-        if(genro.screenlock_timeout>0){
+        var st = genro.getScreenLockTimeout();
+        if(st>0){
             genro.callAfter(function(){
                  genro.publish('screenlock');
-            },genro.screenlock_timeout*1000*60,this,
+            },st*1000*60,this,
             'screenlock');
+        }
+        if(genro.fast_polling){
+            if(!genro.fast_polling_limiter){
+                genro.setAutoPolling(true);
+            }
         }
         var now = new Date();
         for (var k in genro.rpc.rpc_register){
             var kw = genro.rpc.rpc_register[k];
             var age = now-kw.__rpc_started;
             if (age>5000){
-                console.log('slow rpc pending',kw,age);
+                console.warn('slow rpc pending',kw,age);
             }
         }
-
     },
     
     loginDialog:function(loginUrl){
@@ -310,9 +373,15 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('** getting main **');
         this.mainGenroWindow = window;
         this.root_page_id = null;
+        if(this.startArgs['_parent_page_id']){
+            this.parent_page_id = this.startArgs['_parent_page_id'];
+        }
         if (window.frameElement && window.parent.genro){
             this.mainGenroWindow = window.parent.genro.mainGenroWindow;
             this.root_page_id = this.mainGenroWindow.genro.page_id;
+            this.parent_page_id = this.parent_page_id || window.parent.genro.page_id;
+            this.startArgs['_root_page_id'] = this.root_page_id;
+            this.startArgs['_parent_page_id'] = this.parent_page_id;
         }
         var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
@@ -364,18 +433,12 @@ dojo.declare('gnr.GenroClient', null, {
         });
         genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
-        if (this.debugopt) {
-            genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
-        }
+        genro.setData('gnr.debugger.debug_sql',this.debug_sql);
+        genro.setData('gnr.debugger.debug_py',this.debug_py);
         this._registerUserEvents();
         if(!this.root_page_id){
-            genro.auto_polling_handler = setInterval(function(){
-                if ((new Date() - genro.lastRpc) / 1000 > genro.user_polling) {
-                    genro.rpc.ping({'reason':'auto'});
-                }
-            },genro.auto_polling * 1000);
+            this.setAutoPolling();
         }
-
         dojo.subscribe('/dnd/move/start',function(mover){
             mover.page_id = genro.page_id;
             genro.mainGenroWindow.genro.currentDnDMover=mover;
@@ -416,7 +479,6 @@ dojo.declare('gnr.GenroClient', null, {
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
         }
-        genro.screenlock_timeout = genro.userPreference('adm.general.screenlock_timeout') || genro.appPreference('adm.general.screenlock_timeout') || -1;
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
@@ -431,6 +493,42 @@ dojo.declare('gnr.GenroClient', null, {
     parentFrameNode:function(){
         return window.frameElement?window.frameElement.sourceNode:null;
     },
+
+    setFastPolling:function(fast){
+        this.fast_polling = fast;
+        this.setAutoPolling(fast);
+    },
+
+    setAutoPolling:function(fast){
+        var delay = fast? 2 : genro.auto_polling;
+        if(genro.auto_polling_handler){
+            clearInterval(genro.auto_polling_handler)
+        }
+        genro.dom.removeClass('mainWindow','fast_polling');
+        genro.auto_polling_handler = setInterval(function(){
+                if ((new Date() - genro.lastPing) / 1000 > genro.user_polling) {
+                    genro.rpc.ping({'reason':'auto'});
+                }
+            },delay*1000);
+
+        if(delay<genro.auto_polling){
+            genro.dom.addClass('mainWindow','fast_polling');
+            var limiter = function(){
+                genro.fast_polling_limiter = setTimeout(function(){
+                    var ts = new Date();
+                    genro.fast_polling_limiter = null;
+                    var evtage =(ts-genro._lastGlobalUserEventTs)/1000;
+                    if(evtage>genro.user_polling){
+                        genro.setAutoPolling();
+                    }else{
+                        limiter();
+                    }
+                },genro.user_polling*10000);
+            }
+            limiter();
+        }
+    },
+
 
     windowMessageListener:function(){
         window.addEventListener("message", function(e){
@@ -450,6 +548,15 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut('f3', function(e) {
             genro.publish('PRINTRECORD', e);
         });
+    },
+
+
+    tooltipHelpModifier:function(value){
+        if(value){
+            this.setInStorage('local','tooltipHelpModifier',value);
+        }else{
+            return this.getFromStorage('local','tooltipHelpModifier');
+        }
     },
     
     _connectToParentIframe:function(parentIframe){
@@ -491,12 +598,25 @@ dojo.declare('gnr.GenroClient', null, {
     getValueFromFrame: function(object_name, attribute_name, dtype){
         return asTypedTxt(window[object_name][attribute_name],dtype);
     },
+
+    getServerLastTs:function(){
+        return asTypedTxt(new Date(genro._lastUserEventTs.getTime()+(genro.serverTimeDelta || 0)),'DH')
+    },
+
+    getServerLastRpc:function(){
+        return asTypedTxt(new Date(genro._lastRpc.getTime()+(genro.serverTimeDelta || 0)),'DH')
+    },
+
+    getTimeProfilers:function(){
+        return dojo.toJson(this.timeProfilers);
+    },
+
     getChildrenInfo:function(result){
         var result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
-                _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
-                r[f.genro.page_id] = objectUpdate({_lastUserEventTs:_lastUserEventTs},f.genro._serverstore_changes);
+                var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers(),_lastRpc:f.genro.getServerLastRpc()};
+                r[f.genro.page_id] = objectUpdate(kw,f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
                 f.genro.getChildrenInfo(r);
             }
@@ -701,7 +821,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else if (typeof(v) == 'number') {
             f.locale = f.locale || dojo.locale;
-            if(f.format && f.format.format=='meter'){
+            if(f.format && f.format.format!=null){
                 return genro.formatter.asText(v,{format:f.format.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
             }
             if (!f.places && f.dtype == 'L') {
@@ -837,10 +957,16 @@ dojo.declare('gnr.GenroClient', null, {
         genro.setData('gnr._dev.logger','');
     }
     ,
-    getCounter: function() {
-        this._counter = this._counter + 1;
-        return this._counter;
+    getCounter: function(what,reset) {
+        what = what?'_counter_'+what:'_counter';
+        if(reset==true){
+            this[what] = 0;
+        }else{
+            this[what] = (this[what] || 0)+1;
+        }
+        return this[what];
     },
+
     
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*
@@ -1427,6 +1553,7 @@ dojo.declare('gnr.GenroClient', null, {
 
     },
     logout:function() {
+        genro.lockScreen(true,'logout');
         this.serverCall('connection.logout', null, 'genro.gotoHome();');
     },
     remoteJson:function(method, params) {
@@ -1484,8 +1611,13 @@ dojo.declare('gnr.GenroClient', null, {
             objToCall['obj'][objToConnect['func']].apply(objToCall['obj'], arguments);
         }
     },
-    pageReload:function(params) {
+
+    pageReload:function(params,replaceParams) {
         if (params) {
+            if (!replaceParams){
+                var oldparams = parseURL(window.location)['params'] || {};
+                params = objectUpdate(params || {},oldparams);
+            }
             if (objectNotEmpty(params)) {
                 params['_no_cache_'] = genro.getCounter();
                 var plist = [];
@@ -1500,6 +1632,7 @@ dojo.declare('gnr.GenroClient', null, {
             window.location.reload();
         }
     },
+
     pageBack:function() {
         window.history.back();
     },
@@ -1540,8 +1673,12 @@ dojo.declare('gnr.GenroClient', null, {
             newwindow.focus();
         }
     },
-    openBrowserTab:function(url,name){
+    openBrowserTab:function(url){
         window.open(url)
+    },
+    
+    childBrowserTab:function(url,parent_page_id){
+        window.open(genro.addParamsToUrl(url,{_parent_page_id:(parent_page_id || genro.page_id)}))
     },
     
 

@@ -70,7 +70,32 @@ function bagAsObj(bag) {
         result[n.label] = n.getValue();
     });
     return result;
-}
+};
+
+function objectAsGrid(obj,labels){
+    var labels = labels || 'label,value';
+    labels = labels.split(',');
+    var result = new gnr.GnrBag();
+    if(!obj){
+        return result;
+    }
+    var i=0;
+    var v;
+    for(var k in obj){
+        v = new gnr.GnrBag();
+        v.setItem(labels[0],k);
+        v.setItem(labels[1],obj[k]);
+        result.setItem('r_'+i,v);
+        i++;
+    }
+    result.sort('#k');
+    return result;
+};
+function objectAsHTMLTable(obj,labels){
+    var labels = labels || 'label,value';
+    var b = objectAsGrid(obj);
+    return b.asHtmlTable({cells:labels});
+};
 
 function arrayContains(arr, item) {
     for (var i = 0; i < arr.length; i++) {
@@ -473,6 +498,16 @@ function objectKeys(obj) {
     }
     return keys;
 }
+
+
+function objectValues(obj) {
+    var values = [];
+    for (var prop in obj) {
+        values.push(obj[prop]);
+    }
+    return values;
+}
+
 function objectFuncReplace(obj, funcname, func) {
     var oldfunc = obj[funcname];
     obj[funcname] = func;
@@ -780,7 +815,13 @@ function convertFromText(value, t, fromLocale) {
             var selector = (t == 'DH') ? 'datetime' : 'date';
             return dojo.date.locale.parse(value, {selector:selector});
         } else {
-            return new Date(value.split('.')[0].replace(/\-/g, '/'));
+            var date_array = value.split('.')[0].split(/\W/);
+            var c = [0,-1,0,0,0,0];
+            for (var i=0;i<date_array.length;i++){
+                c[i]+=parseInt(date_array[i]);
+            };
+            return new Date(c[0],c[1],c[2],c[3],c[4],c[5]);
+            //return new Date(value.split('.')[0].replace(/\-/g, '/'));
         }
     }
     else if (t == 'H') {
@@ -999,6 +1040,25 @@ var gnrformatter = {
                 p.push(k+'="'+formatKw[k]+'"')
             }
             return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
+        }
+        if(format=='DHMS'){
+            var r = []
+            var curr = value;
+            r.push(curr%60+'s');
+            curr = Math.floor(curr/60);
+            if(curr){
+                r.push(curr%60+'m');
+                curr = Math.floor(curr/60);
+                if(curr){
+                    r.push(curr%24+'h');
+                    curr = Math.floor(curr/24);
+                    if(curr){
+                        r.push(curr+'d');
+                    }
+                }
+            }
+            r.reverse();
+            return r.join(' ')
         }
         return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
@@ -1720,3 +1780,14 @@ function localeParser(/*String*/value, /*Object?*/options) {
 }
 ;
 
+
+function flattenString(str,forbidden){
+    var forbidden = forbidden || ['.'];
+    var result = str;
+    var pattern;
+    forbidden.forEach(function(c){
+        pattern = new RegExp("\\"+c,'g');
+        result = result.replace(pattern,'_')
+    });
+    return result;
+}

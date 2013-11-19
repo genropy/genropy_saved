@@ -229,17 +229,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_alert');
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
         var title = msgattr['title'] || 'Message from ' + msgattr['from_user'];
-        var dlg = node._('dialog', {nodeId:'_dlg_alert', title:'', toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'})._('div');
-        var tbl = dlg._('table', {});
-        tbl = tbl._('tbody', {});
-        var r = tbl._('tr');
-        r._('td', {content:'From'});
-        r._('td', {})._('div', {innerHTML:msgattr['from_user']});
-        r = tbl._('tr');
-        r._('td', {content:'Message'});
-        r._('td', {})._('div', {innerHTML:msgtext});
-        node.unfreeze();
-        genro.wdgById('_dlg_alert').show();
+        genro.dlg.alert(msgtext,title)
     },
 
     ask: function(title, msg, buttons, resultPathOrActions,kw) {
@@ -321,6 +311,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         this.messanger.forcedPos = position;
         var level = level || 'message';
         var duration = duration || 4000;
+        if(level=='error'){
+            if(!dojo.query('.countBoxErrors').length){
+                return;
+            }
+        }
         dojo.publish("standardMsg", [
             {message: msg, type: level, duration: duration}
         ]);
@@ -329,23 +324,37 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     
     prompt: function(title, kw,sourceNode) {
         var kw = kw || {};
+        var dlg_kw = objectExtract(kw,'dlg_*');
         var msg = kw.msg;
         var confirmCb = kw.action || '';
+        var cancelCb = kw.cancelCb;
         var wdg = kw['widget'] || 'textbox';
         var remote = kw['remote'];
 
 
         var dflt = kw['dflt'];
-        var dlg = genro.dlg.quickDialog(title,{_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'});
+        var dlg = genro.dlg.quickDialog(title,objectUpdate({_showParent:true,width:'280px',datapath:'gnr.promptDlg',background:'white'},dlg_kw));
+        var mandatory = objectPop(kw,'mandatory');
+
         var bar = dlg.bottom._('slotBar',{slots:'*,cancel,confirm',action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
+                                                        var v = genro.getData('gnr.promptDlg.promptvalue');
+                                                        if(mandatory && (v==null || v=='')){
+                                                            return;
+                                                        }
                                                         funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
                                                         genro.setData('gnr.promptDlg.promptvalue',null);
+                                                    }else if(this.attr.command == 'cancel' && cancelCb){
+                                                        funcApply(cancelCb,{},(sourceNode||this));
                                                     }
                                                 }});
         bar._('button','cancel',{'label':'Cancel',command:'cancel'});
-        bar._('button','confirm',{'label':'Confirm',command:'confirm'});
+        var confirmbtnKW = {'label':'Confirm',command:'confirm'};
+        if(mandatory){
+            confirmbtnKW.disabled = '^.promptvalue?=(#v==null) || (#v=="")';
+        }
+        bar._('button','confirm',confirmbtnKW);
         var kwbox = {padding:'10px'};
         if(remote){
             kwbox['remote'] = remote;
@@ -429,10 +438,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-
             dlg.getParentNode().widget.hide(); 
             setTimeout(function(){
-                dlg.getParentNode().getParentNode().clearValue();
+                var ndlg =dlg.getParentNode();
+                if(ndlg){
+                    ndlg.getParentNode()._value.popNode(ndlg.label);
+                }
             },500);
             
         };
@@ -448,11 +459,22 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
     
     zoomPaletteFromSourceNode:function(sourceNode,evt){
-        var kw =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
+        var zoomAttr =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
         var attr = sourceNode.currentAttributes();
-        objectUpdate(kw,objectExtract(attr,'_zoomKw_*'));
-        kw.evt = evt;
-        this.zoomPalette(kw);
+        objectUpdate(zoomAttr,objectExtract(attr,'_zoomKw_*'));
+        zoomAttr.evt = evt;
+        var mode = objectPop(zoomAttr,'mode') || 'palette';
+
+        if(mode=='palette'){
+            this.zoomPalette(zoomAttr);
+        }else if(mode=='page' && genro.root_page_id){
+            var pageKw = {};
+            zoomAttr['main_call'] = 'main_form';
+            pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
+            pageKw['label'] = zoomAttr.title;
+            pageKw['subtab'] = true;
+            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
+        }
     },
     
     iframePalette:function(kw){
@@ -492,13 +514,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var structbag = grid.structbag();
         var cellattr = structbag.getNode('view_0.rows_0.#'+cellIndex).attr;
         var zoomAttr = objectExtract(cellattr,'zoom_*',true);
-        zoomAttr['pkey'] = grid.currRenderedRow[zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier];
+        zoomAttr['pkey'] = grid.currRenderedRow[(zoomAttr['pkey'] ? zoomAttr['pkey'] : grid._identifier).replace(/\./g, '_').replace(/@/g, '_')];
         zoomAttr['main_call'] = 'main_form';
         zoomAttr['evt'] = evt;
         zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         zoomAttr['paletteCode']  = zoomAttr['pkey']+(zoomAttr['formResource'] || '');
         var mode = objectPop(zoomAttr,'mode') || 'palette';
+
         if(mode=='palette'){
             this.zoomPalette(zoomAttr);
         }else if(mode=='page' && genro.root_page_id){
@@ -506,7 +529,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             pageKw['file'] = this._prepareThIframeUrl(zoomAttr);
             pageKw['label'] = zoomAttr.title;
             pageKw['subtab'] = true;
-            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw)
+            genro.mainGenroWindow.genro.publish('selectIframePage',pageKw);
         }
     },
 
@@ -520,7 +543,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     floatingEditor:function(sourceNode,kw){
-        var paletteCode = 'floatingEditor_'+sourceNode.getStringId();
+        kw = kw || {};
+        var paletteCode = kw.paletteCode || 'floatingEditor_'+sourceNode.getStringId();
         var wdg = genro.wdgById(paletteCode+'_floating');
         if (wdg){
             wdg.show();
@@ -534,12 +558,12 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var paletteAttr = {'paletteCode':paletteCode,title:'Editor',
                             overflow:'hidden',
                             dockTo:'dummyDock:open',
-                            width:'600px',height:'400px',
+                            width:'800px',height:'400px',
                             maxable:true};
         var palette = node._('palettePane',paletteCode,paletteAttr);
-        var valuepath = sourceNode.attr.innerHTML || sourceNode.attr.value;
+        var valuepath = kw.valuepath || sourceNode.attr.innerHTML || sourceNode.attr.value;
         valuepath = '^'+sourceNode.absDatapath(valuepath);
-        palette._('ckeditor',{value:valuepath});
+        palette._('ckeditor',objectUpdate(kw,{value:valuepath}));
         node.unfreeze(); 
     },
 
@@ -611,7 +635,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     _prepareThIframeUrl:function(kw){
-        var prefix = kw.lookup? '/sys/lookuptables/':'sys/thpage/';
+        var prefix = kw.lookup? '/sys/lookuptables/':'/sys/thpage/';
         var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
@@ -626,6 +650,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         if(kw.main_call){
             urlKw['main_call'] = kw.main_call;
+        }
+        if (kw.readOnly){
+            urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
         urlKw['th_from_package'] = genro.getData("gnr.package");

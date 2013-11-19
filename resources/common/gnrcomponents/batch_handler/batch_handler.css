@@ -1,5 +1,11 @@
 .bm_rootnode {
     padding: 2px;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
 }
 
 .bm_thermoline.dijitProgressBarEmpty {
@@ -95,7 +101,9 @@
     color: black;
 }
 
+
 .bm_batchpane {
+    opacity: .5;
     position: relative;
     border: 1px solid gray;
     margin: 4px;
@@ -107,6 +115,10 @@
     -moz-box-shadow: 2px 2px 3px gray;
     -webkit-box-shadow: 2px 2px 3px gray;
 
+}
+
+.fast_polling .bm_batchpane{
+    opacity: 1;
 }
 
 .bm_batchlabel {

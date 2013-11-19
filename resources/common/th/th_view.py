@@ -16,11 +16,10 @@ class TableHandlerView(BaseComponent):
                      th/th_picker:THPicker,
                      gnrcomponents/framegrid:FrameGrid,
                      gnrcomponents/tpleditor:PaletteTemplateEditor,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller
+                     gnrcomponents/batch_handler/batch_handler:TableScriptRunner
                      """
                          
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,store=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
@@ -32,11 +31,12 @@ class TableHandlerView(BaseComponent):
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,original_kwargs=kwargs)             
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
-                                 condition=condition,condition_kwargs=condition_kwargs,**kwargs)
+                                 condition=condition,condition_kwargs=condition_kwargs,
+                                 **kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
-            for hook in hooks.values():
-                hook(getattr(view,side))
+            for k in sorted(hooks.keys()):
+                hooks[k](getattr(view,side))
         viewhook = self._th_hook('view',mangler=frameCode)
         if viewhook:
             viewhook(view)
@@ -46,7 +46,8 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,**kwargs):
+                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
+                       store_kwargs=None,parentForm=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -58,9 +59,9 @@ class TableHandlerView(BaseComponent):
             else:
                 templateManager = False
             if extendedQuery == '*':
-                base_slots = ['5','queryfb','runbtn','queryMenu','5','filterSelected,menuUserSets','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','batch_export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*']
             elif extendedQuery is True:
-                base_slots = ['5','queryfb','runbtn','queryMenu','*','count','5']
+                base_slots = ['5','queryfb','runbtn','queryMenu','viewsMenu','*','count','5']
             else:
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
@@ -82,23 +83,38 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = configurable
+        grid_kwargs['item_name_singular'] = self.db.table(table).name_long
+        grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
-                               struct=self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
-                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_selfsubscribe_loadingData="this.setHiderLayer($1.loading,{message:''});" if loadingHider else None,
+                               struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
+                               datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
+                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,
+                               grid_loadingHider = loadingHider,
+                               grid_rowStatusColumn = self.db.table(table).attributes.get('protectionColumn'),
+                               grid_selfsubscribe_loadingData = "this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
                                **kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
-        self._th_viewController(frame,table=table)
+        self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
+        store_kwargs = store_kwargs or dict()
+        store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,store_kwargs=store_kwargs)
+        frame.dataController("""if(!firedkw.res_type){return;}
+                            var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
+                            objectUpdate(kw,firedkw);
+                            if(kw.template_id){
+                                kw.extra_parameters = new gnr.GnrBag({template_id:objectPop(kw,'template_id'),table:kw.table});
+                                kw.table = null;
+                            }
+                            th_view_batch_caller(kw);
+                            """,batch_selectionName=frameCode,batch_gridId='%s_grid' %frameCode,batch_table=table,firedkw='^.th_batch_run',_if='firedkw')
 
         if preview_kwargs:
             frame.grid.attributes.update(preview_kwargs=preview_kwargs)
             frame.grid.tooltip(callback="""
                     var r = n;
-                    while(r.gridRowIndex==null){
+                    while(!r || r.gridRowIndex==null){
                         r = r.parentElement;
                     }
                     var grid = dijit.getEnclosingWidget(n).grid;
@@ -108,7 +124,7 @@ class TableHandlerView(BaseComponent):
                     var tpl = preview_kwargs.tpl;
                     tpl = tpl==true?'preview':preview_kwargs.tpl;
                     return genro.serverCall('renderTemplate',{record_id:pkey,table:table,tplname:tpl,missingMessage:'Preview not available'},null,null,'POST');
-                """,modifiers='Shift',validclass='dojoxGrid-cell,cellContent')
+                """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
         return frame
 
 
@@ -120,22 +136,14 @@ class TableHandlerView(BaseComponent):
         bar.drawerStack.attributes['height'] = '100%'
         sc = bar.drawerStack.stackContainer(height='100%')
         sc.contentPane(background='red')
-        
-       #bar.confBar.slotToolbar('*,menuslot',menuslot='menu',height='20px',background='whitesmoke')
-       #tclass = bar.treeClassificator
-       #tclass.attributes['height']='100%'
-       #tclass.div(height='100%').('dragArea')
-       #bar.footerBar.slotToolbar('*,tools',tools='tools',height='20px')
-        
-   #@public_method
-   #def buildClassificator(self,pane):
-   #    pane.borderContainer(height='100%').plainTableHandler(table='cond.ui_tipo',condition__onBuilt=True,region='center')
-        
+
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root,configurable=None):
         bar = pane.slotBar('confBar,fieldsTree,*',width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke')
+        confBar = bar.confBar.slotToolbar('viewsMenu,currviewCaption,*,defView,saveView,deleteView',background='whitesmoke')
+        confBar.currviewCaption.div('^.grid.currViewAttrs.caption',font_size='.9em',color='#666',line_height='16px')
+
         gridId = '%s_grid' %th_root
         confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
                                         action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
@@ -146,10 +154,10 @@ class TableHandlerView(BaseComponent):
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         if table==getattr(self,'maintable',None) or configurable=='*':
             bar.replaceSlots('#','#,footerBar')
-            footer = bar.footerBar.slotToolbar('log_del,*')
-            footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
-                                                                                    label='!!Show logical deleted',
-                                                                                    validate_onAccept='if(userChange){FIRE .runQueryDo;}')
+            footer = bar.footerBar.formbuilder(cols=1,border_spacing='3px 5px',font_size='.8em',fld_color='#555',fld_font_weight='bold')
+            footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
+            footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
+            footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -169,26 +177,39 @@ class TableHandlerView(BaseComponent):
         dflt = getattr(m,'default',None)
         if dflt:
             pane.data('.current',dflt)
-        pane.multiButton(storepath='.data',value='^.current',multivalue=getattr(m,'multivalue',False),
-                        mandatory=getattr(m,'mandatory',True))
-
+        multivalue=getattr(m,'multivalue',False)
+        variable_struct = getattr(m,'variable_struct',False)
+        if multivalue and variable_struct:
+            raise Exception('multivalue cannot be set with variable_struct')
+        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,
+                        mandatory=getattr(m,'mandatory',True),**kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
                 PUT .current = currentSection;
-            }            
-            var sectionNode = sectionbag.getNode(currentSection);
-            FIRE .#parent.#parent.clearStore;
-            if(variable_struct){
-                SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
             }
-            SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
-            if(storeServerTime!=null){
+            if(!multivalue){
+                var sectionNode = sectionbag.getNode(currentSection);
+                FIRE .#parent.#parent.clearStore;
+                SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
+                if(variable_struct){
+                    SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
+                }
+                var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
+                var viewNode = genro.getFrameNode(th_root);
+                if(oldSectionValue){
+                    genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
+                }
+                genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
+            }         
+            var loadingData = GET .#parent.#parent.grid.loadingData;
+            if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
-            """,currentSection='^.current',sectionbag='=.data',variable_struct=getattr(m,'variable_struct',False),
-            storeServerTime='=.#parent.#parent.store?servertime',
-            _init=True)
+            """,currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
+            th_root=th_root,secname=sections,multivalue=multivalue,
+            storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
+            #_init=True)
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -241,10 +262,12 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         table = inattr['table']
         gridId = '%s_grid' %th_root
-        pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
-                    margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
-                    color='#555',datapath='.grid').menu(storepath='.structMenuBag',
-                _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+       #b = pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
+       #            margin='1px',overflow='hidden',text_align='left',cursor='pointer',display='inline-block',
+       #            color='#555',datapath='.grid')
+
+        b = pane.div(_class='iconbox list',datapath='.grid')
+        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
         pane.dataController("genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);",currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId,th_root=th_root)
@@ -256,25 +279,14 @@ class TableHandlerView(BaseComponent):
         pane.data('.grid.resource_structs',q)
         
 
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30,)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
         table = inattr['table']
         pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
-                    action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            if($1.template_id){
-                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
-                                kw.table = null;
-                            }
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
-                    batch_sourcepage_id=self.page_id)
+                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=flags or options.get('print_flags'),
                         from_resource=from_resource or options.get('print_from_resource',True),cacheTime=5)
@@ -287,18 +299,8 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        th_root = inattr['th_root']
-        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            if($1.template_id){
-                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
-                                kw.table = null;
-                            }
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
-                    batch_sourcepage_id=self.page_id)
+        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',
+                        action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=flags or options.get('mail_flags'),
                         from_resource=from_resource or options.get('mail_from_resource',True),cacheTime=5)
@@ -337,19 +339,19 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceActions(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        th_root = inattr['th_root']
         pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
-                    batch_sourcepage_id=self.page_id,_class='smallmenu')
+                            FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
+                            """,_class='smallmenu')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
-        
+      
+
+    @struct_method
+    def th_slotbar_batch_export(self,pane,_class='iconbox export',enable=None,rawData=True,parameters=None,**kwargs):
+        return pane.slotButton(label='!!Export',action='FIRE .th_batch_run = {resource:"_common/export",res_type:"action"}',iconClass=_class,**kwargs) 
+
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None,title=None):
+                        virtualStore=None,condition=None,unlinkdict=None,title=None,store_kwargs=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -371,6 +373,10 @@ class TableHandlerView(BaseComponent):
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
 
+
+        hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
+            
+        frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
@@ -414,6 +420,7 @@ class TableHandlerView(BaseComponent):
         _else = None
         if _if:
             _else = "this.store.clear();"
+        store_kwargs.update(condPars)
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
@@ -432,6 +439,7 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               hardQueryLimit='=.hardQueryLimit',
                               # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
@@ -455,19 +463,24 @@ class TableHandlerView(BaseComponent):
                                }
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
-                               **condPars)
+                               **store_kwargs)
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
-            if options.get('tableRecordCount',True):
-                frame.data('.store?totalrows',0)
-                frame.data('.store?totalRowCount',self.db.table(table).query().count())
-
+            #if options.get('tableRecordCount',True):
+            #    frame.data('.store?totalrows',0)
+            #    countPars = dict(condPars)
+            #    countPars['_onStart'] = 1
+            #    frame.dataRpc('dummy','app.getRecordCount',table=table,condition=condition,
+            #                _onCalling="""if(_sections){
+            #                        th_sections_manager.onCalling(_sections,kwargs);
+            #                   }""",_sections='=.sections',_onResult='this.getRelativeData(".store").getParentNode().updAttributes({totalRowCount:result})',**countPars)
+#
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
-                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %_if,
+                         excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %(_if or 'true'),
                          _else='return 0;',
                          **condPars)
         
@@ -532,10 +545,11 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         pane.dataController(
                """var th = TH(th_root);
-                  th.querymanager = new gnr.QueryManager(th,this,table);
+                  
+                  th.querymanager = th.querymanager || new gnr.QueryManager(th,this,table);
                """ 
-               , _init=True,table=table,th_root = th_root)
-
+               , _init=True, _onBuilt=True, table=table,th_root = th_root)
+               
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
@@ -589,7 +603,7 @@ class TableHandlerView(BaseComponent):
         fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
         
-    def _th_viewController(self,pane,table=None,th_root=None):
+    def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
         tblattr = dict(self.db.table(table).attributes)
         tblattr.pop('tag',None)
@@ -603,7 +617,7 @@ class TableHandlerView(BaseComponent):
                             """,show="^.showLogicalDeleted")
         pane.data('.showLogicalDeleted',showLogicalDeleted)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
-        pane.data('.tableRecordCount',options.get('tableRecordCount',True))
+        pane.data('.tableRecordCount',options.get('tableRecordCount',default_totalRowCount))
 
     def _prepareQueryBag(self,querybase,table=None):
         result = Bag()
@@ -639,25 +653,33 @@ class THViewUtils(BaseComponent):
         return menu
 
     @public_method
-    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,**kwargs):
+    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,currentView=None,**kwargs):
         result = Bag()
+        currentView = currentView or favoriteViewPath or '__baseview__'
         gridId = '%s_grid' %th_root
-        result.setItem('__baseview__', None,caption='Base View',gridId=gridId)
+        result.setItem('__baseview__', None,caption='Base View',gridId=gridId,checked = currentView=='__baseview__')
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
+        if self.pagename.startswith('thpage'):
+            #compatibility old saved views
+            userobjects.update(self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='thpage_%s' % gridId,table=table))
         if len(userobjects)>0:
             result.update(userobjects)
-        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,gridId=gridId)
+        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,currentView=currentView,gridId=gridId)
         return result
     
-    def _th_checkFavoriteLine(self,node,favPath=None,gridId=None):
+    def _th_checkFavoriteLine(self,node,favPath=None,currentView=None,gridId=None):
         if node.attr.get('code'):
             if gridId:
                 node.attr['gridId'] = gridId
-            if node.attr['code'] == favPath:
+            if node.attr['code'] == currentView:
+                print 'curr',node.attr['code']
+                node.attr['checked'] = True
+            elif node.attr['code'] == favPath:
                 node.attr['favorite'] = True
+            
         else:
             node.attr['favorite'] = None
         

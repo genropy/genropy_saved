@@ -148,13 +148,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs.close()
         conn.close()
         
-    def dump(self, filename,dbname=None):
+    def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump an existing database
         
         :param filename: db name"""
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
-        return call(['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename])
+        extras = extras or []
+        args = ['pg_dump', dbname, '-U', self.dbroot.user, '-f', filename]+extras
+        return call(args)
         
     def restore(self, filename,dbname=None):
         """-- IMPLEMENT THIS --
@@ -193,17 +195,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         conn = curs.connection
         if psycopg2.__version__.startswith('2.0'):
             selector = curs
-            pg_go = curs.isready
+            #pg_go = curs.isready
         else:
             selector = conn
-            pg_go = conn.poll
+            #pg_go = conn.poll
         while listening:
             if select.select([selector], [], [], timeout) == ([], [], []):
                 if onTimeout != None:
                     listening = onTimeout()
             else:
-                if pg_go():
-                    if onNotify != None:
+                if psycopg2.__version__.startswith('2.0'):
+                    if curs.isready() and onNotify != None:
+                        listening = onNotify(conn.notifies.pop())
+                else:
+                    conn.poll()
+                    while conn.notifies and listening and onNotify != None:
                         listening = onNotify(conn.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
         

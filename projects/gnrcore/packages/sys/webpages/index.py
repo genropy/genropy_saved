@@ -14,6 +14,5 @@ class GnrCustomWebPage(object):
         return ''
 
     def main(self, root, **kwargs):
-        print x
         root.div('not existing')
         return

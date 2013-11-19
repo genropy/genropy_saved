@@ -13,7 +13,7 @@ from gnr.core.gnrdict import dictExtract
 
 
 class TableHandlerForm(BaseComponent):
-    py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller"
+    py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptRunner"
 
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
@@ -22,6 +22,7 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         options = self._th_hook('options',mangler=frameCode,dflt=dict())()
         options['readOnly'] = options.get('readOnly',readOnly)
+
        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
        #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
@@ -108,6 +109,8 @@ class TableHandlerForm(BaseComponent):
                             newTitleTemplate=options.get('newTitleTemplate',False))
         if form.attributes.get('form_isRootForm'):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
+        if 'lazyBuild' in options:
+            form.attributes['_lazyBuild'] = options.get('lazyBuild')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   
@@ -115,8 +118,12 @@ class TableHandlerForm(BaseComponent):
         readOnly = options.get('readOnly')
         modal = options.get('modal',False)
         autoSave = options.get('autoSave',False)
+        draftIfInvalid= options.get('draftIfInvalid',False)
+        allowSaveInvalid= options.get('allowSaveInvalid',draftIfInvalid)
+        form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
             form.store.attributes.update(autoSave=autoSave)
+
         form.dataController(""" if(reason=='nochange' && modal){return;}
                                 genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),titledialog);""",
                             reason="^.controller.save_failed",_if='reason',
@@ -139,7 +146,6 @@ class TableHandlerForm(BaseComponent):
             if navigation is not False:
                 navigation = True
         if readOnly:
-            slots = '*'
             form.attributes.update(form_readOnly=True)
         if options.get('saveOnChange'):
             form.attributes.update(form_saveOnChange=True)
@@ -150,12 +156,11 @@ class TableHandlerForm(BaseComponent):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v',hidden=readOnly)
             bar.cancel.button('!!Cancel',action='this.form.abort();')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')  
-          
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
-            default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
             if options.get('duplicate'):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
@@ -167,11 +172,10 @@ class TableHandlerForm(BaseComponent):
             if options.get('printMenu'):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
-
             if options.get('copypaste'):
                 extra_slots.append('form_copypaste')
             if options.get('linker'):
-                default_slots = default_slots.replace('form_delete','')
+                default_slots = default_slots.replace('form_delete',','.join(extra_slots) if extra_slots else '')
                 default_slots = default_slots.replace('form_add','')
                 #default_slots = default_slots.replace('locker','') 
             table = form.getInheritedAttributes()['table']  
@@ -221,6 +225,5 @@ class TableHandlerForm(BaseComponent):
                             kw['pkey'] = this.form.getCurrentPkey();
                             genro.publish("table_script_run",kw)
                             """,
-                    batch_table=table,batch_res_type='print',
-                    batch_sourcepage_id=self.page_id)
+                    batch_table=table,batch_res_type='print')
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)

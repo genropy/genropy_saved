@@ -641,6 +641,7 @@ class GnrDomSrc(GnrStructData):
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
+                    colswidth=None,
                     lblalign=None, lblvalign='top',
                     fldalign=None, fldvalign='top', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
@@ -684,6 +685,19 @@ class GnrDomSrc(GnrStructData):
         inattr = self.getInheritedAttributes()
         if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
+        if colswidth:
+            colswidth = colswidth.split(',')
+            if len(colswidth)==1:
+                colsvalue=colswidth[0]
+                if colsvalue == 'auto':
+                    x = 100. / cols
+                    colsvalue ='%s%%' % x
+                colswidth = [colsvalue]
+
+            for w in range(cols):
+                k=w if w <len(colswidth) else len(colswidth) -1
+                tbl.div(tdf_width=colswidth[k],tdl_height='0px', tdl_border='0',tdf_border='0', tdf_height='0px',min_height='0px', padding_top='0px')
+
         return tbl
         
     def place(self, fields):
@@ -782,7 +796,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','MultiButton','PaletteGroup','PagedHtml', 'PalettePane','PaletteMap','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','MultiButton','PaletteGroup','PagedHtml', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -958,6 +972,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
+        #self.data(storepath,Bag())
         return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
 
     def onDbChanges(self, action=None, table=None, **kwargs):
@@ -1075,7 +1090,21 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param groupCode: TODO
         """
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
-        
+
+
+    def ckeditor(self,stylegroup=None,**kwargs):
+        style_table = self.page.db.table('adm.ckstyle')
+        if style_table:
+            cs = dict()
+            cs.update(style_table.query(where="$stylegroup IS NULL OR $stylegroup=''",g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
+            if stylegroup:
+                for st in stylegroup.split(','):
+                    cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
+            if cs:
+                kwargs['customStyles'] = [dict(v) for v in cs.values()]
+
+        return self.child('ckEditor',**kwargs)
+
     def palettePane(self, paletteCode, datapath=None, **kwargs):
         """Return a :ref:`palettepane`
         
@@ -1136,6 +1165,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
+
+
         
     def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes
@@ -1279,7 +1310,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         s=self.child('slot',childname=slot)
         s.frame = frame
         parameter = None
+        slotCode = slot
         if '@' in slot:
+            slotCode = slot.replace('@','_')
             slot,parameter = slot.split('@')
         slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
         if not slothandle:
@@ -1290,7 +1323,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if slothandle:
             kw = dict()
             kw[slot] = toolbarArgs.pop(slot,parameter)
-            kw.update(dictExtract(toolbarArgs,'%s_' %slot,True))
+            kw.update(dictExtract(toolbarArgs,'%s_' %slotCode,True))
             kw['frameCode'] = frameCode
             slothandle(**kw)
             
@@ -1320,6 +1353,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         #se ritorni la toolbar hai una toolbar vuota 
     
+    def slotbar_updateslotsattr(self,**kwargs):
+        self.attributes.update(kwargs)
+        toolbarArgs = self.attributes
+        slotstr = toolbarArgs['slots']
+        slots = slotstr.split(',')
+        slotbarCode= toolbarArgs.get('slotbarCode')
+        inattr = self.getInheritedAttributes()
+        frameCode = inattr.get('frameCode')
+        namespace = inattr.get('namespace')
+        frame = self.parent.parent
+        prefix = slotbarCode or frameCode
+        for slot in slots:
+            if slot!='*' and slot!='|' and not slot.isdigit():
+                self.pop(slot)
+                self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,toolbarArgs=toolbarArgs)
+
     def slotbar_replaceslots(self, toReplace, replaceStr,**kwargs):
         """Allow to redefine the preset bars of the :ref:`slotBars <slotbar>` and the
         :ref:`slotToolbars <slotbar>`
@@ -1506,7 +1555,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if fieldobj is None:
             raise GnrDomSrcError('Not existing field %s' % fld)
         wdgattr = self.wdgAttributesFromColumn(fieldobj, fld=fld,**kwargs)     
-        if fieldobj.getTag() == 'virtual_column' or (('@' in fld )and fld != tblobj.fullRelationPath(fld)):
+        if fieldobj.getTag() == 'virtual_column' or (('@' in fld ) and fld != tblobj.fullRelationPath(fld)):
             wdgattr.setdefault('readOnly', True)
             wdgattr['_virtual_column'] = fld
            
@@ -1567,18 +1616,21 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         pass
                     else:
                         zoomKw = dictExtract(kwargs,'zoom_')
+                        forcedTitle = zoomKw.pop('title', None)
                         zoomKw.setdefault('formOnly',False)
                         result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
                         result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
-                        result['lbl__zoomKw_title'] = lnktblobj.name_plural or lnktblobj.name_long
+                        result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
                         result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
                 result['lbl'] = '<span class="gnrzoomicon">&nbsp;&nbsp;&nbsp;&nbsp;</span><span>%s</span>' %self.page._(result['lbl'])
                 result['lbl_class'] = 'gnrzoomlabel'
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
-            if 'storefield' in joiner:
+            if '_storename' in joiner:
+                result['_storename'] = joiner['_storename']
+            elif 'storefield' in joiner:
                 result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
@@ -2136,7 +2188,7 @@ class GnrGridStruct(GnrStructData):
                     ridx = relfldlst.index('@%s' % zoom)
                 zoomtbl = tableobj.column('.'.join(relfldlst[0:ridx + 1])).parent
                 relfldlst[ridx] = relfldlst[ridx][1:]
-                cellpars['zoom_pkey'] = '.'.join(relfldlst[0:ridx + 1])
+                cellpars['zoom_pkey'] = cellpars.get('zoom_pkey') or '.'.join(relfldlst[0:ridx + 1])
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
                 cellpars['zoom_pkey'] = field

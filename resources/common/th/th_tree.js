@@ -39,21 +39,22 @@ var THTree = {
             }          
             }
         treeNode.widget.restoreExpanded();
-        var p;
         if(selectedIdentifier && dbevent!='I'){
-            var n = store.getNodeByAttr('treeIdentifier',selectedIdentifier);
-            if(n){
-                p = n.getFullpath(null, treeNode.widget.model.store.rootData());
-                treeNode.widget.setSelectedPath(null,{value:p});
-            }else{
-                p = genro.serverCall('ht_pathFromPkey',{pkey:selectedIdentifier,table:table});
-                if(p){
-                    treeNode.widget.setSelectedPath(null,{value:'root.'+p});
-                }
-            }
-            
+            var treeWdg = treeNode.widget;
+            treeWdg.setSelectedPath(null,{value:this.fullPathByIdentifier(treeWdg,store,selectedIdentifier)});    
         }
     },
+
+    fullPathByIdentifier:function(tree,store,pkey){
+        var n = store.getNodeByAttr('treeIdentifier',pkey);
+        if(n){
+            return n.getFullpath(null, tree.model.store.rootData());
+        }else{
+            var storeNode = store.getParentNode();
+            return genro.serverCall('ht_pathFromPkey',{pkey:pkey,table:storeNode.attr['table'],dbstore:storeNode.attr['dbstore']});
+        }
+    },
+
     dropTargetCbOnSelf:function(sourceNode,dropInfo){
         var pkey = dropInfo.treeItem.attr.pkey;
         var dataTransfer = dropInfo.event.dataTransfer;

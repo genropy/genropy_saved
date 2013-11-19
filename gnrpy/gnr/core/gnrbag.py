@@ -2547,23 +2547,24 @@ class BagResolver(object):
 class GeoCoderBag(Bag):
     def setGeocode(self, key, address):
         """TODO
-        
+
         :param key: TODO
         :param address: TODO"""
         url = "http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address, output='xml'))
         result = Bag()
-        
+
         def setData(n):
             v = n.getValue()
             if isinstance(v, basestring):
                 result[n.label] = v
-                
+
+
         answer = Bag(url)['#0.#0.Placemark']
         if answer:
             answer.walk(setData)
         self[key] = result
-        
-        
+
+
 class VObjectBag(Bag):
     def fillFrom(self,source):
         if isinstance(source,basestring):

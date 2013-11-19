@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -106,7 +106,7 @@ CKEDITOR.plugins.add( 'sourcearea',
 							setTimeout( function()
 							{
 								editor.mode = 'source';
-								editor.fire( 'mode' );
+								editor.fire( 'mode', { previousMode : editor._.previousMode } );
 							},
 							( CKEDITOR.env.gecko || CKEDITOR.env.webkit ) ? 100 : 0 );
 						},

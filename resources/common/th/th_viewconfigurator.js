@@ -93,9 +93,9 @@ var genro_plugin_grid_configurator = {
         var structbag,structnode,viewAttr;
         var finalize = function(struct){
              gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
-             if(gridSourceNode.widget && gridSourceNode.widget.storeRowCount()>0){
-                 gridSourceNode.widget.reload(true);
-             }
+             //if(gridSourceNode.widget && gridSourceNode.widget.storeRowCount()>0){
+             //    gridSourceNode.widget.reload(true);
+             //}
         }
         
         if(resource_structs){

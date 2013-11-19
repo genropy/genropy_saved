@@ -10,7 +10,14 @@ from gnr.core.gnrbag import Bag,BagNode
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
+from gnr.core.gnrlang import GnrException
+from time import time
 import os
+import base64
+import mimetypes
+import re 
+
+
 
 AUTH_FORBIDDEN = -1
 AUTH_EXPIRED = 2
@@ -62,13 +69,17 @@ class GnrWebRpc(GnrBaseProxy):
         if page.isLocalizer():
             envelope['_localizerStatus'] = '*_localizerStatus*'
         envelope.setItem('result', result, _attributes=resultAttrs)
-        dataChanges = self.page.collectClientDatachanges()
-        if dataChanges:
-            envelope.setItem('dataChanges', dataChanges)
+        if not getattr(page,'_closed',False):
+            dataChanges = self.page.collectClientDatachanges()
+            if dataChanges:
+                envelope.setItem('dataChanges', dataChanges)
         page.response.content_type = "text/xml"
+        t0 = time()
         xmlresult = envelope.toXml(unresolved=True,
                                    translate_cb=page.localizer.translateText, omitUnknownTypes=True,
                                    catalog=page.catalog)
+        page.xml_deltatime = int((time()-t0)*1000)
+        page.xml_size = len(xmlresult)
         if page.isLocalizer():
             xmlresult = xmlresult.replace('*_localizerStatus*', page.localizer.status)
 
@@ -79,7 +90,8 @@ class GnrWebRpc(GnrBaseProxy):
         while node:
             node = src.getNodeByAttr('_notallowed',True)
             if node:
-                assert not self.page.isGuest,'you must be logged'
+                if self.page.isGuest:
+                    raise GnrException('!!User connection lost.')
                 node.parentbag.popNode(node.label)
 
 
@@ -113,6 +125,7 @@ class GnrWebRpc(GnrBaseProxy):
             onUploading = self.page.getPublicMethod('rpc', onUploadingMethod)
             onUploading(kwargs)
         file_handle = kwargs.get('file_handle')
+        dataUrl = kwargs.get('dataUrl')
         uploadPath = kwargs.get('uploadPath')
         uploaderId = kwargs.get('uploaderId')
 
@@ -125,21 +138,28 @@ class GnrWebRpc(GnrBaseProxy):
 
         #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
 
-
-
         file_actions = dictExtract(kwargs, 'process_') or {}
+
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
             if uploaderId:
                 uploadPath = '%s/%s' % (uploadPath, uploaderId)
-        if file_handle is None or uploadPath is None:
+        if uploadPath is None:
             return
-        f = file_handle.file
-        content = f.read()
-        original_filename = os.path.basename(file_handle.filename)
-        original_ext = os.path.splitext(original_filename)[1]
-
-        filename = filename or original_filename
+        if file_handle is not None:
+            f = file_handle.file
+            content = f.read()
+            original_filename = os.path.basename(file_handle.filename)
+            original_ext = os.path.splitext(original_filename)[1]
+            filename = filename or original_filename
+        elif dataUrl:
+            dataUrlPattern = re.compile('data:(.*);base64,(.*)$')
+            g= dataUrlPattern.match(dataUrl)#.group(2)
+            mimetype,base64Content = g.groups()
+            original_ext = mimetypes.guess_extension(mimetype)
+            content = base64.b64decode(base64Content)
+        else:
+            return
         file_ext = os.path.splitext(filename)[1]
         if not file_ext:
             filename = '%s%s' %(filename,original_ext)

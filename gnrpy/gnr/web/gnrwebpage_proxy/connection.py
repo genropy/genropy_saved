@@ -54,7 +54,8 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def validate_page_id(self, page_id):
-        return page_id in self.connection_item['pages']
+        pages = self.connection_item.get('pages') or self.page.site.register.pages(connection_id=self.connection_item['register_item_id'])
+        return page_id in pages
 
     def validate_connection(self, connection_id=None, user=None):
         connection_item = self.page.site.register.connection(connection_id)
@@ -140,13 +141,14 @@ class GnrWebConnection(GnrBaseProxy):
         self.write_cookie()
 
     def rpc_logout(self):
-        self.change_user()
+        self.page.site.register.drop_user(user=self.user)
 
     @public_method
     def connected_users_bag(self, exclude=None, exclude_guest=True, max_age=600):
         users = self.page.site.register.users()
         result = Bag()
         exclude = exclude or []
+        now = self.page.clientDatetime()
         if isinstance(exclude, basestring):
             exclude = exclude.split(',')
         for user, arguments in users.items():
@@ -158,13 +160,15 @@ class GnrWebConnection(GnrBaseProxy):
             _customClasses = []
             row['_pkey'] = user
             row['iconClass'] = 'greenLight'
-            if arguments['last_rpc_age'] > 60:
+            last_refresh_age = (now - arguments.get('last_refresh_ts',arguments['start_ts'])).seconds
+            last_event_age = (now - arguments.get('last_user_ts',arguments['start_ts'])).seconds
+            if last_refresh_age > 60:
                 _customClasses.append('user_disconnected')
                 row['iconClass'] = 'grayLight'
-            elif arguments['last_event_age']>300:
+            elif last_event_age>300:
                 _customClasses.append('user_away')
                 row['iconClass'] = 'redLight'
-            elif arguments['last_event_age'] > 60:
+            elif last_event_age > 60:
                 _customClasses.append('user_idle')
                 row['iconClass'] = 'yellowLight'
             row['_customClasses'] = _customClasses

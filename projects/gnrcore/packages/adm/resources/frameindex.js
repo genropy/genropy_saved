@@ -1,3 +1,32 @@
+var loginManager = {
+    notificationManager:function(notification_id){
+        genro.setData('notification.confirm',null);
+        var notification_data = genro.serverCall('_table.adm.user_notification.getNotification',{pkey:notification_id});
+        var dlg = genro.dlg.quickDialog(notification_data['title'],{_showParent:true,width:'900px',datapath:'notification',background:'white'});
+        var box = dlg.center._('div',{overflow:'auto',height:'500px',overflow:'auto',padding:'10px'});
+        box._('div',{innerHTML:notification_data.notification,border:'1px solid transparent',padding:'10px'});
+        var bar = dlg.bottom._('slotBar',{slots:'cancel,*,confirm_checkbox,2,confirm',height:'22px'});
+        bar._('button','cancel',{'label':'Cancel',command:'cancel',action:function(){genro.logout();}});
+        bar._('checkbox','confirm_checkbox',{value:'^.confirm',label:(notification_data.confirm_label || 'Confirm')})
+        bar._('button','confirm',{'label':'Confirm',command:'confirm',disabled:'^.confirm?=!#v',action:function(){
+                                                    genro.serverCall('_table.adm.user_notification.confirmNotification',{pkey:notification_id},
+                                                            function(n_id){
+                                                                dlg.close_action();
+                                                                if(n_id){
+                                                                    loginManager.notificationManager(n_id);
+                                                                }else{
+                                                                    genro.publish('end_notification')
+                                                                }
+                                                            }
+                                                    )
+
+                                                }});
+        dlg.show_action();
+    },
+
+}
+
+
 dojo.declare("gnr.FramedIndexManager", null, {
     constructor:function(stackSourceNode){
         this.stackSourceNode = stackSourceNode;
@@ -103,16 +132,29 @@ dojo.declare("gnr.FramedIndexManager", null, {
     selectIframePage:function(kw){
         var openKw = objectPop(kw,'openKw');
         var rootPageName = this.createIframeRootPage(kw);
-        this.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
-        if(openKw){
-            var that = this;
-            this.stackSourceNode.watch('loadingOpenKw',function(){
-                return that.getCurrentIframe(rootPageName);
-            },function(){
-                var iframe = that.getCurrentIframe(rootPageName);
-                iframe.gnr.postMessage(iframe.sourceNode,openKw);
-            })
+        var that = this;
+        var cb = function(){
+            that.stackSourceNode.setRelativeData('selectedFrame',rootPageName);
+            if(openKw){
+                that.stackSourceNode.watch('loadingOpenKw',function(){
+                    return that.getCurrentIframe(rootPageName);
+                },function(){
+                    var iframe = that.getCurrentIframe(rootPageName);
+                    iframe.gnr.postMessage(iframe.sourceNode,openKw);
+                })
+            }
+        };
+        var n = this.iframesbag.getNode(kw.rootPageName);
+        var hasBeenSelected = this.iframesbag.getNode(kw.rootPageName).attr.hasBeenCreated;
+        if(!hasBeenSelected){
+            genro.callAfter(function(){
+                n.attr.hasBeenCreated = true;
+            },1);
+            genro.callAfter(cb,500,this,'creating')
+        }else{
+            cb();
         }
+        
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
     
@@ -209,10 +251,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
     },
 
-    reloadSelectedIframe:function(rootPageName){
+    reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            iframe.sourceNode._genro.pageReload();
+            var dodebug = modifiers=='Shift';
+            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true});
         }
     },
 
@@ -301,7 +344,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
                     startPage = pageName;
                 }
             },'static');
-            that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+            setTimeout(function(){
+                that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+            },100);
         }
     },
 

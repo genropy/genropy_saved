@@ -23,11 +23,15 @@ class GnrCustomWebPage(object):
         if hasattr(self,'root_form') and self.root_form.attributes.get('_notallowed'):
             return False
         return True
-        
+    
+    @property
+    def pagename(self):
+        callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')  
+        return 'thpage_%(th_pkg)s_%(th_table)s' %callArgs
+
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,th_pkey=None,**kwargs):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')  
-        self.pagename = 'thpage_%(th_pkg)s_%(th_table)s' %callArgs
         root.data('gnr.pagename', self.pagename)
         pkey = callArgs.pop('th_pkey',None)  
         th_pkey = pkey or th_pkey

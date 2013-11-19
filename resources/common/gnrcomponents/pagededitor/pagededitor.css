@@ -29,3 +29,16 @@
     font-size: 12px;
     color: #222;
 }
+
+[visible_if=""]{
+    display:none;
+}
+[hidden_if]{
+    display:none;
+}
+[hidden_if='']{
+    display:block;
+}
+span[hidden_if='']{
+    display:inline;
+}

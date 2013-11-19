@@ -32,8 +32,15 @@ class PublicBase(BaseComponent):
     def onMain_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
+        pane.dataController()
         if not self.isGuest and userTable:
-            pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
+            pane.dataRemote('gnr.user_record', 'app.getRecord', username=self.user,table=userTable)
+        if not getattr(self,'public_partitioned',None) and self.rootenv['partition_kw']:
+            partition_kw = self.rootenv['partition_kw']
+            partition_path = partition_kw['path']
+            partition_field = partition_kw['field']
+            pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
+            pane.data('current.%s' %partition_field,self.rootenv['current_%s' %partition_path],serverpath='rootenv.current_%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -156,12 +163,7 @@ class Public(PublicBase):
     css_requires = 'public'
     plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
-    py_requires = """foundation/menu:MenuLink,
-                     foundation/dialogs,
-                     foundation/macrowidgets,
-                     public:PublicSlots,
-                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                     gnrcomponents/chat_component/chat_component:ChatComponent"""
+    py_requires = """public:PublicSlots,foundation/macrowidgets"""
 
     def mainLeftContent(self,pane,**kwargs):
         return
@@ -204,30 +206,33 @@ class PublicSlots(BaseComponent):
 
     @struct_method
     def public_publicRoot_partition_selector(self,pane, **kwargs): 
-        box = pane.div(hidden='^gnr.partition_selector.hidden',margin_top='1px') 
+        box = pane.div(margin_top='2px') 
         if self.public_partitioned is True:
-            kw = dictExtract(self.tblobj.attributes,'partition_')
-            public_partitioned = dict()
-            public_partitioned['field'] = kw.keys()[0]
-            public_partitioned['path'] = kw[public_partitioned['field']]
-            public_partitioned['table'] = self.tblobj.column(public_partitioned['field']).relatedColumn().table.fullname
-            self.public_partitioned = public_partitioned
+            self.public_partitioned = self.tblobj.partitionParameters
         kw = self.public_partitioned
         partition_field = kw['field']
         partition_path = kw['path']
         table = kw['table']
         related_tblobj = self.db.table(table)
-
-        if not self.rootenv[partition_path]:
-            fb = box.formbuilder(cols=1,border_spacing='0')
-            fb.dbSelect(value='^current.%s' %partition_field,
-                        dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
-                        hasDownArrow=True,font_size='.8em',lbl_color='white',
-                        color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
-        
-        pane.data('current.%s' %partition_field,self.rootenv[partition_path],
-                    serverpath='currenv.%s' %partition_path,dbenv=True)
-
+        default_partition_value = self.rootenv[partition_path]
+        fb = box.formbuilder(cols=1,border_spacing='0')
+        partitionioning_pkeys = related_tblobj.partitionioning_pkeys() if hasattr(related_tblobj,'partitionioning_pkeys') else None
+        if not partitionioning_pkeys and default_partition_value:
+            partitionioning_pkeys = [default_partition_value]
+        partition_condition = '$%s IN :pk' %related_tblobj.pkey if  partitionioning_pkeys else None
+        readOnly = partitionioning_pkeys and len(partitionioning_pkeys) == 1
+        fb.dbSelect(value='^current.current_partition_value',
+                            condition=partition_condition,condition_pk=partitionioning_pkeys,
+                            readOnly=readOnly,disabled='^gnr.partition_selector.disabled',
+                            dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
+                            hasDownArrow=True,font_size='.8em',lbl_color='white',
+                            color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
+        fb.dataController('SET current.%s=v || null' %partition_field,v='^current.current_partition_value')
+        pane.dataController("""genro.publish({topic:"public_changed_partition",iframe:"*"},{partition_value:v});""",v='^current.%s' %partition_field)
+        pane.data('current.current_partition_value',default_partition_value)
+        pane.data('current.%s' %partition_field,default_partition_value,
+                    serverpath='rootenv.current_%s' %partition_path,dbenv=True)
+        self.pageStore().setItem('rootenv.partition_kw',kw)
 
     @struct_method
     def public_publicRoot_captionslot(self,pane,title='',**kwargs):  
@@ -358,6 +363,8 @@ class TableHandlerMain(BaseComponent):
         lockable = kwargs.pop('lockable',True)
         if th_options['partitioned']:
             self.public_partitioned = th_options['partitioned']
+            if self.public_partitioned is True:
+                self.public_partitioned = self.tblobj.partitionParameters
         if insidePublic:
             pbl_root = root = root.rootContentPane(datapath=tablecode)
         else:
@@ -384,15 +391,15 @@ class TableHandlerMain(BaseComponent):
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
         if getattr(self,'public_partitioned',None):
-            th.view.dataController("""FIRE .runQueryDo;""",_fired='^current.%s' %self.public_partitioned['field'],
+            th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
-            partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+            #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             if th['view.top.bar.addrow']:
                 th.view.top.bar.addrow.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add']:
                 th.form.top.bar.form_add.getNode('#0').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
-            if th['form'] and partition_kwargs:
-                th.form.dataController("SET gnr.partition_selector.hidden = pkey?true:false;",pkey='^#FORM.pkey')
+            if th['form']: #and partition_kwargs:
+                th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",pkey='^#FORM.pkey')
         self.root_tablehandler = th
         vstore = th.view.store
         viewbar = th.view.top.bar
@@ -531,8 +538,12 @@ class TableHandlerMain(BaseComponent):
                     title = formtitle;
                 }else{
                     title = viewtitle;
+                    totalrows = hardQueryLimitOver?'<span style="color:#FF3519;">'+totalrows+'</span>' :totalrows;
                     if(totalRowCount!==null){
-                        title = title +' ('+totalrows+'/'+totalRowCount+')';
+                        title = title +' ('+totalrows+'/'+totalRowCount+')';                    
+                    }
+                    else if(totalrows){
+                        title = title + ' ('+totalrows+')';
                     }
                 }
                 if(title){
@@ -542,7 +553,7 @@ class TableHandlerMain(BaseComponent):
                         """,
             formtitle='^.form.controller.title',viewtitle='^.view.title',
             selectionName='^.view.store?selectionName',table='=.view.table',
-            totalRowCount = '^.view.store?totalRowCount',
+            totalRowCount = '^.view.store?totalRowCount',hardQueryLimitOver='^.view.store?hardQueryLimitOver',
             totalrows = '^.view.store?totalrows',
             whereAsPlainText='^.view.store?whereAsPlainText',
             selectedPage='^.selectedPage',currTitle='=gnr.publicTitle',widget=widget,_delay=100,_onStart=True)                 

@@ -9,7 +9,7 @@ from gnr.core.gnrdecorator import oncalled,public_method
 from gnr.core.gnrbag import Bag
 
 class TableScriptRunner(BaseComponent):
-    py_requires='th/th:TableHandler'
+    #py_requires='th/th:TableHandler'
     
     def onMain_make_schedulerDialog(self):
         page = self.pageSource()

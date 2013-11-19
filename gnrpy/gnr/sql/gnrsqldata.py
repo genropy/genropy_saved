@@ -39,6 +39,7 @@ from gnr.core import gnrlist
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
+from gnr.core.gnrdecorator import debug_info
 from gnr.sql.gnrsql_exceptions import SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
@@ -255,7 +256,8 @@ class SqlQueryCompiler(object):
         pw = tuple(newpath+[basealias])
         if pw in self.aliases: # if the requested join table is yet added by previous columns
             if pw in self._explodingTables:
-                self.cpl.explodingColumns.append(self._currColKey)
+                if not self._currColKey in self.cpl.explodingColumns:
+                    self.cpl.explodingColumns.append(self._currColKey)
             return self.aliases[pw], newpath # return the joint table alias
         alias = 't%i' % len(self.aliases)    # else add it to the join clauses
         self.aliases[pw] = alias
@@ -307,7 +309,8 @@ class SqlQueryCompiler(object):
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
         # the columns causing the increment of rows number are saved for use by SqlSelection._aggregateRows
         if manyrelation:
-            self.cpl.explodingColumns.append(self._currColKey)
+            if not self._currColKey in self.cpl.explodingColumns:
+                self.cpl.explodingColumns.append(self._currColKey)
             self._explodingTables.append(pw)
             self._explodingRows = True
             
@@ -409,6 +412,7 @@ class SqlQueryCompiler(object):
                       relationDict=None,
                       bagFields=False,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
+                      ignorePartition=False,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -484,11 +488,11 @@ class SqlQueryCompiler(object):
             where = ' AND '.join(wherelist)
 
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-        if partition_kwargs:
+        if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
             for k,v in partition_kwargs.items():
-                if currentEnv.get(v):
-                    wherelist.append('( $%s=:env_%s )' % (k,v))
+                if currentEnv.get('current_%s' %v):
+                    wherelist.append('( $%s=:env_current_%s )' % (k,v))
             where = ' AND '.join(wherelist)
         columns = self.updateFieldDict(columns)
         where = self.updateFieldDict(where or '')
@@ -639,7 +643,7 @@ class SqlQueryCompiler(object):
         self.cpl.where = self._recordWhere(where=where)
         
         self.cpl.columns = ',\n       '.join(self.fieldlist)
-        self.cpl.limit = 2
+        #self.cpl.limit = 2
         self.cpl.for_update = for_update
         return self.cpl
             
@@ -665,6 +669,7 @@ class SqlQueryCompiler(object):
             if column is None:
                 # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
+            self._currColKey = col_name
             field = self.getFieldAlias(column.name)
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
@@ -850,6 +855,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
+                 ignorePartition=False,
                  addPkeyColumn=True, locale=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -864,6 +870,7 @@ class SqlQuery(object):
         self.sqlparams.update(kwargs)
         self.excludeLogicalDeleted = excludeLogicalDeleted
         self.excludeDraft = excludeDraft
+        self.ignorePartition = ignorePartition
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
         self.storename = _storename
@@ -923,6 +930,7 @@ class SqlQuery(object):
                                                                   excludeLogicalDeleted=self.excludeLogicalDeleted,
                                                                   excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
+                                                                  ignorePartition=self.ignorePartition,
                                                                   **self.querypars)
                                                                   
     def cursor(self):
@@ -941,7 +949,17 @@ class SqlQuery(object):
             return result
         result = cursor.fetchall()
         cursor.close()
+        self.handlePyColumns(result)
         return result
+
+    def handlePyColumns(self,data):
+        if not self.compiled.pyColumns:
+            return
+        for field,handler in self.compiled.pyColumns:
+            if handler:
+                for d in data:
+                    d[field] = handler(d,field=field)
+
         
     def fetchAsDict(self, key=None, ordered=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key
@@ -992,7 +1010,6 @@ class SqlQuery(object):
         
     def _dofetch(self, pyWhere=None):
         """private: called by _get_selection"""
-
         if pyWhere:
             cursor, rowset = self.serverfetch(arraysize=100)
             index = cursor.index
@@ -1010,14 +1027,10 @@ class SqlQuery(object):
                 return index, data            
             data = cursor.fetchall() or []
             index = cursor.index
-        if self.compiled.pyColumns:
-            for field,handler in self.compiled.pyColumns:
-                if handler:
-                    for d in data:
-                        d[field] = handler(d,field=field)
+        self.handlePyColumns(data)
 
         return index, data
-        
+
     def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):
         """Execute the query and return a SqlSelection
         
@@ -1175,6 +1188,9 @@ class SqlSelection(object):
                             sr = masterRow[subfld].setdefault(d[v[2]],{})
                             sr[v[1]] = d[k]
             data = newdata
+            for d in data:
+                for col in mixColumns:
+                    d[col] = self.dbtable.fieldAggregate(col,d[col],fieldattr= self.colAttrs[col],onSelection=True)
         return data
         
     def setKey(self, key):
@@ -1206,7 +1222,7 @@ class SqlSelection(object):
         return self._keyDict
         
     keyDict = property(_get_keyDict)
-        
+    
     def output(self, mode, columns=None, offset=0, limit=None,
                filterCb=None, subtotal_rows=None, formats=None, locale=None, dfltFormats=None,
                asIterator=False, asText=False, **kwargs):
@@ -1302,15 +1318,17 @@ class SqlSelection(object):
             self.analyzeBag.makePicklable()
         saved = self.dbtable, self._data, self._filtered_data
         self.dbtable, self._data, self._filtered_data = None, 'frozen', 'frozen' * bool(self._filtered_data) or None
-        f = file('%s.pik' % self.freezepath, 'w')
-        cPickle.dump(self, f)
-        f.close()
+        selection_path = '%s.pik' % self.freezepath
+        dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
+        with os.fdopen(dumpfile_handle, "w") as f:
+            cPickle.dump(self, f)
+        shutil.move(dumpfile_path, selection_path)
         self.dbtable, self._data, self._filtered_data = saved
         
     def _freeze_data(self, readwrite):
         pik_path = '%s_data.pik' % self.freezepath
         if readwrite == 'w':
-            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "w") as f:
                 cPickle.dump(self._data, f)
             shutil.move(dumpfile_path, pik_path)
@@ -1325,12 +1343,14 @@ class SqlSelection(object):
             if os.path.isfile(fpath):
                 os.remove(fpath)
         else:
-            f = file(fpath, readwrite)
             if readwrite == 'w':
-                cPickle.dump(self._filtered_data, f)
+                dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_filtered',suffix='.pik')
+                with os.fdopen(dumpfile_handle, "w") as f:
+                    cPickle.dump(self._filtered_data, f)
+                shutil.move(dumpfile_path, fpath)
             else:
-                self._filtered_data = cPickle.load(f)
-            f.close()
+                with open(fpath) as f:
+                    self._filtered_data = cPickle.load(f)
             
     def freeze(self, fpath, autocreate=False):
         """TODO
@@ -1673,11 +1693,11 @@ class SqlSelection(object):
             result.append(gnrstring.templateReplace(rowtemplate,dict(r),safeMode=True))
         return joiner.join(result)
 
-    def out_records(self, outsource):
+    def out_records(self, outsource,virtual_columns=None):
         """TODO
         
         :param outsource: TODO"""
-        return [self.dbtable.record(r[0][1], mode='bag') for r in outsource]
+        return [self.dbtable.record(r[0][1], mode='bag',virtual_columns=virtual_columns) for r in outsource]
         
     def iter_records(self, outsource):
         """TODO
@@ -2060,6 +2080,10 @@ class SqlRecord(object):
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
             cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
+            index = cursor.index
+            cursor.close()
+            if self.compiled.explodingColumns and len(data)>1:
+                data = self.aggregateRecords(data,index)
             if len(data) == 1:
                 self._result = data[0]
             elif len(data) == 0:
@@ -2072,6 +2096,7 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.ignoreDuplicate:
+                    print
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(
@@ -2079,7 +2104,22 @@ class SqlRecord(object):
                                                                                             self.compiled.get_sqltext(
                                                                                                     self.db), params))
         return self._result
-        
+
+
+    def aggregateRecords(self,data,index):
+        resultmap = self.compiled.resultmap
+        mapdict = dict(resultmap.digest('#k,#a.as'))
+        explodingColumns = [(mapdict[k],k) for k in self.compiled.explodingColumns]
+        result = dict(data[0])
+        for col,fld in explodingColumns:
+            result[col] = [result[col]]
+        for d in data[1:]:
+            for col,fld in explodingColumns:
+                result[col].append(d[col])
+        for col,fld in explodingColumns:
+            result[col] = self.dbtable.fieldAggregate(fld,result[col],fieldattr=resultmap.getAttr(fld))
+        return [result]
+
     def _set_result(self,result):
         self._result = Bag()
 
@@ -2147,6 +2187,10 @@ class SqlRecord(object):
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
+        if self.compiled.pyColumns:
+            for field,handler in self.compiled.pyColumns:
+                if handler:
+                    result[field] = handler(result,field=field)
    
 
     def _loadRecord_DynItemMany(self,joiner,info,sqlresult,resolver_one,resolver_many,virtual_columns):
@@ -2225,11 +2269,13 @@ class SqlRecord(object):
         #else:
         if 'storefield' in joiner:
             info['_storefield'] = joiner['storefield']
+        if 'resolver_kwargs' in joiner:
+            info['_resolver_kwargs'] = joiner['resolver_kwargs']
         info['_resolver_name'] = resolver_one
         info['_sqlContextName'] = self.sqlContextName
         info['_auto_relation_value'] = mfld
         info['_virtual_columns'] = virtual_columns
-        info['_storename'] = self.storename
+        info['_storename'] = joiner.get('_storename') or self.storename
         return value,info
         
     def _onChangedValueCb(self,node=None,evt=None,info=None,**kwargs):

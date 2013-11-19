@@ -173,7 +173,7 @@ class DropUploaderBase(BaseComponent):
         
     def fileaction_resize(self, file_path=None, file_url=None, file_ext=None, height=None, width=None, filetype=None,
                           action_name=None, dest_dir=None, **kwargs):
-        import Image
+        from PIL import Image
 
         with open(file_path, 'rb') as image_file:
             try:

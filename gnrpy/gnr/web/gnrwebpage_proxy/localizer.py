@@ -24,11 +24,8 @@ class GnrWebLocalizer(GnrBaseProxy):
 
     def event_onEnd(self):
         """TODO"""
-        with self.page.pageStore() as store:
-            localization = {}
-            localization.update(store.getItem('localization') or {})
-            localization.update(self.localizer_dict)
-            store.setItem('localization', localization)
+        if self.localizer_dict:
+            self.page.site.register.updateLocalization(page_id=self.page.page_id,localizer_dict=self.localizer_dict,register_name='page')
 
     def localize(self,txt):
         """Localize a string beginning with the :ref:`\!\! <exclamation_point>` character"""

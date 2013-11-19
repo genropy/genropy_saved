@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace
+from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -20,6 +20,14 @@ class GnrDboPackage(object):
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
             self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)
+
+    def partitionParameters(self):
+        partition= self.attributes.get('partition')
+        if not partition:
+            return
+        pkg,tbl,fld=partition.split('.')
+        return dict(table='%s.%s' % (pkg,tbl),field='%s_%s' % (tbl,fld), path='current_%s_%s' % (tbl,fld))
+    
             
     def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
         """Generate a new number from the specified counter and return it.
@@ -121,10 +129,11 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, md5=False,
-                  counter=False,hierarchical=False,
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
+                  counter=False,hierarchical=False,useProtectionTags=None,
                   group='zzz', group_name='!!System',
-                  multidb=None,df=None,counter_kwargs=None):
+                  multidb=None,
+                  df=None,counter_kwargs=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -164,6 +173,10 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
+        if useProtectionTags:
+            tbl.attributes['protectionColumn'] = '__is_protected_row'
+            tbl.column('__protection_tag', name_long='!!Protection tags', group=group,_sysfield=True,_sendback=True)
+            tbl.formulaColumn('__is_protected_row',""" NOT ('%%,'|| $__protection_tag || ',%%' ILIKE ',' || :env_userTags || ',')""",dtype='B')
         
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
@@ -176,7 +189,7 @@ class TableBase(object):
                                              onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
-                                                                                        #deferred=True,
+                                                                                        deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
             tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
@@ -236,7 +249,17 @@ class TableBase(object):
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
         if multidb:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
-        
+        if invalidFields or invalidRelations:
+            if invalidFields:
+                tbl.attributes['invalidFields'] = '__invalid_fields'
+                tbl.column('__invalid_fields',name_long='!!Invalids',group=group,_sysfield=True)
+                r = ['( $__invalid_fields IS NOT NULL )']
+            else:
+                r = []
+            if invalidRelations:
+                for rel in invalidRelations.split(','):
+                    r.append('%s.__is_invalid' %rel)
+            tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
         sync = tbl.attributes.get('sync')
         if sync:
             tbl.column('__syncaux','B',group=group,
@@ -251,10 +274,21 @@ class TableBase(object):
         tbl.column('df_fields',dtype='X',group='_')
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
+        tbl.column('df_colswith',group='_')
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
+
+
+    def invalidFieldsBag(self,record):
+        if not record['__invalid_fields']:
+            return
+        result = Bag()
+        invdict = fromJson(record['__invalid_fields'])
+        for k,v in invdict.items():
+            result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
+        return result
 
             
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
@@ -646,6 +680,12 @@ class GnrDboTable(TableBase):
         return valuesset
 
         
+class HostedTable(GnrDboTable):
+    
+    def hosting_config(self,tbl,mode=None):
+        if mode=='slave' and self.db.application.config['hosting?instance']:
+            tbl.attributes['readOnly'] = True
+
 
 
 class AttachmentTable(GnrDboTable):
@@ -693,6 +733,25 @@ class AttachmentTable(GnrDboTable):
             record['text_content'] = text_content
             self.update(record,old_record=old_record)
             self.db.commit()
+
+
+    def insertPdfFromDocAtc(self, attachment):
+        """Creates a pdf version of a .doc/.docx attachment and inserts the a sibling record referring to it.
+            Returns the new pdf attachment record
+        :param attachment: source attachment record or pket"""
+
+        if isinstance(attachment, basestring):
+            attachment = self.recordAs(attachment, mode='dict')
+        site = self.db.application.site
+        docConverter = site.getService('doctopdf')
+        if os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
+            pdf_staticpath = docConverter.convert(attachment['filepath'])
+            pdf_record = dict(filepath=pdf_staticpath,
+                        mimetype=attachment['mimetype'],
+                        description=os.path.basename(pdf_staticpath),
+                        maintable_id=attachment['maintable_id'])
+            self.insert(pdf_record)
+        return pdf_record
         
     def trigger_onDeletedAtc(self,record,**kwargs):
         site = self.db.application.site
@@ -1203,7 +1262,6 @@ class Table_userobject(TableBase):
         sel = self.query(columns='$id, $code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist, $flags',
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
-                    
                          
         sel.filter(checkUserObj)
         return sel
@@ -1293,6 +1351,7 @@ class Table_recordtag(TableBase):
         :param old_record: TODO"""
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
+
             
 class Table_recordtag_link(TableBase):
     """TODO"""

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <wsgi mainpackage='invoice' port='8084' debug='true'/>
-    <defaults vat_rate='20'/> <!--country='IT'-->
-</GenRoBag>

@@ -72,9 +72,7 @@ class ImapReceiver(object):
         new_mail['to_address'] = unicode(mail['To'])
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
-        new_mail['subject'] = mail['Subject']
-        if encoding:
-            new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
+        new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         date = mail['Date']
         if date:
             datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
@@ -94,7 +92,11 @@ class ImapReceiver(object):
             new_mail['body_plain'] = self.smartConverter(content,encoding)
 
     def smartConverter(self,m,encoding=None):
+        if not m:
+            return
         encoding = encoding or chardet.detect(m)['encoding']
+        if not encoding:
+            return unicode(m,errors='ignore')
         try:
             return unicode(m.decode(encoding).encode('utf8'))
         except UnicodeDecodeError:
@@ -103,6 +105,8 @@ class ImapReceiver(object):
                 return unicode(m.decode(encoding).encode('utf8'))
             except UnicodeDecodeError:
                 return unicode('')
+        except LookupError:
+            return unicode('')
 
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
@@ -121,16 +125,20 @@ class ImapReceiver(object):
             att_data = part.get_payload(decode=True)
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
-        fname = '%i_%s' %(self.atc_counter,fname)
+        #fname = '%i_%s' %(self.atc_counter,fname)
         fname = slugify(fname)
         self.atc_counter+=1
         filename = fname+ext
         new_attachment['filename'] = filename
         date = new_mail['send_date']
-        attachment_path =  self.getAttachmentPath(date,filename)
-        year = str(date.year)
-        month = '%02i' %date.month
-        new_attachment['path'] = os.path.join('mail',self.account_id, year,month, filename)
+        attachment_path =  self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'])
+        #year = str(date.year)
+        #month = '%02i' %date.month
+
+        #new_attachment['path'] = os.path.join('mail',self.account_id, year,month,new_mail['id'], filename)
+        new_attachment['path'] = self.getAttachmentPath(date=date,filename=filename, message_id=new_mail['id'],
+                        relative=True)
+        
         with open(attachment_path,'wb') as attachment_file:
             attachment_file.write(att_data)
         self.attachments_table.insert(new_attachment)
@@ -141,11 +149,23 @@ class ImapReceiver(object):
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
 
-    def getAttachmentPath(self,date,filename):
+    def getAttachmentPath(self,date=None,filename=None, message_id = None, relative=None):
         year = str(date.year)
         month = '%02i' %date.month
-        return self.db.application.site.getStaticPath('site:mail', self.account_id, year,month, filename,
+        if not relative:
+            filepath = self.db.application.site.getStaticPath('site:mail', self.account_id, year,month,message_id, filename,
                                                        autocreate=-1)
+        else:
+            filepath = os.path.join('mail', self.account_id, year,month,message_id, filename)
+        fname,ext = os.path.splitext(filepath)
+        counter = 0
+        while os.path.isfile(filepath):
+            filepath = '%s_%i%s'%(fname,counter,ext)
+            counter += 1
+        return filepath
+            
+
+
         
     def createMessageRecord(self, emailid):
         new_mail = dict(account_id=self.account_id)
@@ -165,10 +185,9 @@ class ImapReceiver(object):
                 return False
         encoding = mail.get_content_charset()
         b = Bag(mail)
-        if encoding:
-            for k,v in b.items():
-                if isinstance(v,basestring):
-                    b[k] =self.smartConverter(v,encoding)
+        for k,v in b.items():
+            if isinstance(v,basestring):
+                b[k] = self.smartConverter(v,encoding)
         new_mail['email_bag'] = b
         self.fillHeaders(mail, new_mail,encoding)
         if mail.get_content_maintype() not in ('multipart','image'):

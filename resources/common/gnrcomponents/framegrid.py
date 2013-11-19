@@ -28,7 +28,7 @@ class FrameGridSlots(BaseComponent):
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
         kwargs.setdefault('visible',enable)
         kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """
-                                                                          var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && n.attr._protect_delete});
+                                                                          var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && (n.attr._protect_delete || n.attr._is_readonly_row)});
                                                                             var currDisabled = GET .disabledButton;
                                                                           this.widget.setAttribute('disabled',currDisabled || hasProtectRow);
                                                                           """
@@ -82,9 +82,10 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         return frame
 
-    @extract_kwargs(default=True)
+    @extract_kwargs(default=True,store=True)
     @struct_method
-    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,**kwargs):
+    def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
+                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,store_kwargs=True,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:

@@ -205,18 +205,50 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
     },
+
+    toolbar_dict:{
+        'simple':[['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-','Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize','TextColor','BGColor']],
+        'standard':[
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink','-','Templates'],
+                   ['Image','Table','HorizontalRule','PageBreak'],
+                   ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                   ['Styles','Format','Font','FontSize'],
+                   ['TextColor','BGColor'],['Maximize', 'ShowBlocks']
+                   ]
+
+    },
     creating: function(attributes, sourceNode) {
 
         attributes.id = attributes.id || 'ckedit_' + sourceNode.getStringId();
         var toolbar = objectPop(attributes, 'toolbar');
         var config = objectExtract(attributes, 'config_*');
+        var stylesheet = objectPop(attributes,'stylesheet');
+        var customStyles = objectPop(attributes,'customStyles');
+        var contentsCss = objectPop(attributes,'contentsCss');
+        if(stylesheet){
+            config.extraPlugins = 'stylesheetparser';
+            config.contentsCss = stylesheet;
+        }
+        if(customStyles){
+            var l = [];
+            customStyles.forEach(function(n){
+                l.push({name:n.name,element:n.element,styles:objectFromStyle(n.styles),attributes:objectFromStyle(n.attributes)});
+            })
+            customStyles = l;
+        }
         var showtoolbar = true;
         if (toolbar===false){
             toolbar=[];
             showtoolbar = false;
         }
         if (typeof(toolbar) == 'string') {
-            toolbar = genro.evaluate(toolbar);
+            if(toolbar in this.toolbar_dict){
+                toolbar = this.toolbar_dict[toolbar];
+            }else{
+                toolbar = genro.evaluate(toolbar);
+            }
         }
         ;
         if (toolbar) {
@@ -225,6 +257,8 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         }
         ;
         var savedAttrs = {'config':config,showtoolbar:showtoolbar,enterMode:objectPop(attributes,'enterMode'),bodyStyle:objectPop(attributes,'bodyStyle',{margin:'2px'})};
+        savedAttrs.customStyles = customStyles;
+        savedAttrs.contentsCss = contentsCss;
         savedAttrs.constrainAttr = objectExtract(attributes,'constrain_*')
         return savedAttrs;
 
@@ -301,11 +335,25 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             toolbar_Custom: '' //define an empty array or whatever buttons you want.
             });
         }
+
+        if(savedAttrs.customStyles){
+            var csname = 'customStyles_'+sourceNode.getStringId();
+            CKEDITOR.stylesSet.add(csname,savedAttrs.customStyles);
+            savedAttrs.config.stylesSet = csname
+        } 
         savedAttrs.config.enterMode = enterModeDict[enterMode];
         //savedAttrs.config.enterMode = CKEDITOR.ENTER_BR;
         //savedAttrs.config.enterMode = CKEDITOR.ENTER_P;
 
+        if(savedAttrs.contentsCss){
+            var currlst = CKEDITOR.config.contentsCss;
+            if(typeof(currlst)=='string'){
+                currlst = currlst.split(',')
+            }
+            savedAttrs.config.contentsCss = currlst.concat(savedAttrs.contentsCss.split(','));
+        }
         CKEDITOR.replace(widget, savedAttrs.config);
+
 
         var ckeditor_id = 'ckedit_' + sourceNode.getStringId();
         var ckeditor = CKEDITOR.instances[ckeditor_id];
@@ -341,7 +389,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             }
             
         });
-        
+
         var cbResize=function(){
                 sourceNode._rsz=null;
                 try{
@@ -414,6 +462,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var that = this;
         var cb = function(){
             that.makeEditor(widget, savedAttrs, sourceNode);
+            sourceNode.publish('editorCreated');
         }
         if(!window.CKEDITOR){
             var suff = genro.newCkeditor? '_new':'';
@@ -430,8 +479,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_value:function(value, kw, reason) {
-        this.setData(value);
+        if(!this.focusManager.hasFocus){
+            this.setData(value);
+        }
     },
+    
     mixin_gnr_getFromDatastore : function() {
         this.setData(this.sourceNode.getAttributeFromDatasource('value'));
     },

@@ -89,7 +89,7 @@ class GnrCustomWebPage(object):
             r = struct.view().rows()
             r.cell('user', width='6em', name='User')
             r.cell('age', width='4em', dtype='L', name='Age')
-            r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+            r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
             r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
             return struct
 
@@ -110,7 +110,7 @@ class GnrCustomWebPage(object):
             r.cell('user_ip', width='12em', name='User')
             r.cell('browser_name', width='10em', name='Browser')
             r.cell('age', width='4em', dtype='L', name='Age')
-            r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+            r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
             r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
             return struct
 
@@ -133,7 +133,7 @@ class GnrCustomWebPage(object):
             r.cell('start_ts', width='11em', name='Start', dtype='DH')
             r.cell('pagename', width='10em', name='Pagename')
             r.cell('age', width='4em', dtype='L', name='Age')
-            r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+            r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
             r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
             return struct
 
@@ -152,7 +152,7 @@ class GnrCustomWebPage(object):
         for key, item in items.items():
             _customClasses = []
             item['_pkey'] = key
-            if item['last_rpc_age'] > 60:
+            if item['last_refresh_age'] > 60:
                 _customClasses.append('disconnected')
             elif item['last_event_age'] > 60:
                 _customClasses.append('inactive')
@@ -190,7 +190,7 @@ class GnrCustomWebPage(object):
         r.cell('user_tags', width='12em', name='Tags')
         r.cell('start_ts', width='11em', dtype='DH', name='Started')
         r.cell('age', width='4em', dtype='L', name='Age')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+        r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
         r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
         return struct
 
@@ -211,7 +211,7 @@ class GnrCustomWebPage(object):
         r.cell('user_ip', width='12em', name='User')
         r.cell('browser_name', width='10em', name='Browser')
         r.cell('age', width='4em', dtype='L', name='Age')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+        r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
         r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
         return struct
 
@@ -236,7 +236,7 @@ class GnrCustomWebPage(object):
         r.cell('start_ts', width='11em', name='Start', dtype='DH')
         r.cell('pagename', width='8em', name='Pagename')
         r.cell('age', width='4em', dtype='L', name='Age')
-        r.cell('last_rpc_age', width='4em', dtype='L', name='L.RPC')
+        r.cell('last_refresh_age', width='4em', dtype='L', name='L.RPC')
         r.cell('last_event_age', width='4em', dtype='L', name='L.EVT')
         return struct
 

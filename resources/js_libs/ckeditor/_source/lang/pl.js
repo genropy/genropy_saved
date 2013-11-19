@@ -1,10 +1,10 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * @fileOverview Defines the {@link CKEDITOR.lang} object, for the
+ * @fileOverview Defines the {@link CKEDITOR.lang} object for the
  * Polish language.
  */
 
@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['pl'] =
@@ -31,7 +31,8 @@ CKEDITOR.lang['pl'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Edytor tekstu sformatowanego, %1, w celu uzyskania pomocy naciśnij ALT 0.',
+	editorTitle : 'Edytor tekstu sformatowanego, %1',
+	editorHelp : 'W celu uzyskania pomocy naciśnij ALT 0',
 
 	// ARIA descriptions.
 	toolbars	: 'Paski narzędzi edytora',
@@ -55,9 +56,9 @@ CKEDITOR.lang['pl'] =
 	subscript		: 'Indeks dolny',
 	superscript		: 'Indeks górny',
 	horizontalrule	: 'Wstaw poziomą linię',
-	pagebreak		: 'Wstaw pdodział strony',
+	pagebreak		: 'Wstaw podział strony',
 	pagebreakAlt		: 'Wstaw podział strony',
-	unlink			: 'Usuń hiperłącze',
+	unlink			: 'Usuń odnośnik',
 	undo			: 'Cofnij',
 	redo			: 'Ponów',
 
@@ -119,8 +120,13 @@ CKEDITOR.lang['pl'] =
 		alignTop		: 'Do góry',
 		alignMiddle		: 'Do środka',
 		alignBottom		: 'Do dołu',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'Wysokość musi być liczbą.',
 		invalidWidth	: 'Szerokość musi być liczbą.',
+		invalidCssLength	: 'Wartość podana dla pola "%1" musi być liczbą dodatnią bez jednostki lub z poprawną jednostką długości zgodną z CSS (px, %, in, cm, mm, em, ex, pt lub pc).',
+		invalidHtmlLength	: 'Wartość podana dla pola "%1" musi być liczbą dodatnią bez jednostki lub z poprawną jednostką długości zgodną z HTML (px lub %).',
+		invalidInlineStyle	: 'Wartość podana dla stylu musi składać się z jednej lub większej liczby krotek w formacie "nazwa : wartość", rozdzielonych średnikami.',
+		cssLengthTooltip	: 'Wpisz liczbę dla wartości w pikselach lub liczbę wraz z jednostką długości zgodną z CSS (px, %, in, cm, mm, em, ex, pt lub pc).',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, niedostępne</span>'
@@ -142,15 +148,15 @@ CKEDITOR.lang['pl'] =
 	// Link dialog.
 	link :
 	{
-		toolbar		: 'Wstaw/edytuj hiperłącze',
+		toolbar		: 'Wstaw/edytuj odnośnik',
 		other 		: '<inny>',
-		menu		: 'Edytuj hiperłącze',
-		title		: 'Hiperłącze',
+		menu		: 'Edytuj odnośnik',
+		title		: 'Odnośnik',
 		info		: 'Informacje ',
 		target		: 'Obiekt docelowy',
 		upload		: 'Wyślij',
 		advanced	: 'Zaawansowane',
-		type		: 'Typ hiperłącza',
+		type		: 'Typ odnośnika',
 		toUrl		: 'Adres URL',
 		toAnchor	: 'Odnośnik wewnątrz strony (kotwica)',
 		toEmail		: 'Adres e-mail',
@@ -201,7 +207,8 @@ CKEDITOR.lang['pl'] =
 		menu		: 'Właściwości kotwicy',
 		title		: 'Właściwości kotwicy',
 		name		: 'Nazwa kotwicy',
-		errorName	: 'Wpisz nazwę kotwicy'
+		errorName	: 'Wpisz nazwę kotwicy',
+		remove		: 'Usuń kotwicę'
 	},
 
 	// List style dialog
@@ -237,6 +244,7 @@ CKEDITOR.lang['pl'] =
 		findWhat			: 'Znajdź:',
 		replaceWith			: 'Zastąp przez:',
 		notFoundMsg			: 'Nie znaleziono szukanego hasła.',
+		findOptions			: 'Opcje wyszukiwania',
 		matchCase			: 'Uwzględnij wielkość liter',
 		matchWord			: 'Całe słowa',
 		matchCyclic			: 'Cykliczne dopasowanie',
@@ -271,8 +279,8 @@ CKEDITOR.lang['pl'] =
 		invalidBorder	: 'Wartość obramowania musi być liczbą.',
 		invalidWidth	: 'Szerokość tabeli musi być liczbą.',
 		invalidHeight	: 'Wysokość tabeli musi być liczbą.',
-		invalidCellSpacing	: 'Odstęp komórek musi być liczbą.',
-		invalidCellPadding	: 'Dopełnienie komórek musi być liczbą.',
+		invalidCellSpacing	: 'Odstęp pomiędzy komórkami musi być liczbą dodatnią.',
+		invalidCellPadding	: 'Dopełnienie komórek musi być liczbą dodatnią.',
 
 		cell :
 		{
@@ -296,7 +304,7 @@ CKEDITOR.lang['pl'] =
 			bgColor			: 'Kolor tła',
 			borderColor		: 'Kolor obramowania',
 			data			: 'Dane',
-			header			: 'Nagłowek',
+			header			: 'Nagłówek',
 			yes				: 'Tak',
 			no				: 'Nie',
 			invalidWidth	: 'Szerokość komórki musi być liczbą.',
@@ -413,7 +421,6 @@ CKEDITOR.lang['pl'] =
 		upload		: 'Wyślij',
 		alt			: 'Tekst zastępczy',
 		lockRatio	: 'Zablokuj proporcje',
-		unlockRatio	: 'Odblokuj proporcje',
 		resetSize	: 'Przywróć rozmiar',
 		border		: 'Obramowanie',
 		hSpace		: 'Odstęp poziomy',
@@ -691,7 +698,7 @@ CKEDITOR.lang['pl'] =
 		ignoreAll		: 'Ignoruj wszystkie',
 		addWord			: 'Dodaj słowo',
 		emptyDic		: 'Nazwa słownika nie może być pusta.',
-
+		noSuggestions	: 'Brak sugestii',
 		optionsTab		: 'Opcje',
 		allCaps			: 'Ignoruj wyrazy pisane dużymi literami',
 		ignoreDomainNames : 'Ignoruj nazwy domen',

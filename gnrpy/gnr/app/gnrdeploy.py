@@ -311,11 +311,10 @@ class PackageMaker(object):
         self.model_path = os.path.join(self.package_path, 'model')
         self.lib_path = os.path.join(self.package_path, 'lib')
         self.webpages_path = os.path.join(self.package_path, 'webpages')
-        self.resources_path = os.path.join(self.webpages_path, '_resources')
+        self.resources_path = os.path.join(self.package_path, 'resources')
+        self.framedindex_path = os.path.join(self.webpages_path,'index.py')
         self.main_py_path = os.path.join(self.package_path, 'main.py')
         self.menu_xml_path = os.path.join(self.package_path, 'menu.xml')
-        self.examplemodel_py_example_path = os.path.join(self.model_path, 'example_table.py')
-        self.examplewebpage_py_example_path = os.path.join(self.webpages_path, 'example_webpage.py')
         for path in (self.package_path, self.model_path, self.lib_path, self.webpages_path, self.resources_path):
             if not os.path.isdir(path):
                 os.mkdir(path)
@@ -342,44 +341,19 @@ class Package(GnrDboPackage):
     def config_db(self, pkg):
         pass
         
-    def loginUrl(self):
-        return '%(login_url)s'
-        
 class Table(GnrDboTable):
     pass
 """ % main_py_options)
             main_py.close()
-        if not os.path.exists(self.examplemodel_py_example_path):
-            examplemodel_py_example = open(self.examplemodel_py_example_path, 'w')
-            examplemodel_py_example.write("""# encoding: utf-8
 
-class Table(object):
-
-    def config_db(self, pkg):
-        tbl =  pkg.table('example', rowcaption='hello_code')
-        tbl.column('hello_code',size='4',name_long='!!Hello code') # char(4)
-        tbl.column('hello_value',size=':40',name_long='!!Hello value') # varchar(40)
-        tbl.column('hello_date',dtype='D',name_long='!!Hello date') # date
-        
-        # dtype -> sql
-        #   C       char (can be omitted; you have to specify its size)
-        #   D       date
-        #   DH      datetime
-        #   H       time
-        #   I       integer
-        #   L       long integer
-        #   R       float
-        #   T       text (can be omitted; you must not specify its size)
-        #   X       XML/Bag""")
-            examplemodel_py_example.close()
-        if not os.path.exists(self.examplewebpage_py_example_path):
-            examplewebpage_py_example = open(self.examplewebpage_py_example_path, 'w')
-            examplewebpage_py_example.write("""# -*- coding: UTF-8 -*-
+        if not os.path.exists(self.framedindex_path):
+            indexpage = open(self.framedindex_path, 'w')
+            indexpage.write("""# -*- coding: UTF-8 -*-
             
 class GnrCustomWebPage(object):
-    def main(self, root, **kwargs):
-        pass""")
-            examplewebpage_py_example.close()
+    py_requires = 'frameindex'
+    """)
+            indexpage.close()
             
 class ResourceMaker(object):
     """Handle the creation of the ``resources`` folder"""

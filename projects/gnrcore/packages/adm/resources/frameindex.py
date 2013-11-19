@@ -24,7 +24,7 @@ class FrameIndex(BaseComponent):
     css_requires='frameindex,public'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
     custom_plugin_list = None
-    index_url = None
+    index_url = 'html_pages/splashscreen.html'
     indexTab = False
     hideLeftPlugins = False
     auth_preference = 'admin'
@@ -33,7 +33,6 @@ class FrameIndex(BaseComponent):
     login_error_msg = '!!Invalid login'
     login_title = '!!Login'
     new_window_title = '!!New Window'
-    application_logo = 'applicationlogo'
     
     def mainLeftContent(self,*args,**kwargs):
         pass 
@@ -42,7 +41,7 @@ class FrameIndex(BaseComponent):
     def defaultAuthTags(self):
         return ''
     
-    def main(self,root,new_window=None,gnrtoken=None,**kwargs):
+    def main(self,root,new_window=None,gnrtoken=None,custom_index=None,**kwargs):
         if gnrtoken and not self.db.table('sys.external_token').check_token(gnrtoken):
             root.dataController("""genro.dlg.alert(msg,'Error',null,null,{confirmCb:function(){
                     var href = window.location.href;
@@ -52,11 +51,14 @@ class FrameIndex(BaseComponent):
             return 
         root.attributes['overflow'] = 'hidden'
         if self.root_page_id:
-            self.index_dashboard(root)
+            if custom_index:
+                getattr(self,'index_%s' %custom_index)(root)
+            else:
+                self.index_dashboard(root)
         else:         
             sc = root.stackContainer(selectedPage='^indexStack')
-            sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
 
+            sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
             sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
         
@@ -92,15 +94,17 @@ class FrameIndex(BaseComponent):
             return False
         return True
 
-
-
-
     @public_method  
     def remoteFrameRoot(self,pane,custom_index=None,**kwargs):
-        pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags)
+        pageAuth = self.application.checkResourcePermission(self.pageAuthTags(method='page'),self.avatar.user_tags) 
         if pageAuth:
             pane.dataController("FIRE gnr.onStart;",_onBuilt=True,_delay=1)
-            if custom_index:
+            if self.avatar.user != self.avatar.user_id:
+                usernotification_tbl = self.db.table('adm.user_notification')
+                usernotification_tbl.updateGenericNotification(self.avatar.user_id,user_tags=self.avatar.user_tags)
+                notification_id = usernotification_tbl.nextUserNotification(user_id=self.avatar.user_id) if self.avatar.user_id else None
+                self.pageSource().dataController('loginManager.notificationManager(notification_id);',notification_id=notification_id or False,_onStart=1,_if='notification_id')
+            if custom_index and custom_index!='*':
                 getattr(self,'index_%s' %custom_index)(pane,**kwargs)
             else:
                 pane.frameIndexRoot(**kwargs)
@@ -160,16 +164,20 @@ class FrameIndex(BaseComponent):
         menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
         menu.menuline('!!Clear favorites',code='clearfav')
-
-        tabroot = pane.div(connect_onclick="""
+        box = pane.div(zoomToFit='x',overflow='hidden')
+        tabroot = box.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){
+                                                return;
+                                            }
+                                            if($1.target==this.domNode){
                                                 return;
                                             }
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
 
-                                            """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
+                                            """,margin_left='20px',
+                                            nodeId='frameindex_tab_button_root',white_space='nowrap')
         pane.dataController("""if(!data){
                                     if(indexTab){
                                         genro.callAfter(function(){
@@ -201,12 +209,13 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
-
-        sb.applogo.div(_class=self.application_logo)
-        sb.genrologo.div(_class='genropylogo_small')
+        applogo = sb.applogo.div()
+        if hasattr(self,'application_logo'):
+            applogo.img(src=self.application_logo,height='20px')
+        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy.png',height='20px')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
@@ -236,6 +245,9 @@ class FrameIndex(BaseComponent):
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'});""",url='adm/user_preference',
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
+
+
+        sb.debugping.div(_class='ping_semaphore')
                             
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
@@ -246,12 +258,12 @@ class FrameIndex(BaseComponent):
                             },1);""",subscribe_selectIframePage=True)
 
         scattr = sc.attributes
-        scattr['subscribe_reloadFrame'] = """
-                                            if($1=='indexpage'){
+        scattr['subscribe_reloadFrame'] = """var currentPage = GET selectedFrame
+                                            if(currentPage=='indexpage'){
                                                 genro.pageReload();
                                                 return;
                                             }
-                                            genro.framedIndexManager.reloadSelectedIframe($1);
+                                            genro.framedIndexManager.reloadSelectedIframe(currentPage,$1);
                                             """
         scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage(GET selectedFrame);"        
         scattr['subscribe_destroyFrames'] = """
@@ -308,14 +320,14 @@ class FrameIndex(BaseComponent):
 
     def btn_refresh(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
-                                                      connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
+                                                      connect_onclick="PUBLISH reloadFrame=genro.dom.getEventModifiers($1);")               
 
     def btn_delete(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openWindow(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
         return self.package.attributes.get('name_long')
@@ -325,6 +337,7 @@ class FrameIndex(BaseComponent):
         
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""
+
     def loginboxPars(self):
         return dict(width='320px',_class='index_loginbox',shadow='5px 5px 20px #555',rounded=10)
 
@@ -332,7 +345,7 @@ class FramedIndexLogin(BaseComponent):
         pane.div(innerHTML='==rootenv.getFormattedValue();',rootenv='^gnr.rootenv',
                     height='80px',margin='3px',border='1px solid silver')
 
-    
+
     def loginSubititlePane(self,pane):
         pass
         
@@ -385,6 +398,31 @@ class FramedIndexLogin(BaseComponent):
                     _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
                     gnrtoken=gnrtoken,_onResult='genro.pageReload()')
         return dlg
+
+
+    def login_confirmUserDialog(self,pane,gnrtoken=None,dlg_login=None):
+        dlg = pane.dialog(_class='lightboxDialog')
+        sc = dlg.stackContainer(**self.loginboxPars())
+        box = sc.contentPane()
+        sc.contentPane().div(self.loginPreference['check_email'],_class='index_logintitle',text_align='center',margin_top='50px')
+        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        topbar.wtitle.div(self.loginPreference['confirm_user_title'] or '!!Confirm User')  
+        box.div(self.loginPreference['confirm_user_message'],padding='10px',color='#777',font_style='italic',font_size='.9em',text_align='center')
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE confirm_email;',
+                                datapath='new_password',width='100%',
+                                fld_width='100%',row_height='3ex',keeplabel=True
+                                ,fld_attr_editable=True)
+        fb.textbox(value='^.email',lbl='!!Email')
+        fb.dataController("SET .email = avatar_email;",avatar_email='^gnr.avatar.email')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send Email',action='FIRE confirm_email',position='absolute',right='-5px',top='8px')
+        fb.dataRpc('dummy',self.login_confirmUser,_fired='^confirm_email',email='=.email',user_id='=gnr.avatar.user_id',
+                    _if='email',
+                    _onCalling='_sc.switchPage(1);',
+                    _sc=sc.js_widget,
+                    _else="genro.dlg.floatingMessage(_sn,{message:_error_msg,messageType:'error',yRatio:.95})",
+                    _error_msg='!!Missing email',_sn=box)
+        return dlg
+        
         
     def login_newUser(self,pane,dlg_login):
         dlg = pane.dialog(_class='lightboxDialog')
@@ -412,9 +450,13 @@ class FramedIndexLogin(BaseComponent):
                             color='silver',font_size='12px',height='15px')
         footer.dataController("dlg_nu.hide();dlg_login.show();",_fired='^back_login',
                         dlg_login=dlg_login.js_widget,dlg_nu=dlg.js_widget)
-            
         return dlg
 
+    @property
+    def loginPreference(self):
+        if not hasattr(self,'_loginPreference'):
+            self._loginPreference = self.getPreference('general',pkg='adm') or Bag()
+        return self._loginPreference
 
     @struct_method
     def login_loginPage(self,sc,new_window=None,gnrtoken=None):
@@ -426,7 +468,7 @@ class FramedIndexLogin(BaseComponent):
         box = dlg.div(**self.loginboxPars())
         doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
-        wtitle = self.login_title if doLogin else self.new_window_title  
+        wtitle = (self.loginPreference['login_title'] or self.login_title) if doLogin else (self.loginPreference['new_window_title'] or self.new_window_title) 
         topbar.wtitle.div(wtitle)  
         if hasattr(self,'loginSubititlePane'):
             self.loginSubititlePane(box.div())
@@ -441,13 +483,23 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.user',lbl='!!Username',row_hidden=False)
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
+                        _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
                         _if='user&&password',_else='SET gnr.avatar = null;',
-                        _onResult="""var newenv = result.getItem('rootenv');
+                        _onResult="""var avatar = result.getItem('avatar');
+                                    if (!avatar){
+                                        return;
+                                    }
+                                    if(avatar.getItem('status')!='conf'){
+                                        SET gnr.avatar = avatar;
+                                        genro.publish('confirmUserDialog');
+                                        return;
+                                    }
+                                    var newenv = result.getItem('rootenv');
                                     var rootenv = GET gnr.rootenv;
                                     currenv = rootenv.deepCopy();
                                     currenv.update(newenv);
                                     SET gnr.rootenv = currenv;
-                                    SET gnr.avatar = result.getItem('avatar');
+                                    SET gnr.avatar = avatar;
                                 """,sync=True,_POST=True)
             rpcmethod = self.login_doLogin    
         
@@ -457,7 +509,7 @@ class FramedIndexLogin(BaseComponent):
         for fbnode in fb.getNodes()[start:]:
             if fbnode.attr['tag']=='tr':
                 fbnode.attr['hidden'] = '==!_avatar || _hide'
-                fbnode.attr['_avatar'] = '^gnr.avatar'
+                fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
         
         
@@ -492,14 +544,20 @@ class FramedIndexLogin(BaseComponent):
         lostpass = footer.lost_password.div()
         new_user = footer.new_user.div()
 
-        if self.getPreference('general.forgot_password',pkg='adm'):
+        if self.loginPreference['forgot_password']:
             lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
                             color='silver',font_size='12px',height='15px')
             lostpass.dataController("dlg_login.hide();dlg_lp.show();",_fired='^lost_password_dlg',dlg_login=dlg.js_widget,dlg_lp=self.login_lostPassword(pane,dlg).js_widget)
-        if self.getPreference('general.new_user',pkg='adm'):
+        if self.loginPreference['new_user']:
             new_user.div('!!New User',cursor='pointer',connect_onclick='FIRE new_user_dlg;',
                             color='silver',font_size='12px',height='15px')
             new_user.dataController("dlg_login.hide();dlg_nu.show();",_fired='^new_user_dlg',dlg_login=dlg.js_widget,dlg_nu=self.login_newUser(pane,dlg).js_widget)
+
+
+
+        pane.dataController("dlg_login.hide();dlg_cu.show();",dlg_login=dlg.js_widget,
+                    dlg_cu=self.login_confirmUserDialog(pane,dlg).js_widget,subscribe_confirmUserDialog=True)
+
 
         footer.dataController("""
         btn.setAttribute('disabled',true);
@@ -532,25 +590,29 @@ class FramedIndexLogin(BaseComponent):
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
-            with self.connectionStore() as store:
-                store.setItem('defaultRootenv',rootenv)
+            self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False
 
     @public_method
-    def login_checkAvatar(self,password=None,user=None,**kwargs):
+    def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
         result = Bag()
         avatar = self.application.getAvatar(user, password=password,authenticate=True)
         if not avatar:
             return result
+        status = getattr(avatar,'status',None)
+        if not status:
+            avatar.extra_kwargs['status'] = 'conf'
         result['avatar'] = Bag(avatar.as_dict())
+        if avatar.status != 'conf':
+            return result
         data = Bag()
+        data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
         return result
-
 
     def onUserSelected(self,avatar,data=None):
         return
@@ -568,10 +630,8 @@ class FramedIndexLogin(BaseComponent):
                 self.doLogin(autologin,authenticate=authenticate)
                 canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),self.avatar.user_tags)
                 newrootenv.setItem('workdate',self.workdate, hidden= not canBeChanged,editable=True)
-                with self.pageStore() as pagestore:
-                    pagestore.setItem('rootenv',newrootenv)
-                with self.connectionStore() as connectionstore:
-                    connectionstore.setItem('defaultRootenv',Bag(newrootenv))
+                self.pageStore().setItem('rootenv',newrootenv)
+                self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
             else:
                 return 'login'
         elif new_window:
@@ -587,16 +647,41 @@ class FramedIndexLogin(BaseComponent):
         rootenv['workdate'] = rootenv['workdate'] or td
         if rootenv['workdate'] != td:
             rootenv['custom_workdate'] = True
-        with self.pageStore() as store:
-            store.setItem('rootenv',rootenv)
+        self.pageStore().setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)
-        return self.avatar.as_dict()
+        result = self.avatar.as_dict()
+        return result
+
+
+    @public_method
+    def login_confirmUser(self, email=None,user_id=None, **kwargs):
+        usertbl = self.db.table('adm.user')
+        recordBag = usertbl.record(pkey=user_id,for_update=True).output('bag')
+
+        userid = recordBag['id']
+        oldrec = Bag(recordBag)
+
+        recordBag['email'] = email
+        recordBag['status'] = 'wait'
+        usertbl.update(recordBag,oldrec)
+        recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=userid,max_usages=1)
+        recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+        body = self.loginPreference['confirm_user_tpl'] or 'Dear $greetings to confirm click $link'
+        self.getService('mail').sendmail_template(recordBag,to_address=email,
+                                body=body, subject=self.loginPreference['subject'] or 'Password recovery',
+                                async=False,html=True)
+        self.db.commit()
+
+        return 'ok'
         
     @public_method
-    def login_confirmNewPassword(self, email=None, **kwargs):
+    def login_confirmNewPassword(self, email=None,username=None, **kwargs):
         usertbl = self.db.table('adm.user')
-        users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
+        if username:
+            users = usertbl.query(columns='$id', where='$username = :u', u=username).fetch()
+        else:
+            users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
         if not users:
             return 'err'
         for u in users:
@@ -605,14 +690,18 @@ class FramedIndexLogin(BaseComponent):
             recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=recordBag['id'],max_usages=1)
             self.db.commit()
             recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
+            body = self.loginPreference['confirm_password_tpl'] or 'Dear $greetings set your password $link'
+
             self.getService('mail').sendmail_template(recordBag,to_address=email,
-                                    body='Dear $greetings set your password $link', subject='Password recovery',
-                                    async=False)
+                                    body=body, subject=self.loginPreference['confirm_password_subject'] or 'Password recovery',
+                                    async=False,html=True)
         return 'ok'
             #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
 
     @public_method
     def login_changePassword(self,password=None,gnrtoken=None,**kwargs):
+        if not gnrtoken:
+            return
         method,args,kwargs,user_id = self.db.table('sys.external_token').use_token(gnrtoken)
         if kwargs.get('userid'):
             self.db.table('adm.user').batchUpdate(dict(status='conf',md5pwd=password),_pkeys=kwargs['userid'])

@@ -157,29 +157,68 @@ class TableHandlerTreeResolver(BagResolver):
 class HTableTree(BaseComponent):
     js_requires='th/th_tree'
 
+    @extract_kwargs(tree=True)
     @struct_method
-    def ht_hdbselect(self,pane,caption_field=None,**kwargs):
+    def ht_hdbselect(self,pane,caption_field=None,treeMode=None,folderSelectable=False,cacheTime=None,connectedMenu=None,tree_kwargs=None,**kwargs):
         dbselect = pane.dbselect(**kwargs)
         attr = dbselect.attributes
-        menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],id(dbselect))
-        attr['hasDownArrow'] = True
-        attr['_hdbselect'] = True
         dbselect_condition = attr.get('condition')
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
-        attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-        pane.dataRemote(menupath,self.ht_remoteHtableViewStore,table=attr['dbtable'],
-                        condition=dbselect_condition,
-                        condition_kwargs=dbselect_condition_kwargs,
-                        cacheTime=0,caption_field=caption_field)
-        dbselect.menu(storepath='%s.root' %menupath,_class='smallmenu',modifiers='*',
-                        action="""this.attributeOwnerNode("_hdbselect").widget.setValue(this.attr.pkey,true);"""
-                        #selected_pkey=attr['value'].replace('^','')
-                      )
+        if not folderSelectable:
+            attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
+
+
+        attr['hasDownArrow'] = True
+        attr['_hdbselect'] = True
+        dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
+        connectedMenu = connectedMenu or 'hmenu_%s' %dbselect_nodeId
+        currentHMenu = self.workspace.setdefault('hmenu',{})
+        if not connectedMenu in currentHMenu:
+            tree_kwargs['openOnClick'] = not folderSelectable
+            tree_kwargs['selected_pkey'] = kwargs.get('value').replace('^','')
+            menupath = 'gnr.htablestores.%s_%s' %(attr['dbtable'],connectedMenu)
+            dbselect.treemenu(storepath=menupath,table=attr['dbtable'],condition=dbselect_condition,
+                                condition_kwargs=dbselect_condition_kwargs,modifiers='*',
+                                caption_field=caption_field,cacheTime=cacheTime,
+                                menuId=connectedMenu,dbstore=kwargs.get('_storename'),**tree_kwargs)
+            currentHMenu[connectedMenu] = currentHMenu
+        attr['connectedMenu'] = connectedMenu
+
+
+    @struct_method
+    def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
+                    caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
+
+        pane.dataRemote(storepath,self.ht_remoteHtableViewStore,table=table,
+                        condition=condition,
+                        condition_kwargs=condition_kwargs,
+                        cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
+        menu = pane.menu(modifiers=modifiers,_class='menupane',connectToParent=False,id=menuId,connect_onOpeningPopup="""
+                var dbselect =  dijit.getEnclosingWidget(this.widget.originalContextTarget);
+                var dbselectNode =  dijit.getEnclosingWidget(this.widget.originalContextTarget).sourceNode;
+                var currvalue = dbselect.getValue();
+                var tree = this.getChild('treemenu');
+                var treeWdg = tree.widget;
+                treeWdg.collapseAll();
+                var pathToSelect =null;
+                var store = GET %s;
+                if(currvalue){
+                    pathToSelect = THTree.fullPathByIdentifier(treeWdg,store,currvalue);
+                }
+                treeWdg.setSelectedPath(null,{value:pathToSelect});
+            """ %(storepath))
+        menuItem = menu.menuItem().div(max_height=max_height or '350px',min_width= min_width or '300px',overflow='auto')
+        menuItem.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %storepath,
+                         hideValues=True,autoCollapse=True,excludeRoot=True,
+                         labelAttribute='caption',selectedLabelClass='selectedTreeNode',
+                         parentMenu=menu,childname='treemenu',
+                         _class="branchtree noIcon",**kwargs)
+        return menu
         
     @extract_kwargs(related=True)
     @struct_method
     def ht_htableViewStore(self,pane,table=None,storepath='.store',caption_field=None,condition=None,caption=None,
-                               dbstore=None,root_id=None,columns=None,related_kwargs=None,**kwargs):
+                               dbstore=None,root_id=None,columns=None,related_kwargs=None,resolved=False,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
@@ -196,6 +235,10 @@ class HTableTree(BaseComponent):
                                                 root_id=root_id,columns=columns)
         b.setItem('root',v,caption=tblobj.name_long,
                                                 child_count=1,pkey='',treeIdentifier='_root_')
+        if resolved:
+            def cb(self,*args,**kwargs):
+                pass
+            b.walk(cb)
         d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
 
         return d
@@ -237,38 +280,33 @@ class HTableTree(BaseComponent):
             self.db.commit()
 
     @public_method
-    def ht_pathFromPkey(self,table=None,pkey=None,hfield=None):
+    def ht_pathFromPkey(self,table=None,pkey=None,dbstore=None):
         tblobj = self.db.table(table)
-        if not hfield:
-            hierarchical = tblobj.attributes['hierarchical']
-            hfield = hierarchical.split(',')[0]
-        hdescription = tblobj.readColumns(columns='$hierarchical_%s' %hfield,pkey=pkey)
-        where = " ( :hdescription = $hierarchical_%s ) OR ( :hdescription ILIKE $hierarchical_%s || :suffix) " %(hfield,hfield)
-        f = tblobj.query(where=where,hdescription=hdescription,suffix='/%%',order_by='$hierarchical_%s' %hfield).fetch()
-        if f:
-            return '.'.join([r['pkey'] for r in f])
+        hierarchical_pkey =  tblobj.readColumns(columns='$hierarchical_pkey',pkey=pkey,_storename=dbstore)
+        path = hierarchical_pkey.replace('/','.')
+        return path
+
         
     
     @extract_kwargs(condition=dict(slice_prefix=False),related=True)
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,excludeRoot=None,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,resolved=False,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
-                            labelAttribute='caption',dropTarget=True,selectedLabelClass='selectedTreeNode',_class='fieldsTree')
+                            labelAttribute='caption',selectedLabelClass='selectedTreeNode',dropTarget=True)
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
         tree = pane.tree(**treeattr)
-        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,**condition_kwargs)
+        tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**condition_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
                                        var into_parent_id = dropInfo.treeItem.attr.parent_id;
                                         var pkey = data.pkey;
                                         var parent_id = data.parent_id;
-                                        console.log('ffff',dropInfo)
                                genro.serverCall("ht_moveHierarchical",{table:'%s',pkey:pkey,
                                                                         into_pkey:into_pkey,
                                                                         parent_id:parent_id,
@@ -277,7 +315,12 @@ class HTableTree(BaseComponent):
                                                 function(result){
                                                 });""" %table
             treeattr['dropTargetCb']="""return this.form? this.form.locked?false:THTree.dropTargetCb(this,dropInfo):THTree.dropTargetCb(this,dropInfo);"""  
-        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.onDbChanges(action="""THTree.refreshTree(dbChanges,store,treeNode);""",
+                        table=table,store='=%s' %treeattr['storepath'],treeNode=tree) 
+        tree.dataController("""storebag.getNode("root").getValue('reload');""",
+                            storebag='=%s' %treeattr['storepath'],
+                            treeNode=tree,subscribe_public_changed_partition=True)
+
         if root_id:
             pane.dataController("""
                 var rootNode = storebag.getNode("root");
@@ -296,7 +339,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
 
     @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,_class=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(position='relative',datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
@@ -304,8 +347,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM/parent/#FORM.record.parent_id')
         table = formNode.attr['table']
-        
-        hviewTree = box.hviewTree(table=table,caption_field=caption_field,**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
@@ -329,7 +371,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         return hviewTree
     
     @struct_method
-    def ht_hviewTree(self,box,table=None,picker=None,**kwargs):  
+    def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
         if picker: 
             bar = box.slotToolbar('*,treePicker,2',height='20px')
         pane = box.div(position='relative',height='100%',padding='2px')
@@ -338,7 +380,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
-                          selectedPath='.tree.path',margin='2px')
+                          selectedPath='.tree.path',margin='2px',_class=_class)
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
@@ -430,7 +472,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
@@ -525,11 +567,16 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 }return true;
                                                 """  
 
-        treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey;
-                                                genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
+        treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey || null;
+                                                if(%s){
+                                                    genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
                                                                                         relation_table:'%s',maintable:'%s'},null,null,'POST');
-                                                """ %(dragTable,fkey_name,relation_table,maintable)
+                                                }else{
+                                                    return false;
+                                                }
+                                                
+                                                """ %('relationValue' if not dropOnRoot else 'true',dragTable,fkey_name,relation_table,maintable)
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,

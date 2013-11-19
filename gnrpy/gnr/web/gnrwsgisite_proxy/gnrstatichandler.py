@@ -149,8 +149,7 @@ class VolumesStaticHandler(StaticHandler):
             self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
 
     def url(self, volume, *args, **kwargs):
-        vpath = self.volumes.get(volume,volume)
-        return '%s_vol/%s/%s' % (self.home_uri, vpath, '/'.join(args))
+        return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
 
     def path(self, volume, *args, **kwargs):
         vpath = self.volumes.get(volume,volume)
@@ -169,8 +168,7 @@ class PkgStaticHandler(StaticHandler):
     prefix = 'pkg'
 
     def path(self, pkg, *args,**kwargs):
-        folder = kwargs.get('folder','webpages')
-        return os.path.join(self.site.gnrapp.packages[pkg].packageFolder, folder, *args)
+        return os.path.join(self.site.gnrapp.packages[pkg].packageFolder, *args)
 
     def url(self, pkg, *args, **kwargs):
         return '%s_pkg/%s/%s' % (self.home_uri, pkg, '/'.join(args))

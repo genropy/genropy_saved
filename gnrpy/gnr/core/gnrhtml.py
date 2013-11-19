@@ -262,7 +262,39 @@ class GnrHtmlBuilder(object):
                         .no_print{
                             display:none;
                         }
+                        [visible_if=""]{
+                            display:none;
+                        }
+                        [hidden_if]{
+                            display:none;
+                        }
+                        [hidden_if=""]{
+                            display:block;
+                        }
+                        span[hidden_if=""]{
+                            display:inline;
+                        }
                         """, media='print')
+        self.body.style("""
+                        [visible_if=""]{
+                            display:none;
+                        }
+                        [hidden_if]{
+                            display:none;
+                        }
+                        div[hidden_if=""]{
+                            display:block;
+                        }
+                        tr[hidden_if=""]{
+                            display:table-row;
+                        }
+                        table[hidden_if=""]{
+                            display:table;
+                        }
+                        span[hidden_if=""]{
+                            display:inline;
+                        }
+            """)
         self.body.style("""
                         #printButton{
                             position:fixed;right:30px;top:5px;z-index:100;

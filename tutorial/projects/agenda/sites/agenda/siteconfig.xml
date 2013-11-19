@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag>
-    <wsgi port="8090" reload="true" mainpackage="agenda" debug="true"/>
-    <dojo version="11"/>
-</GenRoBag>

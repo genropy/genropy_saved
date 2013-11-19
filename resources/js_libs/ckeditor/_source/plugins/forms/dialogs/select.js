@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 CKEDITOR.dialog.add( 'select', function( editor )
@@ -188,7 +188,6 @@ CKEDITOR.dialog.add( 'select', function( editor )
 						label : editor.lang.common.name,
 						'default' : '',
 						accessKey : 'N',
-						align : 'center',
 						style : 'width:350px',
 						setup : function( name, element )
 						{
@@ -237,13 +236,11 @@ CKEDITOR.dialog.add( 'select', function( editor )
 					{
 						type : 'hbox',
 						widths : [ '175px', '170px' ],
-						align : 'center',
 						children :
 						[
 							{
 								id : 'txtSize',
 								type : 'text',
-								align : 'center',
 								labelLayout : 'horizontal',
 								label : editor.lang.select.size,
 								'default' : '',
@@ -282,7 +279,6 @@ CKEDITOR.dialog.add( 'select', function( editor )
 					{
 						type : 'hbox',
 						widths : [ '115px', '115px' ,'100px' ],
-						align : 'top',
 						children :
 						[
 							{

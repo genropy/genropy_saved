@@ -39,8 +39,8 @@ from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
-from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
+from gnr.core.gnrdecorator import extract_kwargs,public_method,debug_info
+from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveException, GnrSqlDeleteException
@@ -273,7 +273,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None,resolver_kwargs=None,
+                             loadingParameters=None, _debug_info=None,**kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -297,11 +298,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkey in (None,
                     '') and not related_field in kwargs: # and (not kwargs): # related record from a newrecord or record without link
             pkey = '*newrecord*'
+        loadingParameters = loadingParameters or dict()
+        loadingParameters.update(resolver_kwargs or dict())
         record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
                                              sqlContextName=sqlContextName, virtual_columns=virtual_columns,_storename=_storename,
-                                             _eager_level=_eager_level,**kwargs)
+                                             _eager_level=_eager_level,loadingParameters=loadingParameters,**kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -631,15 +634,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
         
-    
-    @public_method               
+    @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,**kwargs):
         """TODO
         
@@ -690,6 +692,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_count = int(row_count)
         newSelection = True
         formats = {}
+        if hardQueryLimit is not None:
+            limit = hardQueryLimit
         wherebag = where if isinstance(where,Bag) else None
         resultAttributes = {}
         for k in kwargs.keys():
@@ -740,8 +744,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if selectionName:
                 selection.setKey('rowidx')
                 selectionPath = self.page.freezeSelection(selection, selectionName)
-                with self.page.userStore() as store:
-                    store.setItem('current.table.%s.last_selection_path' % table.replace('.', '_'), selectionPath)
+                self.page.userStore().setItem('current.table.%s.last_selection_path' % table.replace('.', '_'), selectionPath)
             resultAttributes.update(table=table, method='app.getSelection', selectionName=selectionName,
                                     row_count=row_count,
                                     totalrows=len(selection))
@@ -765,6 +768,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                              excludeLogicalDeleted=excludeLogicalDeleted,
                                                              excludeDraft=excludeDraft,
                                                              **kwargs).count()
+
         if sum_columns:
             for col in sum_columns.split(','):
                 col = col.strip()
@@ -774,6 +778,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
+        resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
         return (result, resultAttributes)
 
 
@@ -806,6 +811,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
+
+        if tblobj.attributes.get('protectionColumn'):
+            columns = '%s, $%s AS _is_readonly_row' %(columns,tblobj.attributes.get('protectionColumn'))
         return columns,external_queries
     
     def _externalQueries(self,selection=None,external_queries=None):
@@ -1075,6 +1083,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
+                      _resolver_kwargs=None,
                       _eager_level=0, onLoadingHandler=None,sample_kwargs=None,ignoreReadOnly=None,**kwargs):
         """TODO
         
@@ -1139,11 +1148,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
                        caption=tblobj.recordCaption(record, newrecord),
-                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename)
+                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename,
+                       from_fld=from_fld)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
-            recInfo['_protect_write'] = not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
-            recInfo['_protect_delete'] = not tblobj.check_deletable(record)
+            recInfo['_protect_write'] =  tblobj._islocked_write(record) or not tblobj.check_updatable(record,ignoreReadOnly=ignoreReadOnly)
+            recInfo['_protect_delete'] = tblobj._islocked_delete(record) or not tblobj.check_deletable(record)
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}
@@ -1188,6 +1198,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             recInfo['_logical_deleted'] = True
         if tblobj.draftField and record[tblobj.draftField]:
             recInfo['_draft'] = True
+
+        invalidFields_fld = tblobj.attributes.get('invalidFields')
+        if invalidFields_fld and record[invalidFields_fld]:
+            recInfo['_invalidFields'] = fromJson(record[invalidFields_fld])
         recInfo['table'] = dbtable
         self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
@@ -1200,11 +1214,17 @@ class GnrWebAppHandler(GnrBaseProxy):
                 attr=n.attr
                 target_fld=str(attr['_target_fld'])
                 kwargs={}
+                resolver_kwargs = attr.get('_resolver_kwargs') or dict()
+                for k,v in resolver_kwargs.items():
+                    if str(v).startswith('='):
+                        v = v[1:]
+                        resolver_kwargs[k] = record.get(v[1:]) if v.startswith('.') else None
+                kwargs['resolver_kwargs'] = resolver_kwargs
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
                                                                         sqlContextName=attr.get('_sqlContextName'),
                                                                         virtual_columns=attr.get('_virtual_columns'),
-                                                                        _eager_level= _eager_level+1,
+                                                                        _eager_level= _eager_level+1,_storename=attr.get('_storename'),
                                                                         **kwargs)
                 n.value = relatedRecord
                 n.attr['_resolvedInfo'] = relatedInfo
@@ -1307,7 +1327,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 selectHandler = self.dbSelect_default
             order_list = []
-            preferred = preferred or tblobj.attributes.get('preferred')
+            preferred = tblobj.attributes.get('preferred') if preferred is None else preferred
             if preferred:
                 order_list.append('%s desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)

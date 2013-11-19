@@ -16,7 +16,6 @@ class GnrWsgiWebApp(GnrApp):
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         super(GnrWsgiWebApp, self).notifyDbEvent(tblobj, record, event, old_record=old_record)
-        self.site.notifyDbEvent(tblobj, record, event, old_record=old_record)
 
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()

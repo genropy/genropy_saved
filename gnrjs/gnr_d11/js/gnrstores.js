@@ -588,7 +588,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 }
             }
             if (isNullOrBlank(id)){
-                console.log('ID NULL OR BLANK')
                 dojo.hitch(scope, request.onItem)(null);
                 return;     
             }

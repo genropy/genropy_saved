@@ -40,7 +40,7 @@ class Main(BaseResourceBatch):
         """Dump main db"""
         fname = os.path.join(self.folderpath,'mainstore')
         self.filelist.append(fname)
-        self.db.dump(fname)
+        self.db.dump(fname,extras=self.getExcluded())
 
     def step_dumpaux(self):
         """Dump aux db"""
@@ -48,7 +48,17 @@ class Main(BaseResourceBatch):
             with self.db.tempEnv(storename=s):
                 fname = os.path.join(self.folderpath,s)
                 self.filelist.append(fname)
-                self.db.dump(fname,dbname=self.db.stores_handler.dbstores[s]['database'])
+                self.db.dump(fname,dbname=self.db.stores_handler.dbstores[s]['database'],extras=self.getExcluded())
+
+    def getExcluded(self):
+        checked = self.batch_parameters['dumppackages'].split(',')
+        result = []
+        for k in self.db.packages.keys():
+            if not k in checked:
+                result.append('-N')
+                result.append(k)
+        return result
+
 
     def step_end(self):
         oldrec = dict(self.dump_rec)
@@ -66,4 +76,17 @@ class Main(BaseResourceBatch):
     def table_script_parameters_pane(self, pane, **kwargs):
         fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.name',lbl='!!Backup name')
+        values = []
+        defaultchecked = []
+        for k,v in self.db.packages.items():
+            if not v.attributes.get('dump_exclude'):
+                defaultchecked.append(k)
+            values.append('%s:%s,/' %(k,v.attributes.get('name_long',k)))
+        fb.data('.dumppackages',','.join(defaultchecked))
+        fb.checkBoxText(value='^.dumppackages',values=','.join(values))
+
+
+
+
+
 

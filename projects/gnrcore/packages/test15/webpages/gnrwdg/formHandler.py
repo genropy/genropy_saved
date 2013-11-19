@@ -48,7 +48,7 @@ class GnrCustomWebPage(object):
                   #          validate_len_max_error='Too long')
         fb.field('regione')
         fb.field('nome',keepable=True)
-        fb.field('codice_istat',keepable=True)
+        fb.field('codice_istat',keepable=True,validate_len='6:10')
         fb.field('ordine')
         fb.field('ordine_tot')
         fb.field('cap_valido')

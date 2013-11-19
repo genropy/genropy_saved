@@ -19,19 +19,19 @@ class GnrCustomWebPage(object):
         top.data('.dati',self.getDati())
 
         top.dataController('SET gridstore = dati.deepCopy();',dati='=.dati',_fired='^zzz',_onStart=True)
-        frame = top.bagGrid(frameCode='test_view',title='Test',struct=self.gridstruct,height='300px',
+        frame = top.bagGrid(frameCode='test_view0',title='Test',struct=self.gridstruct,height='300px',
                             table='glbl.localita',storepath='gridstore')
         frame.bottom.button('Load',fire='zzz')
         center = bc.contentPane(region='center')
 
-        myform = frame.grid.linkedForm(frameCode='test_form',
+        myform = frame.grid.linkedForm(frameCode='test_form0',
                                  datapath='.form',loadEvent='onSelected',
                                  childname='form',formRoot=center,store='memory',store_pkeyField='id')
 
 
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
-        fb.dbselect(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia')
+        fb.textbox(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia')
 
         fb.numbertextbox(value='^.qty',lbl='Quantitativo')
         fb.numbertextbox(value='^.colli',lbl='Colli',validate_notnull=True,validate_notnull_error='!!Required')
@@ -45,9 +45,10 @@ class GnrCustomWebPage(object):
         top.data('.dati',self.getDati())
 
         top.dataController('SET gridstore = dati.deepCopy();',dati='=.dati',_fired='^zzz',_onStart=True)
-        frame = top.bagGrid(frameCode='test_view',title='Test',struct=self.gridstruct,height='300px',gridEditor=False,
-                            table='glbl.localita',storepath='gridstore',pbl_classes=True,grid_selfDragRows=True)
-        myform = frame.grid.linkedForm(frameCode='test_form',
+        frame = top.bagGrid(frameCode='test_view1',title='Test',struct=self.gridstruct,height='300px',gridEditor=False,
+                            table='glbl.localita',storepath='gridstore1',pbl_classes=True,grid_selfDragRows=True)
+                            
+        myform = frame.grid.linkedForm(frameCode='test_form1',
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='300px',dialog_width='300px',
                                  childname='form',attachTo=top,store='memory',store_pkeyField='id')
@@ -55,7 +56,7 @@ class GnrCustomWebPage(object):
 
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
-        fb.dbselect(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia',selected_nome='.provincia_nome')
+        fb.textbox(value='^.provincia',lbl='Provincia',dbtable='glbl.provincia',selected_nome='.provincia_nome')
 
         fb.numbertextbox(value='^.qty',lbl='Quantitativo')
         fb.numbertextbox(value='^.colli',lbl='Colli',validate_notnull=True,validate_notnull_error='!!Required')

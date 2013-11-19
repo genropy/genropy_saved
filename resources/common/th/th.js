@@ -110,7 +110,8 @@ var th_sections_manager = {
         var captions = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
-            var currents = sectionsbag.getItem('current').split(',');
+            var current = sectionsbag.getItem('current');
+            var currents = current ? current.split(','): [];
             var orlist = [];
             var titles = sectionsbag.getItem('data');
             currents.forEach(function(current){

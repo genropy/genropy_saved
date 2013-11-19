@@ -508,6 +508,9 @@ class GnrBaseWebPage(GnrObject):
             resultAttr['caption'] = tblobj.recordCaption(record, rowcaption=rowcaption)
         pkey = record[tblobj.pkey]
         resultAttr['lastTS'] = str(record[tblobj.lastTS]) if tblobj.lastTS else None
+        for k,v in recordClusterAttr.items():
+            if k.startswith('lastTS_'):
+                resultAttr[k] = v
         if _autoreload:
             result = Bag()
             result.setItem('pkey',pkey,**resultAttr)

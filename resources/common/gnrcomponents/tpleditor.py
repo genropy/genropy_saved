@@ -199,24 +199,27 @@ class TemplateEditor(TemplateEditorBase):
         r.cell('mask', name='Mask', width='20em')
 
     def _te_info_top(self,pane):
-        fb = pane.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
+        fb = pane.div(margin='5px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
                                                 tdl_width='5em',datapath='.data.metadata')
         fb.textbox(value='^.author',lbl='!!Author',tdf_width='12em')
         fb.numberTextBox(value='^.version',lbl='!!Version',width='4em')
-        fb.dateTextBox(value='^.date',lbl='!!Date')
+        fb.dateTextBox(value='^.date',lbl='!!Date',width='6em')
         fb.checkbox(value='^.is_print',label='!!Print')
         fb.checkbox(value='^.is_mail',label='!!Mail')
+        fb.checkbox(value='^.is_row',label='!!Row')
+        fb.numberTextBox(value='^.row_height',width='3em',hidden='^.is_row?=!#v',lbl_hidden='^.is_row?=!#v',lbl='Height')
         fb.dataController("""var result = [];
                              if(is_mail){result.push('is_mail');}
                              if(is_print){result.push('is_print');}
+                             if(is_row){result.push('is_row');}
                              if(flags){result.push(flags);}
                              SET #ANCHOR.userobject_meta.flags = result.join(',');""",
-                        is_mail="^.is_mail",is_print='^.is_print',flags='^.flags')
+                        is_mail="^.is_mail",is_print='^.is_print',is_row='^.is_row',flags='^.flags')
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
-                    lbl='!!Letterhead',hasDownArrow=True)
+                    lbl='!!Letterhead',hasDownArrow=True,colspan=3)
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
         if self.isDeveloper():
-            fb.textbox(value='^.flags',lbl='!!Flags',colspan=5)
+            fb.textbox(value='^#ANCHOR.userobject_meta.flags',lbl='!!Flags',colspan=7)
     
     @extract_kwargs(fieldsTree=dict(slice_prefix=False))
     def _te_info_vars(self,bc,table=None,datasourcepath=None,fieldsTree_kwargs=None,**kwargs):
@@ -414,7 +417,7 @@ class PaletteTemplateEditor(TemplateEditor):
             }
         """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
                 pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template',user=self.user)
-        infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
+        infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""
             if(genro.isDeveloper && modifiers=='Shift'){
@@ -435,7 +438,6 @@ class PaletteTemplateEditor(TemplateEditor):
             var template_address;
             genro.dlg.prompt('Save as resource',{lbl:'Tplname',action:function(result){
                     template_address =  table+':'+result;
-                    console.log('cccc',template_address)
                     genro.serverCall("saveTemplate",{template_address:template_address,data:data},null,null,'POST');
                 }})
         """,_fired='^.savetemplateAsResource',data='=.data',table=maintable)
@@ -461,13 +463,7 @@ class PaletteTemplateEditor(TemplateEditor):
     @public_method
     def te_menuTemplates(self,table=None):
         result = Bag()
-        #from_resources = None #todo
         from_userobject = self.db.table('adm.userobject').userObjectMenu(table,'template') #todo
-        from_doctemplate = Bag()
-        f = self.db.table('adm.doctemplate').query(where='$maintable=:t',t=table).fetch()
-        for r in f:
-            from_doctemplate.setItem(r['pkey'],None,caption=r['name'],tplmode='doctemplate',pkey=r['pkey'])
-        result.update(from_doctemplate)
         for n in from_userobject:
             result.setItem(n.label,None,tplmode='userobject',**n.attr)
         result.setItem('__newtpl__',None,caption='!!New Template')
@@ -476,19 +472,11 @@ class PaletteTemplateEditor(TemplateEditor):
     @public_method
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):
         record = None
-        if tplmode=='doctemplate':
-            tblobj = self.db.table('adm.doctemplate')
-            record = tblobj.record(for_update=True,pkey=pkey).output('dict')
-            record['varsbag'] = data['varsbag']
-            record['content'] = data['content']
-            tblobj.update(record)
-            self.db.commit()
-        elif tplmode == 'userobject':
-            if data['metadata.email']:
-                data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
-            data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-            pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
-            record.pop('data')
+        if data['metadata.email']:
+            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
+        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
+        pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
+        record.pop('data')
         return record
         
 class ChunkEditor(PaletteTemplateEditor):

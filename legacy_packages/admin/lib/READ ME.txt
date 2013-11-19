@@ -1,5 +1,0 @@
-ENG:
-This folder (published in the python path) includes all the usable modules by the package
-
-ITA:
-Questa cartella, pubblicata nel python path contiene i moduli importabili ed utilizzati in tutto il package.

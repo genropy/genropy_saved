@@ -1,15 +1,31 @@
 #!/usr/bin/env python
 
 import getpass
-import os
-import socket
 import select
 import SocketServer
-import sys
 import threading
 import paramiko
 import atexit
 import thread
+import re
+CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)*)\:?(?P<ssh_port>\w*)"
+CONN_STRING = re.compile(CONN_STRING_RE)
+
+
+def normalized_sshtunnel_parameters(**options):
+    connection_string = options.pop('ssh_host')
+    match = re.search(CONN_STRING, connection_string)
+    result = dict(
+    ssh_user = match.group('ssh_user') or None,
+    ssh_password = match.group('ssh_password') or None,
+    ssh_host = match.group('ssh_host') or None,
+    ssh_port = match.group('ssh_port') or '22')
+    options = options or dict()
+    for k,v in options.items():
+        if v is not None:
+            result[k] = v
+    result['forwarded_host'] = options.get('forwarded_host') or '127.0.0.1'
+    return result
 
 class ForwardServer (SocketServer.ThreadingTCPServer):
     daemon_threads = True
@@ -23,7 +39,7 @@ class Handler (SocketServer.BaseRequestHandler):
             chan = self.ssh_transport.open_channel('direct-tcpip',
                                                    (self.forwarded_host, self.forwarded_port),
                                                    self.request.getpeername())
-        except Exception, e:
+        except Exception:
             raise
         if chan is None:
             return

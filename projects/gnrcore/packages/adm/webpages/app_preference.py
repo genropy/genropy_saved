@@ -35,7 +35,7 @@ class GnrCustomWebPage(object):
         """APPLICATION PREFERENCE BUILDER"""
         self.controllers(rootBC)
         self.bottom(rootBC.contentPane(region='bottom', _class='dialog_bottom'))
-        tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference')
+        tc = rootBC.tabContainer(region='center', datapath='preference', formId='preference',margin='2px')
         for pkg in self.db.packages.values():
             permmissioncb = getattr(self, 'permission_%s' % pkg.name, None)
             auth = True

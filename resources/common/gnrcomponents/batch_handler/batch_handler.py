@@ -9,18 +9,6 @@ from gnr.core.gnrdecorator import public_method,customizable
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 
-
-class TableScriptHandlerCaller(BaseComponent):
-    def onMain_table_script_caller(self):
-        if self.root_page_id and not ('table_script_caller' in self._register_nodeId):
-            self.pageSource().dataController("""
-                                        var kw = objectUpdate({},_subscription_kwargs);
-                                        kw['sourcepage_id'] = page_id;
-                                        genro.mainGenroWindow.genro.publish("table_script_run",kw);
-                                    """, 
-                                    subscribe_table_script_run=True,nodeId='table_script_caller',page_id=self.page_id)
-
-
 class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
     css_requires = 'gnrcomponents/batch_handler/batch_handler'
@@ -43,9 +31,9 @@ class BatchMonitor(BaseComponent):
         pane.div(nodeId='bm_rootnode', _class='bm_rootnode')
         pane.dataRpc('dummy', self.setStoreSubscription, subscribe_batch_monitor_on=True,
                      storename='user', client_path='gnr.batch', active=True,
-                     _onResult='genro.rpc.setPolling(1,1);')
-        pane.dataRpc('dummy', self.setStoreSubscription, active=False, subscribe_batch_monitor_off=True,
-                     _onCalling='genro.rpc.setPolling();', storename='user')
+                     _onResult='genro.setFastPolling(true);')
+        pane.dataRpc('dummy', self.setStoreSubscription, active=False, _onCalling='genro.setFastPolling(false);',
+                    subscribe_batch_monitor_off=True,storename='user')
 
 class TableScriptHandler(BaseComponent):
     py_requires = 'gnrcomponents/printer_option_dialog:PrinterOption'
@@ -275,7 +263,6 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .selectedRowidx =  copyArray(objectPop(params,'selectedRowidx') || []);
                                        SET .sortBy =  objectPop(params,'sortBy');
                                        SET .onCalling = objectPop(params,'onCalling');
-                                       SET .sourcepage_id = objectPop(params,'sourcepage_id');
                                        var pkey =  objectPop(params,'pkey');
                                        if (pkey){
                                             params.selectedPkeys = [pkey];
@@ -298,9 +285,7 @@ class TableScriptRunner(TableScriptHandler):
                             _fired='^.run',
                             _onCalling='=.onCalling',
                             _onResult="""
-                                    console.log(kwargs._publishOnResult,kwargs.sourcepage_id);
                                     if(kwargs._publishOnResult){
-                                        console.log('publishing', kwargs._publishOnResult);
                                         genro.publish({topic:kwargs._publishOnResult,iframe:'*'});
                                     }""",
                             parameters='=.parameters',
@@ -312,7 +297,6 @@ class TableScriptRunner(TableScriptHandler):
                             selectionName='=.selectionName',
                             printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                             selectionFilterCb='=.selectionFilterCb',
-                            sourcepage_id='=.sourcepage_id',
                             selectedRowidx="=.selectedRowidx",
                             extra_parameters='=.extra_parameters',
                             sortBy="=.sortBy",
@@ -327,7 +311,6 @@ class TableScriptRunner(TableScriptHandler):
                                  selectionName='=.selectionName',
                                  selectedRowidx="=.selectedRowidx",
                                  selectedPkeys='=.selectedPkeys',
-                                 sourcepage_id='=.sourcepage_id',
                                  selectionFilterCb='=.selectionFilterCb',
                                  extra_parameters='=.extra_parameters',
                                  _fired='^.build_pars_dialog')

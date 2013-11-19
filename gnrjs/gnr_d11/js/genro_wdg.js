@@ -175,10 +175,41 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         return handler;
     },
+
+    _prepareZoomEnvelope:function(newobj,zoomToFit){
+        var zoomEnvelope = document.createElement('div');
+        zoomEnvelope.style.display = 'inline-block';
+        newobj.appendChild(zoomEnvelope);
+        setInterval(function(){
+            zoomEnvelope.style.zoom = 1;
+            var originalDomnode = zoomEnvelope.parentNode;
+            var zoom_x = 1;
+            var zoom_y = 1;
+            var delta_x = 0;
+            var delta_y = 0;
+            if(zoomToFit===true || zoomToFit=='x'){
+                delta_x = zoomEnvelope.clientWidth - originalDomnode.clientWidth;
+            }
+            if(zoomToFit===true || zoomToFit=='y'){
+                delta_y = zoomEnvelope.clientHeight - originalDomnode.clientHeight;
+            }
+            if(delta_x>0){
+                zoom_x = originalDomnode.clientWidth/ zoomEnvelope.clientWidth;
+            }
+            if(delta_y>0){
+                zoom_x = originalDomnode.clientHeight/ zoomEnvelope.clientHeight;
+            }
+            zoomEnvelope.style.zoom =  Math.min(zoom_x,zoom_y);
+        },50);
+        return zoomEnvelope;
+    },
+
     create:function(tag, destination, attributes, ind, sourceNode) {
         var attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag,attributes,sourceNode);
+        var zoomToFit = objectPop(attributes,'zoomToFit')
+
         genro.assert(handler,'missing handler for tag:'+tag);
         if (handler._beforeCreation) {
             var goOn = handler._beforeCreation(attributes,sourceNode);
@@ -195,6 +226,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         } else {
             destination = handler._attachTo ? dojo.byId(handler._attachTo) : destination;
             domnode = this.makeDomNode(domtag, destination, ind);
+
         }
         if (typeof(ind) == 'object') {
             ind = -1; // should be index of domnode in destination ???
@@ -227,8 +259,12 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             }
             var extracted = objectExtract(attributes, '_*', {'_type':null}); // strip all attributes used only for triggering rebuild or as input for ==function
             newobj = this.createHtmlElement(domnode, attributes, kw, sourceNode);
+            if(zoomToFit){
+                newobj = this._prepareZoomEnvelope(newobj,zoomToFit);
+            }
             this.linkSourceNode(newobj, sourceNode, kw);
             newobj.gnr = handler;
+
         }
         else {//This is dojo widget
             newobj = this.createDojoWidget(tag, domnode, attributes, kw, sourceNode);
@@ -657,7 +693,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode = sourceNodeContent.getNode('_grideditor_',null,true);
         if(this.editorPars){
-            if (sourceNode.form){
+            if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
             }
             sourceNode.subscribe('onNewDatastore',function(){
@@ -813,6 +849,10 @@ dojo.declare("gnr.GridEditor", null, {
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
+        var gridstore = this.grid.collectionStore?this.grid.collectionStore():null;
+        if(gridstore){
+            return !gridstore.locked;
+        }
         if(form && form.store){
             return !form.isDisabled();
         }else{
@@ -1106,6 +1146,9 @@ dojo.declare("gnr.GridEditor", null, {
         var fldDict = this.columns[colname];
         var gridcell = fldDict.attr.gridcell || colname;
         var rowDataNode = grid.dataNodeByIndex(row);
+        if(rowDataNode && rowDataNode.attr._is_readonly_row){
+            return;
+        }
         var datachanged = false;
         var editedRowId=null;
         if (rowDataNode && rowDataNode._resolver && rowDataNode._resolver.expired()) {
@@ -1220,6 +1263,19 @@ dojo.declare("gnr.GridEditor", null, {
         if (!wdgtag || attr.autoWdg) {
             var dt = convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+        }
+        if('disabled' in attr){
+            var disabledpath = attr.disabled.slice(1);
+            if(disabledpath[0]=='.'){
+                disabledpath = '.' + rowLabel + disabledpath;
+            }
+            if(this.widgetRootNode.getRelativeData(disabledpath)){
+                var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
+                if (rc) {
+                    this.startEdit(rc.row, rc.col);
+                }
+                return;
+            }
         }
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){

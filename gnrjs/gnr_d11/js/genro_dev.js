@@ -71,13 +71,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var node = genro.src.getNode('_devSrcInspector_').clearValue();
         node.freeze();
         node._('PaletteBagNodeEditor',{'paletteCode':'srcInspector',nodeId:'srcInspector',id:'gnr_srcInspector','dockTo':false,
-                                        title:'Source Node Inspector',style:"font-family:monaco;",
+                                        title:'Source Node Inspector',
                                         'bagpath':'*S'});
         
         node.unfreeze();
         
 
     },
+
+
+    siteLockedStatus:function(set){
+        var maingenro = genro.mainGenroWindow.genro;
+        var sn = maingenro.nodeById('_gnrRoot');
+        if(!sn){
+            return;
+        }
+        if(set){
+            if(!maingenro.site_locked){
+                maingenro.site_locked = true;
+                sn.setHiderLayer(true,{message:'Site temporary unavailable',z_index:999998});
+            }
+        }else if (maingenro.site_locked){
+            maingenro.site_locked = false;
+            sn.setHiderLayer(false);
+        }
+    },
+
     debugMessage: function(msg, level, duration) {
 
         var level = level || 'MESSAGE';
@@ -95,7 +114,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return;
         }
         else if (status == 412) {
-            genro.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
+            var mainGenroWindow = genro.mainGenroWindow.genro;
+            mainGenroWindow.polling_enabled = false;
+            mainGenroWindow.dlg.alert('No longer existing page','Error',null,null,{confirmCb:genro.pageReload});
             return;
         } else if (status == 0) {
             //genro.dlg.alert('Site temporary un available. Retry later');
@@ -110,13 +131,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             console.log('handleRpcHttpError');
             debug_url = ioArgs.xhr.getResponseHeader('X-Debug-Url');
             if (!debug_url) {
-                console.log('RESPONSE',response,'ioArgs',ioArgs,responseText)
+                console.error('RESPONSE',response,'ioArgs',ioArgs,responseText)
+                genro.dev.addError("An HTTP error occurred: " + response.message,'SERVER',true);
                 if (genro.isDeveloper){
-                    var title = 'Server error ' +ioArgs.content.method || '';
-                    genro.dlg.quickPalette('error_palette_'+genro.getCounter(),{height:'500px',width:'700px',maxable:true,title:title},
-                        {innerHTML:responseText,position:'absolute',top:0,left:0,right:0,bottom:0,overflow:'auto'});
-                }else{
-                    genro.dev.addError("An HTTP error occurred: " + response.message,'SERVER',true);
+                    //var title = 'Server error ' +ioArgs.args.content.method || '';
+                    //var qp = genro.dlg.quickPalette('error_palette_'+genro.getCounter(),{height:'500px',width:'700px',maxable:true,title:title,dockTo:false},responseText);
+                        //{innerHTML:responseText,position:'absolute',top:0,left:0,right:0,bottom:0,overflow:'auto'});
                 }
             }
             else {
@@ -201,7 +221,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
-        treeattr._class = 'fieldsTree noIcon';
+        treeattr._class = 'fieldsTree noIcon noExpando';
         treeattr.hideValues = true;
         treeattr.autoCollapse=true;
         treeattr.openOnClick = true;
@@ -242,8 +262,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
         };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
-                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;",
-                                        width:'500px'});
+                                        title:'Developer tools ['+genro._('gnr.pagename')+']',
+                                        width:'500px',maxable:true});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
                            'tree_connect_onclick':cbLog,
@@ -283,33 +303,99 @@ dojo.declare("gnr.GnrDevHandler", null, {
         return dlg;       
     },
 
-    sqlDebugPalette:function(parent){
-        var frame = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'framePane',frameCode:'devSqlDebug'});
-        var top = frame._('toolbar',{side:'top'});
-        top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
-        top._('button',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null)'});
-        var treeId='sql_debugger_tree';
-        var storepath='gnr.debugger.main';
-        var bc = frame._('borderContainer',{side:'center'});
-        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
-        var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden',_class:'selectable'});
-        var center = bc._('contentPane',{'region':'center'});
 
-        bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',
-                                    style:'white-space: pre;background:white;',overflow:'auto'});
-      
-        
-
-        center._('tree',{'storepath':storepath,fired:'^gnr.debugger.tree_redraw','margin':'6px','nodeId':treeId,
-                        'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
-                        
-        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
-                            'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
-                
-        center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^gnr.debugger.sqldebug'});
-        center._('dataController',{'script':"FIRE gnr.debugger.tree_redraw;", 'sqldebug':'^gnr.debugger.main', '_delay':1});
-
+    _getHeaderInfo_getcell:function(row,field){
+        var h = genro.rpcHeaderInfo[row['r_count']];
+        return h?h[field]:'';
     },
+
+    sqlDebugPalette:function(parent){
+        var bc = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'borderContainer',frameCode:'devSqlDebug',margin:'2px',rounded:4});
+        bc._('dataController',{'script':"genro.debug_sql=sqldebug",'sqldebug':'^gnr.debugger.sqldebug'});
+        bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
+
+        var top = bc._('framePane',{frameCode:'debugger_rpcgrid',region:'top',height:'200px',splitter:true,_class:'pbl_roundedGroup',margin:'2px',center_overflow:'hidden'});
+        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_py,activator_sql,5,clearConsole,5',side:'top'})
+        topbar._('div','vtitle',{innerHTML:'RPC grid'})
+        var sn = bc.getParentNode();
+        topbar._('checkbox','activator_py',{'value':'^gnr.debugger.pydebug','label':'Debug py',
+            validate_onAccept:function(value,userChange){
+                if(userChange){
+                    var currval = genro.getData('gnr.debugger.pydebug_methods') || '';
+                    genro.setData('gnr.debugger.pydebug_methods',currval);
+                    genro.dlg.prompt('Methods',{dflt:currval,widget:'simpleTextArea',action:function(value){
+                        sn.setRelativeData('gnr.debugger.pydebug_methods',value);
+                    }});
+                }
+            }
+        });
+
+        topbar._('checkbox','activator_sql',{'value':'^gnr.debugger.sqldebug','label':'Debug sql'});
+        topbar._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);genro.rpcHeaderInfo = {};genro.getCounter("debug",true);'});
+        if(!genro.getData('gnr.debugger.main')){
+            genro.setData('gnr.debugger.main', new gnr.GnrBag());
+        }
+        var rowstruct = new gnr.GnrBag();
+        rowstruct.setItem('cell_0', null, {field:'r_count',name:'N',width:'2em'});
+
+        rowstruct.setItem('cell_1', null, {field:'methodname',name:'Method',width:'18em'});
+        rowstruct.setItem('cell_5', null, {field:'debug_info',name:'Debug info',width:'15em'});
+        rowstruct.setItem('cell_9', null, {field:'total_time',name:'Total',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'total_time');
+        }});
+
+
+        rowstruct.setItem('cell_2', null, {field:'server_time',name:'Server',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_10', null, {field:'net_time',name:'Network',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'total_time')-row['server_time'];
+        }});
+
+        rowstruct.setItem('cell_8', null, {field:'xml_size',name:'Size(kb)',width:'4em',dtype:'N',_customGetter:function(row){
+            return Math.floor((genro.dev._getHeaderInfo_getcell(row,'xml_size')/1024));
+        }});
+        rowstruct.setItem('cell_7', null, {field:'xml_time',name:'XMLTime',width:'4em',dtype:'N',_customGetter:function(row){
+            return genro.dev._getHeaderInfo_getcell(row,'xml_time')
+        }});
+
+        rowstruct.setItem('cell_3', null, {field:'sql_count',name:'N.Sql',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_4', null, {field:'sql_total_time',name:'Sql time',width:'4em',dtype:'N'});
+        rowstruct.setItem('cell_6', null, {field:'not_sql_time',name:'Py time',width:'4em',dtype:'N'});
+
+
+
+
+        genro.setData('gnr.debugger.rpccall_grid.struct.view_0.row_0', rowstruct);
+        var rpcgrid = top._('includedView',{nodeId:'sql_debugger_grid_rpccall',storepath:'gnr.debugger.main',
+                                    structpath:'gnr.debugger.rpccall_grid.struct',datapath:'gnr.debugger.rpccall_grid',
+                                    selectedIndex:'gnr.debugger.rpccall_grid.currentRowIndex',relativeWorkspace:true});
+
+        rpcgrid._('dataController',{script:'SET gnr.debugger.sqlquery_grid.store = (sind&&sind)!=-1?mainbag.getItem("#"+sind).deepCopy():null;',
+                                    sind:'^gnr.debugger.rpccall_grid.currentRowIndex',mainbag:'=gnr.debugger.main',_if:'mainbag && mainbag.len()'})
+        rpcgrid._('dataController',{script:'SET gnr.debugger.sqlquery_grid.store = null;',mainbag:'^gnr.debugger.main',_delay:1})
+
+        
+        var center = bc._('framePane',{frameCode:'debugger_sqlgrid',region:'center',_class:'pbl_roundedGroup',margin:'2px',center_widget:'borderContainer'});
+        center._('contentPane','top',{_class:'pbl_roundedGroupLabel'})._('div',{'innerHTML':'Sql query grid'})
+
+
+        var rowstruct = new gnr.GnrBag();
+        rowstruct.setItem('cell_0', null, {field:'_type',name:'T',width:'2em'});
+        rowstruct.setItem('cell_1', null, {field:'_description',name:'Description',width:'9em'});
+        //rowstruct.setItem('cell_1', null, {field:'sqltext',name:'Server time',width:'20em'});
+        rowstruct.setItem('cell_2', null, {field:'_execution_time',name:'Time',width:'8em',dtype:'N'});
+
+        genro.setData('gnr.debugger.sqlquery_grid.struct.view_0.row_0', rowstruct);
+        center._('contentPane',{region:'left',width:'220px',overflow:'hidden',splitter:true})._('includedView',{nodeId:'sql_debugger_grid_sqlquery',storepath:'gnr.debugger.sqlquery_grid.store',
+                                structpath:'gnr.debugger.sqlquery_grid.struct',datapath:'gnr.debugger.sqlquery_grid',relativeWorkspace:true,selectedIndex:'.currentRowIndex'});
+        var tc = center._('tabContainer',{region:'center',margin:'2px'});
+        tc._('dataController',{script:'var n=store.getNode("#"+currentRowIndex); if(n){this.setRelativeData(".output.sqltext",n._value);this.setRelativeData(".output.params",objectAsHTMLTable(n.attr))}',currentRowIndex:'^.currentRowIndex',store:'=.store',_if:'store',_else:'SET .output=null;',datapath:'gnr.debugger.sqlquery_grid'})
+        tc._('contentPane',{title:'Sql'})._('div',{innerHTML:'^gnr.debugger.sqlquery_grid.output.sqltext',height:'100%',
+                                    style:'white-space: pre;background:white;',overflow:'auto',padding:'5px'});
+        tc._('contentPane',{title:'Arguments'})._('div',{innerHTML:'^gnr.debugger.sqlquery_grid.output.params',height:'100%',overflow:'auto',_class:'debug_params'});
+
+        
+    },
+
     devUtilsPalette:function(parent){
         var pane = parent._('palettePane',{'paletteCode':'devUtils',title:'Utils',contentWidget:'FramePane',
                                             frameCode:'devUtils',center_overflow:'hidden'});
@@ -324,14 +410,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                });
                                genro.log(txt,'Check db');
                            };
-         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,*,actionMenu,5',toolbar:true,font_size:'.8'});
+         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,5,rpcAnalyzer,*,actionMenu,5',toolbar:true,font_size:'.8'});
          pane._('dataRpc',{'path':'.checkDb',method:'checkDb',subscribe_devUtils_checkDb:true,
                            _onResult:dbchangelog});
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
         sb._('checkbox','pollingSwitch',{'label':'Polling',value:'^gnr.polling.polling_enabled'});
-
         var m = sb._('DropDownButton','actionMenu',{label:'Commands'})._('menu',{_class:'smallMenu'})
         m._('menuline',{'label':'Clear LS',action:function(){localStorage.clear()}});
         m._('menuline',{'label':'Clear SS',action:function(){sessionStorage.clear()}});

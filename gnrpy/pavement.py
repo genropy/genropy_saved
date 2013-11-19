@@ -37,6 +37,8 @@ data_files = []
 #            )
 #        )
 #)
+
+
 setup(
         name='gnrpy',
         version='0.7',
@@ -45,7 +47,7 @@ setup(
         author_email='info@genropy.org',
         license='LGPL',
         scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmkthresource','../scripts/gnrmksite','../scripts/gnrxml2py', '../scripts/gnrheartbeat', '../scripts/gnrmkpackage',
-                 '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite',
+                 '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon',
                  '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
                  '../scripts/gnr'],
         packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql', 'gnr.devel'],
@@ -53,8 +55,8 @@ setup(
         #package_dir={'gnr': 'gnrpy/gnr'},
         #namespace_packages=['gnr'],
         data_files=data_files,
-        install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel', 'python-memcached'
-                          , 'pyPdf', 'argparse'],
+        install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel', 'python-memcached','httplib2','pyro4'
+                          , 'pyPdf', 'argparse','lxml'],
         zip_safe=False,
         extras_require=dict(
                 #pdf = ['z3c.rml'],

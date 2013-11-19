@@ -30,6 +30,7 @@ gnrlogger = logging.getLogger(__name__)
 import cPickle
 import os
 import shutil
+from time import time
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrlang import importModule, GnrException
@@ -350,6 +351,8 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
+        #if 'adm.user' == dbtable:
+        #    print x
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
@@ -361,18 +364,19 @@ class GnrSqlDb(GnrObject):
         if dbtable and not self.table(dbtable).use_dbstores():
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
+            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
            
                 sqlargs.pop(k)
                 sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
-                sql = re.sub(':%s(\W|$)' % k, sqllist, sql)
+                sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
             sql = re.sub(NOT_IN_OPERATOR_PATCH, ' TRUE', sql)    
             sql = re.sub(IN_OPERATOR_PATCH, ' FALSE', sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
             try:
+                t_0 = time()
                 if not cursor:
                     if cursorname:
                         if cursorname == '*':
@@ -386,7 +390,8 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable)
+                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
+            
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
@@ -627,11 +632,12 @@ class GnrSqlDb(GnrObject):
     def dropTable(self,table,cascade=None):
         self.adapter.dropTable(self.table(table),cascade=cascade)
 
-    def dump(self, filename,dbname=None):
+    def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump a database to a given path
         
         :param filename: the path on which the database will be dumped"""
-        self.adapter.dump(filename,dbname=dbname)
+        extras = extras or []
+        self.adapter.dump(filename,dbname=dbname,extras=extras)
         
     def restore(self, filename,dbname=None):
         """Restore db to a given path
@@ -671,9 +677,8 @@ class GnrSqlDb(GnrObject):
         filename = '%s.pik' % fpath
         if not os.path.exists(filename):
             return
-        f = file('%s.pik' % fpath, 'r')
-        selection = cPickle.load(f)
-        f.close()
+        with open('%s.pik' % fpath) as f:
+            selection = cPickle.load(f)
         selection.dbtable = self.table(selection.tablename)
         return selection
         

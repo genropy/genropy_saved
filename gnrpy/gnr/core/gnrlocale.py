@@ -29,7 +29,7 @@ def localize(obj, format=None, currency=None, locale=None):
 
 def formatHandler(obj):
     if isinstance(obj,basestring) and '::' in obj:
-        obj,dtype = obj.split('::')
+        obj,dtype = obj.rsplit('::',1)
     else:
         dtype = type(obj)
     if dtype=='HTML':

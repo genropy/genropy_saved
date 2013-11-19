@@ -133,6 +133,18 @@ cursorZoom_plus{
     font-weight: bold;
 }
 
+
+.noExpando .dijitTreeExpando {
+    display: none;
+}
+
+.fieldsTree .dijitTreeIcon {
+    padding-right: 0;
+}
+.noIcon .dijitTreeIcon{
+	display: none;
+}
+
 .fieldsTree .dijitTreeContent {
     cursor: move;
     min-height: 0;
@@ -140,18 +152,6 @@ cursorZoom_plus{
     padding-top: 0;
     margin-left: 0px;
 }
-.fieldsTree.noIcon .dijitTreeExpando {
-    display: none;
-}
-
-
-.fieldsTree .dijitTreeIcon {
-    padding-right: 0;
-}
-.fieldsTree.noIcon .dijitTreeIcon{
-	display: none;
-}
-
 .fieldsTree .dijitTreeNode {
     background: none;
     margin-left: 10px;
@@ -453,11 +453,6 @@ cursorZoom_plus{
     padding-top: 1px;
 }
 
-.gnrfield.tag_div>div{
-    padding-top: 2px;
-    min-height: 14px;
-    line-height: normal;
-}
 .gnrfield.tag_checkbox label{
     color: #707070;
 }
@@ -1325,6 +1320,18 @@ table.formbuilder {
 
 .smallmenu .dijitMenuItem {
     font-size: .85em !important;
+}
+.menupane .dijitMenuItemIcon{
+    display: none;
+}
+.menupane .dijitMenuItemHover{
+    color: inherit;
+    background-color: #efefef;
+    background: #efefef;
+}
+
+.tundra .menupane .dijitMenuItem td{
+    padding: 0;
 }
 
 .tundra .smallmenu .dijitMenuItem td {
@@ -2329,6 +2336,15 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .filteredGrid .dojoxGrid-cell{
     text-decoration:underline;
 }
+
+.tundra ._gnrReadOnlyRow ._statusIcon{
+    background:url(icons/base16/locked.gif) no-repeat center center;
+}
+._statusIcon{
+    height: 16px;
+    width: 100%;
+}
+
 .logicalDeleted .dojoxGrid-cell {
     color: #b50000;
 }
@@ -2912,6 +2928,24 @@ body *{
 
 
 
+.ping_semaphore{
+    height: 16px;
+    width: 16px;
+    background: url(icons/base16/semaphore_gray.png) no-repeat center center;
+
+    -webkit-transition-duration: 1s;
+    -moz-transition-duration: 1s;
+}
+.ping_start .ping_semaphore{
+    background: url(icons/base16/semaphore_green.png) no-repeat center center;
+}
+
+.ping_error .ping_semaphore{
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
+}
+
+
+
 
 /* @group Formhandler */
 
@@ -2975,6 +3009,43 @@ body *{
 }
 .form_new_record{
     
+}
+.form_errorslogger{
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color:red;
+    font-variant: small-caps;
+}
+.form_changeslogger{
+    text-align: center;
+
+    font-size: 1.2em;
+    font-weight: bold;
+    color:orange;
+    font-variant: small-caps;
+}
+
+.form_okmessage{
+    text-align: center;
+
+    font-size: 1.2em;
+    font-weight: bold;
+    color:green;
+    font-variant: small-caps;   
+}
+
+
+.form_contentlogger{
+    margin-top:6px; 
+}
+.form_contentlogger .formattedBagTable tr td {
+    color: #666;
+    font-size: 1em;
+    padding: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+    border:1px dotted silver;
 }
 
 .dijitDialog .form_activeForm{
@@ -3624,6 +3695,29 @@ div[disabled='true']{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
     background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
 }
+.debug_params{
+    background:#EFEFEF;
+}
+
+.debug_params .formattedBagTable{
+    margin: 2px;
+}
+
+.debug_params .formattedBagTable td{
+    padding-top:1px;
+    padding-bottom:1px;
+    padding-left:3px;
+    padding-right:3px;
+    border: 1px solid #666;
+    background: white;
+}
+
+.debug_params .formattedBagTable td:first-child{
+    background: #666;
+    color:white;
+    border: 1px solid white;
+}
+
 .formattedBagTable tr td{
     padding-left:2px;
     padding-right:2px;
@@ -3759,10 +3853,61 @@ div[disabled='true']{
     width: 252px;
 }
 
-.genropylogo_small{
-    background: url(icons/genropy.png) no-repeat center center;
-    height: 60px;
-    width: 252px;
-    zoom:.3;
+.made_with_genropy{
+    height: 21px;
+    width:78px;
+    background: url(icons/made_with_genropy_small.png) no-repeat center center;
 }
 
+
+.branchtree_selected{
+    background-color: #739CDC;
+    color: white;
+    padding-right: 15px;
+    border-radius: 0px 10px 10px 0px;
+}
+.branchtree{
+    line-height: 15px;
+}
+
+.branchtree .dijitTreeExpando{
+    height: 15px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.branchtree .dijitTreeExpando.dijitTreeExpandoClosed{
+    background: url(icons/base10/tinyCloseBranch.png) no-repeat center center;
+}
+.branchtree .dijitTreeExpando.dijitTreeExpandoOpened{
+    background: url(icons/base10/tinyOpenBranch.png) no-repeat center center;
+}
+
+.branchtree .dijitTreeExpandoLeaf{
+    background: none;
+}
+
+.branchtree .dijitTreeLabel {
+    padding-left: 2px;
+    white-space: nowrap;
+}
+
+
+
+.branchtree .dijitTreeContent {
+    min-height: 0;
+    padding-bottom: 2px;
+    padding-top: 0;
+    margin-left: 0px;
+}
+.branchtree .dijitTreeNode {
+    background: none;
+    margin-left: 10px;
+}
+.branchtree .dijitTreeLabel{
+    padding-left: 2px;
+    white-space: nowrap;
+}
+.branchtree .dijitTreeIsRoot{
+    margin-left: 0px;
+}

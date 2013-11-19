@@ -26,7 +26,7 @@ __version__ = '1.0b'
 import os
 
 from gnr.core import gnrstring
-from gnr.core.gnrlang import GnrObject,getUuid
+from gnr.core.gnrlang import GnrObject,getUuid,uniquify
 from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
@@ -209,6 +209,17 @@ class SqlTable(GnrObject):
         
         :param name: TODO"""
         return self.model.fullRelationPath(name)
+
+    @property
+    def partitionParameters(self):
+        kw = dictExtract(self.attributes,'partition_')
+        if not kw:
+            return
+        result = dict()
+        result['field'] = kw.keys()[0]
+        result['path'] = kw[result['field']]
+        result['table'] = self.column(result['field']).relatedColumn().table.fullname
+        return result
         
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
@@ -505,7 +516,7 @@ class SqlTable(GnrObject):
             sourceRecord.update(__del_ts=datetime.now(),__moved_related=moved_relations)
             self.raw_update(sourceRecord,old_record=old_record)
         else:
-            self.raw_delete(sourcePkey)
+            self.delete(sourcePkey)
             
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
@@ -534,7 +545,7 @@ class SqlTable(GnrObject):
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])
                 manytable = self.db.table(subtable)
-                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False).fetch()
+                rows = manytable.query(where="$%s=:p" %fkey,p=pkey,addPkeyColumn=False,bagFields=True).fetch()
                 for dupRec in duplicatedRecords:
                     for r in rows:
                         r = dict(r)
@@ -581,7 +592,7 @@ class SqlTable(GnrObject):
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
-              addPkeyColumn=True, locale=None,
+              addPkeyColumn=True,ignorePartition=False, locale=None,
               mode=None,_storename=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
@@ -620,6 +631,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
+                         ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
                          **kwargs)
         return query
@@ -692,6 +704,39 @@ class SqlTable(GnrObject):
             if record.get(field) != old_record.get(field):
                 return True
         return False
+
+    def fieldAggregate(self,field,data,fieldattr=None,onSelection=False):
+        handler = getattr(self,'aggregate_%s' %field,None)
+        if handler:
+            return handler(data)
+        dtype = fieldattr.get('dataType',None) or fieldattr.get('dtype','A') 
+        aggregator = fieldattr.get('aggregator')
+        aggregator = fieldattr.get('aggregator_record',aggregator) if not onSelection else fieldattr.get('aggregator_selection',aggregator)
+        if aggregator==False:
+            return data
+        if dtype=='B':
+            dd = [d or False for d in data]
+            data = not (False in dd) if (aggregator or 'AND')=='AND' else (True in dd)
+        elif dtype in ('R','L','N'):
+            aggregator = aggregator or 'SUM'
+            dd = filter(lambda r: r is not None, data)
+            if not dd:
+                data = None
+            elif aggregator=='SUM':
+                data = sum(dd)
+            elif aggregator=='MAX':
+                data = max(dd)
+            elif aggregator=='MIN':
+                data = min(dd)
+            elif aggregator=='AVG':
+                data = sum(dd)/len(dd) if len(dd) else 0
+            elif aggregator=='CNT':
+                data = len(data) if data else 0
+        else:
+            data.sort()
+            data = (aggregator or ',').join(uniquify([gnrstring.toText(d) for d in data]))
+        return data
+
 
     def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
         """TODO
@@ -916,8 +961,9 @@ class SqlTable(GnrObject):
                         for row in sel:
                             rel_rec = dict(row)
                             rel_rec.pop('pkey',None)
+                            oldrec = dict(rel_rec)
                             rel_rec[mfld] = None
-                            relatedTable.update(rel_rec)
+                            relatedTable.update(rel_rec,oldrec)
                             
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record
@@ -940,6 +986,7 @@ class SqlTable(GnrObject):
         isNew = recordClusterAttr.get('_newrecord')
         toDelete = recordClusterAttr.get('_deleterecord')
         pkey = recordClusterAttr.get('_pkey')
+        invalidFields = recordClusterAttr.get('_invalidFields')
         noTestForMerge = self.attributes.get('noTestForMerge') or self.pkg.attributes.get('noTestForMerge')
         if isNew and toDelete:
             return # the record doesn't exists in DB, there's no need to delete it
@@ -984,7 +1031,13 @@ class SqlTable(GnrObject):
             rel_record = rel_tblobj.writeRecordCluster(rel_recordCluster, rel_recordClusterAttr)
             from_fld = joiner['many_relation'].split('.')[2]
             to_fld = joiner['one_relation'].split('.')[2]
-            main_record[from_fld] = rel_record[to_fld]
+            main_record[from_fld] = rel_record[to_fld]  
+            recordClusterAttr['lastTS_%s' %rel_name] = str(rel_record[rel_tblobj.lastTS]) if rel_tblobj.lastTS else None
+          
+        if self.attributes.get('invalidFields'):
+            invalidFields_fld = self.attributes.get('invalidFields')
+            main_record[invalidFields_fld] = gnrstring.toJsonJS(invalidFields) if invalidFields else None
+            
         if isNew:
             self.insert(main_record,onBagColumns=onBagColumns)
         elif main_changeSet:
@@ -1172,7 +1225,28 @@ class SqlTable(GnrObject):
         :param old_record: TODO"""
         print 'You should override for diagnostic'
         return
+
+    def _isReadOnly(self,record):
+        if self.attributes.get('readOnly'):
+            return True
+        if '__protection_tag' in record:
+            return not (record['__protection_tag'] in self.db.currentEnv['userTags'].split(','))
+
+    def _islocked_write(self,record):
+        return self._isReadOnly(record) or self.islocked_write(record)
     
+    def islocked_write(self,record):
+        #OVERRIDE THIS
+        pass
+
+    def _islocked_delete(self,record):
+        return self._isReadOnly(record) or self.attributes.get('readOnly') or self.islocked_delete(record)
+
+    def islocked_delete(self,record):
+        #OVERRIDE THIS
+        pass
+
+
     def check_updatable(self, record,ignoreReadOnly=None):
         """TODO
         
@@ -1258,7 +1332,7 @@ class SqlTable(GnrObject):
             fields = [f.lstrip('$') for f in fields]
             if not isinstance(record, Bag):
                 fields = [self.db.colToAs(f) for f in fields]
-            cols = [(c, gnrstring.toText(record[c])) for c in fields]
+            cols = [(c, gnrstring.toText(record[c], locale=self.db.locale)) for c in fields]
             if '$' in mask:
                 caption = gnrstring.templateReplace(mask, dict(cols))
             else:

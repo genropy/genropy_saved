@@ -24,6 +24,7 @@
 import logging
 
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import moduleDict
 from gnr.core.gnrstructures import GnrStructObj, GnrStructData
@@ -109,10 +110,12 @@ class DbModel(object):
         tbl = pkg.table(tbl)
         col = tbl.columns[col]
         return (pkg.name, tbl.name, col.name)
-        
+       
+    @extract_kwargs(resolver=True) 
     def addRelation(self, many_relation_tuple, oneColumn, mode=None,storename=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
-                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None):
+                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None,
+                    resolver_kwargs=None):
         """Add a relation in the current model.
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
@@ -168,14 +171,15 @@ class DbModel(object):
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group,storefield=storefield)
+                                   one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename,
+                                   resolver_kwargs=resolver_kwargs)
             self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group,storefield=storefield)
+                                   one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename)
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
@@ -277,6 +281,8 @@ class DbModel(object):
                     "table() called with '%(tblname)s' instead of '<packagename>.%(tblname)s'" % {'tblname': tblname})
             #if pkg is None:
         #    pkg = self.obj.keys()[0]
+        if not self.obj[pkg]:
+            return
         return self.obj[pkg].table(tblname)
 
     def column(self, colname):
@@ -367,20 +373,20 @@ class DbModelSrc(GnrStructData):
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
         :param default: the default value of the column
-        :param notnull: TODO
+        :param notnull: This sets the 'Mandatory. attribute in the database
         :param unique: boolean. Same of the sql UNIQUE
         :param indexed: boolean. If ``True``, allow to create an index for the column data
                         (speed up the queries on the indexed column)
-        :param sqlname: TODO
-        :param comment: the column's comment
+        :param sqlname: You can set a different sqlname that the one in the model if required.  Only use if you know what you are doing.
+        :param comment: The column's comment
         :param name_short: the :ref:`name_short` of the column
         :param name_long: the :ref:`name_long` of the column
         :param name_full: the :ref:`name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section
-        :param onInserting: TODO
-        :param onUpdating: TODO
-        :param onDeleting: TODO"""
+        :param onInserting: This sets the method name which is triggered when a record is inserted.  useful for adding a code for example
+        :param onUpdating: This sets the method name which is triggered when a record is updated
+        :param onDeleting: This sets the method name which is triggered when a record is deleted"""
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
@@ -500,18 +506,17 @@ class DbModelSrc(GnrStructData):
                        
         :param one_name: the one_to_many relation's name. e.g: 'movies'
         :param many_name: the many_to_one relation's name. e.g: 'director'
-        :param eager_one: boolean. If ``True`` the one_to_many relation is eager
-        :param eager_many: boolean. If ``True`` the many_to_one relation is eager
-        :param one_one: TODO
-        :param child: TODO
-        :param one_group: TODO
-        :param many_group: TODO
-        :param onUpdate: TODO
-        :param onUpdate_sql: TODO
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-        :param onDelete_sql: TODO
-        :param deferred: the same of the sql "DEFERRED". For more information, check the
-                         :ref:`sql_deferred` section
+        :param eager_one: boolean. If ``True`` the one_to_many relation is eager as much as possible. If False then not even the first relation is eager. If Lazy, then only the first related record is loaded in the first rpc.
+        :param eager_many: boolean. If ``True`` the many_to_one relation is eager ** DOES NOT CURRENTLY WORK **
+        :param one_one: instead of a bag of rows, you get directly the bag of the record. This means that you do not have to deal with the related many path, but have an easier path to deal with in both directions.
+        :param child: TODO ** Have forgotten **
+        :param one_group: In the query hpopup and view hTree, this is the label given for group that the columns will be displayed
+        :param many_group: In the query hpopup and view hTree, this is the label given for group that the columns will be displayed
+        :param onUpdate: cascade.  If you change the pkey, then all fkeys will receive new pkey value. If you have triggers in python then this will inform the triggers
+        :param onUpdate_sql: cascade. If you change the pkey, then all fkeys will receive new pkey value. No python triggers are informed. 
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise' | 'SetNull  Triggers are informed
+        :param onDelete_sql: 'C:cascade' | 'I:ignore' | 'R:raise' | 'SetNull  Triggers are not informed
+        :param deferred: the same of the sql "DEFERRED". This means that relational integrity is not checked until commit.
         :param relation_name: string. An attribute of the :ref:`table_relation`. It allows
                               to estabilish an alternative string for the :ref:`inverse_relation`.
                               For more information, check the :ref:`relation_name` section"""
@@ -815,12 +820,17 @@ class DbTableObj(DbModelObj):
         """Returns a DbColAliasListObj"""
         virtual_columns = self['virtual_columns']
         local_virtual_columns = self.db.localVirtualColumns(self.fullname)
-        custom_virtual_columns = self.db.customVirtualColumns(self.fullname)
-
         if local_virtual_columns:
             for node in local_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
                 virtual_columns.children[obj.name.lower()] = obj
+        return virtual_columns
+
+    @property
+    def full_virtual_columns(self):
+        """Returns a DbColAliasListObj"""
+        virtual_columns = self.virtual_columns
+        custom_virtual_columns = self.db.customVirtualColumns(self.fullname)
         if custom_virtual_columns:
             for node in custom_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
@@ -1240,10 +1250,12 @@ class AliasColumnWrapper(DbModelObj):
         colalias_attributes.pop('tag')
         colalias_attributes.pop('relation_path')
         mixedattributes.update(colalias_attributes)
-        mixedattributes.pop('virtual_column', None)
+        virtual_column = mixedattributes.pop('virtual_column', None)
+        if virtual_column:
+            self.sqlclass = 'virtual_column'
         self.originalColumn = originalColumn
         self.attributes = mixedattributes
-        
+
     def __getattr__(self,name):
         return getattr(self.originalColumn,name)
         

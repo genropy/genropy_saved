@@ -198,16 +198,15 @@ class FormHandler(BaseComponent):
         
     @struct_method               
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
-        pane.div(_class='fh_semaphore',connect_onclick="""
+        s = pane.div(_class='fh_semaphore',connect_onclick="""
             if(genro.dom.getEventModifiers($1)=='Shift'){
                 if(this.form.status=='readOnly'){
-                   //objectPop(this.form.getDataNodeAttributes(),'_protect_write');
-                   //this.form.updateStatus();
-                   //this.form.applyDisabledStatus();
                     this.form.reload({ignoreReadOnly:true})
                 }
             }
             """)
+        s.tooltip(callback="return this.form.getSemaphoreStatus()")
+
     
     @struct_method          
     def fh_slotbar_form_formcommands(self,pane,**kwargs):
@@ -236,7 +235,9 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
         pane.formButton(topic='deleteItem',
                         iconClass="iconbox delete_record",parentForm=parentForm,
-                        disabled='^.controller.protect_delete',tip='==disabled?_msg_protect_delete:_msg_delete',
+                        disabled='==_newrecord||_protected',
+                        _newrecord='^.controller.is_newrecord',
+                        _protected='^.controller.protect_delete',tip='==_protected?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
     @struct_method          

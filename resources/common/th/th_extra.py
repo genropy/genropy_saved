@@ -36,23 +36,22 @@ class THStatsHandler(BaseComponent):
                            value='^.stats.tree.tot_mode', lbl='!!Mode')
 
     def stats_left(self, pane):
+        
         pane.tree(storepath='.stats.tree.root', inspect='shift', selectedPath='.stats.tree.currentTreePath', labelAttribute='caption',
-                  selectedItem='#totalizer_grid.data', isTree=True, margin='10px', _fired='^.stats.tree.reload_tree', hideValues=True)
+                  #selectedItem='#totalizer_grid.data',
+                  xisTree=True, margin='10px', #_fired='^.stats.tree.reload_tree', 
+                  hideValues=True)
+
+        pane.dataController("""var data = this.getRelativeData('.stats.tree.root.'+currpath);
+                                SET #totalizer_grid.data = data?data.deepCopy():null;""",currpath='^.stats.tree.currentTreePath')
+
         pane.dataRpc('.stats.tree.root', self.stats_totalize, selectionName='=.store?selectionName',
                      tot_mode='^.stats.tree.tot_mode', _if='tot_mode&&(selectedTab=="th_stats") && selectionName', timeout=300000,
                      totalrecords='=.rowcount', selectedTab='=.selectedPage',
-                    #_onCalling="""
-                    #       batch_monitor.create_local_root(true);
-                    #       PUBLISH batch_monitor_on;
-                    #""",
-                    #_onResult="""
-                    #   genro.wdgById('localBatches_root').hide();
-                    #   PUBLISH batch_monitor_off;
-                    #   FIRE .stats.tree.reload_tree;
-                    #""",
-                    _onCalling="""genro.wdgById("_stats_load_dlg").show();
-                                    SET #totalizer_grid.data = null;""",
-                    _onResult='FIRE .stats.tree.reload_tree;genro.wdgById("_stats_load_dlg").hide();',
+                    _onCalling="""SET #totalizer_grid.data = null;""",
+                    _lockScreen=True,
+                    _onResult="""
+                    FIRE .stats.tree.reload_tree;""",
                      _fired='^.stats.tree.do_totalize')
         pane.dataController("""SET .stats.tree.root.data = null; FIRE .stats.tree.reload_tree; FIRE .stats.tree.do_totalize;""", _fired="^.queryEnd")
         dlg = pane.dialog(nodeId='_stats_load_dlg', title='!!Loading')
@@ -170,6 +169,7 @@ class THStatsHandler(BaseComponent):
     def stats_totalize(self, selectionName=None, group_by=None, sum_cols=None, keep_cols=None,
                            collect_cols=None, distinct_cols=None, key_col=None, captionCb=None,
                            tot_mode=None, **kwargs):
+        print 'totalizing'
         selection = self.stats_get_selection(selectionName)
         analyzer = AnalyzingBag()
         self.btc.batch_create(batch_id='%s_%s' % (selectionName, self.getUuid()),

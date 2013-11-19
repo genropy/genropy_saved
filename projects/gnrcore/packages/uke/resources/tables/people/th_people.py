@@ -9,9 +9,9 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('name')
-        r.fieldcell('company_id')
+        r.fieldcell('company')
         r.fieldcell('user_id')
-        r.fieldcell('customer_id')
+        r.fieldcell('customer')
         r.fieldcell('role')
         r.fieldcell('email')
         r.fieldcell('phone')
@@ -29,17 +29,20 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('name')
-        fb.field('company_id')
+        fb.field('company')
         fb.field('user_id')
-        fb.field('customer_id')
+        fb.field('customer')
         fb.field('role')
         fb.field('email')
         fb.field('phone')
         fb.field('skype')
         fb.field('chat')
+        bc.contentPane(region='center').inlineTableHandler(relation='@public_keys',viewResource='ViewFromPerson')
+
+
 
 
     def th_options(self):

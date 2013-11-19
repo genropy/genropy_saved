@@ -23,8 +23,8 @@ class Table(object):
                    validate_notnull=True, validate_case='c', validate_notnull_error='!!Mandatory field')
         tbl.column('registration_date', 'D', name_long='!!Registration Date')
         tbl.column('auth_tags', name_long='!!Authorization Tags')
-        tbl.column('status', name_long='!!Status', size='4',
-                   values='!!conf:Confirmed,wait:Waiting',_sendback=True)
+        tbl.column('status', name_long='!!Status', size=':4',
+                   values='!!new:New,wait:Waiting,conf:Confirmed,banned:Banned',_sendback=True)
         tbl.column('md5pwd', name_long='!!PasswordMD5', size=':65')
         tbl.column('locale', name_long='!!Default Language', size=':12')
         tbl.column('preferences', dtype='X', name_long='!!Preferences')
@@ -35,6 +35,10 @@ class Table(object):
 
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
 
+
+    def partitionioning_pkeys(self):
+        return None
+        
     def createPassword(self):
         password = getUuid()[0:6]
         return password

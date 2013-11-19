@@ -24,6 +24,8 @@
 #Copyright (c) 2007 Softwell. All rights reserved.
 
 import urllib
+from time import time
+from datetime import timedelta
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
@@ -68,6 +70,14 @@ def formulaColumn(*args,**fcpars):
     
 class GnrWebPageException(GnrException):
     pass
+
+class GnrUnsupportedBrowserException(GnrException):
+    pass
+
+class GnrMaintenanceException(GnrException):
+    pass
+
+
 class GnrMissingResourceException(GnrException):
     pass
 
@@ -90,6 +100,11 @@ class GnrWebPage(GnrBaseWebPage):
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
+        self._inited = False
+        self._start_time = time()
+        self.workspace = dict()
+        self.sql_count = 0
+        self.sql_time = 0
         self.site = site
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
@@ -98,7 +113,6 @@ class GnrWebPage(GnrBaseWebPage):
         self._environ = environ
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
         self._event_subscribers = {}
-        self.local_datachanges = list()
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
         self.packageId = packageId
@@ -115,7 +129,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.response.add_header('Pragma', 'no-cache')
         self._htmlHeaders = []
         self._pendingContext = []
-        self.pagename = os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
+        self.local_datachanges = []
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
@@ -134,7 +148,9 @@ class GnrWebPage(GnrBaseWebPage):
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.dynamic_js_requires= {}
         self.dynamic_css_requires= {}
-        self.debugopt = request_kwargs.pop('debugopt', None)
+        self.debug_sql = boolean(request_kwargs.pop('debug_sql', None))
+        debug_py = request_kwargs.pop('debug_py', None)
+        self.debug_py = False if boolean(debug_py) is not True else debug_py
         #self.polling_enabled = boolean(request_kwargs.pop('polling_enabled')) if 'polling_enabled' in request_kwargs else getattr(self, 'polling_enabled', True)
         self.callcounter = request_kwargs.pop('callcounter', None) or 'begin'
         if not hasattr(self, 'dojo_source'):
@@ -146,10 +162,15 @@ class GnrWebPage(GnrBaseWebPage):
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
         self.root_page_id = None
+        self.parent_page_id = None
         self.sourcepage_id = request_kwargs.pop('sourcepage_id', None)
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
+        
+        self.onIniting(request_args, request_kwargs)
+        self._call_args = request_args or tuple()
+        self._call_kwargs = dict(request_kwargs)
         if not getattr(self,'skip_connection', False):
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
             self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
@@ -157,14 +178,16 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
-        self.onIniting(request_args, request_kwargs)
-        self._call_args = request_args or tuple()
-        self._call_kwargs = dict(request_kwargs)
-        
+        self._inited = True
+            
     def onPreIniting(self, *request_args, **request_kwargs):
         """TODO"""
         pass
         
+    @property
+    def pagename(self):
+        return os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
+
     @property
     def call_args(self):
         """TODO"""
@@ -194,12 +217,13 @@ class GnrWebPage(GnrBaseWebPage):
             if not self.connection.validate_page_id(page_id):
                 raise self.site.client_exception('The referenced page_id is not valid in this connection',
                                                  self._environ)
-            page_item = self.site.register.page(page_id)
+            page_item = self.site.register.page(page_id,include_data='lazy')
             if not page_item:
                 raise self.site.client_exception('The referenced page_id is cannot be found in site register',
                                                  self._environ)
             self.page_id = page_id
             self.root_page_id = page_item['data'].getItem('root_page_id')
+            self.parent_page_id = page_item['data'].getItem('parent_page_id')
             return page_item
         else:
             if self._call_handler_type in ('pageCall', 'externalCall'):
@@ -207,21 +231,8 @@ class GnrWebPage(GnrBaseWebPage):
             if not self.connection.connection_id:
                 self.connection.create()
             self.page_id = getUuid()
-            workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
-            self.root_page_id = kwargs.pop('_root_page_id', None)
-            if self.root_page_id:
-                data = self.pageStore(page_id=self.root_page_id).data
-                data['root_page_id'] = self.root_page_id
-            else:
-                connectionStore = self.connectionStore()
-                data = Bag()
-                if self.avatar:
-                    data['rootenv'] = connectionStore.getItem('defaultRootenv') or Bag()
-                    cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
-                    if cookie:
-                        data['rootenv'].update(Bag(urllib.unquote(cookie.value)).getItem('rootenv'))   
+            data = Bag()   
             data['pageArgs'] = kwargs
-            data['rootenv.workdate'] = workdate or data['rootenv.workdate'] or datetime.date.today()
             return self.site.register.new_page(self.page_id, self, data=data)
 
     def get_call_handler(self, request_args, request_kwargs):
@@ -303,30 +314,17 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method
     def dbCurrentEnv(self):
         return Bag(self.db.currentEnv)
-    
-    def _dbEnvFromPageStore(self):
-        pageStore = self.pageStore()
-        storeDbEnv = pageStore.getItem('dbenv') or Bag()   
-        storeDbEnv.update((pageStore.getItem('rootenv') or Bag()))     
-        def addToStoreDbEnv(n,_pathlist=None):
-            if n.attr.get('dbenv'):
-                path = n.label if n.attr['dbenv'] is True else n.attr['dbenv']
-                storeDbEnv[path] = n.value
-        _pathlist = []
-        pageStore.walk(addToStoreDbEnv,_pathlist=_pathlist)
-        return storeDbEnv
-        
-    
+
     @property 
     def db(self):
-        if not hasattr(self, '_db'):
+        if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
-            storeDbEnv = self._dbEnvFromPageStore()
+            storeDbEnv = self.site.register.get_dbenv(self.page_id,register_name='page')
             if len(storeDbEnv)>0:
                 self._db.updateEnv(**storeDbEnv.asDict(ascii=True))
             envPageArgs = dictExtract(self.pageArgs,'env_')
@@ -335,8 +333,7 @@ class GnrWebPage(GnrBaseWebPage):
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
-        return self._db
-        
+        return self._db    
         
     def _get_workdate(self):
         if not self._workdate:
@@ -378,20 +375,34 @@ class GnrWebPage(GnrBaseWebPage):
         kwargs = self._call_kwargs
         result = self._call_handler(*args, **kwargs) 
         self._onEnd()
+        if getattr(self,'_closed',False):
+            self.site.register.drop_page(self.page_id, cascade=False)
         return result
         
     def _rpcDispatcher(self, *args, **kwargs):
         method = kwargs.pop('method',None)
         mode = kwargs.pop('mode','bag')
+        _serverstore_changes = kwargs.pop('_serverstore_changes',None)
+
         #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         parameters = kwargs
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
-        self.site.handle_clientchanges(self.page_id, parameters)
+        self._lastRpc = parameters.pop('_lastRpc', None)
+        self._pageProfilers = parameters.pop('_pageProfilers', None)
+        #self.site.register.refresh(self.page_id,ts=self._lastUserEventTs,pageProfilers=self._pageProfilers)
+        if _serverstore_changes:
+            self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         if self.isDeveloper() or self.site.force_debug:
-            result = self.rpc(method=method, _auth=auth, **parameters)
+            try:
+                result = self.rpc(method=method, _auth=auth, **parameters)
+            except GnrException,e:
+                self.rpc.error = 'gnrexception'
+                result = str(e)
+            except Exception,e:
+                raise
         else:
             try:
                 result = self.rpc(method=method, _auth=auth, **parameters)
@@ -657,9 +668,15 @@ class GnrWebPage(GnrBaseWebPage):
     def collectClientDatachanges(self):
         """TODO"""
         self._publish_event('onCollectDatachanges')
-        result = self.site.get_datachanges(self.page_id, user=self.user,
-                                           local_datachanges=self.local_datachanges)
+        store_datachanges = self.site.register.subscription_storechanges(self.user,self.page_id) or []
+        result = Bag()
+        local_datachanges = self.local_datachanges or []
+        for j, change in enumerate(local_datachanges+store_datachanges):
+            result.setItem('sc_%i' % j, change.value, change_path=change.path, change_reason=change.reason,
+                           change_fired=change.fired, change_attr=change.attributes,
+                           change_ts=change.change_ts, change_delete=change.delete)
         return result
+
         
     def _subscribe_event(self, event, caller):
         assert hasattr(caller, 'event_%s' % event)
@@ -671,6 +688,9 @@ class GnrWebPage(GnrBaseWebPage):
             
     def rootPage(self,*args, **kwargs):
         """TODO"""
+        user_agent = self.request.headers.get('User-Agent', '')
+        if 'MSIE' in user_agent and not 'chromeframe' in user_agent:
+            raise GnrUnsupportedBrowserException
         self.charset = 'utf-8'
         arg_dict = self.build_arg_dict(**kwargs)
         tpl = self.pagetemplate
@@ -714,6 +734,16 @@ class GnrWebPage(GnrBaseWebPage):
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
+
+    def clientDatetime(self,ts=None):
+        serverTimeDelta = self.rootenv['serverTimeDelta']
+        ts = ts or datetime.datetime.now()
+        if serverTimeDelta:
+            return ts-timedelta(milliseconds=serverTimeDelta)
+        return ts
+
+
+
     def getUuid(self):
         """TODO"""
         return getUuid()
@@ -729,6 +759,9 @@ class GnrWebPage(GnrBaseWebPage):
     def htmlHeaders(self):
         """TODO"""
         pass
+
+    def debugger(self, debugtype, **kwargs):
+        self.site.debugger(debugtype, **kwargs)
     
     @property
     def pageArgs(self):
@@ -809,16 +842,21 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['filename'] = self.pagename
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
+        kwargs['servertime'] = datetime.datetime.now()
         favicon = self.site.config['favicon?name']
         if favicon:
             arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)
             arg_dict['favicon_ext'] = favicon.split('.')[1]
 
-        if self.debugopt:
-            kwargs['debugopt'] = self.debugopt
+        if self.debug_sql:
+            kwargs['debug_sql'] = self.debug_sql
+
+        if self.debug_py:
+            kwargs['debug_py'] = self.debug_py
+
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-            
+
         arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
@@ -889,7 +927,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                                           exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
         
-    def get_bodyclasses(self):   #  ancora necessario _common_d11?
+    def get_bodyclasses(self):   #  is still necessary _common_d11?
         """TODO"""
         return '%s _common_d11 pkg_%s page_%s %s' % (
         self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
@@ -925,19 +963,11 @@ class GnrWebPage(GnrBaseWebPage):
               
     def subscribeTable(self, table, subscribe=True):
         """TODO
-        
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param subscribe: boolean. TODO"""
-        with self.pageStore(page_id=self.page_id) as store:
-            subscribed_tables = store.register_item['subscribed_tables']
-            if subscribe:
-                if not table in subscribed_tables:
-                    subscribed_tables.append(table)
-            else:
-                if table in subscribed_tables:
-                    subscribed_tables.remove(table)
+        self.site.register.subscribeTable(page_id=self.page_id,table=table,subscribe=subscribe)            
                     
     def pageStore(self, page_id=None, triggered=True):
         """TODO
@@ -970,20 +1000,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param storename: TODO
         :param client_path: TODO
         :param active: boolean. TODO"""
-        with self.pageStore() as store:
-            subscriptions = store.getItem('_subscriptions')
-            if subscriptions is None:
-                subscriptions = dict()
-                store.setItem('_subscriptions', subscriptions)
-            storesub = subscriptions.setdefault(storename, {})
-            pathsub = storesub.setdefault(client_path, {})
-            pathsub['on'] = active
-            
-    def clientPage(self, page_id=None):
-        """TODO
-        
-        :param page_id: the id of the page"""
-        return ClientPageHandler(self, page_id or self.page_id)
+        self.site.register.setStoreSubscription(page_id=self.page_id,storename=storename, client_path=client_path, active=active)
         
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
@@ -1010,14 +1027,6 @@ class GnrWebPage(GnrBaseWebPage):
             return self._parentdirpath
             
     parentdirpath = property(_get_parentdirpath)
-        
-#    @property
-#    def subscribedTablesDict(self):
-#        """Return a dict of subscribed tables. Every element is a list
-#           of *page_id*\'s that subscribe that page"""
-#        if not hasattr(self, '_subscribedTablesDict'):
-#            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
-#        return self._subscribedTablesDict
         
     @property
     def application(self):
@@ -1101,7 +1110,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param requires: TODO If None, get the css_requires string included in a :ref:`webpage`"""
         requires = [r for r in (requires or self.css_requires) if r]
-        css_theme = self.get_css_theme() or 'aqua'
+        css_theme = self.get_css_theme() or 'ludo'
         css_icons = self.get_css_icons()
         if css_theme:
             requires.append('themes/%s' %css_theme)
@@ -1411,46 +1420,27 @@ class GnrWebPage(GnrBaseWebPage):
         self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
 
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
-                        fired=False, reason=None, public=False, replace=False):
-        """TODO
-        
-        :param path: TODO
-        :param value: TODO
-        :param attributes: TODO
-        :param page_id: TODO
-        :param filters: TODO
-        :param fired: TODO
-        :param reason: TODO
-        :param public: TODO
-        :param replace: TODO"""
-        if filters:
-            pages = self.site.register.pages(filters=filters)
+                        fired=False, reason=None, replace=False,public=None):
+        if public or filters or page_id:
+            self.site.register.setInClientData(path=path, value=value, attributes=attributes, page_id=page_id or self.page_id, filters=filters,
+                        fired=fired, reason=reason, replace=replace,register_name='page')
+        elif isinstance(path, Bag):
+            changeBag = path
+            for changeNode in changeBag:
+                attr = changeNode.attr
+                datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
+                    attributes=attr, fired=attr.pop('fired', None))
+                self.local_datachanges.append(datachange)
         else:
-            pages = [page_id]
-        for page_id in pages:
-            if not public and (page_id is None or page_id == self.page_id):
-                if isinstance(path, Bag):
-                    changeBag = path
-                    for changeNode in changeBag:
-                        attr = changeNode.attr
-                        datachange = ClientDataChange(attr.pop('_client_path'), changeNode.value,
-                                                      attributes=attr, fired=attr.pop('fired', None))
-                        self.local_datachanges.append(datachange)
-                else:
-                    datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
-                    self.local_datachanges.append(datachange)
-            else:
-                with self.clientPage(page_id=page_id) as clientPage:
-                    clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
-                    
-    def rpc_sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
-        """TODO
-        
-        :param message: TODO
-        :param page_id: TODO
-        :param filters: TODO
-        :param msg_path: TODO"""
-        self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
+            datachange = ClientDataChange(path, value, reason=reason, attributes=attributes, fired=fired)
+            self.local_datachanges.append(datachange)
+            
+    @public_method          
+    def sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
+        self.setInClientData(msg_path or 'gnr.servermsg', message,
+                                         page_id=pageId, filters=filters,
+                                         attributes=dict(from_user=self.user, from_page=self.page_id))
+
         
     def _get_package_folder(self):
         if not hasattr(self, '_package_folder'):
@@ -1458,7 +1448,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._package_folder
     package_folder = property(_get_package_folder)
     
-    def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
+    def rpc_main(self, _auth=AUTH_OK, debugger=None,_parent_page_id=None,_root_page_id=None, **kwargs):
         """The first method loaded in a Genro application
         
         :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
@@ -1466,217 +1456,168 @@ class GnrWebPage(GnrBaseWebPage):
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}
-        #try :
-        if True:
-            if _auth == AUTH_OK:
-                avatar = self.avatar #force get_avatar
-                if hasattr(self, 'main_root'):
-                    self.main_root(page, **kwargs)
-                    return (page, pageattr)
-                    #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
-                page.data('gnr.windowTitle', self.windowTitle())
-                page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
-                page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
-                page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
+        if _auth == AUTH_OK:
+            self.parent_page_id = _parent_page_id
+            self.root_page_id = _root_page_id
+            rootenv = self.getStartRootenv()
+            prefenv = Bag()
+            if self.application.db.package('adm'):
+                prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
+            data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
+            self.pageStore().update(data)
+            self._db = None #resetting db property after setting dbenv
+            if hasattr(self, 'main_root'):
+                self.main_root(page, **kwargs)
+                return (page, pageattr)
+            page.data('gnr.windowTitle', self.windowTitle())
+            page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
+            page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
+            page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
 
-                page.dataController(""" var changelist = copyArray(_node._value);
-                                        dojo.forEach(changelist,function(c){
-                                            for (var k in c){
-                                                c[k] = convertFromText(c[k]);
-                                            }
-                                        })
-                                        genro.publish('dbevent_'+_node.label,{'changelist':changelist,'pkeycol':_node.attr.pkeycol,'changeattr':_node.attr});""",
-                                        changes="^gnr.dbchanges")
-                page.data('gnr.homepage', self.externalUrl(self.site.homepage))
-                page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
-                page.data('gnr.homeUrl', self.site.home_uri)
-                page.data('gnr.defaultUrl', self.site.default_uri)
-                page.data('gnr.siteName',self.siteName)
-                page.data('gnr.page_id',self.page_id)
-                page.data('gnr.package',self.package.name)
-                page.data('gnr.root_page_id',self.root_page_id)
-                page.data('gnr.workdate',self.workdate,serverpath='rootenv.workdate')
-                #page.data('gnr.userTags', self.userTags)
-                page.data('gnr.locale', self.locale)
-                page.data('gnr.pagename', self.pagename)
-                page.data('gnr.remote_db',self.site.remote_db)
-                if self.dbstore:
-                    page.data('gnr.dbstore',self.dbstore)
-                page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
-                page.dataRemote('gnr.app_preference', self.getAppPreference)
-                page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
-                page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
-                            bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
-                
-                #page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
-                #da sistemare
-                page.dataController("genro.getDataNode(nodePath).refresh(true);",
-                                    nodePath="^gnr.serverEvent.refreshNode")
-                                    
-                page.dataController("""if(kw){
-                                        genro.publish(kw)
-                                     };""", kw='^gnr.publisher')
-
-                page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
-                page.dataController("""if(url){
-                                        genro.download(url,null,"print")
-                                        };""", url='^gnr.printurl')
-                page.dataController("""
-                        genro.playUrl(url);
-                    """,url='^gnr.playUrl')
-                page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
-                            _onResult='genro.publish("quick_comunication_sent",{info:result});')
-
-                page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
-                                        
-                page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
-                page.dock(id='dummyDock',display='none')
-  
-                root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
-                                            nodeId='_gnrRoot',_class='hideSplitter notvisible',
-                                            subscribe_floating_message='genro.dlg.floatingMessage(this,$1);',
-                                            regions='^_clientCtx.mainBC')
-                
-                typekit_code = self.site.config['gui?typekit']
-                if typekit_code and False:
-                    page.script(src="http://use.typekit.com/%s.js" % typekit_code)
-                    page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
-                #self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
-                root.div(id='auxDragImage')
-                root.div(id='srcHighlighter')
-                pageOptions = self.pageOptions or dict()
-                if 'openMenu' in pageOptions:
-                    root.dataController("""genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",_onStart=True,openMenu=pageOptions['openMenu'])
-                root.dataController("""
-                                       var new_status = main_left_set_status[0];
-                                       new_status = new_status=='toggle'? !current_status:new_status;
-                                       if(new_status!=current_status){
-                                       
-                                            SET _clientCtx.mainBC.left?show=new_status;
-                                            left_width = left_width || '';
-                                            if(new_status && left_width.replace('px','')<200){
-                                                SET _clientCtx.mainBC.left = '200px';
-                                            }
-                                            PUBLISH main_left_status = new_status;
-                                       }
-                                    """, subscribe_main_left_set_status=True,
-                                    current_status='=_clientCtx.mainBC.left?show', left_width='=_clientCtx.mainBC.left')
-                                    
-                main_call = kwargs.pop('main_call', None)
-                if main_call:
-                    main_handler = self.getPublicMethod('rpc',main_call) 
-                    if main_handler:
-                        main_handler(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
-                else:
-                    rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
-                    self.main(rootwdg, **kwargs)
-                self.onMainCalls()
-                if self.avatar:
-                    page.data('gnr.avatar', Bag(self.avatar.as_dict()))
-                page.data('gnr.rootenv',self.rootenv)
-                page.data('gnr.polling.user_polling', self.user_polling)
-                page.data('gnr.polling.auto_polling', self.auto_polling)
-                pageArgs = self.pageArgs
-                if 'polling_enabled' in pageArgs:
-                    polling_enabled = boolean(pageArgs['polling_enabled'])
-                else:
-                    polling_enabled = True
-                page.data('gnr.polling.polling_enabled', polling_enabled)
-                page.dataController("""genro.user_polling = user_polling;
-                                       genro.auto_polling = auto_polling;
-                                       genro.polling_enabled = polling_enabled;
-                                      """,
-                                    user_polling="^gnr.polling.user_polling",
-                                    auto_polling="^gnr.polling.auto_polling",
-                                    polling_enabled="^gnr.polling.polling_enabled",
-                                    _init=True)
-                if self.dynamic_css_requires:
-                    for v in self.dynamic_css_requires.values():
-                        if v:
-                            page.script('genro.dom.loadCss("%s")' %v)
-                if self.dynamic_js_requires:
-                    for v in self.dynamic_js_requires.values():
-                        if v:
-                            page.script('genro.dom.loadJs("%s")' %v)
-                if self._pendingContext:
-                    with self.pageStore() as store:
-                        for serverpath,value,attr in self._pendingContext:
-                            store.setItem(serverpath, value, attr)
-                            store.subscribe_path(serverpath)
-                if self.user:
-                    self.site.pageLog('open')
-
-            if hasattr(self,'deferredMainPageAuthTags'):
-                _auth = AUTH_OK if self.deferredMainPageAuthTags(page) else AUTH_FORBIDDEN
-            if _auth == AUTH_NOT_LOGGED:
-                loginUrl = self.application.loginUrl()
-                if not loginUrl.startswith('/'):
-                    loginUrl = self.site.home_uri + loginUrl
-                page = None
-                if loginUrl:
-                    pageattr['redirect'] = loginUrl
-                else:
-                    pageattr['redirect'] = self.site.home_uri
-            elif _auth == AUTH_FORBIDDEN:
-                page.clear()
-                self.forbiddenPage(page, **kwargs)
-            return (page, pageattr)
-            #except Exception,err:
-        else:
-            return (self._errorPage(err), pageattr)
+            page.dataController(""" var changelist = copyArray(_node._value);
+                                    dojo.forEach(changelist,function(c){
+                                        for (var k in c){
+                                            c[k] = convertFromText(c[k]);
+                                        }
+                                    })
+                                    genro.publish('dbevent_'+_node.label,{'changelist':changelist,'changeattr':_node.attr});""",
+                                    changes="^gnr.dbchanges")
+            page.data('gnr.homepage', self.externalUrl(self.site.homepage))
+            page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
+            page.data('gnr.homeUrl', self.site.home_uri)
+            page.data('gnr.defaultUrl', self.site.default_uri)
+            page.data('gnr.siteName',self.siteName)
+            page.data('gnr.page_id',self.page_id)
+            page.data('gnr.package',self.package.name)
+            page.data('gnr.root_page_id',self.root_page_id)
+            page.data('gnr.workdate', self.workdate) #serverpath='rootenv.workdate')
+            #page.data('gnr.userTags', self.userTags)
+            page.data('gnr.locale', self.locale)
+            page.data('gnr.pagename', self.pagename)
+            page.data('gnr.remote_db',self.site.remote_db)
+            if self.dbstore:
+                page.data('gnr.dbstore',self.dbstore)
+            page.dataRemote('gnr.user_preference', self.getUserPreference,username='^gnr.avatar.user')
+            page.dataRemote('gnr.app_preference', self.getAppPreference)
+            page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
+            page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
+                        bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
             
+            #page.dataController("""genro.dom.setRootStyle(rs)""",rs="^gnr.user_preference.sys.theme.rootstyle",_if='rs')
+            #da sistemare
+            page.dataController("genro.getDataNode(nodePath).refresh(true);",
+                                nodePath="^gnr.serverEvent.refreshNode")
+                                
+            page.dataController("""if(kw){
+                                    genro.publish(kw)
+                                 };""", kw='^gnr.publisher')
+
+            page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
+            page.dataController("""if(url){
+                                    genro.download(url,null,"print")
+                                    };""", url='^gnr.printurl')
+            page.dataController("""
+                    genro.playUrl(url);
+                """,url='^gnr.playUrl')
+            page.dataRpc('dummy',self.quickCommunication,subscribe_quick_comunication=True,
+                        _onResult='genro.publish("quick_comunication_sent",{info:result});')
+
+            page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
+                                    
+            page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
+            page.dock(id='dummyDock',display='none')
+
+            root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
+                                        nodeId='_gnrRoot',_class='hideSplitter notvisible',
+                                        subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
+            
+            typekit_code = self.site.config['gui?typekit']
+            if typekit_code and False:
+                page.script(src="http://use.typekit.com/%s.js" % typekit_code)
+                page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
+            root.div(id='auxDragImage')
+            root.div(id='srcHighlighter')
+            pageOptions = self.pageOptions or dict()
+            if 'openMenu' in pageOptions:
+                root.dataController("""genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",_onStart=True,openMenu=pageOptions['openMenu'])               
+            main_call = kwargs.pop('main_call', None)
+            if main_call:
+                main_handler = self.getPublicMethod('rpc',main_call) 
+                if main_handler:
+                    main_handler(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
+            else:
+                rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
+                self.main(rootwdg, **kwargs)
+            self.onMainCalls()
+            if self.avatar:
+                page.data('gnr.avatar', Bag(self.avatar.as_dict()))
+            page.data('gnr.rootenv',self.rootenv)
+            page.data('gnr.polling.user_polling', self.user_polling)
+            page.data('gnr.polling.auto_polling', self.auto_polling)
+            pageArgs = self.pageArgs
+            if 'polling_enabled' in pageArgs:
+                polling_enabled = boolean(pageArgs['polling_enabled'])
+            else:
+                polling_enabled = True
+            page.data('gnr.polling.polling_enabled', polling_enabled)
+            page.dataController("""genro.user_polling = user_polling;
+                                   genro.auto_polling = auto_polling;
+                                   genro.polling_enabled = polling_enabled;
+                                  """,
+                                user_polling="^gnr.polling.user_polling",
+                                auto_polling="^gnr.polling.auto_polling",
+                                polling_enabled="^gnr.polling.polling_enabled",
+                                _init=True)
+            if self.dynamic_css_requires:
+                for v in self.dynamic_css_requires.values():
+                    if v:
+                        page.script('genro.dom.loadCss("%s")' %v)
+            if self.dynamic_js_requires:
+                for v in self.dynamic_js_requires.values():
+                    if v:
+                        page.script('genro.dom.loadJs("%s")' %v)
+            if self._pendingContext:
+                self.site.register.setPendingContext(self.page_id,self._pendingContext,register_name='page')                        
+            if self.user:
+                self.site.pageLog('open')
+
+        if hasattr(self,'deferredMainPageAuthTags'):
+            _auth = AUTH_OK if self.deferredMainPageAuthTags(page) else AUTH_FORBIDDEN
+        if _auth == AUTH_NOT_LOGGED:
+            loginUrl = self.application.loginUrl()
+            if not loginUrl.startswith('/'):
+                loginUrl = self.site.home_uri + loginUrl
+            page = None
+            if loginUrl:
+                pageattr['redirect'] = loginUrl
+            else:
+                pageattr['redirect'] = self.site.home_uri
+        elif _auth == AUTH_FORBIDDEN:
+            page.clear()
+            self.forbiddenPage(page, **kwargs)
+        return (page, pageattr)
+   
+
+    def getStartRootenv(self):
+        #cookie = self.get_cookie('%s_dying_%s_%s' %(self.siteName,self.packageId,self.pagename), 'simple')
+        #if cookie:
+        #    return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
+        if not self.root_page_id: #page not in framedindex or framedindex itself
+            connectionStore = self.connectionStore()
+            return connectionStore.getItem('defaultRootenv')
+        return self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
+        
+
     def onMain(self): #You CAN override this !
         """TODO"""
         pass
+
+
     @public_method    
     def getPageStoreData(self):
         """TODO"""
         return self.pageStore().getItem('')
-        
-    def mainLeftTop(self, pane):
-        """The main left top of the page
-        
-        :param pane: a :ref:`contentpane`"""
-        pass
-            
-    def mainLeftContent(self, parentBC, **kwargs):
-        """The main left content of the page
-        
-        :param parentBC: the root parent :ref:`bordercontainer`"""
-        plugin_list = getattr(self, 'plugin_list', None)
-        if not plugin_list or self.root_page_id:
-            return
-        bc = parentBC.borderContainer(_class='main_left_tab', width='200px', datapath='gnr.main_container.left',
-                                      **kwargs)
-        self.mainLeftTop(bc.contentPane(region='top', nodeId='gnr_main_left_top', id='gnr_main_left_top'))
-        bottom = bc.contentPane(region='bottom', nodeId='gnr_main_left_bottom', id='gnr_main_left_bottom',
-                                overflow='hidden')
-        plugin_dock = bottom.slotBar(slots='*,%s,*' %self.plugin_list)
-        sc = bc.stackContainer(selectedPage='^.selected', region='center', nodeId='gnr_main_left_center')
-        sc.dataController("""genro.publish(page+'_'+(selected?'on':'off'));
-                             genro.dom.setClass(genro.domById('plugin_block_'+page),'selected_plugin',selected);
-                            """,
-                          subscribe_gnr_main_left_center_selected=True)
-                          
-        sc.dataController("""
-                            var command= main_left_status[0]?'open':'close';
-                            genro.publish(page+'_'+(command=='open'?'on':'off'));
-                            """,
-                          subscribe_main_left_status=True,
-                          page='=.selected')
-                          
-        for plugin in self.plugin_list.split(','):
-            cb = getattr(self, 'mainLeft_%s' % plugin)
-            assert cb, 'Plugin %s not found' % plugin
-            cb(sc.contentPane(pageName=plugin))
-            sc.dataController("""
-                              PUBLISH main_left_set_status = true;
-                              SET .selected=plugin;
-                              """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-                              
-            getattr(plugin_dock,plugin).div(_class='plugin_block %s_icon' % plugin,
-                                            connect_onclick="""SET .selected="%s";""" % plugin,
-                                            id='plugin_block_%s' % plugin)
+
                                             
     def onMainCalls(self):
         """TODO"""
@@ -1742,8 +1683,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: TODO
         :param value: TODO. 
         :param pageId: TODO. """
-        with self.pageStore(pageId) as store:
-            store.setItem(path, value)
+        self.pageStore(pageId).setItem(path, value)
             
    #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
    #                       query_columns=None, **kwargs):
@@ -1846,18 +1786,6 @@ class GnrWebPage(GnrBaseWebPage):
                                           **kwargs)
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
         return result
-        
-    def rpc_setInClientPage(self, pageId=None, changepath=None, value=None, fired=None, attr=None, reason=None):
-        """TODO
-        
-        :param pageId: TODO. 
-        :param changepath: TODO. 
-        :param value: TODO. 
-        :param fired: TODO. 
-        :param attr: TODO. 
-        :param reason: TODO. """
-        with self.clientPage(pageId) as clientPage:
-            clientPage.set(changepath, value, attr=attr, reason=reason, fired=fired)
             
     def getAuxInstance(self, name):
         """TODO"""
@@ -2151,44 +2079,6 @@ class GnrGenshiPage(GnrWebPage):
         
     def genshi_template(self):
         """TODO"""
-        pass
-        
-class ClientPageHandler(object):
-    """proxi to make actions on a client page"""
-    def __init__(self, parent_page, page_id=None):
-        self.parent_page = parent_page
-        self.page_id = page_id or parent_page.page_id
-        self.pageStore = self.parent_page.pageStore(page_id=self.page_id)
-        self.store = None
-        
-    def set(self, path, value, attributes=None, fired=None, reason=None, replace=False):
-        """TODO"""
-        self.store.set_datachange(path, value, attributes=attributes, fired=fired, reason=reason, replace=replace)
-        
-    def __enter__(self):
-        self.store = self.pageStore.__enter__()
-        return self
-        
-    def __exit__(self, type, value, tb):
-        self.pageStore.__exit__(type, value, tb)
-        
-    def jsexec(self, path, value, **kwargs):
-        """TODO"""
-        pass
-        
-    def copyData(self, srcpath, dstpath=None, page_id=None):
-        """TODO
-        
-        :param srcpath: TODO
-        :param dstpath: TODO
-        :param page_id: TODO
-        
-        Let's see some examples::
-        
-            self.clientPage(page_id="nknnn").copyData('foo.bar','spam.egg') # copy on MY page
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx') # copy on the xxxxxx page
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',pageStore=True) # copy on my pageStore
-            self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx' ,pageStore=True) # copy on the pageStore of the xxxx page"""
         pass
         
 class ClientDataChange(object):
