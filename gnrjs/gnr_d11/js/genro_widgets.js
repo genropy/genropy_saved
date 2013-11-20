@@ -7106,7 +7106,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var crop = objectExtract(attr, 'crop_*');
         var that = this;
         if(objectNotEmpty(crop)){
-            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
+            var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_maxsize,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
             innerImage.cr_width=crop.width;
             innerImage.cr_height=crop.height;
             innerImage['onerror'] = "this.sourceNode.setRelativeData(this.sourceNode.attr.src,null);"
@@ -7133,6 +7133,11 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                     sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,data).formattedUrl);
                  };
                  var cbOnDropData = function(dropInfo,data){
+                    if (uploadAttr.maxsize && data.size>uploadAttr.maxsize){
+                        size_kb = uploadAttr.maxsize/1000
+                        genro.dlg.alert("Image exeeds size limit ("+size_kb+"KB)",'Error');
+                        return false;
+                    }
                     if(sourceNode.form && sourceNode.form.isDisabled()){
                         genro.dlg.alert("The form is locked",'Warning');
                         return false;
