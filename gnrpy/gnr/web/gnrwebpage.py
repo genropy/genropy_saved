@@ -32,7 +32,6 @@ import shutil
 
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
 from mako.lookup import TemplateLookup
-from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
@@ -44,9 +43,9 @@ from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
-from gnr.web.gnrwebstruct import GnrGridStruct, struct_method
+from gnr.web.gnrwebstruct import GnrGridStruct
 from gnr.core.gnrlang import getUuid,gnrImport, GnrException
-from gnr.core.gnrbag import Bag, BagResolver,BagCbResolver
+from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 
@@ -324,7 +323,7 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
-            storeDbEnv = self.site.register.get_dbenv(self.page_id,register_name='page')
+            storeDbEnv = self.site.register.get_dbenv(self.page_id,register_name='page') if self.page_id else dict()
             if len(storeDbEnv)>0:
                 self._db.updateEnv(**storeDbEnv.asDict(ascii=True))
             envPageArgs = dictExtract(self.pageArgs,'env_')

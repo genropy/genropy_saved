@@ -565,6 +565,8 @@ class GnrWsgiSite(object):
 
     def callExternalUrl(self,url,method=None,**kwargs):
         kwargs = kwargs or dict()
+        for k in kwargs:
+            kwargs[k] = self.gnrapp.catalog.asTypedText(kwargs[k])
         if method:
             url = '%s/%s' %(url,method)
         url= urllib2.urlopen(url,urllib.urlencode(kwargs))
