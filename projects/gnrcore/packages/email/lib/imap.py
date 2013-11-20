@@ -11,6 +11,7 @@ import StringIO
 detach_dir = '.'
 import os
 import re
+BASE_RE = re.compile('<base .*?>')
 wait = 600
 
 class GnrImapException(Exception):
@@ -81,6 +82,7 @@ class ImapReceiver(object):
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
             content = part.get_payload(decode=True)
+            content = BASE_RE.sub('',content)
             #encoding = chardet.detect(content)['encoding']
             encoding = part.get_content_charset()
             new_mail['body'] = self.smartConverter(content,encoding)
