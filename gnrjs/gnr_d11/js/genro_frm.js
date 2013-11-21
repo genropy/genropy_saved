@@ -32,6 +32,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
+        if(!('autoFocus' in this)){
+            this.autoFocus = !genro.isTouchDevice;
+        }
         if(this.isRootForm){
             genro._rootForm = this;
         }
@@ -681,9 +684,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             var parentForm = this.getParentForm();
             if(!parentForm || !parentForm.currentFocused){
-                setTimeout(function(){ 
-                    that.focus();
-                },1);
+                if(this.autoFocus){
+                    setTimeout(function(){ 
+                        that.focus();
+                    },1);
+                }
+                
             }
 
         }
