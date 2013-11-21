@@ -694,8 +694,9 @@ class GnrWsgiSite(object):
         request_kwargs.pop('_no_cache_', None)
         download_name = request_kwargs.pop('_download_name_', None)
         #print 'site dispatcher: ',path_list
-        if path_list and (path_list[0] in self.dbstores):
-            request_kwargs.setdefault('temp_dbstore',path_list.pop(0))
+        self.checkForDbStore(path_list,request_kwargs)
+       #if path_list and (path_list[0] in self.dbstores):
+       #    request_kwargs.setdefault('temp_dbstore',path_list.pop(0))
         if not path_list:
             path_list= self.get_path_list('')                   
         if path_list and path_list[0] == '_ping':
@@ -772,6 +773,28 @@ class GnrWsgiSite(object):
         if uri:
             path_list = uri[1:].split('/')
             return self.statics.static_dispatcher(path_list, environ, start_response,nocache=True)
+
+    def checkForDbStore(self,path_list,request_kwargs):
+        if not path_list and not (request_kwargs.get('temp_dbstore') or '').startswith('@'):
+            return
+        first = path_list[0]
+        instanceNode = None
+        if first.startswith('@'):
+            instanceNode = self.gnrapp.config.getNode('aux_instances.%s' %first[1:])
+        if first in self.dbstores or instanceNode:
+            request_kwargs.setdefault('temp_dbstore',path_list.pop(0))
+        temp_dbstore = request_kwargs.get('temp_dbstore')
+        if temp_dbstore and temp_dbstore.startswith('@'):
+            instance_name = temp_dbstore[1:]
+            storename = 'instance_%s' %instance_name
+            request_kwargs['temp_dbstore'] = storename
+            if not storename in self.dbstores:
+                auxapp = self.gnrapp.getAuxInstance(instance_name)
+                if not auxapp:
+                    raise Exception('not existing aux instance %s' %instance_name)
+                dbattr = auxapp.config.getAttr('db')
+                self.db.stores_handler.add_store(storename,dbattr=dbattr)
+        
 
     @extract_kwargs(info=True)
     def setResultInResponse(self, result, response,info_kwargs=None,**kwargs):
