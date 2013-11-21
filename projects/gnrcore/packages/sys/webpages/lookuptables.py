@@ -34,10 +34,11 @@ class GnrCustomWebPage(object):
             fb.data('.package',pkg)
             fb.dataRemote('.packages',self.packageMenu)
             fb.dataRemote('.tables',self.tableMenu,currPkg='^.package')
+            width='30em'
             if not pkg:
-                fb.filteringSelect(value='^.package',lbl='!!Package',storepath='.packages',storeid='.code', 
+                fb.filteringSelect(value='^.package',lbl='!!Package',storepath='.packages',storeid='.code', width=width,
                                 storecaption='.description',validate_onAccept='SET .table=null;')
-            fb.filteringSelect(value='^.table',lbl='!!Tables',storepath='.tables',storeid='.code', 
+            fb.filteringSelect(value='^.table',lbl='!!Tables',storepath='.tables',storeid='.code', width=width,
                                 storecaption='.description',disabled='^.package?=!#v')
         else:
             root.dataFormula('.table','tbl',tbl='%(th_pkg)s.%(th_table)s' %callArgs,_onStart=1)
@@ -59,7 +60,7 @@ class GnrCustomWebPage(object):
     def remoteTh(self,pane,table=None,fixeed_table=None):
         pane.data('.mainth',Bag())
         if not table:
-            pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px',color='#003366')
+            pane.div('!!Select a table from the popup menu',margin_left='5em',margin_top='5px', color='#8a898a',text_align='center',font_size='large')
         else:
             saveButton = not fixeed_table
             semaphore = not fixeed_table
