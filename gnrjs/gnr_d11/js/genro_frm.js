@@ -392,7 +392,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(!kw.destPkey && this.store.base_handler_type=='subform'){
                 kw.destPkey="*subform*";
             }
-            kw.destPkey = kw.destPkey || '*norecord*';
+            var destPkey = kw.destPkey = kw.destPkey || '*norecord*';
+            var pkeyChoices = destPkey.split('|');
+            var chosedPkey;
+            while (!chosedPkey && pkeyChoices.length){
+                chosedPkey = pkeyChoices.shift();
+                if(['*next*','*prev*','*last*','*first*'].indexOf(chosedPkey)>-1){
+                    chosedPkey = this.store.getNavigationPkey(chosedPkey.slice(1,-1),this.getCurrentPkey());
+                }
+            }
+            kw.destPkey = chosedPkey || '*norecord*';
             if(kw['destPkey']=='*norecord*'){
                 kw['destPkey'] = null;
                 this.store.setNavigationStatus('*norecord*');
