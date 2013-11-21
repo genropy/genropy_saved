@@ -396,15 +396,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 kw.destPkey="*subform*";
             }
             var destPkey = kw.destPkey = kw.destPkey || '*norecord*';
-            var pkeyChoices = destPkey.split('|');
-            var chosedPkey;
-            while (!chosedPkey && pkeyChoices.length){
-                chosedPkey = pkeyChoices.shift();
-                if(['*next*','*prev*','*last*','*first*'].indexOf(chosedPkey)>-1){
-                    chosedPkey = this.store.getNavigationPkey(chosedPkey.slice(1,-1),this.getCurrentPkey());
+            if(typeof(destPkey)=='string'){
+                var pkeyChoices = destPkey.split('|');
+                var chosedPkey;
+                while (!chosedPkey && pkeyChoices.length){
+                    chosedPkey = pkeyChoices.shift();
+                    if(['*next*','*prev*','*last*','*first*'].indexOf(chosedPkey)>-1){
+                        chosedPkey = this.store.getNavigationPkey(chosedPkey.slice(1,-1),this.getCurrentPkey());
+                    }
                 }
+                kw.destPkey = chosedPkey || '*norecord*';
             }
-            kw.destPkey = chosedPkey || '*norecord*';
             if(kw['destPkey']=='*norecord*'){
                 kw['destPkey'] = null;
                 this.store.setNavigationStatus('*norecord*');
