@@ -878,7 +878,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 cb=function(resultDict){
                     resultDict = resultDict || {};
                     if (resultDict.error){
-                        genro.dlg.alert(resultDict.error,'Error');
+                        //genro.dlg.alert(resultDict.error,'Error');
+                        that.publish('message',{message:'Error in save '+resultDict.error,sound:'$onsaved',messageType:'error'});
                         that.setOpStatus();
                         return;
                     }
