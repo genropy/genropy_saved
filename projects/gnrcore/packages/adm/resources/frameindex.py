@@ -130,7 +130,16 @@ class FrameIndex(BaseComponent):
                                 persist=True,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
-                                subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
+                                subscribe_setIndexLeftStatus="""var delay = $1===true?0: 500;
+                                                                var set = $1;                           
+                                                                if(typeof($1)=='number'){
+                                                                    set = false;
+                                                                    delay = $1;
+                                                                }
+                                                                var wdg = this.getWidget();
+                                                                setTimeout(function(){
+                                                                        wdg.setRegionVisible("left",set);
+                                                                },delay);""",
                                 selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
         self.prepareLeft(frame.left)
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)

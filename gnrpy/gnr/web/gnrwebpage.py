@@ -1537,8 +1537,12 @@ class GnrWebPage(GnrBaseWebPage):
             root.div(id='auxDragImage')
             root.div(id='srcHighlighter')
             pageOptions = self.pageOptions or dict()
-            if 'openMenu' in pageOptions:
-                root.dataController("""genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",_onStart=True,openMenu=pageOptions['openMenu'])               
+            if self.root_page_id and self.root_page_id==self.parent_page_id:
+                root.dataController("""var openMenu = genro.isTouchDevice?false:openMenu;
+                                   genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",
+                                _onStart=True,openMenu=pageOptions.get('openMenu',True))               
+            
+
             main_call = kwargs.pop('main_call', None)
             if main_call:
                 main_handler = self.getPublicMethod('rpc',main_call) 

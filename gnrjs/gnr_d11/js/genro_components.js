@@ -3603,7 +3603,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         console.log('getKeyFromIdx',idx);
         var dataNode = this.itemByIdx(idx,true);
         //var dataNode = this.getData().getNodeByAttr('rowidx',idx);
-        return this.keyGetter(dataNode);
+        return dataNode?this.keyGetter(dataNode):null;
     },
 
     indexByCb:function(cb,backward){
