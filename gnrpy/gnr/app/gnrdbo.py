@@ -176,7 +176,7 @@ class TableBase(object):
         if useProtectionTags:
             tbl.attributes['protectionColumn'] = '__is_protected_row'
             tbl.column('__protection_tag', name_long='!!Protection tags', group=group,_sysfield=True,_sendback=True)
-            tbl.formulaColumn('__is_protected_row',""" NOT ('%%,'|| $__protection_tag || ',%%' ILIKE ',' || :env_userTags || ',')""",dtype='B')
+            tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT ('%%,'|| $__protection_tag || ',%%' ILIKE ',' || :env_userTags || ',')""",dtype='B')
         
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical

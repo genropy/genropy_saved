@@ -329,6 +329,7 @@ dojo.declare('gnr.GenroClient', null, {
             var age = now-kw.__rpc_started;
             if (age>5000){
                 console.warn('slow rpc pending',kw,age);
+                objectPop(genro.rpc.rpc_register,k);
             }
         }
     },

@@ -154,6 +154,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     handleRpcError:function(error, envNode) {
         if (error=='gnrexception'){
             genro.dlg.alert('<h2 align="center">'+envNode.getValue()+'</h2> <br/>','Warning');
+            return;
         }
         if (error == 'expired') {
             genro.dlg.message('expired session');
