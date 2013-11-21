@@ -416,7 +416,7 @@ class SqlModelChecker(object):
     def _dropForeignKey(self, referencing_package, referencing_table, referencing_field):
         """Prepare the sql statement for dropping the givent constraint from the given table and return it"""
         constraint_name = 'fk_%s_%s' % (referencing_table, referencing_field)
-        statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
+        statement = 'ALTER TABLE %s.%s DROP CONSTRAINT IF EXISTS %s' % (referencing_package, referencing_table, constraint_name)
         return statement
         
     def _sqlTable(self, tbl):
