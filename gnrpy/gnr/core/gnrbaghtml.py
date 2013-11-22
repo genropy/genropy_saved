@@ -335,7 +335,7 @@ class BagToHtml(object):
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
                     if rowheight > availableSpace:
                         self._newPage()
-                    if not rowDataNode.value:
+                    if not self.rowData:
                         continue
                     row = self.copyValue('body_grid').row(height=rowheight)
                     self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight
@@ -360,7 +360,7 @@ class BagToHtml(object):
         self._openPage()
         
     def _get_rowData(self):
-        if isinstance(self.currRowDataNode, dict):
+        if isinstance(self.currRowDataNode, dict) or isinstance(self.currRowDataNode,Bag):
             return self.currRowDataNode
         elif self.row_mode == 'attribute':
             return self.currRowDataNode.attr
