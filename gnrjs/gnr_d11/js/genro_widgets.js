@@ -93,11 +93,11 @@ gnr.columnsFromStruct = function(struct, columns) {
             if(node.attr.caption_field){
                 arrayPushNoDup(columns,node.attr.caption_field);
             }
-            if(node.attr['_storename']){
+            if(node.attr['_joiner_storename']){
                 //_extname considerare
                 arrayPushNoDup(columns,node.attr['_external_name']);
                 arrayPushNoDup(columns,node.attr['_external_fkey']);
-                arrayPushNoDup(columns,node.attr['_storename']+' AS _external_store');
+                arrayPushNoDup(columns,node.attr['_joiner_storename']+' AS _external_store');
             }
             if(node.attr._subtable){
                 fld = '*'+fld;
