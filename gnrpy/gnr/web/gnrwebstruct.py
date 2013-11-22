@@ -58,14 +58,20 @@ def cellFromField(field,tableobj):
         if columnjoiner:
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname
-            caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
-            if caption_field and not kwargs.get('hidden') and len(relfldlst) == 1:
-                rel_caption_field = '@%s.%s' %(field,caption_field)
-                #caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
-                kwargs['caption_field'] = rel_caption_field
-                kwargs['relating_column'] = field
-                kwargs['related_column'] = caption_field
-                kwargs['rowcaption'] = caption_field
+            if len(relfldlst) == 1:
+                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+                if caption_field and not kwargs.get('hidden'):
+                    rel_caption_field = '@%s.%s' %(field,caption_field)
+                    kwargs['caption_field'] = rel_caption_field
+                    caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
+                    if '_joiner_storename' in caption_field_kwargs:
+                        kwargs['_joiner_storename'] = caption_field_kwargs['_joiner_storename']
+                        kwargs['_external_fkey'] = caption_field_kwargs['_external_fkey']
+                        kwargs['_external_name'] = caption_field_kwargs['_external_name']
+                    kwargs['relating_column'] = field
+                    kwargs['related_column'] = caption_field
+                    kwargs['rowcaption'] = caption_field
+
     if len(relfldlst) > 1:
         fkey = relfldlst[0][1:]
         kwargs['relating_column'] = fkey
@@ -73,8 +79,8 @@ def cellFromField(field,tableobj):
         fkeycol=tableobj.column(fkey)
         if fkeycol is not None:
             joiner = fkeycol.relatedColumnJoiner()
+            ext_fldname = '.'.join(relfldlst[1:])
             if 'storefield' in joiner:
-                ext_fldname = '.'.join(relfldlst[1:])
                 externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
             elif '_storename' in joiner:
                 externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
@@ -84,7 +90,7 @@ def cellFromField(field,tableobj):
 def externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs):
     ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
     storefield = joiner.get('storefield')
-    kwargs['_storename'] = storefield if storefield else " '%s' " % (joiner.get('_storename') or tableobj.db.rootstore)
+    kwargs['_joiner_storename'] = storefield if storefield else " '%s' " % (joiner.get('_storename') or tableobj.db.rootstore)
     kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
     if not ext_fldname.startswith('@'):
         ext_fldname = '$%s' %ext_fldname
