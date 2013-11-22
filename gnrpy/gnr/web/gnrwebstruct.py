@@ -34,20 +34,6 @@ from time import time
 from copy import copy
 
 
-def addDbStorePars(field,tableobj,joiner,kwargs):
-    if 'storefield' in joiner or '_storename' in joiner:
-        relfldlst = tableobj.fullRelationPath(field).split('.')
-        fkey = relfldlst[0][1:]
-        ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
-        if 'storefield' in joiner:
-            kwargs['_storename'] = joiner['storefield'] or "'%s'" %tableobj.db.rootstore
-        else:
-            kwargs['_storename'] = " '%s' " %joiner['_storename']
-        kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
-        ext_fldname = '.'.join(relfldlst[1:])
-        if not ext_fldname.startswith('@'):
-            ext_fldname = '$%s' %ext_fldname
-        kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
 
 def cellFromField(field,tableobj):
     kwargs = dict()
@@ -74,12 +60,12 @@ def cellFromField(field,tableobj):
             kwargs['related_table'] = relatedTable.fullname
             caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
             if caption_field and not kwargs.get('hidden') and len(relfldlst) == 1:
-                kwargs['caption_field'] = '@%s.%s' %(field,caption_field)
+                rel_caption_field = '@%s.%s' %(field,caption_field)
+                #caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
+                kwargs['caption_field'] = rel_caption_field
                 kwargs['relating_column'] = field
                 kwargs['related_column'] = caption_field
                 kwargs['rowcaption'] = caption_field
-                addDbStorePars(kwargs['caption_field'],tableobj,columnjoiner,kwargs)
-
     if len(relfldlst) > 1:
         fkey = relfldlst[0][1:]
         kwargs['relating_column'] = fkey
@@ -87,8 +73,23 @@ def cellFromField(field,tableobj):
         fkeycol=tableobj.column(fkey)
         if fkeycol is not None:
             joiner = fkeycol.relatedColumnJoiner()
-            addDbStorePars(field,tableobj,joiner,kwargs)
+            if 'storefield' in joiner:
+                ext_fldname = '.'.join(relfldlst[1:])
+                externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
+            elif '_storename' in joiner:
+                externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
     return kwargs
+
+
+def externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs):
+    ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
+    storefield = joiner.get('storefield')
+    kwargs['_storename'] = storefield if storefield else " '%s' " % (joiner.get('_storename') or tableobj.db.rootstore)
+    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+    if not ext_fldname.startswith('@'):
+        ext_fldname = '$%s' %ext_fldname
+    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
+
     
     
 class StructMethodError(Exception):
