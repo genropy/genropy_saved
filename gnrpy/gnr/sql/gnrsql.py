@@ -797,12 +797,12 @@ class DbStoresHandler(object):
         for name in self.config.digest('#a.file_name'):
             self.add_store(name, check=check)
             
-    def add_store(self, storename, check=False,dbattr=None):
+    def add_store(self, storename, check=False):
         """TODO
         
         :param storename: TODO
         :param check: TODO"""
-        attr = dbattr or self.config.getAttr('%s_xml.db' % storename)
+        attr = self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
                                         password=attr.get('password', self.db.password),
