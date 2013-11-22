@@ -685,8 +685,6 @@ class HostedTable(GnrDboTable):
         if mode=='slave' and self.db.application.config['hosting?instance']:
             tbl.attributes['readOnly'] = True
 
-    def use_dbstores(self):
-        return True
 
 
 
