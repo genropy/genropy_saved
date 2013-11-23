@@ -682,7 +682,7 @@ class GnrDboTable(TableBase):
         
 class HostedTable(GnrDboTable):
     def hosting_config(self,tbl,mode=None):
-        if mode=='slave' and self.db.application.config['hosting?instance']:
+        if mode=='slave' and self.db.application.hostedBy:
             tbl.attributes['readOnly'] = True
 
 

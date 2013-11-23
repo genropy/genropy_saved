@@ -327,7 +327,6 @@ class GnrSqlAppDb(GnrSqlDb):
 
 
 
-
 class GnrPackagePlugin(object):
     """TODO"""
     def __init__(self, pkg, path):
@@ -1332,6 +1331,11 @@ class GnrApp(object):
                 instance_name = '%s:%s' %(instance_name,remote_db)
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
+
+    @property
+    def hostedBy(self):
+        return self.config['hosting?instance']
+
     
     @property
     def gnrdaemon(self):
