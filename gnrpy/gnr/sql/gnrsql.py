@@ -334,7 +334,10 @@ class GnrSqlDb(GnrObject):
             
     def get_connection_params(self, storename=None):
         if storename and storename != self.rootstore:
-            return self.dbstores[storename]
+            storeattr = self.dbstores[storename]
+            return dict(host=storeattr.get('host'),database=storeattr.get('database'),
+                        user=storeattr.get('user'),password=storeattr.get('password'),
+                        port=storeattr.get('port'))
         else:
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
     
@@ -361,7 +364,7 @@ class GnrSqlDb(GnrObject):
             storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
-        if dbtable and not self.table(dbtable).use_dbstores():
+        if dbtable and self.table(dbtable).use_dbstores() is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
@@ -797,16 +800,18 @@ class DbStoresHandler(object):
         for name in self.config.digest('#a.file_name'):
             self.add_store(name, check=check)
             
-    def add_store(self, storename, check=False):
+    def add_store(self, storename, check=False,dbattr=None):
         """TODO
         
         :param storename: TODO
         :param check: TODO"""
-        attr = self.config.getAttr('%s_xml.db' % storename)
+        attr = dbattr or self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
                                         password=attr.get('password', self.db.password),
-                                        port=attr.get('port', self.db.port))
+                                        port=attr.get('port', self.db.port),
+                                        remote_host=attr.get('remote_host'),
+                                        remote_port=attr.get('remote_port'))
         if check:
             self.dbstore_align(storename)
             

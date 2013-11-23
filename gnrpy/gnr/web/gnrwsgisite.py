@@ -793,6 +793,13 @@ class GnrWsgiSite(object):
                 if not auxapp:
                     raise Exception('not existing aux instance %s' %instance_name)
                 dbattr = auxapp.config.getAttr('db')
+                if auxapp.remote_db:
+                    remote_db_attr = auxapp.config.getAttr('remote_db.%s' %auxapp.remote_db)
+                    if remote_db_attr:
+                        host = remote_db_attr['ssh_host'].split('@')[1] if '@' in remote_db_attr['ssh_host'] else remote_db_attr['ssh_host']
+                        port = remote_db_attr.get('port')
+                        dbattr['remote_host'] = host
+                        dbattr['remote_port'] = port
                 self.db.stores_handler.add_store(storename,dbattr=dbattr)
         
 
