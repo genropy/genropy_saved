@@ -51,9 +51,9 @@ class Form(BaseComponent):
 
 
 class FormFromClient(Form):
-    py_requires='gnrcomponents/framegrid:BagGrid'
+    py_requires='gnrcomponents/framegrid:BagGrid,hosted:HostedInstance'
     def th_form(self,form):
-        tc = form.center.tabContainer(datapath='.record')
+        tc = form.center.tabContainer(datapath='.record',margin='2px')
         self.main_instancetab(tc.borderContainer(title='Info'))
         for pkgname, handler in [(c.split('_')[1], getattr(self, c)) for c in dir(self) if
                                  c.startswith('hostedinstance_')]:
@@ -64,12 +64,11 @@ class FormFromClient(Form):
 
     def main_instancetab(self, bc):
         pane = bc.contentPane(region='top')
-        pane.div('!!Manage instances', _class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=2, border_spacing='6px')
         fb.field('code', width='15em', lbl='!!Instance Name',validate_notnull=True,disabled='^#FORM.record.active')
         fb.button('Activate',action='FIRE #FORM.activate_instance',hidden='^#FORM.record.id?=!#v',disabled='^#FORM.controller.changed')
         fb.dataRpc('dummy',self.activateInstance,_fired='^#FORM.activate_instance',_onResult='this.form.reload();',instance_id='=#FORM.record.id',_lockScreen=True)
-        bc.contentPane(region='center',datapath='#FORM').inlineTableHandler(relation='@slots',viewResource='ViewFromInstance')
+        bc.contentPane(region='center',datapath='#FORM').inlineTableHandler(relation='@slots',viewResource='ViewFromInstance',margin='2px',pbl_classes=True)
 
     @public_method
     def activateInstance(self,instance_id=None):

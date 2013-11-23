@@ -3,7 +3,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('client', rowcaption='')
+        tbl = pkg.table('client', rowcaption='$code',caption_field='code',name_long='!!Hosting client',name_plural='!!Hosting clients')
         self.sysFields(tbl)
 
         #tbl.column('anagrafica_id',size=':22',name_long='!!').relation('sw_base.anagrafica.id',
