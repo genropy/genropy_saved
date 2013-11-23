@@ -152,8 +152,7 @@ class SqlTable(GnrObject):
         self.name_plural = tblobj.name_plural
         
     def use_dbstores(self):
-        """TODO"""
-        return False
+        pass
 
     def exception(self, exception, record=None, msg=None, **kwargs):
         """TODO

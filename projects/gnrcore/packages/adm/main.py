@@ -70,4 +70,5 @@ class Package(GnrDboPackage):
 
 
 class Table(GnrDboTable):
-    pass
+    def use_dbstores(self):
+        return False
