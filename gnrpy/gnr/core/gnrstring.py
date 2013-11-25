@@ -167,7 +167,12 @@ try:
                 return obj.strftime('%m/%d/%Y')
             if isinstance(obj, Decimal):
                 return str(obj)
-            return json.JSONEncoder.default(self, obj)
+            try:
+                result = json.JSONEncoder.default(self, obj)
+            except Exception:
+                result = '*not JSON serializable*'
+            return result
+
             
     class JsonEncoderJS(json.JSONEncoder):
         def default(self, obj):
