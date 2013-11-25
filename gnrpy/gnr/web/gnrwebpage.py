@@ -410,8 +410,11 @@ class GnrWebPage(GnrBaseWebPage):
                 result = str(e)
             except Exception,e:
                 if self.site.error_smtp_kwargs:
+                    record_error = self.db.table('sys.error').writeError(description=str(e),traceback=self.developer.tracebackBag(),
+                                                                        user=self.user,user_ip=self.user_ip,user_agent=self.user_agent)
                     import sys
                     from paste.exceptions.errormiddleware import handle_exception
+
                     error_handler_kwargs = self.site.error_smtp_kwargs
                     error_handler_kwargs['debug_mode'] = True
                     error_handler_kwargs['simple_html_error'] = False
