@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
     def th_form(self,form,**kwargs):
         bc = form.center.borderContainer()
         if 'th_linker' in self._call_kwargs:
-            self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px',height='180px'))
+            self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px',height='180px',_class='pbl_roundedGroup'))
             self.userAuth(bc.contentPane(region='center'))
         
         else:
@@ -34,8 +34,8 @@ class GnrCustomWebPage(object):
     def loginData(self,pane):
         pane.div('!!Login Data', _class='pbl_roundedGroupLabel')
         fb = pane.div(margin='5px').formbuilder(cols=2, border_spacing='6px',width='100%',fld_width='100%')
-        fb.field('username',lbl='!!Username',validate_nodup=True,validate_notnull_error='!!Exists')
         fb.field('firstname',lbl='!!Firstname')
+        fb.field('username',lbl='!!Username',validate_nodup=True,validate_notnull_error='!!Exists')
         fb.field('lastname',lbl='!!Lastname')
         fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
@@ -46,7 +46,7 @@ class GnrCustomWebPage(object):
         fb.field('sms_number',row_hidden='^.sms_login?=!#v',colspan=2)
 
     def userAuth(self,pane):
-        pane.inlineTableHandler(relation='@tags',viewResource=':ViewFromUser',autoSave=False,semaphore=False)
+        pane.inlineTableHandler(relation='@tags',viewResource=':ViewFromUser',autoSave=False,semaphore=False,pbl_classes=True,margin='2px')
 
         
 
