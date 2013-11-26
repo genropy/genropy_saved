@@ -30,7 +30,7 @@ class DynamicTableHandler(BaseComponent):
     def th_dynamicTableHandler(self,pane,datapath=None,nodeId=None,table=None,th_kwargs=None,**kwargs):
         rootId = nodeId or 'lookup_root'
         datapath = datapath or 'main'
-        pane.contentPane(nodeId=rootId,datapath=datapath,_anchor=True,**kwargs).remote(self.dh_remoteTh,table=table,
+        pane.contentPane(nodeId=rootId,datapath=datapath,_anchor=True,overflow='hidden',**kwargs).remote(self.dh_remoteTh,table=table,
                                             _onRemote='FIRE #ANCHOR.load_data;',rootId=rootId,th_kwargs=th_kwargs)
 
     def dh_lookupTablesDefaultStruct(self,struct):
