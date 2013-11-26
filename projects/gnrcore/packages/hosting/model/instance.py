@@ -22,6 +22,7 @@ class Table(object):
         tbl.column('client_id', size=':22', name_long='!!Client id').relation('hosting.client.id', mode='foreignkey',
                                                                             relation_name='instances')
         tbl.column('active','B',name_long='Active')
+        tbl.column('last_update_log',name_long='!!Last update log')
 
     def create_instance(self, code):
         instanceconfig = Bag(self.pkg.instance_template())
