@@ -130,7 +130,7 @@ class TableBase(object):
     """TODO"""
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, user_ins=False, user_upd=False, draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=False,hierarchical=False,useProtectionTags=None,
+                  counter=False,hierarchical=False,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   multidb=None,
                   df=None,counter_kwargs=None):
@@ -173,11 +173,8 @@ class TableBase(object):
         if md5:
             tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
-        if useProtectionTags:
-            tbl.attributes['protectionColumn'] = '__is_protected_row'
-            tbl.column('__protection_tag', name_long='!!Protection tags', group=group,_sysfield=True,_sendback=True)
-            tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT ('%%,'|| $__protection_tag || ',%%' ILIKE ',' || :env_userTags || ',')""",dtype='B')
-        
+        if useProtectionTag:
+            self.sysFields_protectionTag(tbl,protectionTag=useProtectionTag,group=group)
         if hierarchical:
             hierarchical = 'pkey' if hierarchical is True else '%s,pkey' %hierarchical
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
@@ -270,6 +267,12 @@ class TableBase(object):
             self.sysFields_df(tbl)
 
 
+    def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
+        tbl.attributes['protectionTag'] = protectionTag
+        tbl.attributes['protectionColumn'] = '__is_protected_row'
+        tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
+        tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')""",dtype='B')
+        
     def sysFields_df(self,tbl):
         tbl.column('df_fields',dtype='X',group='_')
         tbl.column('df_fbcolumns','L',group='_')
@@ -363,6 +366,16 @@ class TableBase(object):
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
+
+
+    def trigger_setProtectionTag(self,record,fldname,**kwargs):
+        record[fldname] = self.getProtectionTag(record=record)
+
+    def getProtectionTag(self,record=None):
+        #override
+        pass
+
+
     
     def trigger_setCurrentUser(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
