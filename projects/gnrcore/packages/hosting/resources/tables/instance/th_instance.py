@@ -48,6 +48,7 @@ class Form(BaseComponent):
         fb.field('slot_configuration')
         fb.field('hosted_data')
         fb.field('client_id')
+        fb.field('last_update_log',colspan='2',tag='simpleTextArea',width='600px',height='500px')
 
 
 class FormFromClient(Form):

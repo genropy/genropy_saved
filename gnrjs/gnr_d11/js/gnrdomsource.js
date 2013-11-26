@@ -330,9 +330,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if (_onError) {
                             _onError(error, origKwargs);
                         }
-                        else {
-                            genro.dlg.alert(error, 'Server error');
-                        }
+                        //else {
+                        //    genro.dlg.alert(error, 'Server error');
+                        //}
                     }
                     else {
                         var oldValue;
