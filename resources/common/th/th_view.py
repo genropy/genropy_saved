@@ -169,7 +169,7 @@ class TableHandlerView(BaseComponent):
         table = pane.getInheritedAttributes()['table']
         sum_column_attr = self.db.table(table).column(sum_column).attributes
         format = format or sum_column_attr.get('format','###,###,###.00')
-        pane.data('.sum_columns.%s' %sum_column,True)
+        pane.data('.sum_columns_source.%s' %sum_column,True)
         pane.div(label or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',display='inline-block',padding_right='3px')
         pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
@@ -432,6 +432,8 @@ class TableHandlerView(BaseComponent):
         if _if:
             _else = "this.store.clear();"
         store_kwargs.update(condPars)
+        frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
+                                        sum_columns_source='=.sum_columns_source',_onBuilt=True)
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
@@ -451,8 +453,7 @@ class TableHandlerView(BaseComponent):
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
                                hardQueryLimit='=.hardQueryLimit',
-                               sum_columns='==sum_columns_bag?sum_columns_bag.keys().join(","):null',
-                               sum_columns_bag='=.sum_columns',
+                               sum_columns='=.sum_columns',
                               # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
