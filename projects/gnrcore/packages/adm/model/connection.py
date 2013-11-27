@@ -3,9 +3,6 @@ from __future__ import with_statement
 from datetime import datetime
 
 class Table(object):
-    def use_dbstores(self):
-        return False
-
     def config_db(self, pkg):
         tbl = pkg.table('connection', pkey='id', name_long='!!Connection',
                         name_plural='!!Connections', broadcast='old')

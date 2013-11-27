@@ -151,7 +151,7 @@ class SqlTable(GnrObject):
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
         
-    def use_dbstores(self):
+    def use_dbstores(self,**kwargs):
         pass
 
     def exception(self, exception, record=None, msg=None, **kwargs):
