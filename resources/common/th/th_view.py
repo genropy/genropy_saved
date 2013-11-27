@@ -130,7 +130,6 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_viewLeftDrawer(self,pane,table,th_root):
-        
         bar = pane.slotBar('drawerStack',min_width='160px',closable='close',
                             splitter=True,border_right='1px solid silver')
         bar.drawerStack.attributes['height'] = '100%'
@@ -162,6 +161,18 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
+
+
+    @struct_method
+    def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
+        sum_column = kwargs['sum']
+        table = pane.getInheritedAttributes()['table']
+        sum_column_attr = self.db.table(table).column(sum_column).attributes
+        format = format or sum_column_attr.get('format','###,###,###.00')
+        pane.data('.sum_columns.%s' %sum_column,True)
+        pane.div(label or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',display='inline-block',padding_right='3px')
+        pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
+                 font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
 
     @struct_method
     def th_slotbar_sections(self,pane,sections=None,**kwargs):
@@ -440,6 +451,8 @@ class TableHandlerView(BaseComponent):
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
                                hardQueryLimit='=.hardQueryLimit',
+                               sum_columns='==_sum_columns?_sum_columns.keys().join(","):null',
+                               _sum_columns='=.sum_columns',
                               # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,

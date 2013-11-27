@@ -1568,6 +1568,19 @@ class SqlSelection(object):
             result.append(dict([(k, tattr[k]) for k in columns]))
             
         return result
+
+
+    def sum(self,columns=None):
+        if isinstance(columns,basestring):
+            columns = columns.split(',')
+        result  = list()
+        if not self.data:
+            return result
+        data = zip(*[[r[c] for c in columns] for r in self.data])
+        for k,c in enumerate(columns):
+            result.append(sum(filter(lambda r: r is not None, data[k])))
+        return result
+
         
     def _out(self, columns=None, offset=0, limit=None, filterCb=None):
         if filterCb:
