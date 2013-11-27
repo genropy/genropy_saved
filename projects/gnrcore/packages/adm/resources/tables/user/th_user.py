@@ -38,5 +38,4 @@ class Form(BaseComponent):
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('email', lbl='!!Email')
-        
-                          
+
