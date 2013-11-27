@@ -364,7 +364,7 @@ class GnrSqlDb(GnrObject):
             storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
-        if dbtable and self.table(dbtable).use_dbstores() is False:
+        if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:

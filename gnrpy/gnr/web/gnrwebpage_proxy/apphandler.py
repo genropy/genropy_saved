@@ -814,6 +814,9 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         if tblobj.attributes.get('protectionColumn'):
             columns = '%s, $%s AS _is_readonly_row' %(columns,tblobj.attributes.get('protectionColumn'))
+            if tblobj.column('__protection_tag') is not None and not '__protection_tag' in columns:
+                columns = '%s,$__protection_tag' %columns
+
         return columns,external_queries
     
     def _externalQueries(self,selection=None,external_queries=None):

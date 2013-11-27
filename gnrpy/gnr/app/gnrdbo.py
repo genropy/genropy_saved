@@ -632,10 +632,41 @@ class TableBase(object):
         return templateReplace(tpl,r)
 
 
+    def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,**kwargs):
+        #attr = self.attributes
+        #logger.append('** START COPY %(name_long)s **'%attr)
+        source_db = self.db if not source_instance else self.db.application.getAuxInstance(source_instance).db 
+        dest_db = self.db if not dest_instance else self.db.application.getAuxInstance(dest_instance).db 
+        source_tbl = source_db.table(self.fullname)
+        dest_tbl = dest_db.table(self.fullname)
+        pkey = self.pkey
+        source_rows = source_tbl.query(addPkeyColumns=False,**kwargs).fetch()
+        all_dest = dest_tbl.query(addPkeyColumns=False,for_update=True,**kwargs).fetchAsDict(pkey)
+        if source_rows:
+            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__upd_ts')])
+            for r in source_rows:
+                r = dict(r)
+                if r[pkey] in all_dest:
+                    oldr = dict(all_dest[r[pkey]])
+                    if self.fieldsChanged(fieldsToCheck,r,oldr):
+                        #logger.append('\t\t ** UPDATING LINE %s **' %r['id'])
+                        dest_tbl.raw_update(r,oldr)
+                    all_dest.pop(r[pkey])
+                else:
+                    #logger.append('\t\t ** INSERTING LINE %s **' %r['id'])
+                    dest_tbl.raw_insert(r)  
+            self.hosting_removeUnused(dest_db,all_dest.keys())
+            if _commit:
+                dest_db.commit()
+        return source_rows
+
+    def hosting_removeUnused(self,dest_db,missing=None):
+        dest_db.table(self.fullname).deleteSelection(where='$%s IN :missing' %self.pkey,missing=missing)
+
 
 class GnrDboTable(TableBase):
     """TODO"""
-    def use_dbstores(self):
+    def use_dbstores(self,**kwargs):
         """TODO"""
         return self.attributes.get('multidb')
 
@@ -1018,9 +1049,6 @@ class Table_sync_event(TableBase):
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""
-    def use_dbstores(self):
-        """TODO"""
-        return True
         
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`columns`
@@ -1162,7 +1190,7 @@ class Table_counter(TableBase):
             
 class Table_userobject(TableBase):
     """TODO"""
-    def use_dbstores(self):
+    def use_dbstores(self,**kwargs):
         """TODO"""
         return False
         
@@ -1280,11 +1308,6 @@ class Table_userobject(TableBase):
         return sel
         
 class Table_recordtag(TableBase):
-    """TODO"""
-    def use_dbstores(self):
-        """TODO"""
-        return True
-        
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
@@ -1366,12 +1389,7 @@ class Table_recordtag(TableBase):
             self.setTagChildren(record_data, old_record)
 
             
-class Table_recordtag_link(TableBase):
-    """TODO"""
-    def use_dbstores(self):
-        """TODO"""
-        return True
-        
+class Table_recordtag_link(TableBase): 
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
