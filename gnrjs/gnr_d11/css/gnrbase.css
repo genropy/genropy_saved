@@ -2340,6 +2340,11 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra ._gnrReadOnlyRow ._statusIcon{
     background:url(icons/base16/locked.gif) no-repeat center center;
 }
+
+.tundra ._gnrProtectionPass ._statusIcon{
+    background:url(icons/base10/check.png) no-repeat center center;
+}
+
 ._statusIcon{
     height: 16px;
     width: 100%;

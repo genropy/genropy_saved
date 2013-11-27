@@ -3942,6 +3942,8 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         if (attr) {
             if (attr._is_readonly_row){
                 row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+            }else if(attr.__protection_tag){
+                row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
             }
             if (attr._customClasses) {
                 var customClasses = null;
@@ -4274,6 +4276,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var customClasses = null;
         if (attr._is_readonly_row){
             row.customClasses = row.customClasses?row.customClasses + ' _gnrReadOnlyRow': '_gnrReadOnlyRow';
+        }else if(attr.__protection_tag){
+            row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
         }
         if(this.rowCustomClassesCb){
             row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');

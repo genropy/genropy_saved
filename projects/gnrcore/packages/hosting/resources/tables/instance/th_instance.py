@@ -36,32 +36,24 @@ class View(BaseComponent):
         selection.apply(apply_row)
 
 class Form(BaseComponent):
+    py_requires='gnrcomponents/framegrid:BagGrid,hosted:HostedInstance'
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer(datapath='.record')
+        fb = bc.contentPane(region='top').formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
+        fb.field('client_id')
+
         fb.field('description')
         fb.field('repository_name')
         fb.field('path')
         fb.field('site_path')
-        fb.field('slot_configuration')
-        fb.field('hosted_data')
-        fb.field('client_id')
-        fb.field('last_update_log',colspan='2',tag='simpleTextArea',width='600px',height='500px')
-
-
-class FormFromClient(Form):
-    py_requires='gnrcomponents/framegrid:BagGrid,hosted:HostedInstance'
-    def th_form(self,form):
-        tc = form.center.tabContainer(datapath='.record',margin='2px')
-        self.main_instancetab(tc.borderContainer(title='Info'))
-        for pkgname, handler in [(c.split('_')[1], getattr(self, c)) for c in dir(self) if
-                                 c.startswith('hostedinstance_')]:
-            handler(tc.contentPane(datapath='.hosted_data.%s' % pkgname, title=self.db.packages[pkgname].name_long,
-                                   nodeId='hosted_instance_data_%s' % pkgname,
-                                   sqlContextName='sql_record_hosted_instance_%s' % pkgname,
-                                   sqlContextRoot='instances.dlg.record.hosted_data.%s' % pkgname))
+        #fb.field('slot_configuration')
+        #fb.field('hosted_data')
+        #fb.field('last_update_log',colspan='2',tag='simpleTextArea',width='600px',height='500px')
+        tc = bc.tabContainer(region='center')
+        self.main_instancetab(tc.borderContainer(title='Instance'))
+        self.hosted_tabs(tc)
 
     def main_instancetab(self, bc):
         pane = bc.contentPane(region='top')
@@ -86,6 +78,24 @@ class FormFromClient(Form):
         site_exists = self.db.packages['hosting'].site_exists(record['code'])
         record.setItem('$instance_exists', instance_exists)
         record.setItem('$site_exists', site_exists)
+
+    def hosted_tabs(self,tc):
+        for pkgname, handler in [(c.split('_')[1], getattr(self, c)) for c in dir(self) if
+                                 c.startswith('hostedinstance_')]:
+            handler(tc.contentPane(datapath='.hosted_data.%s' % pkgname, title=self.db.packages[pkgname].name_long,
+                                   nodeId='hosted_instance_data_%s' % pkgname,
+                                   sqlContextName='sql_record_hosted_instance_%s' % pkgname,
+                                   sqlContextRoot='instances.dlg.record.hosted_data.%s' % pkgname))
+
+
+class FormFromClient(Form):
+    py_requires='gnrcomponents/framegrid:BagGrid,hosted:HostedInstance'
+    def th_form(self,form):
+        tc = form.center.tabContainer(datapath='.record',margin='2px')
+        self.main_instancetab(tc.borderContainer(title='Info'))
+        self.hosted_tabs(tc)
+
+
 
 
     def th_options(self):

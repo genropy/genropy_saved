@@ -24,6 +24,20 @@ class Table(object):
         tbl.column('active','B',name_long='Active')
         tbl.column('last_update_log',name_long='!!Last update log')
 
+        tbl.pyColumn('current_host',name_long='Host',dtype='A')
+
+    
+    def pyColumn_current_host(self,record=None,**kwargs):
+        appconfig = self.db.application.config
+        code = record['code']
+        remote_db = appconfig['aux_instances.%s?remote_db' % code] 
+        result = None
+        if remote_db:
+            ssh_host = appconfig['remote_db.%s?ssh_host' %remote_db]
+            if ssh_host:
+                result = ssh_host.split('@')[1] if '@' in ssh_host else ssh_host
+        return result or 'localhost'
+
     def create_instance(self, code):
         instanceconfig = Bag(self.pkg.instance_template())
         instanceconfig.setAttr('hosted', instance=code)
