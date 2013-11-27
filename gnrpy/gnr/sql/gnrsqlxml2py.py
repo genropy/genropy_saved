@@ -1,6 +1,23 @@
 from gnr.core.gnrbag import Bag
 import shutil
 import os
+from gnr.app.gnrdeploy import PackageMaker
+
+def structToPyFull(sourcepath, destpath):
+    if not os.path.isdir(destpath):
+        os.mkdir(destpath)
+    fullstruct = Bag(sourcepath)
+    packages = fullstruct['packages']
+    for k,v in packages.items():
+        if not v: continue
+        package_dir_path = os.path.join(destpath,k)
+        package_maker = PackageMaker(k, base_path=destpath)
+        package_maker.do()
+        model_path = os.path.join(package_dir_path,'model')
+        structToPy(v['tables'],model_path)
+
+
+
 
 def structToPy(tables, path):
     #shutil.rmtree(path,True)
@@ -26,7 +43,6 @@ class Table(object):
         f.close()
         
 if __name__ == '__main__':
-    xmlPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/config_db.xml'
-    destPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/'
-    struct = Bag(xmlPath)
-    structToPy(struct['packages.zg.tables'], destPath)
+    xmlPath = '/Users/fporcari/Desktop/rossetti.xml'
+    destPath = '/Users/fporcari/Desktop/rossetti_packages'
+    structToPyFull(xmlPath, destPath)
