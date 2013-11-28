@@ -640,12 +640,14 @@ class TableBase(object):
         source_tbl = source_db.table(self.fullname)
         dest_tbl = dest_db.table(self.fullname)
         pkey = self.pkey
-        source_rows = source_tbl.query(addPkeyColumns=False,**kwargs).fetch()
+        source_rows = source_tbl.query(addPkeyColumn=False,**kwargs).fetch()
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
-        all_dest = dest_tbl.query(addPkeyColumns=False,for_update=True,**kwargs).fetchAsDict(pkey)
+        all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,**kwargs).fetchAsDict(pkey)
+        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$id IN :pk',pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
+        all_dest.update(existing_dest)
         if source_rows:
-            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__upd_ts')])
+            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts')])
             for r in source_rows:
                 r = dict(r)
                 if r[pkey] in all_dest:
@@ -657,7 +659,7 @@ class TableBase(object):
                 else:
                     #logger.append('\t\t ** INSERTING LINE %s **' %r['id'])
                     dest_tbl.raw_insert(r)  
-            self.hosting_removeUnused(dest_db,all_dest.keys())
+            #self.hosting_removeUnused(dest_db,all_dest.keys())
             if _commit:
                 dest_db.commit()
         return source_rows

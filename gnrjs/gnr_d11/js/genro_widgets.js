@@ -3495,9 +3495,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     //cellsnodes = rowBag.getNodes();
                     row = [];
                     if(sourceNode.attr.rowStatusColumn){
-                        row.push({dtype:'B',field:'_statusIcon',name:' ',width:'20px',_customGetter:function(){
-                            return '<div class="_statusIcon"></div>'
-                        }})
+                        if(!rowBag.getNode('_protectionStatus')){
+                            rowBag.setItem('_protectionStatus',null,{
+                                field:'_protectionStatus',name:' ',width:'20px',
+                                calculated:true,_customGetter:function(){
+                                    return '<div class="_statusIcon"></div>'
+                                }
+                            },{_position:0});
+                        }
                     }
                     var that = this;
                     rowBag.forEach(function(n){
