@@ -632,7 +632,7 @@ class TableBase(object):
         return templateReplace(tpl,r)
 
 
-    def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,**kwargs):
+    def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,onSelectedSourceRows=None,**kwargs):
         #attr = self.attributes
         #logger.append('** START COPY %(name_long)s **'%attr)
         source_db = self.db if not source_instance else self.db.application.getAuxInstance(source_instance).db 
@@ -641,6 +641,8 @@ class TableBase(object):
         dest_tbl = dest_db.table(self.fullname)
         pkey = self.pkey
         source_rows = source_tbl.query(addPkeyColumns=False,**kwargs).fetch()
+        if onSelectedSourceRows:
+            onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
         all_dest = dest_tbl.query(addPkeyColumns=False,for_update=True,**kwargs).fetchAsDict(pkey)
         if source_rows:
             fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__upd_ts')])
