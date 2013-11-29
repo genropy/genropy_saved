@@ -10,7 +10,7 @@ class Table(object):
                         name_plural='!!Authorizations')
         self.sysFields(tbl, id=False)
         tbl.column('code', size=':8', validate_case='U', name_long='!!Code')
-        tbl.column('user_id', size='22', name_long='!!Event').relation('user.id', mode='foreignkey')
+        tbl.column('user_id', size='22', name_long='!!User id').relation('user.id', mode='foreignkey')
         tbl.column('use_ts', 'DH', name_long='!!Used datetime')
         tbl.column('used_by', size=':32', name_long='!!Used by')
         tbl.column('note', name_long='!!Note')
@@ -58,7 +58,8 @@ class Table(object):
         return True
         
     def trigger_onInserting(self, record_data):
-        record_data['user_id'] = self.db.currentEnv['user_id']
+        if not record_data['user_id']:
+            record_data['user_id'] = self.db.currentEnv['user_id']
         if not record_data.get('remaining_usages'):
             record_data['remaining_usages']=1
         if not record_data.get('expiry_date'):
