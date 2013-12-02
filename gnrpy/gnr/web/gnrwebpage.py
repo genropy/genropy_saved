@@ -336,7 +336,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     def _get_workdate(self):
         if not self._workdate:
-             self._workdate=self.pageStore().getItem('rootenv.workdate') or datetime.date.today()
+            self._workdate = self.pageStore().getItem('rootenv.workdate') or datetime.date.today()
         return self._workdate
 
     def _set_workdate(self, workdate):
@@ -1462,6 +1462,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.parent_page_id = _parent_page_id
             self.root_page_id = _root_page_id
             rootenv = self.getStartRootenv()
+            self._workdate = None #reset workdate
             prefenv = Bag()
             if self.application.db.package('adm'):
                 prefenv = self.application.db.table('adm.preference').envPreferences(username=self.user)
