@@ -40,16 +40,25 @@ class Table(object):
     def getTemplate(self,letterhead_id=None,name=None):
         if not(name or letterhead_id):
             return Bag()
+        result = Bag()
         if letterhead_id:
-            return self.record(pkey=letterhead_id).output('bag')['data']
-        templatelist = name.split(',')
-        f = self.query(where='$name IN :names', names=templatelist, columns='name,version,data').fetchAsDict(key='name')
-        if not f:
-            return
-        templatebase = Bag(f[templatelist[0]]['data'])
-        if len(templatelist) > 1:
-            pass
-        return templatebase      
+            pkeys = self.letterheadChain(letterhead_id)
+            f = self.query(where='$id IN :pkeys', pkeys=pkeys, columns='*,$data').fetchAsDict('id')
+            if not f:
+                return result
+            for i,pkey in enumerate(pkeys):
+                result.setItem('layer_%i' %i,Bag(f[pkey]['data']))
+            if f[letterhead_id]['next_letterhead_id']:
+                result['next_letterhead'] = self.getTemplate(f[letterhead_id]['next_letterhead_id'])
+            return result
+        else:
+            templatelist = name.split(',')
+            f = self.query(where='$name IN :names', names=templatelist, columns='name,version,data').fetchAsDict(key='name')
+            if not f:
+                return result
+            for i,name in enumerate(templatelist):
+                result.setItem('layer_%i' %i,Bag(f[name]['data']))
+        return result      
 
     def letterheadChain(self,letterhead_id):
         result = [letterhead_id]
@@ -59,7 +68,6 @@ class Table(object):
             if based_on:
                 result = [based_on]+result
         return result
-
 
     def getHtmlBuilder(self,letterhead_pkeys=None):
         """Prepare the layout template
@@ -102,7 +110,6 @@ class Table(object):
         builder._regions = regions
         regions['center_center'].attributes['content_node'] ='t'
         return builder
-
                     
     def letterhead_layer(self,builder,letterheadBag,width=None,height=None,count=None):
         layout = builder.letterhead_root.layout(top=0,left=0,border=0,width=width,height=height,z_index=count)

@@ -236,6 +236,7 @@ class GnrHtmlBuilder(object):
                  print_button=None, bodyAttributes=None):
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
+        self.nextLetterhead = None
         self.page_height = page_height or self.htmlTemplate['main.page.height'] or 280
         self.page_width = page_width or self.htmlTemplate['main.page.width'] or 200
         self.page_margin_top = page_margin_top or self.htmlTemplate['main.page.top'] or 0
@@ -309,45 +310,48 @@ class GnrHtmlBuilder(object):
                         }
                         """)
                             
-    def prepareTplLayout(self, tpl):
+
+
+    def prepareTplLayout(self,letterhead_root):
         """Prepare the layout template
-        
         :param tpl: the template"""
-        layout = tpl.layout(top=0, height=self.page_height - self.page_margin_top - self.page_margin_bottom,
-                            left=0, width=self.page_width - self.page_margin_left - self.page_margin_right,
-                            border=0)
+        height = self.page_height - self.page_margin_top - self.page_margin_bottom
+        width = self.page_width - self.page_margin_left - self.page_margin_right
+        for i,b in enumerate(self.htmlTemplate.values()):
+            regions = self.letterhead_layer(letterhead_root,b,height=height,width=width,count=i)
+        return regions['center_center']
+
+    def letterhead_layer(self,letterhead_root,letterheadBag,width=None,height=None,count=None):
+        layout = letterhead_root.layout(top=0,left=0,border=0,width=width,height=height,z_index=count)
         regions = dict(center_center=layout)
-        if self.htmlTemplate['main.design'] == 'headline':
+        if letterheadBag['main.design'] == 'headline':
             for region in ('top', 'center', 'bottom'):
-                height = float(self.htmlTemplate['layout.%s?height' % region] or 0)
+                height = float(letterheadBag['layout.%s?height' % region] or 0)
                 if region == 'center' or height:
                     row = layout.row(height=height)
                     for subregion in ('left', 'center', 'right'):
-                        width = float(self.htmlTemplate['layout.%s.%s?width' % (region, subregion)] or 0)
+                        width = float(letterheadBag['layout.%s.%s?width' % (region, subregion)] or 0)
                         if subregion == 'center' or width:
-                            innerHTML = self.htmlTemplate['layout.%s.%s.html' % (region, subregion)] or None
+                            innerHTML = letterheadBag['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
-                                if self.showTemplateContent:
-                                    innerHTML = "%s::HTML" % innerHTML
-                                else:
-                                    innerHTML = ''
-                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, width=width, border=0)
-        elif self.htmlTemplate['main.design'] == 'sidebar':
+                                innerHTML = "%s::HTML" % innerHTML
+                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, width=width, border=0,
+                                                                                overflow='hidden')
+        elif letterheadBag['main.design'] == 'sidebar':
             mainrow = layout.row(height=0)
             for region in ('left', 'center', 'right'):
-                width = float(self.htmlTemplate['layout.%s?width' % region] or 0)
+                width = float(letterheadBag['layout.%s?width' % region] or 0)
                 if region == 'center' or width:
                     col = mainrow.cell(width=width, border=0).layout()
                     for subregion in ('top', 'center', 'bottom'):
-                        height = float(self.htmlTemplate['layout.%s.%s?height' % (region, subregion)] or 0)
+                        height = float(letterheadBag['layout.%s.%s?height' % (region, subregion)] or 0)
                         if subregion == 'center' or height:
                             row = col.row(height=height)
-                            innerHTML = self.htmlTemplate['layout.%s.%s.html' % (region, subregion)] or None
+                            innerHTML = letterheadBag['layout.%s.%s.html' % (region, subregion)] or None
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
-                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0)
-                            
-        return regions['center_center']
+                            regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0,overflow='hidden')
+        return regions
             
     def newPage(self):
         """Create a new page"""
@@ -366,7 +370,7 @@ class GnrHtmlBuilder(object):
                                    left:0mm;
                                    %s
                                    %s""" % (self.page_width, self.page_height, border_color, extra_style,page_break))
-        tplpage = page.div(style="""position:absolute;
+        letterhead_root = page.div(style="""position:absolute;
                                    top:%imm;
                                    left:%imm;
                                    right:%imm;
@@ -374,10 +378,17 @@ class GnrHtmlBuilder(object):
         self.page_margin_top, self.page_margin_left,
         self.page_margin_right, self.page_margin_bottom))
         if self.htmlTemplate:
-            tplpage = self.prepareTplLayout(tplpage)
+            if not firstpage and self.nextLetterhead:
+                self.htmlTemplate = self.nextLetterhead
+            self.nextLetterhead = self.htmlTemplate.pop('next_letterhead')
+            letterhead_root = self.prepareTplLayout(letterhead_root)
+        else:
+            height = self.page_height - self.page_margin_top - self.page_margin_bottom
+            width = self.page_width - self.page_margin_left - self.page_margin_right
+            letterhead_root = letterhead_root.layout(top=0,left=0,border=0,width=width,height=height).row().cell()
         if firstpage and self.print_button:
-            tplpage.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
-        return tplpage
+            letterhead_root.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
+        return letterhead_root
             
     def styleForLayout(self):
         """TODO"""
