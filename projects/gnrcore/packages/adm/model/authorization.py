@@ -8,11 +8,11 @@ class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('authorization', pkey='code', name_long='!!Authorization',
                         name_plural='!!Authorizations')
-        self.sysFields(tbl, id=False)
+        self.sysFields(tbl, id=False, user_ins=True)
         tbl.column('code', size=':8', validate_case='U', name_long='!!Code')
-        tbl.column('user_id', size='22', name_long='!!Event').relation('user.id', mode='foreignkey')
+        tbl.column('user_id', size='22', name_long='!!User id').relation('user.id', mode='foreignkey') #Not used DEPRECATED
         tbl.column('use_ts', 'DH', name_long='!!Used datetime')
-        tbl.column('used_by', size=':32', name_long='!!Used by')
+        tbl.column('used_by', name_long='!!Used by')
         tbl.column('note', name_long='!!Note')
         tbl.column('remaining_usages', 'L', name_long='!!Remaining usages', default=1)
         tbl.column('expiry_date', 'D', name_long='!!Expire Date')
@@ -26,7 +26,6 @@ class Table(object):
     #@public_method #(tags='admin')
     def authorize(self, reason=None,commit=True):
         record = dict(note=reason)
-        print 'inside auth',reason
         self.insert(record)
         if commit:
             self.db.commit()
@@ -58,7 +57,6 @@ class Table(object):
         return True
         
     def trigger_onInserting(self, record_data):
-        record_data['user_id'] = self.db.currentEnv['user_id']
         if not record_data.get('remaining_usages'):
             record_data['remaining_usages']=1
         if not record_data.get('expiry_date'):
