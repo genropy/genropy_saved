@@ -9,6 +9,7 @@ from gnr.core.gnrsys import expandpath
 from paste import fileapp
 from paste.httpheaders import ETAG
 import random
+import tempfile
 
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
@@ -194,6 +195,7 @@ class PagesStaticHandler(StaticHandler):
     def url(self, *args, **kwargs):
         return '%s_pages/%s' % (self.home_uri, '/'.join(args))
 
+
 class GnrStaticHandler(StaticHandler):
     prefix = 'gnr'
 
@@ -220,6 +222,18 @@ class PageStaticHandler(StaticHandler):
 
     def url(self, connection_id, page_id, *args, **kwargs):
         return '%s_page/%s/%s/%s' % (self.home_uri, connection_id, page_id, '/'.join(args))
+
+
+class TempStaticHandler(StaticHandler):
+    prefix = 'temp'
+
+    def path(self, *args):
+        return os.path.join(tempfile.gettempdir(), *args)
+
+    def url(self, connection_id, page_id, *args, **kwargs):
+        pass
+        #return '%s_page/%s/%s/%s' % (self.home_uri, connection_id, page_id, '/'.join(args))
+
 
 class UserStaticHandler(StaticHandler):
     prefix = 'user'

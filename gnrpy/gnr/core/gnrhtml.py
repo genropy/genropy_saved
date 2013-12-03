@@ -236,13 +236,16 @@ class GnrHtmlBuilder(object):
                  print_button=None, bodyAttributes=None):
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
+        top_layer = Bag()
+        if len(self.htmlTemplate):
+            top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         self.nextLetterhead = None
-        self.page_height = page_height or self.htmlTemplate['main.page.height'] or 280
-        self.page_width = page_width or self.htmlTemplate['main.page.width'] or 200
-        self.page_margin_top = page_margin_top or self.htmlTemplate['main.page.top'] or 0
-        self.page_margin_left = page_margin_left or self.htmlTemplate['main.page.left'] or 0
-        self.page_margin_right = page_margin_right or self.htmlTemplate['main.page.right'] or 0
-        self.page_margin_bottom = page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
+        self.page_height = page_height or top_layer['main.page.height'] or 280
+        self.page_width = page_width or top_layer['main.page.width'] or 200
+        self.page_margin_top = page_margin_top or top_layer['main.page.top'] or 0
+        self.page_margin_left = page_margin_left or top_layer['main.page.left'] or 0
+        self.page_margin_right = page_margin_right or top_layer['main.page.right'] or 0
+        self.page_margin_bottom = page_margin_bottom or top_layer['main.page.bottom'] or 0
         self.page_debug = page_debug
         self.print_button = print_button
         self.css_requires = css_requires or []
