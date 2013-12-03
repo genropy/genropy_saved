@@ -170,7 +170,7 @@ class TableScriptToHtml(BagToHtml):
     """TODO"""
     rows_table = None
     virtual_columns = None
-    html_folder = 'page:html'
+    html_folder = 'temp:html'
     pdf_folder = 'page:pdf'
     cached = None
 
