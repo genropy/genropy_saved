@@ -139,20 +139,22 @@ class BagToHtml(object):
         
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
+        top_layer = Bag()
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(letterhead_id=self.letterhead_id,name=self.templates)
+            if self.htmlTemplate:
+                top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         d = self.__dict__
-        self.page_height = float(d.get('page_height') or self.htmlTemplate['main.page.height'] or self.page_height)
-        self.page_width = float(d.get('page_width') or self.htmlTemplate['main.page.width'] or self.page_width)
-        self.page_margin_top = float(d.get('page_margin_top') or self.htmlTemplate['main.page.top'] or self.page_margin_top)
-        self.page_margin_left = float(d.get('page_margin_left')or self.htmlTemplate['main.page.left'] or self.page_margin_left)
-        self.page_margin_right = float(d.get('page_margin_right')or self.htmlTemplate['main.page.right'] or self.page_margin_right)
-        self.page_margin_bottom = float(d.get('page_margin_bottom') or self.htmlTemplate['main.page.bottom'] or self.page_margin_bottom)
-        
-        self.page_header_height = float(d.get('page_header_height') or self.htmlTemplate['layout.top?height'] or self.page_header_height)
-        self.page_footer_height = float(d.get('page_footer_height') or self.htmlTemplate['layout.bottom?height'] or self.page_footer_height)
-        self.page_leftbar_width = float(d.get('page_leftbar_width') or self.htmlTemplate['layout.left?width'] or self.page_leftbar_width)
-        self.page_rightbar_width = float(d.get('page_rightbar_width')or self.htmlTemplate['layout.right?width'] or self.page_rightbar_width)
+        self.page_height = float(d.get('page_height') or top_layer['main.page.height'] or self.page_height)
+        self.page_width = float(d.get('page_width') or top_layer['main.page.width'] or self.page_width)
+        self.page_margin_top = float(d.get('page_margin_top') or top_layer['main.page.top'] or self.page_margin_top)
+        self.page_margin_left = float(d.get('page_margin_left')or top_layer['main.page.left'] or self.page_margin_left)
+        self.page_margin_right = float(d.get('page_margin_right')or top_layer['main.page.right'] or self.page_margin_right)
+        self.page_margin_bottom = float(d.get('page_margin_bottom') or top_layer['main.page.bottom'] or self.page_margin_bottom)
+        self.page_header_height = float(d.get('page_header_height') or top_layer['layout.top?height'] or self.page_header_height)
+        self.page_footer_height = float(d.get('page_footer_height') or top_layer['layout.bottom?height'] or self.page_footer_height)
+        self.page_leftbar_width = float(d.get('page_leftbar_width') or top_layer['layout.left?width'] or self.page_leftbar_width)
+        self.page_rightbar_width = float(d.get('page_rightbar_width')or top_layer['layout.right?width'] or self.page_rightbar_width)
 
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
         """TODO
@@ -413,6 +415,9 @@ class BagToHtml(object):
         curr_copy = self.copies[self.copy]
         if self.copy == 0:
             self.paperPage = self.getNewPage()
+            #self.page_header_height = self.page_header_height or getattr(self.builder,'page_header_height')
+            #self.page_footer_height = self.page_footer_height or getattr(self.builder,'page_footer_height')
+
         self.page_layout = self.mainLayout(self.paperPage)
         #if self.page_header_height:
         #    curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
