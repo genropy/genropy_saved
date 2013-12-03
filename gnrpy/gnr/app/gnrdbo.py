@@ -385,7 +385,7 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
-            record[fldname] = self.db.currentEnv.get('user')
+            record[fldname] = self.db.currentUser
 
     def trigger_setAuditVersionIns(self, record, fldname):
         """TODO
