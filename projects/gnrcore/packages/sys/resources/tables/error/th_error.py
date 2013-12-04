@@ -24,6 +24,11 @@ class View(BaseComponent):
 
 
 
+    def th_sections_draft(self):
+        return [dict(code='exc',caption='!!Exceptions',condition="$error_type=:c",condition_c='EXC'),
+                dict(code='err',caption='!!Errors',condition="$error_type=:c",condition_c='ERR')]
+
+
 class Form(BaseComponent):
 
     def th_form(self, form):
@@ -33,7 +38,7 @@ class Form(BaseComponent):
         fb.field('username')
         fb.field('user_ip')
         fb.field('user_agent')
-        fb.field('traceback',colspan=2)
+        fb.field('error_data',colspan=2)
 
 
     def th_options(self):
