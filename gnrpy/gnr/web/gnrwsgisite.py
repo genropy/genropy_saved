@@ -215,9 +215,12 @@ cache = memoize()
 
 class SafeEvalException(EvalException):
     def __call__(self, environ, start_response):
+        print 'sono in SafeEvalException'
         if not environ['wsgi.multiprocess']:
+            print 'sono multiprocess'
             return super(SafeEvalException, self).__call__(environ, start_response)
         else:
+            print 'sono monoprocess'
             return self.application(environ, start_response)
 
 class GnrWsgiSite(object):
@@ -962,6 +965,7 @@ class GnrWsgiSite(object):
               )
 
         if self.debug:
+            print 'sarei in debug'
             wsgiapp = SafeEvalException(wsgiapp, debug=True)
         else:
             err_kwargs = dict(debug=True)
