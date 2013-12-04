@@ -581,6 +581,19 @@ class GnrWsgiSite(object):
             url = '%s/%s' %(url,method)
         url= urllib2.urlopen(url,urllib.urlencode(kwargs))
         return url.read()
+
+    def writeException(self, exception=None, traceback=None):
+        try:
+            page = self.currentPage
+            user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
+            self.db.table('sys.error').writeException(description=str(exception),
+                                                      traceback=traceback,
+                                                      user=user,
+                                                      user_ip=user_ip,
+                                                      user_agent=user_agent)
+        except Exception,e:
+            print str(e)
+            pass
         
     def loadResource(self, pkg, *path):
         """TODO
@@ -744,6 +757,7 @@ class GnrWsgiSite(object):
                 try:
                     page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
                 except httpexceptions.HTTPException, exc:
+                    self.writeException(exception=exc,traceback=page.developer.tracebackBag())
                     return exc.wsgi_application(environ, start_response)
                 except Exception, exc:
                     log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")

@@ -17,7 +17,7 @@ class Table(object):
         tbl.column('notes',name_long='Notes')
 
 
-    def writeError(self,description=None,traceback=None,user=None,user_ip=None,user_agent=None):
+    def writeException(self,description=None,traceback=None,user=None,user_ip=None,user_agent=None):
         rec = dict(description=description,traceback=traceback,username=user,user_ip=user_ip,user_agent=user_agent)
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             self.insert(rec)
