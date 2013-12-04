@@ -213,6 +213,13 @@ class memoize(object):
         
 cache = memoize()
 
+class SafeEvalException(EvalException):
+    def __call__(self, environ, start_response):
+        if not environ['wsgi.multiprocess']:
+            return super(SafeEvalException, self).__call__(environ, start_response)
+        else:
+            return self.application(environ, start_response)
+
 class GnrWsgiSite(object):
     """TODO"""
     #cache = memoize()
@@ -955,7 +962,7 @@ class GnrWsgiSite(object):
               )
 
         if self.debug:
-            wsgiapp = EvalException(wsgiapp, debug=True)
+            wsgiapp = SafeEvalException(wsgiapp, debug=True)
         else:
             err_kwargs = dict(debug=True)
             if 'debug_email' in self.config:
