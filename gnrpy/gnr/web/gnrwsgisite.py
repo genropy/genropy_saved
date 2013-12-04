@@ -595,6 +595,16 @@ class GnrWsgiSite(object):
             print str(e)
             pass
         
+
+    def writeError(self, description=None, **kwargs):
+        try:
+            page = self.currentPage
+            user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
+            self.db.table('sys.error').writeError(description=description,user=user,user_ip=user_ip,user_agent=user_agent,**kwargs)
+        except Exception,e:
+            print str(e)
+            pass
+
     def loadResource(self, pkg, *path):
         """TODO
         
