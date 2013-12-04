@@ -18,6 +18,7 @@ import urllib2
 from time import time
 from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
+from gnr.core.gnrdecorator import public_method
 from threading import RLock
 import thread
 import mimetypes
@@ -595,12 +596,12 @@ class GnrWsgiSite(object):
             print str(e)
             pass
         
-
-    def writeError(self, description=None, **kwargs):
+    @public_method
+    def writeError(self, description=None,error_type=None, **kwargs):
         try:
             page = self.currentPage
             user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
-            self.db.table('sys.error').writeError(description=description,user=user,user_ip=user_ip,user_agent=user_agent,**kwargs)
+            self.db.table('sys.error').writeError(description=description,error_type=error_type,user=user,user_ip=user_ip,user_agent=user_agent,**kwargs)
         except Exception,e:
             print str(e)
             pass
