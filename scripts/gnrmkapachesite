@@ -54,22 +54,28 @@ def set_environment(gnr_config):
 
 def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/', 
                     process_name=None, user=None, filename=None,
-                      group=None, tmp_path='/tmp', threads=25,
+                      group=None, tmp_path='/tmp', threads=4,
                       admin_mail=None, port=80, domain=None,
-                      processes=1, base_url='/'):
+                      processes=8, maximum_requests=700, base_url='/'):
     gnr_config = load_gnr_config()
     set_environment(gnr_config)
     site_path = site_name_to_path(site_name, gnr_config=gnr_config)
+    if os.path.exists(os.path.join(site_path,'root.wsgi')):
+        script_name = 'root.wsgi'
+    else:
+        script_name = 'root.py'
     params = dict(process_name=process_name or 'gnr_%s' % site_name,
                   domain=domain,
                   user=user,
                   group=group,
                   tmp_path=tmp_path or '/tmp',
-                  threads=str(threads),
+                  threads=str(threads), # Transform threads, maximum_requests and processes to str to accept both int and str as args
+                  maximum_requests=str(maximum_requests),
                   processes=str(processes),
                   base_url=base_url,
                   admin_mail=admin_mail or 'genro@%s' % domain,
                   site_path=site_path,
+                  script_name=script_name,
                   port=str(port)
                   )
     params['process_env'] = 'ENV_%s' % params['process_name'].upper()
@@ -77,17 +83,18 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
             ServerName %(domain)s
             ServerAdmin %(admin_mail)s
             DocumentRoot /var/www
-            WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s 
+            WSGIDaemonProcess %(process_name)s user=%(user)s group=%(group)s python-eggs=%(tmp_path)s threads=%(threads)s processes=%(processes)s maximum-requests=%(maximum_requests)s
             SetEnv %(process_env)s %(process_name)s
             WSGIProcessGroup %%{ENV:%(process_env)s}
             # modify the following line to point your site
-            WSGIScriptAlias %(base_url)s %(site_path)s/root.py
+            WSGIScriptAlias %(base_url)s %(site_path)s/%(script_name)s
             <Directory %(site_path)s>
                 Options Indexes FollowSymLinks
                 AllowOverride All
                 Order allow,deny
                 Allow from all
             </Directory>
+            ErrorLog %(site_path)s/error.log
     </VirtualHost>
     """ % params
     print apache_file_content
@@ -116,7 +123,7 @@ if __name__ == '__main__':
     """
     current_user = os.getlogin()
     gid = os.getgid()
-    current_group = grp.getgrgid(20)[0]
+    current_group = grp.getgrgid(gid)[0]
     
     parser = OptionParser(usage)
     parser.add_option("-f", "--force", dest="force", action='store_true', default=False,
@@ -129,10 +136,12 @@ if __name__ == '__main__':
                   help="port for virtualserver")
     parser.add_option("-a", "--apache", dest="apache", default='/etc/apache2/sites-available/',
                   help="port for virtualserver")
-    parser.add_option("-p", "--processes", dest="processes", default=1,
+    parser.add_option("-p", "--processes", dest="processes", default=8,
                   help="max processes")
-    parser.add_option("-t", "--threads", dest="threads", default=25,
+    parser.add_option("-t", "--threads", dest="threads", default=4,
                         help="max threads")
+    parser.add_option("-r", "--maximum_requests", dest="maximum_requests", default=700,
+                        help="max requests per process")
     
     (options, args) = parser.parse_args()
     option_force = getattr(options, 'force', False)
@@ -142,10 +151,10 @@ if __name__ == '__main__':
     port = getattr(options, 'port', None)
     processes = getattr(options, 'processes', None)
     threads = getattr(options, 'threads', None)
+    maximum_requests = getattr(options, 'maximum_requests', None)
     if  len(args)<2:
         parser.print_help()
     else:
         build_apache_site(args[0],domain=args[1], user=user,
-          group=group, threads=25, port=port)
+          group=group, threads=threads, processes=processes, maximum_requests=maximum_requests, port=port)
         
-    
