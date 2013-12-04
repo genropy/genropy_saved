@@ -4,7 +4,7 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('error', pkey='id', name_long='Error', name_plural='!!Errors',caption_field='description')
+        tbl = pkg.table('error', pkey='id', name_long='Error', name_plural='!!Errors',caption_field='description',rowcaption='$error_type,$description')
         self.sysFields(tbl)
         tbl.column('description',name_long='!!Description')
         tbl.column('error_data',dtype='X',name_long='!!Traceback')
@@ -26,10 +26,10 @@ class Table(object):
             self.db.commit()
         return rec
 
-    def writeError(self,description=None,user=None,user_ip=None,user_agent=None,**kwargs):
+    def writeError(self,description=None,error_type=None,user=None,user_ip=None,user_agent=None,**kwargs):
         error_data = Bag(self.db.currentEnv)
         error_data.update(kwargs)
-        rec = dict(description=description,error_data=error_data,username=user,user_ip=user_ip,user_agent=user_agent,error_type='ERR')
+        rec = dict(description=description,error_data=error_data,username=user,user_ip=user_ip,user_agent=user_agent,error_type=error_type or 'ERR')
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             self.insert(rec)
             self.db.commit()
