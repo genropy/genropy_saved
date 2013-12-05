@@ -79,6 +79,8 @@ class ImapReceiver(object):
             datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
             if datetuple:
                 new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
+            else:
+                new_mail['send_date'] = None
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
