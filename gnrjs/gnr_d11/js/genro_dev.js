@@ -178,6 +178,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             genro.wdgById('traceback_main').show();
         }
     },
+    serverWriteError:function(error_description, error_type,kw){
+        var kw =kw || {};
+        objectUpdate(kw,{description:error_description,error_type:error_type});
+        genro.serverCall('site.writeError', kw, function(){console.warn(error_type,error_description)});
+    },
+
 
     formbuilder:function(node, col, tblattr) {
         var tbl = node._('table', tblattr || {})._('tbody');
