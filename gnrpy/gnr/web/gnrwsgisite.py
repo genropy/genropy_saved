@@ -768,7 +768,6 @@ class GnrWsgiSite(object):
                 try:
                     page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
                 except httpexceptions.HTTPException, exc:
-                    self.writeException(exception=exc,traceback=page.developer.tracebackBag())
                     return exc.wsgi_application(environ, start_response)
                 except Exception, exc:
                     log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
@@ -793,6 +792,7 @@ class GnrWsgiSite(object):
                 return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
             
             except Exception:
+                self.writeException(exception=exc,traceback=page.developer.tracebackBag())
                 raise
             finally:
                 self.onServedPage(page)
