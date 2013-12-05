@@ -791,7 +791,7 @@ class GnrWsgiSite(object):
             except GnrMaintenanceException, e:
                 return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
             
-            except Exception:
+            except Exception,exc:
                 self.writeException(exception=exc,traceback=page.developer.tracebackBag())
                 raise
             finally:
