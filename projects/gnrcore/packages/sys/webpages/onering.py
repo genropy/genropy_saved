@@ -224,7 +224,8 @@ class GnrCustomWebPage(object):
         result = Bag()
         with self.site.register.gnrdaemon_proxy.siteRegisterProxy(sitename) as register_proxy:
             maintenance = register_proxy.isInMaintenance()
-            result.setItem('site_situation',Bag(dict(sitename=sitename,maintenance=maintenance,allowed_users=register_proxy.allowedUsers())))
+            #result.setItem('site_situation')
+            result = Bag(dict(sitename=sitename,maintenance=maintenance,allowed_users=register_proxy.allowedUsers()))
         return result
 
     def _page_grid_struct(self, struct):
