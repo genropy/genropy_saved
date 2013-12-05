@@ -635,7 +635,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var attributes = sourceNode.attr;
         var main_call = objectPop(attributes,'main');
         var main_kwargs = objectExtract(attributes,'main_*') || {};
-        //main_kwargs['_root_page_id'] = genro.root_page_id || genro.page_id;
+        var src_kwargs = objectExtract(attributes,'src_*') || {};
+        objectUpdate(src_kwargs,main_kwargs);
+        src_kwargs['_calling_page_id'] = genro.page_id;
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
