@@ -651,11 +651,11 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         }
         if(main_call){
             v = v || window.location.pathname;
-            main_kwargs['main_call'] = main_call;
+            src_kwargs['main_call'] = main_call;
         }
         if (v) {     
-            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
-            v = genro.addParamsToUrl(v,main_kwargs);    
+            src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
+            v = genro.addParamsToUrl(v,src_kwargs);    
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
                 var absUrl = document.location.protocol + '//' + document.location.host + url;
                 if (absUrl != d.src) {
