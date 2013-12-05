@@ -76,11 +76,12 @@ class ImapReceiver(object):
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         date = mail['Date']
         if date:
-            datetuple = email.Utils.parsedate(date.replace('.',':')) #some emails have '.' instead of ':' for time format
+            datetuple = email.Utils.parsedate(date.replace('Date:','').replace('.',':')) #some emails have '.' instead of ':' for time format
             if datetuple:
                 new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
             else:
-                new_mail['send_date'] = None
+                new_mail['send_date'] = datetime.today()
+         
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
