@@ -1028,7 +1028,9 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                 }
             }
-            result['_newrecord'] = true;
+            if (this.grid.sourceNode.form && this.grid.sourceNode.attr.parentForm!==false){
+                result['_newrecord'] = true;
+            }
             return result;
         }
     },

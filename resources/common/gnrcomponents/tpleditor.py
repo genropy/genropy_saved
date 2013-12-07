@@ -193,10 +193,13 @@ class TemplateEditor(TemplateEditorBase):
     
     def _te_varsgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('fieldname', name='Field', width='100%')
-        r.cell('varname', name='As', width='15em')
-        r.cell('format', name='Format', width='10em')
-        r.cell('mask', name='Mask', width='20em')
+        r.cell('fieldname', name='Field', width='100%',edit=True)
+        r.cell('varname', name='As', width='15em',edit=True)
+        r.cell('format', name='Format', width='10em',edit=True)
+        r.cell('mask', name='Mask', width='20em',edit=True)
+        if self.isDeveloper():
+            r.cell('editable', name='!!Edit', width='5',edit=True,dtype='B')
+
 
     def _te_info_top(self,pane):
         fb = pane.div(margin='5px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
@@ -223,21 +226,18 @@ class TemplateEditor(TemplateEditorBase):
     
     @extract_kwargs(fieldsTree=dict(slice_prefix=False))
     def _te_info_vars(self,bc,table=None,datasourcepath=None,fieldsTree_kwargs=None,**kwargs):
-        frame = bc.frameGrid(datapath='.varsgrid',
+        frame = bc.bagGrid(datapath='.varsgrid',title='!!Variables',
                                 storepath='#ANCHOR.data.varsbag',
                                 struct=self._te_varsgrid_struct,
-                                datamode='bag',splitter=True,**kwargs)
+                                parentForm=False,
+                                addrow=False,
+                                splitter=True,**kwargs)
         frame.left.slotBar('5,fieldsTree,*',
                             fieldsTree_table=table,
                             fieldsTree_dragCode='fieldvars',
                             border_right='1px solid silver',
                             closable=True,width='150px',fieldsTree_height='100%',splitter=True,**fieldsTree_kwargs)
         grid = frame.grid
-        editor = grid.gridEditor()
-        editor.textbox(gridcell='varname')
-        editor.textbox(gridcell='format')
-        editor.textbox(gridcell='mask')
-        frame.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables')
         grid.dragAndDrop(dropCodes='fieldvars')
         grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase();
@@ -250,28 +250,28 @@ class TemplateEditor(TemplateEditorBase):
                                     df_template = fieldpath[1];
                                     fieldpath = fieldpath[0];
                                 }
-                                
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,
+                                grid.gridEditor.addNewRows([{'fieldpath':fieldpath,
                                                                             dtype:dtype,
                                                                             fieldname:caption,
                                                                             varname:varname,
                                                                             virtual_column:data.virtual_column,
-                                                                            df_template:df_template}));""",
+                                                                            df_template:df_template}]);""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):
-        frame = bc.frameGrid(datamode='bag',datapath='.parametersgrid',
+        bc.bagGrid(datapath='.parametersgrid',title='!!Parameters',
                                 storepath='#ANCHOR.data.parameters', 
                                 struct=self._te_parameters_struct,
+                                parentForm=False,
                                 selfDragRows=True,**kwargs)
-        frame.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
-        gridEditor = frame.grid.gridEditor()
-        gridEditor.textbox(gridcell='code')
-        gridEditor.textbox(gridcell='description')
-        gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
-        gridEditor.textbox(gridcell='format')      
-        gridEditor.textbox(gridcell='mask') 
-        gridEditor.textbox(gridcell='values') 
+        #frame.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
+        #gridEditor = frame.grid.gridEditor()
+        #gridEditor.textbox(gridcell='code')
+        #gridEditor.textbox(gridcell='description')
+        #gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
+        #gridEditor.textbox(gridcell='format')      
+        #gridEditor.textbox(gridcell='mask') 
+        #gridEditor.textbox(gridcell='values') 
         
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
@@ -336,7 +336,7 @@ class TemplateEditor(TemplateEditorBase):
                 letterhead_center_height='^.preview.letterhead_record.center_height',
                 letterhead_center_width='^.preview.letterhead_record.center_width',
                 _init=True)
-        bc.contentPane(region='center').ckEditor(value='^.data.content',constrain_height='^.editor.height',
+        bc.contentPane(region='center',overflow='hidden').ckEditor(value='^.data.content',constrain_height='^.editor.height',
                                                  constrain_width='^.editor.width',**editorConstrain)
                             
     def _te_framePreview(self,frame,table=None):
@@ -359,12 +359,12 @@ class TemplateEditor(TemplateEditorBase):
         
     def _te_parameters_struct(self,struct):
         r = struct.view().rows()
-        r.cell('code', name='!!Code', width='10em')
-        r.cell('description', name='!!Description', width='40em')
-        r.cell('fieldtype', name='!!Fieldtype', width='10em')
-        r.cell('format', name='!!Format', width='10em')
-        r.cell('mask', name='!!Mask', width='15em')
-        r.cell('values', name='!!Values', width='100%')    
+        r.cell('code', name='!!Code', width='10em',edit=True)
+        r.cell('description', name='!!Description', width='40em',edit=True)
+        r.cell('fieldtype', name='!!Fieldtype', width='10em',edit=dict(values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text',tag='filteringSelect'))
+        r.cell('format', name='!!Format', width='10em',edit=True)
+        r.cell('mask', name='!!Mask', width='15em',edit=True)
+        r.cell('values', name='!!Values', width='100%',edit=True)   
 
 class PaletteTemplateEditor(TemplateEditor):
     @struct_method
@@ -410,6 +410,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 editorbag.setItem('userobject_meta',new gnr.GnrBag());
                 editorbag.setItem('caption',newcaption);
             }else if(pkey){
+
                 genro.serverCall('_table.adm.userobject.loadUserObject',{table:table,pkey:pkey},function(result){
                     editorbag.setItem('data',result._value.deepCopy());
                     editorbag.setItem('mode','userobject');

@@ -205,7 +205,13 @@ class GnrWebDeveloper(GnrBaseProxy):
             tb_bag['lineno'] = lineno
             tb_bag['name'] = name
             tb_bag['line'] = line
-            tb_bag['locals'] = Bag(f.f_locals.items())
+            loc = Bag()
+            for k,v in f.f_locals.items():
+                try:
+                    loc[k] = v
+                except Exception:
+                    loc[k] = '*UNSERIALIZABLE* %s' %v.__class__
+            tb_bag['locals'] = loc
             tb_bag['locals'].walk(cb)
             tb = tb.tb_next
             n = n + 1
