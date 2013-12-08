@@ -60,6 +60,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.locale = compiled.getItem('main?locale')
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.masks = compiled.getItem('main?masks')
+        htmlbuilder.editcols = compiled.getItem('main?editcols')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
         htmlbuilder.dtypes = compiled.getItem('main?dtypes')
         htmlbuilder.data_tblobj = tblobj
@@ -78,13 +79,15 @@ class TemplateEditorBase(BaseComponent):
         locale = locale or templateBuilder.locale
         formats = templateBuilder.formats or dict()
         masks = templateBuilder.masks or dict()
+        editcols = templateBuilder.editcols or dict()
+
         df_templates = templateBuilder.df_templates or dict()
         dtypes = templateBuilder.dtypes or dict()
 
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
         htmlContent = templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, 
-                                                            formats=formats,masks=masks,df_templates=df_templates,
+                                                            formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,
                                                             dtypes=dtypes,localizer=self.localizer,
                                                             urlformatter=self.externalUrl)
         if contentOnly:
@@ -108,6 +111,7 @@ class TemplateEditorBase(BaseComponent):
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None,template_id=None):
         result = Bag()
         formats = dict()
+        editcols = dict()
         masks = dict()
         df_templates = dict()
         dtypes = dict()
@@ -115,8 +119,8 @@ class TemplateEditorBase(BaseComponent):
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template,#v.dtype')
-            for varname,fldpath,virtualcol,format,mask,df_template,dtype in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
+            for varname,fldpath,virtualcol,format,mask,editable,df_template,dtype in tplvars:
                 fk=''
                 if format:
                     fk=varname
@@ -124,6 +128,9 @@ class TemplateEditorBase(BaseComponent):
                 if mask:
                     fk=varname
                     masks[varname] = mask
+                if editable:
+                    fk=varname
+                    editcols[varname] = editable
                 if df_template:
                     fk=varname
                     df_templates[varname] = df_template
@@ -156,7 +163,7 @@ class TemplateEditorBase(BaseComponent):
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
-                            columns=','.join(columns),formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes)
+                            columns=','.join(columns),formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,dtypes=dtypes)
         result.setItem('compiled',compiled)
         if record_id:
             result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates,template_id=template_id))
@@ -264,14 +271,6 @@ class TemplateEditor(TemplateEditorBase):
                                 struct=self._te_parameters_struct,
                                 parentForm=False,
                                 selfDragRows=True,**kwargs)
-        #frame.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
-        #gridEditor = frame.grid.gridEditor()
-        #gridEditor.textbox(gridcell='code')
-        #gridEditor.textbox(gridcell='description')
-        #gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
-        #gridEditor.textbox(gridcell='format')      
-        #gridEditor.textbox(gridcell='mask') 
-        #gridEditor.textbox(gridcell='values') 
         
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')

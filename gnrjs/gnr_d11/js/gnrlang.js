@@ -215,12 +215,14 @@ function dataTemplate(str, data, path, showAlways) {
     var df_templates={};
     var formats = {};
     var dtypes = {};
+    var editcols = {};
 
     if(str instanceof gnr.GnrBag){
          templates=str;
          var mainNode =templates.getNode('main');
          str = mainNode.getValue();
          masks = mainNode.attr.masks || masks;
+         editcols = mainNode.attr.editcols || editcols;
          formats = mainNode.attr.formats || formats;
          df_templates = mainNode.attr.df_templates || df_templates;
          dtypes = mainNode.attr.dtypes || dtypes;
@@ -306,6 +308,9 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = gnrformatter.asText(value,{format:formats[as_name],mask:masks[as_name],dtype:dtype});
                                     }else if(valueattr._formattedValue){
                                         value = valueattr._formattedValue;
+                                    }
+                                    if(editcols[as_name]){
+                                        genro.bp(true);
                                     }
                                 }
                                 if (value != null) {
