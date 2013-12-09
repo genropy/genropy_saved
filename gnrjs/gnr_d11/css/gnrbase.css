@@ -66,6 +66,15 @@ cursorZoom_plus{
     font-weight: bold;
 }
 
+.gnrinlinewidget{
+
+}
+
+.gnrinlinewidget:hover{
+    background: yellow;
+    font-weight: bold;
+}
+
 .fieldkeeper{
     position:absolute;
     right:-10px;

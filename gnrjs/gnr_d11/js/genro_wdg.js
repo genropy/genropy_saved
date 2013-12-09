@@ -25,6 +25,24 @@
 
 dojo.require('dijit.Menu');
 
+
+
+function inlineWidget(domNode,evt){
+    console.log('inlineWidget',domNode,evt);
+};
+
+function inlineWidget_xx(parentNode,fldDict,cellName,kw){
+    var wdgtag = fldDict.tag;
+    if (!wdgtag || kw.autoWdg) {
+        var dt = fldDict.dtype;
+        //var dt = convertToText(cellDataNode.getValue())[0];
+        wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+    }
+
+    var widgetNode = parentNode._(wdgtag,cellName, kw).getParentNode();
+    return widgetNode;
+};
+
 dojo.declare("gnr.GnrWdgHandler", null, {
     constructor: function(application) {
         this.application = application;
@@ -1293,6 +1311,7 @@ dojo.declare("gnr.GridEditor", null, {
         editWidgetNode.grid = gridEditor.grid;
 
     },
+
     endEdit:function(editWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;

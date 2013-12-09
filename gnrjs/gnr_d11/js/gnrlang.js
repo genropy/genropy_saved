@@ -304,13 +304,16 @@ function dataTemplate(str, data, path, showAlways) {
                                     }
                                 }else{
                                     value = valueattr._displayedValue || value;
+                                    if(isNullOrBlank(value) && editcols[as_name]){
+                                        value = '&nbsp';
+                                    }
                                     if(formats[as_name] || masks[as_name]){
                                         value = gnrformatter.asText(value,{format:formats[as_name],mask:masks[as_name],dtype:dtype});
                                     }else if(valueattr._formattedValue){
                                         value = valueattr._formattedValue;
                                     }
                                     if(editcols[as_name]){
-                                        genro.bp(true);
+                                        value = '<span class="gnrinlinewidget" ondblclick="inlineWidget(this,event)" relpath="'+path+'" >'+value+'</span>'
                                     }
                                 }
                                 if (value != null) {
