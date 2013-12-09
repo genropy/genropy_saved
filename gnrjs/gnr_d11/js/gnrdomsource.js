@@ -1573,7 +1573,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             } else if (this.widget.setDisabled) {
                 this.widget.setDisabled(value);
             }
-        }else if(this.domNode){
+        }else if(this.externalWidget){
+            this.externalWidget.gnr_setDisabled(value);
+        }
+        else if(this.domNode){
             this.domNode.disabled = value;
             if(value){
                 this.domNode.setAttribute('disabled',value);

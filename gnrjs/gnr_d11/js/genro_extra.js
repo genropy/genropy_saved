@@ -501,6 +501,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
     },
 
+    mixin_gnr_setDisabled:function(disabled){
+        //console.log('CkEditor setDisabled',disabled)
+        this.gnr_setReadOnly(disabled);
+    },
+
     mixin_gnr_highlightChild:function(idx){
         var cs = this.sourceNode.externalWidget.document.$.getElementById('customstyles');
         if(!cs){
