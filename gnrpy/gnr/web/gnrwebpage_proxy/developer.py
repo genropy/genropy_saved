@@ -190,7 +190,6 @@ class GnrWebDeveloper(GnrBaseProxy):
                 n.value = '*STRUCTURE*'
         while tb is not None and (limit is None or n < limit):
             tb_bag = Bag()
-
             f = tb.tb_frame
             lineno = tb.tb_lineno
             co = f.f_code
@@ -206,6 +205,13 @@ class GnrWebDeveloper(GnrBaseProxy):
             tb_bag['name'] = name
             tb_bag['line'] = line
             tb_bag['locals'] = Bag(f.f_locals.items())
+            loc = Bag()
+            for k,v in f.f_locals.items():
+                try:
+                    loc[k] = v
+                except Exception:
+                    loc[k] = '*UNSERIALIZABLE* %s' %v.__class__
+            tb_bag['locals'] = loc
             tb_bag['locals'].walk(cb)
             tb = tb.tb_next
             n = n + 1
