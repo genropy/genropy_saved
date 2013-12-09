@@ -80,7 +80,8 @@ class Table(object):
         first_letterhead_record = f[first_letterhead]
         if len(letterhead_pkeys) == 1 and first_letterhead_record['based_on']:
             return self.getHtmlBuilder(self.letterheadChain(first_letterhead))
-        base_letterhead_bag = Bag(first_letterhead_record['data'])
+        base_letterhead_bag = Bag()
+        base_letterhead_bag.setItem('layer_0',Bag(first_letterhead_record['data']))
         builder = GnrHtmlBuilder(htmlTemplate=base_letterhead_bag)
         builder.initializeSrc()
         height=builder.page_height - builder.page_margin_top - builder.page_margin_bottom
