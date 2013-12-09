@@ -83,7 +83,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'input':null,
             'textarea':null,
             'datetextbox':null,
-            'geocoderfield':null
+            'geocoderfield':null,
+            'ckeditor':null
         };
         var tblname = this.getControllerData('table?name_long');
         var pref = tblname?tblname+' record':'Record'
