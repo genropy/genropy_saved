@@ -204,7 +204,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             tb_bag['lineno'] = lineno
             tb_bag['name'] = name
             tb_bag['line'] = line
-            tb_bag['locals'] = Bag(f.f_locals.items())
+            #tb_bag['locals'] = Bag(f.f_locals.items())
             loc = Bag()
             for k,v in f.f_locals.items():
                 try:
