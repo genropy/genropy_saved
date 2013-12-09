@@ -190,7 +190,6 @@ class GnrWebDeveloper(GnrBaseProxy):
                 n.value = '*STRUCTURE*'
         while tb is not None and (limit is None or n < limit):
             tb_bag = Bag()
-
             f = tb.tb_frame
             lineno = tb.tb_lineno
             co = f.f_code
@@ -205,6 +204,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             tb_bag['lineno'] = lineno
             tb_bag['name'] = name
             tb_bag['line'] = line
+            tb_bag['locals'] = Bag(f.f_locals.items())
             loc = Bag()
             for k,v in f.f_locals.items():
                 try:

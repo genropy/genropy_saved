@@ -24,14 +24,11 @@ class TableHandlerView(BaseComponent):
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
-        resourceCondition = self._th_hook('condition',mangler=frameCode,dflt=dict())()
-        conditions = []
-        if condition:
-            conditions.append('( %s )' %condition)
-        if 'condition' in resourceCondition:
-            conditions.append('( %s )' %resourceCondition.pop('condition',None))
-        condition = ' AND '.join(conditions)
-        condition_kwargs.update(dictExtract(resourceCondition,'condition_'))      
+        resourceConditionPars = self._th_hook('condition',mangler=frameCode,dflt=dict())()
+        resourceCondition = resourceConditionPars.pop('condition',None)
+        if resourceCondition:
+            condition = condition='( %s ) AND ( %s ) ' %(condition,resourceCondition) if condition else resourceCondition
+            condition_kwargs.update(dictExtract(resourceConditionPars,'condition_'))      
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,
