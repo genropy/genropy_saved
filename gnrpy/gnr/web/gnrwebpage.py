@@ -523,7 +523,7 @@ class GnrWebPage(GnrBaseWebPage):
                 data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
         else:
             pkg,table,field = segments
-            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
+            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
             return data,dataInfo
         return data['compiled'] if data else missingMessage
