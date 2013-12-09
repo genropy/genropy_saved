@@ -512,19 +512,22 @@ class GnrWebPage(GnrBaseWebPage):
         segments = segments.split('.')
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
-            resource_table = '.'.join(segments)
+            table = '.'.join(segments)
             data = None
             if self.db.package('adm'):
-                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=resource_table)
+                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=table)
                 if data and metadata['private'] and metadata['userid'] != self.user:
                     data = None
             if not data:
                 resource_name = pkey
-                data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
+                data,dataInfo =  self.templateFromResource(table=table,tplname=resource_name)
         else:
             pkg,table,field = segments
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
+            for k,v in data['varsbag'].items():
+                if v['editable']:
+                    v['editable'] = self.app.getFieldcellPars(field=v['fieldpath'],table=table)
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         

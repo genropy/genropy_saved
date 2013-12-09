@@ -29,6 +29,35 @@ dojo.require('dijit.Menu');
 
 function inlineWidget(domNode,evt){
     console.log('inlineWidget',domNode,evt);
+    var domNode = evt.target;
+    var relpath = domNode.getAttribute('relpath');
+    var chunkNode = genro.dom.getBaseSourceNode(domNode);
+    var templateHandler = chunkNode._templateHandler;
+    var colattr = templateHandler.data.getItem('varsbag').getNodeByValue('fieldpath',relpath)._value.getItem('editable').asDict()
+
+    if(!templateHandler._editRootNode){
+        templateHandler._editRootNode = chunkNode.getValue().getNode('_grideditor_',null,true);
+        templateHandler._editRootNode.attr.datapath = chunkNode.absDatapath(chunkNode.attr.datasource);
+    }
+
+    var dt = colattr['dtype'];
+    var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+    colattr['tag'] = widgets[dt] || 'Textbox';
+    if('related_table' in colattr){
+        colattr['tag'] = 'dbselect';
+        colattr['dbtable'] = colattr['related_table'];
+    }if('values' in colattr){
+        colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
+    }
+    colattr['value'] = '^.'+relpath;
+    colattr['_parentDomNode'] = domNode;
+   //var lowertag = colattr['tag'].toLowerCase();
+   //if(this['tag_'+lowertag]){
+   //    this['tag_'+lowertag].call(this,colname,colattr);
+   //}
+    //this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
+    templateHandler._editRootNode._(colattr.tag,colattr);
+
 };
 
 function inlineWidget_xx(parentNode,fldDict,cellName,kw){

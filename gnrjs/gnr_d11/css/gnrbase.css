@@ -67,7 +67,7 @@ cursorZoom_plus{
 }
 
 .gnrinlinewidget{
-
+    display: inline-block;
 }
 
 .gnrinlinewidget:hover{
