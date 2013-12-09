@@ -1295,6 +1295,8 @@ class GnrApp(object):
         :param event: TODO
         :param old_record: TODO. """
         currentEnv = self.db.currentEnv
+        if currentEnv.get('hidden_transaction'):
+            return
         if not currentEnv.get('env_transaction_id'):
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
         broadcast = tblobj.attributes.get('broadcast')
