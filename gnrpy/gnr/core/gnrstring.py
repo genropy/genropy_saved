@@ -451,7 +451,6 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
     if hasattr(myString, '_htraverse'):
         templateBag = myString.deepcopy()
         myString = templateBag.pop('main')
-        
     if not '$' in myString or not symbolDict: return myString
 
     if hasattr(symbolDict, '_htraverse'):

@@ -305,9 +305,7 @@ function dataTemplate(str, data, path, showAlways) {
                                     }
                                 }else{
                                     if(editpars){
-                                        if(isNullOrBlank(value)){
-                                            value = '&nbsp';
-                                        }else if(editpars['relating_column'] && editpars['caption_field']){
+                                        if(editpars['relating_column'] && editpars['caption_field']){
                                             value = data.getItem('@'+editpars['relating_column']+'.'+editpars['caption_field']);
                                         }
                                     }else{
@@ -316,8 +314,8 @@ function dataTemplate(str, data, path, showAlways) {
                                     if(formats[as_name]){
                                         value = gnrformatter.asText(value,{format:formats[as_name],dtype:dtype});
                                     }
-                                    if(editpars){
-                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" varname="'+as_name+'" >'+value+'</div></div>';
+                                    if(editpars){                                  
+                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" varname="'+as_name+'" >'+(isNullOrBlank(value)?'&nbsp':value)+'</div></div>';
                                     }
               
                                     if(masks[as_name]){

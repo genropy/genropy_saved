@@ -526,12 +526,13 @@ class GnrWebPage(GnrBaseWebPage):
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
             if data:
-                editcols = data.getNode('compiled.main').attr['editcols']
-                for k,v in data['varsbag'].items():
-                    if v['editable']:
-                        editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
-                        if v['editable'] is not True and '=' in v['editable']:
-                            editcols[v['varname']].update(asDict(v['editable']))
+                editcols = data.getNode('compiled.main').attr.get('editcols')
+                if editcols:
+                    for k,v in data['varsbag'].items():
+                        if v['editable']:
+                            editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
+                            if v['editable'] is not True and '=' in v['editable']:
+                                editcols[v['varname']].update(asDict(v['editable']))
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         
