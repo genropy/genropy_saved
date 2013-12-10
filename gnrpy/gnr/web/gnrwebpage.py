@@ -30,7 +30,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
+from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
@@ -512,19 +512,26 @@ class GnrWebPage(GnrBaseWebPage):
         segments = segments.split('.')
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
-            resource_table = '.'.join(segments)
+            table = '.'.join(segments)
             data = None
             if self.db.package('adm'):
-                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=resource_table)
+                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=table)
                 if data and metadata['private'] and metadata['userid'] != self.user:
                     data = None
             if not data:
                 resource_name = pkey
-                data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
+                data,dataInfo =  self.templateFromResource(table=table,tplname=resource_name)
         else:
             pkg,table,field = segments
-            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
+            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
+            if data:
+                editcols = data.getNode('compiled.main').attr['editcols']
+                for k,v in data['varsbag'].items():
+                    if v['editable']:
+                        editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
+                        if v['editable'] is not True and '=' in v['editable']:
+                            editcols[v['varname']].update(asDict(v['editable']))
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         

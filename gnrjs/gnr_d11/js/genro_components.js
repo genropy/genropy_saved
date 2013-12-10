@@ -1183,7 +1183,14 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
                     };
-                    
+
+            kw.remote__onRemote = function(){
+                paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
+                var respath = templateHandler.dataInfo.respath;
+                if(respath && respath.indexOf('_custom')>=0){
+                    paletteNode.setRelativeData('.data.metadata.custom',true);
+                }
+            }   
             kw.palette_selfsubscribe_savechunk = function(){
                 tplpars = sourceNode.evaluateOnNode(tplpars);
                 var template = tplpars.template || new gnr.GnrBag();
@@ -1206,11 +1213,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var palette = sourceNode._('palettePane',kw);
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
-        }
-        paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
-        var respath = templateHandler.dataInfo.respath;
-        if(respath && respath.indexOf('_custom')>=0){
-            paletteNode.setRelativeData('.data.metadata.custom',true);
         }
     },
     
@@ -2560,6 +2562,9 @@ dojo.declare("gnr.stores._Collection",null,{
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);
                 });
+            }else{
+                startLocked = false;
+                this.locked=false;
             }
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;

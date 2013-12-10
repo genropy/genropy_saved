@@ -190,6 +190,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if ('_valuelabel' in sourceNode.attr){
             valueAttr['_valuelabel'] = sourceNode.attr['_valuelabel'];
         }
+        if(sourceNode.attr.rejectInvalid && !sourceNode.widget.isValid()){
+            return;
+        }
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
         sourceNode.publish('onSetValueInData',value);
     },

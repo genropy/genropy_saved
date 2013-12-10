@@ -1,4 +1,5 @@
 *:focus, *:active {outline:none;}
+input:focus { outline: none; }
 
 div,span{
     -webkit-touch-callout: none;
@@ -64,6 +65,35 @@ cursorZoom_plus{
 }
 .keeper_on .iskeepable{
     font-weight: bold;
+}
+
+.gnrinlinewidget_container{
+    display: inline-block;
+}
+
+.tundra .gnrinlinewidget_container .dijitTextBox, 
+.tundra .gnrinlinewidget_container .dijitComboBox, 
+.tundra .gnrinlinewidget_container .dijitSpinner, 
+.tundra .gnrinlinewidget_container .dijitInlineEditor input,
+.tundra .gnrinlinewidget_container .dijitTextArea{
+    border: 0;
+    vertical-align: bottom;
+    padding-top: 0;
+    outline: none;
+}
+.gnreditabletext{
+    display: inline-block;
+    min-width: 40px;
+    /*border-bottom: 1px dotted silver;*/
+    line-height: 1;
+}
+
+.gnreditabletext:hover{
+    background: yellow;
+}
+
+.inlineediting .gnreditabletext{
+    display: none;
 }
 
 .fieldkeeper{
