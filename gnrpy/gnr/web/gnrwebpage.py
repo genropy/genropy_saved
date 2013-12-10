@@ -30,7 +30,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
+from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
@@ -525,9 +525,13 @@ class GnrWebPage(GnrBaseWebPage):
             pkg,table,field = segments
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
-            for k,v in data['varsbag'].items():
-                if v['editable']:
-                    v['edit_kw'] = self.app.getFieldcellPars(field=v['fieldpath'],table=table)
+            if data:
+                editcols = data.getNode('compiled.main').attr['editcols']
+                for k,v in data['varsbag'].items():
+                    if v['editable']:
+                        editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
+                        if v['editable'] is not True and '=' in v['editable']:
+                            editcols[v['varname']].update(asDict(v['editable']))
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         

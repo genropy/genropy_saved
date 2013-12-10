@@ -275,6 +275,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 attrname = attrname?attrname.slice(1):null;
                                 var valueattr = {};
                                 var dtype = dtypes[as_name];
+                                var editpars = editcols[as_name];
                                 if(scopeSourceNode && stringStartsWith(path,'#')){
                                     valueNode = genro.getDataNode(scopeSourceNode.absDatapath(path));
                                 }else{
@@ -303,16 +304,22 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = value.getFormattedValue();
                                     }
                                 }else{
-                                    value = valueattr._displayedValue || value;
+                                    if(editpars){
+                                        if(isNullOrBlank(value)){
+                                            value = '&nbsp';
+                                        }else if(editpars['relating_column'] && editpars['caption_field']){
+                                            value = data.getItem('@'+editpars['relating_column']+'.'+editpars['caption_field']);
+                                        }
+                                    }else{
+                                        value = valueattr._displayedValue || value;
+                                    }
                                     if(formats[as_name]){
                                         value = gnrformatter.asText(value,{format:formats[as_name],dtype:dtype});
                                     }
-                                    if(editcols[as_name]){
-                                        if(isNullOrBlank(value)){
-                                            value = '&nbsp';
-                                        }
-                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" relpath="'+path+'" >'+value+'</div></div>'
+                                    if(editpars){
+                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" varname="'+as_name+'" >'+value+'</div></div>';
                                     }
+              
                                     if(masks[as_name]){
                                         value = gnrformatter.asText(value,{mask:masks[as_name]});
                                     }else if(valueattr._formattedValue){

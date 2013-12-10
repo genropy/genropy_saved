@@ -205,7 +205,7 @@ class TemplateEditor(TemplateEditorBase):
         r.cell('format', name='Format', width='10em',edit=True)
         r.cell('mask', name='Mask', width='20em',edit=True)
         if self.isDeveloper():
-            r.cell('editable', name='!!Edit', width='5',edit=True,dtype='B')
+            r.cell('editable', name='!!Edit pars', width='20em',edit=True)
 
 
     def _te_info_top(self,pane):

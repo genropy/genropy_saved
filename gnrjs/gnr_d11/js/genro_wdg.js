@@ -30,16 +30,17 @@ dojo.require('dijit.Menu');
 function inlineWidget(evt){
     console.log('inlineWidget',domNode,evt);
     var domNode = evt.target;
-    var relpath = domNode.getAttribute('relpath');
+    var varname = domNode.getAttribute('varname');
     var chunkNode = genro.dom.getBaseSourceNode(domNode);
     if(chunkNode.form && chunkNode.form.isDisabled()){
         return;
     }
     var templateHandler = chunkNode._templateHandler;
-    var colattr = templateHandler.data.getItem('varsbag').getNodeByValue('fieldpath',relpath)._value.getItem('edit_kw').asDict()
+    var colattr = templateHandler.template.getAttr('main')['editcols'][varname];
+    var containerNode = domNode.parentNode;
 
     if(!templateHandler._editRootNode){
-        templateHandler._editRootNode = chunkNode.getValue().getNode('_grideditor_',null,true);
+        templateHandler._editRootNode = chunkNode.getValue().getNode('_chunk_inline_editor_',null,true);
         templateHandler._editRootNode.attr.datapath = chunkNode.absDatapath(chunkNode.attr.datasource);
     }
 
@@ -52,22 +53,34 @@ function inlineWidget(evt){
     }if('values' in colattr){
         colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
     }
-    var containerNode = domNode.parentNode;
+
+    var sizer = templateHandler._editRootNode._('span',{_parentDomNode:containerNode,position:'absolute',
+                                                                width:'auto',
+                                                            top: -9999,
+                                                            left: -9999}).getParentNode();
+
+    sizer.domNode.innerHTML = domNode.innerHTML;
+
     colattr['width'] = domNode.clientWidth+'px';
     colattr['min_width'] = '30px';
-    colattr['value'] = '^.'+relpath;
+    colattr['value'] = '^.'+colattr['field'];
     colattr['_parentDomNode'] = containerNode;
     colattr['rejectInvalid'] = true;
     colattr['connect_onkeyup'] = function(){
-        console.log('connect_onkeyup',this.widget.focusNode.clientWidth,this.widget);
+        var fn = this.widget.focusNode;
+        sizer.domNode.innerHTML = fn.value;
+        var dn = this.widget.domNode;
+        dn.style.width = sizer.domNode.clientWidth+8+'px'
+
     }
     colattr['connect_onBlur'] = function(){
         var dataNodeAttr = genro.getDataNode(this.absDatapath(this.attr.value)).attr;
-        console.log(dataNodeAttr)
         this._destroy();
+        sizer._destroy();
         genro.dom.removeClass(containerNode,'inlineediting')
     }
 
+    colattr['attr__displayedValue']
    //var lowertag = colattr['tag'].toLowerCase();
    //if(this['tag_'+lowertag]){
    //    this['tag_'+lowertag].call(this,colname,colattr);
