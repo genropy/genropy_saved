@@ -1290,6 +1290,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (sourceNode == true) {
             return;
         }
+        if(sourceNode.attr.rejectInvalid){
+            return;
+        }
+
         var changekey = this.getChangeKey(changepath);
         if (changekey.indexOf('emptypath') >= 0) {
             return; // PROVVISORIO per includedview con form
@@ -1443,6 +1447,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
+            if(sn.attr.rejectInvalid){
+                return;
+            }
             dojoValid.setItem(node_identifier,'Invalid value',{_valuelabel:sn.getElementLabel()});
         }
         this.updateStatus();

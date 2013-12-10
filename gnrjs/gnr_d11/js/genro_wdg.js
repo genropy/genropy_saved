@@ -27,13 +27,16 @@ dojo.require('dijit.Menu');
 
 
 
-function inlineWidget(domNode,evt){
+function inlineWidget(evt){
     console.log('inlineWidget',domNode,evt);
     var domNode = evt.target;
     var relpath = domNode.getAttribute('relpath');
     var chunkNode = genro.dom.getBaseSourceNode(domNode);
+    if(chunkNode.form && chunkNode.form.isDisabled()){
+        return;
+    }
     var templateHandler = chunkNode._templateHandler;
-    var colattr = templateHandler.data.getItem('varsbag').getNodeByValue('fieldpath',relpath)._value.getItem('editable').asDict()
+    var colattr = templateHandler.data.getItem('varsbag').getNodeByValue('fieldpath',relpath)._value.getItem('edit_kw').asDict()
 
     if(!templateHandler._editRootNode){
         templateHandler._editRootNode = chunkNode.getValue().getNode('_grideditor_',null,true);
@@ -49,14 +52,30 @@ function inlineWidget(domNode,evt){
     }if('values' in colattr){
         colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
     }
+    var containerNode = domNode.parentNode;
+    colattr['width'] = domNode.clientWidth+'px';
+    colattr['min_width'] = '30px';
     colattr['value'] = '^.'+relpath;
-    colattr['_parentDomNode'] = domNode;
+    colattr['_parentDomNode'] = containerNode;
+    colattr['rejectInvalid'] = true;
+    colattr['connect_onkeyup'] = function(){
+        console.log('connect_onkeyup',this.widget.focusNode.clientWidth,this.widget);
+    }
+    colattr['connect_onBlur'] = function(){
+        var dataNodeAttr = genro.getDataNode(this.absDatapath(this.attr.value)).attr;
+        console.log(dataNodeAttr)
+        this._destroy();
+        genro.dom.removeClass(containerNode,'inlineediting')
+    }
+
    //var lowertag = colattr['tag'].toLowerCase();
    //if(this['tag_'+lowertag]){
    //    this['tag_'+lowertag].call(this,colname,colattr);
    //}
     //this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
-    templateHandler._editRootNode._(colattr.tag,colattr);
+    genro.dom.addClass(containerNode,'inlineediting')
+    var widgetNode = templateHandler._editRootNode._(colattr.tag,colattr).getParentNode();
+    widgetNode.widget.focus()
 
 };
 

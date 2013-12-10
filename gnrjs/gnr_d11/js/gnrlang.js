@@ -311,7 +311,7 @@ function dataTemplate(str, data, path, showAlways) {
                                         if(isNullOrBlank(value)){
                                             value = '&nbsp';
                                         }
-                                        value = '<div class="gnrinlinewidget" ondblclick="inlineWidget(this,event)" relpath="'+path+'" >'+value+'</div>'
+                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" relpath="'+path+'" >'+value+'</div></div>'
                                     }
                                     if(masks[as_name]){
                                         value = gnrformatter.asText(value,{mask:masks[as_name]});

@@ -66,13 +66,25 @@ cursorZoom_plus{
     font-weight: bold;
 }
 
-.gnrinlinewidget{
+.gnrinlinewidget_container{
     display: inline-block;
 }
 
-.gnrinlinewidget:hover{
+.gnreditabletext{
+    display: inline-block;
+    min-width: 40px;
+    /*border-bottom: 1px dotted silver;*/
+    background:#EBECCE;
+    line-height: 1;
+}
+
+.gnreditabletext:hover{
     background: yellow;
     font-weight: bold;
+}
+
+.inlineediting .gnreditabletext{
+    display: none;
 }
 
 .fieldkeeper{

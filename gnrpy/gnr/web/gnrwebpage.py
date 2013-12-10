@@ -527,7 +527,7 @@ class GnrWebPage(GnrBaseWebPage):
         if asSource:
             for k,v in data['varsbag'].items():
                 if v['editable']:
-                    v['editable'] = self.app.getFieldcellPars(field=v['fieldpath'],table=table)
+                    v['edit_kw'] = self.app.getFieldcellPars(field=v['fieldpath'],table=table)
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         
