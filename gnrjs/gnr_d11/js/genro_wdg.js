@@ -53,7 +53,6 @@ function inlineWidget(evt){
     }if('values' in colattr){
         colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
     }
-
     var sizer = templateHandler._editRootNode._('span',{_parentDomNode:containerNode,position:'absolute',
                                                                 width:'auto',
                                                             top: -9999,
@@ -61,18 +60,21 @@ function inlineWidget(evt){
 
     sizer.domNode.innerHTML = domNode.innerHTML;
 
-    colattr['width'] = domNode.clientWidth+'px';
+    if(colattr['tag'].toLowerCase()=='datetextbox'){
+        colattr['width'] = '7em';
+    }else{
+        colattr['width'] = domNode.clientWidth+'px';
+        colattr['connect_onkeyup'] = function(){
+            var fn = this.widget.focusNode;
+            sizer.domNode.innerHTML = fn.value;
+            var dn = this.widget.domNode;
+            dn.style.width = sizer.domNode.clientWidth+8+'px'
+        }
+    }
     colattr['min_width'] = '30px';
     colattr['value'] = '^.'+colattr['field'];
     colattr['_parentDomNode'] = containerNode;
     colattr['rejectInvalid'] = true;
-    colattr['connect_onkeyup'] = function(){
-        var fn = this.widget.focusNode;
-        sizer.domNode.innerHTML = fn.value;
-        var dn = this.widget.domNode;
-        dn.style.width = sizer.domNode.clientWidth+8+'px'
-
-    }
     colattr['connect_onBlur'] = function(){
         var dataNodeAttr = genro.getDataNode(this.absDatapath(this.attr.value)).attr;
         this._destroy();
