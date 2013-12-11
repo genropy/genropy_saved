@@ -749,7 +749,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(handler && handler.onBuilding){
            handler.onBuilding(this);
         }
-        this._registerInForm();
+        if(this.attr.parentForm===false){
+            this.form = null;
+        }else{
+            this._registerInForm();
+        }
         this._isBuilding = true;
         var aux = '_bld_' + this.attr.tag.toLowerCase();
         if (aux in this) {
