@@ -2558,13 +2558,14 @@ dojo.declare("gnr.stores._Collection",null,{
                 that.setLocked(v);
             });
             var parentForm = that.storeNode.attr.parentForm===false? false:that.storeNode.getFormHandler();
-            if(parentForm){
+            if(parentForm===false){
+                startLocked = false;
+                this.locked=false;
+            }
+            else if(parentForm){
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);
                 });
-            }else{
-                startLocked = false;
-                this.locked=false;
             }
             dojo.subscribe('onPageStart',function(){
                 startLocked = parentForm?parentForm.isDisabled():startLocked;
