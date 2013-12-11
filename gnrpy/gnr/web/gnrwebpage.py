@@ -526,7 +526,8 @@ class GnrWebPage(GnrBaseWebPage):
             data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
             if data:
-                editcols = data.getNode('compiled.main').attr.get('editcols')
+                mainNode = data.getNode('compiled.main')
+                editcols = mainNode.attr.get('editcols') if mainNode else None
                 if editcols:
                     for k,v in data['varsbag'].items():
                         if v['editable']:
