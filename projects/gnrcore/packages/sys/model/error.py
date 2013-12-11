@@ -4,7 +4,7 @@ from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('error', pkey='id', name_long='Error', name_plural='!!Errors',caption_field='description',rowcaption='$error_type,$description')
+        tbl = pkg.table('error', pkey='id', name_long='Debug Error', name_plural='!!Errors',caption_field='description',rowcaption='$error_type,$description')
         self.sysFields(tbl)
         tbl.column('description',name_long='!!Description')
         tbl.column('error_data',dtype='X',name_long='!!Traceback')

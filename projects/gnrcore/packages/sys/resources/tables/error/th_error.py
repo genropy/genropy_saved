@@ -37,12 +37,15 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
-        fb.field('error_type')
-        fb.field('description')
-        fb.field('username')
-        fb.field('user_ip')
-        fb.field('user_agent',colspan=2)
-        fb.field('error_data',colspan=2)
+        width='35em'
+        fb.field('error_type',colspan=2,width=width)
+        fb.field('description',colspan=2,width=width)
+        fb.field('username',width='15em')
+        fb.field('user_ip',width='15em')
+        fb.field('fixed',colspan=2,width=width)
+        fb.field('user_agent',colspan=2,width=width,tag='simpleTextArea',height='2.5em')
+        fb.field('error_data',colspan=2,width=width)
+        
 
 
     def th_options(self):
