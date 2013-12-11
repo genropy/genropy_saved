@@ -948,7 +948,6 @@ dojo.declare("gnr.GridEditor", null, {
         //var selectedIdx = this.grid.selection.getSelected()
         if(pkeys=='*'){
             pkeys = this.grid.getAllPkeys();
-            console.log('deleting',pkeys)
         }
         var existingPkeys = [];
         var that = this;
@@ -1295,7 +1294,6 @@ dojo.declare("gnr.GridEditor", null, {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         var removedNode = editWidget.sourceNode._destroy();
-        console.log('removedNode',removedNode);
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);
         if(editingInfo.editedRowId){
