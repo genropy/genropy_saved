@@ -239,7 +239,7 @@ class PublicSlots(BaseComponent):
         if title:
             pane.data('gnr.publicTitle',title) 
         pane.dataController('genro.publish("gnr_public_title",public_title);',public_title='^gnr.publicTitle')
-        pane.div('^gnr.publicTitle', _class='pbl_title_caption',
+        pane.div('^gnr.publicTitle', _class='selectable pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',
                     childname='captionbox',**kwargs)
              

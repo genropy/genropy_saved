@@ -518,11 +518,9 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             var b = this.sourceNode.externalWidget.document.getBody().$;
             var higlightedNode = b.children[idx];
             var ht = higlightedNode.offsetTop;
-            console.log('body scrollTop',b.scrollTop,'page height',b.parentNode.clientHeight,'offset top node',ht)
             //if(b.parentNode.clientHeight+b.scrollTop-ht<0){
                b.scrollTop = ht-100;
             //}
-            console.log(higlightedNode);
         }
     },
 
