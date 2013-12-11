@@ -33,19 +33,29 @@ class View(BaseComponent):
 
 
 class Form(BaseComponent):
-
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        # pane = form.record
+        bc = form.center.borderContainer()
+        self.left(bc.contentPane(region='left',margin='2px',_class='pbl_roundedGroup',datapath='#FORM.record'))
+        self.right(bc.contentPane(region='center',margin='2px',_class='pbl_roundedGroup',datapath='#FORM.record'))
+
+    def left(self,pane):
         width='35em'
+        pane.div('Error Data',_class='pbl_roundedGroupLabel')
+        fb = pane.formbuilder(cols=2, border_spacing='4px')
         fb.field('error_type',colspan=2,width=width)
         fb.field('description',colspan=2,width=width)
         fb.field('username',width='15em')
         fb.field('user_ip',width='15em')
         fb.field('fixed',colspan=2,width=width)
         fb.field('user_agent',colspan=2,width=width,tag='simpleTextArea',height='2.5em')
-        fb.field('error_data',colspan=2,width=width)
-        
+
+    def right(self,pane):
+        width='35em'
+        pane.div('TraceBack Tree',_class='pbl_roundedGroupLabel')
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.field('error_data',width=width)
+
 
 
     def th_options(self):
