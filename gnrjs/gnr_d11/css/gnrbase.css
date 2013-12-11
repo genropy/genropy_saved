@@ -10,7 +10,7 @@ div,span{
     user-select: none;
 }
 
-.selectable *{
+.selectable, .selectable *{
     -webkit-touch-callout: auto;
     -webkit-user-select: auto;
     -khtml-user-select: auto;
