@@ -126,6 +126,7 @@ class FormHandler(BaseComponent):
                                                     this.publish('editrow',{pkey:"*newrecord*"});
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
+                                    //genro.bp(true)
                                     var pref = 'form_'+this.attr._linkedFormId;
                                     if($1.pkey=='*newrecord*'){
                                         var kw = {destPkey:$1.pkey};
@@ -135,7 +136,7 @@ class FormHandler(BaseComponent):
                                         genro.publish(pref+'_load',kw);
                                     }else{
 
-                                        genro.publish(pref+'_goToRecord',$1.pkey);
+                                        genro.publish(pref+'_goToRecord',$1.pkey || '*norecord*');
                                     }
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
