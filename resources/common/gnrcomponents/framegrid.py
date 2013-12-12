@@ -100,7 +100,8 @@ class FrameGrid(BaseComponent):
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
-        frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,grid_parentForm=parentForm,**kwargs)
+        kwargs.setdefault('grid_parentForm',parentForm)
+        frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
         default_slots = []
         title = title or ''
         default_slots.append('5,vtitle')
