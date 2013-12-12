@@ -35,9 +35,9 @@ class View(BaseComponent):
 class Form(BaseComponent):
     def th_form(self, form):
         # pane = form.record
-        bc = form.center.borderContainer()
-        self.left(bc.contentPane(region='left',margin='2px',_class='pbl_roundedGroup',datapath='#FORM.record'))
-        self.right(bc.contentPane(region='center',margin='2px',_class='pbl_roundedGroup',datapath='#FORM.record'))
+        bc = form.center.borderContainer(datapath='#FORM.record')
+        self.left(bc.contentPane(region='left',margin='2px',_class='pbl_roundedGroup'))
+        self.right(bc.contentPane(region='center',margin='2px',_class='pbl_roundedGroup'))
 
     def left(self,pane):
         width='35em'
