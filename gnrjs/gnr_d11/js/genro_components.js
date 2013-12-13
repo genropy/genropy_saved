@@ -983,6 +983,56 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
+
+dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var framekw = objectExtract(kw,'frame_*');
+        var barkw = objectExtract(kw,'pdf,print,download,title')
+        var resource = objectPop(kw,'resource');
+        var rpcCall = objectPop(kw,'rpcCall');
+        var _delay = objectPop(kw,'_delay');
+        var emptyMessage = objectPop(kw,'emptyMessage','Missing');
+
+        var _if = objectPop(kw,'_if');
+        var _reloader = objectPop(kw,'_reloader') || '^#WORKSPACE.reload_iframe';
+
+        if(resource){
+            resource = resource.split(':');
+            kw['table'] = resource[0];
+            kw['respath'] = resource[1];
+            kw['pdf'] = kw.html?false:true;
+            kw['record'] = kw.pkey;
+            rpcCall = 'callTableScript';
+        }
+
+        framekw.frameCode = 'document_frame_#'
+        framekw['_workspace'] = true;
+        var frame = sourceNode._('framePane',framekw);
+        var iframekw = {height:'100%',width:'100%',border:0,rpcCall:'callTableScript'};
+        for (var k in kw){
+            var val = kw[k];
+            if(val && typeof(val)=='string'){
+                val = val.replace('^','=');
+            }
+            iframekw['rpc_'+k] = val;
+        }
+        iframekw['_reloader'] = _reloader;
+        iframekw['_if'] = '^#WORKSPACE.enabled';
+        iframekw['rpcCall'] = rpcCall;
+        iframekw['_delay'] = _delay;
+        iframekw['documentClasses'] = true;
+        iframekw['onLoad'] = function(){
+            if(!this.contentWindow.document.body.innerHTML){
+                genro.dlg.floatingMessage(this.sourceNode.getParentNode(),{message:emptyMessage,messageType:'warning'});
+            }
+        }
+        var iframe = frame._('ContentPane','center',{overflow:'hidden'})._('iframe',iframekw);
+        var scriptkw = objectUpdate({'script':"SET #WORKSPACE.enabled = true; FIRE #WORKSPACE.reload_iframe;",'_delay':100,_if:_if,_else:'SET #WORKSPACE.enabled = false;'},kw);
+        frame._('dataController',scriptkw);
+        return frame;
+    }
+});
+
 dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource,letterhead_id');

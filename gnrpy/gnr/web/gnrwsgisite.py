@@ -780,6 +780,8 @@ class GnrWsgiSite(object):
             self.onServingPage(page)
             try:
                 result = page()
+                if isinstance(result, file):
+                    return self.statics.fileserve(result, environ, start_response,nocache=True)
                 if download_name:
                     download_name = unicode(download_name)
                     content_type = mimetypes.guess_type(download_name)[0]
