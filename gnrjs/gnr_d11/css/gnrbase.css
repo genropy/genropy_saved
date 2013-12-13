@@ -422,8 +422,13 @@ cursorZoom_plus{
 }
 
 
+.emptyIframe{
+	background: transparent url(icons/base256/empty_iframe.png) no-repeat center center;
+}
 
-
+.loadingIframe{
+    background: transparent url(icons/base128/big_loader.gif) no-repeat center center;
+}
 
 /* @end */
 

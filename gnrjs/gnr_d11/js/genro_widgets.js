@@ -549,7 +549,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
         var onUpdating = objectPop(attributes, 'onUpdating');
@@ -585,6 +585,15 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var mainGenro =genro.mainGenroWindow.genro;
         dojo.connect(newobj, 'onload', function(){
             var cw = this.contentWindow;
+            if(this.sourceNode.attr.documentClasses){
+                genro.dom.removeClass(this,'emptyIframe');
+                genro.dom.removeClass(this,'loadingIframe');
+                if(!cw.document.body.innerHTML){
+                    genro.dom.addClass(this,'emptyIframe');
+                }        
+            }
+
+
             if(!cw.genro){
                 dojo.connect(cw, 'onmouseup', function(e){
                     var currentDnDMover = mainGenro.currentDnDMover;
@@ -596,6 +605,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         });
         if (savedAttrs.onStarted){
             sourceNode.subscribe('pageStarted',funcCreate(savedAttrs.onStarted));
+        }
+        if(savedAttrs.documentClasses){
+            genro.dom.addClass(newobj,'emptyIframe');
         }
         this.setSrc(newobj, savedAttrs.src);
         dojo.connect(sourceNode,'_onDeleting',function(){
@@ -654,6 +666,10 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             src_kwargs['main_call'] = main_call;
         }
         if (v) {     
+            if(sourceNode.attr.documentClasses){
+                genro.dom.removeClass(domnode,'emptyIframe');
+                genro.dom.addClass(domnode,'loadingIframe');
+            }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);    
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
