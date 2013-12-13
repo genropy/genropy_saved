@@ -1660,8 +1660,11 @@ class GnrWebPage(GnrBaseWebPage):
             
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
             self.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
-        return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
+        result = self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                          downloadAs=downloadAs, **kwargs)
+        if os.path.exists(result):
+            return file(result,'r')
+        return result
     
     @public_method                                 
     def remoteBuilder(self, handler=None, **kwargs):

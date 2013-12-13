@@ -983,6 +983,33 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
+
+dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var barkw = objectExtract(kw,'pdf,print,download,title')
+        var rpckw = objectExtract(kw,'table,respath,record,pdf');
+        rpckw.pdf = rpckw.pdf===false?false:true;
+        objectUpdate(rpckw,objectExtract(kw,'par_*'));
+        kw.frameCode = 'document_frame_#'
+        kw['_workspace'] = true;
+        var frame = sourceNode._('framePane',kw);
+        var iframekw = {height:'100%',width:'100%',border:0,rpcCall:'callTableScript'};
+        for (var k in rpckw){
+            var val = rpckw[k];
+            if(val && typeof(val)=='string'){
+                val = val.replace('^','=');
+            }
+            iframekw['rpc_'+k] = val;
+        }
+        iframekw['_reloader'] = '^#WORKSPACE.reload_iframe';
+        var iframe = frame._('ContentPane','center',{overflow:'hidden'})._('iframe',iframekw);
+        var scriptkw = objectUpdate({'script':'genro.bp(true)','_delay':100},rpckw);
+        console.log('scriptkw',scriptkw)
+        sourceNode._('dataController',scriptkw);
+        return frame;
+    }
+});
+
 dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource,letterhead_id');

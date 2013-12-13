@@ -38,6 +38,9 @@ class StaticHandlerManager(object):
     def get(self, static_name):
         return self.statics[static_name]
 
+    def fileserve(self, f, environ, start_response, download=False, **kwargs):
+        return StaticHandler(self.site).serve(f, environ,start_response, download=download, **kwargs)
+
     def static_dispatcher(self, path_list, environ, start_response, download=False, **kwargs):
         handler = self.get(path_list[0][1:])
         if handler:
@@ -82,8 +85,13 @@ class StaticHandler(object):
             result = m(pkey)
             return result is not False
 
-    def serve(self, path_list, environ, start_response, download=False, **kwargs):
-        fullpath = self.path(*path_list[1:])
+    def serve(self, f, environ, start_response, download=False, **kwargs):
+        if isinstance(f,list):
+            fullpath = self.path(*f[1:])
+        elif isinstance(f,file):
+            fullpath = f.name
+        else:
+            fullpath = f
         if not fullpath:
             return self.site.not_found_exception(environ, start_response)
         if not os.path.isabs(fullpath):
