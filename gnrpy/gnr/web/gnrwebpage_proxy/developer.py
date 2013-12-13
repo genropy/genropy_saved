@@ -186,7 +186,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         n = 0
         tb = sys.exc_info()[2]
         def cb(n):
-            if isinstance(n.value,GnrStructData):
+            if isinstance(n._value,GnrStructData):
                 n.value = '*STRUCTURE*'
         while tb is not None and (limit is None or n < limit):
             tb_bag = Bag()
