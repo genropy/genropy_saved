@@ -587,7 +587,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             var cw = this.contentWindow;
             if(this.sourceNode.attr.documentClasses){
                 genro.dom.removeClass(this,'emptyIframe');
-                this.sourceNode.setHiderLayer(false);
+                this.sourceNode.getParentNode().setHiderLayer(false);
                 if(!cw.document.body.innerHTML){
                     genro.dom.addClass(this,'emptyIframe');
                 }        
@@ -675,7 +675,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (v) {     
             if(sourceNode.attr.documentClasses){
                 genro.dom.removeClass(domnode,'emptyIframe');
-                sourceNode.setHiderLayer(true,{message:'<div class="loadingIframe" style="height:128px;width:128px;"></div>'})
+                sourceNode.getParentNode().setHiderLayer(true,{message:'<div class="loadingIframe" style="height:128px;width:128px;"></div>',background_color:'white'})
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);    
