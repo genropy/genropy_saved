@@ -1023,7 +1023,6 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
         iframekw['documentClasses'] = true;
         iframekw['onLoad'] = function(){
             if(!this.contentWindow.document.body.innerHTML){
-                this.contentWindow.document.body.classList.add('missing_content');
                 genro.dlg.floatingMessage(this.sourceNode.getParentNode(),{message:emptyMessage,messageType:'warning'});
             }
         }
