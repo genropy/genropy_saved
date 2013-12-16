@@ -1044,13 +1044,14 @@ dojo.declare("gnr.GridEditor", null, {
         });
         if(existingPkeys.length>0){
             if(this.autoSave){
-                this.grid.collectionStore().deleteAsk(existingPkeys)
+                var that = this;
+                this.grid.collectionStore().deleteAsk(existingPkeys,function(){that.markDeleted(pkeys)});
             }else{
                 this.markDeleted(existingPkeys);
             }
         }
-        this.updateStatus();
     },
+    
     markDeleted:function(pkeys){
         var that = this;
         var grid = this.grid;
@@ -1066,6 +1067,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.autoSave && pkeys&&pkeys.length>0){
             this.lastEditTs = new Date();
         }
+        this.grid.updateCounterColumn();
         this.updateStatus();
     },
     getNewRowDefaults:function(externalDefaults){
