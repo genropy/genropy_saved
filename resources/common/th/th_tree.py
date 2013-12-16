@@ -45,7 +45,7 @@ class TableHandlerTreeResolver(BagResolver):
                 pkey = r.pop('pkey',None)
                 result.setItem(pkey, None,
                                  caption=r[self.relatedCaptionField],
-                                 pkey=pkey,
+                                 pkey=pkey, treeIdentifier='%s_%s'%(self.parent_id, pkey),
                                  node_class='tree_related',**r)
         if not self._isleaf:
             children = self.getChildren(self.parent_id)
