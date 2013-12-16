@@ -39,7 +39,7 @@ class TableHandlerCommon(BaseComponent):
         condition_kwargs['_fkey_name'] = fkey
         condition_kwargs['fkey'] = '=#FORM.pkey'
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
-        condition_kwargs['if'] = 'fkey'
+        condition_kwargs['if'] = '!this.form.isNewRecord()'
         basecondition = '$%s=:fkey' %fkey       
         condition = basecondition if not condition else '(%s) AND (%s)' %(basecondition,condition)  
         default_kwargs[fkey] = original_kwargs.get('foreignKeyGetter','=#FORM/parent/#FORM.pkey')
