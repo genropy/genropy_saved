@@ -67,6 +67,9 @@ dojo.declare("gnr.GnrStoreBag", null, {
 // -----------------------------------------read API ------------------------------
 
     getValue: function(/* item */ item, /* attribute-name-string */ attribute, /* value? */ defaultValue) {
+        if(item==null){
+            return;
+        }
         genro.debug('getValue: item=' + item.label + ' - attribute-name-string=' + attribute + ' - default=' + defaultValue);
         var attributes = item.attr;
         if (attribute == '#k') {

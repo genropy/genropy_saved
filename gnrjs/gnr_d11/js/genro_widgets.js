@@ -5832,7 +5832,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         this._dojotag = 'ComboBox';
     },
     creating: function(attributes, sourceNode) {
-        objectExtract(attributes, 'maxLength,_type');
+        objectExtract(attributes, 'maxLength,_type,country');
         if (sourceNode.attr._virtual_column){
             attributes.value = '^.$'+sourceNode.attr._virtual_column;
             sourceNode.attr.value= attributes.value;
@@ -5858,7 +5858,15 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         clearTimeout(this.waitingDelay);
         this.waitingDelay = setTimeout(dojo.hitch(this,
             function(){
-              this.geocoder.geocode({ 'address': address}, dojo.hitch(this, 'handleGeocodeResults'));
+                var geopars={ 'address': address}
+                if (this.sourceNode.attr.country){
+                    var country=this.sourceNode.getAttributeFromDatasource('country')
+                    if(country){
+                        geopars['componentRestrictions']={'country':country}
+                    }
+                    
+                }
+              this.geocoder.geocode(geopars, dojo.hitch(this, 'handleGeocodeResults'));
             }),200);
         
     },
@@ -6028,10 +6036,11 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  for (var a in address_components){
                      var address_component=address_components[a];
                      details[address_component.types[0]]=address_component.short_name;
+                     details[address_component.types[0]+'_long']=address_component.long_name;
                  }
                  
-                 details['street_address'] = details['route']+', '+(details['street_number']||'??');
-                 details['street_address_eng'] = (details['street_number']||'??')+' '+details['route'];
+                 details['street_address'] = details['route_long']+', '+(details['street_number']||'??');
+                 details['street_address_eng'] = (details['street_number']||'??')+' '+details['route_long'];
                  var position=results[i].geometry.location;
                  details['position']=position.lat()+','+position.lng();
              this.store.mainbag.setItem('root.r_' + i, null, details);
