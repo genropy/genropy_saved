@@ -804,6 +804,10 @@ class GnrWebPage(GnrBaseWebPage):
                     handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)                    
         else:
             handler = getattr(self, method, None)
+            if not handler:
+                zdir = dir(self)
+            elif not getattr(handler, 'is_rpc', False):
+                hdir = dir(handler)
             if not handler or not getattr(handler, 'is_rpc', False):
                 handler = getattr(self, '%s_%s' % (prefix, method))
         
