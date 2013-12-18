@@ -200,7 +200,7 @@ class TemplateEditor(TemplateEditorBase):
     
     def _te_varsgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('fieldname', name='Field', width='100%',edit=True)
+        r.cell('fieldname', name='Field', width='20em',edit=True)
         r.cell('varname', name='As', width='15em',edit=True)
         r.cell('format', name='Format', width='10em',edit=True)
         r.cell('mask', name='Mask', width='20em',edit=True)

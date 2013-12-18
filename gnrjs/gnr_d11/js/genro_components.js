@@ -1206,6 +1206,21 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }
         return curr_vc;
     },
+
+    loadTemplateEditData:function(sourceNode){
+        var paletteNode = sourceNode._connectedPalette;
+        var templateHandler = sourceNode._templateHandler;
+        paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
+        var respath = templateHandler.dataInfo.respath;
+        if(respath && respath.indexOf('_custom')>=0){
+            paletteNode.setRelativeData('.data.metadata.custom',true);
+        }
+    },
+    gnrwdg_setTemplate:function(templateBag){
+        if(this.chunkNode._connectedPalette){
+            this.gnr.loadTemplateEditData(this.chunkNode);
+        }
+    },
     
     openTemplatePalette:function(sourceNode,editorConstrain,showLetterhead){
         var paletteCode = 'template_editor_'+sourceNode._id;
@@ -1214,6 +1229,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var templateHandler = sourceNode._templateHandler;
         var handler = this;
         var paletteId = paletteCode+'_floating';
+
         if(sourceNode._connectedPalette){
             var paletteNode = sourceNode._connectedPalette;
             paletteNode.getWidget().show();
@@ -1232,15 +1248,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_datasourcepath:remote_datasourcepath,
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
-                    };
-
+                    };  
             kw.remote__onRemote = function(){
-                paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
-                var respath = templateHandler.dataInfo.respath;
-                if(respath && respath.indexOf('_custom')>=0){
-                    paletteNode.setRelativeData('.data.metadata.custom',true);
-                }
-            }   
+                handler.loadTemplateEditData(sourceNode);
+            }
             kw.palette_selfsubscribe_savechunk = function(){
                 tplpars = sourceNode.evaluateOnNode(tplpars);
                 var template = tplpars.template || new gnr.GnrBag();
@@ -1264,6 +1275,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
+
     },
     
 
@@ -1337,6 +1349,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         if(record_id){
             sourceNode.attr.record_id = record_id;
         }
+        sourceNode.attr.template = tplpars.template;
         for(var k in editorConstrain){
             var c = editorConstrain[k];
             if(typeof(c)=='string' && (c[0]=='^' || c[0]=='=')){
@@ -1363,20 +1376,23 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                 }
            };
         }
-        var cls = this;
         kw.onCreated = function(domnode,attributes){
             this._templateHandler = {};
             var templateHandler=this._templateHandler
             templateHandler.showAlways = showAlways;
             if(record_id){
-                cls.createServerChunk(this,record_id,tplpars);
+                handler.createServerChunk(this,record_id,tplpars);
             }
             else{
-                cls.createClientChunk(this,dataProvider,tplpars);
+                handler.createClientChunk(this,dataProvider,tplpars);
             }
         }
-        return sourceNode._('div','templateChunk',kw)
+        var chunk = sourceNode._('div','templateChunk',kw)
+        sourceNode.gnrwdg.chunkNode = chunk.getParentNode();
+        return chunk;
     },
+
+
 
     createClientChunk:function(sourceNode,dataProvider,tplpars){
         var templateHandler = sourceNode._templateHandler;
@@ -1389,7 +1405,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             this.dataInfo = result.dataInfo;
             this.template = result.template;
             this.defaults = {};
-           
             var datasourcePath = sourceNode.absDatapath(sourceNode.attr.datasource);
             var datasourceNode = genro.getDataNode(datasourcePath);
             if(this.template instanceof gnr.GnrBag){
