@@ -547,6 +547,12 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     }
 });
 
+dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
+    constructor:function(){
+        this._domtag ='iframe';
+    }
+});
+
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');

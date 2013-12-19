@@ -1024,7 +1024,7 @@ dojo.declare('gnr.GenroClient', null, {
             params['connect_onload'] = onload_cb;
         }
         ;
-        frm = node._('iframe', params);
+        frm = node._('htmliframe', params);
         node.unfreeze();
 
 
