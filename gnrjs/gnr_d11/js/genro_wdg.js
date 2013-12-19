@@ -1110,9 +1110,7 @@ dojo.declare("gnr.GridEditor", null, {
                     }
                 }
             }
-            if (this.grid.sourceNode.form && this.grid.sourceNode.attr.parentForm!==false){
-                result['_newrecord'] = true;
-            }
+            result['_newrecord'] = true;
             return result;
         }
     },

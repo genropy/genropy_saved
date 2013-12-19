@@ -285,12 +285,16 @@ class TemplateEditor(TemplateEditorBase):
                             var parsfolder = new gnr.GnrBag();
                             var attrs,varname;
                             varsbag.forEach(function(n){
+                                n.delAttr('_newrecord');
+                                n._value.popNode('_newrecord');
                                 varname = n._value.getItem('varname');
                                 varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
                             },'static');
                             result.setItem('variables',varfolder,{caption:varcaption})
                             if (parameters){
                                 parameters.forEach(function(n){
+                                    n.delAttr('_newrecord');
+                                    n._value.popNode('_newrecord');
                                     attrs = n.attr;
                                     parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
                                 },'static');
