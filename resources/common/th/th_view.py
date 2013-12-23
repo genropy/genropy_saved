@@ -174,26 +174,46 @@ class TableHandlerView(BaseComponent):
         pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
 
+    def _th_section_from_fkey(self,tblobj,fkey):
+        section_table = tblobj.column(fkey).relatedTable().dbtable
+        pkeyfield = section_table.pkey
+        caption_field = section_table.attributes.get('caption_field')
+        f = section_table.query(columns='*,$%s' %caption_field).fetch()
+        s = []
+        for i,r in enumerate(f):
+            s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %fkey,condition_s_id=r[pkeyfield]))
+        return s
+
     @struct_method
     def th_slotbar_sections(self,pane,sections=None,**kwargs):
-        inattr = pane.getInheritedAttributes()
+        inattr = pane.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = pane.div(datapath='.sections.%s' %sections)
-        m = self._th_hook('sections_%s' %sections,mangler=th_root)
-        sectionslist = m()
+        tblobj = self.db.table(inattr['table'])
+        if tblobj.column(sections) is not None:
+            sectionslist = self._th_section_from_fkey(tblobj,sections)
+            dflt = None
+            multivalue = True
+            variable_struct = False
+            mandatory = None
+        else:
+            m = self._th_hook('sections_%s' %sections,mangler=th_root)
+            sectionslist = m()
+            dflt = getattr(m,'default',None)
+            multivalue=getattr(m,'multivalue',False)
+            variable_struct = getattr(m,'variable_struct',False)
+            mandatory=getattr(m,'mandatory',True)
+        if not sectionslist:
+            return
         sectionsBag = Bag()
         for i,kw in enumerate(sectionslist):
             sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
         pane.data('.data',sectionsBag)
-        dflt = getattr(m,'default',None)
         if dflt:
             pane.data('.current',dflt)
-        multivalue=getattr(m,'multivalue',False)
-        variable_struct = getattr(m,'variable_struct',False)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,
-                        mandatory=getattr(m,'mandatory',True),**kwargs)
+        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
