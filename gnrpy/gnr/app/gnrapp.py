@@ -591,7 +591,7 @@ class GnrApp(object):
                 db_node = self.config.getNode('db')
                 sshattr = dict(db_node.attr)
                 sshattr.update(remotedbattr)
-                sshattr['forwarded_port'] = sshattr.pop('port')
+                sshattr['forwarded_port'] = sshattr.pop('port',None)
                 db_node.attr['port'] = self.gnrdaemon.sshtunnel_port(**sshattr)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()
