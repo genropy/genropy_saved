@@ -12,10 +12,10 @@
 
 from gnr.web.gnrbaseclasses import BaseWebtool
 #from code39 import Code39Encoder
-from huBarcode.code128 import Code128Encoder
-from huBarcode.datamatrix import DataMatrixEncoder
-from huBarcode.qrcode import QRCodeEncoder
-from huBarcode.ean13 import EAN13Encoder
+from hubarcode.code128 import Code128Encoder
+from hubarcode.datamatrix import DataMatrixEncoder
+from hubarcode.qrcode import QRCodeEncoder
+from hubarcode.ean13 import EAN13Encoder
 import tempfile
 import mimetypes
 
