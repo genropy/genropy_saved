@@ -2146,7 +2146,7 @@ dojo.declare("gnr.formstores.Base", null, {
         this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'deleteDbRow';
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
                                             objectUpdate({'pkey':pkey,
-                                                          'table':this.table},kw),null,'POST',
+                                                          'table':this.table,'_sourceNode':form.sourceNode},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){
             that.deleted(result,callkw);
