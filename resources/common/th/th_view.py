@@ -189,7 +189,7 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         pane = pane.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
-        if tblobj.column(sections) is not None and tblobj.column(sections).relatedTable() is not None:
+        if sections in  tblobj.model.columns and tblobj.column(sections).relatedTable() is not None:
             sectionslist = self._th_section_from_fkey(tblobj,sections)
             dflt = None
             multivalue = True
