@@ -1009,7 +1009,8 @@ class SqlTable(GnrObject):
                     if testForMerge:
                         incompatible = False
                         if fnode.getAttr('_gnrbag'):
-                            incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
+                            pass
+                            #incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
                         elif fnode.value != main_record[fname]:  # new value is different from value in db
                             incompatible = (fnode.getAttr('oldValue') != main_record[
                                                                          fname]) # value in db is different from oldvalue --> other user changed it

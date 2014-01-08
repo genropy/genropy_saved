@@ -1682,6 +1682,11 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var that = this;
         kw = objectUpdate({connect_onclick:function(e){
             var childSourceNode =  e.target.sourceNode?e.target.sourceNode.getInheritedAttributes()['_childSourceNode']:null;
+            var buttonNode = genro.dom.getBaseSourceNode(e.target);
+            var buttonAttr = buttonNode.currentAttributes();
+            if(buttonAttr.disabled){
+                return;
+            }
             if(childSourceNode){
                 stackNode.widget.selectChild(childSourceNode.widget);
             }
@@ -1775,7 +1780,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             }
             var stackbag = stackNode.getValue();
             var childattr = childSourceNode.attr;
-            var multibutton_kw = objectExtract(childattr,'stackbutton_*')
+            var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));

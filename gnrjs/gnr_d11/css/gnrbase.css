@@ -3704,7 +3704,7 @@ p {
     background: url(icons/base12/smallpopup.gif) no-repeat center center;
 }
 
-div[disabled='true']{
+div[disabled='true'], div[disabled='disabled']{
     opacity: .5;
 }
 .slotbar_toolbar .buttonDiv:hover{
@@ -3718,7 +3718,7 @@ div[disabled='true']{
 .slotbar .buttonDiv{
     display: block;
 }
-.buttonDiv[disabled='true']{
+.buttonDiv[disabled='true'], .buttonDiv[disabled='disabled']{
     cursor:not-allowed;
 }
 .buttonDivLabel{

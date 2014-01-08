@@ -969,6 +969,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 rn.getValue().setItem('__mod_ts',convertFromText(t),null,{doTrigger:false})
             }
         }
+        var invalidFields = this.getDataNodeAttributes()['_invalidFields'];
+        if(invalidFields && objectNotEmpty(invalidFields)){
+            var fdata = this.getFormData();
+            for (var p in invalidFields){
+                fdata.setItem(p,fdata.getItem(p));
+            }
+        }
         this.setOpStatus();
         this.__last_save = new Date()
     },
@@ -1324,15 +1331,24 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.updateStatus();
     },
 
+    recordOwnerNode:function(changeDataNode){
+        var rnode = changeDataNode.getParentNode();
+        while(!(rnode.label=='record' || rnode.label[0]=='@')){
+            rnode = rnode.getParentNode();
+        }
+        return rnode;
+    },
 
     setRecordInvalidFields:function(changeDataNode,invalid,validationsDict){
-        var _invalidFields = changeDataNode.getParentNode().attr['_invalidFields'] || {};
+        var recordOwnerNode = this.recordOwnerNode(changeDataNode)
+        var _invalidFields = recordOwnerNode.attr['_invalidFields'] || {};
+        var fpath = changeDataNode.getFullpath('static',recordOwnerNode.getValue('static'));
         if(invalid){
-            _invalidFields[changeDataNode.label] = {error:validationsDict.error,fieldcaption:changeDataNode.attr.name_long || changeDataNode.label};
+            _invalidFields[fpath] = {error:validationsDict.error,fieldcaption:changeDataNode.attr.name_long || fpath};
         }else{
-            delete _invalidFields[changeDataNode.label];
+            delete _invalidFields[fpath];
         }
-        changeDataNode.getParentNode().attr['_invalidFields'] = _invalidFields;
+        recordOwnerNode.attr['_invalidFields'] = _invalidFields;
     },
 
 
@@ -1350,9 +1366,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resolvePendingValidation:function(sourceNode){
         var vpath = sourceNode.absDatapath(sourceNode.attr.value);
         var datanode = genro.getDataNode(vpath);
-        var _invalidFields = datanode.getParentNode().attr['_invalidFields'] || {};
+        var recordOwnerNode = this.recordOwnerNode(changeDataNode)
+        var _invalidFields = recordOwnerNode(datanode).attr['_invalidFields'] || {};
+        var fpath = datanode.getFullpath('static',recordOwnerNode.getValue('static'));
         var result = genro.vld.validate(sourceNode,sourceNode.getAttributeFromDatasource('value'),false,
-                                true,(datanode.label in _invalidFields)?null:['notnull']);
+                                true,(fpath in _invalidFields)?null:['notnull']);
         sourceNode.setValidationError(result);
         sourceNode.updateValidationStatus();
     },
