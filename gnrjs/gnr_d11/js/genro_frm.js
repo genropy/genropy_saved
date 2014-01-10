@@ -1366,8 +1366,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resolvePendingValidation:function(sourceNode){
         var vpath = sourceNode.absDatapath(sourceNode.attr.value);
         var datanode = genro.getDataNode(vpath);
-        var recordOwnerNode = this.recordOwnerNode(changeDataNode)
-        var _invalidFields = recordOwnerNode(datanode).attr['_invalidFields'] || {};
+        var recordOwnerNode = this.recordOwnerNode(datanode)
+        var _invalidFields = recordOwnerNode.attr['_invalidFields'] || {};
         var fpath = datanode.getFullpath('static',recordOwnerNode.getValue('static'));
         var result = genro.vld.validate(sourceNode,sourceNode.getAttributeFromDatasource('value'),false,
                                 true,(fpath in _invalidFields)?null:['notnull']);
