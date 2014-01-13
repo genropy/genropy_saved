@@ -980,10 +980,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return;
         }
         var drop_ext = inherited.drop_ext;
-        var valid_ext = drop_ext ? splitStrip(drop_ext) : null;
+        var valid_ext = drop_ext ? splitStrip(drop_ext.toLowerCase()) : null;
         var files = [];
         dojo.forEach(dataTransfer.files, function(f) {
-            if ((!valid_ext) || (dojo.indexOf(valid_ext, f['name'].split('.').pop()) >= 0)) {
+            if ((!valid_ext) || (dojo.indexOf(valid_ext, f['name'].toLowerCase().split('.').pop()) >= 0)) {
                 files.push(f);
             }
         });
