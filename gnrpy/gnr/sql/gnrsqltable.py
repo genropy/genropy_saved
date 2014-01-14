@@ -518,6 +518,19 @@ class SqlTable(GnrObject):
             self.delete(sourcePkey)
             
 
+    def itemsAsText(self,caption_field=None,cols=None,**kwargs):
+        caption_field = caption_field or self.attributes['caption_field']
+        f = self.query(columns='$%s,$%s' %(self.pkey,caption_field),**kwargs).fetch()
+        l = []
+        for i,r in enumerate(f):
+            if cols and i and not i%cols:
+                l.append('/')
+            l.append('%s:%s' %(r[self.pkey],r[caption_field].replace(',',' ').replace(':',' ')))
+
+        return ','.join(l)
+
+
+
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
