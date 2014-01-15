@@ -285,6 +285,9 @@ function dataTemplate(str, data, path, showAlways) {
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
                                    value = attrname?valueattr[attrname]:valueNode.getValue();
+                                   if('values' in valueattr){
+                                        value = objectFromString(valueattr.values)[value];
+                                   }
                                 }else{
                                     value = auxattr[as_name]
                                 }
