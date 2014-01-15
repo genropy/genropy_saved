@@ -643,12 +643,16 @@ class SqlTable(GnrObject):
         :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
-        if not 'where' in kwargs and _pkeys:
+        if not 'where' in kwargs:
+            if not _pkeys:
+                return
             kwargs['where'] = '$%s IN :_pkeys' %self.pkey
             if isinstance(_pkeys,basestring):
                 _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
             kwargs.setdefault('excludeDraft',False)
+
+
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
