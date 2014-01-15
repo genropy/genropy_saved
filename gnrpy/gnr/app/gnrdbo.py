@@ -760,7 +760,7 @@ class AttachmentTable(GnrDboTable):
 
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
         tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc')
+        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile')
         tbl.column('description' ,name_long='!!Description')
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
@@ -782,7 +782,6 @@ class AttachmentTable(GnrDboTable):
             self.update(record,old_record=old_record)
             self.db.commit()
 
-
     def insertPdfFromDocAtc(self, attachment):
         """Creates a pdf version of a .doc/.docx attachment and inserts the a sibling record referring to it.
             Returns the new pdf attachment record
@@ -792,7 +791,7 @@ class AttachmentTable(GnrDboTable):
             attachment = self.recordAs(attachment, mode='dict')
         site = self.db.application.site
         docConverter = site.getService('doctopdf')
-        if os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
+        if docConverter and os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
             pdf_staticpath = docConverter.convert(attachment['filepath'])
             pdf_record = dict(filepath=pdf_staticpath,
                         mimetype=attachment['mimetype'],
@@ -800,7 +799,12 @@ class AttachmentTable(GnrDboTable):
                         maintable_id=attachment['maintable_id'])
             self.insert(pdf_record)
         return pdf_record
-        
+
+    def trigger_convertDocFile(self,record,**kwargs):
+        p,ext = os.path.splitext(record['filepath'])
+        if ext.lower() in ('.doc','.docx'):
+            self.insertPdfFromDocAtc(record)
+
     def trigger_onDeletedAtc(self,record,**kwargs):
         site = self.db.application.site
         fpath = site.getStaticPath('vol:%s' %record['filepath'])
