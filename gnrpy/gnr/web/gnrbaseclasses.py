@@ -173,6 +173,7 @@ class TableScriptToHtml(BagToHtml):
     html_folder = 'temp:html'
     pdf_folder = 'page:pdf'
     cached = None
+    css_requires = 'print_stylesheet'
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
