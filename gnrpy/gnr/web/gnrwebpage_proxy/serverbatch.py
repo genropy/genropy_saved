@@ -129,7 +129,7 @@ class GnrWebBatch(GnrBaseProxy):
 
     def batch_error(self, error=None, error_attr=None):
         error_doc = self._result_write(error=error, error_attr=error_attr)
-        if not self.page.page_id:
+        if not self.page.page_id or getattr(self,'is_heartbeat',False):
             return
         with self.page.userStore() as store:
             store.set_datachange('%s.error' % self.batch_path, True, reason='btc_error')
