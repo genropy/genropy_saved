@@ -29,7 +29,7 @@ class GnrDboPackage(object):
         return dict(table='%s.%s' % (pkg,tbl),field='%s_%s' % (tbl,fld), path='current_%s_%s' % (tbl,fld))
     
             
-    def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
+    def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0,**kwargs):
         """Generate a new number from the specified counter and return it.
         
         :param name: the counter name
@@ -40,7 +40,7 @@ class GnrDboPackage(object):
         :param phyear: the fiscal year
         :param lastAssigned: TODO"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
-                                                  date=date, phyear=phyear, lastAssigned=lastAssigned)
+                                                  date=date, phyear=phyear, lastAssigned=lastAssigned,**kwargs)
                                                   
     def getLastCounterDate(self, name, code, codekey, output,
                            date=None, phyear=False, lastAssigned=0):
@@ -791,6 +791,7 @@ class AttachmentTable(GnrDboTable):
             attachment = self.recordAs(attachment, mode='dict')
         site = self.db.application.site
         docConverter = site.getService('doctopdf')
+        pdf_record = None
         if docConverter and os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
             pdf_staticpath = docConverter.convert(attachment['filepath'])
             pdf_record = dict(filepath=pdf_staticpath,
@@ -1074,7 +1075,7 @@ class Table_counter(TableBase):
         
     def setCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
-                   date=None, phyear=False, value=0):
+                   date=None, phyear=False, value=0,**kwargs):
         """TODO
         
         :param name: the counter name
@@ -1086,11 +1087,11 @@ class Table_counter(TableBase):
         :param phyear: the fiscal year
         :param value: TODO"""
         self.getCounter(name, pkg, code, codekey=codekey, output=output, date=date,
-                        phyear=phyear, lastAssigned=value - 1)
+                        phyear=phyear, lastAssigned=value - 1,**kwargs)
                         
     def getCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
-                   date=None, phyear=False, lastAssigned=0):
+                   date=None, phyear=False, lastAssigned=0,**kwargs):
         """Generate a new number from the specified counter and return it as a string
         
         :param name: the counter name
