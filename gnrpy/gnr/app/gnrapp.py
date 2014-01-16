@@ -583,7 +583,7 @@ class GnrApp(object):
         if self.remote_db:
             remote_db_node = self.config.getNode('remote_db.%s' %self.remote_db)
             remotedbattr = remote_db_node.attr
-            if remotedbattr:
+            if remotedbattr and 'ssh_host' in remotedbattr:
                 db_node = self.config.getNode('db')
                 sshattr = dict(db_node.attr)
                 sshattr.update(remotedbattr)
