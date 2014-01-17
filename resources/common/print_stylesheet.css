@@ -1,5 +1,5 @@
 .document_draft{
-	background-color: red;
     background:url(images/draft.png) center center no-repeat fixed;
+    opacity: .2;
 }
 
