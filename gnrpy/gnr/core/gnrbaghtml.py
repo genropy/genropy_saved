@@ -44,6 +44,7 @@ class BagToHtml(object):
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
+    body_attributes = None
     
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
