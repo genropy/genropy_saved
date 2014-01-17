@@ -197,9 +197,9 @@ class TableScriptToHtml(BagToHtml):
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
+        self.serveAsLocalhost = pdf
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
-        self.serveAsLocalhost = pdf
         if not html:
             return False
         if not pdf:
