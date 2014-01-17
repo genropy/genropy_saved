@@ -229,7 +229,7 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',self.serveAsLocalhost))
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',serveAsLocalhost=self.serveAsLocalhost))
             else:
                 css_requires.append(css_require)
         return css_requires

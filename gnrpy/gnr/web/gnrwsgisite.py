@@ -1358,7 +1358,7 @@ class GnrWsgiSite(object):
         cr = self.currentRequest
         path = cr.relative_url(path)
         if serveAsLocalhost:
-            path = path.replace(path.replace(':%s'%cr.host_port,''),'localhost')
+            path = path.replace(cr.host.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
         return path
