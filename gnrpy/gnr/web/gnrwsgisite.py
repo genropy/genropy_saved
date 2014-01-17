@@ -1348,14 +1348,17 @@ class GnrWsgiSite(object):
         zip_archive.close()
         zipresult.close()
 
-    def externalUrl(self, path, **kwargs):
+    def externalUrl(self, path,serveAsLocalhost=None, **kwargs):
         """TODO
         
         :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
         if path == '': path = self.home_uri
-        path = self.currentRequest.relative_url(path)
+        cr = self.currentRequest
+        path = cr.relative_url(path)
+        if serveAsLocalhost:
+            path = path.replace(path.replace(':%s'%cr.host_port,''),'localhost')
         if params:
             path = '%s?%s' % (path, params)
         return path

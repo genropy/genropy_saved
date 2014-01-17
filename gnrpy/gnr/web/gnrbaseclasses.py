@@ -188,7 +188,7 @@ class TableScriptToHtml(BagToHtml):
         self.print_handler = self.page.getService('print')
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None,serveAsLocalhost=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -197,9 +197,10 @@ class TableScriptToHtml(BagToHtml):
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
-        self.serveAsLocalhost = pdf
+        self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        
         if not html:
             return False
         if not pdf:
@@ -228,13 +229,7 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                if not self.serveAsLocalhost:
-                    l = self.page.getResourceExternalUriList(css_require,'css')
-                    ex = self.page.getResourceUriList(css_require,'css')
-                    print 'resource_uri locale',l,'external',ex
-                    css_requires.extend(l)
-                else:
-                    css_requires.extend(self.page.getResourceUriList(css_require,'css'))
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',self.serveAsLocalhost))
             else:
                 css_requires.append(css_require)
         return css_requires
