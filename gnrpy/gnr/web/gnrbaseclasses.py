@@ -199,6 +199,7 @@ class TableScriptToHtml(BagToHtml):
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        self.serveAsLocalhost = pdf
         if not html:
             return False
         if not pdf:
@@ -227,7 +228,10 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
+                if not self.serveAsLocalhost:
+                    css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
+                else:
+                    css_requires.extend(self.page.getResourceUriList(css_require,'css'))
             else:
                 css_requires.append(css_require)
         return css_requires
