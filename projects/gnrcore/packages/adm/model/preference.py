@@ -29,7 +29,6 @@ class Table(object):
 
     def envPreferences(self,username=None):
         preferences = self.getPreference('*')
-
         if username:
             userpref = self.db.table('adm.user').getPreference(path='*',username=username)
             if userpref:
@@ -37,6 +36,12 @@ class Table(object):
                     preferences.update(userpref)
                 else:
                     preferences = userpref
+        for pkgId,pkgpref in preferences.items():
+            pkgObj = self.db.application.packages[pkgId]
+            if not pkgObj:continue
+            for k,v in pkgObj.envPreferences().items():
+                if pkgpref.getNode(k):
+                    pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None
 
 

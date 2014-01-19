@@ -534,8 +534,13 @@ class GnrPackage(object):
         
     def onApplicationInited(self):
         """TODO"""
-        pass
-        
+        pass  
+
+    def envPreferences(self):
+        "key:preference path, value:path inside dbenv"
+        return {}
+
+
 class GnrApp(object):
     """Opens a GenroPy application :ref:`instance <instances>`
     
