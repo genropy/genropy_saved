@@ -350,6 +350,8 @@ class MailHandler(GnrBaseService):
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        if ',' in to_address:
+            to_address = to_address.split(',')
         message_date = message_date or datetime.datetime.now()
         if isinstance(message_date,datetime.datetime):
             message_date = formatdate(time.mktime(message_date.timetuple()))
