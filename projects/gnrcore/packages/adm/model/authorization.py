@@ -62,8 +62,8 @@ class Table(object):
         if not record_data.get('expiry_date'):
             record_data['expiry_date']=self.db.workdate
         toassign=True
-        while toassign:
-            record_data['code'] = self.generate_code()
-            print record_data,toassign
-            toassign = self.existsRecord(record_data)
+        if not record_data['code']:
+            while toassign:
+                record_data['code'] = self.generate_code()
+                toassign = self.existsRecord(record_data)
             
