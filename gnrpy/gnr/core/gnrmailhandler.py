@@ -411,7 +411,7 @@ class MailHandler(GnrBaseService):
                 email_address.extend(dest)
             else:
                 email_address.append(dest)
-        smtp_connection.sendmail(from_address, (to_address, cc_address, bcc_address), msg_string)
+        smtp_connection.sendmail(from_address, email_address, msg_string)
         print 'sent'
         smtp_connection.close()
         
