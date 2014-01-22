@@ -63,6 +63,7 @@ class Main(BaseResourceMail):
         to_address = templateReplace(self.mail_pars.getItem('to_address',''),record)
         subject = templateReplace(self.mail_pars.getItem('subject',''),record)
         cc_address = templateReplace(self.mail_pars.getItem('cc_address',''),record)
+
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
                                     locale=self.page.locale,
@@ -75,7 +76,7 @@ class Main(BaseResourceMail):
                                 record=record, thermo=thermo, pdf=as_pdf,
                                 **self.batch_parameters)
         if result:
-            attachments = self.mail_pars['attachments']
+            attachments = templateReplace(self.mail_pars.getItem('attachments',''),record)
             body = None
             if as_pdf:
                 attachments.append(result)
