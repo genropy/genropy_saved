@@ -28,7 +28,7 @@ class Table(object):
         return result or dflt
 
     def envPreferences(self,username=None):
-        preferences = self.getPreference('*')
+        preferences = self.getPreference('*') or dict()
         if username:
             userpref = self.db.table('adm.user').getPreference(path='*',username=username)
             if userpref:
