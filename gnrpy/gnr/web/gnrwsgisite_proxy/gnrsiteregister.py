@@ -50,11 +50,20 @@ def remotebag_wrapper(func):
         return func(self,*args,**kwargs)
     return decore
 
+class BaseRemoteObject(object):
+    def onSizeExceeded(self, msg_size, method, vargs, kwargs):
+        print '[%i-%i-%i %i:%i:%i]-----%s-----'%((time.localtime()[:6])+(self.__class__.__name__.upper(),))
+        print 'Message size:', msg_size
+        print 'Method :', method
+        print 'vargs, kwargs', vargs, kwargs
+        print '**********'
+
 #------------------------------- REMOTEBAG server SIDE ---------------------------
-class RemoteStoreBagHandler(object):
+class RemoteStoreBagHandler(BaseRemoteObject):
     def __init__(self,siteregister):
         self.siteregister = siteregister
- 
+
+
     def __getattr__(self,name):
         if name=='_pyroId':
             return self._pyroId
@@ -65,7 +74,7 @@ class RemoteStoreBagHandler(object):
             if '_pyrosubbag' in kwargs:
                 _pyrosubbag = kwargs.pop('_pyrosubbag')
                 store = store.getItem(_pyrosubbag)
-            h = getattr(store,name)
+            h = getattr(store,name, None)
             if not h:
                 raise AttributeError("PyroSubBag at %s has no attribute '%s'" % (_pyrosubbag,name))
             else:
@@ -122,7 +131,7 @@ class RemoteStoreBag(object):
 
 
 
-class BaseRegister(object):
+class BaseRegister(BaseRemoteObject):
     """docstring for BaseRegister"""
     def __init__(self, siteregister):
         self.siteregister = siteregister
@@ -494,7 +503,7 @@ class PageRegister(BaseRegister):
             else:
                 self.set_datachange(page_id,path=path,value=value,reason=reason, attributes=attributes, fired=fired)
 
-class SiteRegister(object):
+class SiteRegister(BaseRemoteObject):
     def __init__(self,server,sitename=None,storage_path=None):
         self.server = server
         self.page_register = PageRegister(self)
@@ -510,12 +519,7 @@ class SiteRegister(object):
         self.allowed_users = None
 
 
-    def onSizeExceeded(self, msg_size, method, vargs, kwargs):
-        print '-----SITEREGISTER-----'
-        print 'Message size:', msg_size
-        print 'Method :', method
-        print 'vargs, kwargs', vargs, kwargs
-        print '**********'
+
 
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()
@@ -813,7 +817,7 @@ class SiteRegister(object):
         def decore(*args,**kwargs):
             register_name = kwargs.pop('register_name',None)
             if not register_name:
-                return getattr(self,fname)(*args,**kwargs)
+                return self.__getattribute__(fname)(*args,**kwargs)
             register = self.get_register(register_name)
             h = getattr(register,fname)
             return h(*args,**kwargs)
