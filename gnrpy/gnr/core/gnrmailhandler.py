@@ -302,6 +302,8 @@ class MailHandler(GnrBaseService):
         from_address = from_address or get_templated('from_address')
         reply_to = reply_to or get_templated('reply_to')
         subject = subject or get_templated('subject')
+        templated_attachments = get_templated('attachments')
+        attachments = attachments or templated_attachments.split('\n') if templated_attachments else []
         body = body or get_templated('body')
         body = templateReplace(body, datasource)
         self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
