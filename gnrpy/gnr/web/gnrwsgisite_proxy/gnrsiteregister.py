@@ -509,6 +509,14 @@ class SiteRegister(object):
         self.maintenance = False
         self.allowed_users = None
 
+
+    def onSizeExceeded(self, msg_size, method, vargs, kwargs):
+        print '-----SITEREGISTER-----'
+        print 'Message size:', msg_size
+        print 'Method :', method
+        print 'vargs, kwargs', vargs, kwargs
+        print '**********'
+
     def setConfiguration(self,cleanup=None):
         cleanup = cleanup or dict()
         self.cleanup_interval = int(cleanup.get('interval') or 120)
