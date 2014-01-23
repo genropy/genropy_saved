@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=True,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -98,7 +98,7 @@ class TableHandlerView(BaseComponent):
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,store_kwargs=store_kwargs)
+                        condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -381,7 +381,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None,title=None,store_kwargs=None):
+                        virtualStore=None,condition=None,unlinkdict=None,title=None,liveUpdate=True,store_kwargs=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -402,10 +402,9 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
-
-
+        liveUpdate = False if liveUpdate is False else options.get('liveUpdate',True)
+        store_kwargs.setdefault('externalChanges',liveUpdate)
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
-            
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
                         custom_title=title or options.get('title') or False,
@@ -443,7 +442,8 @@ class TableHandlerView(BaseComponent):
         else:
             chunkSize = None
             selectionName = None
-        self.subscribeTable(table,True)
+        if liveUpdate:
+            self.subscribeTable(table,True)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         _if = condPars.pop('_if',None) or condPars.pop('if',None)
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
@@ -461,7 +461,7 @@ class TableHandlerView(BaseComponent):
                                _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
-                               row_start='0', externalChanges=True,
+                               row_start='0',
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),

@@ -19,8 +19,39 @@ class GnrWsgiWebApp(GnrApp):
 
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
-        self.site.onDbCommitted()
-   
+        dbeventsDict= self.db.currentEnv.pop('dbevents',None)
+        if dbeventsDict:
+            page = self.site.currentPage
+            tables = [k for k,v in dbeventsDict.items() if v]
+            subscribed_tables = self.site.register.filter_subscribed_tables(tables,register_name='page')
+            if subscribed_tables:
+                for table in set(tables).difference(subscribed_tables):
+                    dbeventsDict.pop(table)         
+                for table,dbevents in dbeventsDict.items():
+                    dbeventsDict[table] = self._compress_dbevents(dbevents)
+                self.site.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
+            self.db.updateEnv(env_transaction_id= None,dbevents=None)
+
+    def _compress_dbevents(self,dbevents):
+        event_index = dict()
+        result = list()
+        filter_ignored = False
+        for event in dbevents:
+            pkey = event['pkey']
+            eventype = event['dbevent']
+            if not pkey in event_index:
+                event_index[pkey] = len(result)
+                result.append(event)
+            else:
+                event_to_update = result[event_index[pkey]]
+                if eventype=='U':
+                    event.pop('dbevent')
+                elif eventype=='D' and event_to_update['dbevent'] == 'I':
+                    event['dbevent'] = 'X'
+                    filter_ignored = True
+                event_to_update.update(event)
+        return filter(lambda r: r['dbevent']!='X', result) if filter_ignored else result
+
     def _get_pagePackageId(self, filename):
         _packageId = None
         fpath, last = os.path.split(os.path.realpath(filename))
