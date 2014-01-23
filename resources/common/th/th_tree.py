@@ -283,7 +283,7 @@ class HTableTree(BaseComponent):
     def ht_pathFromPkey(self,table=None,pkey=None,dbstore=None):
         tblobj = self.db.table(table)
         hierarchical_pkey =  tblobj.readColumns(columns='$hierarchical_pkey',pkey=pkey,_storename=dbstore)
-        path = hierarchical_pkey.replace('/','.')
+        path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
         return path
 
         
