@@ -557,6 +557,8 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
 });
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
+    _default_ext : 'png,jpg,jpeg,gif,html,pdf',
+
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
         var condFunc = objectPop(attributes, 'condition_function');
@@ -683,21 +685,41 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);   
-            var loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
-            domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:url('+loadingpath+') no-repeat center center;"></div>'; 
-            sourceNode.currentSetTimeout = setTimeout(function(d, url) {
-                var absUrl = document.location.protocol + '//' + document.location.host + url;
-                if (absUrl != d.src) {
-                    if (d.src && sourceNode.attr.onUpdating) {
-                        sourceNode.attr.onUpdating();
+            var doset = this.initContentHtml(domnode,v);
+            if (doset){
+                sourceNode.currentSetTimeout = setTimeout(function(d, url) {
+                    var absUrl = document.location.protocol + '//' + document.location.host + url;
+                    if (absUrl != d.src) {
+                        if (d.src && sourceNode.attr.onUpdating) {
+                            sourceNode.attr.onUpdating();
+                        }
+                        d.src = url;
                     }
-                    d.src = url;
-                }
-            }, sourceNode.attr.delay || 1, domnode, v);
+                }, sourceNode.attr.delay || 1, domnode, v);
+            }
+            
         }else{
             domnode.src = null;
         }
     },
+
+    initContentHtml:function(domnode,src){
+        var parsedSrc = parseURL(src);
+        var loadingpath;
+        if(parsedSrc.file && parsedSrc.file.split('.')[1] && this._default_ext.indexOf(parsedSrc.file.split('.')[1].toLowerCase())<0){
+            loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/download_file.png';
+            domnode.contentWindow.document.body.innerHTML = '<a href="'+src+'"><div style="height:100%;width:100%;background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div></a>'; 
+            return false;
+        }else if(!parsedSrc.file){
+            domnode.src = null;
+            return false
+        }
+        domnode.src = null;
+        loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
+        domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
+        return true;
+    },
+
     postMessage:function(sourceNode,message){
         sourceNode.watch('windowMessageReady',function(){
             return sourceNode.domNode.contentWindow && sourceNode.domNode.contentWindow._windowMessageReady;
