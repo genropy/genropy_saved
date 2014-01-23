@@ -39,6 +39,7 @@ class TableHandler(BaseComponent):
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
                             export_kwargs=None,
+                            liveUpdate=True,
                             picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,**kwargs):
         if relation:
@@ -106,7 +107,7 @@ class TableHandler(BaseComponent):
                                 condition=condition,condition_kwargs=condition_kwargs,
                                 grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
                                 preview_kwargs=preview_kwargs,
-                                parentForm=parentForm,
+                                parentForm=parentForm,liveUpdate=liveUpdate,
                                 **view_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:
