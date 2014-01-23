@@ -87,7 +87,8 @@ class AttachManagerView(BaseComponent):
 
 class Form(BaseComponent):
     def th_form(self, form):
-        form.center.contentPane(datapath='.record',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',width='100%',border='0px')
+        form.center.contentPane(datapath='.record',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+                                                                            width='100%',border='0px',documentClasses=True)
 
     def th_options(self):
         return dict(showtoolbar=False,showfooter=False)
@@ -96,6 +97,8 @@ class ViewPalette(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('description',width='100%',name='!!Attachment')
+        r.fieldcell('fileurl',hidden=True)
+
     def th_view(self,view):
         view.top.popNode('bar')
 
@@ -114,6 +117,7 @@ class AttachManager(BaseComponent):
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
                                         autoSelect=True,
+
                                      semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
