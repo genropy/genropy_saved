@@ -1174,14 +1174,6 @@ class GnrWsgiSite(object):
                 page.sql_count = page.sql_count + 1
                 page.sql_time = page.sql_time + kwargs.get('delta_time',0)
 
-    def onDbCommitted(self):
-        """TODO"""
-        dbeventsDict= self.db.currentEnv.pop('dbevents',None)
-        if dbeventsDict:
-            page = self.currentPage
-            self.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
-            self.db.updateEnv(env_transaction_id= None,dbevents=None)
-                                 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())

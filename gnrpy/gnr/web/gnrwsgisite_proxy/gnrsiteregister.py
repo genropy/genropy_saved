@@ -390,6 +390,11 @@ class PageRegister(BaseRegister):
             if not n:
                 self.siteregister.drop_connection(connection_id)
 
+    def filter_subscribed_tables(self,table_list):
+        s = set()
+        for k,v in self.items():
+            s.update(v['subscribed_tables'])
+        return list(s.intersection(table_list))
 
     def subscribed_table_page_keys(self,table):
         return [k for k,v in self.items() if table in v['subscribed_tables']]
