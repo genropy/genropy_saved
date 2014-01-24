@@ -436,7 +436,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             var xmlsize = parseFloat(ioArgs.xhr.getResponseHeader('X-GnrXMLSize') || 0);
             var callcounter = ioArgs.args.content.callcounter;
             if(callcounter!=null){
-                genro.rpcHeaderInfo[callcounter] = {xml_time:xmltime,xml_size:xmlsize,total_time:new Date()-ioArgs.args.start_time};
+                genro.rpcHeaderInfo[callcounter] = {xml_time:xmltime,xml_size:xmlsize};
                 //console.log('genro.rpcHeaderInfo',genro.rpcHeaderInfo)
             }
         }
