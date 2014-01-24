@@ -3260,9 +3260,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return this.indexByCb(cb) >= 0;
     },
-    mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo) {
+    mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo,default_idx) {
         var selection = this.selection;
-        var idx = null;
+        var idx = -1;
         if (attrValue instanceof Array) {
             selection.unselectAll();
             var grid = this;
@@ -3274,13 +3274,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         } else {
             var idx = this.indexByRowAttr(attrName, attrValue, op);
+            if(idx<0 && default_idx!=null && default_idx>=0 ){
+                idx = default_idx;
+            }
             if(idx>=0){
                 selection.select(idx);
             }
         }
         if(scrollTo && typeof(idx)=='number' && idx>=0){
-            this.scrollToRow(idx);
+            this.scrollToRow(scrollTo===true?idx:scrollTo);
         }
+        return idx;
     },
 
     mixin_rowBagNode: function(idx) {
@@ -4503,15 +4507,17 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_selectionKeeper:function(flag,loadkw) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
+            var prevSelectedIndexes = this.selection.getSelected();
             var identifier = this._identifier;
             var that = this;
-            dojo.forEach(this.selection.getSelected(), function(idx) {
+            dojo.forEach(prevSelectedIndexes, function(idx) {
                 prevSelectedIdentifiers.push(that.rowIdByIndex(idx));
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
             this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
+            this.prevSelectedIdx = (prevSelectedIndexes.length==1) ?prevSelectedIndexes[0]:-1;
+            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow,prevSelectedIdx:this.prevSelectedIdx};
 
-            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow}
             //this.prevFilterValue = this.currentFilterValue;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
@@ -4520,15 +4526,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             if(loadkw){
                 this.prevSelectedIdentifiers = loadkw.prevSelectedIdentifiers;
                 this.prevFirstVisibleRow = loadkw.prevFirstVisibleRow;
+                this.prevSelectedIdx = loadkw.prevSelectedIdx;
                 this._saved_selections = null;
             }
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
-                this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
+                this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers,null,this.prevFirstVisibleRow,this.prevSelectedIdx);
+                this.prevSelectedIdx = null;
                 this.prevSelectedIdentifiers = null;
-                if (this.prevFirstVisibleRow) {
-                    this.scrollToRow(this.prevFirstVisibleRow);
-                    this.prevFirstVisibleRow = null; 
-                }
+                this.prevFirstVisibleRow = null;
             }
            //if(this.prevFilterValue){
            //    this.applyFilter(this.prevFilterValue);
