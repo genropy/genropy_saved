@@ -3263,6 +3263,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo,default_idx) {
         var selection = this.selection;
         var idx = -1;
+        if (attrValue instanceof Array && attrValue.length==1){
+            attrValue = attrValue[0];
+        }
         if (attrValue instanceof Array) {
             selection.unselectAll();
             var grid = this;
