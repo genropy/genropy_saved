@@ -326,7 +326,10 @@ class TemplateEditor(TemplateEditorBase):
         fb = top.div(margin_right='15px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
+        fb.textbox(value='^.from_address', lbl='!!From',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        fb.textbox(value='^.bcc_address', lbl='!!BCC',dropTypes = 'text/plain')
+
         fb.simpleTextArea(value='^.attachments', lbl='!!Attachments',dropTypes = 'text/html')
 
         editorConstrain = editorConstrain or dict()
@@ -479,7 +482,8 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):
         record = None
         if data['metadata.email']:
-            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
+            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],
+                                                                    varsbag=data['varsbag'],parametersbag=data['parameters'])
         data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
         pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
         record.pop('data')
