@@ -320,7 +320,27 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             {message: msg, type: level, duration: duration}
         ]);
     },
-    
+
+    remoteDialog:function(name,remote,remoteKw,dlgKw){
+        var remoteKw = remoteKw || {};
+        var dlgKw = dlgKw || {};
+        dlgKw.nodeId = 'remote_dlg_'+name;
+        var dlgNode = genro.nodeById(dlgKw.nodeId);
+        if(!dlgNode){
+            var dlg = genro.src.create('dialog',dlgKw,'_rmt_dlg');
+            var kw = {};
+            for (var k in remoteKw){
+                kw['remote_'+k] = remoteKw[kw];
+            }
+            kw.min_height = '1px';
+            kw.min_width = '1px';
+            kw.remote = remote;
+            console.log('remote pars',kw);
+            dlg._('div',kw);
+            dlgNode = dlg.getParentNode();
+        }
+        dlgNode.widget.show()
+    },
     
     prompt: function(title, kw,sourceNode) {
         var kw = kw || {};

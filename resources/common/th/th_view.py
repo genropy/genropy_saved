@@ -156,6 +156,7 @@ class TableHandlerView(BaseComponent):
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
             footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
             footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
+            footer.button('!!Configure',action='genro.dev.fieldsTreeConfigurator(table)',table=table)
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):

@@ -7152,6 +7152,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         else if (!item._id) {
             item = node.getParent().item;
         }
+        var root = this.model.store.rootData();
+        var itemFullPath = item.getFullpath(null, root);
         if (this.sourceNode.attr.selectedLabel) {
             var path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
             setterNode.setRelativeData(path, item.label, attributes, null, reason);
@@ -7162,8 +7164,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (this.sourceNode.attr.selectedPath) {
             var path = this.sourceNode.attrDatapath('selectedPath', setterNode);
-            var root = this.model.store.rootData();
-            setterNode.setRelativeData(path, item.getFullpath(null, root), objectUpdate(attributes, item.attr), null, reason);
+            setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         for (var sel in selattr) {
@@ -7173,6 +7174,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
         }
+        this.sourceNode.publish('onSelected',{path:itemFullPath,item:item,node:node})
     }
 });
 
