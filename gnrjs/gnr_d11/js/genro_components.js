@@ -1049,7 +1049,8 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         }
 
         var bc = sourceNode._('BorderContainer');
-        var treepane = bc._('ContentPane',{region:'left',width:objectPop(treekw,'width') || '200px',splitter:true})._('div',{position:'absolute',top:'1px',left:'1px',right:'1px',bottom:'1px',overflow:'auto'})
+        var treepane = bc._('ContentPane',{region:'left',width:objectPop(treekw,'width') || '200px',splitter:true,
+                                            border_right:'1px solid #efefef',background:'#EBEBEB'})._('div',{position:'absolute',top:'1px',left:'1px',right:'1px',bottom:'1px',overflow:'auto'})
         var tree = treepane._('tree',treekw);
         gnrwdg.treeNode = tree.getParentNode();
         var frameCode = 'bagEditor_'+ genro.getCounter();

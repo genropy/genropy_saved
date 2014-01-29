@@ -709,6 +709,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 palette._('div',{innerHTML:content});
             }else if(content instanceof gnr.GnrDomSourceNode){
                 palette.setItem(content.label,content._value,content.attr);
+            }else if(typeof(content)=='function'){
+                content(palette);
             }else{
                 var tag = objectPop(content,'tag') || 'div';
                 palette._(tag,content);

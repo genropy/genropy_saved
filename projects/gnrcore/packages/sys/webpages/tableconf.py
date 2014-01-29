@@ -51,7 +51,8 @@ class GnrCustomWebPage(object):
 
         frame.left.slotBar('10,fieldsTree,*',width='200px',closable=True,fieldsTree_table=self.maintable,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-
+        frame.bagEditor(storepath='.menu.store',
+                        **{str('onDrop_gnrdbfld_%s' %self.maintable.replace('.','_')):"genro.bp(true)"})
 
 
 
