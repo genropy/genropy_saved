@@ -115,6 +115,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
             var d = this.save({onSaved:'lazyReload',waitingStatus:false});
+            this.getFormData().walk(function(n){
+                delete n.attr._loadedValue;
+            },'static');
             if(savedCb){
                 d.addCallback(savedCb);
             }
@@ -943,21 +946,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var savedPkey = result.savedPkey;
         this.setCurrentPkey(savedPkey);
         var data = this.getFormData();
-        var sentData = objectPop(result,'_sent_data');
-        var sentRecord = sentData.pop('record');
-        sentRecord.setBackRef();
-        sentRecord.walk(function(n){
-            if(n._value instanceof gnr.GnrBag){
-                return
-            }
-            var p = n.getFullpath();
-            var currN = data.getNode(p);
-            if(currN._value==n._value){
-                delete currN.attr._loadedValue;
-            }else{
-                currN.attr._loadedValue = n._value;
-            }
-        },'static');
         var savedAttr = result.savedAttr;
         if(savedAttr){
             if(savedAttr.lastTS){
@@ -973,15 +961,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 rn.getValue().setItem('__mod_ts',convertFromText(t),null,{doTrigger:false})
             }
         }
-        var invalidFields = this.getDataNodeAttributes()['_invalidFields'];
-        if(invalidFields && objectNotEmpty(invalidFields)){
-            var fdata = this.getFormData();
-            for (var p in invalidFields){
-                fdata.setItem(p,fdata.getItem(p));
-            }
-        }
+        this.reset();
         this.setOpStatus();
         this.__last_save = new Date()
+        //if there allowing invalid fields save. this lines force the widget error
+        var invalidFields = this.getDataNodeAttributes()['_invalidFields'];
+        if(invalidFields && objectNotEmpty(invalidFields)){
+            for (var p in invalidFields){
+                data.setItem(p,data.getItem(p));
+            }
+        }
     },
 
     setKeptData:function(valuepath,value,set){
@@ -1220,7 +1209,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 var changes = this.getChangesLogger();
                 var changekey = this.getChangeKey(kw.node);
 
-                if ((!('_loadedValue' in kw.node.attr )) || (kw.node.attr._loadedValue != kw.oldvalue)) {//has never been changed before
+                if (!('_loadedValue' in kw.node.attr)) {//has never been changed before
                     kw.node.attr._loadedValue = kw.oldvalue;
                     changed = true;
                     //console.log('dataChangeLogger NEWCHANGE: ' + path);
@@ -1229,7 +1218,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     changed = false;
                     //console.log('dataChangeLogger UNCHANGED: ' + path);
                 }
-
                 if (changed) {
                     changes.setItem(changekey, null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():kw.node.label,
                                                     from:kw.oldvalue,to:kw.value});
@@ -2134,7 +2122,6 @@ dojo.declare("gnr.formstores.Base", null, {
                     resultDict.savedAttr=pkeyNode.attr;
                 }
             }
-            resultDict._sent_data = data;
             that.saved(resultDict);
             return resultDict;
         };
