@@ -114,7 +114,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     lazySave:function(savedCb){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
-            var d = this.save({onSaved:'lazyReload'});
+            var d = this.save({onSaved:'lazyReload',waitingStatus:false});
             if(savedCb){
                 d.addCallback(savedCb);
             }
@@ -192,6 +192,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     reset: function() {
+        console.log('resetting')
         this.resetChanges();
         this.resetInvalidFields();
     },
@@ -882,7 +883,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             saverNode.fireNode();
             return saverNode._lastDeferred;
         }else if(this.store) {
-            var waitingStatus = objectPop(kw,'waitingStatus') || this.store.handlers.save.kw.waitingStatus;
+            var waitingStatus = objectPop(kw,'waitingStatus');
+            if(waitingStatus===null){
+                waitingStatus = this.store.handlers.save.kw.waitingStatus===false?false:true;
+            }
             this.waitingStatus(waitingStatus);
             var onSaved = objectPop(kw,'onSaved') || this.store.onSaved;
             if(destPkey=='*dismiss*'){
@@ -917,8 +921,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }else{
+                that.reset();
                 cb=function(result){
-                    that.reset();
                     if(onSaved in that){
                         that[onSaved](result);
                     }else if(onSaved){
@@ -1209,7 +1213,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 var changes = this.getChangesLogger();
                 var changekey = this.getChangeKey(kw.node);
 
-                if (!('_loadedValue' in kw.node.attr)) {//has never been changed before
+                if ((!('_loadedValue' in kw.node.attr )) || (kw.node.attr._loadedValue != kw.oldvalue)) {//has never been changed before
                     kw.node.attr._loadedValue = kw.oldvalue;
                     changed = true;
                     //console.log('dataChangeLogger NEWCHANGE: ' + path);
