@@ -529,15 +529,15 @@ class SqlTable(GnrObject):
 
         return ','.join(l)
 
-
-
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
         record = self.recordAs(recordOrKey,mode='dict')
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
-            if obj.attributes.get('unique') or (obj.attributes.get('_sysfield') and colname!='parent_id'):
+            if colname =='__is_draft' or colname == 'parent_id':
+                continue
+            if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
                 record.pop(colname,None)
         if hasattr(self,'onDuplicating'):
             self.onDuplicating(record)
