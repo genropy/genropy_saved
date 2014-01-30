@@ -535,7 +535,7 @@ class SqlTable(GnrObject):
         record = self.recordAs(recordOrKey,mode='dict')
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
-            if colname =='__is_draft' or colname == 'parent_id':
+            if colname == self.draftField or colname == 'parent_id':
                 continue
             if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
                 record.pop(colname,None)
