@@ -921,7 +921,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }else{
-                that.reset();
+                this.reset();
                 cb=function(result){
                     if(onSaved in that){
                         that[onSaved](result);
