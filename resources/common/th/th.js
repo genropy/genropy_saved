@@ -388,6 +388,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.formStoreKwargs = sourceNode.attr._formStoreKwargs || {};
     },
     openrecord:function(kw){
+        var kw = typeof(kw)=='string'?{destPkey:kw}:kw;
         genro.publish('form_'+this.fakeFormId+'_onLoading');
         if(this.iframeForm){
             this.iframeForm.load(kw);
