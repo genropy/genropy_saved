@@ -51,10 +51,34 @@ class GnrCustomWebPage(object):
 
         frame.left.slotBar('10,fieldsTree,*',width='200px',closable=True,fieldsTree_table=self.maintable,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        frame.bagEditor(storepath='.menu.store',
-                        **{str('onDrop_gnrdbfld_%s' %self.maintable.replace('.','_')):"genro.bp(true)"})
+        menudata = self.db.table(self.maintable).getCustomFieldsMenu() or Bag()
+        frame.data('.menu.store._root',menudata,caption='Fields')
+        tree_kw = dict()
+        dropCode = 'onDrop_gnrdbfld_%s' %self.maintable.replace('.','_')
+        tree_kw['tree_%s' %dropCode] = """var storebag = this.getRelativeData(this.attr.storepath);
+                                          var p = dropInfo.treeItem.getFullpath(null,storebag) || '_root';
+                                          var branch = storebag.getItem(p);
+                                          if(!branch){
+                                             branch = new gnr.GnrBag();
+                                             storebag.setItem(p,branch);
+                                          }
+                                          var nodelabel = objectPop(data,'_nodelabel');
+                                          var kw = objectExtract(data,'fieldpath,caption,dtype,maintable')
+                                          branch.setItem(nodelabel,null,kw);"""
+        tree_kw['tree_dropCode'] = dropCode
+        tree_kw['tree_dropTargetCb'] = "return dropInfo.treeItem.attr.dtype==null;"
 
+        tree_kw['tree_dropTarget'] = True
+        #tree_kw['tree_dropTargetCb'] = 'return true'
+        frame.contentPane(overflow='hidden').bagEditor(storepath='.menu.store',labelAttribute='caption',addrow=True,**tree_kw)
+        frame.bottom.slotBar('*,saveBtn,3',_class='slotbar_dialog_footer').saveBtn.button('Save',fire='.saveMenuUserObject')
+        frame.dataRpc('dummy',self.saveMenuUserObject,_fired='^.saveMenuUserObject',data='=.menu.store._root')
 
+    @public_method
+    def saveMenuUserObject(self,data,**kwargs):
+        metadata = Bag()
+        metadata['code'] = '%s_fieldstree' %self.maintable.replace('.','_')
+        self.db.table('adm.userobject').saveUserObject(table=self.maintable,objtype='fieldsmenu',data=data,metadata=metadata)
 
 
     @public_method

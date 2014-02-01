@@ -264,6 +264,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 return false;
             }
             var fldinfo = objectUpdate({}, treeItem.attr);
+            fldinfo._nodelabel = treeItem.label;
             fldinfo['maintable'] = table;
             dragValues['text/plain'] = treeItem.attr.fieldpath;
             dragValues[dragCode] = fldinfo;

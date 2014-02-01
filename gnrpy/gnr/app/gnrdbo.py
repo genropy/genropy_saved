@@ -668,6 +668,11 @@ class TableBase(object):
         dest_db.table(self.fullname).deleteSelection(where='$%s IN :missing' %self.pkey,missing=missing)
 
 
+    def getCustomFieldsMenu(self):
+        data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
+        return data
+
+
 class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self,**kwargs):
