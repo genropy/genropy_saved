@@ -51,35 +51,57 @@ class GnrCustomWebPage(object):
 
         frame.left.slotBar('10,fieldsTree,*',width='200px',closable=True,fieldsTree_table=self.maintable,
                             fieldsTree_height='100%',splitter=True,border_left='1px solid silver')
-        menudata = self.db.table(self.maintable).getCustomFieldsMenu() or Bag()
-        frame.data('.menu.store._root',menudata,caption='Fields')
+        menudata,metadata = self.db.table(self.maintable).getCustomFieldsMenu()
+        frame.data('.menu.store._root',menudata or Bag(),caption='Fields')
+        if metadata:
+            frame.data('.menu.pkey',metadata['pkey'])
         tree_kw = dict()
-        dropCode = 'onDrop_gnrdbfld_%s' %self.maintable.replace('.','_')
-        tree_kw['tree_%s' %dropCode] = """var storebag = this.getRelativeData(this.attr.storepath);
+        dropCode = 'gnrdbfld_%s' %self.maintable.replace('.','_')
+        tree_kw['tree_onDrop_%s' %dropCode] = """ 
+                                        var storebag = this.getRelativeData(this.attr.storepath);
+
                                           var p = dropInfo.treeItem.getFullpath(null,storebag) || '_root';
                                           var branch = storebag.getItem(p);
                                           if(!branch){
                                              branch = new gnr.GnrBag();
                                              storebag.setItem(p,branch);
                                           }
+
                                           var nodelabel = objectPop(data,'_nodelabel');
+                                          var fullpath = objectPop(data,'_fullpath');
+                                          if(fullpath){
+                                            storebag.popNode(fullpath);
+                                          }
                                           var kw = objectExtract(data,'fieldpath,caption,dtype,maintable')
                                           branch.setItem(nodelabel,null,kw);"""
         tree_kw['tree_dropCode'] = dropCode
         tree_kw['tree_dropTargetCb'] = "return dropInfo.treeItem.attr.dtype==null;"
+        tree_kw['tree_draggable'] = True
+        tree_kw['tree_onDrag'] = """
+            var sn = dragInfo.sourceNode;
+            var storebag = sn.getRelativeData(sn.attr.storepath);
+            var fldinfo = objectUpdate({}, treeItem.attr);
+            fldinfo._nodelabel = treeItem.label;
+            fldinfo._fullpath = treeItem.getFullpath(null,storebag);
+            dragValues['text/plain'] = treeItem.attr.fieldpath;
+            dragValues['%s'] = fldinfo;
+
+        """ %dropCode
 
         tree_kw['tree_dropTarget'] = True
         #tree_kw['tree_dropTargetCb'] = 'return true'
         frame.contentPane(overflow='hidden').bagEditor(storepath='.menu.store',labelAttribute='caption',addrow=True,**tree_kw)
         frame.bottom.slotBar('*,saveBtn,3',_class='slotbar_dialog_footer').saveBtn.button('Save',fire='.saveMenuUserObject')
-        frame.dataRpc('dummy',self.saveMenuUserObject,_fired='^.saveMenuUserObject',data='=.menu.store._root')
+        frame.dataRpc('dummy',self.saveMenuUserObject,_fired='^.saveMenuUserObject',
+                        data='=.menu.store._root',pkey='=.menu.pkey',_onResult='SET .menu.pkey=result')
 
     @public_method
-    def saveMenuUserObject(self,data,**kwargs):
+    def saveMenuUserObject(self,data=None,pkey=None,**kwargs):
         metadata = Bag()
+        metadata['pkey'] = pkey
         metadata['code'] = '%s_fieldstree' %self.maintable.replace('.','_')
-        self.db.table('adm.userobject').saveUserObject(table=self.maintable,objtype='fieldsmenu',data=data,metadata=metadata)
-
+        pkey,record = self.db.table('adm.userobject').saveUserObject(table=self.maintable,objtype='fieldsmenu',data=data,metadata=metadata)
+        return pkey
 
     @public_method
     def getColumnConfig(self,table=None):

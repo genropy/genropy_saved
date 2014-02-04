@@ -670,7 +670,7 @@ class TableBase(object):
 
     def getCustomFieldsMenu(self):
         data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
-        return data
+        return data,metadata
 
 
 class GnrDboTable(TableBase):
