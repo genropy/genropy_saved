@@ -572,7 +572,6 @@ class FramedIndexLogin(BaseComponent):
         footer.dataController("""
         btn.setAttribute('disabled',true);
         var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
-        console.log('RESULT SYNC',result)
         if (!result){
             genro.publish('failed_login_msg',{'message':error_msg});
             btn.setAttribute('disabled',false);
