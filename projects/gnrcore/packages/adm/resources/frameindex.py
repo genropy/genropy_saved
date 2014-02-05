@@ -493,8 +493,7 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
-                        _if='user&&password&&!_avatar',_else='SET gnr.avatar = null;',
-                        _avatar='=gnr.avatar',
+                        _if='user&&password',_else='SET gnr.avatar = null;',
                         _onResult="""var avatar = result.getItem('avatar');
                                     if (!avatar){
                                         return;
