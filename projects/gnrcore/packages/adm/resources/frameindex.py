@@ -493,7 +493,8 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
-                        _if='user&&password',_else='SET gnr.avatar = null;',
+                        _if='user&&password&&!_avatar',_else='SET gnr.avatar = null;',
+                        _avatar='=gnr.avatar',
                         _onResult="""var avatar = result.getItem('avatar');
                                     if (!avatar){
                                         return;
@@ -570,23 +571,22 @@ class FramedIndexLogin(BaseComponent):
 
         footer.dataController("""
         btn.setAttribute('disabled',true);
-        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
-            if (!result){
-                genro.publish('failed_login_msg',{'message':error_msg});
-                btn.setAttribute('disabled',false);
-            }else if(result.error){
-                genro.publish('failed_login_msg',{'message':result.error});
-                btn.setAttribute('disabled',false);
-            }else{
-                dlg.hide();
-                rootpage = rootpage || result['rootpage'];
-                if(rootpage){
-                    genro.gotoURL(rootpage);
-                }
-                sc.switchPage('dashboard');
-                genro.publish('logged');
+        var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
+        if (!result){
+            genro.publish('failed_login_msg',{'message':error_msg});
+            btn.setAttribute('disabled',false);
+        }else if(result.error){
+            genro.publish('failed_login_msg',{'message':result.error});
+            btn.setAttribute('disabled',false);
+        }else{
+            dlg.hide();
+            rootpage = rootpage || result['rootpage'];
+            if(rootpage){
+                genro.gotoURL(rootpage);
             }
-        },null,'POST');
+            sc.switchPage('dashboard');
+            genro.publish('logged');
+        }
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             rootpage='=gnr.rootenv.rootpage',
