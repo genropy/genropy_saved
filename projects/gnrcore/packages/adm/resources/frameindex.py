@@ -570,23 +570,22 @@ class FramedIndexLogin(BaseComponent):
 
         footer.dataController("""
         btn.setAttribute('disabled',true);
-        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
-            if (!result){
-                genro.publish('failed_login_msg',{'message':error_msg});
-                btn.setAttribute('disabled',false);
-            }else if(result.error){
-                genro.publish('failed_login_msg',{'message':result.error});
-                btn.setAttribute('disabled',false);
-            }else{
-                dlg.hide();
-                rootpage = rootpage || result['rootpage'];
-                if(rootpage){
-                    genro.gotoURL(rootpage);
-                }
-                sc.switchPage('dashboard');
-                genro.publish('logged');
+        var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
+        if (!result){
+            genro.publish('failed_login_msg',{'message':error_msg});
+            btn.setAttribute('disabled',false);
+        }else if(result.error){
+            genro.publish('failed_login_msg',{'message':result.error});
+            btn.setAttribute('disabled',false);
+        }else{
+            dlg.hide();
+            rootpage = rootpage || result['rootpage'];
+            if(rootpage){
+                genro.gotoURL(rootpage);
             }
-        },null,'POST');
+            sc.switchPage('dashboard');
+            genro.publish('logged');
+        }
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             rootpage='=gnr.rootenv.rootpage',
