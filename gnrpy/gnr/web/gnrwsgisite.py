@@ -331,6 +331,7 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.gnrapp = self.build_gnrapp()
+        self.server_locale = self.gnrapp.config('default?server_locale') or 'en'
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
@@ -655,9 +656,10 @@ class GnrWsgiSite(object):
     def dummyPage(self):
         request = Request.blank('/sys/headless')
         response = Response()
-        return self.resource_loader(['sys', 'headless'], request, response)
+        page = self.resource_loader(['sys', 'headless'], request, response)
+        page.locale = self.server_locale
+        return page
     
-
     @property
     def isInMaintenance(self):
         request = self.currentRequest

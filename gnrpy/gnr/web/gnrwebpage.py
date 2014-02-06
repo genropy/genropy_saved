@@ -719,8 +719,8 @@ class GnrWebPage(GnrBaseWebPage):
         
     def _get_locale(self): # TODO IMPLEMENT DEFAULT FROM APP OR AVATAR 
         if not hasattr(self, '_locale'):
-            self._locale = self.connection.locale or self.request.headers.get('Accept-Language', 'en').split(',')[
-                                                     0] or 'en'
+            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
+            self._locale = (self.avatar.locale if self.avatar else headers_locale) or 'en'
         return self._locale
         
     locale = property(_get_locale, _set_locale)

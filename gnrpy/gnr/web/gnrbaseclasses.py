@@ -174,13 +174,15 @@ class TableScriptToHtml(BagToHtml):
     pdf_folder = 'page:pdf'
     cached = None
     css_requires = 'print_stylesheet'
+    client_locale = False
+
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
         self.site = page.site
         self.db = page.db
-        self.locale = self.page.locale
+        self.locale = self.page.locale if self.client_locale else self.site.server_locale
         self.tblobj = resource_table
         self.maintable = resource_table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate

@@ -44,6 +44,7 @@ class GnrCustomWebPage(object):
         fb.field('email', lbl='!!Email',colspan=2)
         fb.field('sms_login', html_label=True,colspan=2)
         fb.field('sms_number',row_hidden='^.sms_login?=!#v',colspan=2)
+        fb.field('locale', lbl='!!Locale')
 
     def userAuth(self,pane):
         pane.inlineTableHandler(relation='@tags',viewResource=':ViewFromUser',autoSave=False,semaphore=False,pbl_classes=True,margin='2px')
