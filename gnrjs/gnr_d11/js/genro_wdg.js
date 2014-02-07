@@ -1025,7 +1025,7 @@ dojo.declare("gnr.GridEditor", null, {
         return changeset;
     },
 
-    deleteSelectedRows:function(pkeys){
+    deleteSelectedRows:function(pkeys,protectPkeys){
         //var selectedIdx = this.grid.selection.getSelected()
         if(pkeys=='*'){
             pkeys = this.grid.getAllPkeys();
@@ -1045,7 +1045,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(existingPkeys.length>0){
             if(this.autoSave){
                 var that = this;
-                this.grid.collectionStore().deleteAsk(existingPkeys,function(){that.markDeleted(pkeys)});
+                this.grid.collectionStore().deleteAsk(existingPkeys,protectPkeys,function(){that.markDeleted(pkeys)});
             }else{
                 this.markDeleted(existingPkeys);
             }

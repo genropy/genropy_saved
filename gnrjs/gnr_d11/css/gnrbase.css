@@ -3958,3 +3958,9 @@ div[disabled='true'], div[disabled='disabled']{
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
 }
+
+._logical_delete.delete_row{
+    background: url(/_rsrc/common/css_icons/retina/blue/16/delete_row.png) no-repeat center center;
+}
+
+

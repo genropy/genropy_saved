@@ -37,10 +37,26 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
         kwargs.setdefault('visible',enable)
-        kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """
-                                                                          var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && (n.attr._protect_delete || n.attr._is_readonly_row)});
-                                                                            var currDisabled = GET .disabledButton;
-                                                                          this.widget.setAttribute('disabled',currDisabled || hasProtectRow);
+        kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """var currDisabled = GET .disabledButton;
+                                                                            genro.dom.removeClass(this.widget.iconNode,'_logical_delete');
+                                                                            if(currDisabled){
+                                                                                this.widget.setAttribute('disabled',true);
+                                                                                return;
+                                                                            }
+                                                                            var grid = $1.grid;
+                                                                            var protectedPkeys = grid.getSelectedProtectedPkeys();
+                                                                            if(!protectedPkeys){
+                                                                                this.widget.setAttribute('disabled',false);
+                                                                                return
+                                                                            }
+                                                                            var store = grid.collectionStore? grid.collectionStore():null;
+                                                                            if(!store || !store.allowLogicalDelete){
+                                                                                this.widget.setAttribute('disabled',true);
+                                                                                return
+                                                                            }
+                                                                            this.widget.setAttribute('disabled',false);
+                                                                            genro.dom.addClass(this.widget.iconNode,'_logical_delete');
+                                                                          
                                                                           """
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,disabled=disabled,**kwargs)
     

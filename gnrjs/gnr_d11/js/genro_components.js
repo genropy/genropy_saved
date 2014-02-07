@@ -2652,6 +2652,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var _onError = objectPop(kw,'_onError');
+         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
          var skw = objectUpdate({_cleared:false},kw);
           //skw['_delay'] = kw['_delay'] || 'auto';
 
@@ -2665,6 +2666,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          objectPop(kw,'_onStart');
          objectPop(kw,'_cleared');
          objectPop(kw,'_fired');
+         objectPop(kw,'_delay');
          objectPop(kw,'_delay');
 
          var v;
@@ -2691,7 +2693,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         //selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
          var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
-                        'storeType':storeType,'unlinkdict':kw.unlinkdict};
+                        'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
          if('startLocked' in kw){
              storeKw.startLocked = kw.startLocked;
          }
@@ -2725,7 +2727,9 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
         delete_one : "You are about to delete the selected record.<br/>You can't undo this",
+        delete_logical_one : "The record cannot be removed.<br/>It will be hidden instead.",
         delete_many : "You are about to delete $count records.<br/>You can't undo this",
+        delete_logical_many : "You are about to delete $count records <br/> Some of them cannot be deleted but will be hidden instead.",
         unlink_one:"You are about to remove the selected record from current $master",
         unlink_many:"You are about to discard the selected $count records from current $master"
     },
@@ -2818,11 +2822,11 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         return;
     },
 
-    deleteAsk:function(pkeys,deleteCb){        
+    deleteAsk:function(pkeys,protectPkeys,deleteCb){        
         var count = pkeys.length;
         var deleteCb = deleteCb || this.deleteRows; 
         if(count==0){
@@ -2837,6 +2841,9 @@ dojo.declare("gnr.stores._Collection",null,{
         }else{
             del_type = 'delete';
             master ='';
+            if(this.allowLogicalDelete && protectPkeys){
+                del_type = 'delete_logical';
+            }
         }
         dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), 
                             text_align:'center',_class:'alertBodyMessage'});
@@ -2845,7 +2852,7 @@ dojo.declare("gnr.stores._Collection",null,{
                                                 action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='deleteRows'){
-                                                        deleteCb.call(that,pkeys);
+                                                        deleteCb.call(that,pkeys,protectPkeys);
                                                     }
                                                 }});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
@@ -3089,7 +3096,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         return data?data.getNodes():[];
     },
 
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         var data = this.getData()
         pkeys.forEach(function(n){
             data.popNode(n);
@@ -3505,11 +3512,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     },
 
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
         console.log('BEFORE DELETING')
-        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
+        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield,protectPkeys:protectPkeys},function(result){
             that.onDeletedRows(result);
         },null,'POST');
     },

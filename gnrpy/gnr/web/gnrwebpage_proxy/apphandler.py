@@ -28,6 +28,7 @@
 import os
 import re
 import time
+from datetime import datetime
 
 from gnr.core.gnrlang import gnrImport
 
@@ -1038,7 +1039,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method    
-    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,**kwargs):
+    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,**kwargs):
         """Method for deleting many records from a given table.
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -1051,13 +1052,19 @@ class GnrWebAppHandler(GnrBaseProxy):
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
                                 for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            now = datetime.now()
             for r in rows:
                 if unlinkfield:
                     record = dict(r)
                     record[unlinkfield] = None
                     tblobj.update(record,r)
                 else:
-                    tblobj.delete(r)
+                    if protectPkeys and tblobj.logicalDeletionField and r[tblobj.pkey] in protectPkeys:
+                        oldr = dict(r)
+                        r[tblobj.logicalDeletionField] = now
+                        tblobj.update(r,oldr)
+                    else:
+                        tblobj.delete(r)
             if commit:
                 self.db.commit()
             

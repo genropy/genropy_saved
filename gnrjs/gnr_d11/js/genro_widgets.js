@@ -4635,6 +4635,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         return result;
     },
+
+    mixin_getSelectedProtectedPkeys:function(){
+        var that = this;
+        var protectPkeys = [];
+        this.getSelectedNodes().forEach(function(n){
+            if(n.attr._protect_delete || n.attr._is_readonly_row){
+                protectPkeys.push(that.rowIdentity(n.attr));
+            }
+        });
+        return protectPkeys.length?protectPkeys:null;
+    },
+
     mixin_rowIdentity: function(row) {
         if (row) {
             return row[this.rowIdentifier()];
@@ -5624,14 +5636,31 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
+
+    mixin_getSelectedNodes: function() {
+        var sel = this.selection.getSelected();
+        var result = [];
+        var store = this.collectionStore();
+        if(!store){
+            return result;
+        }
+        for (var i = 0; i < sel.length; i++) {
+            result.push(store.itemByIdx(sel[i]));
+        }
+        return result;
+    },
     
     mixin_deleteSelectedRows:function(){
         var pkeys = this.getSelectedPkeys();
+        var protectPkeys;
+        if(this.collectionStore().allowLogicalDelete){
+            protectPkeys = this.getSelectedProtectedPkeys();
+        }
         if(this.gridEditor){
-            this.gridEditor.deleteSelectedRows(pkeys);
+            this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);
             this.sourceNode.publish('onDeletedRows');
         }else{
-            this.collectionStore().deleteAsk(pkeys);
+            this.collectionStore().deleteAsk(pkeys,protectPkeys);
         }
     },
     
