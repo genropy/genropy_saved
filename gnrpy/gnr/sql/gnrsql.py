@@ -46,8 +46,8 @@ import re
 import thread
 import locale
 
-IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sIN\s\(\)')
-NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)\s\S+\sNOT\s+IN\s\(\)')
+IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sIN\s\(\)')
+NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sNOT\s+IN\s\(\)')
 
 
 def in_triggerstack(func):
