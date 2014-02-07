@@ -349,20 +349,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             genro.setData('gnr.debugger.main', new gnr.GnrBag());
         }
         var rowstruct = new gnr.GnrBag();
-        rowstruct.setItem('cell_0', null, {field:'r_count',name:'N',width:'2em'});
+        rowstruct.setItem('cell_0', null, {field:'r_count',name:'N',width:'2em',dtype:'L'});
 
         rowstruct.setItem('cell_1', null, {field:'methodname',name:'Method',width:'18em'});
         rowstruct.setItem('cell_5', null, {field:'debug_info',name:'Debug info',width:'15em'});
-        rowstruct.setItem('cell_9', null, {field:'total_time',name:'Total',width:'4em',dtype:'N',_customGetter:function(row){
-            return genro.dev._getHeaderInfo_getcell(row,'total_time');
-        }});
-
 
         rowstruct.setItem('cell_2', null, {field:'server_time',name:'Server',width:'4em',dtype:'N'});
-        rowstruct.setItem('cell_10', null, {field:'net_time',name:'Network',width:'4em',dtype:'N',_customGetter:function(row){
-            return genro.dev._getHeaderInfo_getcell(row,'total_time')-row['server_time'];
-        }});
-
         rowstruct.setItem('cell_8', null, {field:'xml_size',name:'Size(kb)',width:'4em',dtype:'N',_customGetter:function(row){
             return Math.floor((genro.dev._getHeaderInfo_getcell(row,'xml_size')/1024));
         }});

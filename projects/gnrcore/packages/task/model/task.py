@@ -90,7 +90,8 @@ class Table(object):
         if not taskObj:
             return
         try:
-            tmp_result = taskObj(parameters=Bag(task['parameters'])) or ''
+            taskparameters = task['parameters']
+            tmp_result = taskObj(parameters=Bag(taskparameters)) or ''
             log_result = task['log_result']
             if isinstance(tmp_result, Bag):
                 result = tmp_result

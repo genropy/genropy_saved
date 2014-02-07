@@ -980,10 +980,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return;
         }
         var drop_ext = inherited.drop_ext;
-        var valid_ext = drop_ext ? splitStrip(drop_ext) : null;
+        var valid_ext = drop_ext ? splitStrip(drop_ext.toLowerCase()) : null;
         var files = [];
         dojo.forEach(dataTransfer.files, function(f) {
-            if ((!valid_ext) || (dojo.indexOf(valid_ext, f['name'].split('.').pop()) >= 0)) {
+            if ((!valid_ext) || (dojo.indexOf(valid_ext, f['name'].toLowerCase().split('.').pop()) >= 0)) {
                 files.push(f);
             }
         });
@@ -1272,7 +1272,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
             var cgr_h = cgr ? '<colgroup>' + cgr + '<col width=11 /></colgroup>' : '';
             var cgr_b = cgr ? '<colgroup>' + cgr + '</colgroup>' : '';
-            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div style="overflow-y:auto;overflow-x:hidden;max-height:'+max_height+';"><table>' + cgr_b + tbody + '</table></div></div>';
+            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div onmouseup="if(event.target===event.currentTarget){dojo.stopEvent(event)};" style="overflow-y:auto;overflow-x:hidden;max-height:'+max_height+';"><table>' + cgr_b + tbody + '</table></div></div>';
         };
         domnode.innerHTML = cbf('');
         var cb = function() {

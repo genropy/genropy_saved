@@ -530,8 +530,13 @@ class GnrPackage(object):
         
     def onApplicationInited(self):
         """TODO"""
-        pass
-        
+        pass  
+
+    def envPreferences(self):
+        "key:preference path, value:path inside dbenv"
+        return {}
+
+
 class GnrApp(object):
     """Opens a GenroPy application :ref:`instance <instances>`
     
@@ -583,11 +588,11 @@ class GnrApp(object):
         if self.remote_db:
             remote_db_node = self.config.getNode('remote_db.%s' %self.remote_db)
             remotedbattr = remote_db_node.attr
-            if remotedbattr:
+            if remotedbattr and 'ssh_host' in remotedbattr:
                 db_node = self.config.getNode('db')
                 sshattr = dict(db_node.attr)
                 sshattr.update(remotedbattr)
-                sshattr['forwarded_port'] = sshattr.pop('port')
+                sshattr['forwarded_port'] = sshattr.pop('port',None)
                 db_node.attr['port'] = self.gnrdaemon.sshtunnel_port(**sshattr)
         if not 'menu' in self.config:
             self.config['menu'] = Bag()

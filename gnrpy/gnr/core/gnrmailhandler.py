@@ -302,6 +302,8 @@ class MailHandler(GnrBaseService):
         from_address = from_address or get_templated('from_address')
         reply_to = reply_to or get_templated('reply_to')
         subject = subject or get_templated('subject')
+        templated_attachments = get_templated('attachments')
+        attachments = attachments or templated_attachments.split('\n') if templated_attachments else []
         body = body or get_templated('body')
         body = templateReplace(body, datasource)
         self.sendmail(to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
@@ -350,6 +352,8 @@ class MailHandler(GnrBaseService):
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        if ',' in to_address:
+            to_address = to_address.split(',')
         message_date = message_date or datetime.datetime.now()
         if isinstance(message_date,datetime.datetime):
             message_date = formatdate(time.mktime(message_date.timetuple()))
@@ -402,7 +406,14 @@ class MailHandler(GnrBaseService):
         print 'getting connection',account_params
         smtp_connection = self.get_smtp_connection(**account_params)
         print 'sending...',from_address, to_address,account_params
-        smtp_connection.sendmail(from_address, (to_address, cc_address, bcc_address), msg_string)
+        email_address = []
+        for dest in (to_address, cc_address, bcc_address):
+            dest = dest or []
+            if isinstance(dest,(list, tuple)):
+                email_address.extend(dest)
+            else:
+                email_address.append(dest)
+        smtp_connection.sendmail(from_address, email_address, msg_string)
         print 'sent'
         smtp_connection.close()
         

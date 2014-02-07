@@ -114,7 +114,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     lazySave:function(savedCb){
         savedCb = savedCb?funcCreate(savedCb,{},this):false;
         if(this.canBeSaved()){
-            var d = this.save({onSaved:'lazyReload'});
+            var d = this.save({onSaved:'lazyReload',waitingStatus:false});
+            this.getFormData().walk(function(n){
+                delete n.attr._loadedValue;
+            },'static');
             if(savedCb){
                 d.addCallback(savedCb);
             }
@@ -192,6 +195,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     reset: function() {
+        console.log('resetting')
         this.resetChanges();
         this.resetInvalidFields();
     },
@@ -882,7 +886,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             saverNode.fireNode();
             return saverNode._lastDeferred;
         }else if(this.store) {
-            var waitingStatus = objectPop(kw,'waitingStatus') || this.store.handlers.save.kw.waitingStatus;
+            var waitingStatus = objectPop(kw,'waitingStatus');
+            if(waitingStatus===null){
+                waitingStatus = this.store.handlers.save.kw.waitingStatus===false?false:true;
+            }
             this.waitingStatus(waitingStatus);
             var onSaved = objectPop(kw,'onSaved') || this.store.onSaved;
             if(destPkey=='*dismiss*'){
@@ -917,8 +924,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }else{
+                this.reset();
                 cb=function(result){
-                    that.reset();
                     if(onSaved in that){
                         that[onSaved](result);
                     }else if(onSaved){
@@ -939,21 +946,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var savedPkey = result.savedPkey;
         this.setCurrentPkey(savedPkey);
         var data = this.getFormData();
-        var sentData = objectPop(result,'_sent_data');
-        var sentRecord = sentData.pop('record');
-        sentRecord.setBackRef();
-        sentRecord.walk(function(n){
-            if(n._value instanceof gnr.GnrBag){
-                return
-            }
-            var p = n.getFullpath();
-            var currN = data.getNode(p);
-            if(currN._value==n._value){
-                delete currN.attr._loadedValue;
-            }else{
-                currN.attr._loadedValue = n._value;
-            }
-        },'static');
         var savedAttr = result.savedAttr;
         if(savedAttr){
             if(savedAttr.lastTS){
@@ -969,6 +961,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 rn.getValue().setItem('__mod_ts',convertFromText(t),null,{doTrigger:false})
             }
         }
+        this.reset();
         this.setOpStatus();
         this.__last_save = new Date()
     },
@@ -1218,7 +1211,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     changed = false;
                     //console.log('dataChangeLogger UNCHANGED: ' + path);
                 }
-
                 if (changed) {
                     changes.setItem(changekey, null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():kw.node.label,
                                                     from:kw.oldvalue,to:kw.value});
@@ -2105,7 +2097,6 @@ dojo.declare("gnr.formstores.Base", null, {
                     resultDict.savedAttr=pkeyNode.attr;
                 }
             }
-            resultDict._sent_data = data;
             that.saved(resultDict);
             return resultDict;
         };
@@ -2139,7 +2130,7 @@ dojo.declare("gnr.formstores.Base", null, {
         this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'deleteDbRow';
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
                                             objectUpdate({'pkey':pkey,
-                                                          'table':this.table},kw),null,'POST',
+                                                          'table':this.table,'_sourceNode':form.sourceNode},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){
             that.deleted(result,callkw);

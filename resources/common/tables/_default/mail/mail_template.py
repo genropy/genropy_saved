@@ -48,7 +48,7 @@ class Main(BaseResourceMail):
         data = self.get_template(template_address)
         self.compiledTemplate = Bag(data['compiled'])
         self.mail_pars = Bag(data['metadata.email_compiled'])
-        self.mail_pars['attachments'] = self.mail_pars.pop('attachments').split(',') if 'attachments' in self.mail_pars else []
+        self.mail_pars['attachments'] = self.mail_pars.pop('attachments') if 'attachments' in self.mail_pars else ''
         self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
         self.batch_parameters.setdefault('as_pdf',False)
         self.batch_title = data['summary'] or 'Mail'
@@ -63,6 +63,7 @@ class Main(BaseResourceMail):
         to_address = templateReplace(self.mail_pars.getItem('to_address',''),record)
         subject = templateReplace(self.mail_pars.getItem('subject',''),record)
         cc_address = templateReplace(self.mail_pars.getItem('cc_address',''),record)
+
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
                                     locale=self.page.locale,
@@ -75,7 +76,8 @@ class Main(BaseResourceMail):
                                 record=record, thermo=thermo, pdf=as_pdf,
                                 **self.batch_parameters)
         if result:
-            attachments = self.mail_pars['attachments']
+            attachments = templateReplace(self.mail_pars.getItem('attachments',''),record)
+            attachments = attachments.split(',') if attachments else []
             body = None
             if as_pdf:
                 attachments.append(result)

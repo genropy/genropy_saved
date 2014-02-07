@@ -554,6 +554,8 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
 });
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
+    _default_ext : 'png,jpg,jpeg,gif,html,pdf',
+
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
         var condFunc = objectPop(attributes, 'condition_function');
@@ -680,21 +682,41 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
             v = genro.addParamsToUrl(v,src_kwargs);   
-            var loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
-            domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:url('+loadingpath+') no-repeat center center;"></div>'; 
-            sourceNode.currentSetTimeout = setTimeout(function(d, url) {
-                var absUrl = document.location.protocol + '//' + document.location.host + url;
-                if (absUrl != d.src) {
-                    if (d.src && sourceNode.attr.onUpdating) {
-                        sourceNode.attr.onUpdating();
+            var doset = this.initContentHtml(domnode,v);
+            if (doset){
+                sourceNode.currentSetTimeout = setTimeout(function(d, url) {
+                    var absUrl = document.location.protocol + '//' + document.location.host + url;
+                    if (absUrl != d.src) {
+                        if (d.src && sourceNode.attr.onUpdating) {
+                            sourceNode.attr.onUpdating();
+                        }
+                        d.src = url;
                     }
-                    d.src = url;
-                }
-            }, sourceNode.attr.delay || 1, domnode, v);
+                }, sourceNode.attr.delay || 1, domnode, v);
+            }
+            
         }else{
             domnode.src = null;
         }
     },
+
+    initContentHtml:function(domnode,src){
+        var parsedSrc = parseURL(src);
+        var loadingpath;
+        if(parsedSrc.file && parsedSrc.file.split('.')[1] && this._default_ext.indexOf(parsedSrc.file.split('.')[1].toLowerCase())<0){
+            loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/download_file.png';
+            domnode.contentWindow.document.body.innerHTML = '<a href="'+src+'"><div style="height:100%;width:100%;background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div></a>'; 
+            return false;
+        }else if(!parsedSrc.file){
+            domnode.src = null;
+            return false
+        }
+        domnode.src = null;
+        loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
+        domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
+        return true;
+    },
+
     postMessage:function(sourceNode,message){
         sourceNode.watch('windowMessageReady',function(){
             return sourceNode.domNode.contentWindow && sourceNode.domNode.contentWindow._windowMessageReady;
@@ -3235,9 +3257,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return this.indexByCb(cb) >= 0;
     },
-    mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo) {
+    mixin_selectByRowAttr:function(attrName, attrValue, op,scrollTo,default_idx) {
         var selection = this.selection;
-        var idx = null;
+        var idx = -1;
+        if (attrValue instanceof Array && attrValue.length==1){
+            attrValue = attrValue[0];
+        }
         if (attrValue instanceof Array) {
             selection.unselectAll();
             var grid = this;
@@ -3249,13 +3274,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         } else {
             var idx = this.indexByRowAttr(attrName, attrValue, op);
+            if(idx<0 && default_idx!=null && default_idx>=0 ){
+                idx = default_idx;
+            }
             if(idx>=0){
                 selection.select(idx);
             }
         }
         if(scrollTo && typeof(idx)=='number' && idx>=0){
-            this.scrollToRow(idx);
+            this.scrollToRow(scrollTo===true?idx:scrollTo);
         }
+        return idx;
     },
 
     mixin_rowBagNode: function(idx) {
@@ -4478,15 +4507,17 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_selectionKeeper:function(flag,loadkw) {
         if (flag == 'save') {
             var prevSelectedIdentifiers = [];
+            var prevSelectedIndexes = this.selection.getSelected();
             var identifier = this._identifier;
             var that = this;
-            dojo.forEach(this.selection.getSelected(), function(idx) {
+            dojo.forEach(prevSelectedIndexes, function(idx) {
                 prevSelectedIdentifiers.push(that.rowIdByIndex(idx));
             });
             this.prevSelectedIdentifiers = prevSelectedIdentifiers;
             this.prevFirstVisibleRow= this.scroller.firstVisibleRow;
+            this.prevSelectedIdx = (prevSelectedIndexes.length==1) ?prevSelectedIndexes[0]:-1;
+            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow,prevSelectedIdx:this.prevSelectedIdx};
 
-            return {prevSelectedIdentifiers:this.prevSelectedIdentifiers ,prevFirstVisibleRow:this.prevFirstVisibleRow}
             //this.prevFilterValue = this.currentFilterValue;
         } else if (flag == 'clear') {
             this.prevSelectedIdentifiers = null;
@@ -4495,15 +4526,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             if(loadkw){
                 this.prevSelectedIdentifiers = loadkw.prevSelectedIdentifiers;
                 this.prevFirstVisibleRow = loadkw.prevFirstVisibleRow;
+                this.prevSelectedIdx = loadkw.prevSelectedIdx;
                 this._saved_selections = null;
             }
             if ((this.prevSelectedIdentifiers) && (this.prevSelectedIdentifiers.length > 0 )) {
-                this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers);
+                this.selectByRowAttr(this._identifier, this.prevSelectedIdentifiers,null,this.prevFirstVisibleRow,this.prevSelectedIdx);
+                this.prevSelectedIdx = null;
                 this.prevSelectedIdentifiers = null;
-                if (this.prevFirstVisibleRow) {
-                    this.scrollToRow(this.prevFirstVisibleRow);
-                    this.prevFirstVisibleRow = null; 
-                }
+                this.prevFirstVisibleRow = null;
             }
            //if(this.prevFilterValue){
            //    this.applyFilter(this.prevFilterValue);

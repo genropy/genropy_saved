@@ -1528,7 +1528,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     watch: function(watchId,conditionCb,action,delay){
         var delay=delay || 200;
         if(this.watches && (watchId in this.watches)){
-            return
+            this.unwatch(watchId);
         }
         if (conditionCb()){
             action();

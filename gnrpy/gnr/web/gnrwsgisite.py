@@ -833,10 +833,11 @@ class GnrWsgiSite(object):
                 if auxapp.remote_db:
                     remote_db_attr = auxapp.config.getAttr('remote_db.%s' %auxapp.remote_db)
                     if remote_db_attr:
-                        host = remote_db_attr['ssh_host'].split('@')[1] if '@' in remote_db_attr['ssh_host'] else remote_db_attr['ssh_host']
-                        port = remote_db_attr.get('port')
-                        dbattr['remote_host'] = host
-                        dbattr['remote_port'] = port
+                        if 'ssh_host' in remote_db_attr:
+                            host = remote_db_attr['ssh_host'].split('@')[1] if '@' in remote_db_attr['ssh_host'] else remote_db_attr['ssh_host']
+                            port = remote_db_attr.get('port')
+                            dbattr['remote_host'] = host
+                            dbattr['remote_port'] = port
                 self.db.stores_handler.add_store(storename,dbattr=dbattr)
         
 
@@ -1173,14 +1174,6 @@ class GnrWsgiSite(object):
                 page.sql_count = page.sql_count + 1
                 page.sql_time = page.sql_time + kwargs.get('delta_time',0)
 
-    def onDbCommitted(self):
-        """TODO"""
-        dbeventsDict= self.db.currentEnv.pop('dbevents',None)
-        if dbeventsDict:
-            page = self.currentPage
-            self.register.notifyDbEvents(dbeventsDict,register_name='page',origin_page_id=page.page_id if page else None)
-            self.db.updateEnv(env_transaction_id= None,dbevents=None)
-                                 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
         return self._currentPages.get(thread.get_ident())
@@ -1293,7 +1286,7 @@ class GnrWsgiSite(object):
                         v = v.decode('utf-8')
                     result[k] = v
                 except Exception, e:
-                    raise e
+                    raise
             else:
                 result[k] = v
         return result
