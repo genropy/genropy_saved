@@ -2856,7 +2856,7 @@ dojo.declare("gnr.stores._Collection",null,{
                                                     }
                                                 }});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
-        var btnattr = {label:'Delete',command:'deleteRows'};
+        var btnattr = {label:'Confirm',command:'deleteRows'};
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
             fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl_text_align:'right',
