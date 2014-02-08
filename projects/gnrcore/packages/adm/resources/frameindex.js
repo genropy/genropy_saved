@@ -171,7 +171,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             url = this.thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
         }else if(lookup_manager){
-            url = this.lookup_url+(lookup_manager=='*'?'':lookup_manager.replace('.','/'));
+            url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
         }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;
