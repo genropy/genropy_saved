@@ -33,7 +33,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.dbstore =  genro.getData('gnr.dbstore');
         var default_uri =  genro.getData('gnr.defaultUrl')||'/';
         var thurl = 'sys/thpage/';
-        var lookup_url = 'sys/lookuptables/';
+        var lookup_url = 'sys/lookuptables';
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
         this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
 
