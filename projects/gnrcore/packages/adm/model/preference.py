@@ -24,11 +24,7 @@ class Table(object):
         # 
         result = result['data']
         if result and path != '*':
-            prefpath = '%s.%s' % (pkg, path)
-            customhandler = getattr(self,'custom_get_%s' %prefpath.replace('.','_'),None)
-            if customhandler:
-                return customhandler()
-            result = result[path]
+            result = result['%s.%s' % (pkg, path)]
         return result or dflt
 
     def envPreferences(self,username=None):
