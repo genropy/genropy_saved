@@ -418,6 +418,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     resultHandler: function(response, ioArgs, currentAttr) {
+        genro._last_rpc = {response:response,ioArgs:ioArgs};
         this.unregister_call(ioArgs);
         var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
         genro.dev.siteLockedStatus(siteMaintenance!=null);
