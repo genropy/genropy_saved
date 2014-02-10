@@ -688,12 +688,12 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         }
         pane._(_newGrid?'newIncludedView':'includedview', 'grid',gridKwargs);
         var gridnode = pane.getNode('grid');
-        gridnode.watch('isVisibile',function(){return genro.dom.isVisible(gridnode);},
-                        function(){
-                            if(gridnode.widget.storebag().len()==0 && reloadOnShow!==false){
-                                gridnode.widget.reload(true)
-                            }
-                        });
+       //gridnode.watch('isVisibile',function(){return genro.dom.isVisible(gridnode);},
+       //                function(){
+       //                    if(gridnode.widget.storebag().len()==0 && reloadOnShow!==false){
+       //                        gridnode.widget.reload(true)
+       //                    }
+       //                });
         return pane;
     }    
 });
