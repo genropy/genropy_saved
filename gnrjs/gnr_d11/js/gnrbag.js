@@ -212,6 +212,9 @@ dojo.declare("gnr.GnrBagNode", null, {
                 //  for (var i=0; i<this._pendingDeferred.length; i++){
                 //      this._pendingDeferred[i].callback(r)
                 //      }
+                if(this._resolver.onloaded){
+                    this._resolver.onloaded.call(this);
+                }
                 return this._value;
             });
             if (result instanceof dojo.Deferred) {

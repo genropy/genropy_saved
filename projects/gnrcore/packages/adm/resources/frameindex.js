@@ -255,7 +255,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
             var dodebug = modifiers=='Shift';
-            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true});
+            iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true,dojo_source:true});
         }
     },
 
