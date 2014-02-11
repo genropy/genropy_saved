@@ -2746,7 +2746,6 @@ dojo.declare("gnr.stores._Collection",null,{
         var that = this;
         var cb = function(){
             that.storeNode.subscribe('setLocked',function(v){
-                console.log('setLocked published for the store of the grid')
                 that.setLocked(v);
             });
             var parentForm = that.storeNode.attr.parentForm===false? false:that.storeNode.getFormHandler();
