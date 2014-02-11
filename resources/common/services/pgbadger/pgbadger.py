@@ -22,7 +22,7 @@ class Main(GnrBaseService):
         self.parent = parent
 
     def run(self, dest_path=None,start_ts=None,**kwargs):
-        call_list = ['pgbadger',self.logfile]
+        call_list = ['sudo', 'pgbadger',self.logfile]
         filename = '%s.html' %getUuid()
         dest_path = self.parent.getStaticPath(self.output_folder,'pgbadger',filename,autocreate=-1)
         call_list.append('-o')
