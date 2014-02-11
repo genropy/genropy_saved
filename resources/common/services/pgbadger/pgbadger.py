@@ -29,6 +29,9 @@ class Main(GnrBaseService):
         call_list.append(dest_path)
         call_list.append('-f')
         call_list.append(self.format)
+        if start_ts:
+            call_list.append('-b')
+            call_list.append(str(start_ts).split('.')[0])
         result = call(call_list)
         if result !=0:
             return None

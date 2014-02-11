@@ -200,7 +200,7 @@ class GnrCustomWebPage(object):
                                     }else{
                                         genro.dlg.alert('Error',"Parsing log error");
                                     }            
-                                    """,_lockScreen=True)
+                                    """,_lockScreen=True,timeout=0)
         bar.stop_button.button('Stop current',fire_stop='runningSites.command')
         #fb.button('load current',fire_load='runningSites.command')
         bar.restart_button.button('Restart current',fire_restart='runningSites.command')
