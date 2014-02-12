@@ -799,12 +799,13 @@ class AttachmentTable(GnrDboTable):
         pdf_record = None
         if docConverter and os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
             pdf_staticpath = docConverter.convert(attachment['filepath'])
-            pdf_record = dict(filepath=pdf_staticpath,
+            if pdf_staticpath:
+                pdf_record = dict(filepath=pdf_staticpath,
                         mimetype=attachment['mimetype'],
                         description=os.path.basename(pdf_staticpath),
                         maintable_id=attachment['maintable_id'])
-            self.insert(pdf_record)
-        return pdf_record
+                self.insert(pdf_record)
+                return pdf_record
 
     def trigger_convertDocFile(self,record,**kwargs):
         p,ext = os.path.splitext(record['filepath'])

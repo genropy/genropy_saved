@@ -34,7 +34,11 @@ class Main(GnrBaseService):
             dest_path = self.parent.getStaticPath('site:%s'%dest_path, autocreate=-1)
         call_list = ['abiword', '--to=pdf', src_path, '-o', dest_path]
         print call_list
-        result = call(call_list)
-        if result !=0:
+        try:
+            result = call(call_list)
+            if result !=0:
+                return None
+            return return_path
+        except Exception:
             return None
-        return return_path
+        
