@@ -160,13 +160,13 @@ class TableBase(object):
             else:
                 group = '_'
         if ins:
-            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True)
+            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
         if ldel:
-            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True)
+            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
             tbl.column('__mod_ts', dtype='DH', name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
-                       group=group,_sysfield=True)
+                       group=group,_sysfield=True,indexed=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
                 tbl.attributes['lastTS'] = '__mod_ts'
