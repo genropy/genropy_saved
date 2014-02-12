@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=True,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -383,7 +383,8 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None,title=None,liveUpdate=True,store_kwargs=None):
+                        virtualStore=None,condition=None,unlinkdict=None,
+                        title=None,liveUpdate=None,store_kwargs=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -404,8 +405,11 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
-        liveUpdate = False if liveUpdate is False else options.get('liveUpdate',True)
-        store_kwargs.setdefault('externalChanges',liveUpdate)
+
+        pageOptions = self.pageOptions or dict()
+        #liveUpdate: 'NO','LOCAL','PAGE'
+        liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or 'LOCAL'
+        store_kwargs.setdefault('liveUpdate',liveUpdate)
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
@@ -445,8 +449,8 @@ class TableHandlerView(BaseComponent):
         else:
             chunkSize = None
             selectionName = None
-        if liveUpdate:
-            self.subscribeTable(table,True)
+        if liveUpdate!='NO':
+            self.subscribeTable(table,True,subscribeMode=liveUpdate)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         _if = condPars.pop('_if',None) or condPars.pop('if',None)
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)

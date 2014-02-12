@@ -976,13 +976,13 @@ class GnrWebPage(GnrBaseWebPage):
                 'site': self.site.site_path,
                 'current': os.path.dirname(self.filepath)}
               
-    def subscribeTable(self, table, subscribe=True):
+    def subscribeTable(self, table, subscribe=True,subscribeMode=None):
         """TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param subscribe: boolean. TODO"""
-        self.site.register.subscribeTable(page_id=self.page_id,table=table,subscribe=subscribe)            
+        self.site.register.subscribeTable(page_id=self.page_id,table=table,subscribe=subscribe,subscribeMode=subscribeMode)            
                     
     def pageStore(self, page_id=None, triggered=True):
         """TODO

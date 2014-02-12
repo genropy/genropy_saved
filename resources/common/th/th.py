@@ -39,7 +39,7 @@ class TableHandler(BaseComponent):
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
                             export_kwargs=None,
-                            liveUpdate=True,
+                            liveUpdate=None,
                             picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,**kwargs):
         if relation:

@@ -457,7 +457,7 @@ class PageRegister(BaseRegister):
         pathsub = storesub.setdefault(client_path, {})
         pathsub['on'] = active
 
-    def subscribeTable(self,page_id,table=None,subscribe=None):
+    def subscribeTable(self,page_id,table=None,subscribe=None,subscribeMode=None):
         register_item = self.get_item(page_id)
         subscribed_tables = register_item['subscribed_tables']
         if subscribe:
@@ -675,8 +675,8 @@ class SiteRegister(BaseRemoteObject):
     def setStoreSubscription(self,page_id,storename=None, client_path=None, active=None):
         self.page_register.setStoreSubscription(page_id,storename=storename,client_path=client_path,active=active)
             
-    def subscribeTable(self,page_id,table,subscribe):
-        self.page_register.subscribeTable(page_id,table=table,subscribe=subscribe)
+    def subscribeTable(self,page_id,table,subscribe,subscribeMode=None):
+        self.page_register.subscribeTable(page_id,table=table,subscribe=subscribe,subscribeMode=subscribeMode)
 
     def subscription_storechanges(self, user, page_id):
         external_datachanges = self.page_register.get_datachanges(register_item_id=page_id,reset=True)

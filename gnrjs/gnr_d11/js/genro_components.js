@@ -3216,39 +3216,52 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){
-        if(this.storeNode.attr.externalChanges){
-            var that = this;
-            this.pendingChanges = [];
-            this._editingForm = false;
-            var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
-                function(kw){
-                    if(that.freezedStore()){
+        var liveUpdate = this.storeNode.attr.liveUpdate;
+        if(liveUpdate=='NO'){
+            return;
+        }
+        var that = this;
+        this.pendingChanges = [];
+        this._editingForm = false;
+        var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
+            function(kw){
+                var from_page_id = kw.changeattr.from_page_id;
+                if(liveUpdate=='PAGE'){
+                    if(genro.page_id!=from_page_id){
                         return;
                     }
-                    var isExternal = kw.changeattr.from_page_id!=genro.page_id;
-                    dojo.forEach(kw.changelist,function(c){
-                        c._isExternal = isExternal;
-                        that.pendingChanges.push(c);
+                }
+                if(liveUpdate=='LOCAL'){
+                    if(!genro.isLocalPageId(from_page_id)){
+                        return;
+                    }
+                }
+                if(that.freezedStore()){
+                    return;
+                }
+                var isExternal = from_page_id!=genro.page_id;
+                dojo.forEach(kw.changelist,function(c){
+                    c._isExternal = isExternal;
+                    that.pendingChanges.push(c);
+                });
+                that.storeNode.watch('externalChangesDisabled',function(){
+                    if(that._editingForm){
+                        return true;
+                    }
+                    var gridVisible = false;
+                    dojo.forEach(that.linkedGrids(),function(grid){
+                        gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
                     });
-                    that.storeNode.watch('externalChangesDisabled',function(){
-                        if(that._editingForm){
-                            return true;
-                        }
-                        var gridVisible = false;
-                        dojo.forEach(that.linkedGrids(),function(grid){
-                            gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
-                        });
-                        return gridVisible;
-                    },function(){
-                        var changelist = that.pendingChanges;
-                        that.pendingChanges = [];
-                        if(changelist.length>0){
-                            that.onExternalChange(changelist);    
-                        }
-                    });
-                });};
+                    return gridVisible;
+                },function(){
+                    var changelist = that.pendingChanges;
+                    that.pendingChanges = [];
+                    if(changelist.length>0){
+                        that.onExternalChange(changelist);    
+                    }
+                });
+            });};
             genro.src.afterBuildCalls.push(cb);
-        }
     },
 
     loadData:function(){
