@@ -1,6 +1,12 @@
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from paste import httpserver
+try:
+  from waitress.server import create_server
+  HAS_WAITRESS = True
+except ImportError:
+  from paste import httpserver
+  HAS_WAITRESS = False
 import sys
 import os
 import re
@@ -655,7 +661,12 @@ class Server(object):
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
                                     options=self.options)
             GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
-            httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
+            if HAS_WAITRESS:
+                server = create_server(gnrServer, host=self.options.host, port=self.options.port)
+                print '[Waitress] serving on %s:%s'%(self.options.host,str(self.options.port))
+                server.run()
+            else:
+                httpserver.serve(gnrServer, host=self.options.host, port=self.options.port)
         except (SystemExit, KeyboardInterrupt), e:
             if self.options.verbose > 1:
                 raise
