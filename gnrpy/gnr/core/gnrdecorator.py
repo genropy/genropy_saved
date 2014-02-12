@@ -67,6 +67,27 @@ def public_method(*args,**metadata):
         func.is_rpc = True # @public_method
         return func
     
+def timer_call(time_list=[], print_time=True):
+    def decore(func):
+        def wrapper(*arg, **kw):
+            t1 = time()
+            res = func(*arg, **kw)
+            t2 = time()
+            if print_time:
+                print '-' * 80
+                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
+                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
+                print arg
+                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
+                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
+                print '-' * 80
+            time_list.append((func.func_name, (t2 - t1) * 1000.0))
+            return res
+            
+        return wrapper
+        
+    return decore
+
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
     """A decorator. Allow to extract some **kwargs creating some kwargs sub-families
     

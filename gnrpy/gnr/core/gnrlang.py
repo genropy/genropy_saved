@@ -205,7 +205,7 @@ def moduleDict(module, proplist):
         result.update(dict([(getattr(x, prop).lower(), x) for x in modulelist]))
     return result
     
-def gnrImport(source, importAs=None, avoidDup=False):
+def gnrImport(source, importAs=None, avoidDup=False, silent=True):
     """TODO
     
     :param source: TODO
@@ -241,7 +241,11 @@ def gnrImport(source, importAs=None, avoidDup=False):
         try:
             module = imp.load_module(segment, module_file, module_path, module_description)
             path = getattr(module, '__path__', None)
+        except SyntaxError, e:
+            raise
         except Exception, e:
+            if not silent:
+                raise
             module = None
             error = e
         finally:

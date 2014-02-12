@@ -40,7 +40,7 @@ from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.core.gnrdecorator import debug_info
-from gnr.sql.gnrsql_exceptions import SelectionExecutionError, RecordDuplicateError,\
+from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
 
@@ -1430,7 +1430,7 @@ class SqlSelection(object):
         """
         if not merge:
             if self._index != selection._index:
-                raise "Selections' columns mismatch"
+                raise GnrSqlException("Selections columns mismatch")
             else:
                 l = [self.newRow(r) for r in selection.data]
         else:
