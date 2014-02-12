@@ -705,7 +705,9 @@ class TimePeriod(object):
             iv = intervals[0]
             if isinstance(iv, basestring):
                 intervals = [s.strip() for s in iv.split(',')]
-        map(self.add, intervals)
+        for interval in intervals:
+            self.add(interval)
+        #map(self.add, intervals)
 
     def add(self, item):
         """Add the new TimeInterval or a TimePeriod.

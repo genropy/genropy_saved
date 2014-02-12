@@ -27,7 +27,10 @@ from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
 
-import pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 import os
 
 import re
