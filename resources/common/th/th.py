@@ -99,7 +99,7 @@ class TableHandler(BaseComponent):
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
         preview_kwargs.setdefault('tpl',True)
-        rowStatusColumn = True if self.db.table(table).attributes.get('protectionColumn') is None else rowStatusColumn
+        rowStatusColumn = self.db.table(table).attributes.get('protectionColumn') if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
