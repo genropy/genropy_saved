@@ -85,7 +85,6 @@ class TableHandlerView(BaseComponent):
         grid_kwargs['configurable'] = configurable
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
-        grid_kwargs.setdefault('rowStatusColumn',self.db.table(table).attributes.get('protectionColumn'))
         grid_kwargs.setdefault('loadingHider',loadingHider)
         grid_kwargs.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}")
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
