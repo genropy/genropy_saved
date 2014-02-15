@@ -1319,7 +1319,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     recordOwnerNode:function(changeDataNode){
         var rnode = changeDataNode.getParentNode();
-        while(!(rnode.label=='record' || rnode.label[0]=='@')){
+        while(rnode && !(rnode.label=='record' || rnode.label[0]=='@')){
             rnode = rnode.getParentNode();
         }
         return rnode;
@@ -1352,7 +1352,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resolvePendingValidation:function(sourceNode){
         var vpath = sourceNode.absDatapath(sourceNode.attr.value);
         var datanode = genro.getDataNode(vpath);
-        var recordOwnerNode = this.recordOwnerNode(datanode)
+        var recordOwnerNode = this.recordOwnerNode(datanode);
+        if(!recordOwnerNode){
+            return;
+        }
         var _invalidFields = recordOwnerNode.attr['_invalidFields'] || {};
         var fpath = datanode.getFullpath('static',recordOwnerNode.getValue('static'));
         var result = genro.vld.validate(sourceNode,sourceNode.getAttributeFromDatasource('value'),false,
