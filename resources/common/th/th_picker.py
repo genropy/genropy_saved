@@ -80,6 +80,7 @@ class THPicker(BaseComponent):
             if grid:
                 paletteGridKwargs['grid_filteringGrid']=grid
                 paletteGridKwargs['grid_filteringColumn'] = '_pkey:%s' %many
+            condition_kwargs.setdefault('_onStart',True)
             palette = pane.paletteGrid(**paletteGridKwargs).selectionStore(table=table,sortedBy=sortedBy or 'pkey',condition=condition,**condition_kwargs)
         if grid:
             grid.dragAndDrop(paletteCode)
