@@ -134,6 +134,20 @@ class TableHandler(BaseComponent):
                         this.form.save()
                     }
                 """)
+            if hider_kwargs.get('onChanged'):
+                wdg.dataController("""
+                            var currform = this.getFormHandler();
+                            message = message==true?msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix:message;
+                            if(changed){
+                                sourceNode.setHiderLayer(true,{message:message,button:function(){currform.save();}});
+                            }else{
+                                sourceNode.setHiderLayer(false);
+                            }
+                            """,sourceNode=hiderRoot,
+                                message=hider_kwargs.get('onChanged'),
+                                    msg_prefix='!!Save',msg_suffix='',
+                                changed='^#FORM.controller.changed',grid=wdg.view.grid)  
+
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             if pbl_classes=='*':
