@@ -175,7 +175,7 @@ class FormHandler(BaseComponent):
         if dialog_kwargs or palette_kwargs:
             formRoot = pane._makeFormRoot(formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
-            formRoot = pane._makeFormRoot(formId,formRoot=pane,form_kwargs=kwargs)
+            formRoot = pane
         default_kwargs = default_kwargs or dict()
         kwargs['subscribe_form_%s_goToRecord' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1);'
