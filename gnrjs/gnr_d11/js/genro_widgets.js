@@ -7149,8 +7149,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
      },
     mixin_setSelected:function(node) {
-        if(node && node.item.attr._isSelectable===false){
-            return;
+        if(node){
+            if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick && node.item.attr.child_count)){
+                return;
+            }
+            
         }
         var prevSelectedNode = this.currentSelectedNode;
         this.currentSelectedNode = node;
