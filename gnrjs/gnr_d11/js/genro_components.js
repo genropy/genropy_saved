@@ -1904,10 +1904,13 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
-                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
+                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(evt){
+                    dojo.stopEvent(evt);
                     genro.callAfter(function(){
                         if(stackbag.len()>1){
-                            stack.switchPage(stack.getSelectedIndex()-1);
+                            var idx = stack.getSelectedIndex()-1;
+                            idx = idx>=0?idx:0;
+                            stack.switchPage(idx);
                         }
                         stackbag.popNode(childSourceNode.label);
                     },1);
