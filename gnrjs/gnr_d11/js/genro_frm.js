@@ -319,7 +319,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             i = 0;
             if(invfields){
                 invfields.forEach(function(n){
-                    var sn = objectValues(n.getValue())[0];
+                    var sn = genro.src.nodeBySourceNodeId(objectValues(n.getValue())[0]);
+                    if(!sn){
+                        return;
+                    }
                     var r = new gnr.GnrBag();
                     r.setItem('fieldname','<div style="font-weight: bold;">'+sn.getElementLabel()+'</div>',{_valuelabel:'Field'});
                     r.setItem('error',sn._validations.error,{_valuelabel:'Error'});
@@ -1302,7 +1305,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 invalidnodes = {};
                 invalidfields.setItem(changekey, invalidnodes);
             }
-            invalidnodes[sourceNode_id] = sourceNode;
+            invalidnodes[sourceNode_id] = sourceNode._id;
         } else {
             isInvalid = false;
             //console.log("remove validation error: "+changekey);
@@ -1428,12 +1431,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     checkInvalidFields: function() {
-        var node, sourceNode, changekey;
+        var node, sourceNode,node_identifiers,idx, changekey;
         var invalidfields = this.getInvalidFields();
         var invalidnodes = invalidfields.getNodes();
         for (var i = 0; i < invalidnodes.length; i++) {
             node = invalidnodes[i];
-            sourceNode = node.getValue();
+            node_identifiers = node.getValue();
+            for(idx in node_identifiers){
+                if(!genro.src.nodeBySourceNodeId(node_identifiers[idx])){
+                    objectPop(node_identifiers,idx);
+                }
+            }
+            if(!objectNotEmpty(node_identifiers)){
+                invalidfields.popNode(node.label);
+                continue;
+            }
             changekey = node.label;
             result = genro.vld.validate(sourceNode, sourceNode);
             if (result['modified']) {
@@ -1442,6 +1454,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             sourceNode.setValidationError(result);
             return result['value'];
         }
+        this.updateStatus();
     },
     dojoValidation:function(wdg,isValid){
         var sn = wdg.sourceNode;
@@ -1469,7 +1482,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var invalidFields = this.getInvalidFields();
         var first = invalidFields.getItem("#0");
         var key = objectKeyByIdx(first, 0);
-        first[key].widget.focus();
+        var sourceNode = genro.src.nodeBySourceNodeId(first[key]);
+        if(sourceNode && sourceNode.widget){
+            sourceNode.widget.focus();
+        }
+        
     },
     getInvalidFields: function() {
         return this.getControllerData().getItem('invalidFields') || new gnr.GnrBag();
