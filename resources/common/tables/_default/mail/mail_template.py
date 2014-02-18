@@ -100,6 +100,7 @@ class Main(BaseResourceMail):
         fb.checkbox(value='^.as_pdf',label='!!Send as pdf')
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
+        fb.textbox(value='^.mail_code',lbl='Mail code')
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
