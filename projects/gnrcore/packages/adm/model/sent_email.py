@@ -8,4 +8,5 @@ class Table(object):
         tbl.column('code',name_long='!!Code')
         tbl.column('tbl',name_long='!!Table')
         tbl.column('mail_address',name_long='!!Email address')
-        tbl.formulaColumn('batch_key',"$tbl || '|' || $code ||  '|' ||$mail_address")
+        tbl.column('sent_ts',dtype='DH',name_long='!!Sent ts')
+        tbl.column('record_id',name_long='Record id')
