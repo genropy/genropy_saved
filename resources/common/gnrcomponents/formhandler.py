@@ -175,7 +175,7 @@ class FormHandler(BaseComponent):
         if dialog_kwargs or palette_kwargs:
             formRoot = pane._makeFormRoot(formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
-            formRoot = pane._makeFormRoot(formId,formRoot=pane,form_kwargs=kwargs)
+            formRoot = pane
         default_kwargs = default_kwargs or dict()
         kwargs['subscribe_form_%s_goToRecord' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1);'
@@ -315,8 +315,8 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_locker(self,pane,**kwargs):
         pane.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
-                    disabled='==_pw||_pd||(_changed && !this.form.isDisabled())',
-                    _pw='^#FORM.record?_protect_write',_pd='^#FORM.record?_protect_delete',
+                    disabled='==_pw||(_changed && !this.form.isDisabled())',
+                    _pw='^#FORM.record?_protect_write',
                     _changed='^#FORM.controller.changed',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'iconbox lock':'iconbox unlock');""",

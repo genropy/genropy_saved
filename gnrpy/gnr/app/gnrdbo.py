@@ -160,13 +160,13 @@ class TableBase(object):
             else:
                 group = '_'
         if ins:
-            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True)
+            tbl.column('__ins_ts', dtype='DH', name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
         if ldel:
-            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True)
+            tbl.column('__del_ts', dtype='DH', name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
             tbl.column('__mod_ts', dtype='DH', name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
-                       group=group,_sysfield=True)
+                       group=group,_sysfield=True,indexed=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
                 tbl.attributes['lastTS'] = '__mod_ts'
@@ -385,7 +385,7 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
-            record[fldname] = self.db.currentEnv.get('user')
+            record[fldname] = self.db.currentUser
 
     def trigger_setAuditVersionIns(self, record, fldname):
         """TODO
@@ -666,6 +666,11 @@ class TableBase(object):
 
     def hosting_removeUnused(self,dest_db,missing=None):
         dest_db.table(self.fullname).deleteSelection(where='$%s IN :missing' %self.pkey,missing=missing)
+
+
+    def getCustomFieldsMenu(self):
+        data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
+        return data,metadata
 
 
 class GnrDboTable(TableBase):

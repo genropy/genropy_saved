@@ -320,7 +320,27 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             {message: msg, type: level, duration: duration}
         ]);
     },
-    
+
+    remoteDialog:function(name,remote,remoteKw,dlgKw){
+        var remoteKw = remoteKw || {};
+        var dlgKw = dlgKw || {};
+        dlgKw.nodeId = 'remote_dlg_'+name;
+        var dlgNode = genro.nodeById(dlgKw.nodeId);
+        if(!dlgNode){
+            var dlg = genro.src.create('dialog',dlgKw,'_rmt_dlg');
+            var kw = {};
+            for (var k in remoteKw){
+                kw['remote_'+k] = remoteKw[kw];
+            }
+            kw.min_height = '1px';
+            kw.min_width = '1px';
+            kw.remote = remote;
+            console.log('remote pars',kw);
+            dlg._('div',kw);
+            dlgNode = dlg.getParentNode();
+        }
+        dlgNode.widget.show()
+    },
     
     prompt: function(title, kw,sourceNode) {
         var kw = kw || {};
@@ -653,6 +673,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
         urlKw['th_from_package'] = genro.getData("gnr.package");
+        urlKw['_parent_page_id'] = genro.page_id;
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
@@ -688,6 +709,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                 palette._('div',{innerHTML:content});
             }else if(content instanceof gnr.GnrDomSourceNode){
                 palette.setItem(content.label,content._value,content.attr);
+            }else if(typeof(content)=='function'){
+                content(palette);
             }else{
                 var tag = objectPop(content,'tag') || 'div';
                 palette._(tag,content);

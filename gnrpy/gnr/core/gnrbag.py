@@ -62,39 +62,19 @@ from datetime import datetime, timedelta
 import urllib, urlparse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog as converter
-from gnr.core.gnrlang import setCallable, GnrObject
+from gnr.core.gnrlang import setCallable, GnrObject, GnrException
 import os.path
 import logging
-import time
 import sys
 
 gnrlogger = logging.getLogger(__name__)
 
-def timer_call(time_list=[], print_time=True):
-    def decore(func):
-        def wrapper(*arg, **kw):
-            t1 = time.time()
-            res = func(*arg, **kw)
-            t2 = time.time()
-            if print_time:
-                print '-' * 80
-                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
-                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
-                print arg
-                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
-                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
-                print '-' * 80
-            time_list.append((func.func_name, (t2 - t1) * 1000.0))
-            return res
-            
-        return wrapper
-        
-    return decore
+
     
-class BagNodeException(Exception):
+class BagNodeException(GnrException):
     pass
     
-class BagException(Exception):
+class BagException(GnrException):
     pass
     
 class BagAsXml(object):
@@ -2833,7 +2813,7 @@ class BagResolverNew(object):
            isinstance(attr, float):
             return attr
         elif self.serializerStore is None:
-            raise 'Missing SerializerStore'
+            raise BagException('Missing SerializerStore')
         else:
             key = '%s' % name
             self.serializerStore[key] = attr

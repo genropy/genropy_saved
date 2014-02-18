@@ -502,7 +502,6 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
 
     mixin_gnr_setDisabled:function(disabled){
-        //console.log('CkEditor setDisabled',disabled)
         this.gnr_setReadOnly(disabled);
     },
 

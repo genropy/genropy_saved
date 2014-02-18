@@ -22,7 +22,17 @@ class BaseResourceMail(BaseResourceBatch):
 
     def send_one_email(self,to_address=None,cc_address=None,subject=None,body=None,attachments=None):
         mp = self.mail_preference
-        self.mail_handler.sendmail(to_address=to_address,
+        mail_code = self.batch_parameters.get('mail_code')
+        currentSent = dict()
+        tbl = self.tblobj.fullname
+        if mail_code:
+            currentSent = self.db.table('adm.sent_email').query(where='$tbl=:tbl AND $code=:c',tbl=tbl,c=mail_code,
+                                        columns='*,$batch_key').fetchAsDict('batch_key')
+
+        try:
+            if mail_code and ('%s|%s|%s' %(tbl,mail_code,to_address) in currentSent):
+                return
+            self.mail_handler.sendmail(to_address=to_address,
                                     body=body, subject=subject,
                                     cc_address=cc_address, bcc_address=mp['bcc_address'],
                                     from_address=mp['from_address'],
@@ -30,6 +40,13 @@ class BaseResourceMail(BaseResourceBatch):
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                     ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+            
+            with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
+                self.db.table('adm.sent_email').insert(dict(code=mail_code,tbl=tbl,mail_address=to_address))
+                self.db.commit()
+
+        except Exception:
+            print 'failure in email',to_address
         
     def get_template(self,template_address):
         if not ':' in template_address:

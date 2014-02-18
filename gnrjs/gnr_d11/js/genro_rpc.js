@@ -418,6 +418,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     resultHandler: function(response, ioArgs, currentAttr) {
+        genro._last_rpc = {response:response,ioArgs:ioArgs};
         this.unregister_call(ioArgs);
         var siteMaintenance = ioArgs.xhr.getResponseHeader('X-GnrSiteMaintenance') 
         genro.dev.siteLockedStatus(siteMaintenance!=null);
@@ -707,6 +708,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             }
             kwargs['loadingParameters'] = loadingParameters;
         };
+        resolver.onloaded = function(){
+            genro.publish('resolverOneLoaded_'+this.attr._from_fld.replace(/\./g, '_'),{path:this.getFullpath(),node:this});
+        }
         var _related_field = params._target_fld.split('.')[2];
 
         if (params._auto_relation_value) {

@@ -49,12 +49,13 @@ try:
     
     class LocalizedWrapper(object):
 
-        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,df_templates=None,dtypes=None,
+        def __init__(self,data, locale=None,templates=None, formats=None,masks=None,editcols=None,df_templates=None,dtypes=None,
                          localizer=None,urlformatter=None,noneIsBlank=None,emptyMode=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
             self.masks = masks or dict()
+            self.editcols = editcols or dict()
             self.df_templates = df_templates or dict()
             self.templates=templates
             self.noneIsBlank=noneIsBlank
@@ -89,16 +90,18 @@ try:
                             result = []
                             for v in value.values():
                                 result.append(templateReplace(template,v, locale=self.locale, 
-                                                formats=self.formats,masks=self.masks,dtypes=self.dtypes, noneIsBlank=self.noneIsBlank))
+                                                formats=self.formats,masks=self.masks,editcols=self.editcols,dtypes=self.dtypes, noneIsBlank=self.noneIsBlank))
                             return joiner.join(result)
                     elif as_name in self.df_templates:
                         templatepath = self.df_templates[as_name]
                         template = self.data[templatepath]
                         result = templateReplace(template,value,locale=self.locale, 
-                                                formats=self.formats,masks=self.masks, dtypes=self.dtypes,
+                                                formats=self.formats,masks=self.masks, 
+                                                editcols=self.editcols,dtypes=self.dtypes,
                                                 noneIsBlank=self.noneIsBlank)
                         empty=templateReplace(template,value,locale=self.locale, 
-                                                formats=self.formats,masks=self.masks, dtypes=self.dtypes,
+                                                formats=self.formats,editcols=self.editcols,
+                                                masks=self.masks, dtypes=self.dtypes,
                                                 noneIsBlank=self.noneIsBlank,emptyMode=True)
                         return result if result!=empty else ''
 
@@ -431,7 +434,7 @@ def conditionalTemplate(myString,symbolDict=None):
 
     
 def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, 
-                    formats=None,dtypes=None,masks=None,df_templates=None,localizer=None,
+                    formats=None,dtypes=None,masks=None,editcols=None,df_templates=None,localizer=None,
                     urlformatter=None,emptyMode=None,conditionalMode=True):
     """Allow to replace string's chunks.
     
@@ -448,7 +451,6 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
     if hasattr(myString, '_htraverse'):
         templateBag = myString.deepcopy()
         myString = templateBag.pop('main')
-        
     if not '$' in myString or not symbolDict: return myString
 
     if hasattr(symbolDict, '_htraverse'):
@@ -462,7 +464,8 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         Tpl = Template
     if conditionalMode and '${' in myString:
         myString = conditionalTemplate(myString,symbolDict=symbolDict)
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,masks=masks,
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,dtypes=dtypes,
+                                    masks=masks,editcols=editcols,
                                     df_templates=df_templates,localizer=localizer,
                                     urlformatter=urlformatter,emptyMode=emptyMode)
 

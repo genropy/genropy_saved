@@ -27,6 +27,7 @@ class Table(object):
     def authorize(self, reason=None,commit=True):
         record = dict(note=reason)
         self.insert(record)
+        print record
         if commit:
             self.db.commit()
         return record['code']
@@ -56,14 +57,19 @@ class Table(object):
             return False
         return True
         
+    def newPkeyValue(self):
+        toassign=True
+        record_data = dict()
+        while toassign:
+            record_data['code'] = self.generate_code()
+            toassign = self.existsRecord(record_data)
+        return record_data['code']
+
+
     def trigger_onInserting(self, record_data):
         if not record_data.get('remaining_usages'):
             record_data['remaining_usages']=1
         if not record_data.get('expiry_date'):
             record_data['expiry_date']=self.db.workdate
-        toassign=True
-        while toassign:
-            record_data['code'] = self.generate_code()
-            print record_data,toassign
-            toassign = self.existsRecord(record_data)
+        
             

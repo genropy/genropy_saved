@@ -190,6 +190,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if ('_valuelabel' in sourceNode.attr){
             valueAttr['_valuelabel'] = sourceNode.attr['_valuelabel'];
         }
+        if(sourceNode.attr.rejectInvalid && !sourceNode.widget.isValid()){
+            return;
+        }
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
         sourceNode.publish('onSetValueInData',value);
     },
@@ -4637,6 +4640,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         return result;
     },
+
+    mixin_getSelectedProtectedPkeys:function(){
+        var that = this;
+        var protectPkeys = [];
+        this.getSelectedNodes().forEach(function(n){
+            if(n.attr._protect_delete || n.attr._is_readonly_row){
+                protectPkeys.push(that.rowIdentity(n.attr));
+            }
+        });
+        return protectPkeys.length?protectPkeys:null;
+    },
+
     mixin_rowIdentity: function(row) {
         if (row) {
             return row[this.rowIdentifier()];
@@ -5646,11 +5661,15 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     
     mixin_deleteSelectedRows:function(){
         var pkeys = this.getSelectedPkeys();
+        var protectPkeys;
+        if(this.collectionStore().allowLogicalDelete){
+            protectPkeys = this.getSelectedProtectedPkeys();
+        }
         if(this.gridEditor){
-            this.gridEditor.deleteSelectedRows(pkeys);
+            this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);
             this.sourceNode.publish('onDeletedRows');
         }else{
-            this.collectionStore().deleteAsk(pkeys);
+            this.collectionStore().deleteAsk(pkeys,protectPkeys);
         }
     },
     
@@ -7130,8 +7149,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
      },
     mixin_setSelected:function(node) {
-        if(node && node.item.attr._isSelectable===false){
-            return;
+        if(node){
+            if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick && node.item.attr.child_count)){
+                return;
+            }
+            
         }
         var prevSelectedNode = this.currentSelectedNode;
         this.currentSelectedNode = node;
@@ -7171,6 +7193,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         else if (!item._id) {
             item = node.getParent().item;
         }
+        var root = this.model.store.rootData();
+        var itemFullPath = item.getFullpath(null, root);
         if (this.sourceNode.attr.selectedLabel) {
             var path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
             setterNode.setRelativeData(path, item.label, attributes, null, reason);
@@ -7181,8 +7205,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (this.sourceNode.attr.selectedPath) {
             var path = this.sourceNode.attrDatapath('selectedPath', setterNode);
-            var root = this.model.store.rootData();
-            setterNode.setRelativeData(path, item.getFullpath(null, root), objectUpdate(attributes, item.attr), null, reason);
+            setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         for (var sel in selattr) {
@@ -7192,6 +7215,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
         }
+        this.sourceNode.publish('onSelected',{path:itemFullPath,item:item,node:node})
     }
 });
 

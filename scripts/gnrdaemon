@@ -46,6 +46,10 @@ def getOptions():
 
     parser.add_argument('-n', '--sitename',
                       help="Sitename")
+    
+    parser.add_argument('-l', '--size_limit', type=int,
+                      help="Size limit")
+
 
     arguments= parser.parse_args()
     return arguments.__dict__
