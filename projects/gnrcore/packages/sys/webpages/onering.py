@@ -191,7 +191,7 @@ class GnrCustomWebPage(object):
         bar.stitle.div('^current_site.record.sitename',height='30px',font_size='22px',color='white',text_align='center')
         #fb.button('dump current',fire_dump='runningSites.command')
         bar.pgbadger.button('Make Postgres report',
-                            ask=dict(title='Postgres report',shiftToSkip=False,
+                            ask=dict(title='Postgres report',skipOn='Shift',
                                     fields=[dict(lbl='Since (min)',wdg='numberTextBox',name='since',default_value=180)]),
                             action="genro.publish('pgbadger_run',{since:since || 180});")
         bar.dataRpc('dummy',self.pgbadger_run,subscribe_pgbadger_run=True,_onResult="""

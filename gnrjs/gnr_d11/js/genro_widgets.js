@@ -2320,7 +2320,14 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
-            if(ask_params && (ask_params.shiftToSkip===false || !e.shiftKey)){
+            var modifiers = genro.dom.getEventModifiers(e);
+            var skipOn,askOn,doAsk;
+            if(ask_params){
+                skipOn = ask_params.skipOn;
+                askOn = ask_params.askOn;
+                doAsk = !(askOn || skipOn) || (askOn && askOn==modifiers) || (skipOn && skipOn!=modifiers);
+            }
+            if(ask_params && doAsk){
                 var promptkw = objectUpdate({},sourceNode._ask_params);
                 promptkw.fields = promptkw.fields.map(function(kw){
                     kw = objectUpdate({},kw);

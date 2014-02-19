@@ -22,7 +22,7 @@ class FrameGridSlots(BaseComponent):
                                 
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
-                                ask=dict(title='Export selection',shiftToSkip=True,
+                                ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode')]),
 
