@@ -191,6 +191,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     compare: function(op, a, b) {
+        if((a instanceof Date) && (b instanceof Date)){
+            a = a.valueOf();
+            b = b.valueOf();          
+        }
         return genro.compareDict[op](a, b);
     },
     timeIt:function(msg) {
