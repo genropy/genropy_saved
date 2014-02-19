@@ -4103,7 +4103,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (filterColumn) {
             this.filterColumn = filterColumn;
         }
-        this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
+        this.currentFilterValue = (filterValue === true) ? this.currentFilterValue : filterValue;
         var colType;
         if (this.filterColumn){
             var col = this.cellmap[this.filterColumn];
