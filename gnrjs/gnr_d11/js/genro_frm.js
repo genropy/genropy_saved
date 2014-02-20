@@ -897,7 +897,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var deferred=this.store.save(kw);
             var that,cb;
             that = this;
-            if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
+            if(onSaved=='reload' || (destPkey&&(destPkey!=this.getCurrentPkey())) || (this.isNewRecord() && onSaved=='lazyReload')){
                 cb=function(resultDict){
                     resultDict = resultDict || {};
                     if (resultDict.error){
