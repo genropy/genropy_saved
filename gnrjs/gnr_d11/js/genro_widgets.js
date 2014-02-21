@@ -699,7 +699,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             
         }else{
-            domnode.src = null;
+            domnode.src = '';
         }
     },
 
@@ -712,12 +712,12 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             return false;
         }else if(!parsedSrc.file){
             console.log('TEST',src,parsedSrc)
-            domnode.src = null;
+            domnode.src = '';
             return false
         }
         console.log('TEST 2',src,parsedSrc)
 
-        domnode.src = null;
+        domnode.src = '';
         loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
         domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
         return true;
