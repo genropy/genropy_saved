@@ -714,9 +714,6 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             domnode.src = '';
             return false
         }
-            domnode.src = '';
-            return false
-        }
         domnode.src = '';
         loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
         domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
