@@ -1345,9 +1345,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(objectNotEmpty(this._pendingValidations)){
             var that = this;
             var _pendingValidations = this._pendingValidations;
-            this._pendingValidations = null
+            this._pendingValidations = null;
+            var sourceNode;
             for(var k in _pendingValidations){
-                this.resolvePendingValidation(_pendingValidations[k]);
+                sourceNode = genro.src.nodeBySourceNodeId(_pendingValidations[k]);
+                if(sourceNode){
+                    this.resolvePendingValidation(sourceNode);
+                }
             }
         }
     },
@@ -1369,7 +1373,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     addPendingValidation:function(sourceNode){
         this._pendingValidations = this._pendingValidations || {};
-        this._pendingValidations[sourceNode._id] = sourceNode;
+        this._pendingValidations[sourceNode.getStringId()] = sourceNode._id;
     },
 
     isValid:function(){
