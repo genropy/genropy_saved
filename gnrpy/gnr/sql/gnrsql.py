@@ -373,8 +373,8 @@ class GnrSqlDb(GnrObject):
                 sqlargs.pop(k)
                 sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
                 sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
-            sql = re.sub(NOT_IN_OPERATOR_PATCH, ' TRUE', sql)    
-            sql = re.sub(IN_OPERATOR_PATCH, ' FALSE', sql)
+            sql = re.sub(NOT_IN_OPERATOR_PATCH, '\\1 TRUE', sql)    
+            sql = re.sub(IN_OPERATOR_PATCH, '\\1 FALSE', sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
