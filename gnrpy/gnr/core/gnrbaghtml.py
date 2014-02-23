@@ -10,6 +10,7 @@ import os
 from gnr.core.gnrstring import toText
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
+from gnr.core.gnrdecorator import extract_kwargs
 import tempfile
 
 class BagToHtml(object):
@@ -43,6 +44,7 @@ class BagToHtml(object):
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
+    body_attributes = None
     
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
@@ -93,13 +95,14 @@ class BagToHtml(object):
             return 'Portrait'
             
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
-                 htmlContent=None,page_debug=None,**kwargs):
+                 htmlContent=None,page_debug=None, is_draft=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
         self._data = Bag()
+        self.is_draft = is_draft
         self.record = record
         self.setData('record', record) #compatibility
         for k, v in kwargs.items():
@@ -128,8 +131,8 @@ class BagToHtml(object):
                                       page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                       page_debug=self.page_debug, print_button=self.print_button,
                                       htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
-                                      showTemplateContent=self.showTemplateContent)
-        result = self.createHtml(filepath=self.filepath)
+                                      showTemplateContent=self.showTemplateContent,parent=self)
+        result = self.createHtml(filepath=self.filepath,body_attributes=self.body_attributes)
         return result
         
     def get_css_requires(self):
@@ -168,12 +171,12 @@ class BagToHtml(object):
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
         
-    def createHtml(self, filepath=None):
+    def createHtml(self, filepath=None, body_attributes=None):
         """TODO
         
         :param filepath: the path where html will be saved"""
         #filepath = filepath or self.filepath
-        self.initializeBuilder()
+        self.initializeBuilder(body_attributes=body_attributes)
         self.main()
         self.builder.toHtml(filepath=filepath)
         return self.builder.html
@@ -195,13 +198,17 @@ class BagToHtml(object):
         
         :param templates: TODO"""
         return self.templates
-        
-    def initializeBuilder(self):
+
+    def initializeBuilder(self, body_attributes=None):
         """TODO"""
-        self.builder.initializeSrc()
+        self.builder.initializeSrc(body_attributes=body_attributes)
         self.body = self.builder.body
         self.getNewPage = self.builder.newPage
         self.builder.styleForLayout()
+
+    def getNewPage(self):
+        pass
+
         
     def getData(self, path, default=None):
         """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on data if
@@ -268,6 +275,10 @@ class BagToHtml(object):
             page.div("%s::HTML" % self.htmlContent)
         else:
             self.mainLoop()
+
+    def onNewPage(self,page):
+        if self.is_draft:
+            page.div(style='position:absolute; top:0; left:0; right:0; bottom:0; z-index:10000',_class='document_draft')
             
     def pageCounter(self, mask=None):
         """Allow to automatically number the pages created in a :ref:`print`. You can choose

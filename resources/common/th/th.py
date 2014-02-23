@@ -36,10 +36,11 @@ class TableHandler(BaseComponent):
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,configurable=True,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
+                            rowStatusColumn=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
                             addrowmenu_kwargs=True,
                             export_kwargs=None,
-                            liveUpdate=True,
+                            liveUpdate=None,
                             picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,**kwargs):
         if relation:
@@ -98,6 +99,8 @@ class TableHandler(BaseComponent):
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
         preview_kwargs.setdefault('tpl',True)
+        rowStatusColumn = self.db.table(table).attributes.get('protectionColumn') if rowStatusColumn is None else rowStatusColumn
+        grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
@@ -131,6 +134,20 @@ class TableHandler(BaseComponent):
                         this.form.save()
                     }
                 """)
+            if hider_kwargs.get('onChanged'):
+                wdg.dataController("""
+                            var currform = this.getFormHandler();
+                            message = message==true?msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix:message;
+                            if(changed){
+                                sourceNode.setHiderLayer(true,{message:message,button:function(){currform.save();}});
+                            }else{
+                                sourceNode.setHiderLayer(false);
+                            }
+                            """,sourceNode=hiderRoot,
+                                message=hider_kwargs.get('onChanged'),
+                                    msg_prefix='!!Save',msg_suffix='',
+                                changed='^#FORM.controller.changed',grid=wdg.view.grid)  
+
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             if pbl_classes=='*':
@@ -279,14 +296,16 @@ class TableHandler(BaseComponent):
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            hider=False,picker=None,addrow=None,delrow=None,height=None,width=None,**kwargs):
+                            hider=False,picker=None,addrow=None,delrow=None,height=None,width=None,rowStatusColumn=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         if picker:
             hider=True
             delrow = True if delrow is None else delrow
             addrow = False if addrow is None else addrow
+        if rowStatusColumn is None:
+            rowStatusColumn = delrow is True
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
-                                        viewResource=viewResource,hider=hider,
+                                        viewResource=viewResource,hider=hider,rowStatusColumn=rowStatusColumn,
                                         picker=picker,addrow=addrow,delrow=delrow,**kwargs)
         wdg.view.attributes.update(height=height,width=width)
         return wdg

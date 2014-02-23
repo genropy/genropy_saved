@@ -25,6 +25,87 @@
 
 dojo.require('dijit.Menu');
 
+
+
+function inlineWidget(evt){
+    console.log('inlineWidget',domNode,evt);
+    var domNode = evt.target;
+    var varname = domNode.getAttribute('varname');
+    var chunkNode = genro.dom.getBaseSourceNode(domNode);
+    if(chunkNode.form && chunkNode.form.isDisabled()){
+        return;
+    }
+    var templateHandler = chunkNode._templateHandler;
+    var colattr = templateHandler.template.getAttr('main')['editcols'][varname];
+    var containerNode = domNode.parentNode;
+
+    if(!templateHandler._editRootNode){
+        templateHandler._editRootNode = chunkNode.getValue().getNode('_chunk_inline_editor_',null,true);
+        templateHandler._editRootNode.attr.datapath = chunkNode.absDatapath(chunkNode.attr.datasource);
+    }
+
+    var dt = colattr['dtype'];
+    var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+    colattr['tag'] = widgets[dt] || 'Textbox';
+    if('related_table' in colattr){
+        colattr['tag'] = 'dbselect';
+        colattr['dbtable'] = colattr['related_table'];
+    }if('values' in colattr){
+        colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
+    }
+    var sizer = templateHandler._editRootNode._('span',{_parentDomNode:containerNode,position:'absolute',
+                                                                width:'auto',
+                                                            top: -9999,
+                                                            left: -9999}).getParentNode();
+
+    sizer.domNode.innerHTML = domNode.innerHTML;
+
+    if(colattr['tag'].toLowerCase()=='datetextbox'){
+        colattr['width'] = '7em';
+    }else{
+        colattr['width'] = domNode.clientWidth+'px';
+        colattr['connect_onkeyup'] = function(){
+            var fn = this.widget.focusNode;
+            sizer.domNode.innerHTML = fn.value;
+            var dn = this.widget.domNode;
+            dn.style.width = sizer.domNode.clientWidth+8+'px'
+        }
+    }
+    colattr['min_width'] = '30px';
+    colattr['value'] = '^.'+colattr['field'];
+    colattr['_parentDomNode'] = containerNode;
+    colattr['rejectInvalid'] = true;
+    colattr['connect_onBlur'] = function(){
+        var dataNodeAttr = genro.getDataNode(this.absDatapath(this.attr.value)).attr;
+        this._destroy();
+        sizer._destroy();
+        genro.dom.removeClass(containerNode,'inlineediting')
+    }
+
+    colattr['attr__displayedValue']
+   //var lowertag = colattr['tag'].toLowerCase();
+   //if(this['tag_'+lowertag]){
+   //    this['tag_'+lowertag].call(this,colname,colattr);
+   //}
+    //this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
+    genro.dom.addClass(containerNode,'inlineediting')
+    var widgetNode = templateHandler._editRootNode._(colattr.tag,colattr).getParentNode();
+    widgetNode.widget.focus()
+
+};
+
+function inlineWidget_xx(parentNode,fldDict,cellName,kw){
+    var wdgtag = fldDict.tag;
+    if (!wdgtag || kw.autoWdg) {
+        var dt = fldDict.dtype;
+        //var dt = convertToText(cellDataNode.getValue())[0];
+        wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+    }
+
+    var widgetNode = parentNode._(wdgtag,cellName, kw).getParentNode();
+    return widgetNode;
+};
+
 dojo.declare("gnr.GnrWdgHandler", null, {
     constructor: function(application) {
         this.application = application;
@@ -944,7 +1025,7 @@ dojo.declare("gnr.GridEditor", null, {
         return changeset;
     },
 
-    deleteSelectedRows:function(pkeys){
+    deleteSelectedRows:function(pkeys,protectPkeys){
         //var selectedIdx = this.grid.selection.getSelected()
         if(pkeys=='*'){
             pkeys = this.grid.getAllPkeys();
@@ -964,7 +1045,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(existingPkeys.length>0){
             if(this.autoSave){
                 var that = this;
-                this.grid.collectionStore().deleteAsk(existingPkeys,function(){that.markDeleted(pkeys)});
+                this.grid.collectionStore().deleteAsk(existingPkeys,protectPkeys,function(){that.markDeleted(pkeys)});
             }else{
                 this.markDeleted(existingPkeys);
             }
@@ -1292,6 +1373,7 @@ dojo.declare("gnr.GridEditor", null, {
         editWidgetNode.grid = gridEditor.grid;
 
     },
+
     endEdit:function(editWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;

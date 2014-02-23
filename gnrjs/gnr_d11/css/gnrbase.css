@@ -1,4 +1,5 @@
 *:focus, *:active {outline:none;}
+input:focus { outline: none; }
 
 div,span{
     -webkit-touch-callout: none;
@@ -64,6 +65,35 @@ cursorZoom_plus{
 }
 .keeper_on .iskeepable{
     font-weight: bold;
+}
+
+.gnrinlinewidget_container{
+    display: inline-block;
+}
+
+.tundra .gnrinlinewidget_container .dijitTextBox, 
+.tundra .gnrinlinewidget_container .dijitComboBox, 
+.tundra .gnrinlinewidget_container .dijitSpinner, 
+.tundra .gnrinlinewidget_container .dijitInlineEditor input,
+.tundra .gnrinlinewidget_container .dijitTextArea{
+    border: 0;
+    vertical-align: bottom;
+    padding-top: 0;
+    outline: none;
+}
+.gnreditabletext{
+    display: inline-block;
+    min-width: 40px;
+    /*border-bottom: 1px dotted silver;*/
+    line-height: 1;
+}
+
+.gnreditabletext:hover{
+    background: yellow;
+}
+
+.inlineediting .gnreditabletext{
+    display: none;
 }
 
 .fieldkeeper{
@@ -3674,7 +3704,7 @@ p {
     background: url(icons/base12/smallpopup.gif) no-repeat center center;
 }
 
-div[disabled='true']{
+div[disabled='true'], div[disabled='disabled']{
     opacity: .5;
 }
 .slotbar_toolbar .buttonDiv:hover{
@@ -3688,7 +3718,7 @@ div[disabled='true']{
 .slotbar .buttonDiv{
     display: block;
 }
-.buttonDiv[disabled='true']{
+.buttonDiv[disabled='true'], .buttonDiv[disabled='disabled']{
     cursor:not-allowed;
 }
 .buttonDivLabel{
@@ -3928,3 +3958,9 @@ div[disabled='true']{
 .branchtree .dijitTreeIsRoot{
     margin-left: 0px;
 }
+
+._logical_delete.delete_row{
+    background: url(/_rsrc/common/css_icons/retina/blue/16/delete_row.png) no-repeat center center;
+}
+
+

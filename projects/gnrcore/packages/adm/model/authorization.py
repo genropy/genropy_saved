@@ -9,11 +9,12 @@ class Table(object):
         tbl = pkg.table('authorization', pkey='code', name_long='!!Authorization',
                         name_plural='!!Authorizations')
         self.sysFields(tbl, id=False, user_ins=True)
-        tbl.column('code', size=':8', validate_case='U', name_long='!!Code')
+        tbl.column('code', size=':8', validate_case='U', name_long='!!Code', unmodifiable=True)
         tbl.column('user_id', size='22', name_long='!!User id').relation('user.id', mode='foreignkey') #Not used DEPRECATED
         tbl.column('use_ts', 'DH', name_long='!!Used datetime')
         tbl.column('used_by', name_long='!!Used by')
         tbl.column('note', name_long='!!Note')
+        tbl.column('usage_scope', name_long='!!Use Scope')
         tbl.column('remaining_usages', 'L', name_long='!!Remaining usages', default=1)
         tbl.column('expiry_date', 'D', name_long='!!Expire Date')
 
@@ -24,28 +25,40 @@ class Table(object):
         return code
     
     #@public_method #(tags='admin')
-    def authorize(self, reason=None,commit=True):
-        record = dict(note=reason)
+    def authorize(self, reason=None,commit=True, **kwargs):
+        return self.new_authorization(reason=reason, commit=commit, **kwargs)
+
+    def new_authorization(self, reason=None, usage_scope=None, commit=True, **kwargs):
+        record = dict(note=reason, usage_scope=usage_scope)
+        record.update(kwargs)
         self.insert(record)
+        print record
         if commit:
             self.db.commit()
         return record['code']
-        
-    def use_auth(self, code, username):
-        record = self.record(pkey=code, for_update=True).output('bag')
+
+    def getUsageScopes(self):
+        return ','.join(['%s:%s' %(k[6:], getattr(self,k)()) for k in dir(self) if k.startswith('scope_')])
+
+    def use_auth(self, code, usage_scope=None, username=None):
+        record = self.query(where='$code=:code AND $usage_scope=:usage_scope', code=code, usage_scope=usage_scope,
+                            for_update=True).fetch()
+        if not record:
+            raise self.exception('Authoriziation %s not found for scope %s' % (code, usage_scope))
+        record= record[0]
         record['use_ts'] = datetime.now()
-        record['used_by'] = username
+        record['used_by'] = username or self.db.currentEnv.get('user')
         record['remaining_usages'] = record['remaining_usages'] - 1
         self.update(record)
     
     @public_method     
-    def validate_auth_code(self, value=None, **kwargs):
+    def validate_auth_code(self, value=None, usage_scope=None, **kwargs):
         if not value:
             return
-        return self.check_auth(value)
+        return self.check_auth(value, usage_scope=usage_scope)
         
-    def check_auth(self, code):
-        exists = self.query(where='$code=:code', code=code).fetch()
+    def check_auth(self, code, usage_scope=None):
+        exists = self.query(where='$code=:code AND $usage_scope=:s', code=code, s=usage_scope).fetch()
         if not exists:
             return False
         coupon = exists[0]
@@ -56,14 +69,19 @@ class Table(object):
             return False
         return True
         
+    def newPkeyValue(self):
+        toassign=True
+        record_data = dict()
+        while toassign:
+            record_data['code'] = self.generate_code()
+            toassign = self.existsRecord(record_data)
+        return record_data['code']
+
+
     def trigger_onInserting(self, record_data):
         if not record_data.get('remaining_usages'):
             record_data['remaining_usages']=1
         if not record_data.get('expiry_date'):
             record_data['expiry_date']=self.db.workdate
-        toassign=True
-        while toassign:
-            record_data['code'] = self.generate_code()
-            print record_data,toassign
-            toassign = self.existsRecord(record_data)
+        
             

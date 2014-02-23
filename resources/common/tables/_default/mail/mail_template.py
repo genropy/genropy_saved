@@ -85,7 +85,7 @@ class Main(BaseResourceMail):
             else:
                 body = result
                 attachments = attachments or None
-            self.send_one_email(to_address=to_address,cc_address=cc_address,subject=subject,body=body,attachments=attachments)
+            self.send_one_email(to_address=to_address,cc_address=cc_address,subject=subject,body=body,attachments=attachments,_record_id=record[self.tblobj.pkey])
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
@@ -100,6 +100,7 @@ class Main(BaseResourceMail):
         fb.checkbox(value='^.as_pdf',label='!!Send as pdf')
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
+        fb.textbox(value='^.mail_code',lbl='Mail code')
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}

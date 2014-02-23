@@ -40,7 +40,7 @@ from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.core.gnrdecorator import debug_info
-from gnr.sql.gnrsql_exceptions import SelectionExecutionError, RecordDuplicateError,\
+from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn
 
@@ -1430,7 +1430,7 @@ class SqlSelection(object):
         """
         if not merge:
             if self._index != selection._index:
-                raise "Selections' columns mismatch"
+                raise GnrSqlException("Selections columns mismatch")
             else:
                 l = [self.newRow(r) for r in selection.data]
         else:
@@ -2315,17 +2315,21 @@ class SqlRecord(object):
                     if resolver_one and relmode =='DynItemOne':
                         result.getNode(fieldname[1:]).subscribe('resolverChanged',self._onChangedValueCb)
             else:
-                if dtype == 'X' and not self.bagFields:
-                    continue
                 value = sqlresult['t0_%s' %fieldname]
+
                 if dtype == 'X':
-                    try:
-                        md5value = value or ''
-                        md5value = md5value.encode('utf8')
-                        info['_bag_md5'] = hashlib.md5(md5value).hexdigest()
+                    if self.bagFields:
                         value = Bag(value)
-                    except:
-                        pass
+                    else:
+                        continue
+               #if dtype == 'X':
+               #    try:
+               #        #md5value = value or ''
+               #        #md5value = md5value.encode('utf8')
+               #        #info['_bag_md5'] = hashlib.md5(md5value).hexdigest()
+               #        value = Bag(value)
+               #    except:
+               #        pass
                 result.setItem(fieldname, value, info)
 
     

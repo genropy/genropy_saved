@@ -60,6 +60,7 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.locale = compiled.getItem('main?locale')
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.masks = compiled.getItem('main?masks')
+        htmlbuilder.editcols = compiled.getItem('main?editcols')
         htmlbuilder.df_templates = compiled.getItem('main?df_templates')
         htmlbuilder.dtypes = compiled.getItem('main?dtypes')
         htmlbuilder.data_tblobj = tblobj
@@ -78,13 +79,15 @@ class TemplateEditorBase(BaseComponent):
         locale = locale or templateBuilder.locale
         formats = templateBuilder.formats or dict()
         masks = templateBuilder.masks or dict()
+        editcols = templateBuilder.editcols or dict()
+
         df_templates = templateBuilder.df_templates or dict()
         dtypes = templateBuilder.dtypes or dict()
 
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
         htmlContent = templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, 
-                                                            formats=formats,masks=masks,df_templates=df_templates,
+                                                            formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,
                                                             dtypes=dtypes,localizer=self.localizer,
                                                             urlformatter=self.externalUrl)
         if contentOnly:
@@ -108,6 +111,7 @@ class TemplateEditorBase(BaseComponent):
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None,template_id=None):
         result = Bag()
         formats = dict()
+        editcols = dict()
         masks = dict()
         df_templates = dict()
         dtypes = dict()
@@ -115,8 +119,8 @@ class TemplateEditorBase(BaseComponent):
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.df_template,#v.dtype')
-            for varname,fldpath,virtualcol,format,mask,df_template,dtype in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
+            for varname,fldpath,virtualcol,format,mask,editable,df_template,dtype in tplvars:
                 fk=''
                 if format:
                     fk=varname
@@ -124,6 +128,9 @@ class TemplateEditorBase(BaseComponent):
                 if mask:
                     fk=varname
                     masks[varname] = mask
+                if editable:
+                    fk=varname
+                    editcols[varname] = editable
                 if df_template:
                     fk=varname
                     df_templates[varname] = df_template
@@ -156,7 +163,7 @@ class TemplateEditorBase(BaseComponent):
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
-                            columns=','.join(columns),formats=formats,masks=masks,df_templates=df_templates,dtypes=dtypes)
+                            columns=','.join(columns),formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,dtypes=dtypes)
         result.setItem('compiled',compiled)
         if record_id:
             result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates,template_id=template_id))
@@ -193,10 +200,13 @@ class TemplateEditor(TemplateEditorBase):
     
     def _te_varsgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('fieldname', name='Field', width='100%')
-        r.cell('varname', name='As', width='15em')
-        r.cell('format', name='Format', width='10em')
-        r.cell('mask', name='Mask', width='20em')
+        r.cell('fieldname', name='Field', width='20em',edit=True)
+        r.cell('varname', name='As', width='15em',edit=True)
+        r.cell('format', name='Format', width='10em',edit=True)
+        r.cell('mask', name='Mask', width='20em',edit=True)
+        if self.isDeveloper():
+            r.cell('editable', name='!!Edit pars', width='20em',edit=True)
+
 
     def _te_info_top(self,pane):
         fb = pane.div(margin='5px').formbuilder(cols=7, border_spacing='4px',fld_width='100%',width='100%',
@@ -223,21 +233,18 @@ class TemplateEditor(TemplateEditorBase):
     
     @extract_kwargs(fieldsTree=dict(slice_prefix=False))
     def _te_info_vars(self,bc,table=None,datasourcepath=None,fieldsTree_kwargs=None,**kwargs):
-        frame = bc.frameGrid(datapath='.varsgrid',
+        frame = bc.bagGrid(datapath='.varsgrid',title='!!Variables',
                                 storepath='#ANCHOR.data.varsbag',
                                 struct=self._te_varsgrid_struct,
-                                datamode='bag',splitter=True,**kwargs)
+                                parentForm=False,
+                                addrow=False,
+                                splitter=True,**kwargs)
         frame.left.slotBar('5,fieldsTree,*',
                             fieldsTree_table=table,
                             fieldsTree_dragCode='fieldvars',
                             border_right='1px solid silver',
                             closable=True,width='150px',fieldsTree_height='100%',splitter=True,**fieldsTree_kwargs)
         grid = frame.grid
-        editor = grid.gridEditor()
-        editor.textbox(gridcell='varname')
-        editor.textbox(gridcell='format')
-        editor.textbox(gridcell='mask')
-        frame.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables')
         grid.dragAndDrop(dropCodes='fieldvars')
         grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase();
@@ -250,28 +257,20 @@ class TemplateEditor(TemplateEditorBase):
                                     df_template = fieldpath[1];
                                     fieldpath = fieldpath[0];
                                 }
-                                
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':fieldpath,
+                                grid.gridEditor.addNewRows([{'fieldpath':fieldpath,
                                                                             dtype:dtype,
                                                                             fieldname:caption,
                                                                             varname:varname,
                                                                             virtual_column:data.virtual_column,
-                                                                            df_template:df_template}));""",
+                                                                            df_template:df_template}]);""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
     def _te_info_parameters(self,bc,**kwargs):
-        frame = bc.frameGrid(datamode='bag',datapath='.parametersgrid',
+        bc.bagGrid(datapath='.parametersgrid',title='!!Parameters',
                                 storepath='#ANCHOR.data.parameters', 
                                 struct=self._te_parameters_struct,
+                                parentForm=False,
                                 selfDragRows=True,**kwargs)
-        frame.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
-        gridEditor = frame.grid.gridEditor()
-        gridEditor.textbox(gridcell='code')
-        gridEditor.textbox(gridcell='description')
-        gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
-        gridEditor.textbox(gridcell='format')      
-        gridEditor.textbox(gridcell='mask') 
-        gridEditor.textbox(gridcell='values') 
         
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
@@ -286,12 +285,16 @@ class TemplateEditor(TemplateEditorBase):
                             var parsfolder = new gnr.GnrBag();
                             var attrs,varname;
                             varsbag.forEach(function(n){
+                                n.delAttr('_newrecord');
+                                n._value.popNode('_newrecord');
                                 varname = n._value.getItem('varname');
                                 varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
                             },'static');
                             result.setItem('variables',varfolder,{caption:varcaption})
                             if (parameters){
                                 parameters.forEach(function(n){
+                                    n.delAttr('_newrecord');
+                                    n._value.popNode('_newrecord');
                                     attrs = n.attr;
                                     parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
                                 },'static');
@@ -323,7 +326,10 @@ class TemplateEditor(TemplateEditorBase):
         fb = top.div(margin_right='15px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
+        fb.textbox(value='^.from_address', lbl='!!From',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        fb.textbox(value='^.bcc_address', lbl='!!BCC',dropTypes = 'text/plain')
+
         fb.simpleTextArea(value='^.attachments', lbl='!!Attachments',dropTypes = 'text/html')
 
         editorConstrain = editorConstrain or dict()
@@ -336,7 +342,7 @@ class TemplateEditor(TemplateEditorBase):
                 letterhead_center_height='^.preview.letterhead_record.center_height',
                 letterhead_center_width='^.preview.letterhead_record.center_width',
                 _init=True)
-        bc.contentPane(region='center').ckEditor(value='^.data.content',constrain_height='^.editor.height',
+        bc.contentPane(region='center',overflow='hidden').ckEditor(value='^.data.content',constrain_height='^.editor.height',
                                                  constrain_width='^.editor.width',**editorConstrain)
                             
     def _te_framePreview(self,frame,table=None):
@@ -359,12 +365,12 @@ class TemplateEditor(TemplateEditorBase):
         
     def _te_parameters_struct(self,struct):
         r = struct.view().rows()
-        r.cell('code', name='!!Code', width='10em')
-        r.cell('description', name='!!Description', width='40em')
-        r.cell('fieldtype', name='!!Fieldtype', width='10em')
-        r.cell('format', name='!!Format', width='10em')
-        r.cell('mask', name='!!Mask', width='15em')
-        r.cell('values', name='!!Values', width='100%')    
+        r.cell('code', name='!!Code', width='10em',edit=True)
+        r.cell('description', name='!!Description', width='40em',edit=True)
+        r.cell('fieldtype', name='!!Fieldtype', width='10em',edit=dict(values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text',tag='filteringSelect'))
+        r.cell('format', name='!!Format', width='10em',edit=True)
+        r.cell('mask', name='!!Mask', width='15em',edit=True)
+        r.cell('values', name='!!Values', width='100%',edit=True)   
 
 class PaletteTemplateEditor(TemplateEditor):
     @struct_method
@@ -410,6 +416,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 editorbag.setItem('userobject_meta',new gnr.GnrBag());
                 editorbag.setItem('caption',newcaption);
             }else if(pkey){
+
                 genro.serverCall('_table.adm.userobject.loadUserObject',{table:table,pkey:pkey},function(result){
                     editorbag.setItem('data',result._value.deepCopy());
                     editorbag.setItem('mode','userobject');
@@ -475,7 +482,8 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_saveTemplate(self,pkey=None,data=None,tplmode=None,table=None,metadata=None,**kwargs):
         record = None
         if data['metadata.email']:
-            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
+            data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],
+                                                                    varsbag=data['varsbag'],parametersbag=data['parameters'])
         data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
         pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
         record.pop('data')

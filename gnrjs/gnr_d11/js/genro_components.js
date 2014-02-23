@@ -1033,6 +1033,124 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        var selectedBranch = kw.selectedBranch || '#WORKSPACE.selectedBranch';
+        var treekw = objectExtract(kw,'storepath,labelAttribute');
+        sourceNode.attr._workspace = true;
+        objectUpdate(treekw,{hideValues:true,selectedLabelClass:'selectedTreeNode',_class:"branchtree noIcon",autoCollapse:true});
+        objectUpdate(treekw,objectExtract(kw,'tree_*'));
+        treekw.selectedPath =  selectedBranch;
+        var that = this;
+        treekw.selfsubscribe_onSelected = function(kw){
+            var rows = this.getRelativeData(this.attr.storepath).getItem(kw.path);
+            that.onSelectedBranch(rows,gnrwdg.gridNode);
+        }
+
+        var bc = sourceNode._('BorderContainer');
+        var treepane = bc._('ContentPane',{region:'left',width:objectPop(treekw,'width') || '200px',splitter:true,
+                                            border_right:'1px solid #efefef',background:'#EBEBEB'})._('div',{position:'absolute',top:'1px',left:'1px',right:'1px',bottom:'1px',overflow:'auto'})
+        var tree = treepane._('tree',treekw);
+        gnrwdg.treeNode = tree.getParentNode();
+        var frameCode = 'bagEditor_'+ genro.getCounter();
+        var gridId = frameCode+'_grid';
+        var gridframe = bc._('framePane',{frameCode:frameCode,region:'center',target:gridId});
+        var barkw = objectExtract(kw,'addrow,delrow,addcol');
+        if(objectNotEmpty(barkw)){
+            var slots = '*,'+['delrow','addrow','addcol'].filter(function(n){return n in barkw}).join(',')+',5';
+            console.log(slots)
+            var bar = gridframe._('SlotBar',{'side':'top',slots:slots,toolbar:true});
+            //to do slots
+            bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
+            bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
+            bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
+
+        }
+        var gridkw = objectExtract(kw,'grid_*');
+        gridkw.nodeId = gridId;
+        gridkw.selfDragRows = true;
+        gridkw.datapath = '#WORKSPACE.grid';
+        var branchPath = kw.branchPath || '#WORKSPACE.branchBag';
+
+
+        gridkw.structpath = '#WORKSPACE.grid.struct';
+        gridkw.store = frameCode;
+        gridkw.selfsubscribe_delrow = function(){
+            console.log('xxx')
+            this.widget.deleteSelectedRows();
+        };
+        gridkw.selfsubscribe_addrow = function(){
+            var that = this;
+            genro.dlg.prompt(_T('Add row'),{lbl:'Nodelabel',action:function(result){
+                    var b = that.widget.storebag();
+                    b.setItem(result,new gnr.GnrBag({nodelabel:result}));
+                }});
+        }
+        gridkw.selfsubscribe_addcol = function(){
+            var that = this;
+            genro.dlg.prompt(_T('Add col'),{'widget':[{lbl:'name',value:'^.field'},
+                                             {lbl:'dtype',value:'^.dtype',wdg:'filteringSelect',values:'T:Text,N:Number,B:Boolean'}],
+                                        action:function(result){
+                                                    var b = genro.getData(that.attrDatapath('structpath'));
+                                                    var kw = result.asDict();
+                                                    kw.name = kw.field;
+                                                    kw.edit = true;
+                                                    b.setItem('#0.#0.cell_'+genro.getCounter(),null,kw);
+                                                }
+                                        });
+        }
+
+        gridframe._('BagStore',{storepath:branchPath,_identifier:'nodelabel',nodeId:frameCode+'_store'});
+        var grid = gridframe._('newIncludedView',gridkw);
+        gnrwdg.gridNode = grid.getParentNode();
+        sourceNode._('dataController',{'script':"this.getParentNode().gnrwdg.updateBranchBag(branch,_node,_reason,_triggerpars.kw);",branch:'^'+branchPath});
+
+        return bc;
+
+    },
+    onSelectedBranch:function(rows,gridNode){        
+        var struct = new gnr.GnrBag();
+        var header = new gnr.GnrBag();
+        struct.setItem('view_0.rows_0',header);
+        var store = new gnr.GnrBag();
+        var i = 0;
+        header.setItem('cell_0',null,{field:'nodelabel',width:'12em',name:'Node Label'});
+        if(rows && rows.len && rows.len()){
+            rows.forEach(function(n){
+                    var attr = objectUpdate({},n.attr);
+                    for(var k in attr){
+                        if(!header.getNodeByAttr('field',k)){
+                            header.setItem('cell_'+genro.getCounter(),null,{field:k,width:'10em',name:k,dtype:guessDtype(attr[k]),edit:true});
+                        }
+                    }
+                    attr.nodelabel = n.label;
+                    store.setItem(n.label,new gnr.GnrBag(attr));
+                    i++;
+                },'static');
+        }
+        gridNode.setRelativeData(gridNode.attr.structpath,struct);
+        gridNode.setRelativeData(gridNode.attr.storepath,store);
+    },
+    gnrwdg_updateBranchBag:function(branch,branchNode,reason,kw){
+        var b = this.treeNode.getRelativeData(this.treeNode.attr.storepath).getItem(this.treeNode.getRelativeData(this.treeNode.attr.selectedPath));
+        var nv = branchNode.getValue();
+        if(reason=='child'){
+            if(kw.updvalue){
+                var nl = branchNode.getParentNode().label;
+                var updkw = {};
+                updkw[branchNode.label] = kw.value;
+                b.getNode(nl).updAttributes(updkw);
+            }else if(kw.evt=='ins' && nv instanceof gnr.GnrBag){
+                var pos = branch.index(branchNode.label);
+                b.setItem(branchNode.label,null,nv.asDict(),{_position:pos>=0?pos:null});
+            }else if(kw.evt=='del' && nv instanceof gnr.GnrBag){
+                b.popNode(branchNode.label);
+            }
+        }
+    }
+});
+
 dojo.declare("gnr.widgets.PagedHtml", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var pagingKw = objectExtract(kw,'sourceText,pagedText,letterheads,extra_bottom,printAction,bodyStyle,editor,datasource,letterhead_id');
@@ -1206,6 +1324,21 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         }
         return curr_vc;
     },
+
+    loadTemplateEditData:function(sourceNode){
+        var paletteNode = sourceNode._connectedPalette;
+        var templateHandler = sourceNode._templateHandler;
+        paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
+        var respath = templateHandler.dataInfo.respath;
+        if(respath && respath.indexOf('_custom')>=0){
+            paletteNode.setRelativeData('.data.metadata.custom',true);
+        }
+    },
+    gnrwdg_setTemplate:function(templateBag){
+        if(this.chunkNode._connectedPalette){
+            this.gnr.loadTemplateEditData(this.chunkNode);
+        }
+    },
     
     openTemplatePalette:function(sourceNode,editorConstrain,showLetterhead){
         var paletteCode = 'template_editor_'+sourceNode._id;
@@ -1214,6 +1347,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var templateHandler = sourceNode._templateHandler;
         var handler = this;
         var paletteId = paletteCode+'_floating';
+
         if(sourceNode._connectedPalette){
             var paletteNode = sourceNode._connectedPalette;
             paletteNode.getWidget().show();
@@ -1232,8 +1366,10 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     remote_datasourcepath:remote_datasourcepath,
                     remote_showLetterhead:showLetterhead,
                     remote_editorConstrain: editorConstrain
-                    };
-                    
+                    };  
+            kw.remote__onRemote = function(){
+                handler.loadTemplateEditData(sourceNode);
+            }
             kw.palette_selfsubscribe_savechunk = function(){
                 tplpars = sourceNode.evaluateOnNode(tplpars);
                 var template = tplpars.template || new gnr.GnrBag();
@@ -1257,11 +1393,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             var paletteNode = palette.getParentNode();  
             sourceNode._connectedPalette = paletteNode; 
         }
-        paletteNode.setRelativeData('.data',templateHandler.data?templateHandler.data.deepCopy():new gnr.GnrBag()); 
-        var respath = templateHandler.dataInfo.respath;
-        if(respath && respath.indexOf('_custom')>=0){
-            paletteNode.setRelativeData('.data.metadata.custom',true);
-        }
+
     },
     
 
@@ -1335,6 +1467,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         if(record_id){
             sourceNode.attr.record_id = record_id;
         }
+        sourceNode.attr.template = tplpars.template;
         for(var k in editorConstrain){
             var c = editorConstrain[k];
             if(typeof(c)=='string' && (c[0]=='^' || c[0]=='=')){
@@ -1361,20 +1494,23 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                 }
            };
         }
-        var cls = this;
         kw.onCreated = function(domnode,attributes){
             this._templateHandler = {};
             var templateHandler=this._templateHandler
             templateHandler.showAlways = showAlways;
             if(record_id){
-                cls.createServerChunk(this,record_id,tplpars);
+                handler.createServerChunk(this,record_id,tplpars);
             }
             else{
-                cls.createClientChunk(this,dataProvider,tplpars);
+                handler.createClientChunk(this,dataProvider,tplpars);
             }
         }
-        return sourceNode._('div','templateChunk',kw)
+        var chunk = sourceNode._('div','templateChunk',kw)
+        sourceNode.gnrwdg.chunkNode = chunk.getParentNode();
+        return chunk;
     },
+
+
 
     createClientChunk:function(sourceNode,dataProvider,tplpars){
         var templateHandler = sourceNode._templateHandler;
@@ -1387,7 +1523,6 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             this.dataInfo = result.dataInfo;
             this.template = result.template;
             this.defaults = {};
-           
             var datasourcePath = sourceNode.absDatapath(sourceNode.attr.datasource);
             var datasourceNode = genro.getDataNode(datasourcePath);
             if(this.template instanceof gnr.GnrBag){
@@ -1524,7 +1659,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
         if(target!=false){
             if(target){
                 targetNode = genro.nodeById(target,sourceNode);
-                prefix = (targetNode.attr.nodeId || targetNode.getStringId());
+                prefix = targetNode?(targetNode.attr.nodeId || targetNode.getStringId()):target;
             }
         }else{
             prefix=inherithed.slotbarCode;
@@ -1665,6 +1800,11 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var that = this;
         kw = objectUpdate({connect_onclick:function(e){
             var childSourceNode =  e.target.sourceNode?e.target.sourceNode.getInheritedAttributes()['_childSourceNode']:null;
+            var buttonNode = genro.dom.getBaseSourceNode(e.target);
+            var buttonAttr = buttonNode.currentAttributes();
+            if(buttonAttr.disabled){
+                return;
+            }
             if(childSourceNode){
                 stackNode.widget.selectChild(childSourceNode.widget);
             }
@@ -1758,16 +1898,19 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             }
             var stackbag = stackNode.getValue();
             var childattr = childSourceNode.attr;
-            var multibutton_kw = objectExtract(childattr,'stackbutton_*')
+            var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
             btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
-                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(){
+                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(evt){
+                    dojo.stopEvent(evt);
                     genro.callAfter(function(){
                         if(stackbag.len()>1){
-                            stack.switchPage(stack.getSelectedIndex()-1);
+                            var idx = stack.getSelectedIndex()-1;
+                            idx = idx>=0?idx:0;
+                            stack.switchPage(idx);
                         }
                         stackbag.popNode(childSourceNode.label);
                     },1);
@@ -2512,6 +2655,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var _onError = objectPop(kw,'_onError');
+         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
          var skw = objectUpdate({_cleared:false},kw);
           //skw['_delay'] = kw['_delay'] || 'auto';
 
@@ -2525,6 +2669,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          objectPop(kw,'_onStart');
          objectPop(kw,'_cleared');
          objectPop(kw,'_fired');
+         objectPop(kw,'_delay');
          objectPop(kw,'_delay');
 
          var v;
@@ -2551,7 +2696,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         //selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
          var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
-                        'storeType':storeType,'unlinkdict':kw.unlinkdict};
+                        'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
          if('startLocked' in kw){
              storeKw.startLocked = kw.startLocked;
          }
@@ -2585,7 +2730,9 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
         delete_one : "You are about to delete the selected record.<br/>You can't undo this",
+        delete_logical_one : "The record cannot be removed.<br/>It will be hidden instead.",
         delete_many : "You are about to delete $count records.<br/>You can't undo this",
+        delete_logical_many : "You are about to delete $count records <br/> Some of them cannot be deleted but will be hidden instead.",
         unlink_one:"You are about to remove the selected record from current $master",
         unlink_many:"You are about to discard the selected $count records from current $master"
     },
@@ -2602,11 +2749,14 @@ dojo.declare("gnr.stores._Collection",null,{
         var that = this;
         var cb = function(){
             that.storeNode.subscribe('setLocked',function(v){
-                console.log('setLocked published for the store of the grid')
                 that.setLocked(v);
             });
             var parentForm = that.storeNode.attr.parentForm===false? false:that.storeNode.getFormHandler();
-            if(parentForm){
+            if(parentForm===false){
+                startLocked = false;
+                this.locked=false;
+            }
+            else if(parentForm){
                 parentForm.subscribe('onDisabledChange',function(kwargs){
                     that.setLocked(kwargs.disabled);
                 });
@@ -2674,11 +2824,11 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         return;
     },
 
-    deleteAsk:function(pkeys,deleteCb){        
+    deleteAsk:function(pkeys,protectPkeys,deleteCb){        
         var count = pkeys.length;
         var deleteCb = deleteCb || this.deleteRows; 
         if(count==0){
@@ -2693,6 +2843,9 @@ dojo.declare("gnr.stores._Collection",null,{
         }else{
             del_type = 'delete';
             master ='';
+            if(this.allowLogicalDelete && protectPkeys){
+                del_type = 'delete_logical';
+            }
         }
         dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), 
                             text_align:'center',_class:'alertBodyMessage'});
@@ -2701,11 +2854,11 @@ dojo.declare("gnr.stores._Collection",null,{
                                                 action:function(){
                                                     dlg.close_action();
                                                     if(this.attr.command=='deleteRows'){
-                                                        deleteCb.call(that,pkeys);
+                                                        deleteCb.call(that,pkeys,protectPkeys);
                                                     }
                                                 }});
         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
-        var btnattr = {label:'Delete',command:'deleteRows'};
+        var btnattr = {label:'Confirm',command:'deleteRows'};
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
             fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl_text_align:'right',
@@ -2945,7 +3098,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         return data?data.getNodes():[];
     },
 
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         var data = this.getData()
         pkeys.forEach(function(n){
             data.popNode(n);
@@ -3066,39 +3219,52 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){
-        if(this.storeNode.attr.externalChanges){
-            var that = this;
-            this.pendingChanges = [];
-            this._editingForm = false;
-            var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
-                function(kw){
-                    if(that.freezedStore()){
+        var liveUpdate = this.storeNode.attr.liveUpdate;
+        if(liveUpdate=='NO'){
+            return;
+        }
+        var that = this;
+        this.pendingChanges = [];
+        this._editingForm = false;
+        var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
+            function(kw){
+                var from_page_id = kw.changeattr.from_page_id;
+                if(liveUpdate=='PAGE'){
+                    if(genro.page_id!=from_page_id){
                         return;
                     }
-                    var isExternal = kw.changeattr.from_page_id!=genro.page_id;
-                    dojo.forEach(kw.changelist,function(c){
-                        c._isExternal = isExternal;
-                        that.pendingChanges.push(c);
+                }
+                if(liveUpdate=='LOCAL'){
+                    if(!genro.isLocalPageId(from_page_id)){
+                        return;
+                    }
+                }
+                if(that.freezedStore()){
+                    return;
+                }
+                var isExternal = from_page_id!=genro.page_id;
+                dojo.forEach(kw.changelist,function(c){
+                    c._isExternal = isExternal;
+                    that.pendingChanges.push(c);
+                });
+                that.storeNode.watch('externalChangesDisabled',function(){
+                    if(that._editingForm){
+                        return true;
+                    }
+                    var gridVisible = false;
+                    dojo.forEach(that.linkedGrids(),function(grid){
+                        gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
                     });
-                    that.storeNode.watch('externalChangesDisabled',function(){
-                        if(that._editingForm){
-                            return true;
-                        }
-                        var gridVisible = false;
-                        dojo.forEach(that.linkedGrids(),function(grid){
-                            gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
-                        });
-                        return gridVisible;
-                    },function(){
-                        var changelist = that.pendingChanges;
-                        that.pendingChanges = [];
-                        if(changelist.length>0){
-                            that.onExternalChange(changelist);    
-                        }
-                    });
-                });};
+                    return gridVisible;
+                },function(){
+                    var changelist = that.pendingChanges;
+                    that.pendingChanges = [];
+                    if(changelist.length>0){
+                        that.onExternalChange(changelist);    
+                    }
+                });
+            });};
             genro.src.afterBuildCalls.push(cb);
-        }
     },
 
     loadData:function(){
@@ -3361,11 +3527,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     },
 
-    deleteRows:function(pkeys){
+    deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
         console.log('BEFORE DELETING')
-        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
+        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield,protectPkeys:protectPkeys},function(result){
             that.onDeletedRows(result);
         },null,'POST');
     },

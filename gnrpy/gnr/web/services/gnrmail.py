@@ -39,7 +39,7 @@ class WebMailHandler(MailHandler):
             return self.parent.db.table('email.account').getSmtpAccountPref(mp['email_account_id'])
         return mp
 
-    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,**kwargs):
+    def sendUserTemplateMail(self,record_id=None,letterhead_id=None,template_id=None,table=None,template_code=None,attachments=None,**kwargs):
         if template_id:
             tpl,table = self.parent.db.table('adm.userobject').readColumns(pkey=template_id,columns='$data,$tbl',bagFields=True)
         elif template_code and table:
@@ -55,7 +55,14 @@ class WebMailHandler(MailHandler):
         to_address = templateReplace(email_compiled.getItem('to_address',''),htmlbuilder.record)
         subject = templateReplace(email_compiled.getItem('subject',''),htmlbuilder.record)
         cc_address = templateReplace(email_compiled.getItem('cc_address',''),htmlbuilder.record)
+        bcc_address = templateReplace(email_compiled.getItem('bcc_address',''),htmlbuilder.record)
+        from_address = templateReplace(email_compiled.getItem('from_address',''),htmlbuilder.record)
+        attachments = attachments or templateReplace(email_compiled.getItem('attachments',''),htmlbuilder.record)
+        if attachments and isinstance(attachments,basestring):
+            attachments = attachments.replace('\n',',').split(',')
+
         assert to_address,'Missing email address'
         kwargs.setdefault('html',True)
-        self.sendmail(to_address=to_address,subject=subject,cc_address=cc_address,body=html_text,**kwargs)
+        self.sendmail(to_address=to_address,subject=subject,cc_address=cc_address, bcc_address=bcc_address,
+                      from_address=from_address, body=html_text,attachments=attachments,**kwargs)
     

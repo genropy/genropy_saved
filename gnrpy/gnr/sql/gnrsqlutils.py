@@ -300,7 +300,7 @@ class SqlModelChecker(object):
                                         
                     if tobuild:
                         if existing:
-                            change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql)
+                            change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql, actual_name=actual_rel[0])
                             self.changes.append(change)
                             self.bagChanges.setItem(
                                     '%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql))
@@ -413,9 +413,9 @@ class SqlModelChecker(object):
                                                      init_deferred)
         return statement
         
-    def _dropForeignKey(self, referencing_package, referencing_table, referencing_field):
+    def _dropForeignKey(self, referencing_package, referencing_table, referencing_field, actual_name=None):
         """Prepare the sql statement for dropping the givent constraint from the given table and return it"""
-        constraint_name = 'fk_%s_%s' % (referencing_table, referencing_field)
+        constraint_name = actual_name or 'fk_%s_%s' % (referencing_table, referencing_field)
         statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
         return statement
         

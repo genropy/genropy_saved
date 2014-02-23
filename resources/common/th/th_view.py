@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=True,**kwargs):
+                       store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -85,14 +85,12 @@ class TableHandlerView(BaseComponent):
         grid_kwargs['configurable'] = configurable
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
+        grid_kwargs.setdefault('loadingHider',loadingHider)
+        grid_kwargs.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}")
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
-                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,
-                               grid_loadingHider = loadingHider,
-                               grid_rowStatusColumn = self.db.table(table).attributes.get('protectionColumn'),
-                               grid_selfsubscribe_loadingData = "this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:''});}",
-                               **kwargs)  
+                               grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -157,6 +155,8 @@ class TableHandlerView(BaseComponent):
             footer.numberSpinner(value='^.hardQueryLimit',lbl='!!Limit',width='6em',smallDelta=1000)
             footer.checkbox(value='^.tableRecordCount',label='!!Totals count')
             footer.checkbox(value='^.showLogicalDeleted',label='!!Show logical deleted',validate_onAccept='if(userChange){FIRE .runQueryDo;}')
+            footer.button('!!Configure Table',action='genro.dev.fieldsTreeConfigurator(table)',table=table)
+            footer.button('!!Configure View',action='genro.grid_configurator.configureStructure(gridId)',gridId=gridId)
 
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -174,26 +174,46 @@ class TableHandlerView(BaseComponent):
         pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
 
+    def _th_section_from_fkey(self,tblobj,fkey):
+        section_table = tblobj.column(fkey).relatedTable().dbtable
+        pkeyfield = section_table.pkey
+        caption_field = section_table.attributes.get('caption_field')
+        f = section_table.query(columns='*,$%s' %caption_field).fetch()
+        s = []
+        for i,r in enumerate(f):
+            s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %fkey,condition_s_id=r[pkeyfield]))
+        return s
+
     @struct_method
     def th_slotbar_sections(self,pane,sections=None,**kwargs):
-        inattr = pane.getInheritedAttributes()
+        inattr = pane.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = pane.div(datapath='.sections.%s' %sections)
-        m = self._th_hook('sections_%s' %sections,mangler=th_root)
-        sectionslist = m()
+        tblobj = self.db.table(inattr['table'])
+        if sections in  tblobj.model.columns and tblobj.column(sections).relatedTable() is not None:
+            sectionslist = self._th_section_from_fkey(tblobj,sections)
+            dflt = None
+            multivalue = True
+            variable_struct = False
+            mandatory = None
+        else:
+            m = self._th_hook('sections_%s' %sections,mangler=th_root)
+            sectionslist = m()
+            dflt = getattr(m,'default',None)
+            multivalue=getattr(m,'multivalue',False)
+            variable_struct = getattr(m,'variable_struct',False)
+            mandatory=getattr(m,'mandatory',True)
+        if not sectionslist:
+            return
         sectionsBag = Bag()
         for i,kw in enumerate(sectionslist):
             sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
         pane.data('.data',sectionsBag)
-        dflt = getattr(m,'default',None)
         if dflt:
             pane.data('.current',dflt)
-        multivalue=getattr(m,'multivalue',False)
-        variable_struct = getattr(m,'variable_struct',False)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,
-                        mandatory=getattr(m,'mandatory',True),**kwargs)
+        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
@@ -362,7 +382,8 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None,unlinkdict=None,title=None,liveUpdate=True,store_kwargs=None):
+                        virtualStore=None,condition=None,unlinkdict=None,
+                        title=None,liveUpdate=None,store_kwargs=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -383,9 +404,13 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
-        liveUpdate = False if liveUpdate is False else options.get('liveUpdate',True)
-        store_kwargs.setdefault('externalChanges',liveUpdate)
+
+        pageOptions = self.pageOptions or dict()
+        #liveUpdate: 'NO','LOCAL','PAGE'
+        liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or 'LOCAL'
+        store_kwargs.setdefault('liveUpdate',liveUpdate)
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
+        allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
                         custom_title=title or options.get('title') or False,
@@ -423,8 +448,8 @@ class TableHandlerView(BaseComponent):
         else:
             chunkSize = None
             selectionName = None
-        if liveUpdate:
-            self.subscribeTable(table,True)
+        if liveUpdate!='NO':
+            self.subscribeTable(table,True,subscribeMode=liveUpdate)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
         _if = condPars.pop('_if',None) or condPars.pop('if',None)
         _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
@@ -443,6 +468,7 @@ class TableHandlerView(BaseComponent):
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0',
+                               allowLogicalDelete=allowLogicalDelete,
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),

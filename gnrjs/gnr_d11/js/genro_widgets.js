@@ -190,6 +190,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         if ('_valuelabel' in sourceNode.attr){
             valueAttr['_valuelabel'] = sourceNode.attr['_valuelabel'];
         }
+        if(sourceNode.attr.rejectInvalid && !sourceNode.widget.isValid()){
+            return;
+        }
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
         sourceNode.publish('onSetValueInData',value);
     },
@@ -696,7 +699,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             }
             
         }else{
-            domnode.src = null;
+            domnode.src = '';
         }
     },
 
@@ -708,10 +711,10 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             domnode.contentWindow.document.body.innerHTML = '<a href="'+src+'"><div style="height:100%;width:100%;background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div></a>'; 
             return false;
         }else if(!parsedSrc.file){
-            domnode.src = null;
+            domnode.src = '';
             return false
         }
-        domnode.src = null;
+        domnode.src = '';
         loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader-1.gif';
         domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
         return true;
@@ -2317,7 +2320,14 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
-            if(ask_params && (ask_params.shiftToSkip===false || !e.shiftKey)){
+            var modifiers = genro.dom.getEventModifiers(e);
+            var skipOn,askOn,doAsk;
+            if(ask_params){
+                skipOn = ask_params.skipOn;
+                askOn = ask_params.askOn;
+                doAsk = !(askOn || skipOn) || (askOn && askOn==modifiers) || (skipOn && skipOn!=modifiers);
+            }
+            if(ask_params && doAsk){
                 var promptkw = objectUpdate({},sourceNode._ask_params);
                 promptkw.fields = promptkw.fields.map(function(kw){
                     kw = objectUpdate({},kw);
@@ -2337,6 +2347,11 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
 
                 genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
             }else{
+                if(ask_params && ask_params.fields){
+                    for (var k in ask_params.fields){
+                        action_attributes[ask_params.fields[k]['name']] = ask_params.fields[k]['default_value'];
+                    }
+                }
                 funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
             }
             return;
@@ -4100,7 +4115,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (filterColumn) {
             this.filterColumn = filterColumn;
         }
-        this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
+        this.currentFilterValue = (filterValue === true) ? this.currentFilterValue : filterValue;
         var colType;
         if (this.filterColumn){
             var col = this.cellmap[this.filterColumn];
@@ -4637,6 +4652,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         return result;
     },
+
+    mixin_getSelectedProtectedPkeys:function(){
+        var that = this;
+        var protectPkeys = [];
+        this.getSelectedNodes().forEach(function(n){
+            if(n.attr._protect_delete || n.attr._is_readonly_row){
+                protectPkeys.push(that.rowIdentity(n.attr));
+            }
+        });
+        return protectPkeys.length?protectPkeys:null;
+    },
+
     mixin_rowIdentity: function(row) {
         if (row) {
             return row[this.rowIdentifier()];
@@ -5646,11 +5673,15 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     
     mixin_deleteSelectedRows:function(){
         var pkeys = this.getSelectedPkeys();
+        var protectPkeys;
+        if(this.collectionStore().allowLogicalDelete){
+            protectPkeys = this.getSelectedProtectedPkeys();
+        }
         if(this.gridEditor){
-            this.gridEditor.deleteSelectedRows(pkeys);
+            this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);
             this.sourceNode.publish('onDeletedRows');
         }else{
-            this.collectionStore().deleteAsk(pkeys);
+            this.collectionStore().deleteAsk(pkeys,protectPkeys);
         }
     },
     
@@ -7130,8 +7161,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
      },
     mixin_setSelected:function(node) {
-        if(node && node.item.attr._isSelectable===false){
-            return;
+        if(node){
+            if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick && node.item.attr.child_count)){
+                return;
+            }
+            
         }
         var prevSelectedNode = this.currentSelectedNode;
         this.currentSelectedNode = node;
@@ -7171,6 +7205,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         else if (!item._id) {
             item = node.getParent().item;
         }
+        var root = this.model.store.rootData();
+        var itemFullPath = item.getFullpath(null, root);
         if (this.sourceNode.attr.selectedLabel) {
             var path = this.sourceNode.attrDatapath('selectedLabel',setterNode);
             setterNode.setRelativeData(path, item.label, attributes, null, reason);
@@ -7181,8 +7217,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (this.sourceNode.attr.selectedPath) {
             var path = this.sourceNode.attrDatapath('selectedPath', setterNode);
-            var root = this.model.store.rootData();
-            setterNode.setRelativeData(path, item.getFullpath(null, root), objectUpdate(attributes, item.attr), null, reason);
+            setterNode.setRelativeData(path, itemFullPath, objectUpdate(attributes, item.attr), null, reason);
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         for (var sel in selattr) {
@@ -7192,6 +7227,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.onSelectedFire){
             setterNode.fireEvent(this.sourceNode.attr.onSelectedFire,true);
         }
+        this.sourceNode.publish('onSelected',{path:itemFullPath,item:item,node:node})
     }
 });
 

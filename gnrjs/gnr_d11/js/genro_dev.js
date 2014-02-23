@@ -227,12 +227,23 @@ dojo.declare("gnr.GnrDevHandler", null, {
         node.unfreeze();
         fpane.getParentNode().widget.bringToTop();
     },
+
+
+    fieldsTreeConfigurator:function(table){
+        var kw = {height:'550px', width:'840px', title:'Fields tree configurator',src:'/sys/tableconf/'+table.replace('.','/'),closable:true};
+        kw.selfsubscribe_exit = function(kw){
+            console.log('refresh remoteResolver albero')
+        };
+        genro.dlg.iframeDialog('fieldsTreeConfigurator_'+table.replace('.','_'), kw)
+
+    },
     
     fieldsTree:function(pane,table,kw){
+        var kw = kw || {};
         var path = kw.explorerPath || 'gnr.relation_explorers.' + table;
         var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
         genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table,'currRecordPath':objectPop(kw,'currRecordPath'),omit:'_'}));
-        var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
+        var treeattr = objectUpdate({storepath:path,margin:'4px'},kw);
         treeattr.labelAttribute = 'caption';
         treeattr._class = 'fieldsTree noIcon noExpando';
         treeattr.hideValues = true;
@@ -253,6 +264,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 return false;
             }
             var fldinfo = objectUpdate({}, treeItem.attr);
+            fldinfo._nodelabel = treeItem.label;
             fldinfo['maintable'] = table;
             dragValues['text/plain'] = treeItem.attr.fieldpath;
             dragValues[dragCode] = fldinfo;
@@ -395,7 +407,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var tc = center._('tabContainer',{region:'center',margin:'2px'});
         tc._('dataController',{script:'var n=store.getNode("#"+currentRowIndex); if(n){this.setRelativeData(".output.sqltext",n._value);this.setRelativeData(".output.params",objectAsHTMLTable(n.attr))}',currentRowIndex:'^.currentRowIndex',store:'=.store',_if:'store',_else:'SET .output=null;',datapath:'gnr.debugger.sqlquery_grid'})
         tc._('contentPane',{title:'Sql'})._('div',{innerHTML:'^gnr.debugger.sqlquery_grid.output.sqltext',height:'100%',
-                                    style:'white-space: pre;background:white;',overflow:'auto',padding:'5px'});
+                                    style:'white-space: pre;background:white;',overflow:'auto',padding:'5px',_class:'selectable'});
         tc._('contentPane',{title:'Arguments'})._('div',{innerHTML:'^gnr.debugger.sqlquery_grid.output.params',height:'100%',overflow:'auto',_class:'debug_params'});
 
         

@@ -30,7 +30,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
+from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean,asDict
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
@@ -322,7 +322,7 @@ class GnrWebPage(GnrBaseWebPage):
                                user=self.user, userTags=self.userTags, pagename=self.pagename)
             avatar = self.avatar
             if avatar:
-                self._db.updateEnv(**self.avatar.extra_kwargs)
+                self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
             storeDbEnv = self.site.register.get_dbenv(self.page_id,register_name='page') if self.page_id else dict()
             if len(storeDbEnv)>0:
                 self._db.updateEnv(**storeDbEnv.asDict(ascii=True))
@@ -512,19 +512,28 @@ class GnrWebPage(GnrBaseWebPage):
         segments = segments.split('.')
         missingMessage = missingMessage or '<div class="chunkeditor_emptytemplate">Missing Template</div>'
         if len(segments)==2:
-            resource_table = '.'.join(segments)
+            table = '.'.join(segments)
             data = None
             if self.db.package('adm'):
-                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=resource_table)
+                data,metadata = self.db.table('adm.userobject').loadUserObject(objtype='template',code=pkey,tbl=table)
                 if data and metadata['private'] and metadata['userid'] != self.user:
                     data = None
             if not data:
                 resource_name = pkey
-                data,dataInfo =  self.templateFromResource(table=resource_table,tplname=resource_name)
+                data,dataInfo =  self.templateFromResource(table=table,tplname=resource_name)
         else:
             pkg,table,field = segments
-            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field)) 
+            data = Bag(self.db.table('.'.join([pkg,table])).readColumns(pkey=pkey,columns=field))
         if asSource:
+            if data:
+                mainNode = data.getNode('compiled.main')
+                editcols = mainNode.attr.get('editcols') if mainNode else None
+                if editcols:
+                    for k,v in data['varsbag'].items():
+                        if v['editable']:
+                            editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
+                            if v['editable'] is not True and '=' in v['editable']:
+                                editcols[v['varname']].update(asDict(v['editable']))
             return data,dataInfo
         return data['compiled'] if data else missingMessage
         
@@ -708,10 +717,12 @@ class GnrWebPage(GnrBaseWebPage):
     def _set_locale(self, val):
         self._locale = val
         
-    def _get_locale(self): # TODO IMPLEMENT DEFAULT FROM APP OR AVATAR 
+    def _get_locale(self):
         if not hasattr(self, '_locale'):
-            self._locale = self.connection.locale or self.request.headers.get('Accept-Language', 'en').split(',')[
-                                                     0] or 'en'
+            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
+
+            self._locale = (self.avatar.locale if self.avatar and getattr(self.avatar,'locale',None) else headers_locale) or 'en' #to check
+            #self._locale = headers_locale or 'en'
         return self._locale
         
     locale = property(_get_locale, _set_locale)
@@ -965,13 +976,13 @@ class GnrWebPage(GnrBaseWebPage):
                 'site': self.site.site_path,
                 'current': os.path.dirname(self.filepath)}
               
-    def subscribeTable(self, table, subscribe=True):
+    def subscribeTable(self, table, subscribe=True,subscribeMode=None):
         """TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param subscribe: boolean. TODO"""
-        self.site.register.subscribeTable(page_id=self.page_id,table=table,subscribe=subscribe)            
+        self.site.register.subscribeTable(page_id=self.page_id,table=table,subscribe=subscribe,subscribeMode=subscribeMode)            
                     
     def pageStore(self, page_id=None, triggered=True):
         """TODO
@@ -1160,14 +1171,14 @@ class GnrWebPage(GnrBaseWebPage):
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
 
-    def getResourceExternalUriList(self, path, ext=None, add_mtime=False):
+    def getResourceExternalUriList(self, path, ext=None, add_mtime=False,serveAsLocalhost=None):
         """TODO
 
         :param path: TODO
         :param ext: TODO
         :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
-        return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
+        return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime),serveAsLocalhost=serveAsLocalhost) for f in flist]
 
     def onServingCss(self, css_requires):
         """TODO

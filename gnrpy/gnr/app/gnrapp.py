@@ -289,6 +289,10 @@ class GnrSqlAppDb(GnrSqlDb):
     def currentPage(self):
         return self.application.site.currentPage if hasattr(self.application,'site') else None
 
+    @property
+    def currentUser(self):
+        return self.currentEnv.get('user') or (self.currentPage and self.currentPage.user)
+
     def localVirtualColumns(self,table):
         page = self.currentPage
         if not page:

@@ -57,10 +57,10 @@ class GnrDaemon(object):
 
     def do_start(self,host=None,port=None,hmac_key=None,
                       debug=False,compression=False,timeout=None,
-                      multiplex=False,polltimeout=None,use_environment=False):
+                      multiplex=False,polltimeout=None,use_environment=False, size_limit=None):
         self.pyroConfig(host=host,port=port,hmac_key=hmac_key,debug=debug,
                         compression=compression,timeout=timeout,
-                        multiplex=multiplex,polltimeout=polltimeout)
+                        multiplex=multiplex,polltimeout=polltimeout, size_limit=size_limit)
                         
         self.daemon = Pyro4.Daemon(host=self.host,port=int(self.port))
         self.main_uri = self.daemon.register(self,'GnrDaemon')
@@ -71,7 +71,7 @@ class GnrDaemon(object):
         
     def pyroConfig(self,host=None,port=None,hmac_key=None,
                       debug=False,compression=False,timeout=None,
-                      multiplex=False,polltimeout=None):
+                      multiplex=False,polltimeout=None, size_limit=None):
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         self.port=port or PYRO_PORT
         self.host = host or PYRO_HOST
@@ -85,6 +85,8 @@ class GnrDaemon(object):
             Pyro4.config.TIMEOUT = timeout
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
+        if size_limit:
+            Pyro4.config.SIZE_LIMIT = size_limit
     
     def onRegisterStart(self,sitename,server_uri=None,register_uri=None):
         self.siteregisters[sitename]['server_uri'] = server_uri

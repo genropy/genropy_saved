@@ -276,9 +276,15 @@ class GnrSqlDb(GnrObject):
         
     locale = property(_get_locale, _set_locale)
         
-    def updateEnv(self, **kwargs):
+    def updateEnv(self, _excludeNoneValues=False,**kwargs):
         """Update the currentEnv"""
-        self.currentEnv.update(kwargs)
+        if _excludeNoneValues:
+            currentEnv = self.currentEnv
+            for k,v in kwargs.items():
+                if v is not None:
+                    currentEnv[k] = v
+        else:
+            self.currentEnv.update(kwargs)
         
     def use_store(self, storename=None):
         """TODO

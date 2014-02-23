@@ -1,5 +1,6 @@
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstructures import GnrStructData
+from gnr.core.gnrlang import GnrException
 from reportlab.pdfgen import canvas
 
 from reportlab import lib as pdflib
@@ -154,7 +155,7 @@ class GnrPdf(object):
                 self._pendingDraw = True
         value = node.getStaticValue()
         if isinstance(value, Bag) and value:
-            raise "child values in draw command !!!!"
+            raise GnrException("child values in draw command !!!!")
             
     def page(self, x=0, y=0, **kwargs):
         """TODO

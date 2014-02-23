@@ -28,6 +28,7 @@
 import os
 import re
 import time
+from datetime import datetime
 
 from gnr.core.gnrlang import gnrImport
 
@@ -273,7 +274,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None,resolver_kwargs=None,
+                             sqlContextName=None, virtual_columns=None,_eager_level=0,_eager_record_stack=None,_storename=None,resolver_kwargs=None,
                              loadingParameters=None, _debug_info=None,**kwargs):
         """TODO
         
@@ -304,7 +305,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
                                              sqlContextName=sqlContextName, virtual_columns=virtual_columns,_storename=_storename,
-                                             _eager_level=_eager_level,loadingParameters=loadingParameters,**kwargs)
+                                             _eager_level=_eager_level,_eager_record_stack=_eager_record_stack,loadingParameters=loadingParameters,**kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -1038,7 +1039,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method    
-    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,**kwargs):
+    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,**kwargs):
         """Method for deleting many records from a given table.
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -1051,13 +1052,19 @@ class GnrWebAppHandler(GnrBaseProxy):
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,excludeLogicalDeleted=False,
                                 for_update=True,addPkeyColumn=False,excludeDraft=False).fetch()
+            now = datetime.now()
             for r in rows:
                 if unlinkfield:
                     record = dict(r)
                     record[unlinkfield] = None
                     tblobj.update(record,r)
                 else:
-                    tblobj.delete(r)
+                    if protectPkeys and tblobj.logicalDeletionField and r[tblobj.pkey] in protectPkeys:
+                        oldr = dict(r)
+                        r[tblobj.logicalDeletionField] = now
+                        tblobj.update(r,oldr)
+                    else:
+                        tblobj.delete(r)
             if commit:
                 self.db.commit()
             
@@ -1087,7 +1094,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
                       _resolver_kwargs=None,
-                      _eager_level=0, onLoadingHandler=None,sample_kwargs=None,ignoreReadOnly=None,**kwargs):
+                      _eager_level=0,_eager_record_stack=None, onLoadingHandler=None,sample_kwargs=None,ignoreReadOnly=None,**kwargs):
         """TODO
         
         ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
@@ -1162,6 +1169,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         loadingParameters = loadingParameters or {}
         default_kwargs = default_kwargs or {}
         loadingParameters.update(default_kwargs)
+        if _eager_record_stack:
+            loadingParameters['_eager_record_stack'] = _eager_record_stack
         method = None
         onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
         if onLoadingHandler:
@@ -1206,10 +1215,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         if invalidFields_fld and record[invalidFields_fld]:
             recInfo['_invalidFields'] = fromJson(record[invalidFields_fld])
         recInfo['table'] = dbtable
-        self._handleEagerRelations(record,_eager_level)
+        _eager_record_stack = _eager_record_stack or []
+        self._handleEagerRelations(record,_eager_level,_eager_record_stack=_eager_record_stack)
         return (record, recInfo)
         
-    def _handleEagerRelations(self,record,_eager_level):
+    def _handleEagerRelations(self,record,_eager_level,_eager_record_stack=None):
         for n in record.nodes:
             _eager_one = n.attr.get('_eager_one')
             if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
@@ -1228,6 +1238,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                                         sqlContextName=attr.get('_sqlContextName'),
                                                                         virtual_columns=attr.get('_virtual_columns'),
                                                                         _eager_level= _eager_level+1,_storename=attr.get('_storename'),
+                                                                        _eager_record_stack=[record]+_eager_record_stack,
                                                                         **kwargs)
                 n.value = relatedRecord
                 n.attr['_resolvedInfo'] = relatedInfo

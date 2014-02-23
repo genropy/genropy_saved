@@ -10,7 +10,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 import Pyro4
 from gnr.core.gnrstring import fromJson
-from datetime import datetime
+from datetime import datetime,timedelta
 
 
 
@@ -187,9 +187,20 @@ class GnrCustomWebPage(object):
         frame.top.slotBar('2,vtitle,*',vtitle='Running sites',_class='pbl_roundedGroupLabel')
 
     def siteControlPane(self,frame):
-        bar = frame.top.slotBar('10,stitle,*,stop_button,2,restart_button,2',height='30px',background='#444')
+        bar = frame.top.slotBar('10,stitle,*,pgbadger,10,stop_button,2,restart_button,2',height='30px',background='#444')
         bar.stitle.div('^current_site.record.sitename',height='30px',font_size='22px',color='white',text_align='center')
         #fb.button('dump current',fire_dump='runningSites.command')
+        bar.pgbadger.button('Make Postgres report',
+                            ask=dict(title='Postgres report',skipOn='Shift',
+                                    fields=[dict(lbl='Since (min)',wdg='numberTextBox',name='since',default_value=180)]),
+                            action="genro.publish('pgbadger_run',{since:since || 180});")
+        bar.dataRpc('dummy',self.pgbadger_run,subscribe_pgbadger_run=True,_onResult="""
+                                    if(result){
+                                        genro.openWindow(result,'_blank',{height:'900px',width:'1000px',status:0});
+                                    }else{
+                                        genro.dlg.alert('Error',"Parsing log error");
+                                    }            
+                                    """,_lockScreen=True,timeout=0)
         bar.stop_button.button('Stop current',fire_stop='runningSites.command')
         #fb.button('load current',fire_load='runningSites.command')
         bar.restart_button.button('Restart current',fire_restart='runningSites.command')
@@ -210,6 +221,11 @@ class GnrCustomWebPage(object):
 
         fb.dataRpc('dummy',self.setInMaintenance,sitename='=main.sitename',status='^main.setInMaintenance',allowed_users='=.allowed_users')
 
+    @public_method
+    def pgbadger_run(self,since=None):
+        pgbadger = self.site.getService('pgbadger')
+        if pgbadger:
+            return pgbadger.run(start_ts=datetime.now()-timedelta(minutes=since))
 
     @public_method
     def loadSelectedSiteSituation(self,sitename=None):

@@ -215,12 +215,14 @@ function dataTemplate(str, data, path, showAlways) {
     var df_templates={};
     var formats = {};
     var dtypes = {};
+    var editcols = {};
 
     if(str instanceof gnr.GnrBag){
          templates=str;
          var mainNode =templates.getNode('main');
          str = mainNode.getValue();
          masks = mainNode.attr.masks || masks;
+         editcols = mainNode.attr.editcols || editcols;
          formats = mainNode.attr.formats || formats;
          df_templates = mainNode.attr.df_templates || df_templates;
          dtypes = mainNode.attr.dtypes || dtypes;
@@ -273,6 +275,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 attrname = attrname?attrname.slice(1):null;
                                 var valueattr = {};
                                 var dtype = dtypes[as_name];
+                                var editpars = editcols[as_name];
                                 if(scopeSourceNode && stringStartsWith(path,'#')){
                                     valueNode = genro.getDataNode(scopeSourceNode.absDatapath(path));
                                 }else{
@@ -282,6 +285,9 @@ function dataTemplate(str, data, path, showAlways) {
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
                                    value = attrname?valueattr[attrname]:valueNode.getValue();
+                                   if('values' in valueattr){
+                                        value = objectFromString(valueattr.values)[value];
+                                   }
                                 }else{
                                     value = auxattr[as_name]
                                 }
@@ -301,9 +307,22 @@ function dataTemplate(str, data, path, showAlways) {
                                         value = value.getFormattedValue();
                                     }
                                 }else{
-                                    value = valueattr._displayedValue || value;
-                                    if(formats[as_name] || masks[as_name]){
-                                        value = gnrformatter.asText(value,{format:formats[as_name],mask:masks[as_name],dtype:dtype});
+                                    if(editpars){
+                                        if(editpars['relating_column'] && editpars['caption_field']){
+                                            value = data.getItem('@'+editpars['relating_column']+'.'+editpars['caption_field']);
+                                        }
+                                    }else{
+                                        value = valueattr._displayedValue || value;
+                                    }
+                                    if(formats[as_name]){
+                                        value = gnrformatter.asText(value,{format:formats[as_name],dtype:dtype});
+                                    }
+                                    if(editpars){                                  
+                                        value = '<div class="gnrinlinewidget_container"><div class="gnreditabletext" ondblclick="inlineWidget(event)" varname="'+as_name+'" >'+(isNullOrBlank(value)?'&nbsp':value)+'</div></div>';
+                                    }
+              
+                                    if(masks[as_name]){
+                                        value = gnrformatter.asText(value,{mask:masks[as_name]});
                                     }else if(valueattr._formattedValue){
                                         value = valueattr._formattedValue;
                                     }

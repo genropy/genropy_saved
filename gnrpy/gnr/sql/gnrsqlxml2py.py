@@ -1,3 +1,5 @@
+#-*- coding: UTF-8 -*-
+
 from gnr.core.gnrbag import Bag
 import shutil
 import os
@@ -14,12 +16,9 @@ def structToPyFull(sourcepath, destpath):
         package_maker = PackageMaker(k, base_path=destpath)
         package_maker.do()
         model_path = os.path.join(package_dir_path,'model')
-        structToPy(v['tables'],model_path)
+        structToPy(v['tables'],model_path,pkg=k)
 
-
-
-
-def structToPy(tables, path):
+def structToPy(tables, path,pkg=None):
     #shutil.rmtree(path,True)
     #os.makedirs(path)
     header = """# encoding: utf-8
@@ -29,6 +28,8 @@ class Table(object):
         tbl =  pkg.table('%s', pkey='%s', name_long='%s')
 """
     for tablename, columns, attributes in tables.digest('#k,#v.columns,#a'):
+        if pkg and tablename.startswith('%s_' %pkg):
+            tablename = tablename[len(pkg)+1:]
         f = file(os.path.join(path, '%s.py' % tablename), 'w')
         pkey = attributes.get('pkey')
         f.write(header % (tablename, pkey, tablename))

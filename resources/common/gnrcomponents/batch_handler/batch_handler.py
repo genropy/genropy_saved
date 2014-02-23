@@ -110,7 +110,7 @@ class TableScriptHandler(BaseComponent):
                             min_width='300px',childname='contentNode',position='relative',top='0',
                             bottom='25px')
             if batch_dict.get('title'):
-                dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],batch_dict.get('record_count')),_onBuilt=True)
+                dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s (%i)" %(batch_dict['title'],batch_dict.get('record_count')),_onBuilt=True)
             self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,**batch_dict)
             footer = self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0,
                                                          childname='footerNode',height='25px'),**batch_dict)    

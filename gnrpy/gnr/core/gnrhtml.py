@@ -233,7 +233,7 @@ class GnrHtmlBuilder(object):
                  page_margin_left=None, page_margin_right=None, page_margin_bottom=None,
                  showTemplateContent=None,
                  htmlTemplate=None, page_debug=False, srcfactory=None, css_requires=None,
-                 print_button=None, bodyAttributes=None):
+                 print_button=None, bodyAttributes=None,parent=None):
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
         top_layer = Bag()
@@ -250,15 +250,16 @@ class GnrHtmlBuilder(object):
         self.print_button = print_button
         self.css_requires = css_requires or []
         self.showTemplateContent = showTemplateContent
-            
-    def initializeSrc(self, **bodyAttributes):
+        self.parent = parent
+
+    def initializeSrc(self, body_attributes=None):
         """TODO"""
-        bodyAttributes = bodyAttributes or {}
+        body_attributes = body_attributes or {}
         self.root = self.srcfactory.makeRoot()
         self.root.builder = self
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
-        self.body = self.htmlBag.body(**bodyAttributes)
+        self.body = self.htmlBag.body(**body_attributes)
         self.head.addItem('meta', None, http_equiv="Content-Type", content="text/html; charset=UTF-8")
         for css_require in self.css_requires:
             self.head.csslink(href=css_require)
@@ -355,6 +356,12 @@ class GnrHtmlBuilder(object):
                                 innerHTML = "%s::HTML" % innerHTML
                             regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0,overflow='hidden')
         return regions
+
+    def parentNotify(self,method,*args,**kwargs):
+        if self.parent:
+            h = getattr(self.parent,method,None)
+            if h:
+                h(*args,**kwargs)
             
     def newPage(self):
         """Create a new page"""
@@ -373,6 +380,7 @@ class GnrHtmlBuilder(object):
                                    left:0mm;
                                    %s
                                    %s""" % (self.page_width, self.page_height, border_color, extra_style,page_break))
+        self.parentNotify('onNewPage',page)
         letterhead_root = page.div(style="""position:absolute;
                                    top:%imm;
                                    left:%imm;
@@ -425,6 +433,7 @@ class GnrHtmlBuilder(object):
                                     forcedTagAttr='tag',
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'],
                                     docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
+        print 'toHtml ',filepath
         return self.html
             
     def toPdf(self, filename):

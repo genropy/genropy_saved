@@ -30,6 +30,7 @@ class Package(GnrDboPackage):
             kwargs['firstname'] = user_record['firstname']
             kwargs['lastname'] = user_record['lastname']
             kwargs['user_id'] = user_record['id']
+            kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
             kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
             kwargs.update(dictExtract(user_record, 'avatar_'))
             return kwargs

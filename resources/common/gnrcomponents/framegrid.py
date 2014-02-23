@@ -22,7 +22,7 @@ class FrameGridSlots(BaseComponent):
                                 
                                 opt_downloadAs=parameters.get('downloadAs'),
                                 opt_rawData=rawData, iconClass=_class,
-                                ask=dict(title='Export selection',shiftToSkip=True,
+                                ask=dict(title='Export selection',skipOn='Shift',
                                         fields=[dict(name='opt_downloadAs',lbl='Download as',placeholder=placeholder),
                                                 dict(name='opt_export_mode',wdg='filteringSelect',values='xls:Excel,csv:CSV',lbl='Mode')]),
 
@@ -37,12 +37,30 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
         kwargs.setdefault('visible',enable)
-        kwargs[str('subscribe_%(frameCode)s_grid_onSelectedRow' %kwargs)] = """
-                                                                          var hasProtectRow = $1.grid.getSelectedNodes().some(function(n){return n && n.attr && (n.attr._protect_delete || n.attr._is_readonly_row)});
-                                                                            var currDisabled = GET .disabledButton;
-                                                                          this.widget.setAttribute('disabled',currDisabled || hasProtectRow);
-                                                                          """
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,disabled=disabled,**kwargs)
+        frameCode = kwargs['frameCode']
+        pane.dataController("""SET .deleteButtonClass = deleteButtonClass;
+                            if(disabled){
+                                SET .deleteDisabled = true;
+                                return;
+                            }
+                            var grid = genro.wdgById(frameCode+'_grid');
+                            var protectedPkeys = grid.getSelectedProtectedPkeys();
+                            if(!protectedPkeys){
+                                SET .deleteDisabled = false;
+                                return
+                            }
+                            var store = grid.collectionStore? grid.collectionStore():null;
+                            if(!store || !store.allowLogicalDelete){
+                                SET .deleteDisabled = true;
+                                return
+                            }
+                            SET .deleteDisabled = false;
+                            SET .deleteButtonClass = deleteButtonClass +' _logical_delete';
+                          """,
+                            disabled=disabled,deleteButtonClass=_class,frameCode=frameCode
+                            ,**{str('subscribe_%s_grid_onSelectedRow' %frameCode):True})
+        pane.data('.deleteButtonClass',_class)
+        return pane.slotButton(label='!!Delete',publish='delrow',iconClass='^.deleteButtonClass',disabled='^.deleteDisabled',**kwargs)
     
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
@@ -95,11 +113,12 @@ class FrameGrid(BaseComponent):
     @extract_kwargs(default=True,store=True)
     @struct_method
     def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
-                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,store_kwargs=True,**kwargs):
+                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
+        kwargs.setdefault('grid_parentForm',parentForm)
         frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
         default_slots = []
         title = title or ''
@@ -116,7 +135,7 @@ class FrameGrid(BaseComponent):
             bar = frame.top.slotToolbar(slots,vtitle=title)
         if title:
             bar.vtitle.div(title)
-        store = frame.grid.bagStore(storepath=storepath)
+        store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm)
         frame.store = store
         return frame
 

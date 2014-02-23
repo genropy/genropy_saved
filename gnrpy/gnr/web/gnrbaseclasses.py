@@ -173,13 +173,16 @@ class TableScriptToHtml(BagToHtml):
     html_folder = 'temp:html'
     pdf_folder = 'page:pdf'
     cached = None
+    css_requires = 'print_stylesheet'
+    client_locale = False
+
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
         self.site = page.site
         self.db = page.db
-        self.locale = self.page.locale
+        self.locale = self.page.locale if self.client_locale else self.site.server_locale
         self.tblobj = resource_table
         self.maintable = resource_table.fullname
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
@@ -187,7 +190,7 @@ class TableScriptToHtml(BagToHtml):
         self.print_handler = self.page.getService('print')
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None,serveAsLocalhost=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -196,8 +199,10 @@ class TableScriptToHtml(BagToHtml):
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
+        self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
+        
         if not html:
             return False
         if not pdf:
@@ -226,7 +231,7 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',serveAsLocalhost=self.serveAsLocalhost))
             else:
                 css_requires.append(css_require)
         return css_requires

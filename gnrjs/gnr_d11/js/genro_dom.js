@@ -1057,6 +1057,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         var dragValues = dragInfo.handler.onDragStart(dragInfo);
         if (dragValues === false) {
+            event.preventDefault();
             return false;
         }
         var inherited = sourceNode.getInheritedAttributes();
@@ -1070,6 +1071,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 funcCreate(onDragCbDict[c], 'dragValues,dragInfo,treeItem')(dragValues, dragInfo, dragInfo.treeItem);
             }
         }else if(doDrag===false){
+            event.preventDefault();
             return;
         }
 

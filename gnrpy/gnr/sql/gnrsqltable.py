@@ -526,6 +526,7 @@ class SqlTable(GnrObject):
             if cols and i and not i%cols:
                 l.append('/')
             l.append('%s:%s' %(r[self.pkey],r[caption_field].replace(',',' ').replace(':',' ')))
+
         return ','.join(l)
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
@@ -534,7 +535,9 @@ class SqlTable(GnrObject):
         record = self.recordAs(recordOrKey,mode='dict')
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
-            if obj.attributes.get('unique') or (obj.attributes.get('_sysfield') and colname!='parent_id'):
+            if colname == self.draftField or colname == 'parent_id':
+                continue
+            if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
                 record.pop(colname,None)
         if hasattr(self,'onDuplicating'):
             self.onDuplicating(record)
@@ -661,7 +664,8 @@ class SqlTable(GnrObject):
                 _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
             kwargs.setdefault('excludeDraft',False)
-
+            kwargs.setdefault('ignorePartition',True)
+            kwargs.setdefault('excludeLogicalDeleted',False)
 
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
@@ -1023,7 +1027,8 @@ class SqlTable(GnrObject):
                     if testForMerge:
                         incompatible = False
                         if fnode.getAttr('_gnrbag'):
-                            incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
+                            pass
+                            #incompatible = (fnode.getAttr('_bag_md5') != main_record.getAttr(fname, '_bag_md5'))
                         elif fnode.value != main_record[fname]:  # new value is different from value in db
                             incompatible = (fnode.getAttr('oldValue') != main_record[
                                                                          fname]) # value in db is different from oldvalue --> other user changed it

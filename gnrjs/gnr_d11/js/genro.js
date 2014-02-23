@@ -191,6 +191,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     compare: function(op, a, b) {
+        if((a instanceof Date) && (b instanceof Date)){
+            a = a.valueOf();
+            b = b.valueOf();          
+        }
         return genro.compareDict[op](a, b);
     },
     timeIt:function(msg) {
@@ -954,10 +958,20 @@ dojo.declare('gnr.GenroClient', null, {
         var log = genro.getData(logpath)+reason+'\n'+source;
         genro.setData(logpath,log);
     },
+    
     clearlog:function(){
         genro.setData('gnr._dev.logger','');
-    }
-    ,
+    },
+
+    isLocalPageId:function(page_id){
+        if(page_id==genro.page_id){
+            return true;
+        }
+        return dojo.some(window.frames,function(f){return f.genro?f.genro.page_id==page_id:false});
+    },
+
+
+
     getCounter: function(what,reset) {
         what = what?'_counter_'+what:'_counter';
         if(reset==true){

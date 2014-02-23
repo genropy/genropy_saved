@@ -394,7 +394,8 @@ class DynamicForm(BaseComponent):
         pane.attributes['_workspace'] = True
         pane.attributes.update(overflow='hidden')
         pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,
-                            df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,**kwargs)
+                            df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
+                            _onRemote='this.form.checkInvalidFields();',**kwargs)
   
 
 

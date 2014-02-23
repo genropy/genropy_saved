@@ -99,14 +99,16 @@ class TableHandlerForm(BaseComponent):
                 th_attributes['_class'] = '%s th_form_not_allowed' %th_class
         table = form.getInheritedAttributes()['table']
         form.dataController("""var title = newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);
+                            
                             SET #FORM.controller.title = title;
                             this.form.publish('onChangedTitle',{title:title});
                             """,
                             tablename=self.db.table(table).name_long,
-                            caption='^#FORM.record?caption',
+                            caption='=#FORM.record?caption',
                             newrecord='=#FORM.record?_newrecord',
                             record='=#FORM.record',titleTemplate=options.get('titleTemplate',False),
-                            newTitleTemplate=options.get('newTitleTemplate',False))
+                            newTitleTemplate=options.get('newTitleTemplate',False),
+                            _fired='^#FORM.controller.loaded')
         if form.attributes.get('form_isRootForm'):
             form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
         if 'lazyBuild' in options:

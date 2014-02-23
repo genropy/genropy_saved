@@ -9,6 +9,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code')
+        r.fieldcell('usage_scope')
         r.fieldcell('__ins_user', name='User Ins')
         r.fieldcell('user_id')
         r.fieldcell('use_ts')
@@ -29,11 +30,14 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.field('code', readOnly=True)
+        fb.field('code')
+        fb.field('usage_scope', lbl='Scope',values=self.db.table('adm.authorization').getUsageScopes(),
+                    tag='filteringSelect',validate_notnull=True)
         fb.simpleTextArea(value='^.note', lbl='!!Note',
                           height='10ex', width='100%', speech=True, editor=True)
         fb.field('remaining_usages', lbl='Max usages')
         fb.field('expiry_date', lbl='Exp date')
+
 
 
     def th_options(self):
