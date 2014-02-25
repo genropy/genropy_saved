@@ -433,7 +433,6 @@ class GnrHtmlBuilder(object):
                                     forcedTagAttr='tag',
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'],
                                     docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
-        print 'toHtml ',filepath
         return self.html
             
     def toPdf(self, filename):
