@@ -403,9 +403,7 @@ class MailHandler(GnrBaseService):
             cb(*cb_args, **cb_kwargs)
                                     
     def _sendmail(self, account_params, from_address, to_address, cc_address, bcc_address, msg_string):
-        print 'getting connection',account_params
         smtp_connection = self.get_smtp_connection(**account_params)
-        print 'sending...',from_address, to_address,account_params
         email_address = []
         for dest in (to_address, cc_address, bcc_address):
             dest = dest or []
@@ -414,7 +412,6 @@ class MailHandler(GnrBaseService):
             else:
                 email_address.append(dest)
         smtp_connection.sendmail(from_address, email_address, msg_string)
-        print 'sent'
         smtp_connection.close()
         
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
