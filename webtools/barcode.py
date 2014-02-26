@@ -43,6 +43,9 @@ class Barcode(BaseWebtool):
         encoder = encoders.get(mode)
         if not encoder:
             return
+        for k,v in options.items():
+            if k in ('height','label_border','bottom_border','ttf_fontsize'):
+                options[k] = int(v)
         barcode = encoder(text,options=options)
         temp = tempfile.NamedTemporaryFile(suffix=suffix)
         barcode.save(temp.name)
