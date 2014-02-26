@@ -32,13 +32,17 @@ class Barcode(BaseWebtool):
     #headers = [('header_name','header_value')]
 
 
-    def __call__(self, text=None, mode='code128', height=None,ttf_font=None,ttf_fontsize=None,
-                label_border=None,bottom_border=None,suffix='.png', **kwargs):
+    def __call__(self, text=None, mode='code128',suffix='.png', **options):
+        """ The options hash currently supports three options:
+             * ttf_font: absolute path to a truetype font file used to render the label
+             * ttf_fontsize: the size the label is drawn in
+             * label_border: number of pixels space between the barcode and the label
+             * bottom_border: number of pixels space between the label and the bottom border
+             * height: height of the image in pixels 
+        """
         encoder = encoders.get(mode)
         if not encoder:
             return
-        options = dict(height=height,ttf_fontsize=ttf_fontsize,ttf_font=ttf_font,
-                        label_border=label_border,bottom_border=bottom_border)
         barcode = encoder(text,options=options)
         temp = tempfile.NamedTemporaryFile(suffix=suffix)
         barcode.save(temp.name)
