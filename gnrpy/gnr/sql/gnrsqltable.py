@@ -38,6 +38,37 @@ import logging
 
 gnrlogger = logging.getLogger(__name__)
 
+
+class RecordUpdater(object):
+    """TODO
+    
+    Example::
+    
+        with self.recordToUpdate(pkey) as record:
+            # do something
+            pass"""
+    
+    def __init__(self, tblobj,pkey,mode=None,raw=False,**kwargs):
+        self.tblobj = tblobj
+        self.pkey = pkey
+        self.mode = mode or 'dict'
+        self.kwargs = kwargs
+        self.raw = raw
+
+    def __enter__(self):
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,**self.kwargs).output(self.mode)
+        self.oldrecord = dict(self.record)
+        return self.record
+        
+        
+    def __exit__(self, exception_type, value, traceback):
+        if not exception_type:
+            if self.raw:
+                self.raw_update(self.record,self.oldrecord)
+            else:
+                self.update(self.record,self.oldrecord)
+        
+
 class GnrSqlSaveException(GnrSqlException):
     """Standard Genro SQL Save Exception
     
@@ -647,8 +678,13 @@ class SqlTable(GnrObject):
                          addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
                          **kwargs)
         return query
+
+
+    def recordToUpdate(self, pkey,updater=None,**kwargs):
+        """Return a TempEnv class"""
+        return RecordUpdater(self, pkey,**kwargs)
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,_raw_update=None,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,pkey=None,_raw_update=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -657,6 +693,8 @@ class SqlTable(GnrObject):
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
         """
         if not 'where' in kwargs:
+            if pkey:
+                _pkeys = [pkey]
             if not _pkeys:
                 return
             kwargs['where'] = '$%s IN :_pkeys' %self.pkey
@@ -755,7 +793,7 @@ class SqlTable(GnrObject):
         return data
 
 
-    def readColumns(self, pkey=None, columns=None, where=None,excludeDraft=False, **kwargs):
+    def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
@@ -766,7 +804,8 @@ class SqlTable(GnrObject):
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
         fetch = self.query(columns=columns, limit=1, where=where,
-                           pkey=pkey, addPkeyColumn=False,excludeDraft=excludeDraft, **kwargs).fetch()
+                           pkey=pkey, addPkeyColumn=False,excludeDraft=False,
+                           ignorePartition=True,excludeLogicalDeleted=False, **kwargs).fetch()
         if not fetch:
             row = [None for x in columns.split(',')]
         else:
