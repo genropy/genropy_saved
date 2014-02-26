@@ -32,11 +32,14 @@ class Barcode(BaseWebtool):
     #headers = [('header_name','header_value')]
 
 
-    def __call__(self, text=None, mode='code128', height=None, width=None, suffix='.png', **kwargs):
+    def __call__(self, text=None, mode='code128', height=None,ttf_font=None,ttf_fontsize=None,
+                label_border=None,bottom_border=None,suffix='.png', **kwargs):
         encoder = encoders.get(mode)
         if not encoder:
             return
-        barcode = encoder(text)
+        options = dict(height=height,ttf_fontsize=ttf_fontsize,ttf_font=ttf_font,
+                        label_border=label_border,bottom_border=bottom_border)
+        barcode = encoder(text,options=options)
         temp = tempfile.NamedTemporaryFile(suffix=suffix)
         barcode.save(temp.name)
         self.content_type = mimetypes.guess_type(temp.name)[0]
