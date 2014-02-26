@@ -11,7 +11,7 @@ from gnr.web.gnrwebpage_plugin.gnrbaseplugin import GnrBasePlugin
 from mako.lookup import TemplateLookup
 import itertools
 import os
-from gnr.web.gnrwsgisite import httpexceptions
+from gnr.web.gnrwsgisite import WSGIHTTPException
 
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
@@ -45,7 +45,7 @@ class Plugin(GnrBasePlugin):
         arg_dict.update(kwargs)
         try:
             output = template.render(**arg_dict)
-        except httpexceptions.HTTPException, exc:
+        except WSGIHTTPException, exc:
             return exc
         if not pdf:
             page.response.content_type = 'text/html'

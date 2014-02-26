@@ -1,9 +1,10 @@
 from gnr.core.gnrbag import Bag
-from paste import httpexceptions
-from paste import request as paste_request
+#from paste import httpexceptions
+#from paste import request as paste_request
 from weberror.evalexception import EvalException
 from paste.exceptions.errormiddleware import ErrorMiddleware
 from webob import Request, Response
+from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
@@ -764,13 +765,13 @@ class GnrWsgiSite(object):
             if self.debug:
                 try:
                     page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except httpexceptions.HTTPException, exc:
-                    return exc.wsgi_application(environ, start_response)
+                except WSGIHTTPException, exc:
+                    return exc(environ, start_response)
             else:
                 try:
                     page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except httpexceptions.HTTPException, exc:
-                    return exc.wsgi_application(environ, start_response)
+                except WSGIHTTPException, exc:
+                    return exc(environ, start_response)
                 except Exception, exc:
                     log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
                     log.exception(str(exc))
@@ -921,20 +922,23 @@ class GnrWsgiSite(object):
         webtool = self.webtools.get(tool_name)
         if webtool:
             return webtool()
-            
+    
+    def request_url(self,environ):
+        return Request(environ).url       
+
     def not_found_exception(self, environ, start_response, debug_message=None):
         """TODO
         
         :param environ: TODO
         :param start_response: add??
         :param debug_message: TODO"""
-        exc = httpexceptions.HTTPNotFound(
+        exc = HTTPNotFound(
                 'The resource at %s could not be found'
-                % paste_request.construct_url(environ),
+                % self.request_url(environ),
                 comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                 % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
-                   debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+                   debug_message or '(none)'), )
+        return exc(environ, start_response)
         
     def forbidden_exception(self, environ, start_response, debug_message=None):
         """TODO
@@ -942,13 +946,13 @@ class GnrWsgiSite(object):
         :param environ: TODO
         :param start_response: add??
         :param debug_message: TODO"""
-        exc = httpexceptions.HTTPForbidden(
+        exc = HTTPForbidden(
                 'The resource at %s could not be viewed'
-                % paste_request.construct_url(environ),
+                % self.request_url(environ),
                 comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                 % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                    debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+        return exc(environ, start_response)
         
     def failed_exception(self, message, environ, start_response, debug_message=None):
         """TODO
@@ -958,12 +962,12 @@ class GnrWsgiSite(object):
         :param start_response: add??
         :param debug_message: TODO"""
         if '%%s' in message:
-            message = message % paste_request.construct_url(environ)
-        exc = httpexceptions.HTTPPreconditionFailed(message,
+            message = message % self.request_url(environ)
+        exc = HTTPPreconditionFailed(message,
                                                     comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                                                     % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                                                        debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+        return exc(environ, start_response)
         
     def client_exception(self, message, environ):
         """TODO
@@ -971,7 +975,7 @@ class GnrWsgiSite(object):
         :param message: TODO
         :param environ: TODO"""
         message = 'ERROR REASON : %s' % message
-        exc = httpexceptions.HTTPClientError(message,
+        exc = HTTPClientError(message,
                                              comment='SCRIPT_NAME=%r; PATH_INFO=%r'
                                              % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
         return exc

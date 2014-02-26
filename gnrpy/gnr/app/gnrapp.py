@@ -393,7 +393,7 @@ class GnrPackage(object):
         custom_mixin = os.path.join(self.customFolder, 'custom.py')
         self.custom_module = None
         if os.path.isfile(custom_mixin):
-            self.custom_module = gnrImport(custom_mixin,avoidDup=True)
+            self.custom_module = gnrImport(custom_mixin,avoidDup=True, silent=False)
             instanceMixin(self.pkgMixin, getattr(self.custom_module, 'Package', None))
         
             self.attributes.update(self.pkgMixin.config_attributes())
@@ -456,7 +456,7 @@ class GnrPackage(object):
                 instanceMixin(self.tableMixinDict[tbl], self.baseTableMixinClsCustom)
             if not cls:
                 tbl_module = gnrImport(os.path.join(modelfolder, '%s.py' % tbl),
-                                       avoidDup=True)
+                                       avoidDup=True, silent=False)
                 tbl_cls = getattr(tbl_module, 'Table', None)
                 if not fromPkg:
                     instanceMixin(self.tableMixinDict[tbl], tbl_cls)
@@ -605,7 +605,7 @@ class GnrApp(object):
         self.dataFolder = os.path.join(self.instanceFolder, 'data')
         self.webPageCustom = None
         if os.path.isfile(os.path.join(self.customFolder, 'custom.py')):
-            self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'),avoidDup=True)
+            self.main_module = gnrImport(os.path.join(self.customFolder, 'custom.py'),avoidDup=True, silent=False)
             instanceMixin(self, getattr(self.main_module, 'Application', None))
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init(forTesting=forTesting,restorepath=restorepath)
