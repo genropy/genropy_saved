@@ -64,9 +64,9 @@ class RecordUpdater(object):
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
             if self.raw:
-                self.raw_update(self.record,self.oldrecord)
+                self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                self.update(self.record,self.oldrecord)
+                self.tblobj.update(self.record,self.oldrecord)
         
 
 class GnrSqlSaveException(GnrSqlException):
