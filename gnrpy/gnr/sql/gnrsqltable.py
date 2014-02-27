@@ -680,9 +680,9 @@ class SqlTable(GnrObject):
         return query
 
 
-    def recordToUpdate(self, pkey,updater=None,**kwargs):
+    def recordToUpdate(self, pkey=None,updater=None,**kwargs):
         """Return a TempEnv class"""
-        return RecordUpdater(self, pkey,**kwargs)
+        return RecordUpdater(self, pkey=pkey,**kwargs)
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,pkey=None,_raw_update=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
