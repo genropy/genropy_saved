@@ -18,22 +18,25 @@ class Main(BaseResourceAction):
     batch_prefix = 'TRD'
     batch_title = 'Sync transaction'
     batch_delay = 0.5
-    limit = 200
+    commit_limit = 20
+    limit = 1000
     
     def do(self):
         self._startLog()
         self.import_failed = False
        # self.btc.thermo_wrapper(records, maximum=len(self.get_selection()),enum=True ,**thermo_s):
         limit = self.batch_parameters.get('how_many',self.limit)
+
         commit_row = self.batch_parameters.get('commit_row',False)
         transactionToExpand = self.tblobj.transactionsToExpand(limit)
-
+        k = 0
         for record in self.btc.thermo_wrapper(transactionToExpand,maximum=len(transactionToExpand),line_code='trans', message='Transaction'):
             imported = self.tblobj.expandTransaction(record)
+            k+=1
             if not imported:
                 self.import_failed=True
                 break
-            elif commit_row:
+            elif commit_row or k%self.commit_limit==0:
                 self.db.commit()
         self.db.commit()
 
