@@ -1426,7 +1426,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             dojo.forEach(this._status_list,function(st){
                 genro.dom.setClass(formDomNode,'form_'+st,st==status);
                 for(var sidename in {'top':true,'bottom':true,'left':true,'right':true}){
-                    side = formNodeWdg['_'+sidename];
+                    side = formNodeWdg?formNodeWdg['_'+sidename]:null;
                     if(side){
                         genro.dom.setClass(side,'formside_'+st,st==status);
                     }
