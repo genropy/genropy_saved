@@ -1817,7 +1817,7 @@ dojo.declare("gnr.GnrValidator", null, {
         if (value) {
             var n = genro.rpc.getRecordCount(dbfield, value,null,nodupkwargs);
             if (n != 0) {
-                return false;
+                return {'errorcode':'duplicated_value'};
             }
         }
     },
