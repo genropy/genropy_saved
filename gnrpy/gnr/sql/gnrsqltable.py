@@ -704,6 +704,8 @@ class SqlTable(GnrObject):
             kwargs.setdefault('excludeDraft',False)
             kwargs.setdefault('ignorePartition',True)
             kwargs.setdefault('excludeLogicalDeleted',False)
+        elif pkey:
+            kwargs['pkey'] = pkey
 
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
