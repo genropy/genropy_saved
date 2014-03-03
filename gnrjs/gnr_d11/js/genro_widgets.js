@@ -2679,9 +2679,35 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         var box= sourceNode._('div',{cursor:'pointer', width:'20px',tabindex:-1,
                                 position:'absolute',top:0,bottom:0,right:0,connect_onclick:function(){widget._open();}})
         box._('div',{_class:'dateTextBoxCal',position:'absolute',top:0,bottom:0,left:0,right:0,tabindex:-1})
-    }
+    },
 
+    patch_parse:function(value,constraints){
+        if(value && value.match(/^\d{6}$|^\d{8}$/)){
+            var tokens = dojo.date.locale._parseInfo(constraints).tokens;
+            var d1 = parseInt(value.slice(0,2));
+            var d2 = parseInt(value.slice(2,4));
+            var y = parseInt(value.slice(4));
+            var d,m;
+            if(tokens[0]=='dd'){
+                d = d1;
+                m = d2;
+            }else{
+                m = d1;
+                d = d2;
+            }
+            if(y<100){
+                var pivotYear ='pivotYear' in this.sourceNode.attr?this.sourceNode.attr.pivotYear:20;
+                var year = '' + new Date().getFullYear();
+                var century = year.substring(0, 2) * 100;
+                var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
+                var y = (y < cutoff) ? century + y : century - 100 + y;
+            }
+            return new Date(y,m-1,d);
+        }
+        return dojo.date.locale.parse(value, constraints) || undefined; 
+    }
 });
+
 dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {
         if (value) {

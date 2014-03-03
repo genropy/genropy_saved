@@ -1594,18 +1594,21 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         lbl =  fieldobj.name_long if lbl is None else lbl
         result = {'lbl': lbl,'field_name_long':fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
+        fldattr =  dict(fieldobj.attributes or dict())
+
         if dtype in ('A', 'C'):
-            size = fieldobj.attributes.get('size', '20')
+            size = fldattr.get('size', '20')
             if ':' in size:
                 size = size.split(':')[1]
             size = int(size)
         else:
             size = 5
-        result.update(dict([(k, v) for k, v in fieldobj.attributes.items() if k.startswith('validate_')]))
-        if 'unmodifiable' in fieldobj.attributes:
-            result['unmodifiable'] = fieldobj.attributes.get('unmodifiable')
-        if 'protected' in fieldobj.attributes:
-            result['protected'] = fieldobj.attributes.get('protected')
+        result.update(dictExtract(fldattr,'validate_',slice_prefix=False))
+        result.update(dictExtract(fldattr,'wdg_'))
+        if 'unmodifiable' in fldattr:
+            result['unmodifiable'] = fldattr['unmodifiable']
+        if 'protected' in fldattr:
+            result['protected'] = fldattr['protected']
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
@@ -1660,8 +1663,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 result['alternatePkey'] = onerelfld
         #elif attr.get('mode')=='M':
         #    result['tag']='bagfilteringtable'
-        elif dtype in ('A', 'T') and fieldobj.attributes.get('values', False):
-            values = fieldobj.attributes['values']
+        elif dtype in ('A', 'T') and fldattr.get('values', False):
+            values = fldattr['values']
             result['tag'] = 'filteringselect' if ':' in values else 'combobox'
             result['values'] = values
         elif dtype == 'A':
