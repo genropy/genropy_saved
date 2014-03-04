@@ -1556,7 +1556,10 @@ class GnrWebPage(GnrBaseWebPage):
             pageOptions = self.pageOptions or dict()
             if self.root_page_id and self.root_page_id==self.parent_page_id:
                 root.dataController("""var openMenu = genro.isTouchDevice?false:openMenu;
-                                   genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",
+                                   if(openMenu===false){
+                                        genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);
+                                   }
+                                   """,
                                 _onStart=True,openMenu=pageOptions.get('openMenu',True))               
             
 
