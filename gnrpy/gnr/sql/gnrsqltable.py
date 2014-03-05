@@ -48,7 +48,7 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey,mode=None,raw=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
         self.mode = mode or 'dict'
