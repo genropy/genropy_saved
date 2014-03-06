@@ -494,10 +494,9 @@ class GnrSqlDb(GnrObject):
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
         while deferreds:
-            node =  deferreds.getNode('#0')
+            node =  deferreds.popNode('#0')
             cb,args,kwargs = node.value
             cb(*args,**kwargs)
-            deferreds.pop(node.label)
 
     def deferToCommit(self,cb,*args,**kwargs):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
