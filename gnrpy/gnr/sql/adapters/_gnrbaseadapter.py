@@ -254,13 +254,13 @@ class SqlDbAdapter(object):
                                                                                                           'day'])
 
     def compileSql(self, maintable, columns, distinct='', joins=None, where=None,
-                   group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None):
+                   group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None,maintable_as=None):
         def _smartappend(x, name, value):
             if value:
                 x.append('%s %s' % (name, value))
-
+        maintable_as = maintable_as or 't0'
         result = ['SELECT  %s%s' % (distinct, columns)]
-        result.append(' FROM %s AS t0' % (maintable, ))
+        result.append(' FROM %s AS %s' % (maintable, maintable_as))
         joins = joins or []
         for join in joins:
             result.append('       %s' % join)
@@ -272,11 +272,11 @@ class SqlDbAdapter(object):
         _smartappend(result, 'LIMIT', limit)
         _smartappend(result, 'OFFSET', offset)
         if for_update:
-            result.append(self._selectForUpdate())
+            result.append(self._selectForUpdate(maintable_as=maintable_as))
         return '\n'.join(result)
 
-    def _selectForUpdate(self):
-        return 'FOR UPDATE OF t0'
+    def _selectForUpdate(self,maintable_as=None):
+        return 'FOR UPDATE OF %s' %maintable_as
 
     def prepareRecordData(self, record_data, tblobj=None, onBagColumns=None, **kwargs):
         """Normalize a *record_data* object before actually execute an sql write command.

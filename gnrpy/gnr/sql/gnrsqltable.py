@@ -668,7 +668,6 @@ class SqlTable(GnrObject):
             table_order_by = '$'+table_order_by
             
         order_by = order_by or table_order_by
-        
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,

@@ -15,3 +15,5 @@ class Table(object):
         tbl.column('zona_numero', 'I', name_long='!!Zona n.')
         tbl.column('nuts',name_long='!!NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise')
 
+        tbl.formulaColumn('province_n',"#pb",select_pb=dict(table='glbl.provincia',columns='COUNT(*)',where='$regione=#THIS.sigla'),dtype='N')
+

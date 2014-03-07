@@ -56,15 +56,14 @@ class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
        It is used to store all parameters needed to compile a query string."""
        
-    def __init__(self, tblobj, relationDict=None):
+    def __init__(self, maintable, relationDict=None,maintable_as=None):
         """Initialize the SqlCompiledQuery class
         
         :param maintable: the name of the main table to query. For more information, check the
                           :ref:`maintable` section.
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section"""
-        self.maintable = tblobj.sqlfullname
-        self.tablename = tblobj.fullname
+        self.maintable = maintable
         self.relationDict = relationDict or {}
         self.aliasDict = {}
         self.resultmap = Bag()
@@ -81,6 +80,7 @@ class SqlCompiledQuery(object):
         self.explodingColumns = []
         self.aggregateDict = {}
         self.pyColumns = []
+        self.maintable_as = maintable_as
  
     def get_sqltext(self, db):
         """Compile the sql query string based on current query parameters and the specific db
@@ -92,16 +92,8 @@ class SqlCompiledQuery(object):
         'maintable', 'distinct', 'columns', 'joins', 'where', 'group_by', 'having', 'order_by', 'limit', 'offset',
         'for_update'):
             kwargs[k] = getattr(self, k)
-        result =  db.adapter.compileSql(**kwargs)
-        result = SUBQUERYFINDER.sub(lambda m: self.expandSubquery(db,m.group(1)), result)
-        return result
+        return db.adapter.compileSql(maintable_as=self.maintable_as,**kwargs)
 
-    def expandSubquery(self,db,subquery_name):
-        tblobj = db.table(self.tablename)
-        handler = getattr(tblobj,'subquery_%s' %subquery_name)
-        q = handler(self)
-        sqltext = q.sqltext
-        return ' ( %s ) ' %sqltext
         
         
 class SqlQueryCompiler(object):
@@ -209,12 +201,29 @@ class SqlQueryCompiler(object):
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
                                           basealias=alias)  # call getFieldAlias recursively
             elif fldalias.sql_formula:
+                sql_formula = fldalias.sql_formula
+                attr = dict(fldalias.attributes)
+                select_dict = dictExtract(attr,'select_')
+                if select_dict:
+                    for susbselect,sq_pars in select_dict.items():
+                        if isinstance(sq_pars,basestring):
+                            sq_pars = getattr(self.tblobj.dbtable,'subquery_%s' %sq_pars)()
+                        sq_table = sq_pars.pop('table')
+                        sq_where = sq_pars.pop('where')
+                        sq_pars.setdefault('ignorePartition',True)
+                        sq_pars.setdefault('excludeDraft',False)
+                        sq_pars.setdefault('excludeLogicalDeleted',False)
+                        aliasPrefix = '%s_t' %alias
+                        sq_where = sq_where.replace('#THIS', alias)
+                        print 'SQPARS',sq_pars
+                        q = self.db.table(sq_table).query(where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
+                        sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %q.sqltext,sql_formula)
                 subreldict = {}
-                sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
+                sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
-                sql_formula_var = dictExtract(fldalias.attributes,'var_')
+                sql_formula_var = dictExtract(attr,'var_')
                 if sql_formula_var:
                     prefix = str(id(sql_formula_var))
                     currentEnv = self.db.currentEnv
@@ -226,7 +235,7 @@ class SqlQueryCompiler(object):
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
-
+                print '#####',fld,sql_formula
                 return sql_formula
             elif fldalias.py_method:
                 self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
@@ -459,7 +468,7 @@ class SqlQueryCompiler(object):
         :param excludeDraft: TODO
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
-        self.cpl = SqlCompiledQuery(self.tblobj, relationDict=relationDict)
+        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname,relationDict=relationDict,maintable_as=self.aliasCode(0))
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
         
         # aggregate: test if the result will aggregate db rows
@@ -554,7 +563,7 @@ class SqlQueryCompiler(object):
             else:
                 columns = 'count(*) AS gnr_row_count'  # use the sql count function istead of load all data
         elif addPkeyColumn and self.tblobj.pkey and not aggregate:
-            columns = columns + ',\n' + 't0.%s AS pkey' % self.tblobj.pkey  # when possible add pkey to all selections
+            columns = columns + ',\n' + '%s.%s AS pkey' % (self.aliasCode(0),self.tblobj.pkey)  # when possible add pkey to all selections
             columns = columns.lstrip(',')                                   # if columns was '', now it starts with ','
         else:
             columns = columns.strip('\n').strip(',')
@@ -570,24 +579,24 @@ class SqlQueryCompiler(object):
         draftField = self.tblobj.draftField
         if logicalDeletionField:
             if excludeLogicalDeleted is True:
-                extracnd = 't0.%s IS NULL' % logicalDeletionField
+                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField) #add logicalDeletionField
+                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionField) #add logicalDeletionField
         if draftField:
             if excludeDraft is True:
-                extracnd = 't0.%s IS NOT TRUE' %draftField
+                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
-            extracnd, one_one = self.getJoinCondition('*', '*', 't0')
+            extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
                 if where:
                     where = '(%s) AND (%s)' % (where, extracnd)
@@ -611,7 +620,7 @@ class SqlQueryCompiler(object):
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
-                        columns = 't0.%s' % self.tblobj.pkey
+                        columns = '%s.%s' % (self.aliasCode(0),self.tblobj.pkey)
                         # Count the DISTINCT maintable pkeys, instead of count(*) which will give the number of JOIN rows.
                         # That gives the count of rows on the main table: the result is different from the actual number
                         # of rows returned by the query, but it is correct in terms of main table records.
@@ -642,7 +651,7 @@ class SqlQueryCompiler(object):
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
-        self.cpl = SqlCompiledQuery(self.tblobj, relationDict=relationDict)
+        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
