@@ -47,6 +47,8 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
+SUBQUERYFINDER = re.compile(r"#SUBQUERY\s*\(\s*(\w+)\)")
+
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
@@ -54,14 +56,15 @@ class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
        It is used to store all parameters needed to compile a query string."""
        
-    def __init__(self, maintable, relationDict=None):
+    def __init__(self, tblobj, relationDict=None):
         """Initialize the SqlCompiledQuery class
         
         :param maintable: the name of the main table to query. For more information, check the
                           :ref:`maintable` section.
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section"""
-        self.maintable = maintable
+        self.maintable = tblobj.sqlfullname
+        self.tablename = tblobj.fullname
         self.relationDict = relationDict or {}
         self.aliasDict = {}
         self.resultmap = Bag()
@@ -89,7 +92,17 @@ class SqlCompiledQuery(object):
         'maintable', 'distinct', 'columns', 'joins', 'where', 'group_by', 'having', 'order_by', 'limit', 'offset',
         'for_update'):
             kwargs[k] = getattr(self, k)
-        return db.adapter.compileSql(**kwargs)
+        result =  db.adapter.compileSql(**kwargs)
+        result = SUBQUERYFINDER.sub(lambda m: self.expandSubquery(db,m.group(1)), result)
+        return result
+
+    def expandSubquery(self,db,subquery_name):
+        tblobj = db.table(self.tablename)
+        handler = getattr(tblobj,'subquery_%s' %subquery_name)
+        q = handler(self)
+        sqltext = q.sqltext
+        return ' ( %s ) ' %sqltext
+        
         
 class SqlQueryCompiler(object):
     """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance.
@@ -105,7 +118,7 @@ class SqlQueryCompiler(object):
                            :meth:`setJoinCondition() <gnr.web.gnrwebpage.GnrWebPage.setJoinCondition>` method)
     :param sqlparams: a dict of parameters used in "WHERE" clause
     :param locale: the current locale (e.g: en, en_us, it)"""
-    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None):
+    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None,aliasPrefix = None):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
@@ -115,8 +128,13 @@ class SqlQueryCompiler(object):
         self.sqlContextName = sqlContextName
         self.cpl = None
         self._currColKey = None
+        self.aliasPrefix = aliasPrefix or 't'
         self.locale = locale
         
+    def aliasCode(self,n):
+        return '%s%i' %(self.aliasPrefix,n)
+
+
     def init(self, lazy=None, eager=None):
         """TODO
         
@@ -127,10 +145,10 @@ class SqlQueryCompiler(object):
         self._explodingTables = []
         self.lazy = lazy or []
         self.eager = eager or []
-        self.aliases = {self.tblobj.sqlfullname: 't0'}
+        self.aliases = {self.tblobj.sqlfullname: self.aliasCode(0)}
         self.fieldlist = []
         
-    def getFieldAlias(self, fieldpath, curr=None, basealias=None):
+    def getFieldAlias(self, fieldpath, curr=None,basealias=None):
         """Internal method. Translate fields path and related fields path in a valid sql string for the column.
         
         It translates ``@relname.@rel2name.colname`` to ``t4.colname``.
@@ -173,7 +191,7 @@ class SqlQueryCompiler(object):
         fld = pathlist.pop()
         curr = curr or self.relations
         newpath = []
-        basealias = basealias or 't0'
+        basealias = basealias or self.aliasCode(0)
         if pathlist:
             alias, curr = self._findRelationAlias(list(pathlist), curr, basealias, newpath)
         else:
@@ -259,7 +277,8 @@ class SqlQueryCompiler(object):
                 if not self._currColKey in self.cpl.explodingColumns:
                     self.cpl.explodingColumns.append(self._currColKey)
             return self.aliases[pw], newpath # return the joint table alias
-        alias = 't%i' % len(self.aliases)    # else add it to the join clauses
+       # alias = '%s%i' % (self.aliasPrefix,len(self.aliases))    # else add it to the join clauses
+        alias = self.aliasCode(len(self.aliases))
         self.aliases[pw] = alias
         manyrelation = False
         if attrs['mode'] == 'O':
@@ -440,7 +459,7 @@ class SqlQueryCompiler(object):
         :param excludeDraft: TODO
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
-        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+        self.cpl = SqlCompiledQuery(self.tblobj, relationDict=relationDict)
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
         
         # aggregate: test if the result will aggregate db rows
@@ -623,7 +642,7 @@ class SqlQueryCompiler(object):
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
-        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+        self.cpl = SqlCompiledQuery(self.tblobj, relationDict=relationDict)
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
@@ -857,6 +876,7 @@ class SqlQuery(object):
                  excludeLogicalDeleted=True,excludeDraft=True,
                  ignorePartition=False,
                  addPkeyColumn=True, locale=None,_storename=None,
+                 aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
@@ -874,6 +894,7 @@ class SqlQuery(object):
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
         self.storename = _storename
+        self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
         rels = set(re.findall('\$(\w*)', test))
@@ -924,6 +945,7 @@ class SqlQuery(object):
                                 joinConditions=self.joinConditions,
                                 sqlContextName=self.sqlContextName,
                                 sqlparams=self.sqlparams,
+                                aliasPrefix=self.aliasPrefix,
                                 locale=self.locale).compiledQuery(relationDict=self.relationDict,
                                                                   count=count,
                                                                   bagFields=self.bagFields,
