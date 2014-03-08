@@ -219,7 +219,6 @@ class SqlQueryCompiler(object):
                         q = self.db.table(sq_table).query(where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
                         sql_text = q.sqltext
                         sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %sql_text,sql_formula)
-                        print x
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
