@@ -216,9 +216,10 @@ class SqlQueryCompiler(object):
                         sq_pars.setdefault('excludeLogicalDeleted',False)
                         aliasPrefix = '%s_t' %alias
                         sq_where = sq_where.replace('#THIS', alias)
-                        print 'SQPARS',sq_pars
                         q = self.db.table(sq_table).query(where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
-                        sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %q.sqltext,sql_formula)
+                        sql_text = q.sqltext
+                        sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %sql_text,sql_formula)
+                        print x
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
@@ -236,7 +237,6 @@ class SqlQueryCompiler(object):
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
-                print '#####',fld,sql_formula
                 return sql_formula
             elif fldalias.py_method:
                 self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
@@ -517,6 +517,7 @@ class SqlQueryCompiler(object):
             where = ' AND '.join(wherelist)
 
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+
         if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
             for k,v in partition_kwargs.items():
