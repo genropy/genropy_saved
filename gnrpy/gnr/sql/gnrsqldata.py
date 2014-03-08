@@ -208,6 +208,7 @@ class SqlQueryCompiler(object):
                     for susbselect,sq_pars in select_dict.items():
                         if isinstance(sq_pars,basestring):
                             sq_pars = getattr(self.tblobj.dbtable,'subquery_%s' %sq_pars)()
+                        sq_pars = dict(sq_pars)
                         sq_table = sq_pars.pop('table')
                         sq_where = sq_pars.pop('where')
                         sq_pars.setdefault('ignorePartition',True)

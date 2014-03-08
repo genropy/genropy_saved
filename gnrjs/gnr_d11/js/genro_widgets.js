@@ -61,10 +61,7 @@ gnr.getGridColumns = function(storeNode) {
         }
         
     },'static');
-    var result = '';
-    for(var k in columns){
-        result+=k+',';
-    }
+    var result = objectKeys(columns).join(',');
     if(storeNodeId){
         storeNode._currentColumns=result;
     }
