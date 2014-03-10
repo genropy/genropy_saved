@@ -44,7 +44,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import getUuid,gnrImport, GnrException
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
@@ -394,22 +394,16 @@ class GnrWebPage(GnrBaseWebPage):
         auth = AUTH_OK
         if not method in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
-        if self.isDeveloper() or self.site.force_debug:
-            try:
-                result = self.rpc(method=method, _auth=auth, **parameters)
-            except GnrException,e:
-                self.rpc.error = 'gnrexception'
-                result = str(e)
-            except Exception,e:
+        try:
+            result = self.rpc(method=method, _auth=auth, **parameters)
+        except GnrException,e:
+            self.rpc.error = 'gnrexception'
+            result = str(e)
+        except Exception,e:
+            if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
-        else:
-            try:
-                result = self.rpc(method=method, _auth=auth, **parameters)
-            except GnrException,e:
-                self.rpc.error = 'gnrexception'
-                result = str(e)
-            except Exception,e:
-                self.site.writeException(exception=e, traceback=self.developer.tracebackBag())
+            else:
+                self.site.writeException(exception=e, traceback=tracebackBag())
                 if self.site.error_smtp_kwargs:
                     import sys
                     from paste.exceptions.errormiddleware import handle_exception
@@ -419,9 +413,7 @@ class GnrWebPage(GnrBaseWebPage):
                     handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **error_handler_kwargs)
                 self.rpc.error = str(e)
                 result = None
-                
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
-        
         return_result = result_handler(result)
         return return_result
         

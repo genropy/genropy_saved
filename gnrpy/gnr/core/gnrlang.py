@@ -33,6 +33,51 @@ import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
 thread_ws = dict()
 
+
+def tracebackBag(limit=None):
+    import linecache
+    from gnr.core.gnrstructures import GnrStructData
+    from gnr.core.gnrbag import Bag
+    result = Bag()
+    if limit is None:
+        if hasattr(sys, 'tracebacklimit'):
+            limit = sys.tracebacklimit
+    n = 0
+    tb = sys.exc_info()[2]
+    def cb(n):
+        if isinstance(n.getValue('static'),GnrStructData):
+            n.value = '*STRUCTURE*'
+    while tb is not None and (limit is None or n < limit):
+        tb_bag = Bag()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        co = f.f_code
+        filename = co.co_filename
+        name = co.co_name
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno)
+        if line: line = line.strip()
+        else: line = None
+        tb_bag['module'] = os.path.basename(os.path.splitext(filename)[0])
+        tb_bag['filename'] = filename
+        tb_bag['lineno'] = lineno
+        tb_bag['name'] = name
+        tb_bag['line'] = line
+        #tb_bag['locals'] = Bag(f.f_locals.items())
+        loc = Bag()
+        for k,v in f.f_locals.items():
+            try:
+                loc[k] = v
+            except Exception:
+                loc[k] = '*UNSERIALIZABLE* %s' %v.__class__
+        tb_bag['locals'] = loc
+        tb_bag['locals'].walk(cb)
+        tb = tb.tb_next
+        n = n + 1
+        result['%s method %s line %s' % (tb_bag['module'], name, lineno)] = tb_bag
+    return Bag(root=result)
+
+
 class BaseProxy(object):
     def __init__(self, main):
         self.main=main

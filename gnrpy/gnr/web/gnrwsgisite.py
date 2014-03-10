@@ -17,8 +17,7 @@ import urllib2
 
 
 from time import time
-from gnr.core.gnrlang import deprecated
-from gnr.core.gnrlang import GnrException
+from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from threading import RLock
 import thread
@@ -594,9 +593,8 @@ class GnrWsgiSite(object):
                                                       user=user,
                                                       user_ip=user_ip,
                                                       user_agent=user_agent)
-        except Exception,e:
-            print str(e)
-            pass
+        except Exception,writingErrorException:
+            print '\n ####writingErrorException %s for exception %s' %(str(writingErrorException),str(exception))
         
     @public_method
     def writeError(self, description=None,error_type=None, **kwargs):
@@ -692,6 +690,14 @@ class GnrWsgiSite(object):
                 self.currentMaintenance = 'register_error'
                 self._register = None
                 return self.maintenanceDispatcher(environ, start_response)
+            except Exception,e:
+                page = self.currentPage
+                if self.debug and ((page and page.isDeveloper()) or self.force_debug):
+                    raise
+                self.writeException(exception=e,traceback=tracebackBag())
+                
+
+
 
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
@@ -762,21 +768,14 @@ class GnrWsgiSite(object):
                 return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
-            if self.debug:
-                try:
-                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except WSGIHTTPException, exc:
-                    return exc(environ, start_response)
-            else:
-                try:
-                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except WSGIHTTPException, exc:
-                    return exc(environ, start_response)
-                except Exception, exc:
-                    log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
-                    log.exception(str(exc))
-                    raise
-                    #raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
+            try:
+                page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
+            except WSGIHTTPException, exc:
+                return exc(environ, start_response)
+            except Exception, exc:
+                log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
+                log.exception(str(exc))
+                raise
             if not (page and page._call_handler):
                 return self.not_found_exception(environ, start_response)
             self.currentPage = page
@@ -791,15 +790,10 @@ class GnrWsgiSite(object):
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
-            except GnrUnsupportedBrowserException, e:
+            except GnrUnsupportedBrowserException:
                 return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
-            except GnrMaintenanceException, e:
+            except GnrMaintenanceException:
                 return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
-            
-            except Exception,exc:
-                #CAUSA MAXIMUM RECURSION
-                #self.writeException(exception=exc,traceback=page.developer.tracebackBag())
-                raise
             finally:
                 self.onServedPage(page)
                 self.cleanup()

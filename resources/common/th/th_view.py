@@ -464,7 +464,7 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
-                               _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});return error;',
+                               _onError="""return error;""", #genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"}); to check later
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0',
