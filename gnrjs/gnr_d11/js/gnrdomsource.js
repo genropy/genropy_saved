@@ -1459,7 +1459,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,
                             function(result) {
                                 //that.setValue(result);
-                                that.replaceContent(result);
+                                if(result.error){
+                                    genro.dlg.alert('Error in remote '+result.error,'Error')
+                                }else{
+                                    that.replaceContent(result);
+                                }
+                                
                                 if (_onRemote) {
                                     _onRemote();
                                 }
