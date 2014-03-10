@@ -21,11 +21,11 @@ class Table(object):
                             select_medici=dict(table='gm_base.medico',columns='COUNT(*)',where='@anagrafica_id.@provincia.regione=#THIS.sigla'),
                             select_pazienti=dict(table='gm_base.paziente',columns='COUNT(*)',where='@anagrafica_id.@provincia.regione=#THIS.sigla'))
 
-        tbl.formulaColumn('province_u',"CAST(#m as text) || '-' || CAST(#u as text)",
+        tbl.formulaColumn('province_u',"#m || '-' || #u ",
                            select_u=dict(table='glbl.provincia',columns='COUNT(*)',where='$regione=#THIS.sigla AND $nome ILIKE :subnome',subnome=r'%u%',
                             cast='text'),
                             select_m=dict(table='glbl.provincia',columns='COUNT(*)',where='$regione=#THIS.sigla AND $nome ILIKE :subnome',subnome=r'%m%'),
-                            dtype='T')
+                            cast='text')
 
 
         tbl.formulaColumn('province_vista',select=dict(table='glbl.provincia',columns="string_agg($nome_completo,',')",where='$regione=#THIS.sigla'),dtype='T')

@@ -667,8 +667,8 @@ class SqlQueryCompiler(object):
             if 'joiner' in attrs:
                 xattrs['_relmode'] = self._getRelationMode(attrs['joiner'])
             else:
-                self.fieldlist.append('t0.%s AS t0_%s' % (fieldname, fieldname))
-                xattrs['as'] = 't0_%s' %fieldname
+                self.fieldlist.append('%s.%s AS %s_%s' % (self.aliasCode(0),fieldname, self.aliasCode(0),fieldname))
+                xattrs['as'] = '%s_%s' %(self.aliasCode(0),fieldname)
             self.cpl.resultmap.setItem(fieldname,None,xattrs)
 
         if virtual_columns:
@@ -687,7 +687,7 @@ class SqlQueryCompiler(object):
         isOneOne=joiner.get('one_one')
         if not isOneOne and self.joinConditions:
             from_fld, target_fld = self._tablesFromRelation(joiner)
-            extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, 't0')
+            extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, '%s0' %self.aliasPrefix)
         return 'DynItemOneOne' if isOneOne else 'DynItemMany'
 
     
@@ -707,7 +707,7 @@ class SqlQueryCompiler(object):
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
             if column.attributes['tag'] == 'virtual_column':
-                as_name = '%s_%s' % ('t0', column.name)
+                as_name = '%s_%s' % (self.aliasCode(0), column.name)
                 path_name = column.name
             else:
                 pass
@@ -2056,6 +2056,7 @@ class SqlRecord(object):
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
                  virtual_columns=None,_storename=None,
+                 aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
         self.pkey = pkey
@@ -2075,6 +2076,7 @@ class SqlRecord(object):
         self.for_update = for_update
         self.virtual_columns = virtual_columns
         self.storename = _storename
+        self.aliasPrefix = aliasPrefix or 't'
 
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
@@ -2110,10 +2112,10 @@ class SqlRecord(object):
         elif self.pkey is not None:
             where = '$pkey = :pkey'
         else:
-            where = ' AND '.join(['t0.%s=:%s' % (k, k) for k in self.sqlparams.keys()])
+            where = ' AND '.join(['%s0.%s=:%s' % (self.aliasPrefix,k, k) for k in self.sqlparams.keys()])
         compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
-                                  sqlContextName=self.sqlContextName)
+                                  sqlContextName=self.sqlContextName,aliasPrefix=self.aliasPrefix)
         return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
                                                 for_update=self.for_update,virtual_columns=self.virtual_columns,
                                                 **self.relmodes)
@@ -2247,7 +2249,7 @@ class SqlRecord(object):
 
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
-        info['_relation_value'] = sqlresult['t0_%s' %ofld]
+        info['_relation_value'] = sqlresult['%s0_%s' %(self.aliasPrefix,ofld)]
         target_fld = info['_target_fld']
         mpkg, mtbl, mrelated_field = target_fld.split('.')
         many_table = self.db.table('%s.%s' % (mpkg, mtbl))
@@ -2278,7 +2280,7 @@ class SqlRecord(object):
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
         info['one_one'] = joiner['one_one']
-        relation_value = sqlresult['t0_%s' %ofld]
+        relation_value = sqlresult['%s0_%s' %(self.aliasPrefix,ofld)]
         #if True or resolver_one is True:
         value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                          target_fld=info['_target_fld'],
@@ -2304,7 +2306,7 @@ class SqlRecord(object):
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         info['_from_fld'] = joiner['many_relation']
         info['_target_fld'] = joiner['one_relation']
-        relation_value = sqlresult['t0_%s' %mfld]                       
+        relation_value = sqlresult['%s0_%s' %(self.aliasPrefix,mfld)]                       
         #if True or resolver_one is True:
         value=SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                              target_fld=info['_target_fld'],
@@ -2351,7 +2353,7 @@ class SqlRecord(object):
                     if resolver_one and relmode =='DynItemOne':
                         result.getNode(fieldname[1:]).subscribe('resolverChanged',self._onChangedValueCb)
             else:
-                value = sqlresult['t0_%s' %fieldname]
+                value = sqlresult['%s0_%s' %(self.aliasPrefix,fieldname)]
 
                 if dtype == 'X':
                     if self.bagFields:

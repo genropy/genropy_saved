@@ -461,7 +461,7 @@ class SqlTable(GnrObject):
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
-               for_update=False, _storename=None,**kwargs):
+               for_update=False, _storename=None,aliasPrefix=None,**kwargs):
         """Get a single record of the table. It returns a SqlRecordResolver.
         
         The record can be identified by:
@@ -493,7 +493,8 @@ class SqlTable(GnrObject):
                            virtual_columns=virtual_columns,
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
-                           bagFields=bagFields, for_update=for_update, _storename=_storename,**kwargs)
+                           bagFields=bagFields, for_update=for_update, _storename=_storename,
+                           aliasPrefix=aliasPrefix,**kwargs)
 
         if mode:
             return record.output(mode)
