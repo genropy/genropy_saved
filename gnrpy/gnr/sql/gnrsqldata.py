@@ -219,8 +219,7 @@ class SqlQueryCompiler(object):
                         sq_pars.setdefault('excludeLogicalDeleted',False)
                         aliasPrefix = '%s_t' %alias
                         sq_where = sq_where.replace('#THIS', alias)
-                        q = self.db.table(sq_table).query(where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
-                        sql_text = q.sqltext
+                        sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
                         sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %sql_text,sql_formula)
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)

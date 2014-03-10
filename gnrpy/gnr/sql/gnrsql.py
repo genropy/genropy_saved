@@ -547,7 +547,7 @@ class GnrSqlDb(GnrObject):
     def vacuum(self):
         """TODO"""
         self.adapter.vacuum()
-        
+
     #------------------ PUBLIC METHODS--------------------------
         
     def package(self, pkg):
@@ -598,6 +598,34 @@ class GnrSqlDb(GnrObject):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)"""
         return self.table(table).query(**kwargs)
+
+    def queryCompile(self,table=None,columns='*', where=None, order_by=None,
+              distinct=None, limit=None, offset=None,
+              group_by=None, having=None, for_update=False,
+              relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
+              excludeDraft=True,
+              addPkeyColumn=True,ignorePartition=False, locale=None,
+              mode=None,_storename=None,aliasPrefix=None, **kwargs):
+
+        
+        q = self.table(table).query(columns=columns, where=where, order_by=order_by,
+                         distinct=distinct, limit=limit, offset=offset,
+                         group_by=group_by, having=having, for_update=for_update,
+                         relationDict=relationDict, sqlparams=sqlparams,
+                         excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
+                         ignorePartition=ignorePartition,
+                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
+                         aliasPrefix=aliasPrefix)
+        result = q.sqltext
+        if kwargs:
+            prefix = str(id(kwargs))
+            currentEnv = self.currentEnv
+            for k,v in kwargs.items():
+                newk = '%s_%s' %(prefix,k)
+                currentEnv[newk] = v
+                result = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), result)
+        return result
+
         
     def colToAs(self, col):
         """TODO
