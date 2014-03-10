@@ -200,10 +200,13 @@ class SqlQueryCompiler(object):
             # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
                                           basealias=alias)  # call getFieldAlias recursively
-            elif fldalias.sql_formula:
+            elif fldalias.sql_formula or fldalias.select or fldalias.exists:
                 sql_formula = fldalias.sql_formula
                 attr = dict(fldalias.attributes)
                 select_dict = dictExtract(attr,'select_')
+                if not sql_formula:
+                    sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'
+                    select_dict['default'] = fldalias.select or fldalias.exists
                 if select_dict:
                     for susbselect,sq_pars in select_dict.items():
                         if isinstance(sq_pars,basestring):

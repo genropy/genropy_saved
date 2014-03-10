@@ -1095,6 +1095,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     
     versionpatch_11__position: function() {
         var centerOn = this.sourceNode.attr.centerOn;
+        centerOn = centerOn?genro.dom.getDomNode(centerOn):null
         if (!centerOn) {
             this._position_replaced();
         }

@@ -201,7 +201,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var confirmCb = objectPop(kw,'confirmCb')
         var resultPath = resultPath;
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
-        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'},kw))._('div', {_class:'dlg_ask',
+        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250},kw))._('div', {_class:'dlg_ask',
             action:function(){
                 genro.wdgById('_dlg_alert').hide();
                 if(resultPath){
