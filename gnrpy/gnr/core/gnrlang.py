@@ -45,8 +45,13 @@ def tracebackBag(limit=None):
     n = 0
     tb = sys.exc_info()[2]
     def cb(n):
+        if n.resolver:
+            n.resolver = None
+            n.value = '*RESOLVER* %s' %n.label
+
         if isinstance(n.getValue('static'),GnrStructData):
             n.value = '*STRUCTURE*'
+
     while tb is not None and (limit is None or n < limit):
         tb_bag = Bag()
         f = tb.tb_frame
