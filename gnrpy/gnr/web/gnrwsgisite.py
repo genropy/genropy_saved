@@ -797,7 +797,8 @@ class GnrWsgiSite(object):
                 return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
             
             except Exception,exc:
-                self.writeException(exception=exc,traceback=page.developer.tracebackBag())
+                #CAUSA MAXIMUM RECURSION
+                #self.writeException(exception=exc,traceback=page.developer.tracebackBag())
                 raise
             finally:
                 self.onServedPage(page)

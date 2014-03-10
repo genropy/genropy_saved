@@ -61,10 +61,7 @@ gnr.getGridColumns = function(storeNode) {
         }
         
     },'static');
-    var result = '';
-    for(var k in columns){
-        result+=k+',';
-    }
+    var result = objectKeys(columns).join(',');
     if(storeNodeId){
         storeNode._currentColumns=result;
     }
@@ -1098,6 +1095,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     
     versionpatch_11__position: function() {
         var centerOn = this.sourceNode.attr.centerOn;
+        centerOn = centerOn?genro.dom.getDomNode(centerOn):null
         if (!centerOn) {
             this._position_replaced();
         }

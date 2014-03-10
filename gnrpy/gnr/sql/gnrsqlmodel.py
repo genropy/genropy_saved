@@ -398,7 +398,7 @@ class DbModelSrc(GnrStructData):
                           group=group, onInserting=onInserting, onUpdating=onUpdating, onDeleting=onDeleting,
                           **kwargs)
                           
-    def virtual_column(self, name, relation_path=None, sql_formula=None, py_method=None, **kwargs):
+    def virtual_column(self, name, relation_path=None, sql_formula=None,select=None,exists=None, py_method=None, **kwargs):
         """Insert a related alias column into a :ref:`table`. The virtual_column is
         a child of the table created with the :meth:`table()` method
         
@@ -412,7 +412,7 @@ class DbModelSrc(GnrStructData):
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
         return self.child('virtual_column', 'virtual_columns.%s' % name,
-                          relation_path=relation_path,
+                          relation_path=relation_path,select=select,exists=exists,
                           sql_formula=sql_formula, py_method=py_method,
                           virtual_column=True, **kwargs)
                           
@@ -427,7 +427,7 @@ class DbModelSrc(GnrStructData):
         """
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
-    def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
+    def formulaColumn(self, name, sql_formula=None,select=None, exists=None,dtype='A', **kwargs):
         """Insert a formulaColumn into a table, that is TODO. The aliasColumn is a child of the table
         created with the :meth:`table()` method
         
@@ -436,7 +436,7 @@ class DbModelSrc(GnrStructData):
         :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
-        return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
+        return self.virtual_column(name, sql_formula=sql_formula,select=select,exists=exists, dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method=None,**kwargs):
         """Insert a pyColumn into a table, that is TODO. The aliasColumn is a child of the table
@@ -862,7 +862,7 @@ class DbTableObj(DbModelObj):
             if colalias is not None:
                 if colalias.relation_path:
                     name = colalias.relation_path
-                elif colalias.sql_formula:
+                elif colalias.sql_formula or colalias.select or colalias.exists:
                     return colalias
                 elif colalias.py_method:
                     return colalias
@@ -1186,7 +1186,19 @@ class DbVirtualColumnObj(DbBaseColumnObj):
         return self.attributes.get('sql_formula')
         
     sql_formula = property(_get_sql_formula)
+    
+    def _get_select(self):
+        """property. Returns the sql_formula"""
+        return self.attributes.get('select')
         
+    select = property(_get_select)
+
+    def _get_exists(self):
+        """property. Returns the sql_formula"""
+        return self.attributes.get('exists')
+        
+    exists = property(_get_exists)
+
     def _get_py_method(self):
         """property. Returns the py_method"""
         return self.attributes.get('py_method')

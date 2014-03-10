@@ -47,6 +47,8 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
+SUBQUERYFINDER = re.compile(r"#SUBQUERY\s*\(\s*(\w+)\)")
+
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
@@ -54,7 +56,7 @@ class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
        It is used to store all parameters needed to compile a query string."""
        
-    def __init__(self, maintable, relationDict=None):
+    def __init__(self, maintable, relationDict=None,maintable_as=None):
         """Initialize the SqlCompiledQuery class
         
         :param maintable: the name of the main table to query. For more information, check the
@@ -78,6 +80,7 @@ class SqlCompiledQuery(object):
         self.explodingColumns = []
         self.aggregateDict = {}
         self.pyColumns = []
+        self.maintable_as = maintable_as
  
     def get_sqltext(self, db):
         """Compile the sql query string based on current query parameters and the specific db
@@ -89,7 +92,9 @@ class SqlCompiledQuery(object):
         'maintable', 'distinct', 'columns', 'joins', 'where', 'group_by', 'having', 'order_by', 'limit', 'offset',
         'for_update'):
             kwargs[k] = getattr(self, k)
-        return db.adapter.compileSql(**kwargs)
+        return db.adapter.compileSql(maintable_as=self.maintable_as,**kwargs)
+
+        
         
 class SqlQueryCompiler(object):
     """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance.
@@ -105,7 +110,7 @@ class SqlQueryCompiler(object):
                            :meth:`setJoinCondition() <gnr.web.gnrwebpage.GnrWebPage.setJoinCondition>` method)
     :param sqlparams: a dict of parameters used in "WHERE" clause
     :param locale: the current locale (e.g: en, en_us, it)"""
-    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None):
+    def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None,aliasPrefix = None):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
@@ -115,8 +120,13 @@ class SqlQueryCompiler(object):
         self.sqlContextName = sqlContextName
         self.cpl = None
         self._currColKey = None
+        self.aliasPrefix = aliasPrefix or 't'
         self.locale = locale
         
+    def aliasCode(self,n):
+        return '%s%i' %(self.aliasPrefix,n)
+
+
     def init(self, lazy=None, eager=None):
         """TODO
         
@@ -127,10 +137,10 @@ class SqlQueryCompiler(object):
         self._explodingTables = []
         self.lazy = lazy or []
         self.eager = eager or []
-        self.aliases = {self.tblobj.sqlfullname: 't0'}
+        self.aliases = {self.tblobj.sqlfullname: self.aliasCode(0)}
         self.fieldlist = []
         
-    def getFieldAlias(self, fieldpath, curr=None, basealias=None):
+    def getFieldAlias(self, fieldpath, curr=None,basealias=None):
         """Internal method. Translate fields path and related fields path in a valid sql string for the column.
         
         It translates ``@relname.@rel2name.colname`` to ``t4.colname``.
@@ -173,7 +183,7 @@ class SqlQueryCompiler(object):
         fld = pathlist.pop()
         curr = curr or self.relations
         newpath = []
-        basealias = basealias or 't0'
+        basealias = basealias or self.aliasCode(0)
         if pathlist:
             alias, curr = self._findRelationAlias(list(pathlist), curr, basealias, newpath)
         else:
@@ -190,13 +200,35 @@ class SqlQueryCompiler(object):
             # then call getFieldAlias again with the real path
                 return self.getFieldAlias(fldalias.relation_path, curr=curr,
                                           basealias=alias)  # call getFieldAlias recursively
-            elif fldalias.sql_formula:
+            elif fldalias.sql_formula or fldalias.select or fldalias.exists:
+                sql_formula = fldalias.sql_formula
+                attr = dict(fldalias.attributes)
+                select_dict = dictExtract(attr,'select_')
+                if not sql_formula:
+                    sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'
+                    select_dict['default'] = fldalias.select or fldalias.exists
+                if select_dict:
+                    for susbselect,sq_pars in select_dict.items():
+                        if isinstance(sq_pars,basestring):
+                            sq_pars = getattr(self.tblobj.dbtable,'subquery_%s' %sq_pars)()
+                        sq_pars = dict(sq_pars)
+                        cast = sq_pars.pop('cast',None)
+                        tpl = ' CAST( ( %s ) AS ' +cast +') ' if cast else ' ( %s ) '
+                        sq_table = sq_pars.pop('table')
+                        sq_where = sq_pars.pop('where')
+                        sq_pars.setdefault('ignorePartition',True)
+                        sq_pars.setdefault('excludeDraft',False)
+                        sq_pars.setdefault('excludeLogicalDeleted',False)
+                        aliasPrefix = '%s_t' %alias
+                        sq_where = sq_where.replace('#THIS', alias)
+                        sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
+                        sql_formula = re.sub('#%s\\b' %susbselect, tpl %sql_text,sql_formula)
                 subreldict = {}
-                sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
+                sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
-                sql_formula_var = dictExtract(fldalias.attributes,'var_')
+                sql_formula_var = dictExtract(attr,'var_')
                 if sql_formula_var:
                     prefix = str(id(sql_formula_var))
                     currentEnv = self.db.currentEnv
@@ -208,7 +240,6 @@ class SqlQueryCompiler(object):
                 for key, value in subreldict.items():
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
-
                 return sql_formula
             elif fldalias.py_method:
                 self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
@@ -259,7 +290,8 @@ class SqlQueryCompiler(object):
                 if not self._currColKey in self.cpl.explodingColumns:
                     self.cpl.explodingColumns.append(self._currColKey)
             return self.aliases[pw], newpath # return the joint table alias
-        alias = 't%i' % len(self.aliases)    # else add it to the join clauses
+       # alias = '%s%i' % (self.aliasPrefix,len(self.aliases))    # else add it to the join clauses
+        alias = self.aliasCode(len(self.aliases))
         self.aliases[pw] = alias
         manyrelation = False
         if attrs['mode'] == 'O':
@@ -440,7 +472,7 @@ class SqlQueryCompiler(object):
         :param excludeDraft: TODO
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
-        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+        self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname,relationDict=relationDict,maintable_as=self.aliasCode(0))
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
         
         # aggregate: test if the result will aggregate db rows
@@ -488,6 +520,7 @@ class SqlQueryCompiler(object):
             where = ' AND '.join(wherelist)
 
         partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
+
         if not ignorePartition and partition_kwargs:
             wherelist = [where] if where else []
             for k,v in partition_kwargs.items():
@@ -535,7 +568,7 @@ class SqlQueryCompiler(object):
             else:
                 columns = 'count(*) AS gnr_row_count'  # use the sql count function istead of load all data
         elif addPkeyColumn and self.tblobj.pkey and not aggregate:
-            columns = columns + ',\n' + 't0.%s AS pkey' % self.tblobj.pkey  # when possible add pkey to all selections
+            columns = columns + ',\n' + '%s.%s AS pkey' % (self.aliasCode(0),self.tblobj.pkey)  # when possible add pkey to all selections
             columns = columns.lstrip(',')                                   # if columns was '', now it starts with ','
         else:
             columns = columns.strip('\n').strip(',')
@@ -551,24 +584,24 @@ class SqlQueryCompiler(object):
         draftField = self.tblobj.draftField
         if logicalDeletionField:
             if excludeLogicalDeleted is True:
-                extracnd = 't0.%s IS NULL' % logicalDeletionField
+                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField) #add logicalDeletionField
+                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionField) #add logicalDeletionField
         if draftField:
             if excludeDraft is True:
-                extracnd = 't0.%s IS NOT TRUE' %draftField
+                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
-            extracnd, one_one = self.getJoinCondition('*', '*', 't0')
+            extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
                 if where:
                     where = '(%s) AND (%s)' % (where, extracnd)
@@ -592,7 +625,7 @@ class SqlQueryCompiler(object):
                                 columns = '%s, \n%s' % (columns, xrd)
                     #order_by=None
                     if count:
-                        columns = 't0.%s' % self.tblobj.pkey
+                        columns = '%s.%s' % (self.aliasCode(0),self.tblobj.pkey)
                         # Count the DISTINCT maintable pkeys, instead of count(*) which will give the number of JOIN rows.
                         # That gives the count of rows on the main table: the result is different from the actual number
                         # of rows returned by the query, but it is correct in terms of main table records.
@@ -634,8 +667,8 @@ class SqlQueryCompiler(object):
             if 'joiner' in attrs:
                 xattrs['_relmode'] = self._getRelationMode(attrs['joiner'])
             else:
-                self.fieldlist.append('t0.%s AS t0_%s' % (fieldname, fieldname))
-                xattrs['as'] = 't0_%s' %fieldname
+                self.fieldlist.append('%s.%s AS %s_%s' % (self.aliasCode(0),fieldname, self.aliasCode(0),fieldname))
+                xattrs['as'] = '%s_%s' %(self.aliasCode(0),fieldname)
             self.cpl.resultmap.setItem(fieldname,None,xattrs)
 
         if virtual_columns:
@@ -654,7 +687,7 @@ class SqlQueryCompiler(object):
         isOneOne=joiner.get('one_one')
         if not isOneOne and self.joinConditions:
             from_fld, target_fld = self._tablesFromRelation(joiner)
-            extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, 't0')
+            extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, '%s0' %self.aliasPrefix)
         return 'DynItemOneOne' if isOneOne else 'DynItemMany'
 
     
@@ -674,7 +707,7 @@ class SqlQueryCompiler(object):
             xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
             if column.attributes['tag'] == 'virtual_column':
-                as_name = '%s_%s' % ('t0', column.name)
+                as_name = '%s_%s' % (self.aliasCode(0), column.name)
                 path_name = column.name
             else:
                 pass
@@ -857,6 +890,7 @@ class SqlQuery(object):
                  excludeLogicalDeleted=True,excludeDraft=True,
                  ignorePartition=False,
                  addPkeyColumn=True, locale=None,_storename=None,
+                 aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
@@ -874,6 +908,7 @@ class SqlQuery(object):
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
         self.storename = _storename
+        self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
         rels = set(re.findall('\$(\w*)', test))
@@ -924,6 +959,7 @@ class SqlQuery(object):
                                 joinConditions=self.joinConditions,
                                 sqlContextName=self.sqlContextName,
                                 sqlparams=self.sqlparams,
+                                aliasPrefix=self.aliasPrefix,
                                 locale=self.locale).compiledQuery(relationDict=self.relationDict,
                                                                   count=count,
                                                                   bagFields=self.bagFields,
@@ -2020,6 +2056,7 @@ class SqlRecord(object):
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
                  virtual_columns=None,_storename=None,
+                 aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
         self.pkey = pkey
@@ -2039,6 +2076,7 @@ class SqlRecord(object):
         self.for_update = for_update
         self.virtual_columns = virtual_columns
         self.storename = _storename
+        self.aliasPrefix = aliasPrefix or 't'
 
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
@@ -2074,10 +2112,10 @@ class SqlRecord(object):
         elif self.pkey is not None:
             where = '$pkey = :pkey'
         else:
-            where = ' AND '.join(['t0.%s=:%s' % (k, k) for k in self.sqlparams.keys()])
+            where = ' AND '.join(['%s0.%s=:%s' % (self.aliasPrefix,k, k) for k in self.sqlparams.keys()])
         compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
-                                  sqlContextName=self.sqlContextName)
+                                  sqlContextName=self.sqlContextName,aliasPrefix=self.aliasPrefix)
         return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
                                                 for_update=self.for_update,virtual_columns=self.virtual_columns,
                                                 **self.relmodes)
@@ -2211,7 +2249,7 @@ class SqlRecord(object):
 
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
-        info['_relation_value'] = sqlresult['t0_%s' %ofld]
+        info['_relation_value'] = sqlresult['%s0_%s' %(self.aliasPrefix,ofld)]
         target_fld = info['_target_fld']
         mpkg, mtbl, mrelated_field = target_fld.split('.')
         many_table = self.db.table('%s.%s' % (mpkg, mtbl))
@@ -2242,7 +2280,7 @@ class SqlRecord(object):
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
         info['one_one'] = joiner['one_one']
-        relation_value = sqlresult['t0_%s' %ofld]
+        relation_value = sqlresult['%s0_%s' %(self.aliasPrefix,ofld)]
         #if True or resolver_one is True:
         value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                          target_fld=info['_target_fld'],
@@ -2268,7 +2306,7 @@ class SqlRecord(object):
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         info['_from_fld'] = joiner['many_relation']
         info['_target_fld'] = joiner['one_relation']
-        relation_value = sqlresult['t0_%s' %mfld]                       
+        relation_value = sqlresult['%s0_%s' %(self.aliasPrefix,mfld)]                       
         #if True or resolver_one is True:
         value=SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
                                              target_fld=info['_target_fld'],
@@ -2315,7 +2353,7 @@ class SqlRecord(object):
                     if resolver_one and relmode =='DynItemOne':
                         result.getNode(fieldname[1:]).subscribe('resolverChanged',self._onChangedValueCb)
             else:
-                value = sqlresult['t0_%s' %fieldname]
+                value = sqlresult['%s0_%s' %(self.aliasPrefix,fieldname)]
 
                 if dtype == 'X':
                     if self.bagFields:
