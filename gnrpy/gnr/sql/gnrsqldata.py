@@ -212,6 +212,8 @@ class SqlQueryCompiler(object):
                         if isinstance(sq_pars,basestring):
                             sq_pars = getattr(self.tblobj.dbtable,'subquery_%s' %sq_pars)()
                         sq_pars = dict(sq_pars)
+                        cast = sq_pars.pop('cast',None)
+                        tpl = ' CAST( ( %s ) AS ' +cast +') ' if cast else ' ( %s ) '
                         sq_table = sq_pars.pop('table')
                         sq_where = sq_pars.pop('where')
                         sq_pars.setdefault('ignorePartition',True)
@@ -220,7 +222,7 @@ class SqlQueryCompiler(object):
                         aliasPrefix = '%s_t' %alias
                         sq_where = sq_where.replace('#THIS', alias)
                         sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
-                        sql_formula = re.sub('#%s\\b' %susbselect, ' ( %s ) ' %sql_text,sql_formula)
+                        sql_formula = re.sub('#%s\\b' %susbselect, tpl %sql_text,sql_formula)
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
