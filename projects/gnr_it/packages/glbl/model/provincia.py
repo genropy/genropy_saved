@@ -10,11 +10,16 @@ class Table(object):
         tbl.column('regione', size='3', name_long='!!Regione',validate_notnull=True).relation('glbl.regione.sigla',
                                                                         relation_name='province',
                                                                         eager_one=True)
-        tbl.column('nome', size=':30', name_long='!!Nome', indexed=True,validate_notnull=True)
+        tbl.column('nome', name_long='!!Nome', indexed=True,validate_notnull=True)
+        tbl.column('nome_locale', name_long='!!Nome Locale', indexed=True)
+        tbl.column('codice', name_long='!!codice', dtype='I')
         tbl.column('codice_istat', size='3', name_long='!!Codice Istat',cell_edit=True)
         tbl.column('ordine', 'L', name_long='!!Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='!!Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='!!CAP Valido')
             
         tbl.column('nuts',name_long='!!NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise')
+
+        tbl.formulaColumn('nome_completo',"$sigla || ' ' || $nome")
+
 

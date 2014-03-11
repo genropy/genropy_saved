@@ -83,11 +83,6 @@ var genro_plugin_grid_configurator = {
                     }
                 }
                 grid.addColumn(data, dropInfo.column,fieldcellattr);
-                if (grid.rowCount > 0) {
-                    setTimeout(function() {
-                        grid.reload(true);
-                    }, 1);
-                }
             };
             sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
             sourceNode.dropModes.column = sourceNode.attr.dropTarget_column;

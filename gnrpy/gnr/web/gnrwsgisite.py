@@ -1,9 +1,10 @@
 from gnr.core.gnrbag import Bag
-from paste import httpexceptions
-from paste import request as paste_request
+#from paste import httpexceptions
+#from paste import request as paste_request
 from weberror.evalexception import EvalException
 from paste.exceptions.errormiddleware import ErrorMiddleware
 from webob import Request, Response
+from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
@@ -16,8 +17,7 @@ import urllib2
 
 
 from time import time
-from gnr.core.gnrlang import deprecated
-from gnr.core.gnrlang import GnrException
+from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
 from threading import RLock
 import thread
@@ -593,9 +593,8 @@ class GnrWsgiSite(object):
                                                       user=user,
                                                       user_ip=user_ip,
                                                       user_agent=user_agent)
-        except Exception,e:
-            print str(e)
-            pass
+        except Exception,writingErrorException:
+            print '\n ####writingErrorException %s for exception %s' %(str(writingErrorException),str(exception))
         
     @public_method
     def writeError(self, description=None,error_type=None, **kwargs):
@@ -691,6 +690,14 @@ class GnrWsgiSite(object):
                 self.currentMaintenance = 'register_error'
                 self._register = None
                 return self.maintenanceDispatcher(environ, start_response)
+            except Exception,e:
+                page = self.currentPage
+                if self.debug and ((page and page.isDeveloper()) or self.force_debug):
+                    raise
+                self.writeException(exception=e,traceback=tracebackBag())
+                
+
+
 
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
@@ -761,21 +768,14 @@ class GnrWsgiSite(object):
                 return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
-            if self.debug:
-                try:
-                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except httpexceptions.HTTPException, exc:
-                    return exc.wsgi_application(environ, start_response)
-            else:
-                try:
-                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
-                except httpexceptions.HTTPException, exc:
-                    return exc.wsgi_application(environ, start_response)
-                except Exception, exc:
-                    log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
-                    log.exception(str(exc))
-                    raise
-                    #raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
+            try:
+                page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
+            except WSGIHTTPException, exc:
+                return exc(environ, start_response)
+            except Exception, exc:
+                log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
+                log.exception(str(exc))
+                raise
             if not (page and page._call_handler):
                 return self.not_found_exception(environ, start_response)
             self.currentPage = page
@@ -790,14 +790,10 @@ class GnrWsgiSite(object):
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
-            except GnrUnsupportedBrowserException, e:
+            except GnrUnsupportedBrowserException:
                 return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
-            except GnrMaintenanceException, e:
+            except GnrMaintenanceException:
                 return self.serve_htmlPage('html_pages/maintenance.html', environ, start_response)
-            
-            except Exception,exc:
-                self.writeException(exception=exc,traceback=page.developer.tracebackBag())
-                raise
             finally:
                 self.onServedPage(page)
                 self.cleanup()
@@ -921,20 +917,23 @@ class GnrWsgiSite(object):
         webtool = self.webtools.get(tool_name)
         if webtool:
             return webtool()
-            
+    
+    def request_url(self,environ):
+        return Request(environ).url       
+
     def not_found_exception(self, environ, start_response, debug_message=None):
         """TODO
         
         :param environ: TODO
         :param start_response: add??
         :param debug_message: TODO"""
-        exc = httpexceptions.HTTPNotFound(
+        exc = HTTPNotFound(
                 'The resource at %s could not be found'
-                % paste_request.construct_url(environ),
+                % self.request_url(environ),
                 comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                 % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
-                   debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+                   debug_message or '(none)'), )
+        return exc(environ, start_response)
         
     def forbidden_exception(self, environ, start_response, debug_message=None):
         """TODO
@@ -942,13 +941,13 @@ class GnrWsgiSite(object):
         :param environ: TODO
         :param start_response: add??
         :param debug_message: TODO"""
-        exc = httpexceptions.HTTPForbidden(
+        exc = HTTPForbidden(
                 'The resource at %s could not be viewed'
-                % paste_request.construct_url(environ),
+                % self.request_url(environ),
                 comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                 % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                    debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+        return exc(environ, start_response)
         
     def failed_exception(self, message, environ, start_response, debug_message=None):
         """TODO
@@ -958,12 +957,12 @@ class GnrWsgiSite(object):
         :param start_response: add??
         :param debug_message: TODO"""
         if '%%s' in message:
-            message = message % paste_request.construct_url(environ)
-        exc = httpexceptions.HTTPPreconditionFailed(message,
+            message = message % self.request_url(environ)
+        exc = HTTPPreconditionFailed(message,
                                                     comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
                                                     % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
                                                        debug_message or '(none)'))
-        return exc.wsgi_application(environ, start_response)
+        return exc(environ, start_response)
         
     def client_exception(self, message, environ):
         """TODO
@@ -971,7 +970,7 @@ class GnrWsgiSite(object):
         :param message: TODO
         :param environ: TODO"""
         message = 'ERROR REASON : %s' % message
-        exc = httpexceptions.HTTPClientError(message,
+        exc = HTTPClientError(message,
                                              comment='SCRIPT_NAME=%r; PATH_INFO=%r'
                                              % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
         return exc

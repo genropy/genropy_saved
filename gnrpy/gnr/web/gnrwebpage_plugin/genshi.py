@@ -11,7 +11,7 @@ from gnr.web.gnrwebpage_plugin.gnrbaseplugin import GnrBasePlugin
 from genshi.template import TemplateLoader
 import itertools
 import os
-from gnr.web.gnrwsgisite import httpexceptions
+from gnr.web.gnrwsgisite import WSGIHTTPException
 
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
@@ -44,7 +44,7 @@ class Plugin(GnrBasePlugin):
         arg_dict.update(kwargs)
         try:
             output = template.generate(**arg_dict).render()
-        except httpexceptions.HTTPException, exc:
+        except WSGIHTTPException, exc:
             return exc
         if not pdf:
             page.response.content_type = 'text/html'

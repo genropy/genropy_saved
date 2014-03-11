@@ -14,7 +14,8 @@ class Form(BaseComponent):
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('zona')
-        
+        fb.field('province_u')
+
     def th_dialog(self):
         return dict(height='300px',width='500px')
 

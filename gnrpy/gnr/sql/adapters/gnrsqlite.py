@@ -100,7 +100,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
         return sql, kwargs
 
-    def _selectForUpdate(self):
+    def _selectForUpdate(self,maintable_as=None):
         return ''
 
     def listElements(self, elType, **kwargs):
