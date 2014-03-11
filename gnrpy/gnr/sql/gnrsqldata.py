@@ -51,6 +51,7 @@ SUBQUERYFINDER = re.compile(r"#SUBQUERY\s*\(\s*(\w+)\)")
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
+THISFINDER = re.compile(r'#THIS\.([\w\.@]+)')
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
@@ -154,6 +155,11 @@ class SqlQueryCompiler(object):
         :param fieldpath: a field path. (e.g: '$colname'; e.g: '@relname.@rel2name.colname')
         :param curr: TODO. 
         :param basealias: TODO. """
+
+        def expandThis(m):
+            fld = m.group(1)
+            return self.getFieldAlias(fld,curr=curr,basealias=alias)
+
         def expandPref(m):
             """#PREF(myprefpath,default)"""
             prefpath = m.group(1)
@@ -178,7 +184,6 @@ class SqlQueryCompiler(object):
                 return handler()
             else:
                 return 'Not found %s' % what
-                
         pathlist = fieldpath.split('.')
         fld = pathlist.pop()
         curr = curr or self.relations
@@ -220,14 +225,14 @@ class SqlQueryCompiler(object):
                         sq_pars.setdefault('excludeDraft',False)
                         sq_pars.setdefault('excludeLogicalDeleted',False)
                         aliasPrefix = '%s_t' %alias
-                        sq_where = sq_where.replace('#THIS', alias)
+                        sq_where = THISFINDER.sub(expandThis,sq_where)
                         sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
                         sql_formula = re.sub('#%s\\b' %susbselect, tpl %sql_text,sql_formula)
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
-                sql_formula = sql_formula.replace('#THIS', alias)
+                sql_formula = THISFINDER.sub(expandThis,sql_formula)
                 sql_formula_var = dictExtract(attr,'var_')
                 if sql_formula_var:
                     prefix = str(id(sql_formula_var))
