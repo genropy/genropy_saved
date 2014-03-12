@@ -2647,6 +2647,8 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
+        console.log('onChanged',value)
+
         if (value) {
             this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'D'});
         }
@@ -2680,7 +2682,7 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     },
 
     patch_parse:function(value,constraints){
-        if(value && value.match(/^\d{6}$|^\d{8}$/)){
+        if(value && value.match(/^\d{6}$|^\d{8}$/) && !this._focused){
             var tokens = dojo.date.locale._parseInfo(constraints).tokens;
             var d1 = parseInt(value.slice(0,2));
             var d2 = parseInt(value.slice(2,4));
@@ -2700,7 +2702,12 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
                 var cutoff = Math.min(Number(year.substring(2, 4)) + pivotYear, 99);
                 var y = (y < cutoff) ? century + y : century - 100 + y;
             }
-            return new Date(y,m-1,d);
+            var r = new Date(y,m-1,d);
+            var that = this;
+            setTimeout(function(){
+                that.setValue(r,true);
+            },1);
+            return;
         }
         return dojo.date.locale.parse(value, constraints) || undefined; 
     }
