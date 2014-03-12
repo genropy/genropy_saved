@@ -497,6 +497,7 @@ class GnrSqlDb(GnrObject):
             node =  deferreds.popNode('#0')
             cb,args,kwargs = node.value
             cb(*args,**kwargs)
+            deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
 
     def deferToCommit(self,cb,*args,**kwargs):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
