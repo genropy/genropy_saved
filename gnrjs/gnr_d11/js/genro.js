@@ -1713,7 +1713,11 @@ dojo.declare('gnr.GenroClient', null, {
     getRelationResolver: function(params, resolverName, parentbag) {
         params = objectUpdate({}, params);
         var resolverName = resolverName || objectPop(params, '_resolver_name');
-        return genro.rpc['remote_' + resolverName].call(genro.rpc, params, parentbag);
+        var resolver = genro.rpc['remote_' + resolverName];
+        if (resolver){
+            return resolver.call(genro.rpc, params, parentbag);
+        }
+            
     },
     loadUserObject: function(path, params) {
         var result = genro.rpc.remoteCall('app.loadUserObject', {'id': params['id'],
