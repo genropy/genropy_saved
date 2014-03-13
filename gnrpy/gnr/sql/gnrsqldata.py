@@ -1289,9 +1289,9 @@ class SqlSelection(object):
         :param asIterator: boolean. TODO
         :param asText: boolean. TODO"""
         if subtotal_rows:
-            attr = self.analyzeBag.getNode(subtotal_rows).attr
-            if attr:
-                filterCb = lambda r: r[self.key] in attr['idx']
+            subtotalNode = self.analyzeBag.getNode(subtotal_rows)
+            if subtotalNode and subtotalNode.attr:
+                filterCb = lambda r: r[self.key] in subtotalNode.attr['idx']
         if mode == 'pkeylist' or mode == 'records':
             columns = 'pkey'
         if isinstance(columns, basestring):
