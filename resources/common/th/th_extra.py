@@ -74,7 +74,8 @@ class THStatsHandler(BaseComponent):
         frame.grid.selectionStore(table=self.maintable,
                                     method=self.stats_get_detail,
                                     flt_path='^#main_stats_frame.stats.tree.currentTreePath',
-                                    selectionName='=#main_stats_frame.store?selectionName')
+                                    selectionName='=#main_stats_frame.store?selectionName',
+                                    _if='flt_path',_else='this.store.clear();')
         
     def stats_center(self,bc):
         self.stats_center_analyzer(bc,region='top',height='50%')
