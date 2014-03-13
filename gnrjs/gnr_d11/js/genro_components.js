@@ -1077,7 +1077,6 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         gridkw.structpath = '#WORKSPACE.grid.struct';
         gridkw.store = frameCode;
         gridkw.selfsubscribe_delrow = function(){
-            console.log('xxx')
             this.widget.deleteSelectedRows();
         };
         gridkw.selfsubscribe_addrow = function(){
