@@ -47,7 +47,6 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
-SUBQUERYFINDER = re.compile(r"#SUBQUERY\s*\(\s*(\w+)\)")
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")

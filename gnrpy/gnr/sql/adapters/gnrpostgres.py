@@ -45,6 +45,8 @@ from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
+#IN_TO_ANY = re.compile(r'([$]\w+|[@][\w|@|.]+)\s*(NOT)?\s*(IN ([:]\w+))')
+IN_TO_ANY = re.compile(r'(?P<what>\w+.\w+)\s*(?P<not>NOT)?\s*(?P<inblock>IN\s*(?P<value>[:]\w+))')
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 import threading
@@ -94,6 +96,17 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             self._lock.release()
         return conn
         
+    def in_to_any(self,m,**kwargs):
+        tpl = "NOT ( %s = ANY(%s) )"  if m.group('not') else "%s = ANY(%s)"
+        return tpl %(m.group('what'),m.group('value'))
+
+    def adaptTupleListSet(self,sql,sqlargs):
+        if self.dbroot.in_to_any:
+            sql = IN_TO_ANY.sub(self.in_to_any,sql)
+            return sql
+        else:
+            return super(SqlDbAdapter, self).adaptTupleListSet(sql,sqlargs)
+
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.

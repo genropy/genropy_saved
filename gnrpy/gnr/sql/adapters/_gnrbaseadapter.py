@@ -27,6 +27,9 @@ from gnr.core.gnrlist import GnrNamedList
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdate import decodeDatePeriod
 
+IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sIN\s\(\)')
+NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sNOT\s+IN\s\(\)')
+
 class SqlDbAdapter(object):
     """Base class for sql adapters.
     
@@ -204,6 +207,19 @@ class SqlDbAdapter(object):
         :param \*\*kwargs: the params dict
         :returns: tuple (sql, kwargs)"""
         return sql, kwargs
+
+    def empty_IN_patch(self,sql):
+        sql = re.sub(NOT_IN_OPERATOR_PATCH, '\\1 TRUE', sql)    
+        sql = re.sub(IN_OPERATOR_PATCH, '\\1 FALSE', sql)
+        return sql
+
+    def adaptTupleListSet(self,sql,sqlargs):
+        for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
+            sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
+            sqlargs.pop(k)
+            sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
+            sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
+        return sql
 
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.

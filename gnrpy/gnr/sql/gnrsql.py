@@ -46,10 +46,6 @@ import re
 import thread
 import locale
 
-IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sIN\s\(\)')
-NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sNOT\s+IN\s\(\)')
-
-
 def in_triggerstack(func):
     """TODO"""
     funcname = func.__name__
@@ -96,7 +92,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
+                 main_schema=None, debugger=None, application=None, read_only=None,in_to_any=False,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -131,7 +127,8 @@ class GnrSqlDb(GnrObject):
         self.started = False
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
-        
+        self.in_to_any = in_to_any
+
     #-----------------------Configure and Startup-----------------------------
 
     @property
@@ -373,14 +370,8 @@ class GnrSqlDb(GnrObject):
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
-                sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
-           
-                sqlargs.pop(k)
-                sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
-                sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
-            sql = re.sub(NOT_IN_OPERATOR_PATCH, '\\1 TRUE', sql)    
-            sql = re.sub(IN_OPERATOR_PATCH, '\\1 FALSE', sql)
+            sql = self.adapter.adaptTupleListSet(sql,sqlargs)
+            sql = self.adapter.empty_IN_patch(sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
