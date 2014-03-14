@@ -52,8 +52,9 @@ class THStatsHandler(BaseComponent):
                     _lockScreen=True,
                     _onResult="""
                     FIRE .stats.tree.reload_tree;""",
-                     _fired='^.stats.tree.do_totalize')
-        pane.dataController("""SET .stats.tree.root.data = null; FIRE .stats.tree.reload_tree; FIRE .stats.tree.do_totalize;""", _fired="^.queryEnd")
+                     _fired='^.stats.tree.do_totalize',_else='SET .stats.tree.root = new gnr.GnrBag();')
+        pane.dataController("""SET #totalizer_grid.data = null; SET .stats.tree.tot_mode = null; FIRE .stats.tree.reload_tree;
+                            """, _fired="^.queryEnd")
         dlg = pane.dialog(nodeId='_stats_load_dlg', title='!!Loading')
         dlg.div(_class='pbl_roundedGroup', height='200px', width='300px').div(_class='waiting')
 
@@ -66,7 +67,7 @@ class THStatsHandler(BaseComponent):
         frame.dataRpc('.grid.struct', self.stats_get_struct_total, tot_mode='^#main_stats_frame.stats.tree.tot_mode')
     
     def stats_center_detail(self,bc,**kwargs):
-        frame = bc.frameGrid('detail',margin='2px',rounded=5,border='1px solid silver',
+        frame = bc.frameGrid('detail',margin='2px',rounded=5,border='1px solid silver',_newGrid=True,
                                 datapath='.stats.detail',#structpath='#main_stats_frame.grid.struct',
                                 **kwargs)
         frame.dataRpc('.grid.struct', self.stats_get_struct_detail, tot_mode='^#main_stats_frame.stats.tree.tot_mode')
