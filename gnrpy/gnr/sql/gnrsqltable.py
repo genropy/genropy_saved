@@ -921,7 +921,7 @@ class SqlTable(GnrObject):
         if _notifyOnly:
             self.notifyDbUpdate(sel)
             return
-        handler = getattr(self,method)
+        handler = getattr(self,method) if isinstance(method,basestring) else method
         for row in sel:
             row._notUserChange = True
             handler(row, old_record=dict(row))

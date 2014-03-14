@@ -18,7 +18,6 @@ class Main(BaseResourceAction):
     batch_immediate = True
     
     def do(self):
-        print 'before getting keys'
         pkeys = self.get_selection_pkeys()
         wrapper = None
         wrapper_kw = None
