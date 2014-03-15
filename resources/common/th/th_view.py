@@ -174,24 +174,30 @@ class TableHandlerView(BaseComponent):
         pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
 
-    def _th_section_from_fkey(self,tblobj,fkey):
+    def _th_section_from_fkey(self,tblobj,fkey,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
         section_table = tblobj.column(fkey).relatedTable().dbtable
         pkeyfield = section_table.pkey
         caption_field = section_table.attributes.get('caption_field')
-        f = section_table.query(columns='*,$%s' %caption_field).fetch()
+        condition_kwargs = condition_kwargs or dict()
+        f = section_table.query(columns='*,$%s' %caption_field,where=condition,**condition_kwargs).fetch()
         s = []
+        if all_begin:
+            s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
             s.append(dict(code='c_%i' %i,caption=r[caption_field],condition='$%s=:s_id' %fkey,condition_s_id=r[pkeyfield]))
+        if all_end:
+            s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
 
+    @extract_kwargs(condition=True)
     @struct_method
-    def th_slotbar_sections(self,pane,sections=None,**kwargs):
+    def th_slotbar_sections(self,pane,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
         inattr = pane.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = pane.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
         if sections in  tblobj.model.columns and tblobj.column(sections).relatedTable() is not None:
-            sectionslist = self._th_section_from_fkey(tblobj,sections)
+            sectionslist = self._th_section_from_fkey(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
             dflt = None
             multivalue = True
             variable_struct = False
