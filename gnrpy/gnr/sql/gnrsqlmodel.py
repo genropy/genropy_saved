@@ -819,12 +819,28 @@ class DbTableObj(DbModelObj):
     def virtual_columns(self):
         """Returns a DbColAliasListObj"""
         virtual_columns = self['virtual_columns']
-        local_virtual_columns = self.db.localVirtualColumns(self.fullname)
+        local_virtual_columns = self.db.localVirtualColumns(self.fullname) #to remove use dynamic_virtual_columns
         if local_virtual_columns:
             for node in local_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
                 virtual_columns.children[obj.name.lower()] = obj
+
+        for node in self.dynamic_columns:
+            obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
+            virtual_columns.children[obj.name.lower()] = obj
         return virtual_columns
+
+    @property
+    def dynamic_columns(self):
+        result = Bag()
+        dbtable = self.dbtable
+        fmethods = [v for v in [getattr(dbtable,k) for k in dir(dbtable) if k.startswith('dc_')]]
+        for f in fmethods:
+            r = f()
+            for c in r:
+                kw = dict(c)
+                result.setItem(kw.pop('name'),None,**kw)
+        return result
 
     @property
     def full_virtual_columns(self):

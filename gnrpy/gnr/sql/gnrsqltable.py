@@ -1616,8 +1616,7 @@ class SqlTable(GnrObject):
             attributes.update(vcol.attributes)
             attributes['fieldpath'] = gnrstring.concat(prevRelation, vcolname)
             attributes['name_long'] = attributes.get('name_long') or vcolname
-            if 'sql_formula' in attributes:
-                attributes['dtype'] = attributes.get('dtype') or 'T'
+            attributes['dtype'] = attributes.get('dtype') or 'T'
             resultAppend(result, vcolname, attributes, omit)
             
         for aliastbl in tblmodel.table_aliases.values():
