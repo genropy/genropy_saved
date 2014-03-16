@@ -115,6 +115,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param kwargs: the params dict
         :returns: tuple (sql, kwargs)
         """
+        for k,v in kwargs.items():
+            if isinstance(v, tuple) or isinstance(v, set):
+                kwargs[k] = list(v)
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
     def _managerConnection(self):
