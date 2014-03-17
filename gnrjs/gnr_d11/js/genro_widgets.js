@@ -887,7 +887,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         var path = sourceNode.attrDatapath('value');
         var datanode = genro._data.getNode(path, null, true); //7/06/2006
-        value = value==''?null:value; // set blank value as null
+        value = value===''?null:value; // set blank value as null
         if (datanode.getValue() === value) {
             return;
         }
@@ -3425,7 +3425,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
             if (objectNotEmpty(zoomAttr)) {
-                v = "<a onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell' href='#'>" + v + "</a>";
+                v = "<a draggable='false' onclick='if(event.shiftKey){dojo.stopEvent(event); genro.dlg.zoomFromCell(event);}' class='gnrzoomcell' href='#'>" + v + "</a>";
             }
             var draggable = this.draggable ? ' draggable=true ' : '';
             return '<div ' + draggable + 'class="cellContent">' + v + '</div>';
@@ -6364,7 +6364,7 @@ dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
         //#3347: fetchItemByIdentity if no keyAttr specified
         var self=this;
         var handleFetchByIdentity = function(item, priorityChange){
-            if((item!=null) && (item!=='')){
+            if(!isNullOrBlank(item)){
                 if(self.store.isItemLoaded(item)){
                     self._callbackSetLabel([item], undefined, priorityChange);
                 }else{
@@ -6448,11 +6448,11 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             ){
                 this.setValue(this._lastValueReported, true);
             }else{
-                if ((displayedValue=='') || (displayedValue==null) || (displayedValue==undefined) ){
+                if (isNullOrBlank(displayedValue)){
                      this.setValue(null, true);
                      this.setDisplayedValue('');
                 }else{
-                    if ( (value=='') || (value==null) || (value==undefined) ){
+                    if ( isNullOrBlank(value)){
                         this.setValue(null, true);
                         if(!this.sourceNode.attr.firstMatchDisabled){
                             this.setDisplayedValue(displayedValue,true);
@@ -7436,7 +7436,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
          var that=this;
          var modifiers=genro.dom.getEventModifiers(e);
          var sourceNode=e.target.sourceNode;
-         sourceNode.edit_mode= (modifiers=='') ? 'move' : (modifiers=='Shift') ? 'zoom':(modifiers=='Alt') ? 'rotate' :null 
+         sourceNode.edit_mode= (modifiers === '') ? 'move' : (modifiers=='Shift') ? 'zoom':(modifiers=='Alt') ? 'rotate' :null 
          if(sourceNode.edit_mode){
              e.stopPropagation();
              e.preventDefault();
