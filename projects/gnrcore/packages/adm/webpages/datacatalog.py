@@ -90,14 +90,14 @@ class GnrCustomWebPage(object):
         
     def element_info(self,bc,table=None,disabled=None):
         top = bc.contentPane(region='top', _class='pbl_roundedGroup', margin='2px')
-        top.div().div(innerHTML='=="Base info:"+_rec_type', _rec_type='^.rec_type', _class='pbl_roundedGroupLabel')
-        top.data('rec_type_fullmenu', self.db.table(table).datacatalog_rec_types())
+        top.data('#FORM.rec_type_fullmenu', self.db.table(table).datacatalog_rec_types())
         fb = top.formbuilder(cols=2, border_spacing='4px', fld_width='15em', tdl_width='8em', dbtable=table,
                              disabled=disabled)
         fb.field('child_code')
+        fb.field('rec_type',storepath='#FORM.rec_type_fullmenu',tag='filteringSelect')
         fb.field('description')
         center = bc.contentPane(region='center')
-        center.remote('rec_type_main', rec_type='=.rec_type', _fired='^.#parent.form.loaded', disabled_path=disabled)
+        center.remote('rec_type_main', rec_type='^.rec_type')
 
     def remote_rec_type_main(self, pane, rec_type=None, disabled=None, **kwargs):
         if not rec_type:
