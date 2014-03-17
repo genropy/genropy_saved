@@ -2680,20 +2680,21 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
                 }
             }
          }
-         kw['_onError'] = function(error,originalKwargs){
-            if(_onError){
-                funcApply(_onError,{error:error,kwargs:originalKwargs},this);
-            }
-            this.store.clear();
-            this.store.gridBroadcast(function(grid){
-                 grid.sourceNode.publish('loadingData',{loading:false});
-            });
-         };
-         kw['_POST'] = true;
+        kw['_POST'] = true;
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
+
+         rpcNode.attr['_onError'] = function(error,originalKwargs){
+            if(_onError){
+                funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
+            }
+            rpcNode.store.clear();
+            rpcNode.store.gridBroadcast(function(grid){
+                 grid.sourceNode.publish('loadingData',{loading:false});
+            });
+         };
          var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
                         'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
          if('startLocked' in kw){

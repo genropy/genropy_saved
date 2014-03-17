@@ -195,10 +195,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     reset: function() {
-        console.log('resetting')
+        this.resetGridEditors();
         this.resetChanges();
         this.resetInvalidFields();
     },
+    
+    resetGridEditors:function(){
+        for(var k in this.gridEditors){
+            this.gridEditors[k].resetEditor();
+        }
+    },
+
     publish: function(command,kw,topic_kw){
         var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent}; //iframe:'*' removed (useless?) it gives problem with multipage
         genro.publish(topic,kw);
@@ -595,9 +602,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     doload_store: function(kw) {
         if(kw.destPkey=='*dismiss*'){
-            for(var k in this.gridEditors){
-                this.gridEditors[k].resetEditor();
-            }
             this.reset();
             this.setCurrentPkey(null);
             if(this.store.parentStore){

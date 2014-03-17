@@ -1021,7 +1021,7 @@ dojo.declare("gnr.GridEditor", null, {
             var unlinkfield = collectionStore.unlinkdict?collectionStore.unlinkdict.field:null;
             changeset.setItem('deleted',deletedRows,{unlinkfield:unlinkfield});
         }
-        this.deletedRows = new gnr.GnrBag();
+        //this.deletedRows = new gnr.GnrBag();
         return changeset;
     },
 
