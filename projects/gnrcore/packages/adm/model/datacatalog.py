@@ -1,13 +1,16 @@
 # encoding: utf-8
-from gnr.app.gnrdbo import GnrHTable
 from gnr.core.gnrbag import Bag
 
-class Table(GnrHTable):
+class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('datacatalog', pkey='id', name_long='!!Model catalog',
-                        name_plural='!!DC Elements', rowcaption='$description')
-        self.sysFields(tbl)
-        self.htableFields(tbl)
+                        name_plural='!!DC Elements', rowcaption='$description',
+                        caption_field='description')
+        self.sysFields(tbl,hierarchical='description,code')
+        tbl.column('code', name_long='!!Code')
+        tbl.column('description', name_long='!!Description')
+        tbl.column('rec_type', name_long='!!Type')
+
         tbl.column('dtype', name_long='!!Dtype')
         tbl.column('name_long', name_long='!!Name long')
         tbl.column('name_short', name_long='!!Name short')
@@ -68,21 +71,21 @@ class Table(GnrHTable):
         return dict(caption='Field', fields='name_long,name_short')
 
 
-    def make_record_db_pkg(self, idx=None, parent_code=None, name=None, attr=None):
-        record = dict(child_code='%02i' % idx, parent_code=parent_code, name_long=attr.get('name_long'),
+    def make_record_db_pkg(self, idx=None, parent_id=None, name=None, attr=None):
+        record = dict(code='%02i' % idx, parent_id=parent_id, name_long=attr.get('name_long'),
                       name_full=attr.get('name_full'),
                       name_short=attr.get('name_short'), rec_type='db_pkg', pkg=name, description=name)
         return record
 
-    def make_record_db_tbl(self, idx=None, parent_code=None, name=None, attr=None):
-        record = dict(child_code='%02i' % idx, parent_code=parent_code, name_long=attr.get('name_long'),
+    def make_record_db_tbl(self, idx=None, parent_id=None, name=None, attr=None):
+        record = dict(code='%02i' % idx, parent_id=parent_id, name_long=attr.get('name_long'),
                       name_full=attr.get('name_full'),
                       name_short=attr.get('name_short'), pkey_field=attr.get('pkey'), rec_type='db_tbl', tbl=name,
                       description=name)
         return record
 
-    def make_record_db_col(self, idx=None, parent_code=None, name=None, attr=None, obj=None):
-        record = dict(child_code='%03i' % idx, parent_code=parent_code, name_long=attr.get('name_long'),
+    def make_record_db_col(self, idx=None, parent_id=None, name=None, attr=None, obj=None):
+        record = dict(code='%03i' % idx, parent_id=parent_id, name_long=attr.get('name_long'),
                       name_full=attr.get('name_full'),
                       description=name, name_short=attr.get('name_short'), size=attr.get('size'), fld=name,
                       dtype=attr.get('dtype'),
