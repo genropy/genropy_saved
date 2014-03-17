@@ -70,8 +70,9 @@ class Table(object):
     @public_method
     def exportMenu(self,name=None):
         name = name or 'menucustom'
+        name = '%s.xml' %name
         site = self.db.application.site
-        path = site.getStaticPath('site:exported_menu',name)
+        path = site.getStaticPath('site:exported_menu',name,autocreate=-1)
         self.getMenuBag().toXml(filename=path)
         return site.getStaticUrl('site:exported_menu',name)
 
