@@ -56,7 +56,7 @@ class LoginPage(BaseComponent):
     def _loginController(self,frame,fromPage=None):
         rpc = frame.dataRpc('dummy','doLogin',subscribe_login=True,login='=logindata',_POST=True)
         rpc.addCallback("""var msg = result.getValue().getItem('message');
-                            if(msg==''){
+                            if(msg===''){
                                 if(fromPage){
                                     genro.gotoURL(fromPage);
                                 }else{

@@ -942,7 +942,7 @@ var gnrformatter = {
     },
     
     format_T:function(value,format,formatKw){
-        if(value==''){
+        if(value===''){
             return value;
         }
         if(!format){

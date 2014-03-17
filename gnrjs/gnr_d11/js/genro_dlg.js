@@ -359,7 +359,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                     dlg.close_action();
                                                     if(this.attr.command=='confirm'){
                                                         var v = genro.getData('gnr.promptDlg.promptvalue');
-                                                        if(mandatory && (v==null || v=='')){
+                                                        if(mandatory && isNullOrBlank(v)){
                                                             return;
                                                         }
                                                         funcApply(confirmCb,{value:genro.getData('gnr.promptDlg.promptvalue')},(sourceNode||this));
