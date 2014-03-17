@@ -660,6 +660,10 @@ class GnrSqlDb(GnrObject):
     def dropTable(self,table,cascade=None):
         self.adapter.dropTable(self.table(table),cascade=cascade)
 
+    def dropColumn(self,column,cascade=None):
+        col = self.model.column(column)
+        self.adapter.dropColumn(col.table.sqlfullname,col.sqlname,cascade=cascade)
+
     def dump(self, filename,dbname=None,extras=None,**kwargs):
         """Dump a database to a given path
         
