@@ -796,7 +796,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         record.forEach(function(n){
             if(n.label[0]!='@' && n.label[0]!='$' && !n.attr._sysfield){
                 var value = n._value;
-                if (value==null || value==undefined || value==''){
+                if (isNullOrBlank(value)){
                     return;
                 }
                 if(value instanceof gnr.GnrBag){
@@ -1669,7 +1669,7 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     },
     validate_notnull: function(param, value) {
-        if ((value === '') || (value == null)) {
+        if (isNullOrBlank(value)) {
             return {'errorcode':'notnull', 'required':true};
         }
     },
