@@ -27,19 +27,19 @@ class Main(BaseResourceAction):
         self.tblobj.insert(root_rec)
 
         for pkg, pkgobj in self.btc.thermo_wrapper(self.db.packages.items(), 'pkg'):
-            pkgrec = self.tblobj.make_record_db_pkg(idx=pkgidx, parent_code=root_rec['code'], name=pkg,
+            pkgrec = self.tblobj.make_record_db_pkg(idx=pkgidx, parent_id=root_rec['id'], name=pkg,
                                                     attr=pkgobj.attributes)
             self.tblobj.insert(pkgrec)
             pkgidx += 1
             tblidx = 0
             for tbl, tblobj in self.btc.thermo_wrapper(pkgobj.tables.items(), 'tbl'):
-                tblrec = self.tblobj.make_record_db_tbl(idx=tblidx, parent_code=pkgrec['code'], name=tbl,
+                tblrec = self.tblobj.make_record_db_tbl(idx=tblidx, parent_id=pkgrec['id'], name=tbl,
                                                         attr=tblobj.attributes)
                 self.tblobj.insert(tblrec)
                 tblidx += 1
                 colidx = 0
                 for col, colobj in self.btc.thermo_wrapper(tblobj.columns.items(), 'field'):
-                    colrec = self.tblobj.make_record_db_col(idx=colidx, parent_code=tblrec['code'],
+                    colrec = self.tblobj.make_record_db_col(idx=colidx, parent_id=tblrec['id'],
                                                             name=col, attr=colobj.attributes, obj=colobj)
                     self.tblobj.insert(colrec)
                     colidx += 1
