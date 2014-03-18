@@ -834,9 +834,11 @@ class DbTableObj(DbModelObj):
     def dynamic_columns(self):
         result = Bag()
         dbtable = self.dbtable
-        fmethods = [v for v in [getattr(dbtable,k) for k in dir(dbtable) if k.startswith('dc_')]]
+        fmethods = [v for v in [getattr(dbtable,k) for k in dir(dbtable) if k.startswith('formulaColumn_')]]
         for f in fmethods:
             r = f()
+            if not isinstance(r,list):
+                r = [r]
             for c in r:
                 kw = dict(c)
                 result.setItem(kw.pop('name'),None,**kw)
