@@ -771,9 +771,16 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                              **kwargs).count()
 
         if sum_columns:
-            totals = selection.sum(sum_columns)
-            for i,col in enumerate(sum_columns.split(',')):
-                resultAttributes['sum_%s' % col] = totals[i] if totals else 0
+            sum_columns_list = sum_columns.split(',')
+            sum_columns_filtered = [c for c in sum_columns_list if c in selection.columns]
+            totals = selection.sum(sum_columns_filtered)
+            if totals:
+                for i,col in enumerate(sum_columns_filtered):
+                    resultAttributes['sum_%s' % col] = totals[i]
+                    sum_columns_list.remove(col)
+            for col in sum_columns_list:
+                resultAttributes['sum_%s' % col] = False
+
         if prevSelectedDict:
             keys = prevSelectedDict.keys()
             resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))

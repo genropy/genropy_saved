@@ -170,8 +170,10 @@ class TableHandlerView(BaseComponent):
         sum_column_attr = self.db.table(table).column(sum_column).attributes
         format = format or sum_column_attr.get('format','###,###,###.00')
         pane.data('.sum_columns_source.%s' %sum_column,True)
-        pane.div(label or sum_column_attr.get('name_short') or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',display='inline-block',padding_right='3px')
-        pane.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
+        box = pane.div(hidden='==_sumvalue===false',_sumvalue='^.store?sum_%s' %sum_column)
+        box.div(label or sum_column_attr.get('name_short') or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',
+                    display='inline-block',padding_right='3px')
+        box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
                  font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
 
     def _th_section_from_fkey(self,tblobj,fkey,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
@@ -398,6 +400,7 @@ class TableHandlerView(BaseComponent):
         if tblobj.model.column('__ins_ts') is not None:
             default_sort_col = '__ins_ts'
         if sortedBy :
+            sortedBy = sortedBy.strip().replace('$','').replace('@','_').replace('.','_')
             if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
                 sortedBy = sortedBy +',%s' %default_sort_col 
         elif tblobj.column('_row_count') is not None:

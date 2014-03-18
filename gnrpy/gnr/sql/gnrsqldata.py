@@ -1610,11 +1610,11 @@ class SqlSelection(object):
         return result
 
 
-    def sum(self,columns=None):
+    def sum(self,columns=None):            
         if isinstance(columns,basestring):
             columns = columns.split(',')
         result  = list()
-        if not self.data:
+        if not (columns or self.data):
             return result
         data = zip(*[[r[c] for c in columns] for r in self.data])
         for k,c in enumerate(columns):

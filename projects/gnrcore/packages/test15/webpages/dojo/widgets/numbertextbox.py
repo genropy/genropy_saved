@@ -6,6 +6,8 @@
 
 """numberTextBox"""
 
+from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     
@@ -15,5 +17,15 @@ class GnrCustomWebPage(object):
 
     def test_0_base(self, pane):
         fb = pane.formbuilder(cols=2,datapath='.data')
-        fb.dateTextBox(value='^.pivot',pivotYear=1,lbl='pivot')
-        fb.dateTextBox(value='^.no_pivot',lbl='no pivot')
+        fb.numberTextBox(value='^.number.blu')
+        fb.numberTextBox(value='^.number.inattr?val')
+
+        fb.button('TEST',fire='.colors')
+        fb.dataRpc('.number',self.testblu,_fired='^.colors')
+
+    @public_method
+    def testblu(self):
+        a = Bag()
+        a.setItem('blu',3,wdg_color='navy')
+        a.setItem('inattr',None,val=44,wdg_val_color='red')
+        return a

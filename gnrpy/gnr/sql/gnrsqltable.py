@@ -664,11 +664,11 @@ class SqlTable(GnrObject):
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
-        table_order_by =  self.attributes.get('order_by')
-        if table_order_by and table_order_by[0] not in '$@':
-            table_order_by = '$'+table_order_by
-            
-        order_by = order_by or table_order_by
+        if not aliasPrefix:
+            table_order_by =  self.attributes.get('order_by')
+            if table_order_by and table_order_by[0] not in '$@':
+                table_order_by = '$'+table_order_by
+            order_by = order_by or table_order_by
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
