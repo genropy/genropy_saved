@@ -1164,10 +1164,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var valueNode = kw.node;
         if(trigger_reason=='container' && attr=='value' && kw.evt=='upd'){
             var vpath = this.attr['value'];
-            if (this.isPointerPath(vpath) && (vpath.indexOf('?')<0)){
+            if (this.isPointerPath(vpath)){
                 var valueNode = genro._data.getNode(this.absDatapath(vpath),null,true);
                 if (valueNode){
-                    var wdg_modifiers = objectExtract(valueNode.attr,'wdg_*');
+                    var wdg_prefix = vpath.indexOf('?')<0?'wdg_*':'wdg_'+vpath.split('?')[1]+'_*';
+                    var wdg_modifiers = objectExtract(valueNode.attr,wdg_prefix);
                     if(objectNotEmpty(wdg_modifiers)){
                         this._original_attributes = objectUpdate({},this.attr);
                         this.updAttributes(wdg_modifiers,true);
