@@ -1,98 +1,122 @@
-[Python]
-Download from:
-www.python.org
+=== Jeff's install problems ==
 
-[PostgresSQL]
-To upgrade:
-in the old environment: pg_dumpall -U postgres -f all.sql
-Homepage: http://www.postgresqlformac.com/
-Download: http://www.postgresqlformac.com/lists/downloads/unified_installer_disk_imag/
-in the new environment: psql -U postgres < all.sql
+1. when I had installed .gnr files my copy was not complete . . causing an error
+2. postgres password was not correct for the instanceconfig in .gnr
+3. the dependencies in securepay were not installed and causing an error
+4. postgres install needed a modification in pg_hba.conf from PEER to TRUSTED in order for it to work
+===============================
 
-[easy_install]
-Download: curl -O http://peak.telecommunity.com/dist/ez_setup.py
-sudo python ez_setup.py
 
-[psycopg2]
-download from curl -O http://initd.org/pub/software/psycopg/psycopg2-2.0.13.tar.gz
-tar xvfz psycopg2-2.0.13.tar.gz
-cd psycopg2-2.0.13
-python setup.py build (on Snow Leopard CC=/usr/bin/gcc-4.0 python setup.py build)
-sudo python setup.py install
-Snow Leopard with pip: sudo env ARCHFLAGS="-arch i386 -arch x86_64" pip install --upgrade psycopg2
+Enable  /etc/apt/sources.list  repositories universe removing #
 
-[paver]
-sudo easy_install -U -Z paver
+
+reference: http://wiki.ubuntu-it.org/AmministrazioneSistema/Apt
+
+ssh siteip -l root
+
+apt-get update
+apt-get upgrade
+apt-cache search - string lists the packages that have a relationship with that string
+apt-get install packagename - install the package
+
+FOR GENROPY INSTALL
+
+USE APT-GET
+apt-get install libapache2-mod-wsgi
+apt-get install postgresql
+apt-get install git-core
+
+apt-get install build-essential
+apt-get install python-psycopg2
+apt-get install python-setuptools
+apt-get install python-dev 
+apt-get install libxml2-dev libxslt-dev
+apt-get install libcups2-dev wget cups cups-client
+apt-get install python-imaging
+apt-get install htop
+apt-get install screen
+
+
+THE GREAT MAGIC WORD
+apt-get install libapache2-mod-wsgi postgresql git-core build-essential python-psycopg2 python-setuptools python-dev libxml2-dev libxslt-dev libcups2-dev wget cups cups-client python-imaging htop screen
+
+WITH EASYINSTALL
+easy install -U -Z pip
+easy install -U -Z pypdf
+
+WITH PIP
+pip install paver 
+pip install babel pytz vobject
+pip install paste webob weberror
+pip install mako
+pip install pypdf
+pip install python-dateutil==1.5
+pip install ipython
+
+THE GREAT MAGIC WORD - easy_install
+easy install -U -Z pip pypdf
+
+THE GREAT MAGIC WORD - pip
+pip install -—upgrade paver babel pytz vobject paste webob weberror mako python-dateutil==1.5 ipython
+
+
+RECOMMENDED
+adduser genro —-ingroup sudo
+
+[public/private key generation]
+ ssh-keygen -t rsa
+this will be put by default in .ssh/id_rsa (private one) and .ssh/id_rsa.pub (the public one we will use)
+less .ssh/id_rsa.pub (to be paste in Repositoryhosting)
+
+mkdir gitrepos
+cd gitrepos
 
 [genro]
-svn co http://svn.genropy.org/genro/trunk genro
-cd genro
-cd gnrpy
+git clone ssh://git@softwell.repositoryhosting.com/softwell/genropy.git
+cd genropy/gnrpy
 sudo paver develop
 
------------------------ Skip These ---------------------
-#[python packages]
-#sudo easy_install -U -Z babel
-#sudo easy_install -U -Z pytz
-#sudo easy_install -U -Z vobject
-#sudo easy_install -U -Z paste
-#sudo easy_install -U -Z webob
-#sudo easy_install -U -Z weberror
-#sudo easy_install -U -Z mako
-#-----------
-sudo easy_install -U -Z babel pytz vobject
-sudo easy_install -U -Z paste webob weberror
-sudo easy_install -U -Z mako
-sudo easy_install -U -Z pypdf
-sudo easy_install -U -Z huBarcode
+cd /home/genro
+tar xvfj /home/genro/gitrepos/genropy/docs/gnr.tbz2
 
---------------------------------------------------------
+sudo -u postgres psql
+postgres=# \password
 
-[ReportLab]
-download from: http://www.reportlab.org/ftp/ReportLab_2_3.tar.gz
-tar xvfz ReportLab_2_3.tar.gz
-cd ReportLab_2_3
-Leopard:
-python setup.py build 
-Snow Leopard:
-CC=/usr/bin/gcc-4.0 python setup.py build
-sudo python setup.py install
+- new postgres password is usually 'postgres'
 
-[LibXml2 & Libxslt]
-Download attached Packages:
-http://dl.getdropbox.com/u/428566/LibXml2.pkg
+postgres=# \q
 
-[lxml]
-Leopard:
-	PATH=/usr/local/libxml2-2.7.3/bin/:/usr/local/libxslt-1.1.24/bin/:$PATH sudo easy_install -Z -U lxml
-Snow Leopard:
-	sudo easy_install -Z -U lxml
+- I copy the home folder of genro .gnr 
+- edit the paths to the relevant directories
 
-[z3c.rml]
-sudo easy_install -Z -U z3c.rml
+if Postgresql is not autostarted and autograted because of locale errors fix the locale and run the followind (as root or with sudo)
+pg_createcluster 9.1 main --start
 
-[xlrd & xlwt]
-sudo easy_install -U -Z xlrd
-sudo easy_install -U -Z xlwt
+to fix the LC_ locale errors see and use your locale (in the example is fi):
+http://askubuntu.com/questions/162391/how-do-i-fix-my-locale-issue
 
-[Useful packages for developers]
-Leopard:
-	sudo easy_install -U -Z readline ipython
-Snow Leopard:
-	sudo su
-	CC=/usr/bin/gcc-4.0 easy_install -U -Z readline
-	exit
-	sudo easy_install -U -Z ipython
-sudo easy_install -U -Z pyflakes
-sudo easy_install -U -Z pylint
-sudo easy_install -U -Z virtualenv
+ - http://kb.iu.edu/data/acuy.html
+ - the screen command creates a fork of the current session supporting multiple terminals under the same login process.
 
-[mod_wsgi]
-Download: http://modwsgi.googlecode.com/files/mod_wsgi-2.5.tar.gz
-./configure
-make && sudo make install
+To return to the normal Ctrl-A followed by d.
+to reopen the screen with running processes: screen -r
+use the command 'man' (it is your friend).
 
-To run apache in 32bit mode:
-http://code.google.com/p/modwsgi/wiki/InstallationOnMacOSX
-and read the "Forcing 32 Bit Execution" of the document.
+[Reading Logs]
+less /var/log/apache2/error.log (view the beginning of the file. q to quit)
+tail -n numberOfLines /var/log/apache2/error.log (Find the n lines  at the end of file.)
+tail -n numberOfLines  -f /var/log/apache2/error.log (Displays the last n lines at the end of the file and maintains an open file so that the same updates are immediately displayed. Ctrl-C to exit)
+
+[/etc/apache2/sites-available]
+
+gnrmkapachesite
+
+OTHER gnrscripts:
+
+gnrmkproject -a
+gnrmkpackage
+gnrdbsetup
+gnrmkthresource -m
+gnrwsgiserve sitename
+
 
