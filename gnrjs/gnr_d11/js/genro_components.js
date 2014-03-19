@@ -2907,9 +2907,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     absIndex:function(idx,reverse){
-        if (this.invalidFilter()) {
-            console.log('invalid filter');
-        }
+        //if (this.invalidFilter()) {
+        //    console.log('invalid filter');
+        //}
         if(!this._filtered){
             return idx;
         }
@@ -2973,9 +2973,6 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     filterToRebuild: function(value) {
-        if(value==true && !this._filtered){
-            console.log('setFilterToTrue')
-        }
         this._filterToRebuild=value;
     },
     invalidFilter: function() {

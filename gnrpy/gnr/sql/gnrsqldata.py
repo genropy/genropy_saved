@@ -47,7 +47,6 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
-SUBQUERYFINDER = re.compile(r"#SUBQUERY\s*\(\s*(\w+)\)")
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
@@ -1611,11 +1610,11 @@ class SqlSelection(object):
         return result
 
 
-    def sum(self,columns=None):
+    def sum(self,columns=None):            
         if isinstance(columns,basestring):
             columns = columns.split(',')
         result  = list()
-        if not self.data:
+        if not (columns or self.data):
             return result
         data = zip(*[[r[c] for c in columns] for r in self.data])
         for k,c in enumerate(columns):

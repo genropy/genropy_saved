@@ -41,7 +41,7 @@ class Table(object):
         app = self.db.application
         forbidden = []
         for r in f:
-            if app.checkResourcePermission(r['tags'], userTags) and not r['parent_id'] in forbidden:
+            if userTags is True or (app.checkResourcePermission(r['tags'], userTags) and not r['parent_id'] in forbidden):
                 kw = dict()      
                 r = dict(r)   
                 if r['page_id']:       
@@ -66,6 +66,15 @@ class Table(object):
                     result.popNode(pathlist)
                     empty = True
         return result
+
+    @public_method
+    def exportMenu(self,name=None):
+        name = name or 'menucustom'
+        name = '%s.xml' %name
+        site = self.db.application.site
+        path = site.getStaticPath('site:exported_menu',name,autocreate=-1)
+        self.getMenuBag(userTags=True).toXml(filename=path)
+        return site.getStaticUrl('site:exported_menu',name)
 
 
     @public_method

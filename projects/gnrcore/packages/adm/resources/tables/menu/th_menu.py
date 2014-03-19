@@ -21,12 +21,15 @@ class View(BaseComponent):
 
 
     def th_bottom_custom(self,bottom):
-        bar = bottom.slotToolbar('importbtn,5,pagesonly,*')
+        bar = bottom.slotToolbar('importbtn,5,pagesonly,*,exportMenu,10')
+        menutable = self.db.table('adm.menu')
         bar.importbtn.button('Import from menuxml',fire='.import_all')
-        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,_fired='^.import_all')
+        bar.dataRpc('dummy',menutable.createRootHierarchy,_fired='^.import_all')
         bar.pagesonly.button('Update pages',fire='.pages_only')
-        bar.dataRpc('dummy',self.db.table('adm.menu').createRootHierarchy,pagesOnly=True,_fired='^.pages_only')
-
+        bar.dataRpc('dummy',menutable.createRootHierarchy,pagesOnly=True,_fired='^.pages_only')
+        bar.exportMenu.button('Export Menu',action='FIRE .export_menu=name || "menucustom";', ask=dict(title='Export menu',
+                                        fields=[dict(name='name',lbl='Download as')]))
+        bar.dataRpc('dummy',menutable.exportMenu,name='^.export_menu',_onResult='if(result){genro.download(result);}')
 
 class Form(BaseComponent):
 

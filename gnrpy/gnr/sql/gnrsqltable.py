@@ -664,11 +664,11 @@ class SqlTable(GnrObject):
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
-        table_order_by =  self.attributes.get('order_by')
-        if table_order_by and table_order_by[0] not in '$@':
-            table_order_by = '$'+table_order_by
-            
-        order_by = order_by or table_order_by
+        if not aliasPrefix:
+            table_order_by =  self.attributes.get('order_by')
+            if table_order_by and table_order_by[0] not in '$@':
+                table_order_by = '$'+table_order_by
+            order_by = order_by or table_order_by
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -897,29 +897,37 @@ class SqlTable(GnrObject):
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             
-    def touchRecords(self, where=None,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False, **kwargs):
+    def touchRecords(self,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False,pkey=None,method=None, **kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
-        if not where and _pkeys:
-            where = '$%s IN :_pkeys' %self.pkey
+        if not 'where' in kwargs:
+            if pkey:
+                _pkeys = [pkey]
+            if not _pkeys:
+                return
+            kwargs['where'] = '$%s IN :_pkeys' %self.pkey
             if isinstance(_pkeys,basestring):
-                _pkeys = _pkeys.split(',')
+                _pkeys = _pkeys.strip(',').split(',')
             kwargs['_pkeys'] = _pkeys
-        sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
+            kwargs.setdefault('excludeDraft',False)
+            kwargs.setdefault('ignorePartition',True)
+            kwargs.setdefault('excludeLogicalDeleted',False)
+        method = method or 'update'
+        sel = self.query(addPkeyColumn=False, for_update=(method=='update'), **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             sel = _wrapper(sel, **(_wrapperKwargs or dict()))
         if _notifyOnly:
             self.notifyDbUpdate(sel)
             return
+        handler = getattr(self,method) if isinstance(method,basestring) else method
         for row in sel:
             row._notUserChange = True
-            self.update(row, old_record=dict(row))
+            handler(row, old_record=dict(row))
             
     def existsRecord(self, record):
         """Check if a record already exists in the table and return it (if it is not already in the keys)
-        
         :param record: the record to be checked"""
         if not hasattr(record, 'keys'):
             record = {self.pkey: record}
@@ -1608,8 +1616,7 @@ class SqlTable(GnrObject):
             attributes.update(vcol.attributes)
             attributes['fieldpath'] = gnrstring.concat(prevRelation, vcolname)
             attributes['name_long'] = attributes.get('name_long') or vcolname
-            if 'sql_formula' in attributes:
-                attributes['dtype'] = attributes.get('dtype') or 'T'
+            attributes['dtype'] = attributes.get('dtype') or 'T'
             resultAppend(result, vcolname, attributes, omit)
             
         for aliastbl in tblmodel.table_aliases.values():
