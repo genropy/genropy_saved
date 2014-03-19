@@ -1328,7 +1328,8 @@ class RelationTreeResolver(BagResolver):
         self.main_table_obj = self.dbroot.model.table(self.main_tbl)
         if not self.__fields:
             self._lock.acquire()
-            self.__fields = self._fields(self.tbl_name, self.pkg_name, self.path, self.parentpath)
+            if not self.__fields: #repeat test after lock_acquire
+                self.__fields = self._fields(self.tbl_name, self.pkg_name, self.path, self.parentpath)
             self._lock.release()
         return self.__fields
         
