@@ -29,6 +29,7 @@ class Table(object):
 
     def trigger_onInserting(self, record_data):
         self.explodeAddressRelations(record_data)
+
     
     def trigger_onUpdating(self, record_data, old_record):
         self.deleteAddressRelations(record_data)
@@ -101,4 +102,6 @@ class Table(object):
         body = body or get_templated('body')
         body = templateReplace(body, datasource) if datasource else body
 
+    def spamChecker(self,msgrec):
+        return
     

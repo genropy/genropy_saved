@@ -63,6 +63,8 @@ class ImapReceiver(object):
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
+            if self.messages_table.spamChecker(msgrec) is True:
+                continue
             self.messages_table.insert(msgrec)
 
         self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
