@@ -55,7 +55,7 @@ setup(
         #package_dir={'gnr': 'gnrpy/gnr'},
         #namespace_packages=['gnr'],
         data_files=data_files,
-        install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel', 'python-memcached','httplib2','pyro4'
+        install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel','httplib2','pyro4'
                           , 'pyPdf', 'argparse','lxml'],
         zip_safe=False,
         extras_require=dict(
