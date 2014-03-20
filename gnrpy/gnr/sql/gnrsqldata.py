@@ -1614,7 +1614,7 @@ class SqlSelection(object):
         if isinstance(columns,basestring):
             columns = columns.split(',')
         result  = list()
-        if not (columns or self.data):
+        if not columns or not self.data:
             return result
         data = zip(*[[r[c] for c in columns] for r in self.data])
         for k,c in enumerate(columns):
