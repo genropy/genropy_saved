@@ -588,7 +588,7 @@ class GnrWsgiSite(object):
         try:
             page = self.currentPage
             user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
-            self.db.table('sys.error').writeException(description=str(exception),
+            return self.db.table('sys.error').writeException(description=str(exception),
                                                       traceback=traceback,
                                                       user=user,
                                                       user_ip=user_ip,

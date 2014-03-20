@@ -155,6 +155,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
         if (error=='gnrexception'){
             genro.dlg.alert('<h2 align="center">'+envNode.getValue()+'</h2> <br/>','Warning');
             return;
+        }else if (error=='server_exception'){
+            genro.dlg.alert('<h3 align="center">'+envNode.getValue()+'</h3> <br/>','Error');
+            return;
         }
         if (error == 'expired') {
             genro.dlg.message('expired session');
