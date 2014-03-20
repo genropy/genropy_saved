@@ -403,7 +403,7 @@ class GnrWebPage(GnrBaseWebPage):
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
             else:
-                self.site.writeException(exception=e, traceback=tracebackBag())
+                exception_record = self.site.writeException(exception=e, traceback=tracebackBag())
                 if self.site.error_smtp_kwargs:
                     import sys
                     from paste.exceptions.errormiddleware import handle_exception
@@ -411,8 +411,10 @@ class GnrWebPage(GnrBaseWebPage):
                     error_handler_kwargs['debug_mode'] = True
                     error_handler_kwargs['simple_html_error'] = False
                     handle_exception(sys.exc_info(), self._environ['wsgi.errors'], **error_handler_kwargs)
-                self.rpc.error = str(e)
-                result = None
+                self.rpc.error = 'server_exception'
+                result = '<div>%s</div>' %str(e)
+                if exception_record:
+                    result = '%s <br/> Check Exception Id: %s' %(result,exception_record['id'])
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
         return_result = result_handler(result)
         return return_result
