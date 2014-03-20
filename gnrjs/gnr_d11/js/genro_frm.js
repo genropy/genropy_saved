@@ -29,6 +29,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
         genro.src.onBuiltCall(function(){that.onStartForm();});
+        formAttr.blankIsNull = formAttr.blankIsNull===false?false:true;
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -55,6 +56,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
+        this.sourceNode.attr.blankIsNull = this.blankIsNull;
+
         this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
         
         this.frameCode = sourceNode.attr.frameCode;

@@ -887,7 +887,10 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
         var path = sourceNode.attrDatapath('value');
         var datanode = genro._data.getNode(path, null, true); //7/06/2006
-        value = value===''?null:value; // set blank value as null
+        var inattr = sourceNode.getInheritedAttributes();
+        if(inattr.blankIsNull){
+            value = value===''?null:value; // set blank value as null
+        }
         if (datanode.getValue() === value) {
             return;
         }
