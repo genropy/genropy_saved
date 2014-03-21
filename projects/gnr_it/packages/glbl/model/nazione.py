@@ -260,3 +260,29 @@ ZIMBABWE                                        ZW      ZWE     716
                           'code3': d[56:59],
                           'nmbr': d[64:67]}
                 self.insertOrUpdate(record)
+
+    def populateUic(self):
+        import os
+        actual_nations=self.query(forUpdate=True, addPkeyColumn=False).fetchAsDict()
+        with open(os.path.join(self.db.application.packages['glbl'].libPath,'uic.csv')) as file_uic:
+            uic_content=file_uic.read()
+            uic_content=uic_content.replace('\r','\n').replace('\n\n','\n')
+            lines = uic_content.split('\n')
+            for line in lines:
+                uic, code, name = line.split(',',3)
+                print code,'-',len(code)
+                record_to_update = actual_nations.get(code,{'code':code,'name':name})
+                record_to_update['nmbrunico'] = uic
+                self.insertOrUpdate(record_to_update)
+        
+
+
+
+
+if __name__ == '__main__':
+    from gnr.app.gnrapp import GnrApp
+    db = GnrApp('anagrafica').db
+    db.table('glbl.nazione').populateUic()
+    db.commit()
+    print 'OK'
+
