@@ -606,6 +606,7 @@ class BagToHtml(object):
                                   line-height:auto;
                                   line-height:3mm;
                                   height:3mm;""")
+
                                   
         self.body.style("""
                         .extrasmall {font-size:6pt;text-align:left;line-height:3mm;}
@@ -614,11 +615,11 @@ class BagToHtml(object):
                                                 
                         .aligned_right{
                             text-align:right;
-                            margin-right:1mm;
+                            margin-right:1.5mm;
                         }
                         .aligned_left{
                             text-align:left;
-                            margin-left:1mm;
+                            margin-left:1.5mm;
                         }
                         .aligned_center{
                             text-align:center;
