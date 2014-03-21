@@ -13,7 +13,7 @@ class Form(BaseComponent):
         fb.field('codice_istat',width='7em')
         fb.field('zona')
         bc.contentPane(region='center').inlineTableHandler(relation='@province',region='center',
-                                                          viewResource='ViewFromRegione',pbl_classes=True)
+                                                          viewResource='ViewFromRegione',pbl_classes=True,margin='2px')
                                                                 
 class View(BaseComponent):
     def th_struct(self,struct):
