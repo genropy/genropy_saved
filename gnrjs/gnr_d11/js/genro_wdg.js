@@ -50,6 +50,9 @@ function inlineWidget(evt){
     if('related_table' in colattr){
         colattr['tag'] = 'dbselect';
         colattr['dbtable'] = colattr['related_table'];
+        if(colattr['related_table_lookup'] && !'hasDownArrow' in colattr){
+            colattr['hasDownArrow'] = true;
+        }
     }if('values' in colattr){
         colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
     }
@@ -862,6 +865,9 @@ dojo.declare("gnr.GridEditor", null, {
             if('related_table' in colattr){
                 colattr['tag'] = 'dbselect';
                 colattr['dbtable'] = colattr['related_table'];
+                if(colattr['related_table_lookup']){
+                    colattr['hasDownArrow'] = true;
+                }
             }if('values' in colattr){
                 colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
             }

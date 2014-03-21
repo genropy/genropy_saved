@@ -58,6 +58,7 @@ def cellFromField(field,tableobj):
         if columnjoiner:
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname
+            kwargs['related_table_lookup'] = relatedTable.attributes.get('lookup')
             if len(relfldlst) == 1:
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
@@ -1612,6 +1613,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
+            isLookup = lnktblobj.attributes.get('lookup') or False
             joiner = fieldobj.relatedColumnJoiner()
             onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
@@ -1640,7 +1642,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         zoomKw.setdefault('formOnly',False)
                         result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
-                        result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
+                        result['lbl__zoomKw_lookup'] = isLookup
                         result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
                         result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
@@ -1659,6 +1661,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['method'] = 'app.dbSelect'
             result['size'] = size
             result['_guess_width'] = '%iem' % (int(size * .7) + 2)
+            result.setdefault('hasDownArrow',isLookup)
             if(onerelfld != relcol.table.pkey):
                 result['alternatePkey'] = onerelfld
         #elif attr.get('mode')=='M':

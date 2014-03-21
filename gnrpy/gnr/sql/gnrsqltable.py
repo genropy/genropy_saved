@@ -257,7 +257,8 @@ class SqlTable(GnrObject):
         :param column: the column to print"""
         if column.dtype in ['A', 'C', 'T', 'X', 'P']:
             size = column.attributes.get('size', None)
-            if not size:
+            values =  column.attributes.get('values', None)
+            if values or not size:
                 if column.dtype == 'T':
                     result = 20
                 else:
