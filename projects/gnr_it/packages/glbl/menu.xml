@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glbl label="!!Geo Italia" tags='admin'>
+    <nazione label='!!Nazione' table='glbl.nazione' />
+    <regione label='!!Regione' table='glbl.regione' />
+    <provincia label='!!Provincia' table='glbl.provincia' />
+    <comune label='!!Comune' table='glbl.comune' />
+    <nuts label='!!Nuts' table='glbl.nuts' />
+</glbl>

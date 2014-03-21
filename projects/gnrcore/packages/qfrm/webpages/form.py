@@ -96,7 +96,7 @@ class GnrCustomWebPage(object):
         return 'label'
 
     def queryBase(self):
-        return dict(column='label', op='contains', val='%', runOnStart=True)
+        return dict(column='label', op='contains', val='', runOnStart=True)
 
     #-------------- BEGIN SECTION --------------------
 

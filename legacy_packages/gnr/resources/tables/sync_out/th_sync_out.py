@@ -19,7 +19,7 @@ class View(BaseComponent):
         return 'transaction_id'
 
     def th_query(self):
-        return dict(column='transaction_id', op='contains', val='%')
+        return dict(column='transaction_id', op='contains', val='')
 
 
 

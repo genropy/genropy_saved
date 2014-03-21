@@ -12,7 +12,6 @@ class Table(object):
         tbl.column('codice_comune',name_long='!!Codice Comune')
         tbl.column('denominazione',name_long='!!Denominazione')
         tbl.column('denominazione_tedesca',name_long='!!Denominazione tedesca')
-
         tbl.column('capoluogo','B',name_long='!!Capoluogo')
         tbl.column('zona_altimetrica','I',name_long='!!Zona altimetrica')
         tbl.column('altitudine','I',name_long='!!Altitudine (m)')

@@ -26,7 +26,7 @@ class View(BaseComponent):
         return 'account_name'
 
     def th_query(self):
-        return dict(column='account_name',op='contains', val='%',runOnStart=False)
+        return dict(column='account_name',op='contains', val='',runOnStart=False)
 
     def th_dialog(self):
         return dict(height='400px',width='600px')

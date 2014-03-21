@@ -18,7 +18,7 @@ class View(BaseComponent):
         return 'description'
 
     def th_query(self):
-        return dict(column='description', op='contains', val='%')
+        return dict(column='description', op='contains', val='')
 
 
 

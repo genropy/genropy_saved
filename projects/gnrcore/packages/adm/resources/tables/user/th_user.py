@@ -20,7 +20,7 @@ class View(BaseComponent):
         return 'username'
         
     def th_query(self):
-        return dict(column='username',op='contains', val='%')
+        return dict(column='username',op='contains', val='')
 
 class Form(BaseComponent):
     def prova(self,pane):

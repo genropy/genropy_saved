@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):
         """MONITOR BUILDER"""
-        tc, top, bottom = self.pbl_rootTabContainer(root, title='Monitor', datapath='monitor')
+        tc = root.rootTabContainer(title='Monitor', datapath='monitor')
         for pkg in self.db.packages.values():
             auth = True
             permmissioncb = getattr(self, 'permission_%s' % pkg.name, None)

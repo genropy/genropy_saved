@@ -1,9 +1,12 @@
-<adm label="!!Administration" tags='_DEV_'>
+<?xml version="1.0" encoding="UTF-8"?>
+<adm label="!!Administration" tags='admin'>
     <users label="!!Users" file='/adm/user_page' />
     <tags label="!!Auth tags" table='adm.htag' />
-    <letterhead_type label=u"!!Letterhead type" table="adm.letterhead_type"/>
-    <letterhead label=u"!!Letterhead" table="adm.htmltemplate"/>
-    <datacatalog label=u"!!Datacatalog" file='/adm/datacatalog'/>
+    <letterhead label=u"!!Letterheads" table="adm.htmltemplate"/>
+    <notifications label=u"!!Notifications" table="adm.notification"/>
+
     <menu_manager label=u"!!Menu Manager" table="adm.menu"/>
     <menu_pages label=u"!!Menu Pages" table="adm.menu_page"/>
+    <datacatalog label=u"!!Datacatalog" table="adm.datacatalog"/>
+    <utility label=u"!!Utility tables" lookup_manager='adm'/>
 </adm>

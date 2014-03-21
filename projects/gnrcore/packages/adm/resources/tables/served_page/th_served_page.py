@@ -19,7 +19,7 @@ class View(BaseComponent):
         return 'page_id'
 
     def th_query(self):
-        return dict(column='page_id', op='contains', val='%')
+        return dict(column='page_id', op='contains', val='')
 
 
 

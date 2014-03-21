@@ -23,7 +23,7 @@ class View(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='objtype', op='contains', val='%')
+        return dict(column='objtype', op='contains', val='')
 
 
 class Form(BaseComponent):
@@ -60,7 +60,7 @@ class ViewCustomColumn(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='objtype', op='contains', val='%')
+        return dict(column='objtype', op='contains', val='')
 
     def th_condition(self):
         return dict(condition='$tbl=:curr_tbl AND $objtype=:ot',condition_ot='formulacolumn',condition_curr_tbl='=current.tbl')

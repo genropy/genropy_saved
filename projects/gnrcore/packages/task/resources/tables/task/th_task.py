@@ -24,7 +24,7 @@ class View(BaseComponent):
         return 'task_name'
         
     def th_query(self):
-        return dict(column='task_name',op='contains', val='%',runOnStart=True)
+        return dict(column='task_name',op='contains', val='',runOnStart=True)
 
     def th_options(self):
         return dict(widget='dialog')

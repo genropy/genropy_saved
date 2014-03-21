@@ -20,6 +20,5 @@ class Table(object):
             
         tbl.column('nuts',name_long='!!NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise')
 
-        tbl.formulaColumn('nome_completo',"$sigla || ' ' || $nome")
 
 

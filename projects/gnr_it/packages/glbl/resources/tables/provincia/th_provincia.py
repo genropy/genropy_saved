@@ -9,14 +9,14 @@ class Form(BaseComponent):
 
     def th_form(self,form,**kwargs):
         pane = form.record
-        fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
+        fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='5px')
         fb.field('nome', width='20em')
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('regione')
         
     def th_dialog(self):
-        return dict(height='300px',width='500px')
+        return dict(height='180px',width='250px')
 
 class View(BaseComponent):
     def th_struct(self,struct):
@@ -41,31 +41,22 @@ class View(BaseComponent):
                 ]
                 
     def th_top_custom(self,top):
-        top.bar.replaceSlots('searchOn,','sections@zone,5,searchOn,')
-#
+        top.bar.replaceSlots('searchOn','searchOn,sections@zone')
+
     def th_options(self):
-        return dict(virtualStore=False,widget='dialog')
+        return dict(virtualStore=False)
         
 
-class EditableView(View):    
+class ViewFromRegione(BaseComponent):    
     def th_struct(self,struct):
         r = struct.view().rows()
-        #r.fieldcell('regione',edit=dict(selected_nome='.nome',tag='dbselect',dbtable='glbl.regione'))
-        #r.fieldcell('@regione.nome')
-        r.fieldcell('nome', width='20em',edit=True,name='Nome')
         r.fieldcell('sigla',width='3em',edit=True)
+        r.fieldcell('nome', width='20em',edit=True,name='Nome')
         r.fieldcell('codice_istat',width='7em',sortable=False,edit=True)
         
     def th_order(self):
         return 'nome'
-       #
-       #r.cell('pippo',calculated=True,formula='zona + "-" + nome+ "-" +codice_istat',
-       #        formula_zona='^#FORM.record.zona',hidden='^piero',edit=True)
-       #
-       #r.fieldcell('regione',width='8em',name='Regione',edit=dict(condition='$zona=:miazona',hasDownArrow=True,
-       #                                                            condition_miazona='^.miazonaregione'))
-        #r.cell('provaattr',calculated=True,formula='v',formula_v='^.sigla')
-        #r.fieldcell('@regione.zona',width='5em',name='Zona')
-        #r.fieldcell('regione_nome',width='8em')
+
+
         
 

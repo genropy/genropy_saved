@@ -16,7 +16,7 @@ class ViewFromUser(BaseComponent):
         return 'tag_id'
         
    # def th_query(self):
-   #     return dict(column='tag_code',op='contains', val='%')
+   #     return dict(column='tag_code',op='contains', val='')
    #     
 class ViewFromTag(BaseComponent):
     def th_struct(self,struct):
@@ -29,4 +29,4 @@ class ViewFromTag(BaseComponent):
         return 'user'
         
    #def th_query(self):
-   #    return dict(column='user',op='contains', val='%')
+   #    return dict(column='user',op='contains', val='')

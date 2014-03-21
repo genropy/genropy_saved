@@ -22,7 +22,7 @@ class View(BaseComponent):
         return 'description'
 
     def th_query(self):
-        return dict(column='description', op='contains', val='%')
+        return dict(column='description', op='contains', val='')
 
     def th_bottom_custom(self,bar):
         bar.slotToolbar('sections@error_type,*')
