@@ -1262,6 +1262,10 @@ dojo.declare("gnr.GridEditor", null, {
         }
         var rowLabel = rowDataNode.label;
         var cellNode = cell.getNode(row);
+        if(!cellNode){
+            grid.scrollToRow(row);
+            cellNode = cell.getNode(row);
+        }
 
         var attr = objectUpdate({}, fldDict.attr);
         attr.datapath = '.' + rowLabel;
