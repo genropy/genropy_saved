@@ -48,25 +48,34 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
         self.mode = mode or 'dict'
         self.kwargs = kwargs
         self.raw = raw
+        self.insertMissing = insertMissing
+        self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,**self.kwargs).output(self.mode)
-        self.oldrecord = dict(self.record)
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,**self.kwargs).output(self.mode)
+        self.insertMode = self.record.get(self.tblobj.pkey) is None
+        self.oldrecord = None if self.insertMode else dict(self.record)
         return self.record
         
         
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
             if self.raw:
-                self.tblobj.raw_update(self.record,self.oldrecord)
+                if self.insertMode:
+                    self.tblobj.raw_insert(self.record)
+                else:
+                    self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                self.tblobj.update(self.record,self.oldrecord)
+                if self.insertMode:
+                    self.tblobj.insert(self.record)
+                else:
+                    self.tblobj.update(self.record,self.oldrecord)
         
 
 class GnrSqlSaveException(GnrSqlException):
