@@ -70,6 +70,7 @@ class Table(object):
                 i = cnt
                 holes.setItem(str(i),None, **h)
             prevcnt = cnt
+            
         with self.recordToUpdate(codekey=counter_key,insertMissing=True) as record:
             record['codekey'] = counter_key
             record['counter'] = cnt
@@ -84,9 +85,9 @@ class Table(object):
 
 
     def getSequenceLimits(self,format=None,code=None,**kwargs):
-        format = format.replace('$YY','YY')
-        format = format.replace('$MM','MM')
-        format = format.replace('$DD','DD')
+        format = format.replace('$Y','Y')
+        format = format.replace('$M','M')
+        format = format.replace('$D','D')
         format = format.replace('$K','K'*len(code))
         s = re.search("(\\$N+)", format)
         if not s:
