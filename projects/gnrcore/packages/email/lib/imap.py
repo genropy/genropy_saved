@@ -63,8 +63,6 @@ class ImapReceiver(object):
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
-            if self.messages_table.spamChecker(msgrec) is True:
-                continue
             self.messages_table.insert(msgrec)
 
         self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
@@ -183,7 +181,6 @@ class ImapReceiver(object):
         email_body = data[0][1]
         mail = email.message_from_string(email_body)
         #mail = email.message_from_string(unicode(email_body.decode(encoding).encode('utf8')))
-
         onCreatingCallbacs = [fname for fname in dir(self.messages_table) if fname.startswith('onCreatingMessage_')]
         if onCreatingCallbacs:
             make_message = False
@@ -198,6 +195,8 @@ class ImapReceiver(object):
                 b[k] = self.smartConverter(v,encoding)
         new_mail['email_bag'] = b
         self.fillHeaders(mail, new_mail,encoding)
+        if self.messages_table.spamChecker(new_mail) is True:
+            return
         if mail.get_content_maintype() not in ('multipart','image'):
             content = mail.get_payload(decode=True)
             encoding = mail.get_content_charset()
