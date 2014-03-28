@@ -465,7 +465,7 @@ class SqlTable(GnrObject):
         :param resolver_many: TODO"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
-            newrecord[self.pkey] = self.newPkeyValue()
+            newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
         
     def record(self, pkey=None, where=None,
@@ -646,7 +646,8 @@ class SqlTable(GnrObject):
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
-              addPkeyColumn=True,ignorePartition=False, locale=None,
+              addPkeyColumn=True,
+              ignoreTableOrderBy=False,ignorePartition=False, locale=None,
               mode=None,_storename=None,aliasPrefix=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
@@ -674,18 +675,14 @@ class SqlTable(GnrObject):
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
-        if not aliasPrefix:
-            table_order_by =  self.attributes.get('order_by')
-            if table_order_by and table_order_by[0] not in '$@':
-                table_order_by = '$'+table_order_by
-            order_by = order_by or table_order_by
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
                          ignorePartition=ignorePartition,
-                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
+                         addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
+                        locale=locale,_storename=_storename,
                          aliasPrefix=aliasPrefix,**kwargs)
         return query
 
@@ -862,8 +859,11 @@ class SqlTable(GnrObject):
         newkey = False
         if pkeyValue in (None, ''):
             newkey = True
-            record[self.pkey] = self.newPkeyValue()
+            record[self.pkey] = self.newPkeyValue(record=record)
         return newkey
+
+    def pkeyValue(self,record):
+        pass
         
     def empty(self):
         """TODO"""
@@ -1186,13 +1186,15 @@ class SqlTable(GnrObject):
                 trgFunc(record, **kwargs)
 
 
-    def newPkeyValue(self):
+    def newPkeyValue(self,record=None):
         """Get a new unique id to use as :ref:`primary key <pkey>`
         on the current :ref:`database table <table>`"""
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
             return lastid[0] + 1
+        elif self.attributes.get('pkey_columns'):
+            return '_'.join([record.get(col) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             

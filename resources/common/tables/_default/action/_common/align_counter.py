@@ -26,7 +26,7 @@ class Main(BaseResourceAction):
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
-        bc = pane.borderContainer(height='200px')
+        bc = pane.borderContainer(height='300px',width='400px')
         tblobj = self.db.table(table)
         countertable = self.db.table('adm.counter')
         fb = bc.contentPane(region='top',height='40px').formbuilder(cols=1,border_spacing='3px')
@@ -35,10 +35,10 @@ class Main(BaseResourceAction):
             fb.div('!!This table has no counter field')
             return
         fb.div('!!Align counter for all records')
-        tc = bc.tabContainer(region='center')
+        tc = bc.tabContainer(region='center',margin='2px')
         for f in counter_fields:
             dc = countertable.getFieldSequences(tblobj,field=f)
             pane = tc.contentPane(title=f,datapath='.counterfields.%s' %f,overflow='auto',padding='10px')
-            pane.checkboxText(value='^.to_align',lbl='Sq. to aling',values=','.join(['%s,/' %r['dc'] for r in dc]))
+            pane.checkboxText(value='^.to_align',lbl='Sq. to aling',values=','.join(sorted([r['dc'] for r in dc])),cols=4,table_border_spacing='8px')
 
 

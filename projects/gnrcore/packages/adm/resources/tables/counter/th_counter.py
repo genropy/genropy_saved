@@ -36,11 +36,13 @@ class Form(BaseComponent):
         fb.field('fld')
         fb.field('counter')
         fb.field('last_used')
+        fb.button('Align',fire='#FORM.alignCounter')
         tc = bc.tabContainer(region='center',margin='2px')
         tc.contentPane(title='Holes').bagGrid(storepath='#FORM.record.holes',struct=self.holesStruct,
                         pbl_classes=True,title='Holes', margin='2px',addrow=False,delrow=False)
         tc.contentPane(title='Duplicates')
         tc.contentPane(title='Wrong order')
+        bc.dataRpc('dummy',self.db.table('adm.counter').alignCounter,pkey='=#FORM.record.codekey',_fired='^#FORM.alignCounter',_lockScreen=True,_onResult='this.form.reload();')
 
     def holesStruct(self,struct):
         r = struct.view().rows()
