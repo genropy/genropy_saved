@@ -24,7 +24,7 @@ __version__ = '1.0b'
 
 from gnr.core.gnrlang import GnrException
 
-class GnrSqlException(GnrException):
+class GnrSqlException(GnrException): #CHECK THERE IS ANOTHER CLASS WITH THE SAME NAME INSIDE GNRSQL 
     """Exceptions raised for sql errors
         
     :param code: error code

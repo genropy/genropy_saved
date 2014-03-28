@@ -259,7 +259,7 @@ class SqlTable(GnrObject):
         result['path'] = kw[result['field']]
         result['table'] = self.column(result['field']).relatedColumn().table.fullname
         return result
-        
+
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
         
@@ -367,6 +367,9 @@ class SqlTable(GnrObject):
         """Return a bag of relations that point to the current table"""
         return self.model.relations_many
         
+    def counterColumns(self):
+        return
+
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         
@@ -861,9 +864,6 @@ class SqlTable(GnrObject):
             newkey = True
             record[self.pkey] = self.newPkeyValue(record=record)
         return newkey
-
-    def pkeyValue(self,record):
-        pass
         
     def empty(self):
         """TODO"""
@@ -1189,6 +1189,10 @@ class SqlTable(GnrObject):
     def newPkeyValue(self,record=None):
         """Get a new unique id to use as :ref:`primary key <pkey>`
         on the current :ref:`database table <table>`"""
+        return self.pkeyValue(record=record)
+
+
+    def pkeyValue(self,record=None):
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
@@ -1305,6 +1309,15 @@ class SqlTable(GnrObject):
         print 'You should override for diagnostic'
         return
 
+
+    def trigger_assignCounters(self,record=None,old_record=None):
+        "Inside dbo. You can override"
+        pass
+
+    def trigger_releaseCounters(self,record=None):
+        "Inside dbo"
+        pass
+
     def _isReadOnly(self,record):
         if self.attributes.get('readOnly'):
             return True
@@ -1324,6 +1337,11 @@ class SqlTable(GnrObject):
     def islocked_delete(self,record):
         #OVERRIDE THIS
         pass
+
+    def isDraft(self,record):
+        if self.draftField:
+            return record[self.draftField]
+        return False
 
 
     def check_updatable(self, record,ignoreReadOnly=None):

@@ -660,6 +660,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     loaded: function(data) {
         var controllerData = this.getControllerData();
+        var that = this;
+
         controllerData.setItem('temp',null);
         if(data){
             this.setFormData(data);
@@ -671,7 +673,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
         genro.dom.setClass(this.sourceNode,'form_draft',this.isDraft());
-
         this.protect_delete = this.isProtectDelete();
         genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
 
@@ -683,11 +684,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        var that = this;
         setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
+        var onLoadingError = this.onLoadingError();
+        if(onLoadingError){
+            genro.dlg.alert(onLoadingError,'Error',null,null, { confirmCb:function(){
+                that.abort();
+            } });
+            return;
+        }
         if(this.store){
             //if(this.status=='readOnly'){
             //    this.setLocked(true);
@@ -1052,6 +1059,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isNewRecord:function(){
         return this.getDataNodeAttributes()._newrecord;
     },
+
+    onLoadingError:function(){
+        return this.getDataNodeAttributes()._onLoadingError;
+    },
+
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
         var protect_write = this.getDataNodeAttributes()._protect_write;

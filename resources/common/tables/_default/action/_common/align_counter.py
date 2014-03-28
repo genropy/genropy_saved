@@ -21,7 +21,7 @@ class Main(BaseResourceAction):
         for k,v in counterfields.items():
             to_align = v['to_align']
             if to_align:
-                self.db.table('adm.counter').alignSequences(self.tblobj,field=k,to_align=to_align)
+                self.db.table('adm.counter').alignSequences(self.tblobj,field=k,to_align=to_align,thermo_wrapper=self.btc.thermo_wrapper)
 
         self.db.commit()
 
@@ -30,7 +30,7 @@ class Main(BaseResourceAction):
         tblobj = self.db.table(table)
         countertable = self.db.table('adm.counter')
         fb = bc.contentPane(region='top',height='40px').formbuilder(cols=1,border_spacing='3px')
-        counter_fields = [k[8:] for k in dir(tblobj) if k.startswith('counter_')]
+        counter_fields = tblobj.counterColumns()
         if not counter_fields:
             fb.div('!!This table has no counter field')
             return
