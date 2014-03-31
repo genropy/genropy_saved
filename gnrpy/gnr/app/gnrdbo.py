@@ -692,7 +692,12 @@ class TableBase(object):
         for field in self.counterColumns():
             pars = getattr(self,'counter_%s' %field)()
             if pars.get('showOnLoad'):
-                newrecord.setItem(field,None,wdg_placeholder=self.db.table('adm.counter').getSequence(tblobj=self,field=field,record=newrecord))
+                sequence,sequenceInfo = self.db.table('adm.counter').guessNextSequence(tblobj=self,field=field,record=newrecord)
+                kw = dict(promised=True,wdg_color='green',wdg_tip='!!%s promised value' %field)
+                if sequenceInfo.get('recycled'):
+                    kw['wdg_color'] = 'darkblue'
+                    kw['wdg_tip'] = '!!%s promised value (recycled)' %field
+                newrecord.setItem(field,sequence,**kw)
 
 
 class GnrDboTable(TableBase):

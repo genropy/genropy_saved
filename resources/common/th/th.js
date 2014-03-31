@@ -68,6 +68,7 @@ var th_usersettings = function(th){
     dlg.show_action()
 };
 
+
 var th_sections_manager = {
     onCalling:function(sections,kwargs){
         var currentSections = [];

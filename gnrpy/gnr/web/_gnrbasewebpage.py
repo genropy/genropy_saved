@@ -481,6 +481,11 @@ class GnrBaseWebPage(GnrObject):
         node = data.getNode('record')
         recordCluster = node.value
         recordClusterAttr = node.getAttr()
+        promisedFields = dict()
+        if recordClusterAttr.get('_newrecord'):
+            for k, promised in recordCluster.digest('#k,#a.promised'):
+                if promised:
+                    promisedFields[k] = recordCluster.pop(k)
         onSavedKwargs = dict()
         if onSavingHandler:
             onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
@@ -500,6 +505,14 @@ class GnrBaseWebPage(GnrObject):
                                 if v == '*newrecord*':
                                     row[k] = fkey
                 self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
+        if promisedFields:
+            msg = []
+            for f in promisedFields:
+                if promisedFields[f]!=record[f]:
+                    msg.append('%s: %s instead of %s' %(f,record[f],promisedFields[f]))
+            if msg:
+                resultAttr['saved_message'] = '!!Saved record: %s' %'<br/>'.join(msg)
+                resultAttr['saved_messageType'] = 'warning'
         if onSavedHandler:
             onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
         if not _nocommit:

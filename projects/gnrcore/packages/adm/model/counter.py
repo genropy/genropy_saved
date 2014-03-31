@@ -172,8 +172,13 @@ class Table(object):
             return
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
 
+    def guessNextSequence(self,tblobj=None,field=None,record=None):
+        counter,counterInfo = self.getCounter(tblobj=tblobj,field=field,record=record,update=False)
+        sequence = self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter)
+        return sequence,counterInfo
+
     def getSequence(self,tblobj=None,field=None,record=None,update=False):
-        counter = self.getCounter(tblobj=tblobj,field=field,record=record,update=update)
+        counter,counterInfo = self.getCounter(tblobj=tblobj,field=field,record=record,update=update)
         return self.formatSequence(tblobj=tblobj,field=field,record=record,counter=counter)
 
     def formatSequence(self,tblobj=None,field=None,record=None,counter=None):
@@ -196,6 +201,7 @@ class Table(object):
         return output
 
     def getCounter(self,tblobj=None,field=None,record=None,update=False):
+        counterInfo = dict()
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         date_field = counter_pars.get('date_field')
@@ -219,6 +225,7 @@ class Table(object):
                         holes.pop(hole_key)
                     else:
                         holes.setAttr(hole_key,dict(cnt_from=cnt_from,date_from=date_from))
+                    counterInfo.update(recycled=True,cnt=counter)
                     break
         if counter is None:
             counter = (counter_record['counter'] or 0) + 1
@@ -232,7 +239,8 @@ class Table(object):
                 self.update(counter_record,oldrec)
             else:
                 self.insert(counter_record)
-        return counter
+            counterInfo['codekey'] = counter_record['codekey']
+        return counter,counterInfo
 
     def releaseCounter(self,tblobj=None,field=None,record=None):
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)

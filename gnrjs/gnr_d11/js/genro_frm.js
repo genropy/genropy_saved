@@ -1004,7 +1004,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         if(!this.autoSave){
-            this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+            var savedAttr = result.savedAttr;
+            this.publish('message',{message:savedAttr.saved_message || this.msg_saved,sound:'$onsaved',messageType:savedAttr.saved_messageType});
         }
         return result;
 
@@ -1172,6 +1173,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
+                    if(node.attr.promised){
+                        attr_dict.promised = node.attr.promised;
+                    }
                     if ('_loadedValue' in node.attr) {
                         attr_dict.oldValue = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
                         data.__isRealChange = true;
