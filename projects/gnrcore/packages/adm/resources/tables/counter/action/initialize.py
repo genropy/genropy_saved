@@ -44,7 +44,6 @@ class Main(BaseResourceAction):
             for t in pkg['tables'].values():
                 t = t.dbtable
                 if t.counterColumns():
-                    print t.name,t.counterColumns()
                     pkgtables.setItem(t.name,Bag(code=t.fullname,description=t.name_long))
             if pkgtables:
                 tables.setItem(pkg.name,pkgtables)
