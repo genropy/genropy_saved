@@ -153,10 +153,19 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var message = objectPop(kw,'message');
         var msgType = objectPop(kw,'messageType') || 'message';
         var transition = 'opacity '+duration_in+'s';
+        var onClosedCb = objectPop(kw,'onClosedCb');
+        if (onClosedCb){
+            onClosedCb = funcCreate(onClosedCb,null,sourceNode)
+        }
         var messageBox = sourceNode._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
         kw.innerHTML = message;
         messageBox._('div',kw);
-        var deleteCb = function(){that._value.popNode('_floatingmess')};
+        var deleteCb = function(){
+                                    that._value.popNode('_floatingmess');
+                                    if(onClosedCb){
+                                        onClosedCb();
+                                    }
+                                 };
         messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
         genro.dom.centerOn(messageBox,sourceNode,xRatio,yRatio);
         var that = sourceNode;

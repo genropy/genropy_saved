@@ -7,7 +7,7 @@ dojo.declare("gnr.QueryManager", null, {
         this.th_root = this.th.th_root;
         this.frameNode = genro.getFrameNode(this.th_root);
         this.wherepath = this.sourceNode.absDatapath('.query.where');
-        this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
+        this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha','X':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};

@@ -419,6 +419,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
         tblobj._doExternalPkgTriggers('onInserting', record)
+        tblobj.trigger_assignCounters(record=record)
         if hasattr(tblobj,'dbo_onInserting'):
             tblobj.dbo_onInserting(record,**kwargs)
         if tblobj.draftField:
@@ -428,6 +429,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
+
         
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
@@ -453,6 +455,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onUpdating', record, old_record=old_record)
         if hasattr(tblobj,'dbo_onUpdating'):
             tblobj.dbo_onUpdating(record,old_record=old_record,pkey=pkey,**kwargs)
+        tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
@@ -474,7 +477,8 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)
-        
+        tblobj.trigger_releaseCounters(record)
+
     def commit(self):
         """Commit a transaction"""
         self.onCommitting()

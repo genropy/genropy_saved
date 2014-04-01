@@ -215,10 +215,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     message:function(kw){
-        kw['duration_in'] = 3;
-        kw['duration_out'] = 4;
-        kw['yRatio'] = .8;
-        genro.dlg.floatingMessage(this.sourceNode,kw);
+        if (!(kw instanceof Array)){
+            kw = [kw]
+        }
+        var msgKw = kw.shift();
+        if(typeof(msgKw)=='string'){
+            msgKw = {message:msgKw};
+        }
+        var that = this;
+        if(kw.length){
+            msgKw.onClosedCb = function(){
+                that.message(kw)
+            }
+        }
+        msgKw = objectUpdate({duration_in:3,duration_out:4,yRatio:.8},msgKw);
+        genro.dlg.floatingMessage(this.sourceNode,msgKw);
     },
 
     subscribe: function(command,cb,scope,subscriberNode){
@@ -660,6 +671,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     loaded: function(data) {
         var controllerData = this.getControllerData();
+        var that = this;
+
         controllerData.setItem('temp',null);
         if(data){
             this.setFormData(data);
@@ -671,7 +684,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
         genro.dom.setClass(this.sourceNode,'form_draft',this.isDraft());
-
         this.protect_delete = this.isProtectDelete();
         genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
 
@@ -683,11 +695,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        var that = this;
         setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
+        var onLoadingError = this.onLoadingError();
+        if(onLoadingError){
+            genro.dlg.alert(onLoadingError,'Error',null,null, { confirmCb:function(){
+                that.abort();
+            } });
+            return;
+        }else{
+            this.handleLoadedMessage();
+        }
         if(this.store){
             //if(this.status=='readOnly'){
             //    this.setLocked(true);
@@ -997,7 +1017,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         if(!this.autoSave){
-            this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+            var savedAttr = result.savedAttr;
+            this.publish('message',savedAttr.saved_message || {message:this.msg_saved,sound:'$onsaved'});
         }
         return result;
 
@@ -1052,6 +1073,18 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isNewRecord:function(){
         return this.getDataNodeAttributes()._newrecord;
     },
+
+    onLoadingError:function(){
+        return this.getDataNodeAttributes()._onLoadingError;
+    },
+
+    handleLoadedMessage:function(){
+        var loadedMessage = this.getDataNodeAttributes().loaded_message;
+        if(loadedMessage){
+            this.message(loadedMessage);
+        }
+    },
+
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
         var protect_write = this.getDataNodeAttributes()._protect_write;
@@ -1160,6 +1193,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
+                    if(node.attr.promised){
+                        attr_dict.promised = node.attr.promised;
+                    }
                     if ('_loadedValue' in node.attr) {
                         attr_dict.oldValue = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
                         data.__isRealChange = true;

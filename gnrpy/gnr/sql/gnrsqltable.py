@@ -48,25 +48,34 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
         self.mode = mode or 'dict'
         self.kwargs = kwargs
         self.raw = raw
+        self.insertMissing = insertMissing
+        self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,**self.kwargs).output(self.mode)
-        self.oldrecord = dict(self.record)
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,**self.kwargs).output(self.mode)
+        self.insertMode = self.record.get(self.tblobj.pkey) is None
+        self.oldrecord = None if self.insertMode else dict(self.record)
         return self.record
         
         
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
             if self.raw:
-                self.tblobj.raw_update(self.record,self.oldrecord)
+                if self.insertMode:
+                    self.tblobj.raw_insert(self.record)
+                else:
+                    self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                self.tblobj.update(self.record,self.oldrecord)
+                if self.insertMode:
+                    self.tblobj.insert(self.record)
+                else:
+                    self.tblobj.update(self.record,self.oldrecord)
         
 
 class GnrSqlSaveException(GnrSqlException):
@@ -250,7 +259,7 @@ class SqlTable(GnrObject):
         result['path'] = kw[result['field']]
         result['table'] = self.column(result['field']).relatedColumn().table.fullname
         return result
-        
+
     def getColumnPrintWidth(self, column):
         """Allow to find the correct width for printing and return it
         
@@ -358,6 +367,9 @@ class SqlTable(GnrObject):
         """Return a bag of relations that point to the current table"""
         return self.model.relations_many
         
+    def counterColumns(self):
+        return
+
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         
@@ -456,7 +468,7 @@ class SqlTable(GnrObject):
         :param resolver_many: TODO"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
-            newrecord[self.pkey] = self.newPkeyValue()
+            newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
         
     def record(self, pkey=None, where=None,
@@ -637,7 +649,8 @@ class SqlTable(GnrObject):
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
-              addPkeyColumn=True,ignorePartition=False, locale=None,
+              addPkeyColumn=True,
+              ignoreTableOrderBy=False,ignorePartition=False, locale=None,
               mode=None,_storename=None,aliasPrefix=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
@@ -665,18 +678,14 @@ class SqlTable(GnrObject):
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
-        if not aliasPrefix:
-            table_order_by =  self.attributes.get('order_by')
-            if table_order_by and table_order_by[0] not in '$@':
-                table_order_by = '$'+table_order_by
-            order_by = order_by or table_order_by
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
                          ignorePartition=ignorePartition,
-                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
+                         addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
+                        locale=locale,_storename=_storename,
                          aliasPrefix=aliasPrefix,**kwargs)
         return query
 
@@ -853,7 +862,7 @@ class SqlTable(GnrObject):
         newkey = False
         if pkeyValue in (None, ''):
             newkey = True
-            record[self.pkey] = self.newPkeyValue()
+            record[self.pkey] = self.newPkeyValue(record=record)
         return newkey
         
     def empty(self):
@@ -1177,13 +1186,19 @@ class SqlTable(GnrObject):
                 trgFunc(record, **kwargs)
 
 
-    def newPkeyValue(self):
+    def newPkeyValue(self,record=None):
         """Get a new unique id to use as :ref:`primary key <pkey>`
         on the current :ref:`database table <table>`"""
+        return self.pkeyValue(record=record)
+
+
+    def pkeyValue(self,record=None):
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
             return lastid[0] + 1
+        elif self.attributes.get('pkey_columns'):
+            return '_'.join([record.get(col) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:
             return getUuid()
             
@@ -1294,6 +1309,15 @@ class SqlTable(GnrObject):
         print 'You should override for diagnostic'
         return
 
+
+    def trigger_assignCounters(self,record=None,old_record=None):
+        "Inside dbo. You can override"
+        pass
+
+    def trigger_releaseCounters(self,record=None):
+        "Inside dbo"
+        pass
+
     def _isReadOnly(self,record):
         if self.attributes.get('readOnly'):
             return True
@@ -1313,6 +1337,11 @@ class SqlTable(GnrObject):
     def islocked_delete(self,record):
         #OVERRIDE THIS
         pass
+
+    def isDraft(self,record):
+        if self.draftField:
+            return record[self.draftField]
+        return False
 
 
     def check_updatable(self, record,ignoreReadOnly=None):

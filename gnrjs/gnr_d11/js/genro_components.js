@@ -1980,7 +1980,16 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var that = this;
         tblNode.attr._textvaluepath = value.replace('^','');
         
-        tblNode.attr.action = function(){that.onCheckboxCheck(tblNode,separator);};
+        tblNode.attr.action = function(attr,cbNode,e){
+            if(e.shiftKey && attr.tag.toLowerCase()=='checkbox'){
+                tblNode._value.walk(function(n){
+                    if(n.attr.tag=='checkbox'){
+                        n.widget.setAttribute('checked',cbNode.widget.checked);
+                    }
+                });
+            }
+            that.onCheckboxCheck(tblNode,separator);
+        };
 
         var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
                                     textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();

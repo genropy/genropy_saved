@@ -45,6 +45,7 @@ from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fr
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveException, GnrSqlDeleteException
+from gnr.sql.gnrsql import GnrSqlException
 
 
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
@@ -1224,6 +1225,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['table'] = dbtable
         _eager_record_stack = _eager_record_stack or []
         self._handleEagerRelations(record,_eager_level,_eager_record_stack=_eager_record_stack)
+        if newrecord and tblobj.counterColumns():
+            try:
+                tblobj._sequencesOnLoading(record,recInfo)
+            except GnrSqlException, e:
+                recInfo['_onLoadingError'] = str(e)
         return (record, recInfo)
         
     def _handleEagerRelations(self,record,_eager_level,_eager_record_stack=None):

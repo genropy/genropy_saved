@@ -280,7 +280,7 @@ class TableBase(object):
         tbl.column('df_colswith',group='_')
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
-        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
+        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
 
 
@@ -340,7 +340,9 @@ class TableBase(object):
                     new_row['_h_count'] = '%s%s' %(new_row['_parent_h_count'] or '',encode36(new_row['_row_count'],2))
                 self.update(new_row, row)
 
-    def trigger_setCounter(self,record,fldname,**kwargs):
+
+    def trigger_setRowCounter(self,record,fldname,**kwargs):
+        """field trigger used for manage rowCounter field"""
         if record.get(fldname) is not None:
             return
         counter_fkey = self.column(fldname).attributes.get('_counter_fkey')
@@ -671,6 +673,40 @@ class TableBase(object):
     def getCustomFieldsMenu(self):
         data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
         return data,metadata
+
+    ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
+
+    def counterColumns(self):
+        return [k[8:] for k in dir(self) if k.startswith('counter_')]
+
+    def trigger_releaseCounters(self,record=None):
+        for field in self.counterColumns():
+            self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+
+    def trigger_assignCounters(self,record=None,old_record=None):
+        "Inside dbo"
+        for field in self.counterColumns():
+            self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
+
+    def _sequencesOnLoading(self,newrecord,recInfo=None):
+        for field in self.counterColumns():
+            pars = getattr(self,'counter_%s' %field)()
+            if pars.get('showOnLoad'):
+                sequence,sequenceInfo = self.db.table('adm.counter').guessNextSequence(tblobj=self,field=field,record=newrecord)
+                kw = dict(promised=True,wdg_color='green')
+                if sequenceInfo.get('recycled'):
+                    kw['wdg_color'] = 'darkblue'
+                    fieldname = self.column(field).name_long or field
+                    fieldname.replace('!!','')
+                    message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+                    loaded_message = recInfo.setdefault('loaded_message',[])
+                    if not isinstance(loaded_message,list):
+                        loaded_message = [loaded_message]
+                    message = message %dict(fieldname=fieldname,sequence=sequence) 
+                    loaded_message.append(dict(message=message,messageType='warning',duration_out=5))
+                    kw['wdg_tip'] = message
+                    recInfo['loaded_message'] = loaded_message
+                newrecord.setItem(field,sequence,**kw)
 
 
 class GnrDboTable(TableBase):
