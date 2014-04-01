@@ -677,7 +677,9 @@ class TableBase(object):
     ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
 
     def counterColumns(self):
-        return [k[8:] for k in dir(self) if k.startswith('counter_')]
+        if self.db.package('adm').attributes.get('counter'):
+            return [k[8:] for k in dir(self) if k.startswith('counter_')]
+        return []
 
     def trigger_releaseCounters(self,record=None):
         for field in self.counterColumns():
