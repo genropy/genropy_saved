@@ -185,7 +185,7 @@ class Table(object):
 
     def assignCounter(self,tblobj=None,field=None,record=None):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
-        if record[field] or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
+        if record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
 
