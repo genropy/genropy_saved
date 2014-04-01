@@ -3231,6 +3231,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         }
         var that = this;
         this.pendingChanges = [];
+        this.lastLiveUpdate = new Date()
         this._editingForm = false;
         var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
             function(kw){
@@ -3254,15 +3255,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     that.pendingChanges.push(c);
                 });
                 that.storeNode.watch('externalChangesDisabled',function(){
+                    var liveUpdateDelay = that.storeNode.getAttributeFromDatasource('liveUpdateDelay');
+                    var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
+                    console.log('doUpdate',doUpdate,'lastLiveUpdate',that.lastLiveUpdate,'delta',(new Date()-that.lastLiveUpdate)/1000);
                     if(that._editingForm){
-                        return true;
+                        return doUpdate;
                     }
                     var gridVisible = false;
                     dojo.forEach(that.linkedGrids(),function(grid){
                         gridVisible = gridVisible || genro.dom.isVisible(grid.sourceNode);
                     });
-                    return gridVisible;
+                    return gridVisible && doUpdate;
                 },function(){
+                    that.lastLiveUpdate = new Date();
                     var changelist = that.pendingChanges;
                     that.pendingChanges = [];
                     if(changelist.length>0){
