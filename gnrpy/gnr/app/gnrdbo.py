@@ -688,15 +688,24 @@ class TableBase(object):
         for field in self.counterColumns():
             self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
 
-    def _sequencesOnLoading(self,newrecord):
+    def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():
             pars = getattr(self,'counter_%s' %field)()
             if pars.get('showOnLoad'):
                 sequence,sequenceInfo = self.db.table('adm.counter').guessNextSequence(tblobj=self,field=field,record=newrecord)
-                kw = dict(promised=True,wdg_color='green',wdg_tip='!!%s promised value' %field)
+                kw = dict(promised=True,wdg_color='green')
                 if sequenceInfo.get('recycled'):
                     kw['wdg_color'] = 'darkblue'
-                    kw['wdg_tip'] = '!!%s promised value (recycled)' %field
+                    fieldname = self.column(field).name_long or field
+                    fieldname.replace('!!','')
+                    message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+                    loaded_message = recInfo.setdefault('loaded_message',[])
+                    if not isinstance(loaded_message,list):
+                        loaded_message = [loaded_message]
+                    message = message %dict(fieldname=fieldname,sequence=sequence) 
+                    loaded_message.append(dict(message=message,messageType='warning',duration_out=5))
+                    kw['wdg_tip'] = message
+                    recInfo['loaded_message'] = loaded_message
                 newrecord.setItem(field,sequence,**kw)
 
 

@@ -232,7 +232,10 @@ class Table(object):
             counter_record['last_used'] = date
             counter_record['counter'] = counter
             if date and  last_used and date< last_used:
-                raise self.exception('business_logic',msg='!!Incompatible date assigning %s counter' %field)
+                msgTpl = counter_pars.get('message_dateError','!!Incompatible date assigning %(fieldname)s counter')
+                fieldname = tblobj.column(field).name_long or field
+                fieldname = fieldname.replace('!!','')
+                raise self.exception('business_logic',msg=msgTpl %dict(fieldname=fieldname,last_used=last_used))
         if update:
             if counter_record['codekey']:
                 oldrec = dict(counter_record)
@@ -259,6 +262,7 @@ class Table(object):
                 counter_record['last_used'] = tblobj.readColumns(limit=1,where='$%s = :c' %field,c=previous,columns='$%s' %date_field)
             else:
                 holes = counter_record['holes'] or Bag()
+                counter_record['holes'] = holes
                 for hole_key,cnt_from,cnt_to in holes.digest('#k,#a.cnt_from,#a.cnt_to'):
                     if releasing_counter == cnt_from - 1:
                         holes.setAttr(hole_key,dict(cnt_from=releasing_counter,date_from=date))

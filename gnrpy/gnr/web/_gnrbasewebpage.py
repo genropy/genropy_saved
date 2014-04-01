@@ -506,13 +506,16 @@ class GnrBaseWebPage(GnrObject):
                                     row[k] = fkey
                 self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
         if promisedFields:
-            msg = []
+            msg = ['Saved record']
             for f in promisedFields:
                 if promisedFields[f]!=record[f]:
-                    msg.append('%s: %s instead of %s' %(f,record[f],promisedFields[f]))
-            if msg:
-                resultAttr['saved_message'] = '!!Saved record: %s' %'<br/>'.join(msg)
-                resultAttr['saved_messageType'] = 'warning'
+                    pars = getattr(tblobj,'counter_%s' %f)()
+                    fieldname = tblobj.column(f).name_long or f
+                    fieldname.replace('!!','')
+                    msgpars = dict(sequence=record[f],promised_sequence=promisedFields[f],fieldname=fieldname)
+                    msg.append(dict(message=pars.get('message_failed',"!!%(fieldname)s: %(sequence)s instead of %(promised_sequence)s") %msgpars,messageType='warning'))
+            resultAttr['saved_message'] = msg
+                
         if onSavedHandler:
             onSavedHandler(record, resultAttr=resultAttr, **onSavedKwargs)
         if not _nocommit:

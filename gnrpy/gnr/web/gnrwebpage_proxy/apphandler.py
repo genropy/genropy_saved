@@ -1227,7 +1227,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         self._handleEagerRelations(record,_eager_level,_eager_record_stack=_eager_record_stack)
         if newrecord and tblobj.counterColumns():
             try:
-                tblobj._sequencesOnLoading(record)
+                tblobj._sequencesOnLoading(record,recInfo)
             except GnrSqlException, e:
                 recInfo['_onLoadingError'] = str(e)
         return (record, recInfo)

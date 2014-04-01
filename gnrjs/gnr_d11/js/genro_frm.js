@@ -215,10 +215,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     message:function(kw){
-        kw['duration_in'] = 3;
-        kw['duration_out'] = 4;
-        kw['yRatio'] = .8;
-        genro.dlg.floatingMessage(this.sourceNode,kw);
+        if (!(kw instanceof Array)){
+            kw = [kw]
+        }
+        var msgKw = kw.shift();
+        if(typeof(msgKw)=='string'){
+            msgKw = {message:msgKw};
+        }
+        var that = this;
+        if(kw.length){
+            msgKw.onClosedCb = function(){
+                that.message(kw)
+            }
+        }
+        msgKw = objectUpdate({duration_in:3,duration_out:4,yRatio:.8},msgKw);
+        genro.dlg.floatingMessage(this.sourceNode,msgKw);
     },
 
     subscribe: function(command,cb,scope,subscriberNode){
@@ -694,6 +705,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 that.abort();
             } });
             return;
+        }else{
+            this.handleLoadedMessage();
         }
         if(this.store){
             //if(this.status=='readOnly'){
@@ -1005,7 +1018,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         if(!this.autoSave){
             var savedAttr = result.savedAttr;
-            this.publish('message',{message:savedAttr.saved_message || this.msg_saved,sound:'$onsaved',messageType:savedAttr.saved_messageType});
+            this.publish('message',savedAttr.saved_message || {message:this.msg_saved,sound:'$onsaved'});
         }
         return result;
 
@@ -1063,6 +1076,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     onLoadingError:function(){
         return this.getDataNodeAttributes()._onLoadingError;
+    },
+
+    handleLoadedMessage:function(){
+        var loadedMessage = this.getDataNodeAttributes().loaded_message;
+        if(loadedMessage){
+            this.message(loadedMessage);
+        }
     },
 
     isProtectWrite:function(){
