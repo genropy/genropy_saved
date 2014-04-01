@@ -37,8 +37,7 @@ class Main(BaseResourceAction):
         fb.div('!!Align counter for all records')
         tc = bc.tabContainer(region='center',margin='2px')
         for f in counter_fields:
-            dc = countertable.getFieldSequences(tblobj,field=f)
             pane = tc.contentPane(title=f,datapath='.counterfields.%s' %f,overflow='auto',padding='10px')
-            pane.checkboxText(value='^.to_align',lbl='Sq. to aling',values=','.join(sorted([r['dc'] for r in dc])),cols=4,table_border_spacing='8px')
+            pane.checkboxText(value='^.to_align',lbl='Sq. to aling',values=','.join(countertable.getFieldSequences(tblobj,field=f)),cols=4,table_border_spacing='8px')
 
 

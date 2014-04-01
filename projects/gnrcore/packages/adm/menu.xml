@@ -2,11 +2,11 @@
 <adm label="!!Administration" tags='admin'>
     <users label="!!Users" file='/adm/user_page' />
     <tags label="!!Auth tags" table='adm.htag' />
-    <letterhead label=u"!!Letterheads" table="adm.htmltemplate"/>
-    <notifications label=u"!!Notifications" table="adm.notification"/>
-
-    <menu_manager label=u"!!Menu Manager" table="adm.menu"/>
-    <menu_pages label=u"!!Menu Pages" table="adm.menu_page"/>
-    <datacatalog label=u"!!Datacatalog" table="adm.datacatalog"/>
-    <utility label=u"!!Utility tables" lookup_manager='adm'/>
+    <letterhead label="!!Letterheads" table="adm.htmltemplate" />
+    <notifications label="!!Notifications" table="adm.notification"/>
+    <menu_manager label="!!Menu Manager" table="adm.menu"/>
+    <menu_pages label="!!Menu Pages" table="adm.menu_page"/>
+    <datacatalog label="!!Datacatalog" table="adm.datacatalog"/>
+    <utility label="!!Utility tables" lookup_manager='adm'/>
+    <counter label="!!Counter" table="adm.counter"/>
 </adm>

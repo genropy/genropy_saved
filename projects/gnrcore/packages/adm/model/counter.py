@@ -18,6 +18,33 @@ class Table(object):
         tbl.column('holes', 'X', name_long='!!Holes')
         tbl.column('errors','X', name_long='!!Errors')
 
+
+    def getFieldSequences(self,tblobj,field=None):
+        pars = getattr(tblobj,'counter_%s' %field)()
+        N_start,N_end = self._getBoundaries(**pars)['N']
+        if N_start is None:
+            return
+        placeholder = '*'* (N_end-N_start)
+        dc = tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),distinct=True).fetch()
+        return sorted([r['dc'] for r in dc])
+
+
+    def initializeApplicationSequences(self,thermo_wrapper=None):
+        packages = thermo_wrapper(self.db.packages.values(),message=lambda p,n,m: 'Sequences for package %s' %p.name) if thermo_wrapper else self.db.packages.values()
+        for pkg in packages:
+            self.initializeTableSequences(pkg,thermo_wrapper=thermo_wrapper)
+
+    def initializePackageSequences(self,pkgobj,thermo_wrapper=None):
+        tables = thermo_wrapper(pkgobj['tables'].values(),message=lambda t,n,m: 'Sequences for table %s' %t.name,line_code='tbl') if thermo_wrapper else pkgobj['tables'].values()
+        for tblobj in tables:
+            self.initializeTableSequences(tblobj,thermo_wrapper=thermo_wrapper)
+
+    def initializeTableSequences(self,tblobj,thermo_wrapper=None):
+        counter_fields = thermo_wrapper(tblobj.counterColumns(),message=lambda f,n,m: 'Sequences for field %s' %f,line_code='field') if thermo_wrapper else tblobj.counterColumns()
+        for field in counter_fields:
+            sequences = self.getFieldSequences(tblobj,field=field)
+            self.alignSequences(tblobj,field=field,to_align=sequences,thermo_wrapper=thermo_wrapper)
+
     def alignSequences(self,tblobj,field=None,to_align=None,thermo_wrapper=None):
         if isinstance(to_align,basestring):
             to_align = to_align.split(',')
@@ -117,8 +144,6 @@ class Table(object):
             prevcnt = cnt
         errors=errors or None
         holes=holes or None
-        if errors is not None:
-            print errors
         record = dict(pkg=tblobj.pkg.name,tbl=tblobj.name,fld=field,period=period,code=code,counter=cnt,last_used=prev_date,holes=holes,errors=errors)
         codekey = self.newPkeyValue(record)
         with self.recordToUpdate(codekey=codekey,insertMissing=True) as r:
@@ -135,14 +160,6 @@ class Table(object):
             s = s.span() if s else None
             result[k] = (s[0],s[1]-1) if s else (None,None)
         return result
-
-    def getFieldSequences(self,tblobj,field=None):
-        pars = getattr(tblobj,'counter_%s' %field)()
-        N_start,N_end = self._getBoundaries(**pars)['N']
-        if N_start is None:
-            return
-        placeholder = '*'* (N_end-N_start)
-        return tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),distinct=True).fetch()
 
     def getCounterPkey(self,tblobj=None,field=None,record=None):
         return self.pkeyValue(self.newCounterRecord(tblobj=tblobj,field=field,record=record))
