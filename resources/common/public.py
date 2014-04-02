@@ -340,6 +340,7 @@ class TableHandlerMain(BaseComponent):
                         readOnly=False,virtualStore=True,public=True,partitioned=False)
         viewResource = th_kwargs.get('viewResource',None) or self.th_options().get('viewResource',None)
         resource = self._th_getResClass(table=self.maintable,resourceName=viewResource,defaultClass='View')()
+        resource.db = self.db
         resource_options = resource.th_options() if hasattr(resource,'th_options') else dict()
         th_options.update(self.th_options())
         th_options.update(resource_options)

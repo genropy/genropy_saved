@@ -7,6 +7,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
     @struct_method
@@ -29,10 +30,17 @@ class FrameGridSlots(BaseComponent):
                                 **kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,**kwargs):
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
+        menupath = None
+        if defaults:
+            menubag = Bag()
+            for i,(caption,default_kw) in enumerate(defaults):
+                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            pane.data('.addrow_menu_store',menubag)
+            menupath = '.addrow_menu_store'
         return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,disabled=disabled,
-                                _delay=delay,**kwargs)
+                                _delay=delay,menupath=menupath,**kwargs)
          
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):

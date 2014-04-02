@@ -106,22 +106,25 @@ class TableHandlerForm(BaseComponent):
                             tablename=self.db.table(table).name_long,
                             caption='=#FORM.record?caption',
                             newrecord='=#FORM.record?_newrecord',
-                            record='=#FORM.record',titleTemplate=options.get('titleTemplate',False),
-                            newTitleTemplate=options.get('newTitleTemplate',False),
+                            record='=#FORM.record',titleTemplate=options.pop('titleTemplate',False),
+                            newTitleTemplate=options.pop('newTitleTemplate',False),
                             _fired='^#FORM.controller.loaded')
         if form.attributes.get('form_isRootForm'):
-            form.data('gnr.rootform.size',Bag(height=options.get('dialog_height','500px'),width=options.get('dialog_width','600px')))
+            form.data('gnr.rootform.size',Bag(height=options.pop('dialog_height','500px'),width=options.pop('dialog_width','600px')))
         if 'lazyBuild' in options:
-            form.attributes['_lazyBuild'] = options.get('lazyBuild')
+            form.attributes['_lazyBuild'] = options.pop('lazyBuild')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   
-        tree_kwargs = dictExtract(options,'tree_')     
-        readOnly = options.get('readOnly')
-        modal = options.get('modal',False)
-        autoSave = options.get('autoSave',False)
-        draftIfInvalid= options.get('draftIfInvalid',False)
-        allowSaveInvalid= options.get('allowSaveInvalid',draftIfInvalid)
+        tree_kwargs = dictExtract(options,'tree_',pop=True)     
+        readOnly = options.pop('readOnly',False)
+        modal = options.pop('modal',False)
+        autoSave = options.pop('autoSave',False)
+        draftIfInvalid= options.pop('draftIfInvalid',False)
+        allowSaveInvalid= options.pop('allowSaveInvalid',draftIfInvalid)
+        form_add = options.pop('form_add',True)
+        form_delete = options.pop('form_delete',True)
+
         form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
             form.store.attributes.update(autoSave=autoSave)
@@ -133,7 +136,7 @@ class TableHandlerForm(BaseComponent):
                             msg='!!You cannot save',
                             invalid='!!Invalid record',
                             nochange='!!No change to save',modal=modal)
-        box_kwargs = dictExtract(options,'box_')
+        box_kwargs = dictExtract(options,'box_',pop=True)
         extra_slots = []
         if hierarchical:
             box_kwargs['sidebar'] = True
@@ -150,7 +153,7 @@ class TableHandlerForm(BaseComponent):
         if readOnly:
             form.attributes.update(form_readOnly=True)
         if options.get('saveOnChange'):
-            form.attributes.update(form_saveOnChange=True)
+            form.attributes.update(form_saveOnChange=options.pop('saveOnChange'))
             showtoolbar = False
         if 'parentLock' in options:
             form.attributes.update(form_parentLock=options.pop('parentLock'))
@@ -163,31 +166,36 @@ class TableHandlerForm(BaseComponent):
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})',hidden=readOnly)
         elif showtoolbar:
             default_slots = '*,semaphore,5' if readOnly else '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
-            if options.get('duplicate'):
+            if form_add is False:
+                default_slots.replace('form_add','')
+            if form_delete is False:
+                default_slots.replace('form_delete','')
+
+            if options.pop('duplicate',False):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
                 default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
             elif navigation:
                 default_slots = 'navigation,%s' %default_slots
-            elif options.get('selector'):
+            elif options.pop('selector',False):
                 default_slots = default_slots.replace('*','5,form_selectrecord,*')
-            if options.get('printMenu'):
+            if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
-            if options.get('copypaste'):
+            if options.pop('copypaste',False):
                 extra_slots.append('form_copypaste')
-            if options.get('linker'):
+            if options.pop('linker',False):
                 default_slots = default_slots.replace('form_delete',','.join(extra_slots) if extra_slots else '')
                 default_slots = default_slots.replace('form_add','')
                 #default_slots = default_slots.replace('locker','') 
             table = form.getInheritedAttributes()['table']  
             if extra_slots:
                 default_slots = default_slots.replace('form_delete','%s,10,form_delete' %(','.join(extra_slots)))
-            slots = options.get('slots',default_slots)
+            slots = options.pop('slots',default_slots)
             if table == self.maintable:
                 slots = 'logicalDeleter,%s' %slots 
-            form.top.slotToolbar(slots)
-        if not options.get('showfooter',True):
+            form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else form_add,**options)
+        if not options.pop('showfooter',True):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
             form.left.attributes.update(splitter=True)

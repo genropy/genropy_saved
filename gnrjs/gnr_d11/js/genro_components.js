@@ -101,7 +101,7 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var parentForm = objectPop(kw,'parentForm');
         var tip = objectPop(kw,'tip');
         var iconClass = iconClass? 'iconbox ' +iconClass :null;
-        var box_kw = {_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip}
+        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw)
         if(parentForm){
             box_kw.parentForm = parentForm;
         }
@@ -1654,6 +1654,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             kw['_class']= kw['_class'] ? kw['_class']+' slotButtonIconOnly':' slotButtonIconOnly';
         }
         var targetNode,prefix;
+        var tag = 'button';
         var target = objectPop(kw,'target') || inherithed.target;
         if(target!=false){
             if(target){
@@ -1664,13 +1665,23 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             prefix=inherithed.slotbarCode;
         }
         var publish=objectPop(kw,'publish');
+        if(kw.menupath){
+            kw['storepath'] = objectPop(kw,'menupath');
+            tag = 'menudiv';
+        }
+
         if(!kw.action){
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             //kw.opt = objectExtract(kw,'opt_*',true);
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
+            if(tag=='button'){
+                kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
+            }else{
+                kw['action'] = "objectPop($1,'caption');genro.publish('"+kw.topic+"',{'command':'"+(kw.command || '')+ "' ||null,modifiers:genro.dom.getEventModifiers(event),evt:event,opt:$1});";
+            }
         }
-        return sourceNode._('button',kw);
+        return sourceNode._(tag,kw);
+        
     }
 
 });

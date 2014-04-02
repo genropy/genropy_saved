@@ -22,6 +22,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrbag import Bag
 
 
 class FormHandler(BaseComponent):
@@ -113,20 +114,24 @@ class FormHandler(BaseComponent):
                                                 }
                                             },100,this,'editselectedrow');
                                             """
-        gridattr['selfsubscribe_addrow'] = """ if(this.attr.table && this.form && this.form.isNewRecord()){
+        gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};
+                                                if($1.opt){
+                                                    objectUpdate(newrecord_kw,objectPop($1,'opt'));
+                                                    objectUpdate(newrecord_kw,$1);
+                                                }
+                                                if(this.attr.table && this.form && this.form.isNewRecord()){
                                                     if(this.attr._saveNewRecordOnAdd){
                                                         var that = this;
                                                         this.form.save({onReload:function(result){
-                                                                that.publish('editrow',{pkey:"*newrecord*"});
+                                                                that.publish('editrow',newrecord_kw);
                                                             }});
                                                     }else{
                                                         return;
                                                     }
                                                 }else{
-                                                    this.publish('editrow',{pkey:"*newrecord*"});
+                                                    this.publish('editrow',newrecord_kw);
                                                 }"""
         gridattr['selfsubscribe_editrow'] = """
-                                    //genro.bp(true)
                                     var pref = 'form_'+this.attr._linkedFormId;
                                     if($1.pkey=='*newrecord*'){
                                         var kw = {destPkey:$1.pkey};
@@ -254,8 +259,18 @@ class FormHandler(BaseComponent):
                     lbl=tblobj.name_long)
     
     @struct_method          
-    def fh_slotbar_form_add(self,pane,parentForm=True,**kwargs):
-        pane.formButton('!!Add',topic='navigationEvent',command='add',
+    def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
+        menupath = None
+        if defaults:
+            menubag = Bag()
+            for i,(caption,default_kw) in enumerate(defaults):
+                menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+            pane.data('.addrow_menu_store',menubag)
+            menupath = '.addrow_menu_store'
+            pane.slotButton('!!Add',action='this.form.newrecord($1.default_kw);',menupath=menupath,
+                        iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
+        else:
+            pane.formButton('!!Add',topic='navigationEvent',command='add',
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
 
