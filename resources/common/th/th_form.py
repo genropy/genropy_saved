@@ -194,7 +194,7 @@ class TableHandlerForm(BaseComponent):
             slots = options.pop('slots',default_slots)
             if table == self.maintable:
                 slots = 'logicalDeleter,%s' %slots 
-            form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else form_add,**options)
+            form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if not options.pop('showfooter',True):
             form.attributes['hasBottomMessage'] = False
         if hierarchical:
