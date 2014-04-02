@@ -26,7 +26,7 @@ class Table(object):
             return
         placeholder = '*'* (N_end-N_start)
         dc = tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),distinct=True).fetch()
-        return sorted([r['dc'] for r in dc])
+        return sorted([r['dc'] for r in dc if r['dc']])
 
 
     def initializeApplicationSequences(self,thermo_wrapper=None):
