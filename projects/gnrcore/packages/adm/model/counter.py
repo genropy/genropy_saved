@@ -32,12 +32,12 @@ class Table(object):
     def initializeApplicationSequences(self,thermo_wrapper=None):
         packages = thermo_wrapper(self.db.packages.values(),message=lambda p,n,m: 'Sequences for package %s' %p.name) if thermo_wrapper else self.db.packages.values()
         for pkg in packages:
-            self.initializeTableSequences(pkg,thermo_wrapper=thermo_wrapper)
+            self.initializePackageSequences(pkg,thermo_wrapper=thermo_wrapper)
 
     def initializePackageSequences(self,pkgobj,thermo_wrapper=None):
         tables = thermo_wrapper(pkgobj['tables'].values(),message=lambda t,n,m: 'Sequences for table %s' %t.name,line_code='tbl') if thermo_wrapper else pkgobj['tables'].values()
         for tblobj in tables:
-            self.initializeTableSequences(tblobj,thermo_wrapper=thermo_wrapper)
+            self.initializeTableSequences(tblobj.dbtable,thermo_wrapper=thermo_wrapper)
 
     def initializeTableSequences(self,tblobj,thermo_wrapper=None):
         counter_fields = thermo_wrapper(tblobj.counterColumns(),message=lambda f,n,m: 'Sequences for field %s' %f,line_code='field') if thermo_wrapper else tblobj.counterColumns()
