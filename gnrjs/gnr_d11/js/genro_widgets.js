@@ -7081,10 +7081,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     mixin_setStorepath:function(val, kw) {
         //genro.debug('trigger_store:'+kw.evt+' at '+kw.pathlist.join('.'));
+        var storeAbsPath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
+        var eventPath = kw.pathlist.join('.').slice(5);
         if (kw.evt == 'upd') {
             if (kw.updvalue) {
                 if (kw.value instanceof gnr.GnrBag) {
-                    if(this.sourceNode.absDatapath(this.sourceNode.attr.storepath)== kw.pathlist.join('.').slice(5)){
+                    if(storeAbsPath.indexOf(eventPath)==0){
                         this.sourceNode.rebuild();
                     }else{
                         this._onItemChildrenChange(/*dojo.data.Item*/ kw.node, /*dojo.data.Item[]*/ kw.value.getNodes());
@@ -7097,8 +7099,12 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             }
             //this.model.store._triggerUpd(kw);
         } else if (kw.evt == 'ins') {
-
-            this.model.store._triggerIns(kw);
+            if(undefined in this._itemNodeMap && objectSize(this._itemNodeMap)==1){
+                this.sourceNode.rebuild();
+            }else{
+                this.model.store._triggerIns(kw);
+            }
+            
         } else if (kw.evt == 'del') {
             this._onItemChildrenChange(/*dojo.data.Item*/ kw.where.getParentNode(), /*dojo.data.Item[]*/ kw.where.getNodes());
             //this.model.store._triggerDel(kw);

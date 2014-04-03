@@ -579,6 +579,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (path.indexOf('#') == 0) {
             return this.symbolicDatapath(path);
         }
+        if(path=='.'){
+            return this.absDatapath();
+        }
         var currNode = this;
         var datapath;
         while (currNode && ((!path) || path.indexOf('.') == 0)) {
