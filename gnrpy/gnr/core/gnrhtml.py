@@ -252,9 +252,10 @@ class GnrHtmlBuilder(object):
         self.showTemplateContent = showTemplateContent
         self.parent = parent
 
-    def initializeSrc(self, body_attributes=None):
+    def initializeSrc(self, body_attributes=None,**kwargs):
         """TODO"""
         body_attributes = body_attributes or {}
+        body_attributes.update(kwargs)
         self.root = self.srcfactory.makeRoot()
         self.root.builder = self
         self.htmlBag = self.root.html()
