@@ -661,7 +661,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     deleted:function(result,kw){
-        var destPkey = kw.destPkey || '*dismiss*';
+        var destPkey = kw.destPkey || this.deleted_destPkey || '*dismiss*';
         this.load({destPkey:destPkey});
         this.publish('message',{message:this.msg_deleted,sound:'$ondeleted'});
         this.publish('onDeleted');
@@ -1181,6 +1181,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         value = value.deepCopy();
                         value.walk(function(n){
                             if('_loadedValue' in n.attr){
+                                var nvalue = n._value;
+                                if(nvalue instanceof gnr.GnrBag){
+                                    nvalue.popNode('_newrecord');
+                                }
                                 var loadedValue = objectPop(n.attr,'_loadedValue');
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }

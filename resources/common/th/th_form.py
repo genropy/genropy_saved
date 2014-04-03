@@ -202,6 +202,7 @@ class TableHandlerForm(BaseComponent):
             leftkw = dict()
             if hierarchical is True:
                 form.store.attributes.setdefault('startKey','*norecord*')
+                form.attributes.update(form_deleted_destPkey='*norecord*')
             elif hierarchical=='closed':
                 leftkw['closable'] = 'close'
             bar = form.left.slotBar('0,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
