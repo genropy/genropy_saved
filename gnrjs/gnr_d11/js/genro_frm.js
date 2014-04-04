@@ -1017,7 +1017,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         if(!this.autoSave){
-            var savedAttr = result.savedAttr;
+            var savedAttr = result?result.savedAttr:{};
             this.publish('message',savedAttr.saved_message || {message:this.msg_saved,sound:'$onsaved'});
         }
         return result;
