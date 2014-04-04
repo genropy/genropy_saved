@@ -3885,7 +3885,7 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_warning{
     background:rgba(250, 120, 0, 0.60)
 }
-.fm_closebtn{
+.dlg_closebtn{
     height: 18px;
     width: 18px;
     cursor: pointer;

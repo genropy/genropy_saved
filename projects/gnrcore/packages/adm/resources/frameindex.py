@@ -24,6 +24,7 @@ class FrameIndex(BaseComponent):
     css_requires='frameindex,public'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
     custom_plugin_list = None
+    index_page = False
     index_url = 'html_pages/splashscreen.html'
     indexTab = False
     hideLeftPlugins = False
@@ -467,14 +468,23 @@ class FramedIndexLogin(BaseComponent):
             self._loginPreference = self.getPreference('general',pkg='adm') or Bag()
         return self._loginPreference
 
+
     @struct_method
     def login_loginPage(self,sc,new_window=None,gnrtoken=None):
-        pane = sc.contentPane(overflow='hidden',pageName='login')   
-        if self.index_url:
+        pane = sc.contentPane(overflow='hidden',pageName='login') 
+        homePageHandler = getattr(self,'homePagePane',None)
+        loginOnBuilt= homePageHandler is None
+
+        if homePageHandler:
+            homePageHandler(pane)
+
+        elif self.index_url:
             pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
-        dlg = pane.dialog(_class='lightboxDialog')
+        dlg = pane.dialog(_class='lightboxDialog',subscribe_openLogin="this.widget.show()",subscribe_closeLogin="this.widget.hide()")
        
         box = dlg.div(**self.loginboxPars())
+        if not loginOnBuilt:
+            dlg.div(_class='dlg_closebtn',connect_onclick='PUBLISH closeLogin;')
         doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         wtitle = (self.loginPreference['login_title'] or self.login_title) if doLogin else (self.loginPreference['new_window_title'] or self.new_window_title) 
@@ -521,8 +531,7 @@ class FramedIndexLogin(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide'
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
-        
-        
+                
         pane.dataController("""
                             var href = window.location.href;
                             if(window.location.search){
@@ -532,13 +541,14 @@ class FramedIndexLogin(BaseComponent):
                             if(startPage=='login'){
                                 if(new_password){
                                     newPasswordDialog.show();
-                                }else{
-                                    loginDialog.show();
+                                }else if(loginOnBuilt){
+                                    PUBLISH openLogin;
                                 }
                             }else{
                                 SET indexStack = 'dashboard';
                             }
                             """,_onBuilt=True,
+                            loginOnBuilt= loginOnBuilt,
                             new_password=gnrtoken or False,
                             loginDialog = dlg.js_widget,
                             newPasswordDialog = self.login_newPassword(pane,gnrtoken=gnrtoken,dlg_login=dlg).js_widget,
@@ -553,7 +563,6 @@ class FramedIndexLogin(BaseComponent):
         footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
         lostpass = footer.lost_password.div()
         new_user = footer.new_user.div()
-
         if self.loginPreference['forgot_password']:
             lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
                             color='silver',font_size='12px',height='15px')

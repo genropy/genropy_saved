@@ -166,7 +166,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                         onClosedCb();
                                     }
                                  };
-        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
+        messageBox._('div',{_class:'dlg_closebtn',connect_onclick:deleteCb});
         genro.dom.centerOn(messageBox,sourceNode,xRatio,yRatio);
         var that = sourceNode;
         if(sound){
