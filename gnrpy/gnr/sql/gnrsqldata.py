@@ -1293,8 +1293,8 @@ class SqlSelection(object):
         :param dfltFormats: TODO
         :param asIterator: boolean. TODO
         :param asText: boolean. TODO"""
-        if subtotal_rows:
-            subtotalNode = self.analyzeBag.getNode(subtotal_rows)
+        if subtotal_rows :
+            subtotalNode = self.analyzeBag.getNode(subtotal_rows) if self.analyzeBag else None
             if subtotalNode and subtotalNode.attr:
                 filterCb = lambda r: r[self.key] in subtotalNode.attr['idx']
         if mode == 'pkeylist' or mode == 'records':
