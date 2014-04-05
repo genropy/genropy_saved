@@ -380,7 +380,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
-                          selectedPath='.tree.path',margin='2px',_class=_class)
+                          selectedPath='.tree.path',margin='2px',_class=_class,**kwargs)
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname

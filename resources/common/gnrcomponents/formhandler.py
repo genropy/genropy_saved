@@ -28,11 +28,11 @@ from gnr.core.gnrbag import Bag
 class FormHandler(BaseComponent):
     css_requires='public'
 
-    @extract_kwargs(palette=True,dialog=True,default=True)
+    @extract_kwargs(palette=True,dialog=True,default=True,tree=True)
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,default_kwargs=None,**kwargs):
+                        iframe=False,default_kwargs=None,tree_kwargs=None,**kwargs):
         formId = formId or '%s_form' %frameCode
         attachTo = attachTo or pane.parent
         table = table or pane.attributes.get('table')
