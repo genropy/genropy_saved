@@ -6878,6 +6878,17 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         });
         
     },
+
+    mixin_updateLabels:function(){
+        var n;
+        for (var k in this._itemNodeMap){
+            n = this._itemNodeMap[k];
+            if(n){
+                n.setLabelNode(this.getLabel(n.item));
+            }
+        }
+    },
+
     mixin_storebag:function(){
         return this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
     },
