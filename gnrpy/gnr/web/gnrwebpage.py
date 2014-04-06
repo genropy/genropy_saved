@@ -173,6 +173,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not getattr(self,'skip_connection', False):
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
             self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+            self._language = self.page_item['data']['rootenv.language']
         else:
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
@@ -340,12 +341,31 @@ class GnrWebPage(GnrBaseWebPage):
         return self._workdate
 
     def _set_workdate(self, workdate):
-        with self.pageStore() as store:
-            store.setItem('rootenv.workdate', workdate)
+        self.pageStore().setItem('rootenv.workdate', workdate)
         self._workdate = workdate
         self.db.workdate = workdate
-        
     workdate = property(_get_workdate, _set_workdate)
+
+    def _get_language(self):
+        if not self._language:
+            self._language = self.pageStore().getItem('rootenv.language') or self.locale.split('-')[0].upper()
+        return self._language
+
+    def _set_language(self, language):
+        self.pageStore().setItem('rootenv.language', language)
+        self._language = language
+    language = property(_get_language, _set_language)
+
+    def _set_locale(self, val):
+        self._locale = val
+        
+    def _get_locale(self):
+        if not getattr(self,'_locale',None):
+            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
+            self._locale = (self.avatar.locale if self.avatar and getattr(self.avatar,'locale',None) else headers_locale) or 'en' #to check
+            #self._locale = headers_locale or 'en'
+        return self._locale
+    locale = property(_get_locale, _set_locale)
     
     @property
     def workdate_timestamp(self):
@@ -707,19 +727,6 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         return mytemplate.render(mainpage=self, **arg_dict)
-        
-    def _set_locale(self, val):
-        self._locale = val
-        
-    def _get_locale(self):
-        if not hasattr(self, '_locale'):
-            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
-
-            self._locale = (self.avatar.locale if self.avatar and getattr(self.avatar,'locale',None) else headers_locale) or 'en' #to check
-            #self._locale = headers_locale or 'en'
-        return self._locale
-        
-    locale = property(_get_locale, _set_locale)
         
     def rpc_changeLocale(self, locale):
         """TODO
@@ -1501,6 +1508,9 @@ class GnrWebPage(GnrBaseWebPage):
             page.data('gnr.package',self.package.name)
             page.data('gnr.root_page_id',self.root_page_id)
             page.data('gnr.workdate', self.workdate) #serverpath='rootenv.workdate')
+            page.data('gnr.language', self.language,serverpath='rootenv.language',dbenv=True)
+            page.dataController("""genro.publish({topic:'changedLanguage',iframe:'*',kw:{lang:language}})""",language='^gnr.language')
+            page.dataController('SET gnr.language = lang;',subscribe_changedLanguage=True)
             #page.data('gnr.userTags', self.userTags)
             page.data('gnr.locale', self.locale)
             page.data('gnr.pagename', self.pagename)
