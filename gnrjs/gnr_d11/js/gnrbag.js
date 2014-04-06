@@ -1776,7 +1776,7 @@ dojo.declare("gnr.GnrBag", null, {
     walk: function (callback, mode, kw, notRecursive) {
         var result;
         var bagnodes = this.getNodes();
-        for (var i = 0; ((i < bagnodes.length) && (result == null)); i++) {
+        for (var i = 0; ((i < bagnodes.length) && ((result == null)|| (result=='__continue__'))); i++) {
             result = callback(bagnodes[i], kw, i);
             if (result == null) {
                 var value = bagnodes[i].getValue(mode);
