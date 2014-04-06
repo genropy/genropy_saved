@@ -57,8 +57,9 @@ class FrameIndex(BaseComponent):
             else:
                 self.index_dashboard(root)
         else:         
-            sc = root.stackContainer(selectedPage='^indexStack')
-
+            sc = root.stackContainer(selectedPage='^indexStack',
+                subscribe_openApplicationPage="this.widget.switchPage('dashboard')",
+                subscribe_openFrontPage="this.widget.switchPage('frontpage')")
             sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
             sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
@@ -471,7 +472,7 @@ class FramedIndexLogin(BaseComponent):
 
     @struct_method
     def login_loginPage(self,sc,new_window=None,gnrtoken=None):
-        pane = sc.contentPane(overflow='hidden',pageName='login') 
+        pane = sc.contentPane(overflow='hidden',pageName='frontpage') 
         homePageHandler = getattr(self,'homePagePane',None)
         loginOnBuilt= homePageHandler is None
 
@@ -503,8 +504,8 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
-                        _if='user&&password&&!_avatar',_else='SET gnr.avatar = null;',
-                        _avatar='=gnr.avatar',
+                        _if='user&&password&&!_avatar_user',_else='SET gnr.avatar = null;',
+                        _avatar_user='=gnr.avatar.user',
                         _onResult="""var avatar = result.getItem('avatar');
                                     if (!avatar){
                                         return;
@@ -538,14 +539,14 @@ class FramedIndexLogin(BaseComponent):
                                 href = href.replace(window.location.search,'');
                                 window.history.replaceState({},document.title,href);
                             }
-                            if(startPage=='login'){
+                            if(startPage=='frontpage'){
                                 if(new_password){
                                     newPasswordDialog.show();
                                 }else if(loginOnBuilt){
                                     PUBLISH openLogin;
                                 }
-                            }else{
-                                SET indexStack = 'dashboard';
+                            }else if(loginOnBuilt){
+                                PUBLISH openApplicationPage;
                             }
                             """,_onBuilt=True,
                             loginOnBuilt= loginOnBuilt,
@@ -553,7 +554,7 @@ class FramedIndexLogin(BaseComponent):
                             loginDialog = dlg.js_widget,
                             newPasswordDialog = self.login_newPassword(pane,gnrtoken=gnrtoken,dlg_login=dlg).js_widget,
                             sc=sc.js_widget,fb=fb,
-                            _if='indexStack=="login"',indexStack='^indexStack',
+                            _if='indexStack=="frontpage"',indexStack='^indexStack',
                             startPage=self._getStartPage(new_window))
 
 
@@ -593,13 +594,16 @@ class FramedIndexLogin(BaseComponent):
             if(rootpage){
                 genro.gotoURL(rootpage);
             }
-            sc.switchPage('dashboard');
+            if(loginOnBuilt){
+                PUBLISH openApplicationPage;
+            }
+            
             genro.publish('logged');
         }
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
-            rootpage='=gnr.rootenv.rootpage',
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  
+            rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,btn=btn.js_widget,_delay=1)  
         return dlg
 
     @public_method
@@ -608,6 +612,8 @@ class FramedIndexLogin(BaseComponent):
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
+            rootenv['workdate'] = rootenv['workdate'] or self.workdate
+            rootenv['language'] = rootenv['language'] or self.language
             self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False
@@ -651,11 +657,11 @@ class FramedIndexLogin(BaseComponent):
                 self.pageStore().setItem('rootenv',newrootenv)
                 self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
             else:
-                return 'login'
+                return 'frontpage'
         elif new_window:
             for n in self.rootenv:
                 if n.attr.get('editable') and not n.attr.get('hidden'):
-                    startPage = 'login'
+                    startPage = 'frontpage'
                     break               
         return startPage
 
