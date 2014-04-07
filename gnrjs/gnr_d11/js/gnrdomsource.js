@@ -123,7 +123,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             mydpath = gnr.bagRealPath(mydpath);
         }
         if (mydpath.indexOf('?') >= 0) {
-            if ((kw.updattr) || (mydpath.indexOf('?=') >= 0)) {
+            if ((kw.updattr) || (kw.evt=='fired') ||(mydpath.indexOf('?=') >= 0)) {
                 mydpath = mydpath.split('?')[0];
             }
         }
