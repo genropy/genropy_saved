@@ -1685,6 +1685,20 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
+dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var _class = objectPop(kw,'_class');
+        kw._class = _class? 'doc_item ' +_class : 'doc_item';
+        var docpars = objectExtract(kw,'store,key,contentpath');
+        kw._docKey = docpars.key;
+        kw._docStore = docpars.store;
+
+        kw.datapath = (docpars.store && docpars.key && docpars.contentpath)?dataTemplate('_doc.content.$store.$key.$contentpath',docpars):'_emptypath';
+        kw.connect_ondblclick = "genro.publish('editDocItem',{docItem:this});" 
+        kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
+        return sourceNode._('div',kw)._('div', {innerHTML:'^.','_class':'^.?contentClasses','style':'^.?contentStyles'})
+    }
+});
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {

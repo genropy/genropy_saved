@@ -814,7 +814,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -1109,6 +1109,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
 
+
+    def docItem(self, store=None,key=None,contentpath=None,**kwargs):        
+        return self.child('DocItem',store=store,key=key,contentpath=contentpath,**kwargs)
 
     def ckeditor(self,stylegroup=None,**kwargs):
         style_table = self.page.db.table('adm.ckstyle')
