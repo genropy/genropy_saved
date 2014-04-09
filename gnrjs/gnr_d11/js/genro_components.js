@@ -1690,9 +1690,9 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
         var _class = objectPop(kw,'_class');
         kw._class = _class? 'doc_item ' +_class : 'doc_item';
         var docpars = objectExtract(kw,'store,key,contentpath');
+        docpars = sourceNode.evaluateOnNode(docpars);
         kw._docKey = docpars.key;
         kw._docStore = docpars.store;
-
         kw.datapath = (docpars.store && docpars.key && docpars.contentpath)?dataTemplate('_doc.content.$store.$key.$contentpath',docpars):'_emptypath';
         kw.connect_ondblclick = "genro.publish('editDocItem',{docItem:this});" 
         kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
