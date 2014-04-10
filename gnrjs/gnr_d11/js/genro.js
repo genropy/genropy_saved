@@ -626,7 +626,13 @@ dojo.declare('gnr.GenroClient', null, {
                 f.genro.getChildrenInfo(r);
             }
         };
-        dojo.forEach(window.frames,function(f){cb(f,result);});
+        dojo.forEach(window.frames,function(f){
+            try{
+                cb(f,result);
+            }catch(e){
+                console.log('external iframe detected: error ',e);
+            }
+        });
         return objectUpdate({},result);
     },
     

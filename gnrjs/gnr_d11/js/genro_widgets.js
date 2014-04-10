@@ -554,7 +554,7 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
 });
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
-    _default_ext : 'png,jpg,jpeg,gif,html,pdf',
+    _default_ext : 'py,png,jpg,jpeg,gif,html,pdf',
 
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses');
