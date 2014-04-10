@@ -334,9 +334,11 @@ class SqlDbAdapter(object):
         sql_flds = []
         data_keys = []
         for k in record_data.keys():
-            if k in tblobj.sqlnamemapper: # skip aliasColumns
-                sql_flds.append(tblobj.sqlnamemapper[k])
-                data_keys.append(':%s' % k)
+            sqlcolname = tblobj.sqlnamemapper.get(k)
+            if sqlcolname: # skip aliasColumns
+                sql_flds.append(sqlcolname)
+                sql_value = tblobj.column(k).attributes.get('sql_value')
+                data_keys.append(sql_value or ':%s' % k)
         sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
 
@@ -353,8 +355,14 @@ class SqlDbAdapter(object):
         record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         for k in record_data.keys():
-            if k in tblobj.sqlnamemapper:
-                sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
+            sqlcolname = tblobj.sqlnamemapper.get(k)
+            sql_par_prefix = ':'
+            if sqlcolname:
+                sql_value = tblobj.column(k).attributes.get('sql_value')
+                if sql_value:
+                    sql_par_prefix = ''
+                    k = sql_value
+                sql_flds.append('%s=%s%s' % (sqlcolname, sql_par_prefix,k))
         pkeyColumn = tblobj.pkey
         if pkey:
             pkeyColumn = '__pkey__'
@@ -422,6 +430,18 @@ class SqlDbAdapter(object):
     def addUniqueConstraint(self, pkg, tbl, fld):
         statement = 'ALTER TABLE %s.%s ADD CONSTRAINT un_%s_%s_%s UNIQUE (%s)' % (pkg, tbl, pkg, tbl, fld, fld)
         return statement
+
+    def createExtensionSql(self,extension):
+        "override this"
+        pass
+
+    def createExtension(self, extensions):
+        """Enable a specific db extension"""
+        extensions = extensions.split(',')
+        enabled = self.listElements('enabled_extensions')
+        for extension in extensions:
+            if not extension in enabled:
+                self.dbroot.execute(self.createExtensionSql(extension))
 
     def createSchemaSql(self, sqlschema):
         """Returns the sql command to create a new database schema"""
@@ -648,7 +668,7 @@ class GnrWhereTranslator(object):
 
                 if value is None and attr.get('value_caption'):
                     value = sqlArgs.pop(attr['value_caption'])
-                onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs)
+                onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=tblobj)
 
             if onecondition:
                 if negate:
@@ -656,7 +676,7 @@ class GnrWhereTranslator(object):
                 result.append(' %s ( %s )' % (jc, onecondition ))
         return result
 
-    def prepareCondition(self, column, op, value, dtype, sqlArgs):
+    def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
         if not column[0] in '@$':
             column = '$%s' % column
         if dtype in('D', 'DH'):
@@ -669,11 +689,11 @@ class GnrWhereTranslator(object):
             dtype = 'A'
         ophandler = getattr(self, 'op_%s' % op, None)
         if ophandler:
-            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs)
+            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs,tblobj=tblobj)
         else:
             ophandler = self.customOpCbDict.get(op)
             assert ophandler, 'undefined ophandler'
-            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs, whereTranslator=self)
+            result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs, whereTranslator=self,tblobj=tblobj)
         return result
 
     def decodeDates(self, value, op, dtype):
@@ -727,73 +747,79 @@ class GnrWhereTranslator(object):
         sqlArgs[argLbl] = value
         return argLbl
 
-    def op_startswithchars(self, column, value, dtype, sqlArgs):
+    def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
         "Starts with Chars"
         return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
-    def op_equal(self, column, value, dtype, sqlArgs):
+    def op_equal(self, column, value, dtype, sqlArgs,tblobj):
         "Equal to"
         return '%s = :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
-    def op_startswith(self, column, value, dtype, sqlArgs):
+    def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "Starts with"
         return '%s ILIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
-    def op_wordstart(self, column, value, dtype, sqlArgs):
+    def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "Word start"
         value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
         return '%s ~* :%s' % (column, self.storeArgs('(^|\\W)%s' % value, dtype, sqlArgs))
 
-    def op_contains(self, column, value, dtype, sqlArgs):
+    def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "Contains"
         return '%s ILIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
 
-    def op_greater(self, column, value, dtype, sqlArgs):
+    def op_similar(self, column, value, dtype, sqlArgs,tblobj):
+        "Similar"
+        phonetic_column =  tblobj.column(column).attributes['phonetic']
+        phonetic_mode = tblobj.column(column).table.column(phonetic_column).attributes['phonetic_mode']
+        return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
+
+    def op_greater(self, column, value, dtype, sqlArgs,tblobj):
         "Greater than"
         return '%s > :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
-    def op_greatereq(self, column, value, dtype, sqlArgs):
+    def op_greatereq(self, column, value, dtype, sqlArgs,tblobj):
         "Greater or equal to"
         return '%s >= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
-    def op_less(self, column, value, dtype, sqlArgs):
+    def op_less(self, column, value, dtype, sqlArgs,tblobj):
         "Less than"
         return '%s < :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
-    def op_lesseq(self, column, value, dtype, sqlArgs):
+    def op_lesseq(self, column, value, dtype, sqlArgs,tblobj):
         "Less or equal to"
         return '%s <= :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
-    def op_between(self, column, value, dtype, sqlArgs):
+    def op_between(self, column, value, dtype, sqlArgs,tblobj):
         "Between"
         v1, v2 = value.split(';')
         return '%s BETWEEN :%s AND :%s' % (
         column, self.storeArgs(v1, dtype, sqlArgs), self.storeArgs(v2, dtype, sqlArgs))
 
-    def op_isnull(self, column, value, dtype, sqlArgs):
+    def op_isnull(self, column, value, dtype, sqlArgs,tblobj):
         "Is null"
         return '%s IS NULL' % column
 
-    def op_istrue(self, column, value, dtype, sqlArgs):
+    def op_istrue(self, column, value, dtype, sqlArgs,tblobj):
         "Is true"
         return '%s IS TRUE' % column
 
-    def op_isfalse(self, column, value, dtype, sqlArgs):
+    def op_isfalse(self, column, value, dtype, sqlArgs,tblobj):
         "Is false"
         return '%s IS FALSE' % column
 
-    def op_nullorempty(self, column, value, dtype, sqlArgs):
+    def op_nullorempty(self, column, value, dtype, sqlArgs,tblobj):
         "Is null or empty"
         if dtype in ('L', 'N', 'M', 'R'):
             return self.op_isnull(column, value, dtype, sqlArgs)
         return " (%s IS NULL OR %s ='')" % (column, column)
 
-    def op_in(self, column, value, dtype, sqlArgs):
+    def op_in(self, column, value, dtype, sqlArgs,tblobj):
         "In"
         values_string = self.storeArgs(value.split(','), dtype, sqlArgs)
         return '%s IN :%s' % (column, values_string)
 
-    def op_regex(self, column, value, dtype, sqlArgs):
+    def op_regex(self, column, value, dtype, sqlArgs,tblobj):
         "Regular expression"
         return '%s ~* :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
@@ -838,7 +864,7 @@ class GnrWhereTranslator(object):
                     raise
                 dtype = colobj.dtype
 
-            condition = self.prepareCondition(column, op, v, dtype, sqlArgs)
+            condition = self.prepareCondition(column, op, v, dtype, sqlArgs,tblobj=tblobj)
             result.append('%s%s' % (negate, condition))
         return result, sqlArgs
 

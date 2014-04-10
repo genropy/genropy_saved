@@ -125,6 +125,12 @@ class SqlModelChecker(object):
         self.changes = []
         self.bagChanges = Bag()
         try:
+            extensions = self.db.application.config['db?extensions']
+            if extensions:
+                self.db.adapter.createExtension(extensions)
+        except Exception,e:
+            print 'Error in adding extensions',e
+        try:
             self.actual_schemata = self.db.adapter.listElements('schemata')
         except GnrNonExistingDbException, exc:
             self.actual_schemata = []

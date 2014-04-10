@@ -283,6 +283,13 @@ class TableBase(object):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
 
+    def addPhonetic(self,tbl,column,mode=None,size=':10',group=None):
+        mode = mode or 'dmetaphone'
+        group = group or 'zzz'
+        phonetic_column = '__phonetic_%s' %column
+        tbl.column(column).attributes.update(phonetic=phonetic_column,_sendback=True,query_dtype='PHONETIC')
+        tbl.column(phonetic_column,size=size,sql_value='%s(:%s)' %(mode,column),phonetic_mode=mode,group=group,_sendback=True)
+
 
     def invalidFieldsBag(self,record):
         if not record['__invalid_fields']:

@@ -679,7 +679,7 @@ class TableHandlerView(BaseComponent):
         column_dtype = None
         val = querybase.get('val')
         if column:
-            column_dtype = tblobj.column(column).getAttr('dtype')
+            column_dtype = tblobj.column(column).getAttr('query_dtype') or tblobj.column(column).getAttr('dtype')
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
         result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
@@ -767,9 +767,12 @@ class THViewUtils(BaseComponent):
     @public_method
     def getSqlOperators(self):
         result = Bag()
-        listop = ('equal', 'startswith', 'wordstart', 'contains', 'startswithchars', 'greater', 'greatereq',
+        listop = ('equal', 'startswith', 'wordstart', 'contains','similar', 'startswithchars', 'greater', 'greatereq',
                   'less', 'lesseq', 'between', 'isnull', 'istrue', 'isfalse', 'nullorempty', 'in', 'regex')
         optype_dict = dict(alpha=['contains', 'startswith', 'equal', 'wordstart',
+                                  'startswithchars', 'isnull', 'nullorempty', 'in', 'regex',
+                                  'greater', 'greatereq', 'less', 'lesseq', 'between'],
+                           alpha_phonetic = ['contains','similar', 'startswith', 'equal', 'wordstart',
                                   'startswithchars', 'isnull', 'nullorempty', 'in', 'regex',
                                   'greater', 'greatereq', 'less', 'lesseq', 'between'],
                            date=['equal', 'in', 'isnull', 'greater', 'greatereq', 'less', 'lesseq', 'between'],

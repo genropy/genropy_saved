@@ -276,12 +276,23 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def _list_views(self):
         return """SELECT table_name FROM information_schema.views WHERE table_schema=:schema"""
 
+    def _list_extensions(self):
+        return """SELECT name FROM pg_available_extensions;"""
+
+    def _list_enabled_extensions(self):
+        return """SELECT name FROM pg_available_extensions where installed_version IS NOT NULL;"""
+
     def _list_columns(self):
         return """SELECT column_name as col
                                   FROM information_schema.columns 
                                   WHERE table_schema=:schema 
                                   AND table_name=:table 
                                   ORDER BY ordinal_position"""
+
+
+    def createExtensionSql(self,extension):
+        "override this"
+        return """CREATE extension %s;""" %extension
 
     def relations(self):
         """Get a list of all relations in the db. 

@@ -8,6 +8,7 @@ dojo.declare("gnr.QueryManager", null, {
         this.frameNode = genro.getFrameNode(this.th_root);
         this.wherepath = this.sourceNode.absDatapath('.query.where');
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha','X':'alpha',
+            'PHONETIC':'alpha_phonetic',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
@@ -48,7 +49,7 @@ dojo.declare("gnr.QueryManager", null, {
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
 
-        var opmenu_types = ['alpha','date','number','other','boolean','unselected_column'];
+        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
         for (var i = 0; i < opmenu_types.length; i++) {
             node._('menu', {modifiers:'*',_class:'smallmenu',
                 storepath:'gnr.qb.sqlop.op_spec.' + opmenu_types[i],id:this.relativeId('qb_op_menu_') + opmenu_types[i]});
@@ -85,7 +86,7 @@ dojo.declare("gnr.QueryManager", null, {
         contextNode.setRelativeData(relpath + '?column', column_attr.fieldpath);
         var currentDtype = contextNode.getRelativeData(relpath + '?column_dtype');
         if (currentDtype != column_attr.dtype) {
-            contextNode.setRelativeData(relpath + '?column_dtype', column_attr.dtype);
+            contextNode.setRelativeData(relpath + '?column_dtype', column_attr.query_dtype || column_attr.dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(column_attr.dtype) + '.#0');
             if (default_op) {
                 contextNode.setRelativeData(relpath + '?op', default_op);
