@@ -283,7 +283,7 @@ class TableBase(object):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
 
-    def addPhonetic(self,tbl,column,mode=None,size=':10',group=None):
+    def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
         mode = mode or 'dmetaphone'
         group = group or 'zzz'
         phonetic_column = '__phonetic_%s' %column
