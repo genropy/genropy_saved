@@ -4683,7 +4683,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var sel = this.selection.getSelected();
         var result = [];
         for (var i = 0; i < sel.length; i++) {
-            result.push(this.dataNodeByIndex(sel[i]));
+            var n = this.dataNodeByIndex(sel[i]);
+            if(n){
+                result.push(n);
+            }
         }
         return result;
     },
