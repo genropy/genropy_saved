@@ -59,6 +59,7 @@ class AppPref(object):
         fb.textbox(value='^.check_email',width='30em',lbl='Check email')
         fb.textbox(value='^.confirm_user_title',width='30em',lbl='Confirm user title')
         fb.textbox(value='^.confirm_user_message',width='30em',lbl='Confirm user message')
+        fb.textbox(value='^.new_user_ok_message',width='30em',lbl='New user ok message')
 
 
 

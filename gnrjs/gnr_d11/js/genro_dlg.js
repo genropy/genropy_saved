@@ -174,8 +174,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         var t1 = setTimeout(function(){
                               genro.dom.removeClass(messageBox,'invisible');
-                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
-                                    setTimeout(deleteCb,(duration_out*1000)+1)
+                              setTimeout(function(){
+                                    if(duration_out>0){
+                                        var dt = duration_out/2;
+                                        setTimeout(function(){
+                                            genro.dom.addClass(messageBox,'invisible');
+                                            setTimeout(function(){
+                                                deleteCb();
+                                            },dt*1000)
+                                        },(dt*1000)+1)
+                                    }
+                                    
                               },(duration_in*1000)+1);
                             },1)
 
