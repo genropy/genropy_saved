@@ -735,6 +735,7 @@ dojo.declare('gnr.GenroClient', null, {
         console.log(v);
     },
     resizeAll: function() {
+        genro.wdgById('_gnrRoot').resize();
         //window.resizeBy(1,1);
         //window.resizeBy(-1,-1);
 

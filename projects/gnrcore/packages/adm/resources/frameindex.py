@@ -9,7 +9,6 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 from datetime import date
-import hashlib
 from gnr.core.gnrbag import Bag
 
 #foundation/menu:MenuIframes,
