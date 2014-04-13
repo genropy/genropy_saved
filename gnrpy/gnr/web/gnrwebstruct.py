@@ -481,6 +481,9 @@ class GnrDomSrc(GnrStructData):
     def div(self, childcontent=None, **kwargs):
         return self.htmlChild('div', childcontent=childcontent, **kwargs)
         
+    def style(self,childcontent=None,**kwargs):
+        return self.htmlChild('style', childcontent=childcontent, **kwargs)
+
     def a(self, childcontent=None, **kwargs):
         return self.htmlChild('a', childcontent=childcontent, **kwargs)
         
@@ -618,6 +621,8 @@ class GnrDomSrc(GnrStructData):
             what = None
         return self.child('subscribe', obj=what, objPath=objPath, event=event, childcontent=func, **kwargs)
         
+
+
     def css(self, rule, styleRule=''):
         """Handle the CSS rules
         

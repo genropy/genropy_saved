@@ -860,6 +860,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['baseUrl'] = self.site.home_uri
         kwargs['servertime'] = datetime.datetime.now()
         favicon = self.site.config['favicon?name']
+        google_fonts = getattr(self,'google_fonts',None)
+        if google_fonts:
+            arg_dict['google_fonts'] = google_fonts
         if favicon:
             arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)
             arg_dict['favicon_ext'] = favicon.split('.')[1]

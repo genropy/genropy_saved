@@ -28,9 +28,23 @@ from gnr.core.gnrstring import slugify
 import os
 
 
-class AttachManagerView(BaseComponent):
+class AttachManagerViewBase(BaseComponent):
+
+    def th_hiddencolumns(self):
+        return '$fileurl'
+
     def th_struct(self,struct):
         r = struct.view().rows()
+        r.fieldcell('_row_count',counter=True,hidden=True)
+        r.fieldcell('description',edit=True,width='20em')
+    
+    def th_order(self):
+        return '_row_count'
+
+class AttachManagerView(AttachManagerViewBase):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('_row_count',counter=True,hidden=True)
         #tbl.column('filepath' ,name_long='!!Filepath')
         r.fieldcell('description',edit=True,width='20em')
         #r.fieldcell('mimetype')
@@ -47,8 +61,7 @@ class AttachManagerView(BaseComponent):
         #tbl.column('text_content',name_long='!!Content')
         #tbl.column('info' ,'X',name_long='!!Additional info')
     
-    def th_order(self):
-        return '_row_count'
+
 
 
     def onUploading_attachmentComponent(self, file_url=None, file_path=None, file_ext=None, categories=None,
@@ -123,16 +136,19 @@ class AttachManager(BaseComponent):
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
 
-        bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver').iframe(src='^.view.grid.selectedId?fileurl',
-                                                                height='100%',width='100%',border=0)
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver')
+        readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         return th
 
     @struct_method
-    def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',**kwargs):
+    def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',mode=None,viewResource=None,**kwargs):
         frame = pane.framePane(frameCode='attachmentPane_#')
         bc = frame.center.borderContainer()
-        th = bc.contentPane(region='left',width='400px',splitter=True,childname='atcgrid').inlineTableHandler(relation='@atc_attachments',
-                                        viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerView',
+        mode = mode or 'sidebar'
+        d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
+        th = bc.contentPane(splitter=True,childname='atcgrid',**d[mode]).inlineTableHandler(relation='@atc_attachments',
+                                        viewResource= viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachManagerView',
                                         hider=True,autoSave=True,statusColumn=True,
                                         addrow=False,delrow=False,pbl_classes=pbl_classes,
                                         autoSelect=True,
@@ -143,8 +159,8 @@ class AttachManager(BaseComponent):
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
 
 
-        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer')
-        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0)
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer',overflow='hidden')
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
