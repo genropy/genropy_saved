@@ -484,10 +484,10 @@ class ThLinker(BaseComponent):
                             _init=True,linktpl='!!Link current $table1 record to an existing record of $table2',
                             addtpl='!!Add a new $table2',
                             t1=tblobj.name_long, t2=related_tblobj.name_long)        
-        if formResource or formUrl:
+        if (formResource or formUrl) and addEnabled is not False:
             add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
-            if addEnabled is not None:
+            if addEnabled:
                 pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)
             linker.attributes.update(_embedded=False)
             embedded = False
