@@ -481,7 +481,7 @@ class ThLinker(BaseComponent):
         if formResource or formUrl:
             add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
-            if addEnabled:
+            if addEnabled is not None:
                 pane.dataController("genro.dom.toggleVisible(add,addEnabled);",addEnabled=addEnabled,add=add)
             linker.attributes.update(_embedded=False)
             embedded = False
