@@ -1488,7 +1488,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         var handler = this;
         if(tplpars.editable){
             kw.connect_ondblclick = function(evt){
-                if(tplpars.editable==true || evt.metaKey){
+                if(tplpars.editable==true || evt.shiftKey){
                     handler.openTemplatePalette(this,editorConstrain,showLetterhead);
                 }
            };
