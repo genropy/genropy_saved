@@ -1696,7 +1696,8 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
         kw.datapath = (docpars.store && docpars.key && docpars.contentpath)?dataTemplate('_doc.content.$store.$key.$contentpath',docpars):'_emptypath';
         kw.connect_ondblclick = "genro.publish('editDocItem',{docItem:this});" 
         kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
-        return sourceNode._('div',kw)._('div', {innerHTML:'^.','_class':'^.?contentClasses','style':'^.?contentStyles'})
+        return sourceNode._('div',kw)._('div', {innerHTML:'==(_allcontent&&_current_lang)?_allcontent.getItem(_current_lang):"";',
+                            '_class':'^.?contentClasses','style':'^.?contentStyles',_current_lang:'^gnr.language',_allcontent:'^.'})
     }
 });
 
