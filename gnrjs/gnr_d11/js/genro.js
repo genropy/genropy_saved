@@ -436,6 +436,14 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
+        genro.dev.shortcut("Shift+space", function(e) {
+            var sn = dijit.getEnclosingWidget(e.target).sourceNode;
+            if('_lastSavedValue' in sn){
+                if(sn.form && sn.form.isNewRecord() && isNullOrBlank(sn.widget.getValue())){
+                    sn.widget.setValue(sn._lastSavedValue,true);
+                }
+            }
+        });
         genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
         genro.setData('gnr.debugger.debug_sql',this.debug_sql);
