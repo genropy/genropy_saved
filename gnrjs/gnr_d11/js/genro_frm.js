@@ -89,6 +89,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'geocoderfield':null,
             'ckeditor':null
         };
+        
+        this.checkLastSavedTags = {
+            'textbox':null,
+            'numbertextbox':null,
+            'timetextbox':null,
+            'combobox':null,
+            'filteringselect':null,
+            'dbselect':null,
+            'dbcombobox':null,
+            'datetextbox':null,
+        };
+
+
         var tblname = this.getControllerData('table?name_long');
         var pref = tblname?tblname+' record':'Record'
         this.msg_saved = pref +' saved ';
@@ -261,7 +274,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     resetKeepable:function(){
         for (var k in this._register){
-            node = this._register[k];
+            var node = this._register[k];
             if (node.attr.keepable){
                 node.widget.setKeeper(false);
             }
@@ -282,9 +295,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onLockChange',{'locked':this.locked});
     },
     registerChild:function(sourceNode){
-        if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+        var ltag = sourceNode.attr.tag.toLowerCase();
+        if (sourceNode.attr.parentForm || (ltag in this.autoRegisterTags)){
             if(!this._firstField){
-                if(sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags){
+                if(ltag in this.autoRegisterTags){
                     this._firstField = sourceNode;
                 }
             }
@@ -292,6 +306,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
     },
+
+    setLastSavedValues:function(){
+        var k,node,ltag;
+        for (k in this._register){
+            node = this._register[k];
+            if (node.attr.tag.toLowerCase() in this.checkLastSavedTags){
+                node._lastSavedValue = node.getRelativeData(node.attr.value);
+            }
+        }
+    },
+
     registerGridEditor:function(nodeId,gridEditor){
         this.gridEditors[nodeId] = gridEditor;
     },
@@ -921,6 +946,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 onSaved = 'dismiss';
             }
             var onReload = objectPop(kw,'onReload');
+            this.setLastSavedValues();
             var deferred=this.store.save(kw);
             var that,cb;
             that = this;
@@ -2214,6 +2240,7 @@ dojo.declare("gnr.formstores.Base", null, {
         }
         return deferred;
     },
+
     del_recordCluster:function(pkey,callkw){
         var deleter = this.handlers.del;
         var form = this.form;

@@ -1059,9 +1059,7 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         var barkw = objectExtract(kw,'addrow,delrow,addcol');
         if(objectNotEmpty(barkw)){
             var slots = '*,'+['delrow','addrow','addcol'].filter(function(n){return n in barkw}).join(',')+',5';
-            console.log(slots)
             var bar = gridframe._('SlotBar',{'side':'top',slots:slots,toolbar:true});
-            //to do slots
             bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
             bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
             bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
@@ -3283,7 +3281,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 that.storeNode.watch('externalChangesDisabled',function(){
                     var liveUpdateDelay = that.storeNode.getAttributeFromDatasource('liveUpdateDelay');
                     var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
-                    console.log('doUpdate',doUpdate,'lastLiveUpdate',that.lastLiveUpdate,'delta',(new Date()-that.lastLiveUpdate)/1000);
                     if(that._editingForm){
                         return doUpdate;
                     }
@@ -3566,7 +3563,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        console.log('BEFORE DELETING')
         genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield,protectPkeys:protectPkeys},function(result){
             that.onDeletedRows(result);
         },null,'POST');
