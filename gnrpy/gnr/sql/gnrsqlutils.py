@@ -265,66 +265,66 @@ class SqlModelChecker(object):
                 self._checkTblRelations(tbl)
                 
     def _checkTblRelations(self, tbl):
-        if tbl.relations:
-            tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[
-                              :] #get all db foreignkey of the current table
-            relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
-            for rel in relations:
-                if rel.get('foreignkey'): # link has foreignkey constraint
-                    o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql = self._relationToSqlNames(rel)
-                    on_up = self._onStatementToSql(rel.get('onUpdate_sql')) or 'NO ACTION'
-                    on_del = self._onStatementToSql(rel.get('onDelete_sql')) or 'NO ACTION'
-                    init_deferred = self._deferredToSql(rel.get('deferred'))
-                    existing = False
-                    tobuild = True
-                    
-                    for actual_rel in tbl_actual_rels:
-                        if actual_rel[3][0] == m_fld_sql: #if db foreignkey is on current col
-                            linkto_sql = '%s.%s' % (actual_rel[5], actual_rel[6])
-                            if linkto_sql == '%s.%s' % (
-                            o_pkg_sql, o_tbl_sql): #if db foreignkey link on current many table
-                                if actual_rel[7][0] == o_fld_sql:#if db foreignkey link on current many field
-                                    existing = True
-                                    tobuild = False
-                                    tbl_actual_rels.pop(tbl_actual_rels.index(actual_rel))
-                                    if actual_rel[8] != on_up:
-                                        tobuild = True
-                                        break
-                                    if actual_rel[9] != on_del:
-                                        tobuild = True
-                                        break
-                                    if (actual_rel[10] == 'YES' and not rel.get('deferred')) or (
-                                    actual_rel[10] == 'NO' and  rel.get('deferred')):
-                                        tobuild = True
-                                        break
-                                        
-                    if tobuild:
-                        if existing:
-                            change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql, actual_name=actual_rel[0])
-                            self.changes.append(change)
-                            self.bagChanges.setItem(
-                                    '%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql))
-                                    , None, changes=change)
-                            prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
-                            self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None,
-                                                    changes='%s\n%s' % (prevchanges, change))
-                        change = self._buildForeignKey(o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql,
-                                                       on_up, on_del, init_deferred)
+        if not tbl.relations:
+            return
+        tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[
+                          :] #get all db foreignkey of the current table
+        relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
+        for rel in relations:
+            if rel.get('foreignkey'): # link has foreignkey constraint
+                o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql = self._relationToSqlNames(rel)
+                on_up = self._onStatementToSql(rel.get('onUpdate_sql')) or 'NO ACTION'
+                on_del = self._onStatementToSql(rel.get('onDelete_sql')) or 'NO ACTION'
+                init_deferred = self._deferredToSql(rel.get('deferred'))
+                existing = False
+                tobuild = True
+                
+                for actual_rel in tbl_actual_rels:
+                    if actual_rel[3][0] == m_fld_sql: #if db foreignkey is on current col
+                        linkto_sql = '%s.%s' % (actual_rel[5], actual_rel[6])
+                        if linkto_sql == '%s.%s' % (
+                        o_pkg_sql, o_tbl_sql): #if db foreignkey link on current many table
+                            if actual_rel[7][0] == o_fld_sql:#if db foreignkey link on current many field
+                                existing = True
+                                tobuild = False
+                                tbl_actual_rels.pop(tbl_actual_rels.index(actual_rel))
+                                if actual_rel[8] != on_up:
+                                    tobuild = True
+                                    break
+                                if actual_rel[9] != on_del:
+                                    tobuild = True
+                                    break
+                                if (actual_rel[10] == 'YES' and not rel.get('deferred')) or (
+                                actual_rel[10] == 'NO' and  rel.get('deferred')):
+                                    tobuild = True
+                                    break
+                                    
+                if tobuild:
+                    if existing:
+                        change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql, actual_name=actual_rel[0])
                         self.changes.append(change)
                         self.bagChanges.setItem(
-                                '%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)),
-                                None, changes=change)
+                                '%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql))
+                                , None, changes=change)
                         prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
                         self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None,
                                                 changes='%s\n%s' % (prevchanges, change))
-                        #for remaining_relation in tbl_actual_rels:
-                        #    print remaining_relation
-                        #change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql)
-                        #self.changes.append(change)
-                        #self.bagChanges.setItem('%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)), None, changes=change)
-                        #prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
-                        #self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='%s\n%s' % (prevchanges, change))
-                        
+                    change = self._buildForeignKey(o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql,
+                                                   on_up, on_del, init_deferred)
+                    self.changes.append(change)
+                    self.bagChanges.setItem(
+                            '%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)),
+                            None, changes=change)
+                    prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
+                    self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None,
+                                            changes='%s\n%s' % (prevchanges, change))
+        for remaining_relation in tbl_actual_rels:
+            change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql,actual_name=remaining_relation[0])
+            self.changes.append(change)
+            self.bagChanges.setItem('%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)), None, changes=change)
+            prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
+            self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='%s\n%s' % (prevchanges, change))
+                    
     def _onStatementToSql(self, command):
         if not command: return None
         command = command.upper()
