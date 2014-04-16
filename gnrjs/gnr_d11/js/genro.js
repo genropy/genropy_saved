@@ -440,7 +440,7 @@ dojo.declare('gnr.GenroClient', null, {
             var sn = dijit.getEnclosingWidget(e.target).sourceNode;
             if('_lastSavedValue' in sn){
                 if(sn.form && sn.form.isNewRecord() && isNullOrBlank(sn.widget.getValue())){
-                    sn.widget.setValue(sn._lastSavedValue,true);
+                    sn.widget.setValue(sn._lastSavedValue,false);
                 }
             }
         });
