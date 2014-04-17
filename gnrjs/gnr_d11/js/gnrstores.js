@@ -138,6 +138,9 @@ dojo.declare("gnr.GnrStoreBag", null, {
                     return 'child_count' in item.attr ? item.attr.child_count > 0 : true;
                 } else {
                     var result = item.getValue();
+                    if(this.hasChildrenCb && this.hasChildrenCb(item)===false){
+                        return null;
+                    }
                     if (result instanceof gnr.GnrBag) {
                         return (result.len() > 0);
                     }

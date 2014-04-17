@@ -6615,13 +6615,21 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var labelCb = objectPop(attributes, 'labelCb');
         var hideValues = objectPop(attributes, 'hideValues');
         var _identifier = objectPop(attributes, 'identifier') || '#id';
+        var hasChildrenCb = objectPop(attributes, 'hasChildrenCb');
+        if (hasChildrenCb){
+            hasChildrenCb = funcCreate(hasChildrenCb);
+        }
+
         if (labelCb) {
             labelCb = funcCreate(labelCb);
         }
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
             hideValues:hideValues,
             labelAttribute:labelAttribute,
-            labelCb:labelCb,sourceNode:sourceNode});
+            labelCb:labelCb,
+            hasChildrenCb:hasChildrenCb,
+            sourceNode:sourceNode
+            });
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
         attributes['model'] = model;
         attributes['showRoot'] = false;
