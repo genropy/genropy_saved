@@ -7225,7 +7225,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
      },
     mixin_setSelected:function(node) {
         if(node){
-            if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick && node.item.attr.child_count)){
+            if(node.item.attr._isSelectable===false || (this.sourceNode.attr.openOnClick===true && node.item.attr.child_count)){
                 return;
             }
             

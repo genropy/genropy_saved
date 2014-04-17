@@ -1992,10 +1992,7 @@ div.dojoxDock {
 }
 
 ._common_d11 .lightboxDialog.dijitDialog {
-    border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -moz-box-shadow: 0px 0px 0px;
-    -webkit-box-shadow: 0px 0px 0px;
+    border-radius: 8px;
     padding:0;
     background:transparent;
     border:0;

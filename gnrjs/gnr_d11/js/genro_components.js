@@ -1688,16 +1688,18 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
         var _class = objectPop(kw,'_class');
         kw._class = _class? 'doc_item ' +_class : 'doc_item';
         var docpars = objectExtract(kw,'store,key,contentpath');
-        docpars = sourceNode.evaluateOnNode(docpars);
         kw._docKey = docpars.key;
         kw._docStore = docpars.store;
-        kw.datapath = (docpars.store && docpars.key && docpars.contentpath)?dataTemplate('_doc.content.$store.$key.$contentpath',docpars):'_emptypath';
+        kw._docContentPath = docpars.contentpath;
+        kw.datapath = '==(_docStore && _docKey && _docContentPath)?"_doc.content."+_docStore+"."+_docKey+"."+_docContentPath:"_emptypath"';
         kw.connect_ondblclick = "genro.publish('editDocItem',{docItem:this});" 
         kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
         return sourceNode._('div',kw)._('div', {innerHTML:'==(_allcontent&&_current_lang)?_allcontent.getItem(_current_lang):"";',
                             '_class':'^.?contentClasses','style':'^.?contentStyles',_current_lang:'^gnr.language',_allcontent:'^.'})
-    }
+    },
+
 });
+
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {

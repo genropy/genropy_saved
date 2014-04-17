@@ -638,7 +638,7 @@ dojo.declare('gnr.GenroClient', null, {
             try{
                 cb(f,result);
             }catch(e){
-                console.log('external iframe detected: error ',e);
+                //console.log('external iframe detected: error ',e);
             }
         });
         return objectUpdate({},result);
