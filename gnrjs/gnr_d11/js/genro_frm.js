@@ -1267,10 +1267,27 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             return;
         }
-        if( kw.value==kw.oldvalue || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
+        if( kw.value==kw.oldvalue  || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
+            if(kw.updattr){
+                var cattr = kw.changedAttr;
+                var oldvalue = kw.oldattr[cattr];
+                var newvalue = kw.node.attr[cattr];
+                var changekey = this.getChangeKey(kw.node) + cattr;
+                var changes = this.getChangesLogger();
+                var n = changes.getNode(changekey);
+                if(n){
+                    if(n.attr.from == newvalue){
+                        changes.popNode(changekey);
+                    }else{
+                        n.attr.to = newvalue;
+                    }
+                }else{
+                    changes.setItem(changekey,null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():cattr,from:oldvalue,to:newvalue});
+                }
+                this.updateStatus();
+            }
             return;
         }
-        ;
         if (kw.value instanceof gnr.GnrBag) {
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
         } else if (kw.evt == 'upd') {
@@ -1298,7 +1315,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
                 this.updateStatus();
                 //this.updateInvalidField(kw.reason, changekey);
-            } else {
+            } else { 
                 //changed attributes
             }
         } else {
