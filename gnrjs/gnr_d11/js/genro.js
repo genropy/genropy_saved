@@ -436,6 +436,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
+
         genro.dev.shortcut("Shift+space", function(e) {
             var sn = dijit.getEnclosingWidget(e.target).sourceNode;
             if('_lastSavedValue' in sn){
@@ -556,7 +557,9 @@ dojo.declare('gnr.GenroClient', null, {
 
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
-            genro.publish('SAVERECORD', e);
+            if(genro.activeForm){
+                genro.activeForm.save();
+            }
         });
         genro.dev.shortcut('f3', function(e) {
             genro.publish('PRINTRECORD', e);
