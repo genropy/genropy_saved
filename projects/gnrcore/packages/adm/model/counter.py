@@ -18,8 +18,8 @@ class Table(object):
         tbl.column('holes', 'X', name_long='!!Holes')
         tbl.column('errors','X', name_long='!!Errors')
 
-
     def getFieldSequences(self,tblobj,field=None):
+        #test
         pars = getattr(tblobj,'counter_%s' %field)()
         N_start,N_end = self._getBoundaries(**pars)['N']
         if N_start is None:
