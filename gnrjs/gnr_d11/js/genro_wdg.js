@@ -1059,7 +1059,10 @@ dojo.declare("gnr.GridEditor", null, {
         dojo.forEach(pkeys,function(pkey){
             var node = grid.rowBagNodeByIdentifier(pkey);
             node = storebag.popNode(node.label);
-            that.deletedRows.setItem(node.label,node);
+            if(grid.sourceNode.attr.table){
+                //is an inlinetablehandler
+                that.deletedRows.setItem(node.label,node);
+            }
             if(that.rowEditors[pkey]){
                 that.rowEditors[pkey].deleteRowEditor();
             }
