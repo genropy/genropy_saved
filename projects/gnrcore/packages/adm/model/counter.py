@@ -5,7 +5,7 @@ from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('counter', pkey='codekey',pkey_columns='pkg,tbl,code,period', name_long='!!Counter')
+        tbl = pkg.table('counter', pkey='codekey',pkey_columns='pkg,tbl,code,fld,period', name_long='!!Counter')
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':80', readOnly='y', name_long='!!Codekey', indexed='y')
         tbl.column('code', size=':12', readOnly='y', name_long='!!Code')
@@ -25,7 +25,8 @@ class Table(object):
         if N_start is None:
             return
         placeholder = '*'* (N_end-N_start)
-        dc = tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),distinct=True).fetch()
+        dc = tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),
+                            distinct=True,where=" NOT ($%s IS NULL OR $%s='') " %(field,field)).fetch()
         return sorted([r['dc'] for r in dc if r['dc']])
 
 
@@ -92,8 +93,9 @@ class Table(object):
         period = {}
         for k in 'YMD':
             b = boundaries[k]
-            period[k] = sq[b[0]:b[1]] if b[0] else ''
+            period[k] = sq[b[0]:b[1]] if b[0] is not None else ''
         kbound = boundaries['K']
+        pars_code = code
         code = sq[kbound[0]:kbound[1]] if kbound[0] is not None else None
         N_start,N_end = boundaries['N']
         placeholder = '*'* (N_end-N_start)
@@ -110,7 +112,7 @@ class Table(object):
         prev_date = None
         prevcnt = None
         cnt = 0
-        l = sorted(l,key=lambda r: r['cnt'])        
+        l = sorted(l,key=lambda r: r['cnt'])   
         if l and date_field and period['Y'] and len(period['Y']) <4:
             period['Y'] = str(l[0][date_field].year)
         if period:
@@ -144,7 +146,9 @@ class Table(object):
             prevcnt = cnt
         errors=errors or None
         holes=holes or None
-        record = dict(pkg=tblobj.pkg.name,tbl=tblobj.name,fld=field,period=period,code=code,counter=cnt,last_used=prev_date,holes=holes,errors=errors)
+        record = dict(pkg=tblobj.pkg.name,tbl=tblobj.name,fld=field,
+                        period=period,code=code or pars_code,counter=cnt,
+                        last_used=prev_date,holes=holes,errors=errors)
         codekey = self.newPkeyValue(record)
         with self.recordToUpdate(codekey=codekey,insertMissing=True) as r:
             r.update(record)
@@ -166,7 +170,7 @@ class Table(object):
 
     def newCounterRecord(self,tblobj=None,field=None,record=None):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
-        counter_record = Bag(code=counter_pars['code'],pkg=tblobj.pkg.name,tbl=tblobj.name)
+        counter_record = Bag(code=counter_pars['code'],pkg=tblobj.pkg.name,tbl=tblobj.name,fld=field)
         date_field = counter_pars.get('date_field')
         format = counter_pars.get('format','')
         if date_field:
