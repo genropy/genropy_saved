@@ -171,7 +171,13 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
         if not getattr(self,'skip_connection', False):
-            self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            try:
+                self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            except self.site.client_exception:
+                if self._call_kwargs.get('method') == 'onClosePage':
+                    return
+                else:
+                    raise
             self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         else:
             self.page_item = dict(data=dict())
