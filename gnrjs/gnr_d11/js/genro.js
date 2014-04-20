@@ -159,6 +159,7 @@ dojo.declare('gnr.GenroClient', null, {
                 dojo.keys.DOWN_ARROW = 40;
                 dojo.keys.UP_ARROW = 38;
             }
+            genropatches.getDocumentWindow();
             genropatches.forEachError();
             genropatches.borderContainer();
             genropatches.setStateClass();
@@ -1326,8 +1327,12 @@ dojo.declare('gnr.GenroClient', null, {
             objectPop(t,'parent');
             if (iframe=='*'){
                 dojo.forEach(window.frames,function(f){
-                    if (f.genro){
-                        f.genro.publish(t,kw);
+                    try{
+                        if (f.genro){
+                            f.genro.publish(t,kw);
+                        }
+                    }catch(e){
+
                     }
                 });
             }else{
