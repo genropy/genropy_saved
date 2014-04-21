@@ -170,19 +170,20 @@ class GnrWebPage(GnrBaseWebPage):
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
-        if not getattr(self,'skip_connection', False):
-            try:
-                self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
-            except self.site.client_exception:
-                if self._call_kwargs.get('method') == 'onClosePage':
-                    return
-                else:
-                    raise
-            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
-        else:
+        if getattr(self,'skip_connection', False) or self._call_kwargs.get('method') == 'onClosePage':
             self.page_item = dict(data=dict())
             self._workdate = datetime.date.today()
             self.page_id = page_id
+            self._inited = True
+            return
+        if page_id:
+            self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+        elif self._call_handler_type in ('pageCall', 'externalCall'):
+            raise self.site.client_exception('The request must reference a page_id', self._environ)
+        else:
+            self.page_item = self._register_new_page(kwargs=request_kwargs)
+        self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+        self._language = self.page_item['data']['rootenv.language']
         self._inited = True
             
     def onPreIniting(self, *request_args, **request_kwargs):
@@ -216,29 +217,29 @@ class GnrWebPage(GnrBaseWebPage):
                 setattr(self,proxy_name,proxy_class(self))
                 
     def _check_page_id(self, page_id=None, kwargs=None):
-        if page_id:
-            if not self.connection.connection_id:
-                raise self.site.client_exception('The connection is not longer valid', self._environ)
-            if not self.connection.validate_page_id(page_id):
-                raise self.site.client_exception('The referenced page_id is not valid in this connection',
-                                                 self._environ)
-            page_item = self.site.register.page(page_id,include_data='lazy')
-            if not page_item:
-                raise self.site.client_exception('The referenced page_id is cannot be found in site register',
-                                                 self._environ)
-            self.page_id = page_id
-            self.root_page_id = page_item['data'].getItem('root_page_id')
-            self.parent_page_id = page_item['data'].getItem('parent_page_id')
-            return page_item
-        else:
-            if self._call_handler_type in ('pageCall', 'externalCall'):
-                raise self.site.client_exception('The request must reference a page_id', self._environ)
-            if not self.connection.connection_id:
-                self.connection.create()
-            self.page_id = getUuid()
-            data = Bag()   
-            data['pageArgs'] = kwargs
-            return self.site.register.new_page(self.page_id, self, data=data)
+        if not self.connection.connection_id:
+            raise self.site.client_exception('The connection is not longer valid', self._environ)
+        if not self.connection.validate_page_id(page_id):
+            if self.isGuest:
+                return self._register_new_page(kwargs)
+            raise self.site.client_exception('The referenced page_id is not valid in this connection',
+                                             self._environ)
+        page_item = self.site.register.page(page_id,include_data='lazy')
+        if not page_item:
+            raise self.site.client_exception('The referenced page_id is cannot be found in site register',
+                                             self._environ)
+        self.page_id = page_id
+        self.root_page_id = page_item['data'].getItem('root_page_id')
+        self.parent_page_id = page_item['data'].getItem('parent_page_id')
+        return page_item            
+
+    def _register_new_page(self,kwargs):
+        if not self.connection.connection_id:
+            self.connection.create()
+        self.page_id = getUuid()
+        data = Bag()   
+        data['pageArgs'] = kwargs
+        return self.site.register.new_page(self.page_id, self, data=data)
 
     def get_call_handler(self, request_args, request_kwargs):
         """TODO
