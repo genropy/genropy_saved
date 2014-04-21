@@ -221,7 +221,7 @@ class GnrWebPage(GnrBaseWebPage):
             raise self.site.client_exception('The connection is not longer valid', self._environ)
         if not self.connection.validate_page_id(page_id):
             if self.isGuest:
-                return self._register_new_page(kwargs)
+                return self._register_new_page(page_id=page_id,kwargs=kwargs)
             raise self.site.client_exception('The referenced page_id is not valid in this connection',
                                              self._environ)
         page_item = self.site.register.page(page_id,include_data='lazy')
@@ -233,10 +233,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.parent_page_id = page_item['data'].getItem('parent_page_id')
         return page_item            
 
-    def _register_new_page(self,kwargs):
+    def _register_new_page(self,page_id=None,kwargs=None):
         if not self.connection.connection_id:
             self.connection.create()
-        self.page_id = getUuid()
+        self.page_id = page_id or getUuid()
         data = Bag()   
         data['pageArgs'] = kwargs
         return self.site.register.new_page(self.page_id, self, data=data)
