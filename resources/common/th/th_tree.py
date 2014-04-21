@@ -201,12 +201,11 @@ class HTableTree(BaseComponent):
                 var treeWdg = tree.widget;
                 treeWdg.collapseAll();
                 var pathToSelect =null;
-                var store = GET %s;
                 if(currvalue){
-                    pathToSelect = THTree.fullPathByIdentifier(treeWdg,store,currvalue);
+                    pathToSelect = THTree.fullPathByIdentifier(treeWdg,currvalue);
                 }
                 treeWdg.setSelectedPath(null,{value:pathToSelect});
-            """ %(storepath))
+            """)
         menuItem = menu.menuItem().div(max_height=max_height or '350px',min_width= min_width or '300px',overflow='auto')
         menuItem.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %storepath,
                          hideValues=True,autoCollapse=True,excludeRoot=True,

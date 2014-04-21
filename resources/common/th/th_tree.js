@@ -41,17 +41,19 @@ var THTree = {
         treeNode.widget.restoreExpanded();
         if(selectedIdentifier && dbevent!='I'){
             var treeWdg = treeNode.widget;
-            treeWdg.setSelectedPath(null,{value:this.fullPathByIdentifier(treeWdg,store,selectedIdentifier)});    
+            treeWdg.setSelectedPath(null,{value:this.fullPathByIdentifier(treeWdg,selectedIdentifier)});    
         }
     },
 
-    fullPathByIdentifier:function(tree,store,pkey){
+    fullPathByIdentifier:function(tree,pkey){
+        var store = tree.storebag();
         var n = store.getNodeByAttr('treeIdentifier',pkey);
         if(n){
             return n.getFullpath(null, tree.model.store.rootData());
         }else{
             var storeNode = store.getParentNode();
-            return genro.serverCall('ht_pathFromPkey',{pkey:pkey,table:storeNode.attr['table'],dbstore:storeNode.attr['dbstore']});
+            var inattr = storeNode.getInheritedAttributes();
+            return genro.serverCall('ht_pathFromPkey',{pkey:pkey,table:inattr['table'],dbstore:inattr['dbstore']});
         }
     },
 

@@ -7203,6 +7203,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         setTimeout(function() {
             currTree.focusNode(treeNode);
             currTree.setSelected(treeNode);
+            if(kw.expand){
+                currTree._expandNode(treeNode);
+            }
         }, 100);
     },
      mixin_showNodeAtPath:function(path) {
