@@ -1,6 +1,15 @@
 *:focus, *:active {outline:none;}
 input:focus { outline: none; }
 
+* a{
+    text-decoration:none !important;
+}
+
+* a:hover{
+    text-decoration:underline;
+}
+
+
 div,span{
     -webkit-touch-callout: none;
     -webkit-user-select: none;
