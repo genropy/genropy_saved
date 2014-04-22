@@ -149,6 +149,14 @@ class SqlModelChecker(object):
             self._checkPackage(pkg)
         self._checkAllRelations()
         return [x for x in self.changes if x]
+
+    def addExtesions(self):
+        try:
+            extensions = self.db.application.config['db?extensions']
+            if extensions:
+                self.db.adapter.createExtension(extensions)
+        except Exception,e:
+            print 'Error in adding extensions',e
         
     def _checkPackage(self, pkg):
         """Check if the current package is contained by a not defined schema and then call the
