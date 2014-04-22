@@ -211,7 +211,7 @@ if __name__ == '__main__':
                 siteconfig.setItem('dojo', None, version=self.dojo_version)
             else:
                 siteconfig = self.config
-            siteconfig.toXml(siteconfig_xml_path)
+            siteconfig.toXml(siteconfig_xml_path,typevalue=False,pretty=True)
             
 class InstanceMaker(object):
     """Handle the autocreation of the ``instances`` folder.
@@ -228,7 +228,7 @@ class InstanceMaker(object):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
-        self.db_dbname = db_dbname
+        self.db_dbname = db_dbname or instance_name
         self.authentication = authentication
         if self.authentication:
             self.authentication_pkg = authentication_pkg
@@ -263,26 +263,26 @@ class InstanceMaker(object):
         if not os.path.isfile(instanceconfig_xml_path):
             if not self.config:
                 instanceconfig = Bag()
-                instanceconfig.setItem('packages', None)
-                for package in self.packages:
-                    if isinstance(package, tuple) or isinstance(package, list):
-                        package, package_path = package
-                        instanceconfig.setItem('packages.%s' % package, None, path=package_path)
-                    else:
-                        instanceconfig.setItem('packages.%s' % package, None)
                 db_options = dict()
                 for option in ('dbname', 'implementation', 'host', 'port', 'username', 'password'):
                     value = getattr(self, 'db_%s' % option, None)
                     if value:
                         db_options[option] = value
                 instanceconfig.setItem('db', None, **db_options)
+                instanceconfig.setItem('packages', None)
+                for package in self.packages:
+                    if isinstance(package, tuple) or isinstance(package, list):
+                        package, package_path = package
+                        instanceconfig.setItem('packages.%s' % package.replace(':','_'), None, path=package_path,pkgcode=package)
+                    else:
+                        instanceconfig.setItem('packages.%s' % package.replace(':','_'), None,pkgcode=package)
                 if self.authentication:
                     instanceconfig.setItem('authentication', None, pkg=self.authentication_pkg)
                     instanceconfig.setItem('authentication.py_auth', None, defaultTags="user", pkg="adm",
                                            method="authenticate")
             else:
                 instanceconfig = self.config
-            instanceconfig.toXml(instanceconfig_xml_path)
+            instanceconfig.toXml(instanceconfig_xml_path,typevalue=False,pretty=True)
             
 class PackageMaker(object):
     """Handle the autocreation of the ``packages`` folder.
