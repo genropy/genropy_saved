@@ -710,6 +710,7 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+            pkgid = attrs.get('pkgcode',None) or pkgid
             if ':' in pkgid:
                 project,pkgid=pkgid.split(':')
             else:

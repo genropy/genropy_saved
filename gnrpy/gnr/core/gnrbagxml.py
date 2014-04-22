@@ -303,7 +303,7 @@ class BagToXml(object):
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
               addBagTypeAttr=True,onBuildTag=None,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
-              translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None,mode4d=False):
+              translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None,mode4d=False,pretty=None):
         """Return a complete standard XML version of the Bag, including the encoding tag 
         ``<?xml version=\'1.0\' encoding=\'UTF-8\'?>``; the Bag's content is hierarchically represented 
         as an XML block sub-element of the ``<GenRoBag>`` node.
@@ -353,7 +353,11 @@ class BagToXml(object):
         else:
             result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
         result = unicode(result).encode(encoding, 'replace')
-        
+        if pretty:
+            from xml.dom.minidom import parseString
+            result = parseString(result)
+            result = result.toprettyxml()
+            result = result.replace('\t\n','').replace('\t\n','')
         if filename:
             if autocreate:
                 dirname = os.path.dirname(filename)
