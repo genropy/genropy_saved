@@ -29,6 +29,8 @@ from gnr.core.gnrdate import decodeDatePeriod
 
 IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sIN\s\(\)')
 NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sNOT\s+IN\s\(\)')
+FLDMASK = dict(qmark='%s=?',named=':%s',pyformat='%%(%s)s')
+
 
 class SqlDbAdapter(object):
     """Base class for sql adapters.
@@ -53,6 +55,7 @@ class SqlDbAdapter(object):
     #         # your code here
     #         pass
     support_multiple_connections = True
+    paramstyle = 'named'
 
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
@@ -341,6 +344,21 @@ class SqlDbAdapter(object):
                 data_keys.append(sql_value or ':%s' % k)
         sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
+
+    def insertMany(self, dbtable, records,**kwargs):
+        tblobj = dbtable.model
+        sql_flds = []
+        columns = []
+        for colname,sqlcolname in tblobj.sqlnamemapper.items():
+            sql_flds.append(sqlcolname)
+            columns.append(colname)
+        fldmask = FLDMASK.get(self.paramstyle)
+        sql = 'INSERT INTO %s(%s) VALUES (%s);' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join([fldmask %col for col in columns]))
+        records = [self.prepareRecordData(record,tblobj=tblobj) for record in records]
+        cursor = self.cursor(self.dbroot.connection)
+        result = cursor.executemany(sql,records)
+        return result
+
 
     def update(self, dbtable, record_data, pkey=None,**kwargs):
         """Update a record in the db. 

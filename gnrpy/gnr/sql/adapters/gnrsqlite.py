@@ -50,6 +50,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'serial': 'serial8'}
 
     support_multiple_connections = False
+    paramstyle = 'named'
 
     def defaultMainSchema(self):
         return 'main'
@@ -58,7 +59,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         r = re.compile(expr, re.U)
         return r.match(item) is not None
 
-    def connect(self):
+    def connect(self,*args,**kwargs):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbpath = self.dbroot.dbname

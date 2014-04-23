@@ -43,4 +43,5 @@ class AppPref(object):
                               cancellable=True,
                               delay=.5)
         pkg.unpickleAllData(btc=self.btc)
+        self.btc.batch_complete(result='ok', result_attr=dict())
 

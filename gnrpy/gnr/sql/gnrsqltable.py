@@ -981,6 +981,9 @@ class SqlTable(GnrObject):
         :param record: a dictionary representing the record that must be inserted"""
         self.db.raw_insert(self, record, **kwargs)
             
+    def insertMany(self, records, **kwargs):
+        self.db.insertMany(self, records, **kwargs)
+
     def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
         self.db.raw_update(self, record, pkey=pkey,old_record=old_record,**kwargs)
 

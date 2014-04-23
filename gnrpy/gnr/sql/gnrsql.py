@@ -431,6 +431,9 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onInserted', record)
 
         
+    def insertMany(self, tblobj, records, **kwargs):
+        self.adapter.insertMany(tblobj, records,**kwargs)
+
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 

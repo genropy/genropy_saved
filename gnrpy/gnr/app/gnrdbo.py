@@ -172,18 +172,15 @@ class GnrDboPackage(object):
             import cPickle as pickle
         except ImportError:
             import pickle
-
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
             with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
                 records = pickle.load(storagefile)
             records = records or []
-            records = btc.thermo_wrapper(records,'records',message='Record') if btc else records
-            for r in records:
-                r = dict(r)
-                tblobj.raw_insert(r)
+            tblobj.insertMany(records)
             db.commit()
+
         import shutil
         shutil.rmtree(basepath)
 
@@ -255,7 +252,8 @@ class TableBase(object):
                                                                                         deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
+            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""")
+
             hfields = hierarchical.split(',')
             for fld in hfields:
                 if fld=='pkey':

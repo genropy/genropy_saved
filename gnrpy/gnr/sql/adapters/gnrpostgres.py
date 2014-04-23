@@ -67,6 +67,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'serial': 'serial8', 'O': 'bytea'}
 
     _lock = threading.Lock()
+    paramstyle = 'pyformat'
 
     def __init__(self, *args, **kwargs):
         #self._lock = threading.Lock()
