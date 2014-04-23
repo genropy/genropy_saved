@@ -112,18 +112,84 @@ class GnrDboPackage(object):
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
-    def tableBroadcast(self,evt,autocommit=False):
+    def tableBroadcast(self,evt,autocommit=False,**kwargs):
         changed = False
         db = self.application.db
         for tname,tblobj in db.packages[self.id].tables.items():
             handler = getattr(tblobj.dbtable,evt,None)
             if handler:
-                result = handler()
+                result = handler(**kwargs)
                 changed = changed or result
         if changed and autocommit:
             db.commit()
         return changed
 
+    def pickleAllData(self,basepath=None):
+        pkgapp = self.db.application.packages[self.name]
+        basepath = basepath or os.path.join(pkgapp.packageFolder,'data_pickled')
+        if not os.path.isdir(basepath):
+            os.mkdir(basepath)
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        file_list = []
+        for tname,tblobj in self.tables.items():
+            f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
+            z = os.path.join(basepath,'%s.pik' %tname)
+            file_list.append(z)
+            with open(z, 'w') as storagefile:
+                pickle.dump(f, storagefile)
+
+        import zipfile
+        zipPath = '%s.zip' %basepath
+
+        zipresult = open(zipPath, 'wb')
+        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
+        for fname in file_list:
+            zip_archive.write(fname, os.path.basename(fname))
+        zip_archive.close()
+        zipresult.close()
+        import shutil
+        shutil.rmtree(basepath)
+
+    def unpickleAllData(self,basepath=None,tables=None,btc=None):
+        basepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'data_pickled')
+        if not os.path.isdir(basepath):
+            extractpath = '%s.zip' %basepath
+            from zipfile import ZipFile
+            myzip =  ZipFile(extractpath, 'r')
+            myzip.extractall(basepath)
+        db = self.db
+        tables = tables or self.allTables()
+        rev_tables =  list(tables)
+        rev_tables.reverse()
+        print 'empty all'
+        for t in rev_tables:
+            db.table('%s.%s' %(self.name,t)).empty()
+        db.commit()
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tablename in tables:
+            tblobj = db.table('%s.%s' %(self.name,tablename))
+            with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
+                records = pickle.load(storagefile)
+            records = records or []
+            records = btc.thermo_wrapper(records,'records',message='Record') if btc else records
+            for r in records:
+                r = dict(r)
+                tblobj.raw_insert(r)
+            db.commit()
+        import shutil
+        shutil.rmtree(basepath)
+
+
+    def allTables(self):
+        return []
 
         
 class TableBase(object):

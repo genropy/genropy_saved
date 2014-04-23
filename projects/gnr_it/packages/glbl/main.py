@@ -12,9 +12,14 @@ class Package(GnrDboPackage):
                     
     def config_db(self, pkg):
         pass
-        
+
+    def allTables(self):
+        return ['nazione','regione','provincia','comune','localita','nuts']
+
+  
 class Table(GnrDboTable):
     def fillTable(self,records):
         for record in records:
             self.insert(record)
+
             

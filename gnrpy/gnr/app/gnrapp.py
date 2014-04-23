@@ -538,7 +538,7 @@ class GnrPackage(object):
 
     def envPreferences(self):
         "key:preference path, value:path inside dbenv"
-        return {}
+        return {}        
 
 
 class GnrApp(object):
