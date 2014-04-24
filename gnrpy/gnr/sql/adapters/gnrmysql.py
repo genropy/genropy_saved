@@ -60,7 +60,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def defaultMainSchema(self):
         return ''
 
-    def connect(self):
+    def connect(self, storename=None):
         """Return a new connection object: provides cursors accessible by col number or col name
         
         :returns: a new connection object"""
@@ -90,7 +90,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
 
     def getWhereTranslator(self):
-        return GnrWhereTranslator()
+        return GnrWhereTranslator(self.dbroot)
 
         #def _managerConnection(self):
         #dbroot=self.dbroot
