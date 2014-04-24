@@ -1,0 +1,14 @@
+python-dateutil==1.5
+paste 
+mako
+webob
+weberror
+vobject
+pytz
+babel
+httplib2
+pyro4
+pyPdf
+argparse
+xlrd
+xlwt
