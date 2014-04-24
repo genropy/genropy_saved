@@ -6,6 +6,7 @@ import hashlib
 from paver.easy import *
 from paver.setuputils import setup, find_packages
 from setuptools.command import *
+from subprocess import call
 
 DOJO_VERSION = '11'
 DOJO_URL_BASE = 'http://www.softwell.it/dojo/'
@@ -13,35 +14,9 @@ DOJO_MD5 = {'11': '0076080b78a91ade5c365aedaf1c0a4c'}
 
 data_files = []
 
-
-#options(
-#    setup=Bunch(
-#        name='genropy',
-#        version='0.7',
-#        author='Softwell S.a.s.',
-#        url='http://www.genropy.org/',
-#        author_email='info@genropy.org',
-#        license='LGPL',
-#        scripts=['scripts/gnrdbsetup','scripts/gnrmkinstance','scripts/gnrmkpackage','scripts/gnrwsgiserve','scripts/gnrxml2py',
-#                'scripts/gnrsendmail','scripts/gnrsitelocalize','scripts/gnrtrdeamon','scripts/rmltester','scripts/gnrsync4d'],
-#        packages=['gnr', 'gnr.core', 'gnr.app','gnr.web', 'gnr.sql'],
-#        package_dir={'gnr': 'gnrpy/gnr'},
-#        data_files=data_files,
-#        install_requires = ['paste','beaker','mako','webob','dateutil','simplejson',],
-#        zip_safe=False,
-#        extras_require = dict(
-#            pdf = ['z3c.rml'],
-#            postgres = ['psycopg'],
-#            pg8000 = ['pg8000'],
-#            sqlite = ['pysqlite']
-#            )
-#        )
-#)
-
-
 setup(
         name='gnrpy',
-        version='0.7',
+        version='0.9',
         author='Softwell S.a.s.',
         url='http://www.genropy.org/',
         author_email='info@genropy.org',
@@ -50,16 +25,11 @@ setup(
                  '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon',
                  '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
                  '../scripts/gnr'],
-        packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql', 'gnr.devel'],
-        #packages=find_packages(exclude=['ez_setup', 'examples', 'packages']),
-        #package_dir={'gnr': 'gnrpy/gnr'},
-        #namespace_packages=['gnr'],
+        packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql'],
         data_files=data_files,
-        install_requires=['paste', 'beaker', 'mako', 'webob', 'weberror', 'vobject', 'pytz', 'babel','httplib2','pyro4'
-                          , 'pyPdf', 'argparse','lxml'],
+        install_requires=['pip'], # NOTE: real requirements are now handled by pip and are in requirements.txt
         zip_safe=False,
         extras_require=dict(
-                #pdf = ['z3c.rml'],
                 postgres=['psycopg2'],
                 pg8000=['pg8000'],
                 sqlite=['pysqlite']
@@ -131,6 +101,7 @@ def configure():
 
 @task
 def install():
+    call(['pip', 'install', '-r', 'requirements.txt'])
     call_task('setuptools.command.install')
 
 @task
