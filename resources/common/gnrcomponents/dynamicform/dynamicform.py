@@ -545,7 +545,6 @@ class DynamicForm(BaseComponent):
         getter = wdg_attr.pop('getter',None)
         default_value = wdg_attr.pop('default_value',None)
         if default_value is not None and df_is_new:
-            print 'SET setting default for ',code
             fb.data('.%s' %code,default_value)
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
