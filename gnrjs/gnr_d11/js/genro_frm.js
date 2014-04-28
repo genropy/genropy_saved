@@ -1524,6 +1524,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             });
         }
     },
+
     checkInvalidFields: function() {
         var node, sourceNode,node_identifiers,idx, changekey;
         var invalidfields = this.getInvalidFields();
@@ -1531,25 +1532,33 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for (var i = 0; i < invalidnodes.length; i++) {
             node = invalidnodes[i];
             node_identifiers = node.getValue();
-            for(idx in node_identifiers){
+            objectKeys(node_identifiers).forEach(function(idx){
                 if(!genro.src.nodeBySourceNodeId(node_identifiers[idx])){
                     objectPop(node_identifiers,idx);
                 }
-            }
+            })
             if(!objectNotEmpty(node_identifiers)){
                 invalidfields.popNode(node.label);
                 continue;
             }
-            changekey = node.label;
-            result = genro.vld.validate(sourceNode, sourceNode);
-            if (result['modified']) {
-                sourceNode.widget.setValue(result['value']);
-            }
-            sourceNode.setValidationError(result);
-            return result['value'];
+            objectKeys(node_identifiers).forEach(function(idx){
+                sourceNode = genro.src.nodeBySourceNodeId(node_identifiers[idx]);
+                result = genro.vld.validate(sourceNode, sourceNode);
+                if (result['modified']) {
+                    sourceNode.widget.setValue(result['value']);
+                }
+                sourceNode.setValidationError(result);
+            })
         }
+        var invalidDojo=this.getInvalidDojo();
+        invalidDojo.keys().forEach(function(k){
+            if(!genro.src.nodeBySourceNodeId(k)){
+                invalidDojo.popNode(k);
+            }
+        })
         this.updateStatus();
     },
+
     dojoValidation:function(wdg,isValid){
         var sn = wdg.sourceNode;
         var node_identifier= sn.getStringId();
