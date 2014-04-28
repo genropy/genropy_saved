@@ -228,10 +228,21 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     message:function(kw){
-        kw['duration_in'] = 3;
-        kw['duration_out'] = 4;
-        kw['yRatio'] = .8;
-        genro.dlg.floatingMessage(this.sourceNode,kw);
+        if (!(kw instanceof Array)){
+            kw = [kw]
+        }
+        var msgKw = kw.shift();
+        if(typeof(msgKw)=='string'){
+            msgKw = {message:msgKw};
+        }
+        var that = this;
+        if(kw.length){
+            msgKw.onClosedCb = function(){
+                that.message(kw)
+            }
+        }
+        msgKw = objectUpdate({duration_in:3,duration_out:4,yRatio:.8},msgKw);
+        genro.dlg.floatingMessage(this.sourceNode,msgKw);
     },
 
     subscribe: function(command,cb,scope,subscriberNode){
@@ -675,7 +686,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     deleted:function(result,kw){
-        var destPkey = kw.destPkey || '*dismiss*';
+        var destPkey = kw.destPkey || this.deleted_destPkey || '*dismiss*';
         this.load({destPkey:destPkey});
         this.publish('message',{message:this.msg_deleted,sound:'$ondeleted'});
         this.publish('onDeleted');
@@ -685,6 +696,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     loaded: function(data) {
         var controllerData = this.getControllerData();
+        var that = this;
+
         controllerData.setItem('temp',null);
         if(data){
             this.setFormData(data);
@@ -696,7 +709,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
         genro.dom.setClass(this.sourceNode,'form_draft',this.isDraft());
-
         this.protect_delete = this.isProtectDelete();
         genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
 
@@ -708,11 +720,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         var loadedPkey = (this.getCurrentPkey() || '*norecord*');
-        var that = this;
         setTimeout(function(){controllerData.fireItem('loaded',loadedPkey);},1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;
+        var onLoadingError = this.onLoadingError();
+        if(onLoadingError){
+            genro.dlg.alert(onLoadingError,'Error',null,null, { confirmCb:function(){
+                that.abort();
+            } });
+            return;
+        }else{
+            this.handleLoadedMessage();
+        }
         if(this.store){
             //if(this.status=='readOnly'){
             //    this.setLocked(true);
@@ -1023,7 +1043,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         if(!this.autoSave){
-            this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+            var savedAttr = (result?result.savedAttr:null) || {};
+            this.publish('message',savedAttr.saved_message || {message:this.msg_saved,sound:'$onsaved'});
         }
         return result;
 
@@ -1078,6 +1099,18 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isNewRecord:function(){
         return this.getDataNodeAttributes()._newrecord;
     },
+
+    onLoadingError:function(){
+        return this.getDataNodeAttributes()._onLoadingError;
+    },
+
+    handleLoadedMessage:function(){
+        var loadedMessage = this.getDataNodeAttributes().loaded_message;
+        if(loadedMessage){
+            this.message(loadedMessage);
+        }
+    },
+
     isProtectWrite:function(){
         var parentForm = this.getParentForm();
         var protect_write = this.getDataNodeAttributes()._protect_write;
@@ -1174,6 +1207,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         value = value.deepCopy();
                         value.walk(function(n){
                             if('_loadedValue' in n.attr){
+                                var nvalue = n._value;
+                                if(nvalue instanceof gnr.GnrBag){
+                                    nvalue.popNode('_newrecord');
+                                }
                                 var loadedValue = objectPop(n.attr,'_loadedValue');
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }
@@ -1186,6 +1223,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
+                    if(node.attr.promised){
+                        attr_dict.promised = node.attr.promised;
+                    }
                     if ('_loadedValue' in node.attr) {
                         attr_dict.oldValue = asTypedTxt(node.attr._loadedValue, attr_dict['dtype']);
                         data.__isRealChange = true;
@@ -1227,10 +1267,27 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             return;
         }
-        if( kw.value==kw.oldvalue || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
+        if( kw.value==kw.oldvalue  || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
+            if(kw.updattr){
+                var cattr = kw.changedAttr;
+                var oldvalue = kw.oldattr[cattr];
+                var newvalue = kw.node.attr[cattr];
+                var changekey = this.getChangeKey(kw.node) + cattr;
+                var changes = this.getChangesLogger();
+                var n = changes.getNode(changekey);
+                if(n){
+                    if(n.attr.from == newvalue){
+                        changes.popNode(changekey);
+                    }else{
+                        n.attr.to = newvalue;
+                    }
+                }else{
+                    changes.setItem(changekey,null,{_valuelabel:kw.reason.getElementLabel?kw.reason.getElementLabel():cattr,from:oldvalue,to:newvalue});
+                }
+                this.updateStatus();
+            }
             return;
         }
-        ;
         if (kw.value instanceof gnr.GnrBag) {
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
         } else if (kw.evt == 'upd') {
@@ -1258,7 +1315,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
                 this.updateStatus();
                 //this.updateInvalidField(kw.reason, changekey);
-            } else {
+            } else { 
                 //changed attributes
             }
         } else {
@@ -1467,6 +1524,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             });
         }
     },
+
     checkInvalidFields: function() {
         var node, sourceNode,node_identifiers,idx, changekey;
         var invalidfields = this.getInvalidFields();
@@ -1474,25 +1532,33 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for (var i = 0; i < invalidnodes.length; i++) {
             node = invalidnodes[i];
             node_identifiers = node.getValue();
-            for(idx in node_identifiers){
+            objectKeys(node_identifiers).forEach(function(idx){
                 if(!genro.src.nodeBySourceNodeId(node_identifiers[idx])){
                     objectPop(node_identifiers,idx);
                 }
-            }
+            })
             if(!objectNotEmpty(node_identifiers)){
                 invalidfields.popNode(node.label);
                 continue;
             }
-            changekey = node.label;
-            result = genro.vld.validate(sourceNode, sourceNode);
-            if (result['modified']) {
-                sourceNode.widget.setValue(result['value']);
-            }
-            sourceNode.setValidationError(result);
-            return result['value'];
+            objectKeys(node_identifiers).forEach(function(idx){
+                sourceNode = genro.src.nodeBySourceNodeId(node_identifiers[idx]);
+                result = genro.vld.validate(sourceNode, sourceNode);
+                if (result['modified']) {
+                    sourceNode.widget.setValue(result['value']);
+                }
+                sourceNode.setValidationError(result);
+            })
         }
+        var invalidDojo=this.getInvalidDojo();
+        invalidDojo.keys().forEach(function(k){
+            if(!genro.src.nodeBySourceNodeId(k)){
+                invalidDojo.popNode(k);
+            }
+        })
         this.updateStatus();
     },
+
     dojoValidation:function(wdg,isValid){
         var sn = wdg.sourceNode;
         var node_identifier= sn.getStringId();
