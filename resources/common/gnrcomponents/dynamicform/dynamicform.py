@@ -383,7 +383,7 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,cachedRemote=True,**kwargs)
+        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,df_is_new=True,cachedRemote=True,**kwargs)
         
     @struct_method
     def df_dynamicFieldsPane(self,pane,field=None,**kwargs):
@@ -393,9 +393,22 @@ class DynamicForm(BaseComponent):
         df_table = df_column.relatedTable()
         pane.attributes['_workspace'] = True
         pane.attributes.update(overflow='hidden')
+        pane.dataController("""
+            if(_reason!='container' || this.form.isNewRecord()){
+                PUT #FORM.record.%s = null;
+            }
+            FIRE #FORM.changed_df_type_%s;
+        """ %(field,field),df_pkey='^#FORM.record.%s' %df_field,_delay=1)
         pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,
-                            df_pkey='^#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
-                            _onRemote='this.form.checkInvalidFields();',**kwargs)
+                            _fired='^#FORM.changed_df_type_%s' %field,
+                            df_pkey='=#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
+                            df_is_new='== !this.getRelativeData("#FORM.record.%s")' %field,
+                            _onRemote="""
+                                        //var dataNode = this.form.getFormData().popNode('%s');
+                                        //this.setRelativeData('#FORM.record.%s', dataNode._value);
+                                        this.form.checkInvalidFields();
+                                       """ %(df_field,df_field),
+                                       **kwargs)
   
 
 
@@ -409,9 +422,7 @@ class DynamicForm(BaseComponent):
         return result
 
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,clearData=False,**kwargs):
-        if clearData:
-            pane.data(datapath,Bag())
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,datapath=None,df_groups_cols=None,df_groups=None,**kwargs):
         if not (df_pkey or df_groups):
             pane.div()
             return
@@ -441,9 +452,6 @@ class DynamicForm(BaseComponent):
             ncol,colswith = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswith',pkey=df_pkey)
             fields = global_fields[df_pkey]
             pane.dynamicFormPage(fields=fields,ncol=ncol,colswith=colswith or None,datapath=datapath,**kwargs)
-
-            
-
     @struct_method
     def df_dynamicFormPage(self,pane,fields=None,ncol=None,colswith=None,datapath=None,**kwargs):
         fdict = dict()
@@ -487,7 +495,7 @@ class DynamicForm(BaseComponent):
         return self.df_makeDynamicField(fb,tag=tag,wdg_attr=attr,data_type=data_type,fields=fields,dbstore_kwargs=dbstore_kwargs,**kwargs)
 
     @customizable
-    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None,fieldPrefix=None,**kwargs):
+    def df_makeDynamicField(self,fb,tag=None,wdg_attr=None,data_type=None,fields=None,dbstore_kwargs=None,fieldPrefix=None,df_is_new=None,**kwargs):
         mask = wdg_attr.pop('field_mask',None)
         if tag.endswith('_nopopup'):
             tag = tag.replace('_nopopup','')
@@ -535,9 +543,9 @@ class DynamicForm(BaseComponent):
         code = wdg_attr.pop('code')
         getter = wdg_attr.pop('getter',None)
         default_value = wdg_attr.pop('default_value',None)
-        if default_value is not None:
-            fb.dataFormula('.%s' %code,'d', d=default_value,
-                            _if='this.form.isNewRecord()',_onBuilt=True)
+        if default_value is not None and df_is_new:
+            print 'SET setting default for ',code
+            fb.data('.%s' %code,default_value)
         wdg = self.df_child(fb,**wdg_attr)
         if not getter:
             return wdg     
