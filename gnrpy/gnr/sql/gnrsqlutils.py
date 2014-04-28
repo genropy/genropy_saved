@@ -326,12 +326,15 @@ class SqlModelChecker(object):
                     prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
                     self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None,
                                             changes='%s\n%s' % (prevchanges, change))
-        #for remaining_relation in tbl_actual_rels:
-        #    change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql,actual_name=remaining_relation[0])
-        #    self.changes.append(change)
-        #    self.bagChanges.setItem('%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)), None, changes=change)
-        #    prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
-        #    self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='%s\n%s' % (prevchanges, change))
+        for remaining_relation in tbl_actual_rels:
+            m_pkg_sql = remaining_relation[1]
+            m_tbl_sql = remaining_relation[2]
+            m_fld_sql = remaining_relation[3][0]
+            change = self._dropForeignKey(m_pkg_sql, m_tbl_sql, m_fld_sql,actual_name=remaining_relation[0])
+            self.changes.append(change)
+            self.bagChanges.setItem('%s.%s.relations.%s' % (tbl.pkg.name, tbl.name, 'fk_%s_%s' % (m_tbl_sql, m_fld_sql)), None, changes=change)
+            prevchanges = self.bagChanges.getAttr('%s.%s' % (tbl.pkg.name, tbl.name), 'changes')
+            self.bagChanges.setAttr('%s.%s' % (tbl.pkg.name, tbl.name), None, changes='%s\n%s' % (prevchanges, change))
                     
     def _onStatementToSql(self, command):
         if not command: return None
