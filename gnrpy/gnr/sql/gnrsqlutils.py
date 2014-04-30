@@ -244,15 +244,16 @@ class SqlModelChecker(object):
             dbindexes = dict([(c['name'], c) for c in
                               self.db.adapter.getIndexesForTable(schema=tbl.sqlschema, table=tbl.sqlname)])
             for idx in tbl.indexes.values():
-                if idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes:
-                    change = self.db.adapter.dropIndex(idx.sqlname[0:-4], sqlschema=tbl.sqlschema)
+                if (idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes):
+
+                    change = self.db.adapter.dropIndex(idx.sqlname[0:-4][:63], sqlschema=tbl.sqlschema)
                     if change:
                         self.changes.append(change)
                         tablechanges.append(change)
                         self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None,
                                                 changes=change)
                                                 
-                if idx.sqlname in dbindexes:
+                if idx.sqlname[:63] in dbindexes:
                     pass
                 else:
                     icols = idx.getAttr('columns')
@@ -407,7 +408,11 @@ class SqlModelChecker(object):
     def _alterColumnType(self, col, new_dtype, new_size=None):
         """Prepare the sql statement for altering the type of a given column and return it"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
-        return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
+        usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
+        if usedColumn or col.dtype == 'T' and col.dtype ==new_dtype:
+            return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
+        else:
+            return ';'.join(['ALTER TABLE %s DROP COLUMN %s;' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
         
     def _alterUnique(self, col, new_unique=None, old_unique=None):
         alter_unique=''

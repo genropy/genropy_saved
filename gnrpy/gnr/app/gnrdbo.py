@@ -164,7 +164,6 @@ class GnrDboPackage(object):
         tables = tables or self.allTables()
         rev_tables =  list(tables)
         rev_tables.reverse()
-        print 'empty all'
         for t in rev_tables:
             db.table('%s.%s' %(self.name,t)).empty()
         db.commit()
