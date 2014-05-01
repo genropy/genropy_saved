@@ -810,7 +810,7 @@ dojo.declare("gnr.GridEditor", null, {
         dojo.connect(grid, editOn[0], function(e) {
             if (genro.wdg.filterEvent(e, modifier)) {
                 if (_this.enabled() && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
-                    _this.startEdit(e.rowIndex, e.cellIndex);
+                    _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
                 }
             }
         });
@@ -1229,7 +1229,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.setCellValue(k-1,counterField,k);
         }
     },
-    startEdit:function(row, col) {
+    startEdit:function(row, col,dispatch) {
         var grid = this.grid;
         var cell = grid.getCell(col);
         var colname = cell.field;
@@ -1359,13 +1359,22 @@ dojo.declare("gnr.GridEditor", null, {
             wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         if('disabled' in attr){
-            var disabledpath = attr.disabled.slice(1);
-            if(disabledpath[0]=='.'){
-                disabledpath = '.' + rowLabel + disabledpath;
+            var disabled = objectPop(attr,'disabled');
+            if(typeof(disabled)=='string'){
+                if(disabled.indexOf('==')==0){
+                    //method
+                    disabled = funcApply('return '+disabled.slice(2),{rowLabel:rowLabel},this.widgetRootNode);
+                }else{
+                    var disabledpath = disabled.slice(1);
+                    if(disabledpath[0]=='.'){
+                        disabledpath = '.' + rowLabel + disabledpath;
+                    } 
+                    disabled = this.widgetRootNode.getRelativeData(disabledpath);
+                }
             }
-            if(this.widgetRootNode.getRelativeData(disabledpath)){
+            if(disabled){
                 var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
-                if (rc) {
+                if (rc && dispatch!='dodblclick') {
                     this.startEdit(rc.row, rc.col);
                 }
                 return;
