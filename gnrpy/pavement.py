@@ -107,7 +107,8 @@ def install():
 @task
 @needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
-    pass
+    call(['pip', 'install','pyPdf','--allow-external','pyPdf'])
+    call(['pip', 'install','-r', 'requirements.txt'])
 
 @task
 @needs(['generate_setup', 'setuptools.command.sdist'])

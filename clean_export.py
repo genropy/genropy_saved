@@ -30,7 +30,7 @@ EXCLUDED_PATHS = [
 'gnrpy/gnr/xtnd',
 'gnrpy/gnr/pdf',
 'gnrpy/gnr/devel',
-'gnrpy/gnr/utils',
+#'gnrpy/gnr/utils',
 'projects/gnrcore/packages/website',
 'projects/gnrcore/packages/uke',
 'projects/gnrcore/packages/qfrm',

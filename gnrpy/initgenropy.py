@@ -39,13 +39,16 @@ def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
     environment_bag.setItem('resources.genropy', None, dict(path=genropy_resources))
     environment_bag.setItem('webtools.genropy', None, dict(path=genropy_webtools))
     environment_bag.setItem('gnrdaemon', None, dict(host='localhost', port='40404', hmac_key=gnrdaemon_password))
-    environment_bag.toXml(path)
+    environment_bag.toXml(path,typevalue=False,pretty=True)
 
 def build_instanceconfig_xml(path=None):
     instanceconfig_bag = Bag()
     instanceconfig_bag.setItem('packages',None)
-    instanceconfig_bag.setItem('authentication.xml_auth',None, dict(defaultTags='users,xml'))
-    instanceconfig_bag.toXml(path)
+    instanceconfig_bag.setItem('authentication.xml_auth',None, dict(defaultTags='user,xml'))
+    password = get_random_password(size=6)
+    instanceconfig_bag.setItem('authentication.xml_auth.admin',None, dict(pwd=password, tags='_DEV_,admin,user'))
+    print "Default password for user admin is %s, you can change it by editing %s" %(password, path)
+    instanceconfig_bag.toXml(path,typevalue=False,pretty=True)
     
 def build_siteconfig_xml(path=None, gnrdaemon_password=None):
     siteconfig_bag = Bag()
@@ -55,7 +58,7 @@ def build_siteconfig_xml(path=None, gnrdaemon_password=None):
     siteconfig_bag.setItem('resources.common', None)
     siteconfig_bag.setItem('resources.js_libs', None)
     siteconfig_bag.setItem('gnrdaemon', None, dict(host='localhost', port='40404', hmac_key=gnrdaemon_password))
-    siteconfig_bag.toXml(path)
+    siteconfig_bag.toXml(path,typevalue=False,pretty=True)
 
 def create_folder(folder_path=None):
     if not os.path.exists(folder_path):
