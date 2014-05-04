@@ -8,7 +8,6 @@ pytz
 babel
 httplib2
 pyro4
-pyPdf
 argparse
 xlrd
 xlwt

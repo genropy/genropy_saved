@@ -35,7 +35,7 @@ def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
     environment_bag.setItem('projects.genropy_tutorial', None, dict(path=genropy_tutorial_projects))
     environment_bag.setItem('packages.genropy', None, dict(path=genropy_packages))
     environment_bag.setItem('static.js.dojo_11',None, dict(path=dojo_11_path, cdn=""))
-    environment_bag.setItem('static.js.gnr_d11', None, dict(path=gnr_d11_path))
+    environment_bag.setItem('static.js.gnr_11', None, dict(path=gnr_d11_path))
     environment_bag.setItem('resources.genropy', None, dict(path=genropy_resources))
     environment_bag.setItem('webtools.genropy', None, dict(path=genropy_webtools))
     environment_bag.setItem('gnrdaemon', None, dict(host='localhost', port='40404', hmac_key=gnrdaemon_password))
