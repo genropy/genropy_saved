@@ -8,13 +8,19 @@ from gnr.web.gnrbaseclasses import BaseComponent,TableScriptToHtml
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
-import re
 from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
 #from gnr.core.gnrbaghtml import BagToHtml
-import lxml.html as ht
+HT = None
+TEMPLATEROW = None
+try:
+    import lxml.html as HT
+    import re
+    TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
+except:
+    pass
 
-TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
+
 
 class TemplateEditorBase(BaseComponent):
     @public_method
@@ -150,18 +156,21 @@ class TemplateEditorBase(BaseComponent):
                 masks[code] = mask
         template = templateReplace(datacontent, varsdict, True,False,conditionalMode=False)
         compiled = Bag()
-        doc = ht.parse(StringIO(template)).getroot()
-        htmltables = doc.xpath('//table')
-        for t in htmltables:
-            attributes = t.attrib
-            if 'row_datasource' in attributes:
-                subname = attributes['row_datasource']
-                tbody = t.xpath('tbody')[0]
-                tbody_lastrow = tbody.getchildren()[-1]
-                tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
-                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
-                compiled.setItem(subname.replace('.','_'),subtemplate)
-        compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
+        cmain = template
+        if HT:
+            doc = HT.parse(StringIO(template)).getroot()
+            htmltables = doc.xpath('//table')
+            for t in htmltables:
+                attributes = t.attrib
+                if 'row_datasource' in attributes:
+                    subname = attributes['row_datasource']
+                    tbody = t.xpath('tbody')[0]
+                    tbody_lastrow = tbody.getchildren()[-1]
+                    tbody.replace(tbody_lastrow,HT.etree.Comment('TEMPLATEROW:$%s' %subname))
+                    subtemplate=HT.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
+                    compiled.setItem(subname.replace('.','_'),subtemplate)
+            cmain = TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),HT.tostring(doc).replace('%24','$'))
+        compiled.setItem('main', cmain,
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
                             columns=','.join(columns),formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,dtypes=dtypes)
         result.setItem('compiled',compiled)
