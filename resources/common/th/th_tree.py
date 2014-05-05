@@ -375,7 +375,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_hviewTree(self,box,table=None,picker=None,_class=None,**kwargs):  
         if picker: 
             bar = box.slotToolbar('*,treePicker,2',height='20px')
-        pane = box.div(position='relative',height='100%',padding='2px')
+        pane = box.div(position='relative',height='100%').div(position='absolute',top='2px',left='2px',right='2px',bottom='2px',overflow='auto')
         tree = pane.hTableTree(table=table,childname='htree',
                           onDrag="""var sn = dragInfo.sourceNode;
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
