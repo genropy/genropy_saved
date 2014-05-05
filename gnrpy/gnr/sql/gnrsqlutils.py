@@ -217,13 +217,12 @@ class SqlModelChecker(object):
                     new_unique = col.attributes.get('unique')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
                     old_size = dbcolumns[col.sqlname].get('size')
-                    old_unique = None
-                    if tblattr['pkey']==col.sqlname:
-                        old_unique = new_unique
-                    if self.unique_constraints:
-                        old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
-                    elif col.sqlname in columnsindexes:
-                        old_unique = columnsindexes[col.sqlname].get('unique')
+                    old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
+                    if not self.unique_constraints and col.sqlname in columnsindexes:
+                        if tblattr['pkey']==col.sqlname:
+                            old_unique = new_unique
+                        else:
+                            old_unique = columnsindexes[col.sqlname].get('unique')
                     if new_dtype == 'A' and not new_size:
                         new_dtype = 'T'
                     if new_dtype == 'A' and not ':' in new_size:
