@@ -181,14 +181,23 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             colType = col.pop('type').lower()
             if '(' in colType:
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
+                col['size'] = col['length']
                 colType = colType[:colType.find('(')]
             col['dtype'] = self.typesDict[colType]
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
+            if col['dtype'] in ('A','C') and col.get('length'):
+                col['size'] = col['_sl_size'] if col['dtype']=='C' else '0:%s' %col['_sl_size']
+                if col['size'] == '255':
+                    col['size'] = None
+                    col['dtype'] = 'T'
+            elif col['dtype'] == 'N':
+                col['size'] = col.get('_sl_size')
             result.append(col)
         if column:
             result = result[0]
         return result
+
 
     def listen(self, msg, timeout=None, onNotify=None, onTimeout=None):
         """Actually sqlite has no message comunications: so simply sleep and executes onTimeout

@@ -202,7 +202,10 @@ class SqlModelChecker(object):
         
         :param tbl: the :ref:`table` object"""
         tablechanges = []
-        
+        tableindexes = self.db.adapter.getIndexesForTable(schema=tbl.sqlschema, table=tbl.sqlname)
+        dbindexes = dict([(c['name'], c) for c in tableindexes])
+        columnsindexes = dict([(c['columns'], c) for c in tableindexes])
+        tblattr = tbl.attributes
         if tbl.columns:
             dbcolumns = dict(
                     [(c['name'], c) for c in self.db.adapter.getColInfo(schema=tbl.sqlschema, table=tbl.sqlname)])
@@ -214,7 +217,13 @@ class SqlModelChecker(object):
                     new_unique = col.attributes.get('unique')
                     old_dtype = dbcolumns[col.sqlname]['dtype']
                     old_size = dbcolumns[col.sqlname].get('size')
-                    old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
+                    old_unique = None
+                    if tblattr['pkey']==col.sqlname:
+                        old_unique = new_unique = True
+                    if self.unique_constraints:
+                        old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
+                    elif col.sqlname in columnsindexes:
+                        old_unique = columnsindexes[col.sqlname].get('unique')
                     if new_dtype == 'A' and not new_size:
                         new_dtype = 'T'
                     if new_dtype == 'A' and not ':' in new_size:
@@ -231,6 +240,7 @@ class SqlModelChecker(object):
                             change = self._alterColumnType(col, new_dtype, new_size)
                             self.changes.append(change)
                         if bool(old_unique)!=bool(new_unique):
+                            print 'xxxx',new_unique,old_unique
                             self.changes.append(self._alterUnique(col,new_unique,old_unique))
                         #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
                 else:
@@ -241,8 +251,6 @@ class SqlModelChecker(object):
                                             changes=change)
                                             
         if tbl.indexes:
-            dbindexes = dict([(c['name'], c) for c in
-                              self.db.adapter.getIndexesForTable(schema=tbl.sqlschema, table=tbl.sqlname)])
             for idx in tbl.indexes.values():
                 if (idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes):
 
@@ -412,7 +420,7 @@ class SqlModelChecker(object):
         if usedColumn or col.dtype == 'T' and col.dtype ==new_dtype:
             return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
         else:
-            return ';'.join(['ALTER TABLE %s DROP COLUMN %s;' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
+            return '; '.join(['ALTER TABLE %s DROP COLUMN %s' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
         
     def _alterUnique(self, col, new_unique=None, old_unique=None):
         alter_unique=''
