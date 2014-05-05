@@ -219,7 +219,7 @@ class SqlModelChecker(object):
                     old_size = dbcolumns[col.sqlname].get('size')
                     old_unique = None
                     if tblattr['pkey']==col.sqlname:
-                        old_unique = new_unique = True
+                        old_unique = new_unique
                     if self.unique_constraints:
                         old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
                     elif col.sqlname in columnsindexes:
@@ -240,7 +240,6 @@ class SqlModelChecker(object):
                             change = self._alterColumnType(col, new_dtype, new_size)
                             self.changes.append(change)
                         if bool(old_unique)!=bool(new_unique):
-                            print 'xxxx',new_unique,old_unique
                             self.changes.append(self._alterUnique(col,new_unique,old_unique))
                         #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
                 else:
