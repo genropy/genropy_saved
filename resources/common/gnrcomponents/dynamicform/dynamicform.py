@@ -137,7 +137,10 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('data_type', name='!!Type', width='10em')
         r.cell('wdg_tag',name='!!Widget',width='10em')
         r.cell('page',name='!!Page',width='10em')
-        r.cell('mandatory', name='!!Mandatory',width='7em')
+        r.cell('querable',name='!!Querable',width='7em',
+                    dtype='B')
+
+        r.cell('mandatory', name='!!Mandatory',width='7em',dtype='B')
 
     @customizable
     def df_fieldsBagForm(self,form):
@@ -163,7 +166,8 @@ class DynamicFormBagManager(BaseComponent):
         fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
 
         fb.textbox(value='^.page',lbl='Page')
-        self.df_formulaField(fb)        
+        self.df_formulaField(fb)   
+
         fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
         fb.br()
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
@@ -211,12 +215,12 @@ class DynamicFormBagManager(BaseComponent):
         accesspane = tc.contentPane(title='!!Access')
 
         accesspane = accesspane.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
-
         accesspane.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
         accesspane.textbox(value='^.default_value',lbl='Dflt.Value')
         accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',height='60px')
         accesspane.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px')
         accesspane.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
+        accesspane.checkbox(value='^.querable',lbl='',label='!!Querable')
 
 
         formatpane = tc.contentPane(title='!!Format and Mask')
