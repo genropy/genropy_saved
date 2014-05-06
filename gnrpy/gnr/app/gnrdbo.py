@@ -4,7 +4,7 @@
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson
+from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -510,14 +510,15 @@ class TableBase(object):
         if old_record and old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
             self.restoreUnifiedRecord(record)
 
-    def df_getQuerableFields(self,field,group=None):
+    def df_getQuerableFields(self,field,group=None,caption_field=None,grouped=False,**kwargs):
         column = self.column(field)
         df_field = column.attributes['subfields']
         df_column = column.table.column(df_field)
         df_table = df_column.relatedTable()
         querable = Bag()
-        fetch = df_table.dbtable.query(columns='$df_fields').fetch()
-        typeconverter = { 'N': 'numeric','B': 'boolean',
+        df_caption_field = caption_field or df_table.attributes.get('caption_field')
+        fetch = df_table.dbtable.query(columns='$%s,$df_fields' %df_caption_field,**kwargs).fetch()
+        typeconverter = {'T':'text','P':'text', 'N': 'numeric','B': 'boolean',
                          'D': 'date', 'H': 'time without time zone','L': 'bigint', 'R': 'real'}
         for r in fetch:
             df_fields = Bag(r['df_fields'])
@@ -525,10 +526,20 @@ class TableBase(object):
                 if v['querable']:
                     dtype = dtype=v['data_type']
                     sql_formula = """ (xpath('/GenRoBag/%s/text()', CAST($%s as XML) ) )[1] """ %(v['code'],field)
-                    if dtype not in ('T','P'):
-                        sql_formula = """CAST ( ( %s ) AS %s) """ %(sql_formula,typeconverter[dtype])
-                    querable.setItem(v['code'],None,name=v['code'],name_long=v['description'],dtype=dtype,
-                                    sql_formula=sql_formula,group=group)
+                    sql_formula = """CAST ( ( %s ) AS %s) """ %(sql_formula,typeconverter[dtype])
+                    c = slugify(r[df_caption_field]).replace('-','_')
+                    if grouped:
+                        fcode ='%s_%s_%s' %(field,c,v['code'])
+                        cgroup= group+'.%(df)s'
+                        subgroup_df=r[df_caption_field]
+                    else:
+                        fcode ='%s_%s' %(field,v['code'])
+                        subgroup_df = None
+                        cgroup = group
+                    querable.setItem(fcode,None,name=fcode,name_long=v['description'],dtype=dtype,
+                                    sql_formula=sql_formula,
+                                    group=cgroup ,
+                                    subgroup_df=subgroup_df)
         return querable.digest('#a')
 
 
