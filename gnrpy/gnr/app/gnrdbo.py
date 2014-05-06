@@ -510,6 +510,28 @@ class TableBase(object):
         if old_record and old_record.get(logicalDeletionField) and not record.get(logicalDeletionField) and record.get('__moved_related'):
             self.restoreUnifiedRecord(record)
 
+    def df_getQuerableFields(self,field,group=None):
+        column = self.column(field)
+        df_field = column.attributes['subfields']
+        df_column = column.table.column(df_field)
+        df_table = df_column.relatedTable()
+        querable = Bag()
+        fetch = df_table.dbtable.query(columns='$df_fields').fetch()
+        typeconverter = { 'N': 'numeric','B': 'boolean',
+                         'D': 'date', 'H': 'time without time zone','L': 'bigint', 'R': 'real'}
+        for r in fetch:
+            df_fields = Bag(r['df_fields'])
+            for v in df_fields.values():
+                if v['querable']:
+                    dtype = dtype=v['data_type']
+                    sql_formula = """ (xpath('/GenRoBag/%s/text()', CAST($%s as XML) ) )[1] """ %(v['code'],field)
+                    if dtype not in ('T','P'):
+                        sql_formula = """CAST ( ( %s ) AS %s) """ %(sql_formula,typeconverter[dtype])
+                    querable.setItem(v['code'],None,name=v['code'],name_long=v['description'],dtype=dtype,
+                                    sql_formula=sql_formula,group=group)
+        return querable.digest('#a')
+
+
     def df_getFieldsRows(self,pkey=None,**kwargs):
         if self.column('df_fields') is None:
             fieldstable = self.attributes.get('df_fieldstable')
