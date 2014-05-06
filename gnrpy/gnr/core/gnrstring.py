@@ -784,6 +784,8 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     :param mask: TODO
     :param encoding: The multibyte character encoding you choose
     :param currency: TODO"""
+    if hasattr(obj, '_htraverse') and format:
+        return templateReplace(format,obj)
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?

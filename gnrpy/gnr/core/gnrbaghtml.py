@@ -259,13 +259,12 @@ class BagToHtml(object):
                 value = default
         else:
             value = root.get(path)
-        if value is None:
-            value = default
-        elif isinstance(value, Bag):
-            return value
-            
         format = format or attr.get('format')
         mask = mask or attr.get('mask')
+        if value is None:
+            value = default
+        elif isinstance(value, Bag) and not format:
+            return value
         return self.toText(value, locale, format, mask, self.encoding, **kwargs)
         
     def main(self):
