@@ -24,6 +24,7 @@ import os, re, time
 
 import datetime
 import pprint
+import decimal
 
 try:
     import sqlite3 as pysqlite
@@ -340,6 +341,11 @@ def convert_time(val):
 
 pysqlite.register_adapter(datetime.time, adapt_time)
 pysqlite.register_converter("time", convert_time)
+
+# ------------------------------------------------------------------------------------------------------- Add support for decimal fields to sqlite3 module
+
+pysqlite.register_adapter(decimal.Decimal, lambda x: int(x*100))
+pysqlite.register_converter('numeric', lambda x: decimal.Decimal(x)/100)
 
 # ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
 
