@@ -3,6 +3,7 @@
 
 import datetime
 import os
+from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -780,9 +781,10 @@ class TableBase(object):
     ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
 
     def counterColumns(self):
-        if self.db.package('adm').attributes.get('counter'):
-            return [k[8:] for k in dir(self) if k.startswith('counter_')]
-        return []
+        adm_counter = self.db.package('adm').attributes.get('counter')
+        if adm_counter is not None and boolean(adm_counter) is False:
+            return []
+        return [k[8:] for k in dir(self) if k.startswith('counter_')]
 
     def trigger_releaseCounters(self,record=None):
         for field in self.counterColumns():
