@@ -82,8 +82,9 @@ try:
                 value= ''
             if self.isBag:
                 if hasattr(value, '_htraverse'):
-                    if self.templates and k in self.templates:
-                        templateNode = self.templates.getNode(k)
+                    templatename = k.replace('.','_')
+                    if self.templates and templatename in self.templates:
+                        templateNode = self.templates.getNode(templatename)
                         if templateNode:
                             template = templateNode.value
                             joiner = templateNode.getAttr('joiner','')
@@ -104,7 +105,6 @@ try:
                                                 masks=self.masks, dtypes=self.dtypes,
                                                 noneIsBlank=self.noneIsBlank,emptyMode=True)
                         return result if result!=empty else ''
-
                     else:
                         return value.getFormattedValue(joiner='<br/>');
                 else:
