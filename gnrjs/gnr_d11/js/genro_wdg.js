@@ -45,7 +45,7 @@ function inlineWidget(evt){
     }
 
     var dt = colattr['dtype'];
-    var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+    var widgets = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
     colattr['tag'] = widgets[dt] || 'Textbox';
     if('related_table' in colattr){
         colattr['tag'] = 'dbselect';
@@ -95,18 +95,6 @@ function inlineWidget(evt){
     var widgetNode = templateHandler._editRootNode._(colattr.tag,colattr).getParentNode();
     widgetNode.widget.focus()
 
-};
-
-function inlineWidget_xx(parentNode,fldDict,cellName,kw){
-    var wdgtag = fldDict.tag;
-    if (!wdgtag || kw.autoWdg) {
-        var dt = fldDict.dtype;
-        //var dt = convertToText(cellDataNode.getValue())[0];
-        wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
-    }
-
-    var widgetNode = parentNode._(wdgtag,cellName, kw).getParentNode();
-    return widgetNode;
 };
 
 dojo.declare("gnr.GnrWdgHandler", null, {
@@ -746,6 +734,19 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.autoSave===true){
             this.autoSave = 3000;
         }
+        if(sourceNode.attr.remoteRowController){
+            var that = this;
+            this.remoteRowController = function(rowIndex, cellname,value,kw){
+                kw = kw || {};
+                objectUpdate(kw,{field:cellname,value:value,row:grid.rowByIndex(rowIndex)});
+                genro.serverCall(sourceNode.attr.remoteRowController,kw,function(result){
+                    result = result || {};
+                    if(objectNotEmpty(result)){
+                        that.updateRow(grid.dataNodeByIndex(rowIndex),result);
+                    }
+                });
+            }
+        }
         this.formId = sourceNode.getInheritedAttributes()['formId'];
         this.rowEditors = {};
         this.deletedRows = new gnr.GnrBag()
@@ -858,7 +859,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         if(!('tag' in colattr)){
             var dt = colattr['dtype'];
-            var widgets = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
+            var widgets = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox','B':'CheckBox'};
             colattr['tag'] = widgets[dt] || 'Textbox';
             if('related_table' in colattr){
                 colattr['tag'] = 'dbselect';
@@ -869,6 +870,10 @@ dojo.declare("gnr.GridEditor", null, {
             }if('values' in colattr){
                 colattr['tag'] = colattr.values.indexOf(':')>=0?'filteringselect':'combobox';
             }
+        }
+        if(colattr.remoteRowController){
+            var remoteRowControllerCall = 'this.remoteRowController(value)';
+            colattr.validate_onAccept = colattr.validate_onAccept? colattr.validate_onAccept + '; '+remoteRowControllerCall:remoteRowControllerCall;
         }
         var lowertag = colattr['tag'].toLowerCase();
         if(this['tag_'+lowertag]){
@@ -1164,6 +1169,9 @@ dojo.declare("gnr.GridEditor", null, {
         this.newRowEditor(newnode);
     },
     updateRow:function(rowNode, updkw){
+        if (updkw instanceof gnr.GnrBag){
+            updkw = updkw.asDict();
+        }
         var row = this.grid.rowFromBagNode(rowNode);
         var rowEditor = this.rowEditors[this.grid.rowIdentity(row)];
         if (!rowEditor){
@@ -1356,7 +1364,7 @@ dojo.declare("gnr.GridEditor", null, {
         var wdgtag = fldDict.tag;
         if (!wdgtag || attr.autoWdg) {
             var dt = convertToText(cellDataNode.getValue())[0];
-            wdgtag = {'L':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
+            wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
         if('disabled' in attr){
             var disabled = objectPop(attr,'disabled');
@@ -1384,6 +1392,9 @@ dojo.declare("gnr.GridEditor", null, {
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
+        editWidgetNode.remoteRowController = function(value){
+            gridEditor.remoteRowController(this.editedRowIndex,gridcell,value)
+        }
         editWidgetNode.editedRowIndex = row;
         this.onEditCell(true,row);
         if (cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings) {

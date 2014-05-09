@@ -336,8 +336,15 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,handlerType='inline',
                                         default_kwargs=default_kwargs,configurable=configurable,
                                         foreignKeyGetter='=#FORM.pkey',**kwargs)
+        remoteRowController = self._th_hook('remoteRowController',dflt=None,mangler=wdg.view) or None
+        options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
-        wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs,autoSave=autoSave,statusColumn=statusColumn))
+        wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
+                                        gridEditor=dict(saveMethod=saveMethod,
+                                                        default_kwargs=default_kwargs,
+                                                        autoSave=autoSave or options.get('autoSave'),
+                                                        statusColumn=statusColumn or options.get('statusColumn')))
+
         wdg.view.attributes.update(height=height,width=width)
 
         if saveButton:
