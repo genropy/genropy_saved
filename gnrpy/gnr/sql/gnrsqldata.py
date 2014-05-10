@@ -544,6 +544,8 @@ class SqlQueryCompiler(object):
         new_col_list = []
         for col in col_list:
             col = col.strip()
+            if col.startswith('SUM'):
+                aggregate = True
             if not ' AS ' in col:
                 if col.startswith('$') and col[1:].replace('_', '').isalnum():
                     as_ = col[1:]

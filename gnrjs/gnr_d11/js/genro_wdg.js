@@ -738,7 +738,7 @@ dojo.declare("gnr.GridEditor", null, {
             var that = this;
             this.remoteRowController = function(rowIndex, cellname,kw){
                 kw = kw || {};
-                objectUpdate(kw,{field:cellname,row:grid.rowByIndex(rowIndex)});
+                objectUpdate(kw,{field:cellname,row:new gnr.GnrBag(grid.rowByIndex(rowIndex))});
                 genro.serverCall(sourceNode.attr.remoteRowController,kw,function(result){
                     result = result || {};
                     if(objectNotEmpty(result)){
