@@ -599,11 +599,11 @@ dojo.declare("gnr.GnrBag", null, {
         var kw = kw || {};
         var headers = kw.headers;
         var h ='';
-        
-        if(headers){
+        var hheadcel = this.getItem('#0');
+        if(headers && hheadcel){
             if(headers===true){
                 headers = '';
-                this.getItem('#0').forEach(function(n){
+                hheadcel.forEach(function(n){
                     var calclabel = (n.attr._valuelabel || n.attr.name_long || stringCapitalize(n.label));
                     headers+=headers?','+calclabel:calclabel;
                 })

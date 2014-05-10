@@ -629,7 +629,7 @@ dojo.declare("gnr.RowEditor", null, {
         for(var k in cellmap){
             objectPop(default_kwargs,k);
             var v = this.original_values[k];
-            var nkw = {};
+            var nkw = {dtype:cellmap[k].dtype};
             if(this.newrecord){
                 if(isNullOrBlank(v) && cellmap[k].validate_notnull){
                     nkw['_validationError'] = cellmap[k].validate_notnull_error || 'not null';
@@ -736,9 +736,9 @@ dojo.declare("gnr.GridEditor", null, {
         }
         if(sourceNode.attr.remoteRowController){
             var that = this;
-            this.remoteRowController = function(rowIndex, cellname,value,kw){
+            this.remoteRowController = function(rowIndex, cellname,kw){
                 kw = kw || {};
-                objectUpdate(kw,{field:cellname,value:value,row:grid.rowByIndex(rowIndex)});
+                objectUpdate(kw,{field:cellname,row:grid.rowByIndex(rowIndex)});
                 genro.serverCall(sourceNode.attr.remoteRowController,kw,function(result){
                     result = result || {};
                     if(objectNotEmpty(result)){
@@ -872,7 +872,16 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         if(colattr.remoteRowController){
-            var remoteRowControllerCall = 'this.remoteRowController(value)';
+            var remoteRowControllerPars = colattr.remoteRowController;
+            var remoteRowControllerCall = 'this.remoteRowController()';
+            if(remoteRowControllerPars!=true){
+                var variables = [];
+                for (var k in remoteRowControllerPars){
+                    colattr['validate_'+k] = remoteRowControllerPars[k];
+                    variables.push(quoted(k)+':validations.'+k);
+                }
+                remoteRowControllerCall = 'this.remoteRowController({'+variables.join(',')+'})';
+            }
             colattr.validate_onAccept = colattr.validate_onAccept? colattr.validate_onAccept + '; '+remoteRowControllerCall:remoteRowControllerCall;
         }
         var lowertag = colattr['tag'].toLowerCase();
@@ -1392,8 +1401,8 @@ dojo.declare("gnr.GridEditor", null, {
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
-        editWidgetNode.remoteRowController = function(value){
-            gridEditor.remoteRowController(this.editedRowIndex,gridcell,value)
+        editWidgetNode.remoteRowController = function(kw){
+            gridEditor.remoteRowController(this.editedRowIndex,gridcell,kw)
         }
         editWidgetNode.editedRowIndex = row;
         this.onEditCell(true,row);
