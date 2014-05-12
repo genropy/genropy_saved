@@ -7,7 +7,8 @@ from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 import atexit
-
+import sys
+import os
 
 import Pyro4
 
@@ -22,7 +23,12 @@ def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,sto
     server.start(host=host,hmac_key=hmac_key,port='*',autorestore=autorestore)
 
 def getFullOptions(options=None):
-    env_options = Bag(expandpath('~/.gnr/environment.xml')).getAttr('gnrdaemon')
+    if sys.platform == 'win32':
+        gnr_path = '~\gnr'
+    else:
+        gnr_path = '~/.gnr'
+    enviroment_path = os.path.join(gnr_path,'environment.xml')
+    env_options = Bag(expandpath(enviroment_path)).getAttr('gnrdaemon')
     assert env_options,"Missing gnrdaemon configuration."
     for k,v in options.items():
         if v:
