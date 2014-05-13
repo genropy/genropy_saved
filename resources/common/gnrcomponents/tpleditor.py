@@ -125,8 +125,8 @@ class TemplateEditorBase(BaseComponent):
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
-            for varname,fldpath,virtualcol,format,mask,editable,df_template,dtype in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.required_columns,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
+            for varname,fldpath,virtualcol,required_columns,format,mask,editable,df_template,dtype in tplvars:
                 fk=''
                 if format:
                     fk=varname
@@ -145,10 +145,14 @@ class TemplateEditorBase(BaseComponent):
                 if fk:
                     fk='^%s'%fk
                 varsdict[varname] = '$%s%s' %(fldpath,fk)
-                
                 columns.append(fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
+                if required_columns:
+                    prefix = '.'.join(fldpath.split('.')[0:-1])
+                    for c in required_columns.split(','):
+                        if not c in virtual_columns:
+                            virtual_columns.append('%s.%s' %(prefix,c.replace('$','')) if prefix else c)
         if parametersbag:
             tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
             for code,format,mask in tplpars:
@@ -271,6 +275,7 @@ class TemplateEditor(TemplateEditorBase):
                                                                             fieldname:caption,
                                                                             varname:varname,
                                                                             virtual_column:data.virtual_column,
+                                                                            required_columns:data.required_columns,
                                                                             df_template:df_template}]);""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     
