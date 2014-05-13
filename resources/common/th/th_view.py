@@ -203,12 +203,14 @@ class TableHandlerView(BaseComponent):
             dflt = None
             multivalue = True
             variable_struct = False
+            isMain = False
             mandatory = None
         else:
             m = self._th_hook('sections_%s' %sections,mangler=th_root)
             sectionslist = m()
             dflt = getattr(m,'default',None)
             multivalue=getattr(m,'multivalue',False)
+            isMain = getattr(m,'isMain',False)
             variable_struct = getattr(m,'variable_struct',False)
             mandatory=getattr(m,'mandatory',True)
         if not sectionslist:
@@ -227,7 +229,7 @@ class TableHandlerView(BaseComponent):
                 currentSection = sectionbag.getNode('#0').label
                 PUT .current = currentSection;
             }
-            if(!multivalue){
+            if(isMain){
                 var sectionNode = sectionbag.getNode(currentSection);
                 FIRE .#parent.#parent.clearStore;
                 SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
@@ -245,7 +247,8 @@ class TableHandlerView(BaseComponent):
             if(storeServerTime!=null && !loadingData){
                 FIRE .#parent.#parent.runQueryDo;
             }
-            """,currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
+            """,isMain=isMain,
+            currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
             th_root=th_root,secname=sections,multivalue=multivalue,
             storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
             #_init=True)
