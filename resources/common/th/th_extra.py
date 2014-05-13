@@ -164,7 +164,7 @@ class THStatsHandler(BaseComponent):
         pkeys = self.unfreezeSelection(self.tblobj, selectionName).output('pkeylist')
         query = self.tblobj.query(columns=self.stats_columns(),
                                   where='t0.%s IN :pkeys' % self.tblobj.pkey,
-                                  pkeys=pkeys, addPkeyColumn=True)
+                                  pkeys=pkeys, addPkeyColumn=True,excludeDraft=False,ignorePartition=True)
         return query.selection()
 
     @public_method
