@@ -352,11 +352,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (_onCalling) {
                     doCall = funcCreate(_onCalling, (['kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }
-                if (_lockScreen) {
-                    genro.lockScreen(true, domsource_id);
-                }
                 objectExtract(kwargs, '_*');
                 if (doCall != false) {
+                    if (_lockScreen) {
+                        genro.lockScreen(true, domsource_id);
+                    }   
                     if (!this._deferredRegister){
                         this._deferredRegister ={};
                     }   
