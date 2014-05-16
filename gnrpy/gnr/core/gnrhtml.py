@@ -205,6 +205,7 @@ class GnrHtmlSrc(GnrStructData):
         assert self.parentNode.getAttr('tag') == 'row'
         row = self
         cell = row.child(tag='cell', **kwargs)
+        content_class = content_class or row.content_class or row.layout.content_class
         #cell = row.child(tag='cell',content=content, **kwargs)
         if not content is None:
             cell.child(tag='div', content=content, class_=content_class)
@@ -261,7 +262,7 @@ class GnrHtmlBuilder(object):
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**body_attributes)
-        self.head.addItem('meta', None, http_equiv="Content-Type", content="text/html; charset=UTF-8")
+        self.head.meta(http_equiv="Content-Type", content="text/html; charset=UTF-8")
         for css_require in self.css_requires:
             self.head.csslink(href=css_require)
         self.body.style("""

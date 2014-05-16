@@ -183,6 +183,8 @@ class TableHandlerView(BaseComponent):
         condition_kwargs = condition_kwargs or dict()
         f = section_table.query(columns='*,$%s' %caption_field,where=condition,**condition_kwargs).fetch()
         s = []
+        if all_begin is None and all_end is None:
+            all_begin = True
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):

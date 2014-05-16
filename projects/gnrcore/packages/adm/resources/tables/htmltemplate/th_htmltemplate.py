@@ -21,7 +21,6 @@ class View(BaseComponent):
         return dict(column='name',op='contains', val='')
 
 class Form(BaseComponent):
-    py_requires='flib:FlibPicker'
     def th_form(self, form):
         bc = form.center.borderContainer()
         bc.css('.printRegion', 'margin:.5mm;border:.3mm dotted silver;cursor:pointer;')
@@ -99,21 +98,24 @@ class Form(BaseComponent):
                             datapath='#FORM.record.data')
 
     def htmltemplate_mainInfo(self, bc):
-        self.htmltemplate_form(bc.borderContainer(region='top', height='210px',splitter=True))
+        self.htmltemplate_form(bc.borderContainer(region='top', height='230px',splitter=True))
         
         center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea',overflow='hidden')
-        self.RichTextEditor(center, value='^.html',
-                            nodeId='htmlEditor',toolbar='standard')
+        center.center.contentPane(overflow='hidden').ckEditor(value='^.html',nodeId='htmlEditor',toolbar='standard')
         bottom = center.bottom
         bar = bottom.slotBar('picker,*,showBackground,5,zoomfactor',_class='pbl_roundedGroupBottom')
         bar.showBackground.checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
-        bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
+        if 'flib' in self.db.packages:
+            self.mixinComponent('flib:FlibPicker')
+            bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
+        else:
+            bar.picker.div()
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
 
     def htmltemplate_form(self,bc):
         left = bc.borderContainer(region='left', width='23em')
-        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='110px'))        
+        self.htmltemplate_tplInfo(left.roundedGroup(region='top',title='!!Info',height='115px'))        
         self.htmltemplate_basePageParams(left.roundedGroup(region='center', datapath='.data.main.page',title='!!Page sizing'))
         tc = bc.tabContainer(region='center', selectedPage='^.data.main.design',margin='2px')
         self.htmltemplate_headLineOpt(tc.contentPane(title='Headline', pageName='headline'))
