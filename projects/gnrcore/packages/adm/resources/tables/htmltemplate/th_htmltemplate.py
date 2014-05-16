@@ -21,6 +21,7 @@ class View(BaseComponent):
         return dict(column='name',op='contains', val='')
 
 class Form(BaseComponent):
+    py_requires = "gnrcomponents/attachmanager/attachmanager:AttachManager"
     def th_form(self, form):
         bc = form.center.borderContainer()
         bc.css('.printRegion', 'margin:.5mm;border:.3mm dotted silver;cursor:pointer;')
@@ -103,13 +104,16 @@ class Form(BaseComponent):
         center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea',overflow='hidden')
         center.center.contentPane(overflow='hidden').ckEditor(value='^.html',nodeId='htmlEditor',toolbar='standard')
         bottom = center.bottom
-        bar = bottom.slotBar('picker,*,showBackground,5,zoomfactor',_class='pbl_roundedGroupBottom')
-        bar.showBackground.checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
+        bar = bottom.slotBar('picker_flib,5,atcPalette,*,5,showBackground,5,zoomfactor,5',_class='pbl_roundedGroupBottom')
+        bar.showBackground.div(margin_top='1px').checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
         if 'flib' in self.db.packages:
             self.mixinComponent('flib:FlibPicker')
-            bar.picker.flibPicker(dockButton=True,viewResource=':ImagesView')
+            bar.picker_flib.flibPicker(dockButton=dict(label='Files'),viewResource=':ImagesView')
         else:
-            bar.picker.div()
+            bar.picker_flib.div()
+        bar.atcPalette.palettePane(paletteCode='atcPalette',title='Attachments',dockButton=dict(label='Attachments'),
+                                height='800px',width='500px').attachmentPane(mode='headline',pbl_classes='*',
+                                viewResource='gnrcomponents/attachmanager/attachmanager:AttachManagerViewBase')
         bar.zoomfactor.horizontalSlider(value='^zoomFactor', minimum=0, maximum=1,
                                 intermediateChanges=True, width='15em', float='right')
 
