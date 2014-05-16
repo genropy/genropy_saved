@@ -24,7 +24,9 @@ class Table(object):
         if N_start is None:
             return
         placeholder = '*'* (N_end-N_start)
-        dc = tblobj.query(columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder)),
+        #columns="overlay($%s placing '%s' from %i for %i) as dc" %(field,placeholder,N_start+1,len(placeholder))
+        columns = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i) AS dc" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+len(placeholder)+1)
+        dc = tblobj.query(columns = columns,
                             distinct=True,where=" NOT ($%s IS NULL OR $%s='') " %(field,field)).fetch()
         return sorted([r['dc'] for r in dc if r['dc']])
 
@@ -99,11 +101,12 @@ class Table(object):
         N_start,N_end = boundaries['N']
         placeholder = '*'* (N_end-N_start)
         delta = len(placeholder)
-        columns='substring($%s from %i for %i) AS cnt' %(field,N_start+1,delta)
+        columns='substr($%s ,%i, %i) AS cnt' %(field,N_start+1,delta)
         if date_field:
             columns='%s,$%s' %(columns,date_field)
+        dccol = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i)" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+delta+1)
         l = tblobj.query(columns=columns ,
-                        where="overlay($%s placing '%s' from %i for %i) =:sq" %(field,placeholder,N_start+1,delta),
+                        where="%s = :sq" %dccol,
                         sq=sq).fetch()
         i = 0
         errors = Bag()

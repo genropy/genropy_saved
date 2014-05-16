@@ -307,7 +307,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         sourcePane._('dataController',{'script':'genro.src.highlightNode(fpath)', 
                                        'fpath':'^gnr.palettes.cliSourceStore.tree.selectedPath'});
         pg._('paletteTree',{'paletteCode':'dbmodel',title:'Model',
-                            searchOn:true,tree_inspect:'shift',editable:true});
+                            searchOn:true,tree_inspect:'shift',tree_labelAttribute:null,editable:true});
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);

@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
         for table in pkg['tables'].values():
             center.dataRemote('.tree.%s' % table.name, 'relationExplorer', table=table.fullname, dosort=False)
         center.tree(storepath='.tree', persist=False,
-                    inspect='shift', labelAttribute='caption',
+                    inspect='shift', #labelAttribute='label',
                     _class='fieldsTree',
                     hideValues=True,
                     margin='6px',
