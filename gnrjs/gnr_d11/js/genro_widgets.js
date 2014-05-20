@@ -7307,6 +7307,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var that = this;
         if(objectNotEmpty(crop)){
             var innerImage=objectExtract(attr,'src,placeholder,height,width,edit,upload_maxsize,upload_folder,upload_filename,upload_ext,zoomWindow,format,mask,border');
+            if (innerImage.placeholder===true){
+                innerImage.placeholder = '/_gnr/11/css/icons/placeholder_img_dflt.png'
+            }
             innerImage.cr_width=crop.width;
             innerImage.cr_height=crop.height;
             innerImage['onerror'] = "this.sourceNode.setRelativeData(this.sourceNode.attr.src,null);"
