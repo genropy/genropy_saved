@@ -23,7 +23,7 @@ div,span{
     -webkit-touch-callout: auto;
     -webkit-user-select: auto;
     -khtml-user-select: auto;
-    -moz-user-select: auto;
+    -moz-user-select: text;
     -ms-user-select: auto;
     user-select: auto;
 }
