@@ -48,7 +48,7 @@ def cellFromField(field,tableobj):
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
-    kwargs['width'] = '%iem' % int(fldobj.print_width*.8) if fldobj.print_width else None
+    kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     relfldlst = tableobj.fullRelationPath(field).split('.')
     kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
     #if 'values' in fldobj.attributes:
@@ -63,6 +63,8 @@ def cellFromField(field,tableobj):
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
                     rel_caption_field = '@%s.%s' %(field,caption_field)
+                    caption_fieldobj = tableobj.column(rel_caption_field)
+                    kwargs['width'] = '%iem' % int(caption_fieldobj.print_width*.6) if caption_fieldobj.print_width else None
                     kwargs['caption_field'] = rel_caption_field
                     caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
                     if '_joiner_storename' in caption_field_kwargs:
