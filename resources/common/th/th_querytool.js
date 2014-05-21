@@ -270,7 +270,7 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     helper_in:function(rowNode){
-        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px'});
+        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px',autoSize:true});
         var center = dlg.center;
         var relpath = rowNode.attr.relpath;
         var val = rowNode.getRelativeData(relpath);
@@ -511,7 +511,7 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildParsDialog:function(parslist) {
         var sourceNode = this.sourceNode;
-        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px'});
+        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px',autoSize:true});
         var that = this;
         var confirm = function(){
             that.runQuery()
