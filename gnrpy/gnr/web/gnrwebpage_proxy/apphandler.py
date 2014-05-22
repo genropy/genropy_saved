@@ -1475,7 +1475,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
         result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
         #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
-        columns_concat = " || ' ' || ".join(['CAST (%s AS TEXT)' %c for c in querycolumns])
+        columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
             regsrc = [x for x in re.split(" ", ESCAPE_SPECIAL.sub('', querystring)) if x]
