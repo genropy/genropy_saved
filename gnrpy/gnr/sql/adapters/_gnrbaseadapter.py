@@ -821,11 +821,11 @@ class GnrWhereTranslator(object):
 
     def op_istrue(self, column, value, dtype, sqlArgs,tblobj):
         "Is true"
-        return '%s IS TRUE' % column
+        return '%s' % column
 
     def op_isfalse(self, column, value, dtype, sqlArgs,tblobj):
         "Is false"
-        return '%s IS FALSE' % column
+        return 'NOT %s' % column
 
     def op_nullorempty(self, column, value, dtype, sqlArgs,tblobj):
         "Is null or empty"
