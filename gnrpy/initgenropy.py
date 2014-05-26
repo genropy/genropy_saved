@@ -61,7 +61,7 @@ def build_siteconfig_xml(path=None, gnrdaemon_password=None):
 
 def create_folder(folder_path=None):
     if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
+        os.makedirs(folder_path)
     elif not os.path.isdir(folder_path):
         raise GnrConfigException("A file named %s already exists so i couldn't create a folder at same path" % folder_path)
 
