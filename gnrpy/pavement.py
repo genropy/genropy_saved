@@ -7,12 +7,17 @@ from paver.easy import *
 from paver.setuputils import setup, find_packages
 from setuptools.command import *
 from subprocess import call
+import sys
+
 
 DOJO_VERSION = '11'
 DOJO_URL_BASE = 'http://www.softwell.it/dojo/'
 DOJO_MD5 = {'11': '0076080b78a91ade5c365aedaf1c0a4c'}
 
 data_files = []
+
+pip_command = os.path.join(os.path.dirname(sys.executable), "pip")
+
 
 setup(
         name='gnrpy',
@@ -101,14 +106,14 @@ def configure():
 
 @task
 def install():
-    call(['pip', 'install', '-r', 'requirements.txt'])
+    call([pip_command, 'install', '-r', 'requirements.txt'])
     call_task('setuptools.command.install')
 
 @task
 @needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
-    call(['pip', 'install','pyPdf','--allow-external','pyPdf'])
-    call(['pip', 'install','-r', 'requirements.txt'])
+    call([pip_command, 'install','pyPdf','--allow-external','pyPdf'])
+    call([pip_command, 'install','-r', 'requirements.txt'])
 
 @task
 @needs(['generate_setup', 'setuptools.command.sdist'])
