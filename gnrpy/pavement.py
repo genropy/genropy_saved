@@ -9,13 +9,15 @@ from setuptools.command import *
 from subprocess import call
 import sys
 
+
 DOJO_VERSION = '11'
 DOJO_URL_BASE = 'http://www.softwell.it/dojo/'
 DOJO_MD5 = {'11': '0076080b78a91ade5c365aedaf1c0a4c'}
 
+data_files = []
+
 pip_command = os.path.join(os.path.dirname(sys.executable), "pip")
 
-data_files = []
 
 setup(
         name='gnrpy',
@@ -26,7 +28,7 @@ setup(
         license='LGPL',
         scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmkthresource','../scripts/gnrmksite','../scripts/gnrxml2py', '../scripts/gnrheartbeat', '../scripts/gnrmkpackage',
                  '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon',
-                 '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
+                 '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrdbsetupparallel', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
                  '../scripts/gnr'],
         packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql'],
         data_files=data_files,
@@ -102,17 +104,16 @@ def configure():
         with open('_gnrhome.py', 'w') as genrohomefile:
             genrohomefile.write('PATH="%s"\n' % genro_path)
 
-
 @task
 def install():
-    call([pip_command, 'install', '-r', 'requirements.txt'])
+    call(['pip', 'install', '-r', 'requirements.txt'])
     call_task('setuptools.command.install')
 
 @task
 @needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
-    call([pip_command, 'install', '-r', 'requirements.txt'])
-    call_task('setuptools.command.install')
+    call(['pip', 'install','pyPdf','--allow-external','pyPdf'])
+    call(['pip', 'install','-r', 'requirements.txt'])
 
 @task
 @needs(['generate_setup', 'setuptools.command.sdist'])
