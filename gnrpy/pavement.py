@@ -106,14 +106,14 @@ def configure():
 
 @task
 def install():
-    call([pip_command, 'install', '-r', 'requirements.txt'])
+    call(['pip', 'install', '-r', 'requirements.txt'])
     call_task('setuptools.command.install')
 
 @task
 @needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
-    call([pip_command, 'install','pyPdf','--allow-external','pyPdf'])
-    call([pip_command, 'install','-r', 'requirements.txt'])
+    call(['pip', 'install','pyPdf','--allow-external','pyPdf'])
+    call(['pip', 'install','-r', 'requirements.txt'])
 
 @task
 @needs(['generate_setup', 'setuptools.command.sdist'])
