@@ -544,7 +544,7 @@ class SqlQueryCompiler(object):
         new_col_list = []
         for col in col_list:
             col = col.strip()
-            if col.startswith('SUM'):
+            if re.search("(sum|count) *?\\(", col, re.I):
                 aggregate = True
             if not ' AS ' in col:
                 if col.startswith('$') and col[1:].replace('_', '').isalnum():
@@ -558,7 +558,6 @@ class SqlQueryCompiler(object):
                 # leave the col as is, but save the AS name to recover the db column original name from selection result
                 self.cpl.aliasDict[as_.strip()] = colbody.strip()
             new_col_list.append(col)
-            
         # build the clean and complete sql string for the columns, but still all fields are expressed as $fieldname
         columns = ',\n'.join(new_col_list)
         
