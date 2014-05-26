@@ -9,7 +9,9 @@ class GnrConfigException(Exception):
     pass
 
 def get_config_path():
-    if sys.platform == 'win32':
+    if os.environ.has_key('VIRTUAL_ENV'):
+        config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
+    elif sys.platform == 'win32':
         config_path = '~\gnr'
     else:
         config_path = '~/.gnr'
