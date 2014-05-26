@@ -7,10 +7,13 @@ from paver.easy import *
 from paver.setuputils import setup, find_packages
 from setuptools.command import *
 from subprocess import call
+import sys
 
 DOJO_VERSION = '11'
 DOJO_URL_BASE = 'http://www.softwell.it/dojo/'
 DOJO_MD5 = {'11': '0076080b78a91ade5c365aedaf1c0a4c'}
+
+pip_command = os.path.join(os.path.dirname(sys.executable), "pip")
 
 data_files = []
 
@@ -99,15 +102,17 @@ def configure():
         with open('_gnrhome.py', 'w') as genrohomefile:
             genrohomefile.write('PATH="%s"\n' % genro_path)
 
+
 @task
 def install():
-    call(['pip', 'install', '-r', 'requirements.txt'])
+    call([pip_command, 'install', '-r', 'requirements.txt'])
     call_task('setuptools.command.install')
 
 @task
 @needs(['generate_setup', 'setuptools.command.develop'])
 def develop(options):
-    pass
+    call([pip_command, 'install', '-r', 'requirements.txt'])
+    call_task('setuptools.command.install')
 
 @task
 @needs(['generate_setup', 'setuptools.command.sdist'])
