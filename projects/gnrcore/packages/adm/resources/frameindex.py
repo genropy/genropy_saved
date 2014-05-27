@@ -388,7 +388,7 @@ class FramedIndexLogin(BaseComponent):
         return dlg
 
     def login_newPassword(self,pane,gnrtoken=None,dlg_login=None):
-        dlg = pane.dialog(_class='lightboxDialog')
+        dlg = pane.dialog(_class='lightboxDialog',subscribe_closeNewPwd='this.widget.hide();',subscribe_openNewPwd='this.widget.show();')
         box = dlg.div(**self.loginboxPars())
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New Password')  
@@ -404,7 +404,7 @@ class FramedIndexLogin(BaseComponent):
                     password='=.password',password_confirm='=.password_confirm',
                     _if='password==password_confirm',
                     _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
-                    gnrtoken=gnrtoken,_onResult='genro.publish("openLogin")')
+                    gnrtoken=gnrtoken,_onResult='genro.publish("closeNewPwd");genro.publish("openLogin")')
         return dlg
 
 
