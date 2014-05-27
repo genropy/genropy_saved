@@ -99,8 +99,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def prepareSqlText(self, sql, kwargs):
         """Replace the 'REGEXP' operator with '~*'.
         Replace the ILIKE operator with LIKE: sqlite LIKE is case insensitive"""
+        sql = self.adaptTupleListSet(sql,kwargs)
         sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
+        sql = re.sub(" +IS +(NOT +)?(TRUE|FALSE)",self._booleanSubCb,sql,flags=re.I)
         return sql, kwargs
+
+    def _booleanSubCb(self,m):
+        op = '!=' if m.group(1) else '='
+        val = '1' if m.group(2).lower() == 'true' else '0'
+        return ' %s%s ' %(op,val)
 
     def _selectForUpdate(self,maintable_as=None):
         return ''

@@ -92,7 +92,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None,in_to_any=False,**kwargs):
+                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -127,7 +127,6 @@ class GnrSqlDb(GnrObject):
         self.started = False
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
-        self.in_to_any = in_to_any
 
     #-----------------------Configure and Startup-----------------------------
 
@@ -370,8 +369,6 @@ class GnrSqlDb(GnrObject):
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            sql = self.adapter.adaptTupleListSet(sql,sqlargs)
-            sql = self.adapter.empty_IN_patch(sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql

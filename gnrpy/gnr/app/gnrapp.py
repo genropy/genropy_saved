@@ -701,8 +701,6 @@ class GnrApp(object):
             @atexit.register
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
-                
-        dbattrs['in_to_any'] = boolean(dbattrs.get('in_to_any',False))
         dbattrs['application'] = self
         self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
         

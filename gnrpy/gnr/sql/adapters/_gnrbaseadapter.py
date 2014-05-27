@@ -27,8 +27,6 @@ from gnr.core.gnrlist import GnrNamedList
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdate import decodeDatePeriod
 
-IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sIN\s\(\)')
-NOT_IN_OPERATOR_PATCH = re.compile(r'(?i)(\(?)\S+\sNOT\s+IN\s\(\)')
 FLDMASK = dict(qmark='%s=?',named=':%s',pyformat='%%(%s)s')
 
 
@@ -209,12 +207,8 @@ class SqlDbAdapter(object):
         :param sql: the sql string to execute.
         :param \*\*kwargs: the params dict
         :returns: tuple (sql, kwargs)"""
+        sql = self.adaptTupleListSet(sql,kwargs)
         return sql, kwargs
-
-    def empty_IN_patch(self,sql):
-        sql = re.sub(NOT_IN_OPERATOR_PATCH, '\\1 TRUE', sql)    
-        sql = re.sub(IN_OPERATOR_PATCH, '\\1 FALSE', sql)
-        return sql
 
     def adaptTupleListSet(self,sql,sqlargs):
         for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
