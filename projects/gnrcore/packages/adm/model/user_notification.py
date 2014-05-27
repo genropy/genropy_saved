@@ -31,7 +31,6 @@ class Table(object):
         user_notification = self.record(pkey=pkey).output('dict')
         self.batchUpdate(dict(confirmed=True),where='$user_id=:uid AND $notification_id=:nid',
                         uid=user_notification['user_id'],nid=user_notification['notification_id'])
-        
         self.db.commit()
         return self.nextUserNotification(user_notification['user_id'])
 
