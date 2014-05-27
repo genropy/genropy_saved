@@ -404,7 +404,7 @@ class FramedIndexLogin(BaseComponent):
                     password='=.password',password_confirm='=.password_confirm',
                     _if='password==password_confirm',
                     _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
-                    gnrtoken=gnrtoken,_onResult='genro.pageReload()')
+                    gnrtoken=gnrtoken,_onResult='genro.publish("openLogin")')
         return dlg
 
 
