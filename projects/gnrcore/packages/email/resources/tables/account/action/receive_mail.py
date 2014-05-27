@@ -14,7 +14,7 @@ class Main(BaseResourceAction):
     batch_immediate = True
     
     def do(self):
-        selection = self.get_selection() or self.db.table('email.account').query(where='$schedulable').selection()
+        selection = self.get_selection() or self.db.table('email.account').query(where='$schedulable IS TRUE').selection()
         tblmessage = self.db.table('email.message')
         for r in selection.output('pkeylist'):
             try:
