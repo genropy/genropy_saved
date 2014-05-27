@@ -10,8 +10,8 @@ class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('user_notification', pkey='id', name_long='User notification', name_plural='!!User notifications')
         self.sysFields(tbl)
-        tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='user_notifications',mode='foreignkey',onDelete='raise')
-        tbl.column('notification_id',size='22' ,group='_',name_long='!!User').relation('notification.id',relation_name='notification_users',mode='foreignkey',onDelete='raise')
+        tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='user_notifications',mode='foreignkey',onDelete='cascade')
+        tbl.column('notification_id',size='22' ,group='_',name_long='!!User').relation('notification.id',relation_name='notification_users',mode='foreignkey',onDelete='cascade')
         tbl.column('confirmed',dtype='B',name_long='!!Confirmed')
 
 
