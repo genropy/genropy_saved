@@ -1736,6 +1736,11 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             }
             var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
             if(rect && rect.w && rect.h){
+                var oh = this.domNode.parentElement.offsetHeight;
+                var ow = this.domNode.parentElement.offsetWidth;
+                if(rect.l+rect.w>ow || rect.t+rect.h>oh){
+                    return;
+                }
                 this.resize(rect);
             }
         }     
