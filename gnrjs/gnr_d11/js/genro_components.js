@@ -3466,7 +3466,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var delKeys_wasInSelection=wasInSelectionCb(delKeys);
         var changeCount = objectSize(willBeInSelection) + objectSize(insOrUpdKeys_wasInSelection) + objectSize(delKeys_wasInSelection);
         var rt = this.reload_treshold || 0.3;
-        if(changeCount>0 && ((changeCount>this.len()*rt) || this.sum_columns)){
+        var sum_columns = this.storeNode.getAttributeFromDatasource('sum_columns');
+        var fullReloadOnChange = this.storeNode.getAttributeFromDatasource('fullReloadOnChange');
+        if(changeCount>0 && (changeCount>this.len()*rt) || sum_columns || fullReloadOnChange){
             this.loadData();
             return
         }
