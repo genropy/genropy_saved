@@ -75,6 +75,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'simpletextarea':null,
             'checkbox':null,
             'numbertextbox':null,
+            'currencytextbox':null,
             'timetextbox':null,
             'horizzontalslider':null,
             'radiobutton':null,
@@ -93,6 +94,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.checkLastSavedTags = {
             'textbox':null,
             'numbertextbox':null,
+            'currencytextbox':null,
             'timetextbox':null,
             'combobox':null,
             'filteringselect':null,
@@ -678,7 +680,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }else{
             this.updateStatus();
-            this.applyDisabledStatus();
         }
     },
     setHider:function(show){
@@ -1523,6 +1524,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
         }
+        this.applyDisabledStatus();
     },
 
     checkInvalidFields: function() {
