@@ -24,8 +24,10 @@ class GnrCustomWebPage(object):
             left=bc.contentPane(region='left',width='200px',splitter=True,background='#eee',overflow_y='auto')
             center=bc.contentPane(region='center')
             prefix=''.join(self.getCallArgs())
-            left.dataFormula("current_url","'/'+prefix+'/'+x",x='^tree.current_path',prefix=prefix)
-            left.tree(storepath='pages_tree', hideValues=True, inspect='shift', labelAttribute='name',
+            left.dataFormula("current_url","x?('/'+prefix+'/'+x).replace(/\/\//g,'/'):'' ",
+                x='^tree.current_path',prefix=prefix)
+            left.tree(storepath='pages_tree', hideValues=True, 
+                    inspect='shift', labelAttribute='name',
                   getIconClass='return node.attr.iconClass || "treeNoIcon"',
                   getLabelClass="""var _class= (node._resolver || node._value) ? 'menu_shape menu_level_0' :  'menu_shape menu_level_2';
                                    console.log(node,_class);return _class""",

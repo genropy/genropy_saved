@@ -97,14 +97,7 @@ class GnrWsgiWebApp(GnrApp):
     def _buildSiteMenu(self):
         menubag = self.config['menu']
         if not menubag:
-            menubag = Bag()
-            for pathlist, node in self.site.automap.getIndex():
-                attr = dict(label=node.getAttr('name') or node.label.capitalize())
-                if isinstance(node.getValue(), Bag):
-                    attr['basepath'] = '/%s' % ('/'.join(pathlist))
-                else:
-                    attr['file'] = node.label
-                menubag.setItem(pathlist, None, attr)
+            menubag = self._buildSiteMenu_autoBranch()
         menubag = self._buildSiteMenu_prepare(menubag)
         return menubag
 
@@ -112,10 +105,12 @@ class GnrWsgiWebApp(GnrApp):
         basepath = basepath or []
         result = Bag()
         for node in menubag.nodes:
-            value = node.getStaticValue()
             attributes = {}
             attributes.update(node.getAttr())
             currbasepath = basepath
+            if 'dir' in attributes:
+                node.value = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))['#0']
+            value = node.getStaticValue()
             if 'basepath' in attributes:
                 newbasepath = attributes.pop('basepath')
                 if newbasepath.startswith('/'):
@@ -134,6 +129,24 @@ class GnrWsgiWebApp(GnrApp):
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
         return result
+
+    def _buildSiteMenu_autoBranch(self,pkg,*path):
+        menubag = Bag()
+        automap = self.site.automap
+        basepath = []
+        if pkg and path:
+            automap = self.site.automap.getItem(pkg,*path)
+            basepath = [pkg]
+        for pathlist, node in automap.getIndex():
+            attr = dict(label=node.getAttr('name') or node.label.capitalize())
+            attr['label'] = attr['label'].replace('_',' ')
+            if isinstance(node.getValue(), Bag):
+                attr['basepath'] = '/%s' % ('/'.join(basepath+pathlist))
+            else:
+                attr['file'] = node.label
+            menubag.setItem(pathlist, None, attr)
+        return menubag
+
 
     def setPreference(self, path, data, pkg):
         if self.db.package('adm'):
