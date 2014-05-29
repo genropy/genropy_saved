@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <fatturazione label='Fatturazione'>
+        <cliente table='fatt.cliente' label='Clienti' />
+        <prodotto_tipo table='fatt.prodotto_tipo' label='Tipi Prodotto' />
+        <prodotto table='fatt.prodotto' label='Prodotti' />
+        <fatture table='fatt.fattura' label='Fatture' />
+        <tabelle_ausiliarie label='Tabelle Ausiliarie' lookup_manager='fatt' />
+    </fatturazione>
+</GenRoBag>

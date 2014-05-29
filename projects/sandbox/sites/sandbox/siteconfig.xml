@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<wsgi mainpackage="fatt"/>
+
+	<connection_timeout/>
+
+	<connection_refresh/>
+
+	<dojo version="11"/>
+</GenRoBag>

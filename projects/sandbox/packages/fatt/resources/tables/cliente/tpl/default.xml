@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><metadata><email><subject _T="NN"></subject>
+<to_address _T="NN"></to_address>
+<from_address _T="NN"></from_address>
+<cc_address _T="NN"></cc_address>
+<bcc_address _T="NN"></bcc_address>
+<attachments _T="NN"></attachments></email></metadata>
+<varsbag><n_1465 _pkey="n_1465"><fieldpath>ragione_sociale</fieldpath>
+<dtype>A</dtype>
+<fieldname>Ragione sociale</fieldname>
+<varname>ragione_sociale</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1465>
+<n_1474 _pkey="n_1474"><fieldpath>indirizzo</fieldpath>
+<dtype>T</dtype>
+<fieldname>Indirizzo</fieldname>
+<varname>indirizzo</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1474>
+<n_1483 _pkey="n_1483"><fieldpath>provincia</fieldpath>
+<dtype>A</dtype>
+<fieldname>Provincia</fieldname>
+<varname>provincia</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1483>
+<n_1499 _pkey="n_1499"><fieldpath>@cliente_tipo_codice.descrizione</fieldpath>
+<dtype>T</dtype>
+<fieldname>Cliente tipo/Descrizione</fieldname>
+<varname>cliente_tipo_descrizione</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1499>
+<n_1508 _pkey="n_1508"><fieldpath>note</fieldpath>
+<dtype>T</dtype>
+<fieldname>Note</fieldname>
+<varname>note</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1508>
+<n_1596 _pkey="n_1596"><fieldpath>@comune_id.denominazione</fieldpath>
+<dtype>T</dtype>
+<fieldname>Comune/Denominazione</fieldname>
+<varname>comune_denominazione</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_1596>
+<n_2349 _pkey="n_2349"><fieldpath>@pagamento_tipo_codice.descrizione</fieldpath>
+<dtype>T</dtype>
+<fieldname>Pagamento tipo/Descrizione</fieldname>
+<varname>pagamento_tipo_descrizione</varname>
+<virtual_column _T="NN"></virtual_column>
+<df_template _T="NN"></df_template></n_2349>
+<n_1632 _pkey="n_1632"><fieldpath>tot_fatturato</fieldpath>
+<dtype>N</dtype>
+<fieldname>Tot.Fatturato</fieldname>
+<varname>tot_fatturato</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template></n_1632>
+<n_1642 _pkey="n_1642"><fieldpath>n_fatture</fieldpath>
+<dtype>L</dtype>
+<fieldname>N.Fatture</fieldname>
+<varname>n_fatture</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template></n_1642></varsbag>
+<content>&lt;div&gt;
+&lt;span style="font-size:16px;"&gt;&lt;strong&gt;$cliente_tipo_descrizione&amp;nbsp;&lt;/strong&gt;&lt;/span&gt;&lt;span style="font-size: 16px;"&gt;$ragione_sociale&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:16px;"&gt;&lt;em&gt;$indirizzo&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;font size="3"&gt;&lt;i&gt;$comune_denominazione&lt;/i&gt;&lt;/font&gt;&lt;em style="font-size: 16px;"&gt;&amp;nbsp;$provincia&lt;/em&gt;&lt;font size="3"&gt;&lt;i&gt;&amp;nbsp;&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:12px;"&gt;&lt;strong&gt;Paga a&lt;/strong&gt;: $pagamento_tipo_descrizione&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:12px;"&gt;$note&lt;/span&gt;&lt;/div&gt;
+</content>
+<compiled><main virtual_columns="tot_fatturato,n_fatture" locale="it-IT" masks="{}::JS" dtypes='{"indirizzo": "T", "provincia": "A", "cliente_tipo_descrizione": "T", "comune_denominazione": "T", "pagamento_tipo_descrizione": "T", "note": "T", "ragione_sociale": "A", "n_fatture": "L", "tot_fatturato": "N"}::JS' maintable="fatt.cliente" columns="ragione_sociale,indirizzo,provincia,@cliente_tipo_codice.descrizione,note,@comune_id.denominazione,@pagamento_tipo_codice.descrizione,tot_fatturato,n_fatture" formats="{}::JS" editcols="{}::JS" df_templates="{}::JS">&lt;html&gt;&lt;body&gt;&lt;div&gt;
+&lt;span style="font-size:16px;"&gt;&lt;strong&gt;$@cliente_tipo_codice.descrizione&amp;#160;&lt;/strong&gt;&lt;/span&gt;&lt;span style="font-size: 16px;"&gt;$ragione_sociale&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:16px;"&gt;&lt;em&gt;$indirizzo&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;font size="3"&gt;&lt;i&gt;$@comune_id.denominazione&lt;/i&gt;&lt;/font&gt;&lt;em style="font-size: 16px;"&gt;&amp;#160;$provincia&lt;/em&gt;&lt;font size="3"&gt;&lt;i&gt;&amp;#160;&lt;/i&gt;&lt;/font&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:12px;"&gt;&lt;strong&gt;Paga a&lt;/strong&gt;: $@pagamento_tipo_codice.descrizione&lt;/span&gt;&lt;/div&gt;
+&lt;div&gt;
+&lt;span style="font-size:12px;"&gt;$note&lt;/span&gt;&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>
