@@ -200,7 +200,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleChart':'',
             'GoogleVisualization':'',
             'CkEditor':'',
-            'protovis':''
+            'protovis':'',
+            'codemirror':''
         };
         var tag;
         for (tag in this.widgetcatalog) {

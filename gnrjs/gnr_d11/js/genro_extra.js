@@ -63,7 +63,75 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     }
 
 });
+dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
 
+    creating: function(attributes, sourceNode) {
+        //if (sourceNode.attr.storepath) {
+        //    sourceNode.registerDynAttr('storepath');
+        //}
+        var savedAttrs = objectExtract(attributes,'config_*');
+        savedAttrs.readOnly = objectPop(attributes,'readOnly');
+        savedAttrs.value = objectPop(attributes,'value');
+        return savedAttrs
+    },
+
+    created: function(widget, savedAttrs, sourceNode) {
+        var that = this;
+        var cb = function(){
+            var mode = savedAttrs.mode;
+            var theme = savedAttrs.theme;
+            var cb2 = function(){
+                var cm = CodeMirror(widget,savedAttrs);
+                cm.sourceNode = sourceNode;
+                cm.gnr = that;
+                sourceNode.externalWidget = cm;
+                for (var prop in that) {
+                    if (prop.indexOf('mixin_') == 0) {
+                        cm[prop.replace('mixin_', '')] = that[prop];
+                    }
+                }
+                cm.on('update',function(){
+                    sourceNode.delayedCall(function(){
+                        var v = sourceNode.externalWidget.getValue();
+                        sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
+                    },500,'updatingContent')
+                })
+            }
+            var cb1 = function(){
+                if(theme){
+                    genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,function(){
+                        cb2();
+                    })
+                }else{
+                    cb2();
+                }
+            }
+            if (!(mode in CodeMirror.modes)){
+                genro.dom.loadJs('/_rsrc/js_libs/codemirror/mode/'+mode+'/'+mode+'.js',cb1)
+            }else{
+                cb1();
+            }
+        }
+        if(!window.CodeMirror){
+            genro.dom.loadJs('/_rsrc/js_libs/codemirror/lib/codemirror.js',function(){
+                genro.dom.loadCss('/_rsrc/js_libs/codemirror/lib/codemirror.css','codemirror_default',function(){
+                    cb();
+                })
+            });
+        }else{
+            cb();
+        }
+    },
+    mixin_gnr_value:function(value,kw, trigger_reason){
+        this.setValue(value)
+    },
+    mixin_gnr_readOnly:function(value,kw,trigger_reason){
+        this.options.readOnly = value?'nocursor':false;
+    }
+});
 
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     constructor: function(application) {
