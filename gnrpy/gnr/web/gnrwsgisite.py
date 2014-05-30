@@ -344,6 +344,7 @@ class GnrWsgiSite(object):
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
         self._register = None
+        self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -361,6 +362,10 @@ class GnrWsgiSite(object):
         if not self._register:
             self._register = SiteRegisterClient(self)
         return self._register
+
+    @property
+    def remote_edit(self):
+        return self._remote_edit
 
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO

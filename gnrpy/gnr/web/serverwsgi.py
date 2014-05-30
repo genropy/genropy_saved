@@ -45,6 +45,7 @@ wsgi_options = dict(
         noclean=False,
         restore=False,
         source_instance=None,
+        remote_edit=None,
         remotesshdb=None
         )
 
@@ -305,6 +306,12 @@ class Server(object):
     parser.add_option('--source_instance',
                       dest='source_instance',
                       help="Import from instance")
+
+    parser.add_option('--remote_edit',
+                      dest='remote_edit',
+                      action='store_true',
+                      help="Enable remote edit")
+
    #parser.add_option('--remotesshdb',
    #                  dest='remotesshdb',
    #                  help="""Allow remote db connections over ssh tunnels.
