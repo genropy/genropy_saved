@@ -99,6 +99,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                         sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
                     },500,'updatingContent')
                 })
+
             }
             var cb1 = function(){
                 if(theme){
@@ -117,6 +118,10 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         }
         if(!window.CodeMirror){
             genro.dom.loadJs('/_rsrc/js_libs/codemirror/lib/codemirror.js',function(){
+                CodeMirror.keyMap['softTab'] = objectUpdate({'Tab':function(cm){
+                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                    cm.replaceSelection(spaces);
+                }},CodeMirror.keyMap['default']);
                 genro.dom.loadCss('/_rsrc/js_libs/codemirror/lib/codemirror.css','codemirror_default',function(){
                     cb();
                 })
