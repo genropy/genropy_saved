@@ -14,22 +14,31 @@ class SourceViewer(BaseComponent):
 
     def rootWidget(self,root,**kwargs):
         frame = root.framePane(frameCode='sandbox',_class='sandbox',**kwargs)
+        page = self.pageSource()
         bar = frame.right.slotBar('0,sourceBox,0',width='550px',sourceBox_height='100%',
                         closable='close',splitter=True,border_left='1px solid #666')
         sourceBox = bar.sourceBox.div(height='100%',width='100%',position='relative',_class='source_viewer',
                         ).div(position='absolute',top='0',
                         right='0',bottom='0',left='0')
         sourceBox.remote(self.source_viewer_content)
-        frame.dataController("""genro.wdgById('_docSource_floating').show();""",
+        page.dataController("""genro.wdgById('_docSource_floating').show();""",
                             subscribe_editSourceDoc=True)
-        frame.dataRpc('dummy',self.save_source_documentation,subscribe_sourceDocUpdate=True,
+        page.dataRpc('dummy',self.save_source_documentation,subscribe_sourceDocUpdate=True,
                         doc='=gnr.source_viewer.documentation')
-        frame.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
+        page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',
-                        #_onResult='genro.src.updateNodeContent("source_viewer_root");'
-                        )
-        self.source_viewer_sourceDocPalette(frame)
+                        _onResult="""
+                            SET gnr.source_viewer.source_oldvalue = kwargs.sourceCode;
+                            genro.publish('rebuidPage');
+                            """)
+        page.dataController("""var newp = genro.rpc.remoteCall('main',this.startArgs, 'bag');
+                            var n = genro.nodeById('source_viewer_root');
+                            n.freeze();
+                            var cc = newp._value.getNodeByAttr('nodeId','source_viewer_root')._value;
+                            n.setValue(cc);
+                            n.unfreeze();""",subscribe_rebuidPage=True,_delay=5000)
+        self.source_viewer_sourceDocPalette(page)
         return frame.center.contentPane(nodeId='source_viewer_root')
 
     @public_method
@@ -77,6 +86,7 @@ class SourceViewer(BaseComponent):
         bar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
                                 action='SET gnr.source_viewer.source = _oldval',
                                 _oldval='=gnr.source_viewer.source_oldvalue')
+
         bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^gnr.source_viewer.readOnly',
                                     label='ReadOnly',default_value=True,
                                     disabled='^gnr.source_viewer.changed_editor')
@@ -85,7 +95,7 @@ class SourceViewer(BaseComponent):
         frame.dataController("""SET gnr.source_viewer.changed_editor = currval!=oldval;
                                 genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
                             currval='^gnr.source_viewer.source',
-                            oldval='=gnr.source_viewer.source_oldvalue',bar=bar)
+                            oldval='^gnr.source_viewer.source_oldvalue',bar=bar)
         frame.center.contentPane(overflow='hidden').codemirror(value='^gnr.source_viewer.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
