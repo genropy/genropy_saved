@@ -197,6 +197,11 @@ class ResourceLoader(object):
         page_class = cloneClass('GnrCustomWebPage', page_factory)
         page_class.__module__ = page_module.__name__
         self.page_class_base_mixin(page_class, pkg=mainPkg)
+        package_py_requires = splitAndStrip(getattr(page_class, 'package_py_requires', ''), ',')
+        package_js_requires = splitAndStrip(getattr(page_class, 'package_js_requires', ''), ',')
+        package_css_requires = splitAndStrip(getattr(page_class, 'package_css_requires', ''), ',') 
+        if package_py_requires:
+            py_requires = list(set(py_requires + package_py_requires))
         page_class.dojo_version = getattr(custom_class, 'dojo_version', None) or self.site.config[
                                                                                  'dojo?version'] or '11'
         page_class.theme = getattr(custom_class, 'theme', None) or self.site.config['dojo?theme'] or 'tundra'
@@ -213,12 +218,16 @@ class ResourceLoader(object):
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = []
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''), ',')
+        if package_js_requires:
+            page_class.js_requires = list(set(page_class.js_requires + package_js_requires))
         page_class.pageOptions = getattr(custom_class, 'pageOptions', {})
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         page_class.resourceDirs = self.page_class_resourceDirs(page_class, module_path, pkg=mainPkg)
         self.page_pyrequires_mixin(page_class, py_requires)
         classMixin(page_class, custom_class, only_callables=False)
         page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''), ',') if x])
+        if package_css_requires:
+            page_class.css_requires = list(set(package_css_requires + page_class.css_requires))
         page_class.tpldirectories = page_class.resourceDirs + [
                 self.gnr_static_handler.path(page_class.gnrjsversion, 'tpl')]
         page_class._packageId = mainPkg
