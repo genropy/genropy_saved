@@ -67,24 +67,27 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
     },
-
     creating: function(attributes, sourceNode) {
         //if (sourceNode.attr.storepath) {
         //    sourceNode.registerDynAttr('storepath');
         //}
-        var savedAttrs = objectExtract(attributes,'config_*');
-        savedAttrs.readOnly = objectPop(attributes,'readOnly');
-        savedAttrs.value = objectPop(attributes,'value');
-        return savedAttrs
+        var cmAttrs = objectExtract(attributes,'config_*');
+        var readOnly = objectPop(attributes,'readOnly');
+        if(readOnly){
+            cmAttrs.readOnly = readOnly;
+        }
+        cmAttrs.value = objectPop(attributes,'value') || '';
+        return {cmAttrs:cmAttrs}
     },
 
     created: function(widget, savedAttrs, sourceNode) {
         var that = this;
+        var cmAttrs = objectPop(savedAttrs,'cmAttrs');
         var cb = function(){
-            var mode = savedAttrs.mode;
-            var theme = savedAttrs.theme;
+            var mode = cmAttrs.mode;
+            var theme = cmAttrs.theme;
             var cb2 = function(){
-                var cm = CodeMirror(widget,savedAttrs);
+                var cm = CodeMirror(widget,cmAttrs);
                 cm.sourceNode = sourceNode;
                 cm.gnr = that;
                 sourceNode.externalWidget = cm;
@@ -99,7 +102,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                         sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
                     },500,'updatingContent')
                 })
-
             }
             var cb1 = function(){
                 if(theme){
@@ -110,11 +112,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     cb2();
                 }
             }
-            if (!(mode in CodeMirror.modes)){
-                genro.dom.loadJs('/_rsrc/js_libs/codemirror/mode/'+mode+'/'+mode+'.js',cb1)
-            }else{
-                cb1();
-            }
+            that.load_mode(mode,cb1);
         }
         if(!window.CodeMirror){
             genro.dom.loadJs('/_rsrc/js_libs/codemirror/lib/codemirror.js',function(){
@@ -123,13 +121,44 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     cm.replaceSelection(spaces);
                 }},CodeMirror.keyMap['default']);
                 genro.dom.loadCss('/_rsrc/js_libs/codemirror/lib/codemirror.css','codemirror_default',function(){
-                    cb();
+                    genro.dom.loadJs('/_rsrc/js_libs/codemirror/addon/mode/overlay.js',function(){cb();});
                 })
             });
         }else{
             cb();
         }
     },
+
+    load_mode:function(mode,cb){
+        var that = this;
+        if (!(mode in CodeMirror.modes)){
+            genro.dom.loadJs('/_rsrc/js_libs/codemirror/mode/'+mode+'/'+mode+'.js',function(){
+                if(CodeMirror.modes[mode].dependencies){
+                    var i =0;
+                    CodeMirror.modes[mode].dependencies.forEach(function(dep){
+                        i++;
+                        console.log('mode',dep,i,CodeMirror.modes[mode].dependencies.length)
+                        if(CodeMirror.modes[mode].dependencies.length==i){
+                            that.load_mode(dep,function(){
+                                setTimeout(function(){cb()},10);
+                            });
+                        }else{
+                            that.load_mode(dep);
+                        }
+                    });
+                }
+                else if(cb){
+                    console.log('cb1 afterload',mode)
+                    cb()
+                }
+            });
+        }
+        else if(cb){
+            console.log('cb1 else',mode)
+            cb();
+        }
+    },
+
     mixin_gnr_value:function(value,kw, trigger_reason){
         this.setValue(value)
     },

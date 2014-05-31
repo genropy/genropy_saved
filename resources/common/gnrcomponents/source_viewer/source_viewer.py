@@ -4,6 +4,8 @@ from gnr.core.gnrbag import Bag
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
+from docutils.core import publish_string
+
 
 import sys
 import os
@@ -23,7 +25,7 @@ class SourceViewer(BaseComponent):
         page.dataController("""genro.wdgById('_docSource_floating').show();""",
                             subscribe_editSourceDoc=True)
         page.dataRpc('dummy',self.save_source_documentation,subscribe_sourceDocUpdate=True,
-                        doc='=gnr.source_viewer.documentation')
+                        rstdoc='=gnr.source_viewer.doc.rst')
         page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',
@@ -33,6 +35,9 @@ class SourceViewer(BaseComponent):
                                         }else{
                                             genro.publish('showCodeError',result);
                                         }""")
+        page.dataRpc('gnr.source_viewer.doc.html',self.source_viewer_rst2html,
+                    rstdoc='^gnr.source_viewer.doc.rst',
+                    _delay=500)
         page.dataController("""genro.src.updatePageSource('source_viewer_root')""",
                         subscribe_rebuildPage=True,_delay=100)
         page.dataController("""
@@ -56,12 +61,8 @@ class SourceViewer(BaseComponent):
         return frame.center.contentPane(nodeId='source_viewer_root')
 
     @public_method
-    def save_source_documentation(self,doc=None,**kwargs):
-        b = Bag()
-        b['content'] = doc
-        b['date'] = self.workdate
-        b['user'] = self.user
-        b.toXml(self.source_viewer_docName('xml'))
+    def save_source_documentation(self,rstdoc=None,**kwargs):
+        self.__writesource(rstdoc,'rst')
 
     @public_method
     def save_source_code(self,sourceCode=None):
@@ -70,21 +71,28 @@ class SourceViewer(BaseComponent):
             raise Exception('Not Allowed to write source code')
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
-            self.__writesource(sourceCode)
+            self.__writesource(sourceCode,'py')
             sys.modules.pop(self.__module__)
             return 'OK'
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
-    def __readsource(self):
-        fname = self.source_viewer_docName('py')
+    def __readsource(self,ext):
+        fname = self.source_viewer_docName(ext)
+        if not os.path.exists(fname):
+            return
         with open(fname,'r') as f:
             return f.read()
 
-    def __writesource(self,sourceCode):
-        fname = self.source_viewer_docName('py')
+    def __writesource(self,sourceCode,ext):
+        fname = self.source_viewer_docName(ext)
         with open(fname,'w') as f:
             f.write(sourceCode)
+
+    @public_method
+    def source_viewer_rst2html(self,rstdoc=None,**kwargs):
+        return publish_string(rstdoc, writer_name='html')
+
 
     @public_method
     def source_viewer_content(self,pane,**kwargs):
@@ -92,18 +100,18 @@ class SourceViewer(BaseComponent):
         top = bc.framePane(region='top',splitter=True,height='200px',
                         _class='viewer_box')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
-        source = self.__readsource()
+        source = self.__readsource('py')
         if self.site.remote_edit and self.isDeveloper():
             self.source_viewer_editor(center,source=source)
         else:
             self.source_viewer_html(center,source=source)
-        top.top.slotToolbar('5,vtitle,*',vtitle='Documentation')
-        top.center.contentPane(overflow='auto').div('^gnr.source_viewer.documentation',connect_ondblclick='PUBLISH editSourceDoc;',
+        bar = top.top.slotToolbar('5,vtitle,*,editbtn,5',vtitle='Documentation',font_size='11px',font_weight='bold')
+        bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',action='PUBLISH editSourceDoc;')
+        top.center.contentPane(overflow='auto').div('^gnr.source_viewer.doc.html',
                             min_height='30px',padding='5px')
-        docxml = self.source_viewer_docName('xml')
-        if os.path.exists(docxml):
-            b = Bag(docxml)
-            bc.data('gnr.source_viewer.documentation',b['content'])
+        rstsource = self.__readsource('rst') or '**Documentation**'
+        bc.data('gnr.source_viewer.doc.rst',rstsource)
+        bc.data('gnr.source_viewer.doc.html',self.source_viewer_rst2html(rstsource))
 
     def source_viewer_editor(self,frame,source=None):
         bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
@@ -136,12 +144,15 @@ class SourceViewer(BaseComponent):
         m = sys.modules[self.__module__]
         return '%s.%s' %(os.path.splitext(m.__file__)[0],ext)
 
+
     def source_viewer_sourceDocPalette(self,pane):
         palette = pane.palettePane(paletteCode='_docSource',dockTo='dummyDock',
                                     height='500px',width='600px',
                                     title='!!Source Documentation')
         frame = palette.framePane(frameCode='_docEditorFrame')
-        frame.center.contentPane(overflow='hidden').ckEditor(value='^gnr.source_viewer.documentation' ,toolbar='simple')
+        frame.center.contentPane(overflow='hidden',_class='source_viewer',_lazyBuild=True).codemirror(value='^gnr.source_viewer.doc.rst',
+                                config_mode='rst')
+
         bar = frame.bottom.slotBar('*,saveDoc,5,saveAndClose,5',_class='slotbar_dialog_footer')
         bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
         bar.saveAndClose.slotButton('!!Save and close',action="""
@@ -149,4 +160,3 @@ class SourceViewer(BaseComponent):
             PUBLISH sourceDocUpdate;""")
 
         return frame
-
