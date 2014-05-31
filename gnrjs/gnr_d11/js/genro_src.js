@@ -45,6 +45,20 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.highlightedNode = null;
 
     },
+    getMainSource:function(){
+        return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag');
+    },
+
+    updatePageSource:function(nodeId){
+        var nodeId = nodeId || '_pageRoot';
+        var newpage = this.getMainSource();
+        var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
+        var node = genro.nodeById(nodeId);
+        node.freeze();
+        node.setValue(newcontent);
+        node.unfreeze();
+    },
+
     highlightNode:function(sourceNode) {
         if (typeof(sourceNode) == 'string') {
             sourceNode = this.sourceRoot.getValue().getNode(sourceNode);

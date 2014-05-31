@@ -389,7 +389,7 @@ dojo.declare('gnr.GenroClient', null, {
             this.startArgs['_root_page_id'] = this.root_page_id;
             this.startArgs['_parent_page_id'] = this.parent_page_id;
         }
-        var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+        var mainBagPage = genro.src.getMainSource();
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
             if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))

@@ -1,7 +1,6 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
-from inspect import getsource
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -31,15 +30,28 @@ class SourceViewer(BaseComponent):
                         _onResult="""if(result=='OK'){
                                             SET gnr.source_viewer.source_oldvalue = kwargs.sourceCode;
                                             genro.publish('rebuildPage');
-                                                    }else{
-                                                        genro.publish('showCodeErrore',result);
-                                                    }""")
-        page.dataController("""var newp = genro.rpc.remoteCall('main',objectUpdate({timeout:5000},this.startArgs), 'bag');
-                            var n = genro.nodeById('source_viewer_root');
-                            n.freeze();
-                            var cc = newp._value.getNodeByAttr('nodeId','source_viewer_root')._value;
-                            n.setValue(cc);
-                            n.unfreeze();""",subscribe_rebuildPage=True,_delay=100)
+                                        }else{
+                                            genro.publish('showCodeError',result);
+                                        }""")
+        page.dataController("""genro.src.updatePageSource('source_viewer_root')""",
+                        subscribe_rebuildPage=True,_delay=100)
+        page.dataController("""
+            var node = genro.nodeById('sourceEditor');
+            var cm = node.externalWidget;
+            lineno = lineno-1;
+            offset = offset-1;
+            var ch_start = offset>1?offset-1:offset;
+            var ch_end = offset;
+            console.log('ch_start',ch_start,'ch_end',ch_end,'offset',offset,'lineno',lineno)
+            cm.scrollIntoView({line:lineno,ch:ch_start});
+            var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
+                            {clearOnEnter:true,className:'source_viewer_error'});
+            genro.dlg.floatingMessage(node.getParentNode(),{messageType:'error',
+                        message:msg,onClosedCb:function(){
+                    tm.clear();
+                }})
+
+            """,subscribe_showCodeError=True)
         self.source_viewer_sourceDocPalette(page)
         return frame.center.contentPane(nodeId='source_viewer_root')
 
@@ -56,17 +68,23 @@ class SourceViewer(BaseComponent):
         sourceCode=str(sourceCode)
         if not (self.site.remote_edit and self.isDeveloper()):
             raise Exception('Not Allowed to write source code')
-        fname = self.source_viewer_docName('py')
         try:
-            compiled = compile('%s\n'%sourceCode, 'dummy', 'exec')
-            with open(fname,'w') as f:
-                f.write(sourceCode)
+            compile('%s\n'%sourceCode, 'dummy', 'exec')
+            self.__writesource(sourceCode)
             sys.modules.pop(self.__module__)
             return 'OK'
         except SyntaxError,e:
-            return Bag(dict(lineno=e.lineno,msg=e.msg,offset=e.offset))
+            return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
+    def __readsource(self):
+        fname = self.source_viewer_docName('py')
+        with open(fname,'r') as f:
+            return f.read()
 
+    def __writesource(self,sourceCode):
+        fname = self.source_viewer_docName('py')
+        with open(fname,'w') as f:
+            f.write(sourceCode)
 
     @public_method
     def source_viewer_content(self,pane,**kwargs):
@@ -74,8 +92,7 @@ class SourceViewer(BaseComponent):
         top = bc.framePane(region='top',splitter=True,height='200px',
                         _class='viewer_box')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
-        m = sys.modules[self.__module__]
-        source = getsource(m)
+        source = self.__readsource()
         if self.site.remote_edit and self.isDeveloper():
             self.source_viewer_editor(center,source=source)
         else:
@@ -109,7 +126,7 @@ class SourceViewer(BaseComponent):
         frame.center.contentPane(overflow='hidden').codemirror(value='^gnr.source_viewer.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
-                                readOnly='^gnr.source_viewer.readOnly')
+                                readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
 
     def source_viewer_html(self,frame,source=None):
         frame.top.slotBar('5,vtitle,*',_class='viewer_box_title',vtitle='Source')
