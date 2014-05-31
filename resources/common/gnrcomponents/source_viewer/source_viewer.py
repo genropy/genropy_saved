@@ -97,7 +97,7 @@ class SourceViewer(BaseComponent):
             self.source_viewer_editor(center,source=source)
         else:
             self.source_viewer_html(center,source=source)
-        top.top.slotBar('5,vtitle,*',_class='viewer_box_title',vtitle='Documentation')
+        top.top.slotToolbar('5,vtitle,*',vtitle='Documentation')
         top.center.contentPane(overflow='auto').div('^gnr.source_viewer.documentation',connect_ondblclick='PUBLISH editSourceDoc;',
                             min_height='30px',padding='5px')
         docxml = self.source_viewer_docName('xml')
@@ -106,8 +106,7 @@ class SourceViewer(BaseComponent):
             bc.data('gnr.source_viewer.documentation',b['content'])
 
     def source_viewer_editor(self,frame,source=None):
-        bar = frame.top.slotBar('5,vtitle,*,savebtn,revertbtn,5,readOnlyEditor,5',
-                                _class='viewer_box_title',vtitle='Source')
+        bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
         bar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',action='PUBLISH sourceCodeUpdate')
         bar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
@@ -129,7 +128,7 @@ class SourceViewer(BaseComponent):
                                 readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
 
     def source_viewer_html(self,frame,source=None):
-        frame.top.slotBar('5,vtitle,*',_class='viewer_box_title',vtitle='Source')
+        frame.top.slotToolbar('5,vtitle,*',_claswws='viewer_box_title',vtitle='Source')
         source = highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
         frame.center.contentPane(overflow='auto').div(source,_class='codehilite',width='100%')
 
@@ -146,7 +145,7 @@ class SourceViewer(BaseComponent):
         bar = frame.bottom.slotBar('*,saveDoc,5,saveAndClose,5',_class='slotbar_dialog_footer')
         bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
         bar.saveAndClose.slotButton('!!Save and close',action="""
-            genro.wdgById('_docSource_floating').hide();
+            this.getParentWidget('floatingPane').hide()
             PUBLISH sourceDocUpdate;""")
 
         return frame
