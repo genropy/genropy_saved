@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return parentNode.getBuiltObj();
         }
     },
-
+    
     getDomNode:function() {
         if (this.domNode) {
             return  this.domNode;
@@ -90,10 +90,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         };
     },
     
-    getParentWidget:function() {
+    getParentWidget:function(tagToFind) {
+		var tag=tagToFind?tagToFind.toLowerCase():none;
         var parentNode = this.getParentNode();
         if (parentNode) {
-            return parentNode.widget?parentNode.widget : parentNode.getParentWidget();
+            return (parentNode.widget && (!tag || ((parentNode.attr.tag ||'' ).toLowerCase()==tag)))?parentNode.widget : parentNode.getParentWidget(tagToFind);
         }
     },
     destroy:function() {
