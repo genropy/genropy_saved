@@ -140,10 +140,14 @@ class SourceViewer(BaseComponent):
     def source_viewer_sourceDocPalette(self,pane):
         palette = pane.palettePane(paletteCode='_docSource',dockTo='dummyDock',
                                     height='500px',width='600px',
-                                    title='!!Source DOcumentation')
+                                    title='!!Source Documentation')
         frame = palette.framePane(frameCode='_docEditorFrame')
         frame.center.contentPane(overflow='hidden').ckEditor(value='^gnr.source_viewer.documentation' ,toolbar='simple')
-        bar = frame.bottom.slotBar('*,saveDoc,5',_class='slotbar_dialog_footer')
+        bar = frame.bottom.slotBar('*,saveDoc,5,saveAndClose,5',_class='slotbar_dialog_footer')
         bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
+        bar.saveAndClose.slotButton('!!Save and close',action="""
+            genro.wdgById('_docSource_floating').hide();
+            PUBLISH sourceDocUpdate;""")
+
         return frame
 
