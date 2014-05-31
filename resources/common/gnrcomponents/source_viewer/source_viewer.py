@@ -28,16 +28,18 @@ class SourceViewer(BaseComponent):
         page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',
-                        _onResult="""
-                            SET gnr.source_viewer.source_oldvalue = kwargs.sourceCode;
-                            genro.publish('rebuidPage');
-                            """)
-        page.dataController("""var newp = genro.rpc.remoteCall('main',this.startArgs, 'bag');
+                        _onResult="""if(result=='OK'){
+                                            SET gnr.source_viewer.source_oldvalue = kwargs.sourceCode;
+                                            genro.publish('rebuildPage');
+                                                    }else{
+                                                        genro.publish('showCodeErrore',result);
+                                                    }""")
+        page.dataController("""var newp = genro.rpc.remoteCall('main',objectUpdate({timeout:5000},this.startArgs), 'bag');
                             var n = genro.nodeById('source_viewer_root');
                             n.freeze();
                             var cc = newp._value.getNodeByAttr('nodeId','source_viewer_root')._value;
                             n.setValue(cc);
-                            n.unfreeze();""",subscribe_rebuidPage=True,_delay=5000)
+                            n.unfreeze();""",subscribe_rebuildPage=True,_delay=100)
         self.source_viewer_sourceDocPalette(page)
         return frame.center.contentPane(nodeId='source_viewer_root')
 
@@ -51,11 +53,19 @@ class SourceViewer(BaseComponent):
 
     @public_method
     def save_source_code(self,sourceCode=None):
+        sourceCode=str(sourceCode)
         if not (self.site.remote_edit and self.isDeveloper()):
             raise Exception('Not Allowed to write source code')
         fname = self.source_viewer_docName('py')
-        with open(fname,'w') as f:
-            f.write(sourceCode)
+        try:
+            compiled = compile('%s\n'%sourceCode, 'dummy', 'exec')
+            with open(fname,'w') as f:
+                f.write(sourceCode)
+            sys.modules.pop(self.__module__)
+            return 'OK'
+        except SyntaxError,e:
+            return Bag(dict(lineno=e.lineno,msg=e.msg,offset=e.offset))
+
 
 
     @public_method
