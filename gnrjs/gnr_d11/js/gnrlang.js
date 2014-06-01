@@ -494,6 +494,22 @@ function objectAny(obj,cb) {
     return false;
 }
 
+function mapConvertFromText(value){
+    if (value instanceof Array){
+        return value.map(mapConvertFromText)
+    }
+    if (typeof(value)=='string'){
+        return convertFromText(value)
+    }
+    if(typeof(value)=='object' && !(value instanceof Date)){
+        var result = {};
+        for (var k in value){
+            result[k] = mapConvertFromText(value[k]);
+        }
+        return result;
+    }
+    return value;
+}
 
 function objectString(obj) {
     var result = [];
