@@ -109,7 +109,8 @@ class GnrWsgiWebApp(GnrApp):
             attributes.update(node.getAttr())
             currbasepath = basepath
             if 'dir' in attributes:
-                node.value = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))['#0']
+                autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))
+                node.value = autobranch[attributes['dir']]
             value = node.getStaticValue()
             if 'basepath' in attributes:
                 newbasepath = attributes.pop('basepath')
@@ -128,7 +129,6 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
-            print result
         return result
 
     def _buildSiteMenu_autoBranch(self,pkg,*path):
