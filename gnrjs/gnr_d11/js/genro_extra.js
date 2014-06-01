@@ -87,7 +87,10 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
             var mode = cmAttrs.mode;
             var theme = cmAttrs.theme;
             var cb2 = function(){
+                dojo.style(widget,{position:'relative'})
                 var cm = CodeMirror(widget,cmAttrs);
+                dojo.style(widget.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
+                cm.refresh();
                 cm.sourceNode = sourceNode;
                 cm.gnr = that;
                 sourceNode.externalWidget = cm;

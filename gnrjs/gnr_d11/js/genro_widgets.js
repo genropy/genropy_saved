@@ -550,7 +550,16 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
     constructor:function(){
         this._domtag ='iframe';
-    }
+    },
+    creating:function(attributes, sourceNode){
+        console.log('htmliframe creating')
+
+    },
+    created:function(newobj, savedAttrs, sourceNode){
+        console.log('htmliframe created')
+
+    },
+
 });
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {

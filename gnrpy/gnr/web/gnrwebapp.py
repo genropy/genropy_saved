@@ -112,6 +112,7 @@ class GnrWsgiWebApp(GnrApp):
                 if 'dir' in attributes:
                     autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))
                     node.value = autobranch[attributes['dir']]
+                    currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
                     node.value = self.packages[attributes['pkg']].pkgMenu['#0']
             value = node.getStaticValue()
@@ -134,7 +135,7 @@ class GnrWsgiWebApp(GnrApp):
             result.setItem(node.label, value, attributes)
         return result
 
-    def _buildSiteMenu_autoBranch(self,pkg,*path):
+    def _buildSiteMenu_autoBranch(self,pkg=None,*path):
         menubag = Bag()
         automap = self.site.automap
         basepath = []

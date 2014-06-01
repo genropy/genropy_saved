@@ -54,15 +54,6 @@
 .changed_editor .source_viewer_button{
     visibility: visible;
 }
-
-.source_viewer .CodeMirror{
-    position: absolute;
-    top:0;
-    bottom:0;
-    left:0;
-    right: 0;
-    height: inherit;
-}
 .source_viewer_error{
     background-color: red;
     color:white;

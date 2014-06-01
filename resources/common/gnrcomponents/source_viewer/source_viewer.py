@@ -107,8 +107,10 @@ class SourceViewer(BaseComponent):
             self.source_viewer_html(center,source=source)
         bar = top.top.slotToolbar('5,vtitle,*,editbtn,5',vtitle='Documentation',font_size='11px',font_weight='bold')
         bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',action='PUBLISH editSourceDoc;')
-        top.center.contentPane(overflow='auto').div('^gnr.source_viewer.doc.html',
-                            min_height='30px',padding='5px')
+        iframe = top.center.contentPane(overflow='hidden').htmliframe(height='100%',width='100%',border=0)
+        bar.dataController('iframe.domNode.contentWindow.document.body.innerHTML = rendering',
+                rendering='^gnr.source_viewer.doc.html',iframe=iframe)
+        
         rstsource = self.__readsource('rst') or '**Documentation**'
         bc.data('gnr.source_viewer.doc.rst',rstsource)
         bc.data('gnr.source_viewer.doc.html',self.source_viewer_rst2html(rstsource))
@@ -133,6 +135,7 @@ class SourceViewer(BaseComponent):
         frame.center.contentPane(overflow='hidden').codemirror(value='^gnr.source_viewer.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
+                                height='100%',
                                 readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
 
     def source_viewer_html(self,frame,source=None):
@@ -151,6 +154,7 @@ class SourceViewer(BaseComponent):
                                     title='!!Source Documentation')
         frame = palette.framePane(frameCode='_docEditorFrame')
         frame.center.contentPane(overflow='hidden',_class='source_viewer',_lazyBuild=True).codemirror(value='^gnr.source_viewer.doc.rst',
+                                height='100%',config_lineNumbers=True,
                                 config_mode='rst')
 
         bar = frame.bottom.slotBar('*,saveDoc,5,saveAndClose,5',_class='slotbar_dialog_footer')
