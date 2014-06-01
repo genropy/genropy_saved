@@ -8,6 +8,7 @@
 
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
+import re
 from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
@@ -72,7 +73,7 @@ class ResourceLoader(object):
             attr = node.attr
             file_name = attr['file_name']
             node.attr = dict(
-                    name='!!%s' % file_name.capitalize(),
+                    name='!!%s'% re.sub(r'\d+_','',file_name).replace('_',' ').capitalize(),
                     pkg=pkg
                     )
             if plugin:

@@ -128,6 +128,7 @@ class GnrWsgiWebApp(GnrApp):
                     else:
                         attributes['file'] = self.site.home_uri + filepath.lstrip('/')
             result.setItem(node.label, value, attributes)
+            print result
         return result
 
     def _buildSiteMenu_autoBranch(self,pkg,*path):
@@ -138,8 +139,7 @@ class GnrWsgiWebApp(GnrApp):
             automap = self.site.automap.getItem(pkg,*path)
             basepath = [pkg]
         for pathlist, node in automap.getIndex():
-            attr = dict(label=node.getAttr('name') or node.label.capitalize())
-            attr['label'] = attr['label'].replace('_',' ')
+            attr = dict(label=node.getAttr('name') or node.label)
             if isinstance(node.getValue(), Bag):
                 attr['basepath'] = '/%s' % ('/'.join(basepath+pathlist))
             else:
