@@ -108,9 +108,12 @@ class GnrWsgiWebApp(GnrApp):
             attributes = {}
             attributes.update(node.getAttr())
             currbasepath = basepath
-            if 'dir' in attributes:
-                autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))
-                node.value = autobranch[attributes['dir']]
+            if 'pkg' in attributes:
+                if 'dir' in attributes:
+                    autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))
+                    node.value = autobranch[attributes['dir']]
+                else:
+                    node.value = self.packages[attributes['pkg']].pkgMenu['#0']
             value = node.getStaticValue()
             if 'basepath' in attributes:
                 newbasepath = attributes.pop('basepath')

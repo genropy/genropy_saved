@@ -9,7 +9,8 @@ class GnrCustomWebPage(object):
         self.topPane(bc.contentPane(region='top', _class='tm_top'))
         tc = bc.tabContainer(region='center', margin='6px', background_color='white', font_size='.9em')
         for pkg in self.db.packages.values():
-            self.packagePane(tc.borderContainer(title=pkg.name,
+            if pkg['tables']:
+                self.packagePane(tc.borderContainer(title=pkg.name,
                                                 datapath='packages.%s' % pkg.name), pkg)
 
     def topPane(self, pane):
