@@ -8,7 +8,16 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import fromJson
+from gnr.core.gnrlang import uniquify
 from datetime import datetime
+import os
+SH_ENABLED = False
+try:
+    from sh import cd,ls,git
+    SH_ENABLED = True
+except ImportError:
+    pass
+
 
 
 class MaintenancePlugin(BaseComponent):
@@ -16,15 +25,60 @@ class MaintenancePlugin(BaseComponent):
         """!!Maintenance"""
         frame = pane.framePane(datapath='gnr.maintenance')
         tc = frame.center.tabContainer(margin='2px')
-        self.maintenance_backup(tc.framePane(title='Backup',margin='2px',rounded=4,border='1px solid silver'))
-        self.maintenance_register(tc.framePane(title='!!Users & Connections',margin='2px',rounded=4,border='1px solid silver'))
+        self.maintenance_admin(tc.framePane(title='Administration',margin='2px',rounded=4,border='1px solid #efefef',datapath='.administration'))
+        self.maintenance_register(tc.framePane(title='!!Users & Connections',margin='2px',rounded=4,border='1px solid #efefef'))
 
-    def maintenance_backup(self,frame):
-        bar = frame.top.slotToolbar('5,backup,*')
+    def maintenance_admin(self,frame):
+        tc = frame.center.stackContainer(selectedPage='^.selectedPage')
+        frame.top.slotToolbar('*,stackButtons,*')
+        fb = tc.contentPane(title='Backup',pageName='backup').formbuilder(cols=1,border_spacing='3px')
         #top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='2px')
         #top.div('!!Backups',_class='pbl_roundedGroupLabel')
         #fb = top.formbuilder(cols=1,border_spacing='3px')
-        bar.backup.button('Complete Backup',action='PUBLISH table_script_run = {res_type:"action",resource:"dumpall",table:"adm.backup"};')
+        fb.button('Complete Backup',action='PUBLISH table_script_run = {res_type:"action",resource:"dumpall",table:"adm.backup"};')
+        if SH_ENABLED:
+            self.__git_panel(tc.contentPane(title='Git',pageName='git',_anchor=True))
+            self.__apache_panel(tc.contentPane(title='Apache',pageName='apache'))
+
+    def __apache_panel(self,pane):
+        pass
+
+    @public_method
+    def getRepositoryBag(self):
+        repositories = Bag()
+        for path in uniquify(self.site.gnrapp.config['packages'].digest('#a.path')):
+            has_git = False
+            while path and not has_git:
+                path = os.path.split(path)[0]
+                has_git = os.path.exists(os.path.join(path,'.git'))
+                if has_git and not path in repositories:
+                    changes = '1'
+                    repositories[path] = Bag(path=path,name=os.path.split(path)[1],
+                                status="""<a href='#' onclick="genro.publish('git_pull',{repository:'%s'})"> Pull </a>""" %path if changes else ' ')
+        return repositories
+
+    def git_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('name',width='7em',name='Name')
+        r.cell('status',width='12em',name='Status')
+
+    def __git_panel(self,pane):
+        pane.dataRpc('#ANCHOR.repositories',self.getRepositoryBag,_page='^.selectedPage',
+                    _if='_page=="git"')
+        pane.bagGrid(storepath='#ANCHOR.repositories',
+                    struct=self.git_struct,
+                    pbl_classes=True,title='Repositories status',margin='2px',
+                    addrow=False,delrow=False)
+        pane.dataRpc("dummy",self.pullRepository,subscribe_git_pull=True,
+                    _onResult="""genro.publish('floating_message',{message:result})
+                    """,_lockScreen=True,timeout=300000)
+
+    @public_method
+    def pullRepository(self,repository=None):
+        print 'BEFORE PULL',repository
+        cd(repository)
+        result = git('pull')
+        return '<pre>%s</pre>' %result.stdout
 
     def maintenance_register(self,frame):
         frame.css('.disconnected .dojoxGrid-cell', "color:red !important;")
@@ -32,10 +86,7 @@ class MaintenancePlugin(BaseComponent):
         frame.css('.no_children .dojoxGrid-cell', "color:yellow !important;")
         bar = frame.top.slotToolbar('5,stackButtons,*,cleanIdle,5')
         bar.cleanIdle.button('Clean')
-
-
         sc = frame.center.stackContainer()
-
         bc = sc.borderContainer(title='Users')
         messageframe = bc.framePane(region='bottom',height='150px',_class='pbl_roundedGroup',margin='2px')
         messageframe.top.slotBar('2,vtitle,*',vtitle='!!Message',_class='pbl_roundedGroupLabel')

@@ -6,7 +6,12 @@
 
 
 from gnr.core.gnrbaseservice import GnrBaseService
-from docutils.core import publish_string
+try:
+    from docutils.core import publish_string as renderRst
+except ImportError:
+    def renderRst(*args,**kwargs):
+        return '<h1 style="color:red;">Missing docutils</h1><h2>hint: pip install docutils</h2>'
+
 
 class Main(GnrBaseService):
     def __init__(self, parent=None,theme=None,stylesheet=None,**kwargs):
@@ -24,5 +29,5 @@ class Main(GnrBaseService):
         stylesheet = self.parent.getStaticPath('rsrc:%s' %stylesheet)
         settings_overrides = {'stylesheet_path':stylesheet}
         settings_overrides.update(docutils_kwargs)
-        return publish_string(source_rst, writer_name='html',
+        return renderRst(source_rst, writer_name='html',
                               settings_overrides=settings_overrides)

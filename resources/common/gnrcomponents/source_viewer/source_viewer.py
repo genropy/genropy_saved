@@ -46,7 +46,6 @@ class SourceViewer(BaseComponent):
             offset = offset-1;
             var ch_start = offset>1?offset-1:offset;
             var ch_end = offset;
-            console.log('ch_start',ch_start,'ch_end',ch_end,'offset',offset,'lineno',lineno)
             cm.scrollIntoView({line:lineno,ch:ch_start});
             var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
                             {clearOnEnter:true,className:'source_viewer_error'});
@@ -63,10 +62,13 @@ class SourceViewer(BaseComponent):
     def save_source_documentation(self,rstdoc=None,**kwargs):
         self.__writesource(rstdoc,'rst')
 
+    def __edit_allowed(self):
+        return self.site.remote_edit and self.isDeveloper()
+
     @public_method
     def save_source_code(self,sourceCode=None):
         sourceCode=str(sourceCode)
-        if not (self.site.remote_edit and self.isDeveloper()):
+        if not self.__edit_allowed():
             raise Exception('Not Allowed to write source code')
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
@@ -84,9 +86,10 @@ class SourceViewer(BaseComponent):
             return f.read()
 
     def __writesource(self,sourceCode,ext):
-        fname = self.source_viewer_docName(ext)
-        with open(fname,'w') as f:
-            f.write(sourceCode)
+        if self.__edit_allowed():
+            fname = self.source_viewer_docName(ext)
+            with open(fname,'w') as f:
+                f.write(sourceCode)
 
     @public_method
     def source_viewer_rst2html(self,rstdoc=None,**kwargs):
@@ -99,12 +102,15 @@ class SourceViewer(BaseComponent):
                         _class='viewer_box')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
         source = self.__readsource('py')
-        if self.site.remote_edit and self.isDeveloper():
+        if self.__edit_allowed():
             self.source_viewer_editor(center,source=source)
         else:
             self.source_viewer_html(center,source=source)
-        bar = top.top.slotToolbar('5,vtitle,*,editbtn,5',vtitle='Documentation',font_size='11px',font_weight='bold')
-        bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',action='PUBLISH editSourceDoc;')
+        docslots = '5,vtitle,*,editbtn,5' if self.__edit_allowed() else '5,vtitle,*'
+        bar = top.top.slotToolbar(docslots,vtitle='Documentation',font_size='11px',font_weight='bold',height='20px')
+        if self.__edit_allowed():
+            bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',
+                                action='PUBLISH editSourceDoc;')
         iframe = top.center.contentPane(overflow='hidden').htmliframe(height='100%',width='100%',border=0)
         bar.dataController('iframe.domNode.contentWindow.document.body.innerHTML = rendering',
                 rendering='^gnr.source_viewer.doc.html',iframe=iframe)
@@ -137,7 +143,7 @@ class SourceViewer(BaseComponent):
                                 readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
 
     def source_viewer_html(self,frame,source=None):
-        frame.top.slotToolbar('5,vtitle,*',_claswws='viewer_box_title',vtitle='Source')
+        frame.top.slotToolbar('5,vtitle,*',vtitle='Source',font_size='11px',font_weight='bold',height='20px')
         source = highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
         frame.center.contentPane(overflow='auto').div(source,_class='codehilite',width='100%')
 
