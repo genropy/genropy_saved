@@ -142,7 +142,9 @@ class GnrWsgiWebApp(GnrApp):
         if pkg and path:
             automap = self.site.automap.getItem(pkg,*path)
             basepath = [pkg]
-        for pathlist, node in automap.getIndex():
+        mapindex=automap.getIndex()
+        mapindex.sort()
+        for pathlist, node in mapindex:
             attr = dict(label=node.getAttr('name') or node.label)
             if isinstance(node.getValue(), Bag):
                 attr['basepath'] = '/%s' % ('/'.join(basepath+pathlist))
