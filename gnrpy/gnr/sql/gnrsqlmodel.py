@@ -782,8 +782,12 @@ class DbTableObj(DbModelObj):
         
     def _get_rowcaption(self):
         """property. Returns the table's rowcaption"""
-        return self.attributes.get('rowcaption', self.pkey)
-        
+        attr = self.attributes
+        rowcaption = attr.get('rowcaption')
+        if not rowcaption and attr.get('caption_field'):
+            rowcaption = '$%(caption_field)s' %attr
+        rowcaption = rowcaption or '$%(pkey)s' %attr
+        return rowcaption      
     rowcaption = property(_get_rowcaption)
     
     @property
