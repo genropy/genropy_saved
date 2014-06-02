@@ -150,7 +150,7 @@ dojo.declare('gnr.GenroClient', null, {
         var onerrorcb = function(errorMsg,url,linenumber){
             genro.onError(errorMsg,url,linenumber);
         };
-        //window.onerror = onerrorcb;
+        window.onerror = onerrorcb;
 
         dojo.connect(console.err,onerrorcb);
 

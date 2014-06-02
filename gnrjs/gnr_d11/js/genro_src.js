@@ -531,7 +531,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var val = source[prop];
                 if (typeof(val) == 'string') {
                     var dynval = stringStrip(val);
-                    if (dynval.indexOf('==') == 0) {
+                    if((dynval.indexOf('=') == 0) && (prop in sourceNode.attr) && (sourceNode.attr[prop]!=dynval)){
+                        //val is already evaluated
+                    }
+                    else if (dynval.indexOf('==') == 0) {
                         formulaProp.push(prop);
                         //val = funcApply("return "+dynval.slice(2),source,sourceNode);
                     } else if ((dynval.indexOf('^') == 0) || (dynval.indexOf('=') == 0)) {
