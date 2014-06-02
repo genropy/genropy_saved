@@ -293,7 +293,7 @@ class PackageMaker(object):
         
     where ``packagesname`` is the name of your ``packages`` folder.
     """
-    def __init__(self, package_name, base_path=None, sqlschema=None,
+    def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=None,
                  name_short=None, name_long=None, name_full=None,
                  login_url=None, comment=None):
         self.package_name = package_name
@@ -302,6 +302,7 @@ class PackageMaker(object):
         self.name_full = name_full or self.package_name.capitalize()
         self.name_long = name_long or self.package_name.capitalize()
         self.sqlschema = sqlschema or self.package_name.lower()
+        self.sqlprefix = sqlprefix
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
         
@@ -326,7 +327,9 @@ class PackageMaker(object):
 """)
             menu_xml.close()
         if not os.path.exists(self.main_py_path):
-            main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, name_short=self.name_short,
+            if self.sqlprefix is not None:
+                sqlprefixstring = "sqlprefix='%s',"%(self.sqlprefix)
+            main_py_options = dict(comment=self.comment, sqlschema=self.sqlschema, sqlprefixstring=sqlprefixstring, name_short=self.name_short,
                                    name_long=self.name_long, name_full=self.name_full, login_url=self.login_url)
             main_py = open(self.main_py_path, 'w')
             main_py.write("""#!/usr/bin/env python
@@ -335,7 +338,7 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(comment='%(comment)s',sqlschema='%(sqlschema)s',
+        return dict(comment='%(comment)s',sqlschema='%(sqlschema)s',%(sqlprefixstring)s
                     name_short='%(name_short)s', name_long='%(name_long)s', name_full='%(name_full)s')
                     
     def config_db(self, pkg):
