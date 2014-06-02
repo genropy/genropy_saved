@@ -4,11 +4,6 @@
 Stylesheet for use with Docutils.  [
 */
 
-@import url(html4css1.css);
+@import url(../html4css1.css);
 
 /* Your customizations go here.  For example: */
-
-h1, h2, h3, h4, h5, h6, p.topic-title {
-  font-family: sans-serif;
-  lime;
-}

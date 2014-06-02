@@ -4,7 +4,6 @@ from gnr.core.gnrbag import Bag
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from docutils.core import publish_string
 
 
 import sys
@@ -91,8 +90,7 @@ class SourceViewer(BaseComponent):
 
     @public_method
     def source_viewer_rst2html(self,rstdoc=None,**kwargs):
-        return publish_string(rstdoc, writer_name='html')
-
+        return self.site.getService('rst2html')(rstdoc,**kwargs)
 
     @public_method
     def source_viewer_content(self,pane,**kwargs):
@@ -155,8 +153,7 @@ class SourceViewer(BaseComponent):
         frame = palette.framePane(frameCode='_docEditorFrame')
         frame.center.contentPane(overflow='hidden',_class='source_viewer',_lazyBuild=True).codemirror(value='^gnr.source_viewer.doc.rst',
                                 height='100%',config_lineNumbers=True,
-                                config_mode='rst')
-
+                                config_mode='rst',config_keyMap='softTab')
         bar = frame.bottom.slotBar('*,saveDoc,5,saveAndClose,5',_class='slotbar_dialog_footer')
         bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
         bar.saveAndClose.slotButton('!!Save and close',action="""
