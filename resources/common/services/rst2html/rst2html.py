@@ -29,5 +29,8 @@ class Main(GnrBaseService):
         stylesheet = self.parent.getStaticPath('rsrc:%s' %stylesheet)
         settings_overrides = {'stylesheet_path':stylesheet}
         settings_overrides.update(docutils_kwargs)
-        return renderRst(source_rst, writer_name='html',
+        try :
+            return renderRst(source_rst, writer_name='html',
                               settings_overrides=settings_overrides)
+        except Exception,e:
+            return str(e)

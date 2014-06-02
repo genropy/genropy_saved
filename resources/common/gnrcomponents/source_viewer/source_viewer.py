@@ -98,7 +98,7 @@ class SourceViewer(BaseComponent):
     @public_method
     def source_viewer_content(self,pane,**kwargs):
         bc = pane.borderContainer(height='100%',_class='selectable')
-        top = bc.framePane(region='top',splitter=True,height='200px',
+        top = bc.framePane(region='top',splitter=True,height='300px',
                         _class='viewer_box')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
         source = self.__readsource('py')
