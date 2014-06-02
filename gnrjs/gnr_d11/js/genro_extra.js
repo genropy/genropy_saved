@@ -140,7 +140,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     var i =0;
                     CodeMirror.modes[mode].dependencies.forEach(function(dep){
                         i++;
-                        console.log('mode',dep,i,CodeMirror.modes[mode].dependencies.length)
                         if(CodeMirror.modes[mode].dependencies.length==i){
                             that.load_mode(dep,function(){
                                 setTimeout(function(){cb()},10);
@@ -151,13 +150,11 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     });
                 }
                 else if(cb){
-                    console.log('cb1 afterload',mode)
                     cb()
                 }
             });
         }
         else if(cb){
-            console.log('cb1 else',mode)
             cb();
         }
     },
