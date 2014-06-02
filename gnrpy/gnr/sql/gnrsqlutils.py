@@ -95,7 +95,7 @@ class ModelExtractor(object):
                      :ref:`webpages_main` documentation section."""
         relations = self.dbroot.adapter.relations()
         for (
-        many_rel_name, many_schema, many_table, many_cols, one_rel_name, one_schema, one_table, one_cols, upd_rule) in relations:
+        many_rel_name, many_schema, many_table, many_cols, one_rel_name, one_schema, one_table, one_cols, upd_rule, del_rule, init_defer) in relations:
             #one_rel_name = self.relName(ref, tbl)
             many_field = many_cols[0]
             one_field = one_cols[0]

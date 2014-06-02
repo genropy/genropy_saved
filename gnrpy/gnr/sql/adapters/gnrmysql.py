@@ -49,7 +49,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                  'enum': 'A',
                  'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime': 'DH', 'tinyint': 'I', 'timestamp': 'DH',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'int': 'I', 'double precision': 'R', 'real': 'R',
-                 'bytea': 'O'}
+                 'bytea': 'O', 'decimal':'N', 'longblob':'O', 'float':'R', 'blob':'O', 'varbinary':'O'}
 
     revTypesDict = {'A': 'varchar', 'T': 'text', 'C': 'char',
                     'X': 'text', 'P': 'text', 'Z': 'text',
@@ -67,10 +67,14 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         import MySQLdb
         from MySQLdb.cursors import DictCursor
         dbroot = self.dbroot
+        if dbroot.port:
+            port = int(dbroot.port)
+        else:
+            port = 3306
         #kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password, 
         # port=dbroot.port, use_unicode=True, cursorclass=GnrDictCursor)
         kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password,
-                      port=int(dbroot.port), cursorclass=GnrDictCursor)
+                      port=port , cursorclass=GnrDictCursor)
         kwargs = dict(
                 [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
         kwargs['charset'] = 'utf8'
@@ -172,7 +176,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     def _list_schemata(self):
         return """SELECT schema_name FROM information_schema.schemata 
-              WHERE schema_name != 'information_schema'"""
+              WHERE schema_name != 'information_schema' AND schema_name != 'mysql' AND schema_name != 'performance_schema'"""
 
     def _list_tables(self):
         return """SELECT table_name FROM information_schema.tables
