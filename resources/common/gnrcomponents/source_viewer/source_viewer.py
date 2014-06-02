@@ -15,7 +15,9 @@ class SourceViewer(BaseComponent):
     def rootWidget(self,root,**kwargs):
         frame = root.framePane(frameCode='sandbox',_class='sandbox',**kwargs)
         page = self.pageSource()
-        bar = frame.right.slotBar('0,sourceBox,0',width='550px',sourceBox_height='100%',
+        bar = frame.right.slotBar('0,sourceBox,0',width='550px',sourceBox_height='100%',closable_background='red',
+                       closable_width='14px',closable_left='-14px',closable_height='80px',closable_margin_top='-40px',
+                       closable_border='0px',closable_rounded_left=14,
                         closable='close',splitter=True,border_left='1px solid #666')
         sourceBox = bar.sourceBox.div(height='100%',width='100%',position='relative',_class='source_viewer',
                         ).div(position='absolute',top='0',
