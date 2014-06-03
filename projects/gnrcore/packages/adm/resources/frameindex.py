@@ -599,30 +599,28 @@ class FramedIndexLogin(BaseComponent):
 
 
         footer.dataController("""
-        btn.setAttribute('disabled',true);
-        var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
-        if (!result){
-            genro.publish('failed_login_msg',{'message':error_msg});
-            btn.setAttribute('disabled',false);
-        }else if(result.error){
-            genro.publish('failed_login_msg',{'message':result.error});
-            btn.setAttribute('disabled',false);
-        }else{
-            dlg.hide();
-            rootpage = rootpage || result['rootpage'];
-            if(rootpage){
-                genro.gotoURL(rootpage);
+        dlg.hide();
+        genro.lockScreen(true,'login');
+        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
+            genro.lockScreen(false,'login');
+            if (!result || result.error){
+                dlg.show();
+                genro.publish('failed_login_msg',{'message':result?result.error:error_msg});
+            }else{
+                rootpage = rootpage || result['rootpage'];
+                if(rootpage){
+                    genro.gotoURL(rootpage);
+                }
+                if(loginOnBuilt){
+                    genro.publish('logged');
+                    genro.publish('openApplicationPage')
+                }
             }
-            if(loginOnBuilt){
-                PUBLISH openApplicationPage;
-            }
-            
-            genro.publish('logged');
-        }
+        },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,btn=btn.js_widget,_delay=1)  
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,_delay=1)  
         return dlg
 
     @public_method
