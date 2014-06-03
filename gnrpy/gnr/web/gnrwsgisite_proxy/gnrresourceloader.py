@@ -83,7 +83,7 @@ class ResourceLoader(object):
             node.label = file_name
             if node._value is None:
                 node._value = ''
-                
+        
         self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',
                                          exclude='_*,.*,*.pyc')()
                                          
@@ -104,6 +104,7 @@ class ResourceLoader(object):
     def sitemap(self):
         """Return the sitemap Bag (if there is no sitemap, creates it)"""
         if not hasattr(self, '_sitemap'):
+            print 'recalculate sitemap'
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
                 sitemap_path = os.path.join(self.site_path, 'automap.xml')
