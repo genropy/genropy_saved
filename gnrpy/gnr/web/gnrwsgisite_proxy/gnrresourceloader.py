@@ -84,17 +84,17 @@ class ResourceLoader(object):
             if node._value is None:
                 node._value = ''
                 
-        self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',
+        self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',readOnly=False,cacheTime=-1,
                                          exclude='_*,.*,*.pyc')()
                                          
         self.automap.walk(handleNode, _mode='', pkg='*')
         for package in self.site.gnrapp.packages.values():
-            packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),
+            packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),readOnly=False,cacheTime=-1,
                                            include='*.py', exclude='_*,.*')()
             packagemap.walk(handleNode, _mode='', pkg=package.id)
             self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
             for pluginname,plugin in package.plugins.items():
-                pluginmap = DirectoryResolver(plugin.webpages_path,
+                pluginmap = DirectoryResolver(plugin.webpages_path,readOnly=False,cacheTime=-1,
                                                include='*.py', exclude='_*,.*')()
                 pluginmap.walk(handleNode, _mode='', pkg=package.id,plugin=plugin.id)
                 self.automap.setItem("%s._plugin.%s"%(package.id,plugin.id), pluginmap, name=plugin.id)

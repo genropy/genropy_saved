@@ -96,6 +96,7 @@ class GnrWsgiWebApp(GnrApp):
 
     def _buildSiteMenu(self):
         menubag = self.config['menu']
+        menubag = None
         if not menubag:
             menubag = self._buildSiteMenu_autoBranch()
         menubag = self._buildSiteMenu_prepare(menubag)
@@ -110,8 +111,8 @@ class GnrWsgiWebApp(GnrApp):
             currbasepath = basepath
             if 'pkg' in attributes:
                 if 'dir' in attributes:
-                    autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))
-                    node.value = autobranch[attributes['dir']]
+                    autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],attributes['dir'].replace('/','.'))
+                    node.value = autobranch
                     currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
                     node.value = self.packages[attributes['pkg']].pkgMenu['#0']
@@ -135,13 +136,13 @@ class GnrWsgiWebApp(GnrApp):
             result.setItem(node.label, value, attributes)
         return result
 
-    def _buildSiteMenu_autoBranch(self,pkg=None,*path):
+    def _buildSiteMenu_autoBranch(self,pkg=None,path=None):
         menubag = Bag()
         automap = self.site.automap
         basepath = []
         if pkg and path:
-            automap = self.site.automap.getItem(pkg,*path)
-            basepath = [pkg]
+            basepath = [pkg,path]
+            automap = self.site.automap.getItem('%s.%s' %(pkg,path))
         mapindex=automap.getIndex()
         mapindex.sort()
         for pathlist, node in mapindex:
