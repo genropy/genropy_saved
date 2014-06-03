@@ -11,6 +11,7 @@ from gnr.core.gnrstring import fromJson
 from gnr.core.gnrlang import uniquify
 from datetime import datetime
 import os
+import re
 SH_ENABLED = False
 try:
     from sh import cd,ls,git
@@ -52,25 +53,52 @@ class MaintenancePlugin(BaseComponent):
                 path = os.path.split(path)[0]
                 has_git = os.path.exists(os.path.join(path,'.git'))
                 if has_git and not path in repositories:
-                    changes = '1'
+                    changes = self.getGitRepositoriesChanges(path)
                     repositories[path] = Bag(path=path,name=os.path.split(path)[1],
-                                status="""<a href='#' onclick="genro.publish('git_pull',{repository:'%s'})"> Pull </a>""" %path if changes else ' ')
+                                to_pull="""<a href='#' onclick="genro.publish('git_pull',{repository:'%s'})">Pull %i</a>""" %(path,changes['to_pull']) if changes['to_pull'] else ' ',
+                                to_push = """<a href='#' onclick="genro.publish('git_push',{repository:'%s'})">Push %i</a>""" %(path,changes['to_push']) if changes['to_push'] else ' ',
+                                )
         return repositories
 
     def git_struct(self,struct):
         r = struct.view().rows()
         r.cell('name',width='7em',name='Name')
-        r.cell('status',width='12em',name='Status')
+        r.cell('to_pull',width='5em',name='Pull')
+        r.cell('to_push',width='5em',name='Push')
+
+    def getGitRepositoriesChanges(self,path):
+        cd(path)
+        print 'PATH',path
+        print 'LS',ls()
+        try:
+            git('remote','update')
+        except Exception, e:
+            raise
+        try:
+            status_result = git('status')
+        except Exception,e:
+            raise
+        status_result = status_result.stdout
+        m = re.search("behind '\\w+/?\\w*' by (\\d+)", status_result)
+        to_pull = int(m.group(1)) if m else 0
+        m = re.search("ahead '\\w+/?\\w*' by (\\d+)", status_result)
+        to_push = int(m.group(1)) if m else 0
+        return dict(to_push=to_push,to_pull=to_pull)
+
 
     def __git_panel(self,pane):
-        pane.dataRpc('#ANCHOR.repositories',self.getRepositoryBag,_page='^.selectedPage',
-                    _if='_page=="git"')
-        pane.bagGrid(storepath='#ANCHOR.repositories',
+        gridview = pane.bagGrid(storepath='#ANCHOR.repositories',
                     struct=self.git_struct,
                     pbl_classes=True,title='Repositories status',margin='2px',
                     addrow=False,delrow=False)
+        pane.dataRpc('#ANCHOR.repositories',self.getRepositoryBag,_page='^.selectedPage',
+                    _if='_page=="git"',
+                    _onCalling='kwargs._gridview.setHiderLayer(true,{message:"Loading"})',
+                    _onResult='kwargs._gridview.setHiderLayer()',_gridview=gridview,_fired='^refresh_repo')
+
         pane.dataRpc("dummy",self.pullRepository,subscribe_git_pull=True,
-                    _onResult="""genro.publish('floating_message',{message:result})
+                    _onResult="""FIRE refresh_repo;
+                                 genro.publish('floating_message',{message:result})
                     """,_lockScreen=True,timeout=300000)
 
     @public_method
