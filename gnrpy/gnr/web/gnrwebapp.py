@@ -96,7 +96,6 @@ class GnrWsgiWebApp(GnrApp):
 
     def _buildSiteMenu(self):
         menubag = self.config['menu']
-        menubag = None
         if not menubag:
             menubag = self._buildSiteMenu_autoBranch()
         menubag = self._buildSiteMenu_prepare(menubag)
