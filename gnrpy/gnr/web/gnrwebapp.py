@@ -136,16 +136,11 @@ class GnrWsgiWebApp(GnrApp):
         return result
 
     def _buildSiteMenu_autoBranch(self,pkg=None,*path):
-        def cb(n):
-            pass
         menubag = Bag()
         automap = self.site.automap
         basepath = []
         if pkg and path:
             automap = self.site.automap.getItem(pkg,*path)
-            automap.walk(cb)
-            print '\npartial automap\n',automap
-            
             basepath = [pkg]
         mapindex=automap.getIndex()
         mapindex.sort()
