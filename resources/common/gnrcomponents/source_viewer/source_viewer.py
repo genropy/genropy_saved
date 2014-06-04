@@ -192,7 +192,7 @@ class DocumentationPage(SourceViewer):
         frame = root.framePane('documentationFrame',region=region,background='white')
         if self.source_viewer_edit_allowed():
             bar = frame.bottom.slotBar('0,documentationEditor,0',closable='close',height='500px',border_top='1px solid silver',
-                                    documentationEditor_width='100%',documentationEditor_overflow='hidden')
+                                    documentationEditor_width='100%',documentationEditor_overflow='hidden',splitter=True)
             self.source_viewer_docEditorFrame(bar.documentationEditor,height='100%')
         return frame.center.contentPane(overflow='hidden',**kwargs)
 
