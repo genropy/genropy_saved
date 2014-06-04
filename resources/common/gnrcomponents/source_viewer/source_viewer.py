@@ -114,12 +114,15 @@ class SourceViewer(BaseComponent):
             bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',
                                 action='PUBLISH editSourceDoc;')
         iframe = top.center.contentPane(overflow='hidden').htmliframe(height='100%',width='100%',border=0)
-        bar.dataController('iframe.domNode.contentWindow.document.body.innerHTML = rendering',
-                rendering='^gnr.source_viewer.doc.html',iframe=iframe)
+        self.source_viewer_controller(pane,iframe)
+    
+    def source_viewer_controller(self,pane,iframe,_onStart=None):
+        pane.dataController('iframe.domNode.contentWindow.document.body.innerHTML = rendering',
+                rendering='^gnr.source_viewer.doc.html',iframe=iframe,_onStart=_onStart)
         
         rstsource = self.__readsource('rst') or '**Documentation**'
-        bc.data('gnr.source_viewer.doc.rst',rstsource)
-        bc.data('gnr.source_viewer.doc.html',self.source_viewer_rst2html(rstsource))
+        pane.data('gnr.source_viewer.doc.rst',rstsource)
+        pane.data('gnr.source_viewer.doc.html',self.source_viewer_rst2html(rstsource))
 
     def source_viewer_editor(self,frame,source=None):
         bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
@@ -169,3 +172,10 @@ class SourceViewer(BaseComponent):
             PUBLISH sourceDocUpdate;""")
 
         return frame
+        
+class DocumentationPage(object):
+    def main(self,root,**kwargs):
+        iframe = root.contentPane(overflow='hidden').htmliframe(height='100%',width='100%',border=0)
+        self.source_viewer_controller(root,iframe,_onStart=True)
+
+
