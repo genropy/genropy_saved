@@ -669,6 +669,82 @@ label.ghostlabel span {
     visibility: hidden;
 }
 
+
+
+
+.tundra .drawerFixed.dijitSplitter.dijitSplitterV{
+    width: 0;
+}
+.tundra .drawerFixed.dijitSplitter.dijitSplitterV:hover{
+    width: 0;
+    background: transparent;
+}
+
+.tundra .drawerFixed.dijitSplitter.dijitSplitterH{
+    height: 0;
+}
+.tundra .drawerFixed.dijitSplitter.dijitSplitter):hover{
+    height: 0;
+    background: transparent;
+}
+
+.drawerSplitter.dijitSplitter{
+    overflow: visible;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterV  .drawerHandle{
+    top:50%;
+    margin-top: -20px;
+    height: 40px;
+    width:8px;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterH  .drawerHandle{
+    left:50%;
+    margin-left:-20px;
+    width: 40px;
+    height:8px;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterH.drawer_region_bottom .drawerHandle{
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    top: -8px;
+    border-bottom: 0;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterH.drawer_region_top .drawerHandle{
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    top: 0;
+    border-bottom: 0;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterV.drawer_region_left .drawerHandle{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    left:0px;
+    border-left: 0;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterV.drawer_region_right .drawerHandle{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    left:-8px;
+    border-right: 0;
+
+}
+
+.drawerHandle{
+    background: gray;
+    -moz-transition:all .5s;
+    -webkit-transition:all .5s;
+    opacity: .5;
+    cursor: pointer;
+    position: absolute;
+}
+.tundra._common_d11 .drawerSplitter.dijitSplitter .drawerHandle:hover{
+    opacity: 1;
+}
+
+
 /* @group dialog */
 .dlg_ask {
     padding: 5px;

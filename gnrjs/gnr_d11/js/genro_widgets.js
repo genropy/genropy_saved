@@ -272,6 +272,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 attributes.colSpan = attributes['colspan'];
             }
         }
+        if(attributes.drawer && attributes.region){
+            attributes.splitter = true;
+        }
         return savedAttrs;
     },
     creating:function(attributes, sourceNode) {
@@ -1319,6 +1322,7 @@ dojo.declare("gnr.widgets.ProgressBar", gnr.widgets.baseDojo, {
 
 });
 
+
 dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'selected');
@@ -1505,7 +1509,18 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         this.setControllerTitle(attributes, sourceNode);
     },
     created: function(widget, savedAttrs, sourceNode) {
+        widget._saved_size = {};
         dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
+        dojo.connect(widget.domNode,'onclick',function(e){
+            if(dojo.hasClass(e.target,"drawerHandle")){
+                var region = dojo.filter(e.target.parentNode.classList,function(cls){return cls.indexOf('drawer_region_')==0})[0]
+                if(region){
+                    region = region.replace('drawer_region_','');
+                    widget.showHideRegion(region,'toggle');
+                }
+            }
+
+        })
         if (dojo_version == '1.1') {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
             dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
@@ -1549,7 +1564,10 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         if(splitter){
             if(child.domNode.style.display=='none'){
                 dojo.style(splitter, 'display','none');
-        }
+            }
+            if(child.sourceNode.attr.drawer){
+                widget.addDrawerHandle(child)
+            }
          //splitter=dijit.getEnclosingWidget(splitter);
          
          //dojo.connect(splitter,'_stopDrag',dojo.hitch(this,'onSplitterStopDrag',widget,splitter));
@@ -1590,6 +1608,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         ;
         return show;
     },
+    
     mixin_showHideRegion_one: function(region, show) {
         if (this._splitters[region]) {
             this._computeSplitterThickness(region);
@@ -1597,7 +1616,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         var regionNode = this['_' + region];
         if (regionNode) {
             if (show == 'toggle') {
-                show = (this._splitterThickness[region] == 0);
+                show =  !this.isRegionVisible(region);//(this._splitterThickness[region] == 0);
             }
             var disp = show ? '' : 'none';
             var splitterNode = this._splitters[region];
@@ -1605,13 +1624,24 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
                 var tk = this._splitterThickness['_' + region] || this._splitterThickness[region];
                 this._splitterThickness['_' + region] = tk;
                 this._splitterThickness[region] = show ? tk : 0;
-                var st = dojo.style(splitterNode, 'display', disp);
+                dojo.style(splitterNode,( region=='left' || region=='right')? 'width':'height', this._splitterThickness[region]+'px');
+                //var st = dojo.style(splitterNode, 'display', disp);
             }
             dojo.style(regionNode, 'display', disp);
+            if(!show){
+                this._saved_size[region] = (region=='left' || region=='right')?regionNode.style.width:regionNode.style.height;
+            }else if(region in this._saved_size){
+                if(region=='left' || region=='right'){
+                    regionNode.style.width = this._saved_size[region];
+                }else{
+                    regionNode.style.height = this._saved_size[region];
+                }
+            }
             this._layoutChildren();
         }
         return show;
     },
+
     mixin_setRegionVisible:function(region,show){
         var regionbox = this['_' + region];
         if(show=='toggle'){
@@ -1627,6 +1657,34 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     },
     mixin_isRegionVisible:function(region){
         return this['_'+region].style.display!='none';
+    },
+
+    mixin_addDrawerHandle:function(child){
+        var bc = this;
+        var pane = child.sourceNode;
+        var kw = objectUpdate({},pane.attr);
+        var side = pane.attr.region;
+        var splitter = bc._splitters[side];
+        var drawerDom = document.createElement('div');
+        splitter.appendChild(drawerDom);
+        var drawerClass = objectPop(kw,'drawer_class');
+        var drawerStyle = objectPop(kw,'drawer_style');
+
+        var styledict_kw = genro.dom.getStyleDict(objectExtract(kw,'drawer_*'));
+        drawerDom.setAttribute('style',objectAsStyle(objectUpdate(objectFromStyle(drawerStyle),styledict_kw)));
+        genro.dom.addClass(drawerDom,'drawerHandle');
+        if(drawerClass){
+            genro.dom.addClass(drawerDom,drawerClass);
+        }
+        var drawer = pane.getAttributeFromDatasource('drawer');
+        genro.dom.addClass(splitter,'drawerSplitter '+'drawer_region_'+side);
+        if (!pane.getAttributeFromDatasource('splitter')){
+            genro.dom.addClass(splitter,'drawerFixed')
+            dijit.getEnclosingWidget(splitter)._startDrag = function(){};
+        }
+        if(drawer=='close'){
+            this.showHideRegion(side,false);
+        }
     }
 });
 
