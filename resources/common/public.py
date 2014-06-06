@@ -298,7 +298,7 @@ class PublicSlots(BaseComponent):
             pane.div()
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler"""
+    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/source_viewer/source_viewer:DocEditorComponent"""
     plugin_list=''
     formResource = None
     viewResource = None
@@ -330,7 +330,37 @@ class TableHandlerMain(BaseComponent):
 
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
-    
+
+    def onMain_pbl_docEditor(self):
+        _gnrRoot = self.pageSource('_gnrRoot')
+        tblcode = self.maintable.replace('.','_')
+        if self.pbl_isDocWriter() or os.path.exists(self.de_documentPath(storeKey=tblcode,doctype='html')):
+            docpane = _gnrRoot.value.contentPane(region='bottom',height='30%',
+                                splitter=True,drawer='close',
+                                border_top='1px solid gray',
+                                background='white')
+            docpane.contentPane().remote(self.build_pbl_docframe)
+
+    def pbl_isDocWriter(self):
+        pkg,tbl = self.maintable.split('.')
+        return self.application.checkResourcePermission('_DOC_,doc_%s' %pkg, self.userTags)
+
+    @public_method
+    def build_pbl_docframe(self,pane):
+        frame = pane.framePane(frameCode='pbl_doc')
+        bar = frame.top.slotToolbar('5,stackButtons,*,edit,5',gradient_from='#030F1F',gradient_to='#3B4D64')
+        tblcode=self.maintable.replace('.','_')
+        bar.edit.slotButton('Edit',iconClass='iconbox pencil',
+                            action="""genro.publish('documentElementEdit',{storeKey:tblcode});""",tblcode=tblcode)
+        sc = frame.center.stackContainer()
+        sc.contentPane(title='!!Page Documentation',padding='10px').documentElement(storeKey=tblcode,doctype='html',editAllowed=self.pbl_isDocWriter())
+        sc.contentPane(title='!!Page Tickets')
+
+
+    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
+        tbllist = self.maintable.split('.')
+        return self.site.getStaticPath('pkg:%s' %tbllist[0],'doc',language or self.language,doctype,'tables',tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
+
     @extract_kwargs(th=True,current=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,current_kwargs=None,**kwargs):

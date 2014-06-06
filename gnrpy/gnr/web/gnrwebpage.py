@@ -1557,8 +1557,7 @@ class GnrWebPage(GnrBaseWebPage):
             page.dock(id='dummyDock',display='none')
 
             root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
-                                        nodeId='_gnrRoot',_class='hideSplitter notvisible',
-                                        subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
+                                        nodeId='_gnrRoot',subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
             
             typekit_code = self.site.config['gui?typekit']
             if typekit_code and False:

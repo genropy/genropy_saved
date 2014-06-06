@@ -49,10 +49,10 @@ class DocEditorComponent(BaseComponent):
             f.write(PAGEHTML %(storeKey,data))
 
     @struct_method
-    def de_documentElement(self,pane,storeKey=None,folderpath=None,doctype='html',**kwargs):
+    def de_documentElement(self,pane,storeKey=None,folderpath=None,doctype='html',editAllowed=None,**kwargs):
         controller = self.pageController(datapath='_doc.content.%s' %storeKey)
         controller.dataRpc('.loaded',self.de_loadStoreFromFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
-                        language='=gnr.language',_onStart=True,
+                        language='=gnr.language',_onBuilt=True,
                     _onResult="""if(result){SET .current = result;}""",**{'subscribe_%s_loadfile' %storeKey:True})
         controller.dataRpc('dummy',self.de_saveStoreFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
                         language='=gnr.language',
@@ -72,7 +72,8 @@ class DocEditorComponent(BaseComponent):
                             }""" %(cssurl,storeKey))
         controller.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.current',iframe=iframe)
-        self.de_createDocEditorPalette(storeKey,cssurl=cssurl)
+        if editAllowed:
+            self.de_createDocEditorPalette(storeKey,cssurl=cssurl)
 
     def de_createDocEditorPalette(self,storeKey,cssurl=None):
         page = self.pageSource()
@@ -271,7 +272,8 @@ class SourceViewer(BaseComponent):
 class DocumentationPage(DocEditorComponent):
     def main_root(self,root,**kwargs):
         bc = root.borderContainer(height='100%')
-        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html')
+        editAllowed = self.application.checkResourcePermission('_DOC_,doc_%s' %self.package.name, self.userTags)
+        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html',editAllowed=editAllowed)
 
     def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
         m = sys.modules[self.__module__]
