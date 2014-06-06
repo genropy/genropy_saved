@@ -19,6 +19,8 @@ class Table(object):
                         addPkeyColumn=False,
                         gr = groups,
                         columns='$name,$element,$styles,$attributes,$sgroup').fetchGrouped('sgroup')
+        if not styles:
+            return
         cs = dict()
         for gr in groups:
             stylelist = styles[gr]

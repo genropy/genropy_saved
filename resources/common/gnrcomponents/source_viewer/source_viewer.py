@@ -103,7 +103,7 @@ class SourceViewer(BaseComponent):
 
     def source_viewer_open(self):
         return
-        
+
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
@@ -269,8 +269,9 @@ class SourceViewer(BaseComponent):
 
         
 class DocumentationPage(DocEditorComponent):
-    def main(self,root,**kwargs):
-        root.documentElement(storeKey='main',folderpath=None,doctype='html')
+    def main_root(self,root,**kwargs):
+        bc = root.borderContainer(height='100%')
+        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html')
 
     def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
         m = sys.modules[self.__module__]
@@ -278,7 +279,7 @@ class DocumentationPage(DocEditorComponent):
         idx = folderpath.index('webpages') +1
         folderpath = folderpath[idx:]
         folderpath.append('%s.%s' %(os.path.splitext(self.filename)[0],doctype))
-        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',language,doctype,*folderpath,autocreate=-1)
+        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',self.language,doctype,*folderpath,autocreate=-1)
 
 
 
