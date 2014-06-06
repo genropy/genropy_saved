@@ -1,5 +1,6 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.web.gnrwebstruct import struct_method
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -7,21 +8,113 @@ from pygments.formatters import HtmlFormatter
 
 import sys
 import os
+import re
+PAGEHTML = """
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>%s</title>
+<meta name="author" content="GenroPy">
+</head>
+<body>
+    %s
+</body>
+</html>
+"""
+
+class DocEditorComponent(BaseComponent):
+    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
+        if not folderpath:
+            m = sys.modules[self.__module__]
+            folderpath = os.path.splitext(os.path.split(m.__file__)[1])[0]
+        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',language,doctype,folderpath,'%s.%s' %(storeKey,doctype),autocreate=-1)
+
+    @public_method
+    def de_loadStoreFromFile(self,storeKey=None,folderpath=None,doctype=None,language=None):
+        fname = self.de_documentPath(storeKey=storeKey,folderpath=folderpath,doctype=doctype,language=language)
+        if os.path.exists(fname):
+            with open(fname,'r') as f:
+                result = f.read()
+                m = re.search("<body>(.*)</body>", result, re.I | re.S)
+                if m:
+                    return m.group(1)
+        return ''
+
+    @public_method
+    def de_saveStoreFile(self,data=None,storeKey=None,folderpath=None,doctype=None,language=None):
+        fname = self.de_documentPath(storeKey=storeKey,folderpath=folderpath,doctype=doctype,language=language)
+        with open(fname,'w') as f:
+            f.write(PAGEHTML %(storeKey,data))
+
+    @struct_method
+    def de_documentElement(self,pane,storeKey=None,folderpath=None,doctype='html',**kwargs):
+        controller = self.pageController(datapath='_doc.content.%s' %storeKey)
+        controller.dataRpc('.loaded',self.de_loadStoreFromFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
+                        language='=gnr.language',_onStart=True,
+                    _onResult="""if(result){SET .current = result;}""",**{'subscribe_%s_loadfile' %storeKey:True})
+        controller.dataRpc('dummy',self.de_saveStoreFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
+                        language='=gnr.language',
+                        data='=.current',**{'subscribe_%s_savefile' %storeKey:True})
+        pane.attributes.update(overflow='hidden')
+        cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
+        iframe = pane.htmliframe(border=0,height='100%',width='100%',onCreated="""
+                            var cssurl = '%s';
+                            var e = document.createElement("link");
+                            e.href = cssurl;
+                            e.type = "text/css";
+                            e.rel = "stylesheet";
+                            e.media = "screen";
+                            widget.contentWindow.document.head.appendChild(e);
+                            widget.contentWindow.ondblclick=function(){
+                                genro.publish('documentElementEdit',{storeKey:'%s'});
+                            }""" %(cssurl,storeKey))
+        controller.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
+                                previewHTML='^.current',iframe=iframe)
+        self.de_createDocEditorPalette(storeKey,cssurl=cssurl)
+
+    def de_createDocEditorPalette(self,storeKey,cssurl=None):
+        page = self.pageSource()
+        palette = page.palettePane(paletteCode='de_docEditorPalette',dockTo='dummyDock',
+                                    height='500px',width='600px',
+                                    title='!!Documentation')
+        form = palette.frameForm(frameCode='de_docEditorForm',store='memory',store_locationpath='_doc.content.%s' %storeKey,
+                                store_autoSave=50,
+                                datapath='.form')
+        pane = form.center.contentPane(datapath='.record',overflow='hidden')
+        pane.ckeditor(value='^.current',config_contentsCss=cssurl)
+        pane.dataController("""this.form.load();""",subscribe_documentElementEdit=True)
+        pane.dataController("this.getParentWidget('floatingPane').show();",formsubscribe_onLoaded=True)
+        pane.dataController("""this.getParentWidget('floatingPane').hide();""",formsubscribe_onDismissed=True)
+        bar = form.bottom.slotBar('revertbtn,*,cancel,savebtn',_class='slotbar_dialog_footer')
+        bar.revertbtn.slotButton('!!Revert',action="""SET .record.current = _loaded; this.form.save();""",
+                            disabled='==_current==_loaded',
+                            _current='^.record.current',_loaded='=.record.loaded',_delay=100)
+        bar.cancel.button('!!Cancel',action='this.form.abort();')
+        bar.savebtn.button('!!Save',action="""this.form.save();
+                                              this.form.abort();
+                                              genro.publish(storeKey+'_savefile');""",
+                                    storeKey=storeKey)
 
 class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
     js_requires = 'source_viewer'
-    def rootWidget(self,root,**kwargs):
-        frame = root.framePane(frameCode='sandbox',_class='sandbox',**kwargs)
+
+    def source_viewer_open(self):
+        return
+        
+    def onMain_sourceView(self):
         page = self.pageSource()
-        bar = frame.right.slotBar('0,sourceBox,0',width='550px',sourceBox_height='100%',closable_background='red',
-                       closable_width='14px',closable_left='-14px',closable_height='80px',closable_margin_top='-40px',
-                       closable_border='0px',closable_rounded_left=14,
-                        closable='close',splitter=True,border_left='1px solid #666')
-        sourceBox = bar.sourceBox.div(height='100%',width='100%',position='relative',_class='source_viewer',
-                        ).div(position='absolute',top='0',
-                        right='0',bottom='0',left='0')
-        sourceBox.remote(self.source_viewer_content)
+        _gnrRoot = self.pageSource('_gnrRoot')
+        drawer = self.source_viewer_open() or 'closed'
+        sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
+                        drawer_background='red',
+                       drawer_width='14px',drawer_left='-14px',drawer_height='80px',drawer_margin_top='-40px',
+                       drawer_border='0px',
+                       width='550px',overflow='hidden',splitter=True,border_left='1px solid #efefef',
+                       background='white')
+        sourceViewer.contentPane(_class='source_viewer').remote(self.source_viewer_content)
         page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',
@@ -31,7 +124,7 @@ class SourceViewer(BaseComponent):
                                         }else{
                                             genro.publish('showCodeError',result);
                                         }""")
-        page.dataController("""genro.src.updatePageSource('source_viewer_root')""",
+        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
         page.dataController("""
             var node = genro.nodeById('sourceEditor');
@@ -50,7 +143,6 @@ class SourceViewer(BaseComponent):
 
             """,subscribe_showCodeError=True)
         self.source_viewer_sourceDocPalette(page)
-        return frame.center.contentPane(nodeId='source_viewer_root')
 
     def source_viewer_docController(self,iframe,_onStart=None):
         rstsource = self.__readsource('rst') or '**Documentation**'
@@ -162,49 +254,31 @@ class SourceViewer(BaseComponent):
         palette = pane.palettePane(paletteCode='_docSource',dockTo='dummyDock',
                                     height='500px',width='600px',
                                     title='!!Source Documentation')
-        self.source_viewer_docEditorFrame(palette,saveAndClose=True)
-
-    def source_viewer_docEditorFrame(self,parent,saveAndClose=False,**kwargs):
-        frame = parent.framePane(frameCode='_docEditorFrame',_lazyBuild=True,**kwargs)
+        frame = palette.framePane(frameCode='_docEditorFrame',_lazyBuild=True)
         frame.center.contentPane(overflow='hidden',_class='source_viewer').codemirror(value='^gnr.source_viewer.doc.rst',
                                 height='100%',config_lineNumbers=True,
                                 config_mode='rst',config_keyMap='softTab')
-        slots = '*,saveDoc,5,saveAndClose,5' if saveAndClose else '*,saveDoc,5'
+        slots = '*,saveDoc,5,saveAndClose,5'
         bar = frame.bottom.slotBar(slots,_class='slotbar_dialog_footer',height='20px')
         bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
-        if saveAndClose:
-            bar.saveAndClose.slotButton('!!Save and close',action="""
+        bar.saveAndClose.slotButton('!!Save and close',action="""
             this.getParentWidget('floatingPane').hide()
             PUBLISH sourceDocUpdate;""")
 
         return frame
 
-class DocumentationEditor(SourceViewer):
-    def rootWidget(self,root,region=None,**kwargs):
-        frame = root.framePane('documentationFrame',region=region,background='white')
-        bar = frame.bottom.slotBar('0,documentationEditor,0',closable='close',height='500px',border_top='1px solid silver',
-                                    documentationEditor_width='100%',documentationEditor_overflow='hidden')
-        self.source_viewer_docEditorFrame(bar.documentationEditor,height='100%')
-        return frame.center.contentPane(overflow='hidden',**kwargs)
         
-class DocumentationPage(SourceViewer):
-    def rootWidget(self,root,region=None,**kwargs):
-        frame = root.framePane('documentationFrame',region=region,background='white')
-        if self.source_viewer_edit_allowed():
-            bar = frame.bottom.slotBar('0,documentationEditor,0',closable='close',height='500px',border_top='1px solid silver',
-                                    documentationEditor_width='100%',documentationEditor_overflow='hidden',splitter=True)
-            self.source_viewer_docEditorFrame(bar.documentationEditor,height='100%')
-        return frame.center.contentPane(overflow='hidden',**kwargs)
-
+class DocumentationPage(DocEditorComponent):
     def main(self,root,**kwargs):
-        iframe = root.htmliframe(height='100%',width='100%',border=0,
-                            onCreated="""
-                            widget.contentWindow.ondblclick=function(){
-                                genro.publish('editSourceDoc');
-                            }
-                            widget.contentWindow.viewer = function(page){
-                                genro.publish('showPagePalette',{page:page});
-                            }""")
-        self.source_viewer_docController(iframe,_onStart=True)
+        root.documentElement(storeKey='main',folderpath=None,doctype='html')
+
+    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
+        m = sys.modules[self.__module__]
+        folderpath = os.path.split(m.__file__)[0].split(os.sep)
+        idx = folderpath.index('webpages') +1
+        folderpath = folderpath[idx:]
+        folderpath.append('%s.%s' %(os.path.splitext(self.filename)[0],doctype))
+        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',language,doctype,*folderpath,autocreate=-1)
+
 
 

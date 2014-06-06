@@ -350,7 +350,7 @@ class GnrDomSrc(GnrStructData):
         return self.center.contentPane(datapath='.record')
         
     @extract_kwargs(store=True)
-    def frameform(self, formId=None, frameCode=None, store=None, storeCode=None,
+    def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,
                   slots=None, table=None, store_kwargs=None, **kwargs):
         """TODO
         
@@ -377,6 +377,7 @@ class GnrDomSrc(GnrStructData):
                             namespace='form',storeCode=storeCode,table=table,
                             autoslots='top,bottom,left,right,center',**kwargs)
         if store:
+            store_kwargs['storeType'] = storeType
             if store is True:
                 store = 'recordCluster'
             store_kwargs['handler'] = store
@@ -1123,14 +1124,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def ckeditor(self,stylegroup=None,**kwargs):
         style_table = self.page.db.table('adm.ckstyle')
         if style_table:
-            cs = dict()
-            cs.update(style_table.query(where="$stylegroup IS NULL OR $stylegroup=''",g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if stylegroup:
-                for st in stylegroup.split(','):
-                    cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if cs:
-                kwargs['customStyles'] = [dict(v) for v in cs.values()]
-
+            customStyles = style_table.getCustomStyles(stylegroup=stylegroup)
+            if customStyles:
+                kwargs['customStyles'] = customStyles
         return self.child('ckEditor',**kwargs)
 
     def palettePane(self, paletteCode, datapath=None, **kwargs):

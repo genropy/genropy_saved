@@ -496,7 +496,6 @@ class FramedIndexLogin(BaseComponent):
         pane = sc.contentPane(overflow='hidden',pageName='frontpage') 
         homePageHandler = getattr(self,'homePagePane',None)
         loginOnBuilt= homePageHandler is None
-
         if homePageHandler:
             homePageHandler(pane)
 
@@ -579,7 +578,7 @@ class FramedIndexLogin(BaseComponent):
                             startPage=self._getStartPage(new_window))
 
 
-        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
         dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:.95})",subscribe_failed_login_msg=True,sn=dlg)
 
         footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
@@ -612,9 +611,9 @@ class FramedIndexLogin(BaseComponent):
                     genro.gotoURL(rootpage);
                 }
                 if(loginOnBuilt){
-                    genro.publish('logged');
-                    genro.publish('openApplicationPage')
+                    genro.publish('openApplicationPage');
                 }
+                genro.publish('logged');
             }
         },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',

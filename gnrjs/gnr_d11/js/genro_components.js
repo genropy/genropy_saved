@@ -1696,7 +1696,7 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
         kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
         return sourceNode._('div',kw)._('div', {innerHTML:'==(_allcontent&&_current_lang)?_allcontent.getItem(_current_lang):"";',
                             '_class':'^.?contentClasses','style':'^.?contentStyles',_current_lang:'^gnr.language',_allcontent:'^.'})
-    },
+    }
 
 });
 

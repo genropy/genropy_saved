@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
         if not startKey:
             fb = tb.selector.formbuilder(cols=1, border_spacing='1px')
             fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,#default_value='MI',
-                                        validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
+                                        validate_onAccept="if(userChange){this.getParentNode().form.publish('load',{destPkey:value})};",
                                         lbl='Provincia')
         return tb
         
@@ -55,32 +55,30 @@ class GnrCustomWebPage(object):
         fb.field('ordine_tot')
         fb.field('cap_valido')
         
-        subform = bc.contentPane(region='center').frameForm(frameCode='sottocampi',datapath='#FORM.sottocampi',store='subform')
+        subform = bc.contentPane(region='center').frameForm(frameCode='sottocampi',datapath='#FORM.sottocampi',store='memory',storeType='SubForm')
         bar = subform.top.slotBar('*,semaphore,loadbtn,savebtn')
         bar.loadbtn.button('Load',action='this.form.load();')
-        bar.savebtn.button('Save',action='this.form.save();')
+        bar.savebtn.button('Save',action='this.form.save({destPkey:"*norecord*"});')
         pane = subform.record
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.field('nome',validate_len=':10')
         fb.field('codice_istat')
 
-    def test_1_bagstore_collection(self,pane):
+    def test_1_bagstore_item_variablelocation(self,pane):
         """First test description"""
         myform = pane.frameForm(frameCode='myform_1',height='300px',datapath='.myform')
-        pane.data('.collection',self.memoryStoreData())
+        pane.data('mycollection',self.memoryStoreData())
         center = myform.center.contentPane(datapath='.record')
         fb = center.formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.name',lbl='Name')
         fb.textbox(value='^.surname',lbl='Surname',validate_notnull=True,validate_notnull_error='!!Required')
         bar = myform.top.slotToolbar('loadpath,*,delete,add,save,semaphore')
         loadfb = bar.loadpath.formbuilder(cols=2, border_spacing='2px')
-        loadfb.filteringSelect(value='^.pkeyToLoad',storepath='.#parent.collection',
+        loadfb.filteringSelect(value='^.pkeyToLoad',storepath='mycollection',
+                validate_onAccept="this.getParentNode().form.store.setLocationPath('mycollection.'+value)",
                 width='20em',parentForm=False,storeid='#k',storecaption='.surname')
-        loadfb.button('Load',action=""" if(pkey){
-                                this.form.load({destPkey:pkey});
-                            }
-                            """,pkey='=.pkeyToLoad')
-        myform.formstore(handler='memory',locationpath='.#parent.collection')
+        loadfb.button('Load',action="""this.form.load();""")
+        myform.formstore(handler='memory')
 
         
         
