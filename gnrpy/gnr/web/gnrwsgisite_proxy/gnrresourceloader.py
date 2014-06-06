@@ -72,8 +72,10 @@ class ResourceLoader(object):
         def handleNode(node, pkg=None, plugin=None):
             attr = node.attr
             file_name = attr['file_name']
+            m=re.match(r'(\d+)_(.*)',file_name)
+            name = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else file_name.capitalize()
             node.attr = dict(
-                    name='!!%s'% re.sub(r'\d+_','',file_name).replace('_',' ').capitalize(),
+                    name=name.replace('_',' '),
                     pkg=pkg
                     )
             if plugin:
