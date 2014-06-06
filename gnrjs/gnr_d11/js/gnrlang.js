@@ -816,7 +816,9 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            value = value.slice(0,k);
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X'].indexOf(t)>=0){
+                value = value.slice(0,k);
+            }
         }
     }
     var t = t || 'T';

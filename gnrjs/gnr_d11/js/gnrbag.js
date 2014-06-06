@@ -1893,9 +1893,7 @@ dojo.declare("gnr.GnrBag", null, {
                     }
                     else {
                         if (attrvalue.indexOf('::') >= 0) {
-                            aux = attrvalue.split('::');
-                            var dt = aux.pop();
-                            attrvalue = convertFromText(aux.join('::'), dt);
+                            attrvalue = convertFromText(attrvalue);
                         }
                         attributes[attrname] = attrvalue;
                     }
@@ -1919,9 +1917,7 @@ dojo.declare("gnr.GnrBag", null, {
                     if (convertAs != 'T') {
                         itemValue = convertFromText(itemValue, convertAs);
                     } else if (stringContains(itemValue, '::')) {
-                        itemValue = itemValue.split('::');
-                        convertAs = itemValue[1];
-                        itemValue = convertFromText(itemValue[0], convertAs);
+                        itemValue = convertFromText(itemValue);
                     }
                     if (convertAs == 'H') {
                         attributes.dtype = convertAs;
