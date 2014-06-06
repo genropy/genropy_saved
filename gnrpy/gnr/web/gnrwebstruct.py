@@ -661,6 +661,8 @@ class GnrDomSrc(GnrStructData):
         :param source: TODO"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
+    def input(self, value=None, **kwargs):
+        return self.child('input', value=value, **kwargs)
     
     def getMainFormBuilder(self):
         return getattr(self.parentNode,'_mainformbuilder',None)
