@@ -1469,7 +1469,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('radiobutton', label=label, **kwargs)
         
-    def checkbox(self, label=None, value=None, **kwargs):
+    def checkbox(self, value=None, label=None,**kwargs):
         """Return a :ref:`checkbox`: setting the value to true will check the box
         while false will uncheck it
         

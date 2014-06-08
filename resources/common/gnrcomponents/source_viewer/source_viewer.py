@@ -219,7 +219,7 @@ class SourceViewer(BaseComponent):
 
 
     def source_viewer_editor(self,frame,source=None):
-        bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
+        bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,dataInspector,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
         bar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',action='PUBLISH sourceCodeUpdate')
         bar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
@@ -229,6 +229,27 @@ class SourceViewer(BaseComponent):
         bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^gnr.source_viewer.readOnly',
                                     label='ReadOnly',default_value=True,
                                     disabled='^gnr.source_viewer.changed_editor')
+        bar.dataInspector.paletteTree(paletteCode='dataInspector',title='Data inspector',storepath='*D',tree_hideValues=False,
+                                        tree_onCreated="""
+                                            var that = this;
+                                            genro.src.onBuiltCall(function(){
+                                                    var r = {};
+                                                    var paths = genro.nodeById('_pageRoot')._value.walk(function(n){
+                                                            if(n.attr.datapath && n.attr.datapath[0]!='.'){
+                                                                r[n.attr.datapath] = true;
+                                                            }
+                                                        },'static');
+                                                    var treeNodes = that.widget.rootNode.getChildren();
+                                                    treeNodes.forEach(function(n){
+                                                            if(!(n.item.label in r)){
+                                                                dojo.addClass(n.domNode,'hidden');
+                                                            }
+                                                        })
+
+                                                },100);
+                                            
+                                        """,
+                                        dockButton=True,editable=True)
         frame.data('gnr.source_viewer.source',source)
         frame.data('gnr.source_viewer.source_oldvalue',source)
         frame.dataController("""SET gnr.source_viewer.changed_editor = currval!=oldval;
