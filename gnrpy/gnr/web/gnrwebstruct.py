@@ -269,6 +269,9 @@ class GnrDomSrc(GnrStructData):
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: TODO"""
+        if childname and childname.startswith('^') and not 'value' in kwargs:
+            kwargs['value'] = childname
+            childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
             kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
