@@ -553,6 +553,21 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
     constructor:function(){
         this._domtag ='iframe';
+    },
+    creating:function(attributes, sourceNode) {
+        var savedAttrs = {};
+        savedAttrs['shield'] = objectPop(attributes,'shield');
+        savedAttrs['shield_kw'] = objectExtract(attributes,'shield_*') || {};
+        return savedAttrs;
+    },
+
+    created:function(newobj, savedAttrs, sourceNode){
+        if(savedAttrs.shield){
+            var shield_kw = savedAttrs['shield_kw'];
+            shield_kw.z_index = 10;
+            shield_kw.opacity = 0;
+            sourceNode.getParentNode().setHiderLayer(true,shield_kw)
+        }
     }
 });
 

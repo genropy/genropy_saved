@@ -587,7 +587,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
     
     mixin_gnr_getFromDatastore : function() {
-        this.setData(this.sourceNode.getAttributeFromDatasource('value'));
+        this.setData(this.sourceNode.getAttributeFromDatasource('value') || '');
     },
 
     mixin_gnr_setInDatastore : function() {

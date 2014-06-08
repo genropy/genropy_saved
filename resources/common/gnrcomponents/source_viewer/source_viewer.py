@@ -59,7 +59,12 @@ class DocEditorComponent(BaseComponent):
                         data='=.current',**{'subscribe_%s_savefile' %storeKey:True})
         pane.attributes.update(overflow='hidden')
         cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
-        iframe = pane.htmliframe(border=0,height='100%',width='100%',onCreated="""
+        iframepars = dict(border=0,height='100%',width='100%')
+        iframepars.update(kwargs)
+        iframe = pane.htmliframe(
+                            shield=True,
+                            shield_ondblclick="genro.publish('documentElementEdit',{storeKey:'%s'});" %storeKey,
+                            onCreated="""
                             var cssurl = '%s';
                             var e = document.createElement("link");
                             e.href = cssurl;
@@ -67,9 +72,7 @@ class DocEditorComponent(BaseComponent):
                             e.rel = "stylesheet";
                             e.media = "screen";
                             widget.contentWindow.document.head.appendChild(e);
-                            widget.contentWindow.ondblclick=function(){
-                                genro.publish('documentElementEdit',{storeKey:'%s'});
-                            }""" %(cssurl,storeKey))
+                            """ %cssurl,**iframepars)
         controller.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.current',iframe=iframe)
         if editAllowed:
@@ -84,7 +87,8 @@ class DocEditorComponent(BaseComponent):
                                 store_autoSave=50,
                                 datapath='.form')
         pane = form.center.contentPane(datapath='.record',overflow='hidden')
-        pane.ckeditor(value='^.current',config_contentsCss=cssurl)
+        pane.ckeditor(value='^.current',config_contentsCss=cssurl,
+                        toolbar='standard')
         pane.dataController("""this.form.load();""",subscribe_documentElementEdit=True)
         pane.dataController("this.getParentWidget('floatingPane').show();",formsubscribe_onLoaded=True)
         pane.dataController("""this.getParentWidget('floatingPane').hide();""",formsubscribe_onDismissed=True)
@@ -294,7 +298,10 @@ class DocumentationPage(DocEditorComponent):
     def main_root(self,root,**kwargs):
         bc = root.borderContainer(height='100%')
         editAllowed = self.application.checkResourcePermission('_DOC_,doc_%s' %self.package.name, self.userTags)
-        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html',editAllowed=editAllowed)
+
+        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html',
+                                                        max_width='800px',margin='10px',
+                                                        editAllowed=editAllowed)
 
     def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
         m = sys.modules[self.__module__]
