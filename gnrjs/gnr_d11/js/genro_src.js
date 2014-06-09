@@ -416,7 +416,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                         if(dflt && node.attr.dtype){
                             dflt = convertFromText(dflt,node.attr.dtype);
                         }
-                        node.getAttributeFromDatasource(attr, true, dflt);
+                        var currval=node.getAttributeFromDatasource(attr, true, dflt);
+                        if (dflt && (currval==undefined)){
+                            node.setAttributeInDatasource(attr, dflt)
+                        }
                     }
                     if(attr.indexOf('attr_')==0){
                         specialattr[attr.slice(5)] = attrvalue;
