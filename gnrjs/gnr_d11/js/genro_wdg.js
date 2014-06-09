@@ -1190,10 +1190,15 @@ dojo.declare("gnr.GridEditor", null, {
         for(var k in updkw){
             if(k in this.grid.cellmap){
                 var rowData = rowEditor.data;
+                var m = this.grid.cellmap[k];
                 if(rowData.index(k)<0){
                     rowData.setItem(k,row[k],{_loadedValue:row[k]});
                 }
                 rowData.setItem(k,updkw[k]);
+                if(m['caption_field'] && updkw[m['caption_field']]){
+                    rowData.setItem(m['caption_field'],updkw[m['caption_field']]);
+                }
+
             }
         }
         this.lastEditTs = new Date();
