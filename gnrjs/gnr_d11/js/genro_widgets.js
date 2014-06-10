@@ -2664,7 +2664,22 @@ dojo.declare("gnr.widgets._BaseTextBox", gnr.widgets.baseDojo, {
         if(!isNullOrBlank(this.value)){
             this.displayMessage_replaced(message);
         }
+    },
+    connectFocus: function(widget, savedAttrs, sourceNode) {
+        if (sourceNode.attr._autoselect) {
+            dojo.connect(widget, 'onFocus', widget, function(e) {
+                setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
+            });
+        }
+    },
+
+    mixin_selectAllInputText: function() {
+        dijit.selectInputText(this.focusNode);
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        this.connectFocus(widget, savedAttrs, sourceNode);
     }
+    
 
 });
 
@@ -2702,22 +2717,7 @@ dojo.declare("gnr.widgets.TextBox", gnr.widgets._BaseTextBox, {
             sourceNode._onSettingValueInData(sourceNode,value,valueAttr);
         }
         return value;
-    },
-    created: function(widget, savedAttrs, sourceNode) {
-
-        this.connectFocus(widget, savedAttrs, sourceNode);
-    },
-    connectFocus: function(widget, savedAttrs, sourceNode) {
-        if (sourceNode.attr._autoselect) {
-            dojo.connect(widget, 'onFocus', widget, function(e) {
-                setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
-            });
-        }
-    },
-    mixin_selectAllInputText: function() {
-        dijit.selectInputText(this.focusNode);
     }
-    
 });
 
 dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
@@ -2760,7 +2760,8 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
         genro.dom.addClass(widget.focusNode,'comboArrowTextbox')
         var box= sourceNode._('div',{cursor:'pointer', width:'20px',tabindex:-1,
                                 position:'absolute',top:0,bottom:0,right:0,connect_onclick:function(){widget._open();}})
-        box._('div',{_class:'dateTextBoxCal',position:'absolute',top:0,bottom:0,left:0,right:0,tabindex:-1})
+        box._('div',{_class:'dateTextBoxCal',position:'absolute',top:0,bottom:0,left:0,right:0,tabindex:-1});
+        this.connectFocus(widget, savedAttrs, sourceNode);
     },
 
     patch_parse:function(value,constraints){
@@ -5173,6 +5174,9 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 if(typeof(bagcellattr[p])=='string' && bagcellattr[p].indexOf('^') == 0){
                     getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
                 }
+            }
+            if(cell.edit && cell.edit.remoteRowController){
+                getChangeManager().addRemoteControllerColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
             }
             if(cell.formula){
                 getChangeManager().addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));

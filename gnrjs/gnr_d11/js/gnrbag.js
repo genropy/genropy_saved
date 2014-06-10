@@ -1353,7 +1353,11 @@ dojo.declare("gnr.GnrBag", null, {
     merge: function() {
     },
     
-    update:function(bagOrObj,mode){
+    update:function(bagOrObj,mode,reason){
+        var kwargs;
+        if (reason){
+            kwargs = {doTrigger:reason}
+        }
         if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
                 this.setItem(k,bagOrObj[k]);
@@ -1370,18 +1374,18 @@ dojo.declare("gnr.GnrBag", null, {
             }
             var currNode = that.getNode(n.label);
             if(currNode){
-                 currNode.updAttributes(n.attr);
+                 currNode.updAttributes(n.attr,reason);
                  currNodeValue = currNode.getValue();
                  if (node_resolver){
                      currNode.setResolver(node_resolver);
                  }
                  if ((node_value instanceof gnr.GnrBag) && (currNodeValue instanceof gnr.GnrBag)){
-                     currNodeValue.update(node_value)
+                     currNodeValue.update(node_value,mode,reason)
                  }else{
-                     currNode.setValue(node_value);
+                     currNode.setValue(node_value,reason);
                  }
             }else{
-                that.setItem(n.label,node_value,n.attr);
+                that.setItem(n.label,node_value,n.attr,kwargs);
             }
             
         },mode);
