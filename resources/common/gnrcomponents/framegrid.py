@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
@@ -146,6 +146,18 @@ class FrameGrid(BaseComponent):
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm)
         frame.store = store
         return frame
+
+    @public_method
+    def remoteRowControllerBatch(self,handlerName=None,rows=None):
+        handler = self.getPublicMethod('rpc',handlerName)
+        result = Bag()
+        if not handler:
+            return
+        for r in rows:
+            result.setItem(r.label,handler(row=r.value,row_attr=r.attr))
+        return result
+
+
 
 class BagGrid(BaseComponent):
     pass

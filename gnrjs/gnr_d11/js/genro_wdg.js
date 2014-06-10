@@ -1153,9 +1153,30 @@ dojo.declare("gnr.GridEditor", null, {
         var newnode = grid.addBagRow('#id', '*', grid.newBagRow(row));
         this.newRowEditor(newnode);
     },
+    callRemoteControllerBatch:function(rows){
+        var that = this;
+        genro.lockScreen(true,'callingRemoteBatch');
+        genro.serverCall('remoteRowControllerBatch',{handlerName:this.remoteRowController,rows:rows},function(result){
+            result.forEach(function(n){
+                var rowEditor = that.rowEditors[n.label];
+                rowEditor.data.update(n.getValue(),null,'remoteController');
+            });
+            genro.lockScreen(false,'callingRemoteBatch');
+        });
+    },
 
-    callRemoteController:function(rowNode,field,oldvalue){
+    callRemoteController:function(rowNode,field,oldvalue,batchmode){
         var rowId = this.grid.rowIdentity(this.grid.rowFromBagNode(rowNode));
+        if(batchmode){
+            this._pendingRemoteController = this._pendingRemoteController || new gnr.GnrBag();
+            this._pendingRemoteController.setItem(rowId,rowNode.getValue().deepCopy(),objectUpdate({},rowNode.attr));
+            genro.callAfter(function(){
+                var rows = this._pendingRemoteController;
+                this._pendingRemoteController = null;
+                this.callRemoteControllerBatch(rows);
+            },1,this,'callRemoteControllerBatch');
+            return;
+        }
         if( ! this.rowEditors[rowId]){
             this.newRowEditor(rowNode);
         }
@@ -1654,6 +1675,12 @@ dojo.declare("gnr.GridChangeManager", null, {
         var k;
         var rowNode;
         var idx;
+        if(kw.updvalue && kw.value instanceof gnr.GnrBag ){
+            if(objectNotEmpty(this.remoteControllerColumns)){
+                this.grid.gridEditor.callRemoteController(kw.node,null,null,true);
+            }
+            return
+        }
         if(kw.updvalue && this.grid.datamode =='bag'){
             var l = kw.node.label;
             if(l in this.triggeredColumns){
