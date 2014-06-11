@@ -231,6 +231,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     },
 
     onSetMainValue:function(textboxNode,value){
+        value = value || '';
         var currvalue = textboxNode.getAttributeFromDatasource('value');
         var original_value = value;
         if(currvalue==value){
