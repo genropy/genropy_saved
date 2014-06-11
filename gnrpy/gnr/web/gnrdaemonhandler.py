@@ -51,7 +51,6 @@ class GnrHeartBeat(object):
     def start(self):
         while True:
             try:
-                print 'heartbeat calling',self.url
                 response = urllib.urlopen(self.url)
                 response_code = response.getcode() 
                 if response_code!=200:

@@ -9,6 +9,12 @@ input:focus { outline: none; }
     text-decoration:underline !important;
 }
 
+.shield_layer{
+    display: none;
+}
+.active_click_palette .shield_layer{
+    display: block;
+}
 
 div,span{
     -webkit-touch-callout: none;

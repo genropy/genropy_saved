@@ -63,7 +63,6 @@ class DocEditorComponent(BaseComponent):
         iframepars.update(kwargs)
         iframe = pane.htmliframe(
                             shield=True,
-                            shield_ondblclick="genro.publish('documentElementEdit',{storeKey:'%s'});" %storeKey,
                             onCreated="""
                             var cssurl = '%s';
                             var e = document.createElement("link");
@@ -72,7 +71,10 @@ class DocEditorComponent(BaseComponent):
                             e.rel = "stylesheet";
                             e.media = "screen";
                             widget.contentWindow.document.head.appendChild(e);
-                            """ %cssurl,**iframepars)
+                            widget.contentWindow.ondblclick = function(){
+                                genro.publish('documentElementEdit',{storeKey:'%s'});
+                            }
+                            """ %(cssurl,storeKey),**iframepars)
         controller.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.current',iframe=iframe)
         if editAllowed:

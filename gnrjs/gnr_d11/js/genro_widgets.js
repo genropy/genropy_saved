@@ -558,6 +558,7 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
         var savedAttrs = {};
         savedAttrs['shield'] = objectPop(attributes,'shield');
         savedAttrs['shield_kw'] = objectExtract(attributes,'shield_*') || {};
+        savedAttrs['shield_kw']['_class'] = (savedAttrs['shield_kw']['_class'] || '') + 'shield_layer'
         return savedAttrs;
     },
 
@@ -565,7 +566,7 @@ dojo.declare("gnr.widgets.htmliframe", gnr.widgets.baseHtml, {
         if(savedAttrs.shield){
             var shield_kw = savedAttrs['shield_kw'];
             shield_kw.z_index = 10;
-            shield_kw.opacity = 0;
+            shield_kw.opacity = .2;
             sourceNode.getParentNode().setHiderLayer(true,shield_kw)
         }
     }
@@ -1765,12 +1766,14 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         if(widget.resizeHandle){
             dojo.connect(widget,'startup',function(){
                 dojo.connect(this._resizeHandle,'_beginSizing',function(e){
+                    genro.dom.addClass(dojo.body(),'active_click_palette');
                     this.screenStartPoint = {x:e.screenX,y:e.screenY};
                     this.page_id = genro.page_id;
                     genro.mainGenroWindow.genro.currentResizeHandle=this;
                 });
                 dojo.connect(this._resizeHandle,'_endSizing',function(e){
                     genro.mainGenroWindow.genro.currentResizeHandle=null;
+                    genro.dom.removeClass(dojo.body(),'active_click_palette');
                 });
             });
         }
