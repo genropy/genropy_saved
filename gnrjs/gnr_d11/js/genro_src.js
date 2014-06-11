@@ -409,12 +409,17 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var nodeattr = node.attr;
                 var attrvalue;
                 var specialattr={}
+                var dflt;
                 for (var attr in nodeattr) {
                     attrvalue = nodeattr[attr];
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
-                        var dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value']) : nodeattr['default_' + attr];
-                        if (dflt==undefined){
-                            dflt=''
+                        if (attr=='value'){
+                            dflt = nodeattr['default'] || nodeattr['default_value'];
+                            if(dflt==undefined){
+                                dflt = '';
+                            }
+                        }else{
+                            dflt = nodeattr['default_' + attr];
                         }
                         if((typeof(dflt)=='string' ) && node.attr.dtype){
                             dflt = convertFromText(dflt,node.attr.dtype);
