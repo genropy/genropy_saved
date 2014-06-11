@@ -239,9 +239,20 @@ class SourceViewer(BaseComponent):
                                             genro.src.onBuiltCall(function(){
                                                     var r = {};
                                                     var paths = genro.nodeById('_pageRoot')._value.walk(function(n){
-                                                            if(n.attr.datapath && n.attr.datapath[0]!='.'){
-                                                                r[n.attr.datapath] = true;
+                                                        if(n.attr.datapath && n.attr.datapath[0]!='.'){
+                                                            r[n.attr.datapath] = true;
+                                                        }else{
+                                                        for (var k in n.attr){
+                                                            var attrval = n.attr[k]
+                                                            if((typeof(attrval)=='string') && (attrval.length>1) &&
+                                                                 ((attrval[0]=='=') || (attrval[0]=='^')) &&
+                                                                 (attrval[0]!='.')
+                                                                 ){
+                                                                     r[attrval.slice(1).split('.')[0]]=true   
                                                             }
+                                                        }
+                                                        }
+                                               
                                                         },'static');
                                                     var treeNodes = that.widget.rootNode.getChildren();
                                                     treeNodes.forEach(function(n){
