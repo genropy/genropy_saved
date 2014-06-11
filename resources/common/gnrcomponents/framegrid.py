@@ -148,13 +148,13 @@ class FrameGrid(BaseComponent):
         return frame
 
     @public_method
-    def remoteRowControllerBatch(self,handlerName=None,rows=None):
+    def remoteRowControllerBatch(self,handlerName=None,rows=None,**kwargs):
         handler = self.getPublicMethod('rpc',handlerName)
         result = Bag()
         if not handler:
             return
         for r in rows:
-            result.setItem(r.label,handler(row=r.value,row_attr=r.attr))
+            result.setItem(r.label,handler(row=r.value,row_attr=r.attr,**kwargs))
         return result
 
 

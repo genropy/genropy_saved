@@ -498,7 +498,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
             condlist.append("""( CASE WHEN :curr_fkey IS NULL 
                                      THEN $%s IS NULL 
-                                     ELSE (( :showInherited AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
+                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
                                  END )""" %(fkey_name,fkey_name,fkey_name)) 
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
@@ -511,7 +511,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
             ( ( @%s.%s =:curr_fkey ) OR 
-                  ( :showInherited AND
+                  ( :showInherited IS TRUE AND
                         ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
                   )
             )
