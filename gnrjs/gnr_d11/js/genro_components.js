@@ -1989,12 +1989,13 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             codeSeparator =  codeSeparator || ':'
         }
         var rootNode = sourceNode;
-
         var table_kw = objectExtract(kw,'table_*');
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         if(popup){
             var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
+        }else{
+            table_kw['tooltip']=objectPop(kw,'tooltip');
         }
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
@@ -2152,6 +2153,7 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var table_kw = objectExtract(kw,'table_*');
+        table_kw['tooltip']=objectPop(kw,'tooltip');
         var label_kw = objectExtract(kw,'label_*',null,true);
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
