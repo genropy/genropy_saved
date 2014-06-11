@@ -864,7 +864,8 @@ class SiteRegisterClient(object):
 
     def checkSiteRegisterServerUri(self,daemonProxy):
         if not self.siteregisterserver_uri:
-            info = daemonProxy.getSite(self.site.site_name,create=True,storage_path=self.storage_path,autorestore=True)
+            info = daemonProxy.getSite(self.site.site_name,create=True,storage_path=self.storage_path,autorestore=True,
+                                        heartbeat_options=self.site.heartbeat_options)
             self.siteregisterserver_uri = info.get('server_uri',False)
             if not self.siteregisterserver_uri:
                 time.sleep(1)
