@@ -926,6 +926,9 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
                 valueAttr._validationError = validateresult['error'];
                 if(validateresult.error && formHandler){
                     formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',messageType:'error'});
+                }else{
+                    genro.publish('floating_message',{message:fldname+': '+validateresult.error,sound:'$onerror',messageType:'error'});
+                    return
                 }
             }
             if (validateresult['warnings'].length) {
@@ -936,6 +939,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             }
 
         }
+        
         this.doChangeInData(sourceNode,value,valueAttr);
         this.setValueInData(sourceNode,value,valueAttr);
     },
