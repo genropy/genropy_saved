@@ -1034,6 +1034,70 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        var format = objectPop(kw,'format');
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr._workspace = true;
+
+        sourceNode.attr.value = value;
+        sourceNode.attr.format = format;
+        var valuepath = value.slice(1);
+        kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
+        kw.store = kw.nodeId;
+        kw.storepath = valuepath;
+        kw.structpath = kw.structpath || '#WORKSPACE.struct';
+        kw.height = kw.height || '100%';
+        if(!('autoHeight' in kw)){
+            kw.autoHeight = true;
+        }
+        if(!('autoWidth' in kw)){
+            kw.autoWidth = true;
+        }
+        var currentValue = sourceNode.getAttributeFromDatasource('value');
+        var currentFormat = sourceNode.getAttributeFromDatasource('format');
+        var struct = new gnr.GnrBag();
+        if(currentValue && !currentFormat){
+            currentFormat = this.getFormatFromValue(currentValue);
+        }
+        struct.setItem('view_0.rows_0',currentFormat)
+        sourceNode.setRelativeData(kw.structpath,struct)
+        sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
+                        nodeId:kw.nodeId+'_store'});
+        var grid = sourceNode._('newIncludedView',kw)
+        gnrwdg.gridNode = grid.getParentNode();
+        return grid;
+    },
+
+    getFormatFromValue:function(value){
+        var format = new gnr.GnrBag();
+        var row = value.getItem('#0');
+        row.forEach(function(n){
+            format.setItem(n.label,null,{field:n.label,dtype:guessDtype(n.getValue()),
+                                          name:stringCapitalize(n.label.replace(/_/g,' '))})
+        });
+        return format;
+    },
+
+    gnrwdg_setFormat:function(format){
+        var gridNode = this.sourceNode.gnrwdg.gridNode;
+        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',format.deepCopy());
+    },
+
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0){
+            if(!this.sourceNode.attr.format){
+                var format = this.gnr.getFormatFromValue(value)
+                var gridNode = this.sourceNode.gnrwdg.gridNode;
+                gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',format.deepCopy());
+            }
+        }
+        //this.sourceNode.getRelativeData(kw.structpath).setItem('view_0.rows_0',format.deepCopy());
+    }
+
+});
+
 dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var gnrwdg = sourceNode.gnrwdg;
