@@ -11,7 +11,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import boolean
+from gnr.core.gnrstring import boolean,slugify
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 from datetime import date
@@ -297,15 +297,55 @@ class PublicSlots(BaseComponent):
         else:
             pane.div()
 
+class PublicPageBottomHandler(BaseComponent):
+    py_requires='gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler'
+
+    def onMain_pbl_publicBottom(self):
+        _gnrRoot = self.pageSource('_gnrRoot')
+        #tblcode = self.maintable.replace('.','_')
+        #if self.pbl_isDocWriter() or os.path.exists(self.de_documentPath(storeKey=tblcode,doctype='html')):
+        bottom = _gnrRoot.value.contentPane(region='bottom',height='30%',
+                                splitter=True,drawer='close',
+                                border_top='1px solid gray',
+                                background='white')
+        bottom.contentPane().remote(self.build_pbl_bottomContent)
+
+    @public_method
+    def build_pbl_bottomContent(self,pane):
+        sc = pane.stackContainer(datapath='pbl_bottom')
+        sc.contentPane(title='!!Documentation').docFrame(code='publicDoc').adaptToolbar()
+        sc.contentPane(title='!!Tickets').ticketFrame(code='publicTickets').adaptToolbar()
+
+
+        #sc.ticketFrameInStack(title='!!Tickets',frameCode='bottom_tickets')
+    @struct_method
+    def publicBottom_adaptToolbar(self,frame):
+        frame.top.bar.replaceSlots('#','5,parentStackButtons,#',gradient_from='#030F1F',gradient_to='#3B4D64')
+
+
+
+    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
+        tbllist = self.maintable.split('.')
+        pkg = self.package.name
+        tblpkg = tbllist[0]
+        language = self.language
+        if pkg!=tblpkg:
+            return self.site.getStaticPath('pkg:%s' %pkg,'doc',language,doctype,
+                'tables','_packages',tbllist[0],tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
+        else:
+            return self.site.getStaticPath('pkg:%s' %pkg,'doc',language,doctype,
+                'tables',tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
+
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/source_viewer/source_viewer:DocEditorComponent"""
+    py_requires = """public:Public,public:PublicPageBottomHandler,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
     formInIframe = False
     th_readOnly = False
     maintable = None
-    
+
+
     #DA RIVEDERE
     @struct_method
     def th_slotbar_mainFilter(self,pane,**kwargs):
@@ -330,36 +370,6 @@ class TableHandlerMain(BaseComponent):
 
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
-
-    def onMain_pbl_docEditor(self):
-        _gnrRoot = self.pageSource('_gnrRoot')
-        tblcode = self.maintable.replace('.','_')
-        if self.pbl_isDocWriter() or os.path.exists(self.de_documentPath(storeKey=tblcode,doctype='html')):
-            docpane = _gnrRoot.value.contentPane(region='bottom',height='30%',
-                                splitter=True,drawer='close',
-                                border_top='1px solid gray',
-                                background='white')
-            docpane.contentPane().remote(self.build_pbl_docframe)
-
-    def pbl_isDocWriter(self):
-        pkg,tbl = self.maintable.split('.')
-        return self.application.checkResourcePermission('_DOC_,doc_%s' %pkg, self.userTags)
-
-    @public_method
-    def build_pbl_docframe(self,pane):
-        frame = pane.framePane(frameCode='pbl_doc')
-        bar = frame.top.slotToolbar('5,stackButtons,*,edit,5',gradient_from='#030F1F',gradient_to='#3B4D64')
-        tblcode=self.maintable.replace('.','_')
-        bar.edit.slotButton('Edit',iconClass='iconbox pencil',
-                            action="""genro.publish('documentElementEdit',{storeKey:tblcode});""",tblcode=tblcode)
-        sc = frame.center.stackContainer()
-        sc.contentPane(title='!!Page Documentation',padding='10px').documentElement(storeKey=tblcode,doctype='html',editAllowed=self.pbl_isDocWriter())
-        sc.contentPane(title='!!Page Tickets')
-
-
-    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
-        tbllist = self.maintable.split('.')
-        return self.site.getStaticPath('pkg:%s' %tbllist[0],'doc',language or self.language,doctype,'tables',tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
 
     @extract_kwargs(th=True,current=True)
     @struct_method

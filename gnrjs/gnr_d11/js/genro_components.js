@@ -2751,61 +2751,57 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      },
 
      createContent:function(sourceNode, kw,children) {
-         var chunkSize = objectPop(kw,'chunkSize',0);
-         var storeType = chunkSize? 'VirtualSelection':'Selection';
-         kw.row_count = chunkSize;
-         var identifier = objectPop(kw,'_identifier') || '_pkey';
-         var _onError = objectPop(kw,'_onError');
-         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
-         var skw = objectUpdate({_cleared:false},kw);
-          //skw['_delay'] = kw['_delay'] || 'auto';
-
-         skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
-         objectPop(skw,'nodeId')
-         objectPop(skw,'_onCalling');
-         objectPop(skw,'_onResult');
-         objectPop(skw,'columns');
-
-         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
-         objectPop(kw,'_onStart');
-         objectPop(kw,'_cleared');
-         objectPop(kw,'_fired');
-         objectPop(kw,'_delay');
-         objectPop(kw,'_delay');
-
-         var v;
-         for (var k in kw){
-            v = kw[k];
-            if(typeof(v)=='string'){
-                if(v[0]=='^'){
-                    kw[k] = v.replace('^','=');
-                }
-            }
-         }
+        var chunkSize = objectPop(kw,'chunkSize',0);
+        var storeType = objectPop(kw,'storeType') || (chunkSize? 'VirtualSelection':'Selection');
+        kw.row_count = chunkSize;
+        var identifier = objectPop(kw,'_identifier') || '_pkey';
+        var _onError = objectPop(kw,'_onError');
+        var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
+        var skw = objectUpdate({_cleared:false},kw);
+         //skw['_delay'] = kw['_delay'] || 'auto';
+        skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
+        objectPop(skw,'nodeId')
+        objectPop(skw,'_onCalling');
+        objectPop(skw,'_onResult');
+        objectPop(skw,'columns');
+        var selectionStarter = sourceNode._('dataController',skw).getParentNode();
+        objectPop(kw,'_onStart');
+        objectPop(kw,'_cleared');
+        objectPop(kw,'_fired');
+        objectPop(kw,'_delay');
+        var v;
+        for (var k in kw){
+           v = kw[k];
+           if(typeof(v)=='string'){
+               if(v[0]=='^'){
+                   kw[k] = v.replace('^','=');
+               }
+           }
+        }
         kw['_POST'] = true;
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
-         var rpcNode = selectionStore.getParentNode();
-
-         rpcNode.attr['_onError'] = function(error,originalKwargs){
-            if(_onError){
-                funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
-            }
-            rpcNode.store.clear();
-            rpcNode.store.gridBroadcast(function(grid){
-                 grid.sourceNode.publish('loadingData',{loading:false});
-            });
-         };
-         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
-                        'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
-         if('startLocked' in kw){
-             storeKw.startLocked = kw.startLocked;
-         }
-         var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
-         rpcNode.store = storeInstance;
-         selectionStarter.store = storeInstance;
-         return selectionStore;
+        var rpcNode = selectionStore.getParentNode();
+        rpcNode.attr['_onError'] = function(error,originalKwargs){
+           if(_onError){
+               funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
+           }
+           rpcNode.store.clear();
+           rpcNode.store.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+           });
+        };
+        var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
+                       'storeType':storeType,'unlinkdict':kw.unlinkdict,
+                       'allowLogicalDelete':allowLogicalDelete};
+        if('startLocked' in kw){
+            storeKw.startLocked = kw.startLocked;
+        }
+        var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
+        rpcNode.store = storeInstance;
+        selectionStarter.store = storeInstance;
+        return selectionStore;
      }
 });
 
@@ -2893,6 +2889,12 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+    
+    onLoaded:function(result){
+        this.storeNode.setRelativeData(this.storepath,result);
+        return result;
+    },
+
     onChangedView:function(){
         return;
     },
@@ -3288,6 +3290,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
 });
 
+
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     rowFromItem:function(item){
         return objectUpdate({},item.attr);
@@ -3315,6 +3318,41 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     }
     
 });
+
+dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
+    loadData:function(){
+        var that = this;
+        if(!this.someVisibleGrids()){
+            this.storeNode.watch('someVisibleGrids',function(){
+                return that.someVisibleGrids();
+            },function(){
+                that.loadingDataDo();
+            });
+            return;
+        }
+        this.loadingDataDo();
+    },
+
+    loadingDataDo:function(){
+        var that = this;
+        this.loadingData = true;
+        this.gridBroadcast(function(grid){
+            grid.selectionKeeper('save');
+            grid.sourceNode.publish('loadingData',{loading:true});
+        });
+        var cb = function(result){
+            that.onLoaded(result);
+            that.resetFilter();
+            that.loadingData = false;
+            that.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+            });
+        };
+        return this.runQuery(cb);
+    }
+
+});
+
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){

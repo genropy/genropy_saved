@@ -36,7 +36,7 @@ import logging
 
 gnrlogger = logging.getLogger(__name__)
 
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
@@ -635,6 +635,31 @@ class GnrWebAppHandler(GnrBaseProxy):
             r[counterField] = updaterDict[r[tblobj.pkey]]
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
+
+    @public_method      
+    def getFileSystemSelection(self,folders=None,ext=None,include=None,exclude=None,
+                                columns=None,hierarchical=False,**kwargs):
+        files = Bag()
+        def setFileAttributes(node,**kwargs):
+            attr = node.attr
+            if not node.value and node.attr:
+                abs_path = attr['abs_path']
+                attr['_pkey'] = abs_path
+                attr['created_ts'] = datetime.fromtimestamp(os.path.getctime(abs_path))
+                attr['changed_ts'] = datetime.fromtimestamp(os.path.getmtime(abs_path))
+                attr['size'] = os.path.getsize(abs_path)
+                if columns and attr['file_ext'].lower() == 'xml':
+                    b = Bag(abs_path)
+                    for c in columns.split(','):
+                        c = c.replace('$','')
+                        attr[c] = b[c]
+        for f in folders.split(','):
+            f = self.page.site.getStaticPath(f)
+            files[f] = DirectoryResolver(path=f,include=include,exclude=exclude,ext=ext,**kwargs)
+        files.walk(setFileAttributes,_mode='')
+        if hierarchical:
+            return files
+        return Bag([('r_%i' %i,None,t[1].attr) for i,t in enumerate(files.getIndex()) if t[1].attr and t[1].attr['file_ext']!='directory'])
         
     @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,

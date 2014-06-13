@@ -1904,6 +1904,10 @@ class GnrWebPage(GnrBaseWebPage):
         result.setItem('content',content)
         return result
 
+    @public_method
+    def saveSiteDocument(self,path=None,data=None):
+        data.toXml(filename=path)
+
     def isLocalizer(self):
         """TODO"""
         return self.hasTag('_TRD_')

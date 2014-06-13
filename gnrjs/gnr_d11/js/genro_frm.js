@@ -1993,37 +1993,79 @@ dojo.declare("gnr.formstores.Base", null, {
         return this.parentStore.getData();
     },
     
-    load_document:function(pkey,dflt){
+    load_document:function(kw){
         /*
         pkey=discpath; it can use the static shortcut syntax;
         */
+        var default_kw = kw.default_kw;
         var form=this.form;
         var that = this;
+        var currPkey = this.form.getCurrentPkey();
+        var data;
         var loader = this.handlers.load;
-        var kw = loader.kw;
-        kw =form.sourceNode.evaluateOnNode(kw);
-        if(loader.defaultCb){
-            var dflt = loader.defaultCb.call(form.sourceNode,kw);
-        };
- 
-        this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
-        var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
-                                            objectUpdate({'path':pkey,defaultContent:dflt},kw),null,'POST',null,function(){});
-        deferred.addCallback(function(result){
-            that.loaded(pkey,result.popNode('content'));
-            return result;
-        });
- 
+        var kw = loader.kw || {};
+        var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
+        kw = form.sourceNode.evaluateOnNode(kw);
         
+        var envelope = new gnr.GnrBag();
+        if(currPkey=='*newrecord*'){
+            data = new gnr.GnrBag();
+            this._load_prepareDefaults(currPkey,default_kw,kw);
+            data.update(objectExtract(kw,'default_*'));
+            that.loaded(path,data);
+        }else{
+            var path = currPkey;
+            this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
+            var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
+                                           objectUpdate({'path':path},kw),null,'POST',null,function(){});
+            deferred.addCallback(function(result){
+                    that.loaded(path,result.popNode('content'));
+                    return result;
+                }
+            )
+        }
     },
 
     save_document:function(kw){
-        
+        var data = this.form.getFormData();
+        this.handlers.save.rpcmethod = this.handlers.save.rpcmethod  || 'saveSiteDocument';
+        var that = this;
+        var path = this.form.getCurrentPkey();
+        var rpc_kw = {};
+        if(path=='*newrecord*'){
+            console.log('todo')
+            if(this.getNewPath){
+                path = funcApply(this.getNewPath,{record:formData},form);
+            }else{
+                
+            }
+        }else{
+            rpc_kw.path = path;
+        }
+        var data = data.deepCopy();
+        data.walk(function(n){
+            delete n.attr._loadedValue;
+        });
+        rpc_kw.data = data;
+        var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod ,rpc_kw,null,'POST',null,function(){});
+        deferred.addCallback(function(result){
+                    var resultDict = {};
+                    var pkeyNode=result;
+                    resultDict.savedPkey=path;
+                    that.saved(resultDict);
+                    that.form.loaded(data);
+                    if(that.parentStore){
+                        that.parentStore.loadData();
+                    }
+                    return result;
+                }
+            )
     },
     
     delete_document:function(){
         
     },
+
     _load_prepareDefaults:function(pkey,default_kw,kw){
         var form = this.form;
         var loader = this.handlers.load;
