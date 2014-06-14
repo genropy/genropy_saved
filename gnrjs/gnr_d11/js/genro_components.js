@@ -1728,7 +1728,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             tag = 'menudiv';
         }
 
-        if(!kw.action){
+        if(!kw.action && publish){
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             //kw.opt = objectExtract(kw,'opt_*',true);

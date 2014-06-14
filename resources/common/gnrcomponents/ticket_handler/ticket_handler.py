@@ -5,16 +5,17 @@ from gnr.core.gnrdecorator import public_method
 
 
 class TicketHandler(BaseComponent):
+    py_requires ='gnrcomponents/framegrid:FrameGrid,gnrcomponents/formhandler:FormHandler'
     ticket_path = ''
     @struct_method
     def tk_ticketFrame(self,pane,code=None,**kwargs):
-        view = pane.frameGrid(frameCode='V_%s' %code,struct=self.tk_struct_ticket,
+        view = pane.frameGrid(frameCode='V_ticketframe_%s' %code,struct=self.tk_struct_ticket,
                                     gridEditor=False,
                                     autoToolbar=False,
                                     datapath='.view',**kwargs)
         view.top.slotToolbar('*,delrow,addrow,5',gradient_from='#030F1F',gradient_to='#3B4D64')
         view.grid.fsStore(childname='store',folders=self.tk_ticketFolder(),_onBuilt=True)
-        form = view.grid.linkedForm(frameCode='F_%s' %code,
+        form = view.grid.linkedForm(frameCode='F_ticketframe_%s' %code,
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='450px',dialog_width='620px',
                                  dialog_title='Ticket',

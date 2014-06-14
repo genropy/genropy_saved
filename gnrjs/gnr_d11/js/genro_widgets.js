@@ -1703,7 +1703,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dijit.getEnclosingWidget(splitter)._startDrag = function(){};
         }
         if(drawer=='close'){
-            this.showHideRegion(side,false);
+            dojo.connect(bc,'startup',function(){bc.showHideRegion(side,false);});
         }
     }
 });

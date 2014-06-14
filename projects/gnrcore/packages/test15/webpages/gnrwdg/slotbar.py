@@ -7,6 +7,7 @@
 """slotbar"""
 
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     testOnly = '_0_'
@@ -79,7 +80,7 @@ class GnrCustomWebPage(object):
                                     border_bottom='1px solid #bbb',
                                     lbl_position='T',lbl_color='red',lbl_font_size='7px',childname='topupper')
         upperbar.xxx.multibutton(values='^.multibutton_values',value='^.abx',multivalue=True,mandatory=False)
-        upperbar.dataController('SET .multibutton_values = v',v ='pippo:Pippo,pluto:Pluto,paperino:Paperino',_onStart=1000)
+        upperbar.dataController('SET .multibutton_values = v',v ='^.valuesetter')
 
         top = frame.top.slotToolbar(slots='*,|,foo,bar,|,*,xx',
                                     gradient_deg='90',gradient_from='#fff',gradient_to='#bbb',
@@ -90,7 +91,37 @@ class GnrCustomWebPage(object):
         top.foo.div('foo',width='100px',color='white',background='teal',lbl='labelFoo')
         top.bar.myslot()
         top.xx.div(width='1px')     
+        frame.textbox(value='^.valuesetter')
+        frame.dataFormula('.valuesetter','v',v = 'pippo:Pippo,pluto:Pluto,paperino:Paperino',_onStart=True)
 
 
         center = frame.center.contentPane()
         center.textbox(value='^.abx')
+
+
+
+
+    def test_6_slotToolbar_multibutton_storepath(self,pane):
+        """Multiline"""
+        frame = pane.framePane(frameCode='frameMultiline',height='100px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',rounded_top=10,margin='10px')
+        bar = frame.top.slotToolbar(slots='*,mb,*')
+
+        bar.data('.multibutton.data',self.getmbdata())
+        bar.mb.multibutton(value='^.multibutton.value',storepath='.multibutton.data')
+        frame.textbox(value='^.multibutton.data.pippo?caption')
+
+    def getmbdata(self):
+        result = Bag()
+        result.setItem('pippo',None,caption='Pippo')
+        result.setItem('pluto',None,caption='Pluto')
+        result.setItem('paperino',None,caption='Paperino')
+        return result
+
+
+
+
+
+
+
+

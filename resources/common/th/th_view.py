@@ -24,6 +24,9 @@ class TableHandlerView(BaseComponent):
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+        options = self._th_hook('options',mangler=frameCode)() or dict()
+        self._th_setDocumentation(table=table,resource = viewResource or 'View',doc=options.get('doc'),
+                                    custdoc=options.get('custdoc'))
         resourceConditionPars = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         resourceCondition = resourceConditionPars.pop('condition',None)
         if resourceCondition:
@@ -418,7 +421,6 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
-
         pageOptions = self.pageOptions or dict()
         #liveUpdate: 'NO','LOCAL','PAGE'
         liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or 'LOCAL'

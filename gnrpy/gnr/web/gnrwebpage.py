@@ -1898,15 +1898,23 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             if ext=='.xml':
                 content = Bag(path)
-            else:
+            elif os.path.exists(path):
                 with open(path) as f:
                     content = f.read()
+            else:
+                content = ''
         result.setItem('content',content)
         return result
 
     @public_method
     def saveSiteDocument(self,path=None,data=None):
-        data.toXml(filename=path)
+        filename,ext =os.path.splitext(path)
+        if ext == '.xml':
+            data.toXml(filename=path)
+        else:
+            with open(path,'w') as f:
+                f.write(data['content'])
+
 
     def isLocalizer(self):
         """TODO"""

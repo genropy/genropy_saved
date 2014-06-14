@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
 
     def test_5_opener(self,pane):
         bc = pane.borderContainer(height='500px',margin='10px',border='1px solid silver',nodeId='xxxx')
-        bc.contentPane(region='bottom',height='60px',background='wheat',drawer=True,splitter=True,border_top='1px solid silver')
+        bc.contentPane(region='bottom',height='60px',background='wheat',drawer='close',splitter=True,border_top='1px solid silver')
         bc.contentPane(region='top',height='60px',background='wheat',drawer=True,splitter=True,border_top='1px solid silver')
         bc.contentPane(region='left',width='100px',background='lightgray',drawer=True,splitter=True,border_right='1px solid silver')
         bc.contentPane(region='right',width='100px',background='lightgray',drawer='close',splitter=True,

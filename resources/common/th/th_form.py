@@ -40,7 +40,8 @@ class TableHandlerForm(BaseComponent):
                                  iframe=formInIframe,
                                  #context_dbstore=context_dbstore,
                                  **options) 
-
+        self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=options.get('doc'),
+                                    custdoc=options.get('custdoc'))
         if formInIframe:
             return form
         self._th_applyOnForm(form,options=options,mangler=frameCode)   
@@ -83,6 +84,8 @@ class TableHandlerForm(BaseComponent):
                              store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store=store,store_kwargs=store_kwargs,
                              **kwargs)
+        self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=resource_options.get('doc'),
+                                    custdoc=resource_options.get('custdoc'))
         self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)
         form.store.handler('load',default_kwargs=default_kwargs)
