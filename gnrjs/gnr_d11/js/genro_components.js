@@ -1048,13 +1048,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.store = kw.nodeId;
         kw.storepath = valuepath;
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
-        kw.height = kw.height || '100%';
-        if(!('autoHeight' in kw)){
-            kw.autoHeight = true;
-        }
-        if(!('autoWidth' in kw)){
-            kw.autoWidth = true;
-        }
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
         var struct = new gnr.GnrBag();
@@ -1074,8 +1067,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var format = new gnr.GnrBag();
         var row = value.getItem('#0');
         row.forEach(function(n){
-            format.setItem(n.label,null,{field:n.label,dtype:guessDtype(n.getValue()),
-                                          name:stringCapitalize(n.label.replace(/_/g,' '))})
+            var dtype=guessDtype(n.getValue());
+            format.setItem(n.label,null,{'field':n.label,'dtype':dtype,
+                                         //'width':(dtype=='T')?'30px':'12px',
+                                          'name':stringCapitalize(n.label.replace(/_/g,' '))})
         });
         return format;
     },
