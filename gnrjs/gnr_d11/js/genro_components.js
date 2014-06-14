@@ -1836,9 +1836,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         this.makeButtons(values);
     },
 
-    gnrwdg_setStorepath:function(storebag,kw){
+    gnrwdg_setStorepath:function(val,kw){
+        var storebag = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
         if(storebag && storebag.len()>0){
-            this.makeButtons(this.sourceNode,this.gnr.valuesFromBag(storebag));
+            this.makeButtons(this.gnr.valuesFromBag(storebag));
         }
     },
 
