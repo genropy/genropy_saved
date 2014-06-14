@@ -319,8 +319,8 @@ class DynamicForm(BaseComponent):
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
         rootcode = '%s_df' %mastertable.replace('.','_')
         bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode,overflow='hidden')
-        pane.data('tickets.currents',Bag())
-        view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='tickets.currents',
+        
+        view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
                     childname='view',struct=self.df_fieldsBagStruct,
                                 grid_selfDragRows=True,
                                datapath='.view',_class='frameGrid',gridEditor=False,
