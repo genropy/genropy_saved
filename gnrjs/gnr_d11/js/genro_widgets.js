@@ -3020,7 +3020,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.dropTarget = true;
         }
         var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,'; //continue
-        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod';
+        var styleDict=genro.dom.getStyleDict(attributes);
+        if (styleDict.width=='auto'){
+            delete styleDict.width;
+            attributes.autoWidth=true;
+        }
+        if (styleDict.height=='auto'){
+            delete styleDict.height;
+            attributes.autoHeight=true;
+        }
+        attributes.style=objectAsStyle(styleDict);
+        attributesToKeep = attributesToKeep + 'style,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid,editorSaveMethod';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
