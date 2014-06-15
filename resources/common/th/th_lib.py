@@ -77,39 +77,24 @@ class TableHandlerCommon(BaseComponent):
         self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True,safeMode=True)
         return
 
-    def _th_setDocumentation(self,table=None,resource=None,doc=False,custdoc=False):
+    def _th_setDocumentation(self,table=None,key=None,resource=None,doc=False,custdoc=False):
         page = self.pageSource()
-
         tbllist = table.split('.')
         pkg = self.package.name
         tblpkg = tbllist[0]
-        language = self.language
-        code = 'main'
         caption = self.db.table(table).name_plural
         if resource:
-            code = '%s_%s' %(table.replace('.','_'),resource.replace(':','_'))
+            key = '%s_%s' %(table.replace('.','_'),resource.replace(':','_'))
             caption = resource
             if ':' in resource:
                 caption = resource.split(':')[1]
         if doc:
-            filepath = self.site.getStaticPath('pkg:%s' %tblpkg,'doc',language,'html',
-                'tables',tbllist[1],'%s.%s' %(code,'html'),autocreate=-1)
-            caption = self._th_caption_from_module(filepath) or caption
-            page.data('gnr.doc.main.pages.%s' %code,None,filepath=filepath,caption=caption)
+            filepath = os.path.join('pkg:%s' %tblpkg,'doc',self.language,'html','tables',tbllist[1],'%s.%s' %(key,'html'))
+            page.addToDocumentation(key=key,filepath=filepath,title=caption)
 
         if pkg!=tblpkg and custdoc: #possibilta custom
-            filepath = self.site.getStaticPath('pkg:%s' %pkg,'doc',language,'html',
-                'tables','_packages',tbllist[0],tbllist[1],'%s.%s' %(code,'html'),autocreate=-1)
-            caption = self._th_caption_from_module(filepath) or '%s_%s' %(caption,pkg)
-            page.data('gnr.doc.main.pages.%s_%s' %(code,pkg) ,None,filepath=filepath,caption=caption)
-
-    def _th_caption_from_module(self,filepath):
-        if os.path.isfile(filepath):
-            with open(filepath,'r') as r:
-                html = r.read()
-                m = re.search("<title>(.*)</title>", html, re.I | re.S)
-                if m:
-                    return m.group(1)
+            filepath=os.path.join(os.path.sep,'tables','_packages',tbllist[0],tbllist[1],'%s.%s' %(key,'html'))
+            page.addToDocumentation(key='%s_%s' %(key,pkg),title=caption,filepath=filepath)
     
     def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')

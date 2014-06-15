@@ -6,6 +6,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
+        objectPop(attributes,'onCreating');
         sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
         sourceNode.attr.tag=objectPop(attributes,'tag');
@@ -1809,7 +1810,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
         var deleteAction = objectPop(kw,'deleteAction');
+        var showAlways = objectPop(kw,'showAlways');
+
         var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.showAlways = showAlways;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
@@ -1817,7 +1821,6 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
         sourceNode.registerDynAttr('storepath');
-
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
             var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
@@ -1885,6 +1888,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        var child_count = values.split(',').length;
+        if(child_count==1 && !this.showAlways){
+            var mbnode = mb.getParentNode();
+            mbnode.attr._class = mbnode.attr._class + ' hidden';
+        }
         var deleteAction = this.deleteAction;
         if (mb && values){
             var values = splitStrip(values,',');
