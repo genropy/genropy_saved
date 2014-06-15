@@ -19,7 +19,7 @@ class SourceViewer(BaseComponent):
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
-        drawer = self.source_viewer_open() or 'closed'
+        drawer = self.source_viewer_open() or 'close'
         sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
                         drawer_background='red',
                        drawer_width='14px',drawer_left='-14px',drawer_height='80px',drawer_margin_top='-40px',

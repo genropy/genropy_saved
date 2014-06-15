@@ -22,71 +22,7 @@ PAGEHTML = """
 </html>
 """
 
-class DocHandler(BaseComponent):
-
-    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
-        language = language or self.language
-        if not folderpath:
-            m = sys.modules[self.__module__]
-            folderpath = os.path.splitext(os.path.split(m.__file__)[1])[0]
-        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',language,doctype,folderpath,'%s.%s' %(storeKey,doctype),autocreate=-1)
-
-    @struct_method
-    def de_documentElement(self,pane,storeKey=None,folderpath=None,doctype='html',editAllowed=None,**kwargs):
-        controller = self.pageController(datapath='_doc.content.%s' %storeKey)
-        controller.dataRpc('.loaded',self.de_loadStoreFromFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
-                        language='=gnr.language',_onBuilt=True,
-                    _onResult="""if(result){SET .current = result;}""",**{'subscribe_%s_loadfile' %storeKey:True})
-        controller.dataRpc('dummy',self.de_saveStoreFile,folderpath=folderpath,doctype=doctype,storeKey=storeKey,
-                        language='=gnr.language',
-                        data='=.current',**{'subscribe_%s_savefile' %storeKey:True})
-        pane.attributes.update(overflow='hidden')
-        cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
-        iframepars = dict(border=0,height='100%',width='100%')
-        iframepars.update(kwargs)
-        iframe = pane.htmliframe(
-                            shield=True,
-                            onCreated="""
-                            var cssurl = '%s';
-                            var e = document.createElement("link");
-                            e.href = cssurl;
-                            e.type = "text/css";
-                            e.rel = "stylesheet";
-                            e.media = "screen";
-                            widget.contentWindow.document.head.appendChild(e);
-                            widget.contentWindow.ondblclick = function(){
-                                genro.publish('documentElementEdit',{storeKey:'%s'});
-                            }
-                            """ %(cssurl,storeKey),**iframepars)
-        controller.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
-                                previewHTML='^.current',iframe=iframe)
-        if editAllowed:
-            self.de_createDocEditorPalette(storeKey,cssurl=cssurl)
-
-    def de_createDocEditorPalette(self,storeKey,cssurl=None):
-        page = self.pageSource()
-        palette = page.palettePane(paletteCode='de_docEditorPalette',dockTo='dummyDock',
-                                    height='500px',width='600px',
-                                    title='!!Documentation')
-        form = palette.frameForm(frameCode='de_docEditorForm',store='memory',store_locationpath='_doc.content.%s' %storeKey,
-                                store_autoSave=50,
-                                datapath='.form')
-        pane = form.center.contentPane(datapath='.record',overflow='hidden')
-        pane.ckeditor(value='^.current',config_contentsCss=cssurl,
-                        toolbar='standard') 
-        pane.dataController("""this.form.load();""",subscribe_documentElementEdit=True)
-        pane.dataController("this.getParentWidget('floatingPane').show();",formsubscribe_onLoaded=True)
-        pane.dataController("""this.getParentWidget('floatingPane').hide();""",formsubscribe_onDismissed=True)
-        bar = form.bottom.slotBar('revertbtn,*,cancel,savebtn,10',_class='slotbar_dialog_footer')
-        bar.revertbtn.slotButton('!!Revert',action="""SET .record.current = _loaded; this.form.save();""",
-                            disabled='==_current==_loaded',
-                            _current='^.record.current',_loaded='=.record.loaded',_delay=100)
-        bar.cancel.button('!!Cancel',action='this.form.abort();')
-        bar.savebtn.button('!!Save',action="""this.form.save();
-                                              this.form.abort();
-                                              genro.publish(storeKey+'_savefile');""",
-                                    storeKey=storeKey)
-
+class DocHandler(BaseComponent):   
     @struct_method
     def de_docFrame(self,pane,code=None,storeKey=None,title=None,**kwargs):
         frameCode = code
@@ -102,22 +38,29 @@ class DocHandler(BaseComponent):
 
     @struct_method
     def de_docFrameMulti(self,pane,code=None,**kwargs):
+        code = code or 'main'
         cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
         form = pane.frameForm(frameCode='docFrame_%s' %code,store='document',datapath='gnr.doc.%s' %code)
         form.store.handler('load',rpcmethod=self.de_loadStoreFromFile,defaultCb="""
             return {
             title:kw._pages.getItem(kw._current+'?caption')
             };""",_pages='=.pages',_current='=.current')
-        #rpc.addDeferredCb("""(!doctitle){
-        #        SET .record.title = pages.getItem(current+'?caption');
-        #    } 
-        #    """,pages='=.pages',current='=.current',doctitle='=.record.title')
         form.store.handler('save',rpcmethod=self.de_saveStoreFile)
         slots = '5,docSelector,*'
         if self.de_isDocWriter():
             slots= '%s,labelTooltip,revertbtn,savebtn,docsemaphore,5,stackButtons,5' %slots
         bar = form.top.slotToolbar(slots)
-        bar.docSelector.multiButton(value='^.current',storepath='.pages')
+        pagedocpars = self.documentation
+        if pagedocpars == 'auto':
+            pagedocpars = dict(title='Main')
+        if pagedocpars is not True:
+            bar.addToDocumentation(key='__page__',**pagedocpars)
+        bar.docSelector.multiButton(value='^.current',storepath='.pages',showAlways=True
+                                   #onCreating="""var b = this.getRelativeData('.pages');
+                                   #                var p = b.popNode('__page__');
+                                   #                b.setItem('')
+                                    #                """
+                                                    )
         if self.de_isDocWriter():
             fb = bar.labelTooltip.div(_class='dijitButtonNode',hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
             fb.textbox(value='^.record.title',lbl='Title')
@@ -174,26 +117,77 @@ class DocHandler(BaseComponent):
 
     @public_method
     def de_saveStoreFile(self,path=None,data=None,**kwargs):
-        title = data['title'] or os.path.split(path)[1]
+        spath = os.path.split(path)
+        title = data['title'] or spath[1]
+        destdir = os.path.dirname(path)
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
         with open(path,'w') as f:
             f.write(PAGEHTML %(title,data['body']))
+
+    @struct_method
+    def de_addToDocumentation(self,pane,title=None,filepath=None,code=None,key=None,doctype=None,language=None,**kwargs):
+        filepath = self.de_documentPath(filepath=filepath,doctype=doctype,language=language)
+        code = code or 'main'
+        key = key or os.path.splitext(os.path.split(filepath)[1])[0]
+        pane.data('gnr.doc.%s.pages.%s' %(code,key),None,
+                    caption=self.de_caption_from_module(filepath) or title,
+                    filepath=filepath)
+
+
+    def de_documentPath(self,filepath=None,doctype=None,language=None,asUrl=False):
+        output = self.site.getStaticUrl if asUrl else self.site.getStaticPath
+        language = language or self.language
+        doctype = doctype or 'html'
+        webpagespath = self.site.getStaticPath('pkg:%s' %self.package.name,'webpages')
+        m = sys.modules[self.__module__]
+        basename =  os.path.splitext(m.__file__.replace(webpagespath,''))[0][1:]
+        filepath = filepath
+        if not filepath:
+            return output('pkg:%s' %self.package.name,'doc',language,doctype,
+                'webpages','%s.%s' %(basename,doctype))
+        elif ':' in filepath:
+            return output(filepath)
+        elif filepath.startswith('/'):
+            filepath = filepath[1:]
+            return output('pkg:%s' %self.package.name,'doc',language,doctype,filepath)
+        else:
+            return output('pkg:%s' %self.package.name,'doc',language,doctype,'webpages',
+                                        os.path.dirname(basename),filepath)
 
     def de_isDocWriter(self):
         return self.application.checkResourcePermission('_DOC_,doc_%s' %self.package.name, self.userTags)
 
+    def de_caption_from_module(self,filepath):
+        if os.path.isfile(filepath):
+            with open(filepath,'r') as r:
+                html = r.read()
+                m = re.search("<title>(.*)</title>", html, re.I | re.S)
+                if m:
+                    return m.group(1)
+
 class DocumentationPage(DocHandler):
-    def main_root(self,root,**kwargs):
-        bc = root.borderContainer(height='100%')
-        editAllowed = self.application.checkResourcePermission('_DOC_,doc_%s' %self.package.name, self.userTags)
+    documentation = 'auto'
+    ticket = False
+    py_requires='gnrcomponents/bottomplugins:BottomPlugins'
 
-        bc.contentPane(region='center').documentElement(storeKey='main',folderpath=None,doctype='html',
-                                                        max_width='800px',margin='10px',
-                                                        editAllowed=editAllowed)
+    def main(self,root,**kwargs):
+        root.attributes.update(overflow='hidden')
+        cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
+        iframepars = dict(border=0,height='100%',width='100%')
+        url = self.de_documentPath(asUrl=True)
+        root.data('main.src',url)
+        root.dataController('SET main.src = currurl+"?nocache="+genro.getCounter();',
+                        subscribe_form_docFrame_main_form_onSaved=True,currurl=url)
+        root.iframe(src='^main.src',shield=True,
+                        onLoad="""
+                            var cssurl = '%s';
+                            var e = document.createElement("link");
+                            e.href = cssurl;
+                            e.type = "text/css";
+                            e.rel = "stylesheet";
+                            e.media = "screen";
+                            window.document.head.appendChild(e);
+                            """ %cssurl,**iframepars)
 
-    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
-        m = sys.modules[self.__module__]
-        folderpath = os.path.split(m.__file__)[0].split(os.sep)
-        idx = folderpath.index('webpages') +1
-        folderpath = folderpath[idx:]
-        folderpath.append('%s.%s' %(os.path.splitext(self.filename)[0],doctype))
-        return self.site.getStaticPath('pkg:%s' %self.package.name,'doc',self.language,doctype,*folderpath,autocreate=-1)
+

@@ -297,53 +297,17 @@ class PublicSlots(BaseComponent):
         else:
             pane.div()
 
-class PublicPageBottomHandler(BaseComponent):
-    py_requires='gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler'
-
-    def onMain_pbl_publicBottom(self):
-        _gnrRoot = self.pageSource('_gnrRoot')
-        #tblcode = self.maintable.replace('.','_')
-        #if self.pbl_isDocWriter() or os.path.exists(self.de_documentPath(storeKey=tblcode,doctype='html')):
-        bottom = _gnrRoot.value.contentPane(region='bottom',height='30%',
-                                splitter=True,drawer='close',
-                                border_top='1px solid gray',
-                                overflow='hidden',
-                                background='white')
-        bottom.contentPane(overflow='hidden').remote(self.build_pbl_bottomContent)
-
-    @public_method
-    def build_pbl_bottomContent(self,pane):
-        sc = pane.stackContainer(datapath='pbl_bottom')
-        sc.contentPane(title='!!Documentation',overflow='hidden').docFrameMulti(code='main').adaptToolbar()
-        sc.contentPane(title='!!Tickets',overflow='hidden').ticketFrame(code='main').adaptToolbar()
-
-    @struct_method
-    def publicBottom_adaptToolbar(self,frame):
-        frame.top.bar.replaceSlots('#','5,parentStackButtons,#',gradient_to='#569EFF',gradient_from='#3B4D64',gradient_deg=90,
-                                toolbar=False,_class='iconbox_small',height='24px')
-
-    def de_documentPath(self,storeKey=None,folderpath=None,doctype=None,language=None):
-        tbllist = self.maintable.split('.')
-        pkg = self.package.name
-        tblpkg = tbllist[0]
-        language = self.language
-        if pkg!=tblpkg and False: #possibilta custom
-            return self.site.getStaticPath('pkg:%s' %pkg,'doc',language,doctype,
-                'tables','_packages',tbllist[0],tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
-        else:
-            result = self.site.getStaticPath('pkg:%s' %tblpkg,'doc',language,doctype,
-                'tables',tbllist[1],'%s.%s' %(tbllist[1],doctype),autocreate=-1)
-            return result
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,public:PublicPageBottomHandler,th/th:TableHandler"""
+    py_requires = """public:Public,gnrcomponents/bottomplugins:BottomPlugins,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
     formInIframe = False
     th_readOnly = False
     maintable = None
-
+    documentation = True
+    ticket = True
 
     #DA RIVEDERE
     @struct_method
@@ -389,7 +353,7 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
-        self._th_setDocumentation(table=self.maintable,doc=True)
+        self._th_setDocumentation(key='thmain',table=self.maintable,doc=True)
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
         insidePublic = False
@@ -662,20 +626,6 @@ class TableHandlerMain(BaseComponent):
     @struct_method
     def public_publicRoot_tablelimiter(self,pane,title='',**kwargs): 
         pane.div()
-
-        #limit = self.application.config.getItem('tablelimiter.%s' %self.maintable)
-        #if limit:
-        #    limit = int(limit)
-        #    tablecode = self.maintable.replace('.','_')
-        #    pane.data('%s.view.tablelimit' %tablecode,limit)
-        #    pane.dataController("""SET .view.tablelimitBlock = totalRowCount>=tablelimit;
-        #                        SET .view.limitcaption = totalRowCount+'/'+tablelimit;""",datapath=tablecode,totalRowCount='^.view.store?totalRowCount',
-        #                        tablelimit='=.view.tablelimit',_onStart=True)
-#
-        #    pane.div('^.view.limitcaption',color='white')
-#
-        #else:
-        #    pane.div()
 
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
