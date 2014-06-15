@@ -1062,14 +1062,25 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         gnrwdg.gridNode = grid.getParentNode();
         return grid;
     },
-
+    guessWidth:function(rows,dtype,label){
+        var w=8
+        if (dtype=='D'){w = 8}
+        else if (dtype=='H'){w = 6}
+        else if (dtype=='DH'){w = 12}
+        else if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+            var values=rows.digest('#v.'+label)
+            w=values.map(function(k){return k[0].toString().length}).sort().reverse()[0]
+        }
+        return Math.max(w,label.length)+'em'
+    },
     getFormatFromValue:function(value){
+        var that=this;
         var format = new gnr.GnrBag();
         var row = value.getItem('#0');
         row.forEach(function(n){
             var dtype=guessDtype(n.getValue());
             format.setItem(n.label,null,{'field':n.label,'dtype':dtype,
-                                         //'width':(dtype=='T')?'30px':'12px',
+                                         'width':that.guessWidth(value,dtype,n.label),
                                           'name':stringCapitalize(n.label.replace(/_/g,' '))})
         });
         return format;
