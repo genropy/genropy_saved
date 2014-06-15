@@ -1062,27 +1062,56 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         gnrwdg.gridNode = grid.getParentNode();
         return grid;
     },
-    guessWidth:function(rows,dtype,label){
-        var w=8
-        if (dtype=='D'){w = 8}
-        else if (dtype=='H'){w = 6}
-        else if (dtype=='DH'){w = 12}
-        else if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
-            var values=rows.digest('#v.'+label)
-            w=values.map(function(k){return k[0].toString().length}).sort().reverse()[0]
+    guessDtypeAndWidth:function(rows){
+        var types={}
+        var sizes={}
+        var w,dtype,v
+        rows.forEach(function(n){
+            n.getValue().forEach(function(c){
+                if (!(c.label in types)){
+                    types[c.label]=null
+                    sizes[c.label]=0
+                }
+                v=c.getValue()
+                if(v){
+                    dtype=types[c.label]
+                    if (!dtype) {
+                        dtype=guessDtype(v)
+                        types[c.label]=dtype
+                    }   
+                    w = 8 
+                    if (dtype=='D'){w = 8}
+                    else if (dtype=='H'){w = 6}
+                    else if (dtype=='DH'){w = 12}
+                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                        sizes[c.label]=Math.max(sizes[c.label]||c.label.length,v.toString().length)
+                    }
+                    else if (sizes[c.label]==0){
+                        w=8;
+                        if (dtype=='D'){w = 8}
+                        else if (dtype=='H'){w = 6}
+                        else if (dtype=='DH'){w = 12}
+                        sizes[c.label]=Math.max(c.label.length,w)
+                    }
+                }
+            })
+        })
+        for (var t in types){
+            if(!types[t]){types[t]='T'}
+            sizes[t]=(2 +(sizes[t]|| 8)*.5)+'em'
         }
-        return Math.max(w,label.length)+'em'
+        return {types:types,sizes:sizes}
     },
     getFormatFromValue:function(value){
-        var that=this;
         var format = new gnr.GnrBag();
-        var row = value.getItem('#0');
-        row.forEach(function(n){
-            var dtype=guessDtype(n.getValue());
-            format.setItem(n.label,null,{'field':n.label,'dtype':dtype,
-                                         'width':that.guessWidth(value,dtype,n.label),
-                                          'name':stringCapitalize(n.label.replace(/_/g,' '))})
-        });
+        var guess=this.guessDtypeAndWidth(value);
+        for (var label in guess.types){
+            format.setItem(label,null,{'field':label,'dtype':guess.types[label],
+                                         'width':guess.sizes[label],
+                                          'name':stringCapitalize(label.replace(/_/g,' '))
+                                      }
+                           )
+        }
         return format;
     },
 
