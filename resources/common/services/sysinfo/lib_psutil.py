@@ -8,6 +8,7 @@
 from gnr.core.gnrbaseservice import GnrBaseService
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
+from datetime import datetime
 import re
 
 try:
@@ -42,8 +43,12 @@ class Main(GnrBaseService):
 
         def bagFromProcess(p):
             d=p.as_dict()
+            d['create_time']=datetime.fromtimestamp(d['create_time'])
+            d['cpu_percent']=d['cpu_percent'] or 0
+            d['memory_percent']=d['memory_percent'] or 0
+            
             if items:
-                d = [(k,v) for k,v in d.items() if k in items]
+                d = [(k,d[k]) for k in items if k in d]
             return Bag(d)
             
         return Bag([('p_%s'%p.pid,bagFromProcess(p)) for p in ps.process_iter() if filteredProcess(p)])
