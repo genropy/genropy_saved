@@ -1390,9 +1390,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 //domnode.setAttribute(attr,value);
             }
         }else if(this.gnrwdg){
-            var setter = 'set' + stringCapitalize(attr);
-            if(setter in this.gnrwdg){
-                this.gnrwdg[setter].call(this.gnrwdg,value,kw,trigger_reason);
+            var handler = this.gnrwdg['set' + stringCapitalize(attr)];
+            if(!handler && (attr in this.gnrwdg['catchers'])){
+                handler = this.gnrwdg[this.gnrwdg['catchers'][attr]];
+            }
+            if(handler){
+                handler.call(this.gnrwdg,value,kw,trigger_reason);
             }
         }
     },
