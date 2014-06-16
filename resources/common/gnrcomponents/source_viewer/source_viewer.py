@@ -1,5 +1,6 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.web.gnrwebstruct import struct_method
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -140,38 +141,6 @@ class SourceViewer(BaseComponent):
         bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^gnr.source_viewer.readOnly',
                                     label='ReadOnly',default_value=True,
                                     disabled='^gnr.source_viewer.changed_editor')
-        bar.dataInspector.paletteTree(paletteCode='dataInspector',title='Data inspector',storepath='*D',tree_hideValues=False,
-                                        tree_onCreated="""
-                                            var that = this;
-                                            genro.src.onBuiltCall(function(){
-                                                    var r = {};
-                                                    var paths = genro.nodeById('_pageRoot')._value.walk(function(n){
-                                                        if(n.attr.datapath && n.attr.datapath[0]!='.'){
-                                                            r[n.attr.datapath] = true;
-                                                        }else{
-                                                        for (var k in n.attr){
-                                                            var attrval = n.attr[k]
-                                                            if((typeof(attrval)=='string') && (attrval.length>1) &&
-                                                                 ((attrval[0]=='=') || (attrval[0]=='^')) &&
-                                                                 (attrval[0]!='.')
-                                                                 ){
-                                                                     r[attrval.slice(1).split('.')[0]]=true   
-                                                            }
-                                                        }
-                                                        }
-                                               
-                                                        },'static');
-                                                    var treeNodes = that.widget.rootNode.getChildren();
-                                                    treeNodes.forEach(function(n){
-                                                            if(!(n.item.label in r)){
-                                                                dojo.addClass(n.domNode,'hidden');
-                                                            }
-                                                        })
-
-                                                },100);
-                                            
-                                        """,
-                                        dockButton=True,editable=True)
         frame.data('gnr.source_viewer.source',source)
         frame.data('gnr.source_viewer.source_oldvalue',source)
         frame.dataController("""SET gnr.source_viewer.changed_editor = currval!=oldval;
@@ -185,9 +154,45 @@ class SourceViewer(BaseComponent):
                                 readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
 
     def source_viewer_html(self,frame,source=None):
-        frame.top.slotToolbar('5,vtitle,*',vtitle='Source',font_size='11px',font_weight='bold',height='20px')
+        frame.top.slotToolbar('5,vtitle,*,dataInspector,5',vtitle='Source',font_size='11px',font_weight='bold',height='20px')
         source = highlight(source, PythonLexer(), HtmlFormatter(linenos='table'))
         frame.center.contentPane(overflow='auto').div(source,_class='codehilite',width='100%')
+
+
+    @struct_method
+    def sv_slotbar_dataInspector(self,pane,**kwargs):
+        pane.paletteTree(paletteCode='dataInspector',title='Data inspector',storepath='*D',tree_hideValues=False,
+                                tree_onCreated="""
+                                    var that = this;
+                                    genro.src.onBuiltCall(function(){
+                                            var r = {};
+                                            var paths = genro.nodeById('_pageRoot')._value.walk(function(n){
+                                                if(n.attr.datapath && n.attr.datapath[0]!='.'){
+                                                    r[n.attr.datapath] = true;
+                                                }else{
+                                                for (var k in n.attr){
+                                                    var attrval = n.attr[k]
+                                                    if((typeof(attrval)=='string') && (attrval.length>1) &&
+                                                         ((attrval[0]=='=') || (attrval[0]=='^')) &&
+                                                         (attrval[0]!='.')
+                                                         ){
+                                                             r[attrval.slice(1).split('.')[0]]=true   
+                                                    }
+                                                }
+                                                }
+                                       
+                                                },'static');
+                                            var treeNodes = that.widget.rootNode.getChildren();
+                                            treeNodes.forEach(function(n){
+                                                    if(!(n.item.label in r)){
+                                                        dojo.addClass(n.domNode,'hidden');
+                                                    }
+                                                })
+
+                                        },100);
+                                    
+                                """,
+                                dockButton=True,editable=True)
 
     def source_viewer_docName(self,ext=None):
         m = sys.modules[self.__module__]

@@ -107,7 +107,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
-        grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
+        #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           datapath='.grid',selectedId='.selectedId',

@@ -5726,10 +5726,21 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                 this.sourceNode.setAttributeInDatasource('sortedBy',sortedBy)
             }   
         }
-        this.setSortedBy(sortedBy);      
+        this.sortStore(sortedBy);      
     },
         
-    mixin_setSortedBy:function(sortedBy) {
+    mixin_setSortedBy:function(sortedBy){
+        if (sortedBy.indexOf(':')<0){
+            sortedBy+=':a';
+        }   
+        var s = sortedBy.split(':');
+        var sortIndex = this.layout.cells.map(function(c){return c.field}).indexOf(s[0]);
+        if(sortIndex>=0){
+            this.setSortIndex(sortIndex,s[1][0]=='a');
+        }
+    },
+
+    mixin_sortStore:function(sortedBy) {
         console.log('sortedBy',sortedBy)
         this.sortedBy = sortedBy;
         var store = this.collectionStore();

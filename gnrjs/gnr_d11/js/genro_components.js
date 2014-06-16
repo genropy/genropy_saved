@@ -2148,6 +2148,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     },
 
     createCheckBoxes:function(tblNode,values,kw){
+        var kw = objectUpdate({},kw);
         tblNode._value.clear(true);
         var that = this;
         var splitter = values.indexOf('\n')>=0? '\n':',';
