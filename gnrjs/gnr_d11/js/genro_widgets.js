@@ -5720,15 +5720,17 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             sortedBy = sortedBy + '*';
         }
         this.sourceNode.publish('setSortedBy',sortedBy);
-        //this.setSortedBy(sortedBy);
-
-        //else {
-        //    var path = this.sourceNode.attrDatapath('sortedBy');
-        //    genro._data.setItem(path, sortedBy);
-        //}        
+        if ('sortedBy' in this.sourceNode.attr){
+            var sortpath = this.sourceNode.attr['sortedBy'];
+            if (this.sourceNode.isPointerPath(sortpath)){
+                this.sourceNode.setAttributeInDatasource('sortedBy',sortedBy)
+            }   
+        }
+        this.setSortedBy(sortedBy);      
     },
         
     mixin_setSortedBy:function(sortedBy) {
+        console.log('sortedBy',sortedBy)
         this.sortedBy = sortedBy;
         var store = this.collectionStore();
         store.sortedBy = sortedBy;

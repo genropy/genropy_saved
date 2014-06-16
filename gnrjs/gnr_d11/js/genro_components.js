@@ -1047,6 +1047,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var valuepath = value.slice(1);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
+        kw.datamode='bag';
         kw.storepath = valuepath;
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
