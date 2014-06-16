@@ -3001,8 +3001,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
-        var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;
-        sourceNode.gridControllerPath = relativeWorkspace ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
+        if(sourceNode.attr.controllerPath && sourceNode.attr.controllerPath!=true){
+            sourceNode.gridControllerPath = sourceNode.attr.controllerPath;
+        }
+        else{
+            var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;
+            sourceNode.gridControllerPath = relativeWorkspace ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
+        }
+        
         if (sourceNode.attr.selfDragRows) {
             this.selfDragRowsPrepare(sourceNode);
         }

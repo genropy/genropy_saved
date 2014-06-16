@@ -556,7 +556,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || node.getStringId())+'.'+relpath;
+            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getStringId()))+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;

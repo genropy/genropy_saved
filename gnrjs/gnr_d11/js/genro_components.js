@@ -1041,27 +1041,22 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var format = objectPop(kw,'format');
         var gnrwdg = sourceNode.gnrwdg;
         sourceNode.attr._workspace = true;
-
-        sourceNode.attr.value = value;
-        sourceNode.attr.format = format;
         var valuepath = value.slice(1);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
         kw.datamode='bag';
         kw.storepath = valuepath;
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
+        kw.controllerPath = '#WORKSPACE.controllers';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
         var struct = new gnr.GnrBag();
-        if(currentValue && !currentFormat){
-            currentFormat = this.getFormatFromValue(currentValue);
-        }
-        struct.setItem('view_0.rows_0',currentFormat)
         sourceNode.setRelativeData(kw.structpath,struct)
         sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
                         nodeId:kw.nodeId+'_store'});
-        var grid = sourceNode._('newIncludedView',kw)
+        var grid = sourceNode._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
+        gnrwdg.setFormat(currentFormat);
         return grid;
     },
     guessDtypeAndWidth:function(rows){
@@ -1119,7 +1114,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     gnrwdg_setFormat:function(format){
         var gridNode = this.sourceNode.gnrwdg.gridNode;
-        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',format.deepCopy());
+        var f = format?format.deepCopy():new gnr.GnrBag();
+        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
@@ -1127,7 +1123,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
             if(!this.sourceNode.attr.format){
                 var format = this.gnr.getFormatFromValue(value)
                 var gridNode = this.sourceNode.gnrwdg.gridNode;
-                gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',format.deepCopy());
+                this.setFormat(format);
+                //gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',format.deepCopy());
             }
         }
         //this.sourceNode.getRelativeData(kw.structpath).setItem('view_0.rows_0',format.deepCopy());
