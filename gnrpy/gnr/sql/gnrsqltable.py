@@ -907,7 +907,7 @@ class SqlTable(GnrObject):
     def notifyDbUpdate(self,record):
         self.db.notifyDbUpdate(self,record)
             
-    def touchRecords(self,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False,pkey=None,method=None, **kwargs):
+    def touchRecords(self,_pkeys=None,_wrapper=None,_wrapperKwargs=None,_notifyOnly=False,pkey=None,method=None, columns=None,**kwargs):
         """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -924,17 +924,30 @@ class SqlTable(GnrObject):
             kwargs.setdefault('ignorePartition',True)
             kwargs.setdefault('excludeLogicalDeleted',False)
         method = method or 'update'
-        sel = self.query(addPkeyColumn=False, for_update=(method=='update'), **kwargs).fetch()
+        for_update = method=='update'
+        handler = getattr(self,method) if isinstance(method,basestring) else method
+        onUpdating = None
+        if method != 'update':
+            columns = columns or getattr(handler,'columns',None)
+            for_update = getattr(handler,'for_update',False)
+            isUpdater = getattr(handler,'updater',False)
+            for_update = isUpdater or for_update
+            if isUpdater:
+                onUpdating = handler
+                handler = self.update
+        sel = self.query(addPkeyColumn=False, for_update=for_update,columns=columns or '*', **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             sel = _wrapper(sel, **(_wrapperKwargs or dict()))
         if _notifyOnly:
             self.notifyDbUpdate(sel)
             return
-        handler = getattr(self,method) if isinstance(method,basestring) else method
         for row in sel:
             row._notUserChange = True
-            handler(row, old_record=dict(row))
+            old_record = dict(row)
+            if onUpdating:
+                onUpdating(row, old_record=old_record)
+            handler(row, old_record=old_record)
             
     def existsRecord(self, record):
         """Check if a record already exists in the table and return it (if it is not already in the keys)
