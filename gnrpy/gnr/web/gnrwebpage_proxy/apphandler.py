@@ -637,9 +637,17 @@ class GnrWebAppHandler(GnrBaseProxy):
         self.db.commit()
 
     @public_method      
+    def deleteFileRows(self,files=None,**kwargs):
+        if isinstance(files,basestring):
+            files = files.split(',')
+        for f in files:
+            os.remove(f)
+
+    @public_method      
     def getFileSystemSelection(self,folders=None,ext=None,include=None,exclude=None,
-                                columns=None,hierarchical=False,**kwargs):
+                                columns=None,hierarchical=False,applymethod=None,**kwargs):
         files = Bag()
+        resultAttributes = dict()
         def setFileAttributes(node,**kwargs):
             attr = node.attr
             if not node.value and node.attr:
@@ -659,8 +667,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         files.walk(setFileAttributes,_mode='')
         if hierarchical:
             return files
-        return Bag([('r_%i' %i,None,t[1].attr) for i,t in enumerate(files.getIndex()) if t[1].attr and t[1].attr['file_ext']!='directory'])
-        
+        result = Bag([('r_%i' %i,None,t[1].attr) for i,t in enumerate(files.getIndex()) if t[1].attr and t[1].attr['file_ext']!='directory'])
+        if applymethod:
+            applyPars = self._getApplyMethodPars(kwargs)
+            applyresult = self.page.getPublicMethod('rpc', applymethod)(result, **applyPars)
+            if applyresult:
+                resultAttributes.update(applyresult)
+        return result,resultAttributes
+
     @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,

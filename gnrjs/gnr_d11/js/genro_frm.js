@@ -2006,13 +2006,14 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw = loader.kw || {};
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
-        
         var envelope = new gnr.GnrBag();
         if(currPkey=='*newrecord*'){
+            var envelope = new gnr.GnrBag();
             data = new gnr.GnrBag();
             this._load_prepareDefaults(currPkey,default_kw,kw);
             data.update(objectExtract(kw,'default_*'));
-            return that.loaded(path,data);
+            envelope.setItem('content',data,{});
+            return that.loaded(currPkey,envelope.popNode('content'));
         }else{
             var path = currPkey;
             this._load_prepareDefaults(null,default_kw,kw);
@@ -2024,7 +2025,7 @@ dojo.declare("gnr.formstores.Base", null, {
                     var content = contentNode.getValue();
                     var rec;
                     if (content instanceof gnr.GnrBag){
-                        rec = contentNode
+                        rec = contentNode;
                     }else{
                         rec = new gnr.GnrBag({'content':content})
                     }
@@ -2047,15 +2048,9 @@ dojo.declare("gnr.formstores.Base", null, {
         var that = this;
         var path = this.form.getCurrentPkey();
         var rpc_kw = {};
-        if(path=='*newrecord*'){
-            console.log('todo')
-            if(this.getNewPath){
-                path = funcApply(this.getNewPath,{record:formData},form);
-            }else{
-                
-            }
-        }else{
-            rpc_kw.path = path;
+        rpc_kw.path = path;
+        if(path=='*newrecord*' && this.getNewPath){
+            path = funcApply(this.getNewPath,{record:formData},form);
         }
         var data = data.deepCopy();
         data.walk(function(n){
@@ -2064,13 +2059,18 @@ dojo.declare("gnr.formstores.Base", null, {
         rpc_kw.data = data;
         var deferred = genro.rpc.remoteCall(saver.rpcmethod ,rpc_kw,null,'POST',null,function(){});
         deferred.addCallback(function(result){
+                    result = result || {};
                     var resultDict = {};
                     var pkeyNode=result;
-                    resultDict.savedPkey=path;
+                    resultDict.savedPkey= result.path || path;
                     that.saved(resultDict);
-                    that.form.loaded(data);
+                    var deferred;
                     if(that.parentStore){
-                        that.parentStore.loadData();
+                        deferred = that.parentStore.loadData();
+                    }
+                    that.loaded(resultDict.savedPkey,data);
+                    if(deferred instanceof dojo.Deferred){
+                        deferred.addCallback(function(){that.setNavigationStatus(resultDict.savedPkey);})
                     }
                     return result;
                 }
@@ -2081,9 +2081,34 @@ dojo.declare("gnr.formstores.Base", null, {
         return deferred;
     },
     
-    delete_document:function(){
-        
+    del_document:function(pkey,callkw){
+        var deleter = this.handlers.del;
+        var form = this.form;
+        var that = this;
+        var kw =form.sourceNode.evaluateOnNode(this.handlers.del.kw);
+        pkey = pkey || form.getCurrentPkey();
+        this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'app.deleteFileRows';
+        var that = this;
+        var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
+                                            objectUpdate({'files':pkey,'_sourceNode':form.sourceNode},kw),null,'POST',
+                                                          null,function(){
+                                                            if(that.parentStore){
+                                                                that.parentStore.loadData();
+                                                            }
+
+                                                          });
+        var cb = function(result){
+            that.deleted(result,callkw);
+            return result;
+        };
+        deferred.addCallback(cb);
+        if(deleter.callbacks){
+            this.handle_deferredCallBacks(deferred,deleter.callbacks,kw);
+        }
+        return deferred;
     },
+
+
 
     _load_prepareDefaults:function(pkey,default_kw,kw){
         var form = this.form;
