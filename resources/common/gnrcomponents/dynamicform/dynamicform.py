@@ -583,7 +583,6 @@ class DynamicForm(BaseComponent):
         tbl = attr.get('source_dbselect')
         attr['dbtable'] = tbl
         pkg,tblname = tbl.split('.')
-        attr['hasDownArrow'] =True
         if pkg in dbstore_kwargs:
             attr['_storename'] = '=%s' %dbstore_kwargs[pkg]
 
@@ -591,7 +590,6 @@ class DynamicForm(BaseComponent):
         tbl = attr.get('source_dbcombobox')
         attr['dbtable'] = tbl
         pkg,tblname = tbl.split('.')
-        attr['hasDownArrow'] =True
         if pkg in dbstore_kwargs:
             attr['_storename'] = '=%s' %dbstore_kwargs[pkg]
 
