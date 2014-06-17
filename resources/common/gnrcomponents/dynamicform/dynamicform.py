@@ -87,6 +87,7 @@ class Form(BaseComponent):
                 tag='simpleTextArea',width='100%',lbl_vertical_align='top',height='60px',
                 ghost='!!description1\n description2')
         fb.field('source_dbselect',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
+        fb.field('source_dbcombobox',colspan=3,row_class='df_row field_dbcombobox',width='100%',ghost='!!pkg.table')  
         
         
         fb.field('validate_case',row_class='df_row field_textbox',width='100%')
@@ -190,6 +191,7 @@ class DynamicFormBagManager(BaseComponent):
                 width='100%',lbl_vertical_align='top',height='60px',
                 ghost='!!description1\n description2')
         fb.textbox(value='^.source_dbselect',lbl='!!Source',colspan=3,row_class='df_row field_dbselect',width='100%',ghost='!!pkg.table')  
+        fb.textbox(value='^.source_dbcombobox',lbl='!!Source',colspan=3,row_class='df_row field_dbcombobox',width='100%',ghost='!!pkg.table')  
         
         
         fb.filteringSelect(value='^.validate_case',lbl='!!Case',row_class='df_row field_textbox',width='100%',values='u:Uppercase,l:Lowercase,c:Capitalize,t:Title')
@@ -579,6 +581,14 @@ class DynamicForm(BaseComponent):
 
     def df_dbselect(self,attr,dbstore_kwargs=None,**kwargs):
         tbl = attr.get('source_dbselect')
+        attr['dbtable'] = tbl
+        pkg,tblname = tbl.split('.')
+        attr['hasDownArrow'] =True
+        if pkg in dbstore_kwargs:
+            attr['_storename'] = '=%s' %dbstore_kwargs[pkg]
+
+    def df_dbcombobox(self,attr,dbstore_kwargs=None,**kwargs):
+        tbl = attr.get('source_dbcombobox')
         attr['dbtable'] = tbl
         pkg,tblname = tbl.split('.')
         attr['hasDownArrow'] =True
