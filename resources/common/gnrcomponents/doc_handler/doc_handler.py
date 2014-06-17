@@ -75,7 +75,7 @@ class DocHandler(BaseComponent):
                             iconClass='iconbox save')
             bar.docsemaphore.div(_class='fh_semaphore',hidden='^#FORM.selectedPage?=#v!="editor"')
         sc = form.center.stackContainer(overflow='hidden',selectedPage='^#FORM.selectedPage')
-        viewer = sc.contentPane(pageName='viewer',title='!!View',overflow='hidden',datapath='.record')
+        viewer = sc.contentPane(pageName='viewer',title='!!View',iconTitle='icnBottomViewer',overflow='hidden',datapath='.record')
         viewer.dataController("""var filepath = pages.getNode(current).attr.filepath;
                             this.form.load({destPkey:filepath})
                             """,
@@ -95,7 +95,7 @@ class DocHandler(BaseComponent):
                             """ %cssurl,**iframepars)
         iframe.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.body',iframe=iframe)
-        editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',overflow='hidden')
+        editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
         editorpane.ckeditor(value='^.body',config_contentsCss=cssurl,toolbar='standard') 
         return form
 

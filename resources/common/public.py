@@ -307,7 +307,7 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     documentation = True
-    ticket = True
+    tickets = True
 
     #DA RIVEDERE
     @struct_method

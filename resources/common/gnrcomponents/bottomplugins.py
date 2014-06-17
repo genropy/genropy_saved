@@ -23,9 +23,9 @@ class BottomPlugins(BaseComponent):
     def bp_fillbottomplugins(self,pane):
         sc = pane.stackContainer(datapath='pbl_bottom')
         if self.documentation:
-            sc.contentPane(title='!!Documentation',overflow='hidden').docFrameMulti().adaptToolbar()
+            sc.contentPane(title='!!Documentation',iconTitle='icnBottomDocumentation',overflow='hidden').docFrameMulti().adaptToolbar()
         if self.tickets:
-            sc.contentPane(title='!!Tickets',overflow='hidden').ticketFrame(code='main').adaptToolbar()
+            sc.contentPane(title='!!Tickets',iconTitle='icnBottomTicket',overflow='hidden').ticketFrame(code='main').adaptToolbar()
 
     @struct_method
     def bp_adaptToolbar(self,frame):

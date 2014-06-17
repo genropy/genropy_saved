@@ -1914,6 +1914,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             with open(path,'w') as f:
                 f.write(data['content'])
+        return dict(path=path)
 
 
     def isLocalizer(self):

@@ -1911,6 +1911,29 @@ div.dojoxDock {
     height: 16px;
 }
 
+
+.icnBottomDocumentation {
+    background: url(icons/base16/bottom_documentation.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+.icnBottomTicket {
+    background: url(icons/base16/bottom_ticket.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+.icnBottomViewer {
+    background: url(icons/base16/bottom_viewer.png) no-repeat center 3px;
+    width: 16px;
+    height: 16px;
+}
+
+.icnBottomEditor {
+    background: url(icons/base16/bottom_editor.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
 /* @end */
 
 /* @group Base10 */

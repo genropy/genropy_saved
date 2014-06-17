@@ -2052,7 +2052,17 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
-            btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));
+            var title = childSourceNode.attr.title;
+            var iconTitle = childSourceNode.attr.iconTitle;
+            if(iconTitle){
+                multibutton_kw.innerHTML = '&nbsp;'
+                multibutton_kw._class= 'multibutton_caption '+iconTitle
+                multibutton_kw.tip = title;
+            }else{
+                multibutton_kw.innerHTML = title;
+                multibutton_kw._class = 'multibutton_caption';
+            }
+            btn._('div',multibutton_kw);
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(evt){
@@ -3392,7 +3402,7 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
             });
             return;
         }
-        this.loadingDataDo();
+        return this.loadingDataDo();
     },
 
     loadingDataDo:function(){
@@ -3411,7 +3421,18 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
             });
         };
         return this.runQuery(cb);
-    }
+    },
+
+    onDeletedRows:function(pkeys){
+        return this.loadData()
+    },
+    deleteRows:function(files,protectPkeys){
+        var that = this;
+        var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        genro.serverCall('app.deleteFileRows',{files:files},function(result){
+            that.onDeletedRows(files);
+        },null,'POST');
+    },
 
 });
 
