@@ -2,7 +2,7 @@ var dynamicFormHandler = {
     onDataTypeChange:function(sourceNode,data_type,reason,newrecord){
         var allowedWidget,allowedFormat,defaults;
         if(data_type=='T'){
-            allowedWidget = 'textbox:TextBox,simpletextarea:TextArea,filteringselect:Filtering Select,combobox:ComboBox,dbselect:DbSelect,checkboxtext_nopopup:Checkboxtext,checkboxtext:Popup Checkboxtext,geocoderfield:GeoCoderField';
+            allowedWidget = 'textbox:TextBox,simpletextarea:TextArea,filteringselect:Filtering Select,combobox:ComboBox,dbselect:DbSelect,dbcombobox:DbComboBox,checkboxtext_nopopup:Checkboxtext,checkboxtext:Popup Checkboxtext,geocoderfield:GeoCoderField';
             allowedFormat = '';
             defaults = {wdg_tag:'textbox',format:''};
         }else if(data_type=='L'){
