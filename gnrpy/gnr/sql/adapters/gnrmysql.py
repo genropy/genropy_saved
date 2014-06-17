@@ -49,7 +49,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                  'enum': 'A',
                  'boolean': 'B', 'date': 'D', 'time': 'H', 'datetime': 'DH', 'tinyint': 'I', 'timestamp': 'DH',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'int': 'I', 'double precision': 'R', 'real': 'R',
-                 'bytea': 'O'}
+                 'bytea': 'O', 'decimal':'N', 'longblob':'O', 'float':'R', 'blob':'O', 'varbinary':'O'}
 
     revTypesDict = {'A': 'varchar', 'T': 'text', 'C': 'char',
                     'X': 'text', 'P': 'text', 'Z': 'text',
@@ -67,10 +67,14 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         import MySQLdb
         from MySQLdb.cursors import DictCursor
         dbroot = self.dbroot
+        if dbroot.port:
+            port = int(dbroot.port)
+        else:
+            port = 3306
         #kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password, 
         # port=dbroot.port, use_unicode=True, cursorclass=GnrDictCursor)
         kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password,
-                      port=int(dbroot.port), cursorclass=GnrDictCursor)
+                      port=port , cursorclass=GnrDictCursor)
         kwargs = dict(
                 [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
         kwargs['charset'] = 'utf8'
@@ -172,7 +176,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     def _list_schemata(self):
         return """SELECT schema_name FROM information_schema.schemata 
-              WHERE schema_name != 'information_schema'"""
+              WHERE schema_name != 'information_schema' AND schema_name != 'mysql' AND schema_name != 'performance_schema'"""
 
     def _list_tables(self):
         return """SELECT table_name FROM information_schema.tables
@@ -272,6 +276,32 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     #        indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
     #        return indexes
 
+    def getTableContraints(self, table=None, schema=None):
+        """Get a (list of) dict containing details about a column or all the columns of a table.
+        Each dict has those info: name, position, default, dtype, length, notnull
+        Every other info stored in information_schema.columns is available with the prefix '_mysql_'"""
+        sql = """SELECT constraint_type,column_name,tc.table_name,tc.table_schema,tc.constraint_name
+            FROM information_schema.table_constraints AS tc 
+            JOIN information_schema.key_column_usage AS cu 
+                ON cu.constraint_name=tc.constraint_name  
+                WHERE constraint_type='UNIQUE'
+                %s%s;"""
+        filtertable = ""
+        if table:
+            filtertable = " AND tc.table_name=:table"
+        filterschema = ""
+        if schema:
+            filterschema = " AND tc.table_schema=:schema"
+        result = self.dbroot.execute(sql % (filtertable,filterschema),
+                                      dict(schema=schema,
+                                           table=table)).fetchall()
+            
+        res_bag = Bag()
+        for row in result:
+            row=dict(row)
+            res_bag.setItem('%(table_schema)s.%(table_name)s.%(column_name)s'%row,row['constraint_name'])
+        return res_bag
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
@@ -304,9 +334,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             if not coltype:
                 print 'unrecognized column type: %s' % col['dtype']
                 coltype = 'T'
-            col['dtype'] = coltype
+            dtype = col['dtype'] = coltype
             col['notnull'] = (col['notnull'] == 'NO')
             result.append(col)
+            if dtype == 'N':
+                precision, scale = col.get('numeric_precision'), col.get('numeric_scale')
+                if precision:
+                    col['size'] = '%i,%i' % (precision, scale)
+            elif dtype == 'A':
+                size = col.get('length')
+                if size:
+                    col['size'] = '0:%i' % size
+                else:
+                    dtype = col['dtype'] = 'T'
+            elif dtype == 'C':
+                col['size'] = str(col.get('length'))
         if column:
             result = result[0]
         return result

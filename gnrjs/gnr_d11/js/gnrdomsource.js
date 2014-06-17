@@ -556,7 +556,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || node.getStringId())+'.'+relpath;
+            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getStringId()))+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;
@@ -1390,9 +1390,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 //domnode.setAttribute(attr,value);
             }
         }else if(this.gnrwdg){
-            var setter = 'set' + stringCapitalize(attr);
-            if(setter in this.gnrwdg){
-                this.gnrwdg[setter].call(this.gnrwdg,value,kw,trigger_reason);
+            var handler = this.gnrwdg['set' + stringCapitalize(attr)];
+            if(!handler && (attr in this.gnrwdg['catchers'])){
+                handler = this.gnrwdg[this.gnrwdg['catchers'][attr]];
+            }
+            if(handler){
+                handler.call(this.gnrwdg,value,kw,trigger_reason);
             }
         }
     },

@@ -108,8 +108,13 @@ class GnrWsgiWebApp(GnrApp):
             attributes = {}
             attributes.update(node.getAttr())
             currbasepath = basepath
-            if 'dir' in attributes:
-                node.value = self._buildSiteMenu_autoBranch(attributes['pkg'],*attributes['dir'].split('/'))['#0']
+            if 'pkg' in attributes:
+                if 'dir' in attributes:
+                    autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],attributes['dir'].replace('/','.'))
+                    node.value = autobranch
+                    currbasepath = [attributes['pkg'],attributes['dir']]
+                else:
+                    node.value = self.packages[attributes['pkg']].pkgMenu['#0']
             value = node.getStaticValue()
             if 'basepath' in attributes:
                 newbasepath = attributes.pop('basepath')
@@ -130,16 +135,17 @@ class GnrWsgiWebApp(GnrApp):
             result.setItem(node.label, value, attributes)
         return result
 
-    def _buildSiteMenu_autoBranch(self,pkg,*path):
+    def _buildSiteMenu_autoBranch(self,pkg=None,path=None):
         menubag = Bag()
         automap = self.site.automap
         basepath = []
         if pkg and path:
-            automap = self.site.automap.getItem(pkg,*path)
-            basepath = [pkg]
-        for pathlist, node in automap.getIndex():
-            attr = dict(label=node.getAttr('name') or node.label.capitalize())
-            attr['label'] = attr['label'].replace('_',' ')
+            basepath = [pkg,path]
+            automap = self.site.automap.getItem('%s.%s' %(pkg,path))
+        mapindex=automap.getIndex()
+        mapindex.sort()
+        for pathlist, node in mapindex:
+            attr = dict(label=node.getAttr('name') or node.label)
             if isinstance(node.getValue(), Bag):
                 attr['basepath'] = '/%s' % ('/'.join(basepath+pathlist))
             else:

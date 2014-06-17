@@ -6,12 +6,23 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
+        objectPop(attributes,'onCreating');
         sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
-        sourceNode.attr.tag=objectPop(attributes,'tag');
+        sourceNode.attr.tag = objectPop(attributes,'tag');
+        var catchersHandlers = objectExtract(this,'gnrwdg_catch_*',true);
+        sourceNode.gnrwdg.catchers = {};
         for (var k in sourceNode._dynattr){
             if(this['gnrwdg_set'+stringCapitalize(k)]){
                 sourceNode.attr[k] = attributes[k];
+            }else{
+                for(var c in catchersHandlers){
+                    if(k.indexOf(c+'_')==0){
+                        sourceNode.attr[k] = attributes[k];
+                        sourceNode.gnrwdg.catchers[k] = 'catch_'+c;
+                        break;
+                    }
+                }
             }
         }
         var datapath=objectPop(attributes,'datapath');
@@ -231,6 +242,7 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
     },
 
     onSetMainValue:function(textboxNode,value){
+        value = value || '';
         var currvalue = textboxNode.getAttributeFromDatasource('value');
         var original_value = value;
         if(currvalue==value){
@@ -1033,6 +1045,112 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        var format = objectPop(kw,'format');
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.formats = objectExtract(kw,'format_*');
+        sourceNode.attr._workspace = true;
+        var valuepath = value.slice(1);
+        kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
+        kw.store = kw.nodeId;
+        kw.datamode='bag';
+        kw.storepath = valuepath;
+        kw.structpath = kw.structpath || '#WORKSPACE.struct';
+        kw.controllerPath = '#WORKSPACE.controllers';
+        var currentValue = sourceNode.getAttributeFromDatasource('value');
+        var currentFormat = sourceNode.getAttributeFromDatasource('format');
+        var struct = new gnr.GnrBag();
+        sourceNode.setRelativeData(kw.structpath,struct)
+        sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
+                        nodeId:kw.nodeId+'_store'});
+        var grid = sourceNode._('newIncludedView',kw);
+        gnrwdg.gridNode = grid.getParentNode();
+        gnrwdg.setFormat(currentFormat);
+        return grid;
+    },
+    guessDtypeAndWidth:function(rows){
+        var types={}
+        var sizes={}
+        var w,dtype,v
+        rows.forEach(function(n){
+            n.getValue().forEach(function(c){
+                if (!(c.label in types)){
+                    types[c.label]=null
+                    sizes[c.label]=0
+                }
+                v=c.getValue()
+                if(v){
+                    dtype=types[c.label]
+                    if (!dtype) {
+                        dtype=guessDtype(v)
+                        types[c.label]=dtype
+                    }   
+                    w = 8 
+                    if (dtype=='D'){w = 8}
+                    else if (dtype=='H'){w = 6}
+                    else if (dtype=='DH'){w = 12}
+                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                        sizes[c.label]=Math.max(sizes[c.label]||c.label.length,v.toString().length)
+                    }
+                    else if (sizes[c.label]==0){
+                        w=8;
+                        if (dtype=='D'){w = 8}
+                        else if (dtype=='H'){w = 6}
+                        else if (dtype=='DH'){w = 12}
+                        sizes[c.label]=Math.max(c.label.length,w)
+                    }
+                }
+            })
+        })
+        for (var t in types){
+            if(!types[t]){types[t]='T'}
+            sizes[t]=(2 +(sizes[t]|| 8)*.5)+'em'
+        }
+        return {types:types,sizes:sizes}
+    },
+    gnrwdg_getFormatFromValue:function(value){
+        var format = new gnr.GnrBag();
+        var formats = this.formats || {};
+        var guess = this.gnr.guessDtypeAndWidth(value);
+        var kw;
+        for (var label in guess.types){
+            kw = {'field':label,'dtype':guess.types[label],
+                                         'width':guess.sizes[label],
+                                          'name':stringCapitalize(label.replace(/_/g,' '))
+                                      }
+            if(label in formats){
+                var customFormat = this.sourceNode.getAttributeFromDatasource('format_'+label);
+                if(customFormat){
+                    objectUpdate(kw,customFormat.asDict());
+                }
+                
+            }
+            format.setItem(label,null,kw);
+        }
+        return format;
+    },
+    gnrwdg_catch_format:function(attr,value){
+        this.setFormat(this.getFormatFromValue(this.gridNode.widget.storebag()));
+    },
+
+    gnrwdg_setFormat:function(format){
+        var gridNode = this.sourceNode.gnrwdg.gridNode;
+        var f = format?format.deepCopy():new gnr.GnrBag();
+        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
+    },
+
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0){
+            if(!this.sourceNode.attr.format){
+                this.setFormat(this.getFormatFromValue(value));
+            }
+        }
+    }
+
+});
+
 dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var gnrwdg = sourceNode.gnrwdg;
@@ -1668,7 +1786,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             tag = 'menudiv';
         }
 
-        if(!kw.action){
+        if(!kw.action && publish){
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             //kw.opt = objectExtract(kw,'opt_*',true);
@@ -1696,7 +1814,7 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
         kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
         return sourceNode._('div',kw)._('div', {innerHTML:'==(_allcontent&&_current_lang)?_allcontent.getItem(_current_lang):"";',
                             '_class':'^.?contentClasses','style':'^.?contentStyles',_current_lang:'^gnr.language',_allcontent:'^.'})
-    },
+    }
 
 });
 
@@ -1709,7 +1827,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
         var deleteAction = objectPop(kw,'deleteAction');
+        var showAlways = objectPop(kw,'showAlways');
+
         var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.showAlways = showAlways;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
@@ -1717,7 +1838,6 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
         sourceNode.registerDynAttr('storepath');
-
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
             var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
@@ -1771,9 +1891,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         this.makeButtons(values);
     },
 
-    gnrwdg_setStorepath:function(storebag,kw){
+    gnrwdg_setStorepath:function(val,kw){
+        var storebag = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
         if(storebag && storebag.len()>0){
-            this.makeButtons(this.sourceNode,this.gnr.valuesFromBag(storebag));
+            this.makeButtons(this.gnr.valuesFromBag(storebag));
         }
     },
 
@@ -1784,6 +1905,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        var child_count = values.split(',').length;
+        if(child_count==1 && !this.showAlways){
+            var mbnode = mb.getParentNode();
+            mbnode.attr._class = mbnode.attr._class + ' hidden';
+        }
         var deleteAction = this.deleteAction;
         if (mb && values){
             var values = splitStrip(values,',');
@@ -1989,12 +2115,13 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             codeSeparator =  codeSeparator || ':'
         }
         var rootNode = sourceNode;
-
         var table_kw = objectExtract(kw,'table_*');
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         if(popup){
             var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
+        }else{
+            table_kw['tooltip']=objectPop(kw,'tooltip');
         }
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
@@ -2037,6 +2164,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     },
 
     createCheckBoxes:function(tblNode,values,kw){
+        var kw = objectUpdate({},kw);
         tblNode._value.clear(true);
         var that = this;
         var splitter = values.indexOf('\n')>=0? '\n':',';
@@ -2152,6 +2280,7 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var table_kw = objectExtract(kw,'table_*');
+        table_kw['tooltip']=objectPop(kw,'tooltip');
         var label_kw = objectExtract(kw,'label_*',null,true);
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
@@ -2684,61 +2813,57 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      },
 
      createContent:function(sourceNode, kw,children) {
-         var chunkSize = objectPop(kw,'chunkSize',0);
-         var storeType = chunkSize? 'VirtualSelection':'Selection';
-         kw.row_count = chunkSize;
-         var identifier = objectPop(kw,'_identifier') || '_pkey';
-         var _onError = objectPop(kw,'_onError');
-         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
-         var skw = objectUpdate({_cleared:false},kw);
-          //skw['_delay'] = kw['_delay'] || 'auto';
-
-         skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
-         objectPop(skw,'nodeId')
-         objectPop(skw,'_onCalling');
-         objectPop(skw,'_onResult');
-         objectPop(skw,'columns');
-
-         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
-         objectPop(kw,'_onStart');
-         objectPop(kw,'_cleared');
-         objectPop(kw,'_fired');
-         objectPop(kw,'_delay');
-         objectPop(kw,'_delay');
-
-         var v;
-         for (var k in kw){
-            v = kw[k];
-            if(typeof(v)=='string'){
-                if(v[0]=='^'){
-                    kw[k] = v.replace('^','=');
-                }
-            }
-         }
+        var chunkSize = objectPop(kw,'chunkSize',0);
+        var storeType = objectPop(kw,'storeType') || (chunkSize? 'VirtualSelection':'Selection');
+        kw.row_count = chunkSize;
+        var identifier = objectPop(kw,'_identifier') || '_pkey';
+        var _onError = objectPop(kw,'_onError');
+        var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
+        var skw = objectUpdate({_cleared:false},kw);
+         //skw['_delay'] = kw['_delay'] || 'auto';
+        skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
+        objectPop(skw,'nodeId')
+        objectPop(skw,'_onCalling');
+        objectPop(skw,'_onResult');
+        objectPop(skw,'columns');
+        var selectionStarter = sourceNode._('dataController',skw).getParentNode();
+        objectPop(kw,'_onStart');
+        objectPop(kw,'_cleared');
+        objectPop(kw,'_fired');
+        objectPop(kw,'_delay');
+        var v;
+        for (var k in kw){
+           v = kw[k];
+           if(typeof(v)=='string'){
+               if(v[0]=='^'){
+                   kw[k] = v.replace('^','=');
+               }
+           }
+        }
         kw['_POST'] = true;
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
-         var rpcNode = selectionStore.getParentNode();
-
-         rpcNode.attr['_onError'] = function(error,originalKwargs){
-            if(_onError){
-                funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
-            }
-            rpcNode.store.clear();
-            rpcNode.store.gridBroadcast(function(grid){
-                 grid.sourceNode.publish('loadingData',{loading:false});
-            });
-         };
-         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
-                        'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
-         if('startLocked' in kw){
-             storeKw.startLocked = kw.startLocked;
-         }
-         var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
-         rpcNode.store = storeInstance;
-         selectionStarter.store = storeInstance;
-         return selectionStore;
+        var rpcNode = selectionStore.getParentNode();
+        rpcNode.attr['_onError'] = function(error,originalKwargs){
+           if(_onError){
+               funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
+           }
+           rpcNode.store.clear();
+           rpcNode.store.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+           });
+        };
+        var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
+                       'storeType':storeType,'unlinkdict':kw.unlinkdict,
+                       'allowLogicalDelete':allowLogicalDelete};
+        if('startLocked' in kw){
+            storeKw.startLocked = kw.startLocked;
+        }
+        var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
+        rpcNode.store = storeInstance;
+        selectionStarter.store = storeInstance;
+        return selectionStore;
      }
 });
 
@@ -2826,6 +2951,12 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+    
+    onLoaded:function(result){
+        this.storeNode.setRelativeData(this.storepath,result);
+        return result;
+    },
+
     onChangedView:function(){
         return;
     },
@@ -3221,6 +3352,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
 });
 
+
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     rowFromItem:function(item){
         return objectUpdate({},item.attr);
@@ -3248,6 +3380,41 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     }
     
 });
+
+dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
+    loadData:function(){
+        var that = this;
+        if(!this.someVisibleGrids()){
+            this.storeNode.watch('someVisibleGrids',function(){
+                return that.someVisibleGrids();
+            },function(){
+                that.loadingDataDo();
+            });
+            return;
+        }
+        this.loadingDataDo();
+    },
+
+    loadingDataDo:function(){
+        var that = this;
+        this.loadingData = true;
+        this.gridBroadcast(function(grid){
+            grid.selectionKeeper('save');
+            grid.sourceNode.publish('loadingData',{loading:true});
+        });
+        var cb = function(result){
+            that.onLoaded(result);
+            that.resetFilter();
+            that.loadingData = false;
+            that.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+            });
+        };
+        return this.runQuery(cb);
+    }
+
+});
+
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){

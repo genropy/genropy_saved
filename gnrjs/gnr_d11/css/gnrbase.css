@@ -9,6 +9,12 @@ input:focus { outline: none; }
     text-decoration:underline !important;
 }
 
+.shield_layer{
+    display: none;
+}
+.active_click_palette .shield_layer{
+    display: block;
+}
 
 div,span{
     -webkit-touch-callout: none;
@@ -668,6 +674,82 @@ label.ghostlabel span {
 .hideSplitter >.dijitSplitter .dijitSplitterThumb {
     visibility: hidden;
 }
+
+
+
+
+.tundra .drawerFixed.dijitSplitter.dijitSplitterV{
+    width: 0;
+}
+.tundra .drawerFixed.dijitSplitter.dijitSplitterV:hover{
+    width: 0;
+    background: transparent;
+}
+
+.tundra .drawerFixed.dijitSplitter.dijitSplitterH{
+    height: 0;
+}
+.tundra .drawerFixed.dijitSplitter.dijitSplitter):hover{
+    height: 0;
+    background: transparent;
+}
+
+.drawerSplitter.dijitSplitter{
+    overflow: visible;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterV  .drawerHandle{
+    top:50%;
+    margin-top: -20px;
+    height: 40px;
+    width:8px;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterH  .drawerHandle{
+    left:50%;
+    margin-left:-20px;
+    width: 40px;
+    height:8px;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterH.drawer_region_bottom .drawerHandle{
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    top: -8px;
+    border-bottom: 0;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterH.drawer_region_top .drawerHandle{
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    top: 0;
+    border-bottom: 0;
+}
+
+.drawerSplitter.dijitSplitter.dijitSplitterV.drawer_region_left .drawerHandle{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    left:0px;
+    border-left: 0;
+}
+.drawerSplitter.dijitSplitter.dijitSplitterV.drawer_region_right .drawerHandle{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    left:-8px;
+    border-right: 0;
+
+}
+
+.drawerHandle{
+    background: gray;
+    -moz-transition:all .5s;
+    -webkit-transition:all .5s;
+    opacity: .5;
+    cursor: pointer;
+    position: absolute;
+}
+.tundra._common_d11 .drawerSplitter.dijitSplitter .drawerHandle:hover{
+    opacity: 1;
+}
+
 
 /* @group dialog */
 .dlg_ask {
@@ -2135,7 +2217,7 @@ div.dojoxDock {
 .waiting {
     height: 100%;
     height: 100%;
-    background: url(icons/ajax-loader-1.gif) no-repeat center center;
+    background: url(icons/pageWaiting.gif) no-repeat center center;
 
 }
 
@@ -3945,8 +4027,6 @@ div[disabled='true'], div[disabled='disabled']{
     white-space: nowrap;
 }
 
-
-
 .branchtree .dijitTreeContent {
     min-height: 0;
     padding-bottom: 2px;
@@ -3967,6 +4047,235 @@ div[disabled='true'], div[disabled='disabled']{
 
 ._logical_delete.delete_row{
     background: url(/_rsrc/common/css_icons/retina/blue/16/delete_row.png) no-repeat center center;
+}
+
+._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
+/*control*/
+    padding: 0px;
+    border: 0;
+    -moz-box-shadow: 4px 4px 4px #403b3b;
+    -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+
+/* @end */
+
+/* @group Pure tooltip */
+
+._common_d11 .dijitTooltipContents {
+
+}
+
+._common_d11 .dijitTooltip .dijitTooltipContainer {
+    color:#555;
+    font-size:.9em;
+}
+
+/* @end */
+
+/* @group connector */
+
+/* they are common for tooltip and tooltipdialog */
+
+._common_d11  .dijitTooltipLeft .dijitTooltipConnector {
+    background-color:transparent;
+}
+
+._common_d11 .dijitTooltipRight .dijitTooltipConnector {
+    background-color:transparent;
+}
+
+._common_d11  .dijitTooltipUp .dijitTooltipConnector {
+    background-color:transparent;
+
+}
+
+._common_d11  .dijitTooltipBelow .dijitTooltipConnector {
+    background-color:transparent;
+
+}
+
+/* @end */
+
+/* @end */
+
+/* @group buttons */
+
+/* @group ddb */
+.dropDownNoArrow .dijitArrowButtonInner {
+    display: none;
+}
+
+/* @end */
+
+
+.bottom_btnDisabled .dijitButtonNode {
+    opacity: .6;
+    cursor: not-allowed !important;
+}
+
+.bottom_btnHover .dijitButtonNode {
+
+    opacity: 1;
+}
+
+/* @end */
+
+/* @group Menu */
+._common_d11__ .dijitMenu {
+    border: 1px solid gray;
+    background-color: whitesmoke;
+    position: relative;
+    top: 3px;
+    left: 4px;
+    border-top: 0px;
+    padding-bottom: 6px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+._common_d11__ .dijitMenuTable {
+    margin: 1px 0;
+    border-collapse: collapse;
+    border-width: 0;
+    background-color: whitesmoke;
+}
+
+._common_d11__ .dijitMenuItem {
+    white-space: nowrap;
+    font-size: .9em;
+    color:;
+    padding: 0em 0em;
+    border-bottom: 1px solid white;
+}
+
+/* @end */
+
+/* @group Grid */
+.logicalDeleted .dojoxGrid-cell {
+    color: #b50000;
+}
+
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell {
+    color: #b50000;
+}
+
+._common_d11 .dojoxGrid {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-scrollbox {
+    overflow: auto;
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-header {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 1px dotted gray;
+    border-bottom: 1px dotted gray;
+    height: 21px;
+    padding: 0 6px 0 3px;
+}
+
+._common_d11 nopadding .dojoxGrid-cell {
+    padding: 0px 0px;
+}
+
+/*
+._common_d11 .dojoxGrid-row-table {
+	border-collapse: separate;
+}
+*/
+._common_d11 .cell_B .widgetInCell {
+    width: 16px;
+    margin: auto;
+}
+
+._common_d11 .widgetInCell {
+    color: black;
+    margin-top: 1px;
+    margin-bottom: 0px;
+    margin-right: 5px;
+    width: 100%;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.cellContent {
+    line-height: 100%;
+}
+
+/*._common_d11 .invalidCell .cellContent {
+    border: 1px solid red;
+    margin-bottom: 1px;
+    padding: 1px;
+}*/
+
+._common_d11 .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell {
+    background-color: #e4e4e4;
+}
+
+._common_d11 .dojoxGrid-row-odd {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row {
+    background-color: transparent;
+}
+
+._common_d11 .canBeDropped .dojoxGrid-cell {
+    background-color: #8fff9d !important;
+}
+
+/*._common_d11 .cannotBeDropped .dojoxGrid-cell {
+    background-color: #ffa997 !important;
+}*/
+
+._common_d11 .dojoxGrid-row-selected {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: #60a1ea;
+    color: black !important;
+
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell-focus {
+    border-top: 0;
+}
+
+/* @group No-over and no-selected */
+
+._common_d11 .no_over .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+._common_d11 .no_over .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
+
+._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: whitesmoke;
 }
 
 

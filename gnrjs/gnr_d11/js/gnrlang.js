@@ -494,6 +494,22 @@ function objectAny(obj,cb) {
     return false;
 }
 
+function mapConvertFromText(value){
+    if (value instanceof Array){
+        return value.map(mapConvertFromText)
+    }
+    if (typeof(value)=='string'){
+        return convertFromText(value)
+    }
+    if(typeof(value)=='object' && !(value instanceof Date)){
+        var result = {};
+        for (var k in value){
+            result[k] = mapConvertFromText(value[k]);
+        }
+        return result;
+    }
+    return value;
+}
 
 function objectString(obj) {
     var result = [];
@@ -800,7 +816,9 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            value = value.slice(0,k);
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X'].indexOf(t)>=0){
+                value = value.slice(0,k);
+            }
         }
     }
     var t = t || 'T';

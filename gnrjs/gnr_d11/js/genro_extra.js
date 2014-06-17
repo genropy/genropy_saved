@@ -87,7 +87,10 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
             var mode = cmAttrs.mode;
             var theme = cmAttrs.theme;
             var cb2 = function(){
+                dojo.style(widget,{position:'relative'})
                 var cm = CodeMirror(widget,cmAttrs);
+                dojo.style(widget.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
+                cm.refresh();
                 cm.sourceNode = sourceNode;
                 cm.gnr = that;
                 sourceNode.externalWidget = cm;
@@ -137,7 +140,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     var i =0;
                     CodeMirror.modes[mode].dependencies.forEach(function(dep){
                         i++;
-                        console.log('mode',dep,i,CodeMirror.modes[mode].dependencies.length)
                         if(CodeMirror.modes[mode].dependencies.length==i){
                             that.load_mode(dep,function(){
                                 setTimeout(function(){cb()},10);
@@ -148,13 +150,11 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                     });
                 }
                 else if(cb){
-                    console.log('cb1 afterload',mode)
                     cb()
                 }
             });
         }
         else if(cb){
-            console.log('cb1 else',mode)
             cb();
         }
     },
@@ -587,7 +587,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
     
     mixin_gnr_getFromDatastore : function() {
-        this.setData(this.sourceNode.getAttributeFromDatasource('value'));
+        this.setData(this.sourceNode.getAttributeFromDatasource('value') || '');
     },
 
     mixin_gnr_setInDatastore : function() {

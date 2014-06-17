@@ -50,16 +50,16 @@ dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
         //this.patchConsole();
+        kwargs = mapConvertFromText(kwargs);
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
         this.debug_py = kwargs.startArgs.debug_py;
-
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
-        this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
+        this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
         this.serverTimeDelta = this.serverTime - start_ts;
         this.lockingElements = {};

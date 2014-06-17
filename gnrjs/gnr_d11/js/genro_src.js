@@ -409,14 +409,25 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var nodeattr = node.attr;
                 var attrvalue;
                 var specialattr={}
+                var dflt;
                 for (var attr in nodeattr) {
                     attrvalue = nodeattr[attr];
                     if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
-                        var dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
-                        if(dflt && node.attr.dtype){
+                        if (attr=='value'){
+                            dflt = nodeattr['default'] || nodeattr['default_value'];
+                            if(dflt==undefined){
+                                dflt = '';
+                            }
+                        }else{
+                            dflt = nodeattr['default_' + attr];
+                        }
+                        if((typeof(dflt)=='string' ) && node.attr.dtype){
                             dflt = convertFromText(dflt,node.attr.dtype);
                         }
-                        node.getAttributeFromDatasource(attr, true, dflt);
+                        var currval=node.getAttributeFromDatasource(attr, true, dflt);
+                        if ((dflt!='') && ((currval=undefined)||(currval=''))){
+                            node.setAttributeInDatasource(attr, dflt)
+                        }
                     }
                     if(attr.indexOf('attr_')==0){
                         specialattr[attr.slice(5)] = attrvalue;
@@ -529,21 +540,24 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             var formulaProp = [];
             for (var prop in source) {
                 var val = source[prop];
-                if (typeof(val) == 'string') {
+                if (typeof(val) == 'string' && val.length>1) {
                     var dynval = stringStrip(val);
-                    if (dynval.indexOf('==') == 0) {
-                        formulaProp.push(prop);
-                        //val = funcApply("return "+dynval.slice(2),source,sourceNode);
-                    } else if ((dynval.indexOf('^') == 0) || (dynval.indexOf('=') == 0)) {
-                        path = dynval.slice(1);
-                        if (sourceNode) {
-                            path = sourceNode.absDatapath(path);
+                    var toConvert = ( (dynval[0] == '=') || (dynval[0]== '^') ) && !((prop in sourceNode.attr) && (sourceNode.attr[prop]!=dynval));
+                    if(toConvert){
+                        if (dynval.indexOf('==') == 0) {
+                            formulaProp.push(prop);
+                            //val = funcApply("return "+dynval.slice(2),source,sourceNode);
                         } else {
-                            if (path.indexOf('.') == 0) {
-                                throw "Unresolved relative path in dynamicParameters: " + path;
+                            path = dynval.slice(1);
+                            if (sourceNode) {
+                                path = sourceNode.absDatapath(path);
+                            } else {
+                                if (path.indexOf('.') == 0) {
+                                    throw "Unresolved relative path in dynamicParameters: " + path;
+                                }
                             }
+                            val = genro._data.getItem(path);
                         }
-                        val = genro._data.getItem(path);
                     }
                 } else if (typeof(val) == 'function') {
                     val = val();

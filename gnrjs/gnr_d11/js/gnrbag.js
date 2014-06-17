@@ -1353,7 +1353,11 @@ dojo.declare("gnr.GnrBag", null, {
     merge: function() {
     },
     
-    update:function(bagOrObj,mode){
+    update:function(bagOrObj,mode,reason){
+        var kwargs;
+        if (reason){
+            kwargs = {doTrigger:reason}
+        }
         if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
                 this.setItem(k,bagOrObj[k]);
@@ -1370,18 +1374,18 @@ dojo.declare("gnr.GnrBag", null, {
             }
             var currNode = that.getNode(n.label);
             if(currNode){
-                 currNode.updAttributes(n.attr);
+                 currNode.updAttributes(n.attr,reason);
                  currNodeValue = currNode.getValue();
                  if (node_resolver){
                      currNode.setResolver(node_resolver);
                  }
                  if ((node_value instanceof gnr.GnrBag) && (currNodeValue instanceof gnr.GnrBag)){
-                     currNodeValue.update(node_value)
+                     currNodeValue.update(node_value,mode,reason)
                  }else{
-                     currNode.setValue(node_value);
+                     currNode.setValue(node_value,reason);
                  }
             }else{
-                that.setItem(n.label,node_value,n.attr);
+                that.setItem(n.label,node_value,n.attr,kwargs);
             }
             
         },mode);
@@ -1893,9 +1897,7 @@ dojo.declare("gnr.GnrBag", null, {
                     }
                     else {
                         if (attrvalue.indexOf('::') >= 0) {
-                            aux = attrvalue.split('::');
-                            var dt = aux.pop();
-                            attrvalue = convertFromText(aux.join('::'), dt);
+                            attrvalue = convertFromText(attrvalue);
                         }
                         attributes[attrname] = attrvalue;
                     }
@@ -1919,9 +1921,7 @@ dojo.declare("gnr.GnrBag", null, {
                     if (convertAs != 'T') {
                         itemValue = convertFromText(itemValue, convertAs);
                     } else if (stringContains(itemValue, '::')) {
-                        itemValue = itemValue.split('::');
-                        convertAs = itemValue[1];
-                        itemValue = convertFromText(itemValue[0], convertAs);
+                        itemValue = convertFromText(itemValue);
                     }
                     if (convertAs == 'H') {
                         attributes.dtype = convertAs;

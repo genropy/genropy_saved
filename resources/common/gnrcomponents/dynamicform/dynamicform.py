@@ -406,12 +406,8 @@ class DynamicForm(BaseComponent):
         pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table.fullname,
                             _fired='^#FORM.changed_df_type_%s' %field,
                             df_pkey='=#FORM.record.%s' %df_field,datapath='#FORM.record.%s' %field,
-                            df_is_new='== !this.getRelativeData("#FORM.record.%s")' %field,
-                            _onRemote="""
-                                        //var dataNode = this.form.getFormData().popNode('%s');
-                                        //this.setRelativeData('#FORM.record.%s', dataNode._value);
-                                        this.form.checkInvalidFields();
-                                       """ %(df_field,df_field),
+                            df_is_new='==!this.getRelativeData("#FORM.record.%s")' %field,
+                            _onRemote="""this.form.checkInvalidFields();""",
                                        **kwargs)
   
 

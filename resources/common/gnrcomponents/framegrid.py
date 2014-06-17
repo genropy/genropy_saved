@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
 
 class FrameGridSlots(BaseComponent):
@@ -107,7 +107,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('sortedBy','^.sorted')
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows($1._counter,$1.evt);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
-        grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
+        #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           datapath='.grid',selectedId='.selectedId',
@@ -121,31 +121,47 @@ class FrameGrid(BaseComponent):
     @extract_kwargs(default=True,store=True)
     @struct_method
     def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
-                    pbl_classes=None,gridEditor=True,addrow=True,delrow=True,slots=None,store_kwargs=True,parentForm=None,**kwargs):
+                    pbl_classes=None,gridEditor=True,
+                    addrow=True,delrow=True,slots=None,
+                    autoToolbar=True,
+                    store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
         frame = pane.frameGrid(_newGrid=True,datamode='bag',title=title,**kwargs)
-        default_slots = []
-        title = title or ''
-        default_slots.append('5,vtitle')
-        default_slots.append('*')
-        if delrow:
-            default_slots.append('delrow')
-        if addrow:
-            default_slots.append('addrow')
-        slots = slots or ','.join(default_slots)
-        if pbl_classes:
-            bar = frame.top.slotBar(slots,vtitle=title,_class='pbl_roundedGroupLabel')
-        else:
-            bar = frame.top.slotToolbar(slots,vtitle=title)
-        if title:
-            bar.vtitle.div(title)
+        if autoToolbar:
+            default_slots = []
+            title = title or ''
+            default_slots.append('5,vtitle')
+            default_slots.append('*')
+            if delrow:
+                default_slots.append('delrow')
+            if addrow:
+                default_slots.append('addrow')
+            slots = slots or ','.join(default_slots)
+            if pbl_classes:
+                bar = frame.top.slotBar(slots,vtitle=title,_class='pbl_roundedGroupLabel')
+            else:
+                bar = frame.top.slotToolbar(slots,vtitle=title)
+            if title:
+                bar.vtitle.div(title)
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm)
         frame.store = store
         return frame
+
+    @public_method
+    def remoteRowControllerBatch(self,handlerName=None,rows=None,**kwargs):
+        handler = self.getPublicMethod('rpc',handlerName)
+        result = Bag()
+        if not handler:
+            return
+        for r in rows:
+            result.setItem(r.label,handler(row=r.value,row_attr=r.attr,**kwargs))
+        return result
+
+
 
 class BagGrid(BaseComponent):
     pass

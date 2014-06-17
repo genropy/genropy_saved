@@ -269,6 +269,9 @@ class GnrDomSrc(GnrStructData):
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: TODO"""
+        if childname and childname.startswith('^') and not 'value' in kwargs:
+            kwargs['value'] = childname
+            childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
             kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
@@ -350,7 +353,7 @@ class GnrDomSrc(GnrStructData):
         return self.center.contentPane(datapath='.record')
         
     @extract_kwargs(store=True)
-    def frameform(self, formId=None, frameCode=None, store=None, storeCode=None,
+    def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,
                   slots=None, table=None, store_kwargs=None, **kwargs):
         """TODO
         
@@ -377,6 +380,7 @@ class GnrDomSrc(GnrStructData):
                             namespace='form',storeCode=storeCode,table=table,
                             autoslots='top,bottom,left,right,center',**kwargs)
         if store:
+            store_kwargs['storeType'] = storeType
             if store is True:
                 store = 'recordCluster'
             store_kwargs['handler'] = store
@@ -660,6 +664,8 @@ class GnrDomSrc(GnrStructData):
         :param source: TODO"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
+    def input(self, value=None, **kwargs):
+        return self.child('input', value=value, **kwargs)
     
     def getMainFormBuilder(self):
         return getattr(self.parentNode,'_mainformbuilder',None)
@@ -823,7 +829,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
+             'FramePane', 'FrameForm','QuickGrid','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1000,6 +1006,30 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #self.data(storepath,Bag())
         return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
 
+    def fsStore(self,folders=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
+        """FileSystem Store
+        """
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        parent = self
+        if parentTag:
+            parentTag = parentTag.lower()
+        if parentTag =='includedview' or  parentTag =='newincludedview':
+            storepath = storepath or attr.get('storepath') or '.store'
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+            attr['tag'] = 'newincludedview'
+            parent = self.parent
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
+            attr['store'] = storeCode
+            storepath = storepath or attr.get('storepath') or '.store'
+        nodeId = '%s_store' %storeCode
+        return parent.child('SelectionStore',storepath=storepath,storeType='FileSystem',
+                            nodeId=nodeId,method='app.getFileSystemSelection',
+                            folders=folders,include=include,columns=columns,
+                            **kwargs)
+
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
         
@@ -1123,14 +1153,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def ckeditor(self,stylegroup=None,**kwargs):
         style_table = self.page.db.table('adm.ckstyle')
         if style_table:
-            cs = dict()
-            cs.update(style_table.query(where="$stylegroup IS NULL OR $stylegroup=''",g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if stylegroup:
-                for st in stylegroup.split(','):
-                    cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if cs:
-                kwargs['customStyles'] = [dict(v) for v in cs.values()]
-
+            customStyles = style_table.getCustomStyles(stylegroup=stylegroup)
+            if customStyles:
+                kwargs['customStyles'] = customStyles
         return self.child('ckEditor',**kwargs)
 
     def palettePane(self, paletteCode, datapath=None, **kwargs):
@@ -1468,7 +1493,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('radiobutton', label=label, **kwargs)
         
-    def checkbox(self, label=None, value=None, **kwargs):
+    def checkbox(self, value=None, label=None,**kwargs):
         """Return a :ref:`checkbox`: setting the value to true will check the box
         while false will uncheck it
         

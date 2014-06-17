@@ -11,3 +11,5 @@ pyro4
 argparse
 xlrd
 xlwt
+psutil
+sh

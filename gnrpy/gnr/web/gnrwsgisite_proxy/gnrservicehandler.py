@@ -42,7 +42,7 @@ class ServiceHandlerManager(object):
             return
         for service in services:
             kw = dict(service.attr)
-            resource = kw.pop('resource')
+            resource = kw.pop('resource',service.label)
             service_type = kw.pop('service_type',service.label)
             resmodule,resclass = resource.split(':') if ':' in resource else resource,'Main'
             modules = self.site.resource_loader.getResourceList(self.site.resources_dirs, 'services/%s/%s.py' %(service_type,resmodule))

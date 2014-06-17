@@ -9,6 +9,8 @@ from gnr.core.gnrsys import expandpath
 import atexit
 import sys
 import os
+import urllib
+import time
 
 import Pyro4
 
@@ -22,6 +24,11 @@ def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,sto
     print 'starting'
     server.start(host=host,hmac_key=hmac_key,port='*',autorestore=autorestore)
 
+def createHeartBeat(site_url=None,interval=None,**kwargs):
+    server = GnrHeartBeat(site_url=site_url,interval=interval,**kwargs)
+    time.sleep(interval)
+    server.start()
+
 def getFullOptions(options=None):
     if sys.platform == 'win32':
         gnr_path = '~\gnr'
@@ -34,6 +41,30 @@ def getFullOptions(options=None):
         if v:
             env_options[k] = v
     return env_options
+
+class GnrHeartBeat(object):
+    def __init__(self,site_url=None,interval=None,**kwargs):
+        self.interval = interval
+        self.site_url = site_url
+        self.url = "%s/task/heartbeat"%self.site_url
+
+    def start(self):
+        while True:
+            try:
+                response = urllib.urlopen(self.url)
+                response_code = response.getcode() 
+                if response_code!=200:
+                    self.retry('WRONG CODE %i' %response_code)   
+                else:                
+                    time.sleep(self.interval)
+            except IOError:
+                self.retry('IOError')
+
+    def retry(self,reason):                
+        print '%s -> will retry in %i seconds' %(reason,3*self.interval)
+        time.sleep(3*self.interval)
+
+
 
 class GnrDaemonProxy(object):
     def __init__(self,host=None,port=None,hmac_key=None,compression=True,use_environment=False,serializer='pickle'):
@@ -103,16 +134,19 @@ class GnrDaemon(object):
     def onRegisterStop(self,sitename=None):
         print 'onRegisterStop',sitename
         self.siteregisters.pop(sitename,None)
-        self.siteregisters_process.pop(sitename,None)
+        process_dict = self.siteregisters_process.pop(sitename,None)
+        if process_dict and process_dict['heartbeat']:
+            process_dict['heartbeat'].terminate()
         
     def ping(self,**kwargs):
         return 'ping'
     
-    def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,**kwargs):
+    def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,heartbeat_options=None,**kwargs):
         if sitename in self.siteregisters and self.siteregisters[sitename]['server_uri']:
             return self.siteregisters[sitename]
         elif create:
-            self.addSiteRegister(sitename,storage_path=storage_path,autorestore=autorestore)
+            self.addSiteRegister(sitename,storage_path=storage_path,autorestore=autorestore,
+                                    heartbeat_options=heartbeat_options)
             return dict()
         
     def stop(self,saveStatus=False,**kwargs):
@@ -124,18 +158,21 @@ class GnrDaemon(object):
     def restart(self,**kwargs):
         self.stop(saveStatus=True)
 
-
     
-    def addSiteRegister(self,sitename,storage_path=None,autorestore=False):
+    def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
-            print 'adding sitename',sitename
             process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key,
                                     storage_path=storage_path,autorestore=autorestore)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,register_uri=False,start_ts=datetime.now())
-            self.siteregisters_process[sitename] = childprocess
             childprocess.daemon = True
             childprocess.start()
+            hbprocess = None
+            if heartbeat_options:
+                hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
+                hbprocess.start()
+            self.siteregisters_process[sitename] = dict(register = childprocess,heartbeat=hbprocess)
+
         else:
             print 'ALREADY EXISTING ',sitename
 

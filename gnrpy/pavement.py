@@ -27,7 +27,7 @@ setup(
         author_email='info@genropy.org',
         license='LGPL',
         scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmkthresource','../scripts/gnrmksite','../scripts/gnrxml2py', '../scripts/gnrheartbeat', '../scripts/gnrmkpackage',
-                 '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon',
+                 '../scripts/gnrwsgiserve','../scripts/gnruwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon', '../scripts/gnrsql2py',
                  '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrdbsetupparallel', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
                  '../scripts/gnr'],
         packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql'],

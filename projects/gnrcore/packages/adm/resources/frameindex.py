@@ -290,7 +290,7 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
+                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
                        
@@ -496,7 +496,6 @@ class FramedIndexLogin(BaseComponent):
         pane = sc.contentPane(overflow='hidden',pageName='frontpage') 
         homePageHandler = getattr(self,'homePagePane',None)
         loginOnBuilt= homePageHandler is None
-
         if homePageHandler:
             homePageHandler(pane)
 
@@ -579,7 +578,7 @@ class FramedIndexLogin(BaseComponent):
                             startPage=self._getStartPage(new_window))
 
 
-        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
         dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:.95})",subscribe_failed_login_msg=True,sn=dlg)
 
         footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
@@ -599,30 +598,28 @@ class FramedIndexLogin(BaseComponent):
 
 
         footer.dataController("""
-        btn.setAttribute('disabled',true);
-        var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
-        if (!result){
-            genro.publish('failed_login_msg',{'message':error_msg});
-            btn.setAttribute('disabled',false);
-        }else if(result.error){
-            genro.publish('failed_login_msg',{'message':result.error});
-            btn.setAttribute('disabled',false);
-        }else{
-            dlg.hide();
-            rootpage = rootpage || result['rootpage'];
-            if(rootpage){
-                genro.gotoURL(rootpage);
+        dlg.hide();
+        genro.lockScreen(true,'login');
+        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
+            genro.lockScreen(false,'login');
+            if (!result || result.error){
+                dlg.show();
+                genro.publish('failed_login_msg',{'message':result?result.error:error_msg});
+            }else{
+                rootpage = rootpage || result['rootpage'];
+                if(rootpage){
+                    genro.gotoURL(rootpage);
+                }
+                if(loginOnBuilt){
+                    genro.publish('openApplicationPage');
+                }
+                genro.publish('logged');
             }
-            if(loginOnBuilt){
-                PUBLISH openApplicationPage;
-            }
-            
-            genro.publish('logged');
-        }
+        },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
             rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,btn=btn.js_widget,_delay=1)  
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,_delay=1)  
         return dlg
 
     @public_method

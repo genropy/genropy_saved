@@ -904,7 +904,7 @@
 }
 
 
-.tundra .dijitSplitter.dijitSplitterV:hover{
+.tundra .dijitSplitter.dijitSplitterV:hover,.tundra .dijitSplitter.dijitSplitterH:hover{
     background:silver;
     opacity:.5;
 }
@@ -913,6 +913,7 @@
     height:4px;
     background: transparent;
 }
+
 
 .tundra._common_d11 .dijitSplitterThumb{
     display:none;

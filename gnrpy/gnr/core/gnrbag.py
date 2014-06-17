@@ -2654,7 +2654,7 @@ class DirectoryResolver(BagResolver):
     
     def load(self):
         """TODO"""
-        extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')])
+        extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')]) if self.ext else dict()
         extensions['directory'] = 'directory'
         result = Bag()
         try:

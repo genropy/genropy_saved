@@ -1557,8 +1557,7 @@ class GnrWebPage(GnrBaseWebPage):
             page.dock(id='dummyDock',display='none')
 
             root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
-                                        nodeId='_gnrRoot',_class='hideSplitter notvisible',
-                                        subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
+                                        nodeId='_gnrRoot',subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
             
             typekit_code = self.site.config['gui?typekit']
             if typekit_code and False:
@@ -1899,11 +1898,23 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             if ext=='.xml':
                 content = Bag(path)
-            else:
+            elif os.path.exists(path):
                 with open(path) as f:
                     content = f.read()
+            else:
+                content = ''
         result.setItem('content',content)
         return result
+
+    @public_method
+    def saveSiteDocument(self,path=None,data=None):
+        filename,ext =os.path.splitext(path)
+        if ext == '.xml':
+            data.toXml(filename=path)
+        else:
+            with open(path,'w') as f:
+                f.write(data['content'])
+
 
     def isLocalizer(self):
         """TODO"""
