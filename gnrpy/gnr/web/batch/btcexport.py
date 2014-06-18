@@ -14,14 +14,15 @@ class CsvWriter(object):
     """docstring for CsVWriter"""
 
     def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,locale=None):
-        self.headers = headers
+        self.headers = headers or []
         self.columns = columns
         self.coltypes = coltypes
         self.filepath = filepath
         self.locale = locale
+        self.result = []
 
-    def writeHeaders(self):
-        self.result = ['\t'.join(self.headers)]
+    def writeHeaders(self, separator='\t'):
+        self.result = [separator.join(self.headers)]
 
     def cleanCol(self, txt, dtype):
         txt = txt.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('"', "'")
@@ -32,8 +33,8 @@ class CsvWriter(object):
                 txt = '%s' % txt # how to escape numbers in text columns?
         return txt
 
-    def writeRow(self, row):
-        self.result.append('\t'.join([self.cleanCol(toText(row.get(col),locale=self.locale), self.coltypes[col]) for col in self.columns]))
+    def writeRow(self, row, separator='\t'):
+        self.result.append(separator.join([self.cleanCol(toText(row.get(col),locale=self.locale), self.coltypes[col]) for col in self.columns]))
 
     def workbookSave(self):
         f = open(self.filepath, 'w')
