@@ -54,9 +54,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var newpage = this.getMainSource();
         var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
         var node = genro.nodeById(nodeId);
-        node.freeze();
+        //node.freeze();
         node.setValue(newcontent);
-        node.unfreeze();
+        //node.unfreeze();
     },
 
     highlightNode:function(sourceNode) {

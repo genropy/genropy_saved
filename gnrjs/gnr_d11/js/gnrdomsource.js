@@ -606,6 +606,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if (path.indexOf('.') == 0) {
             console.error('unresolved relativepath ' + path);
+            debugger
         }
         path = path.replace('.?', '?');
         if (path.indexOf('#parent') > 0) {
@@ -806,6 +807,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _onDeleting:function(){
         if(this.form){
             this.form.unregisterChild(this);
+        }
+        if (this._timing){
+            clearInterval(this._timing)
         }
         if(this.watches){
             for(var w in this.watches){
