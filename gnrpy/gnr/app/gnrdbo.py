@@ -786,14 +786,22 @@ class TableBase(object):
             return []
         return [k[8:] for k in dir(self) if k.startswith('counter_')]
 
-    def trigger_releaseCounters(self,record=None):
+    def getCounterPars(self,field,record=None):
+        return getattr(self,'counter_%s' %field)(record=record)
+
+
+    def trigger_releaseCounters(self,record=None,backToDraft=None):
         for field in self.counterColumns():
-            self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+            if not backToDraft or not self.getCounterPars(field,record).get('assignIfDraft'):
+                self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
     def trigger_assignCounters(self,record=None,old_record=None):
         "Inside dbo"
-        for field in self.counterColumns():
-            self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
+        if old_record and self.isDraft(record) and not self.isDraft(old_record):
+            self.trigger_releaseCounters(record,backToDraft=True)
+        else:
+            for field in self.counterColumns():
+                self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
 
     def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():

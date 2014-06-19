@@ -46,7 +46,7 @@ class GnrHeartBeat(object):
     def __init__(self,site_url=None,interval=None,**kwargs):
         self.interval = interval
         self.site_url = site_url
-        self.url = "%s/task/heartbeat"%self.site_url
+        self.url = "%s/sys/heartbeat"%self.site_url
 
     def start(self):
         while True:

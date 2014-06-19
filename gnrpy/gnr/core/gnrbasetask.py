@@ -15,8 +15,8 @@ def testTask(site_name=None, table_name=None, command=None, parameters=None):
     from webob import Request, Response
     
     site = GnrWsgiSite(site_name)
-    request = Request.blank('/task/heartbeat')
+    request = Request.blank('/sys/heartbeat')
     response = Response()
-    page = site.resource_loader(['task','heartbeat'], request, response)
-    site.db.table('task.task').runTask(dict(table_name=table_name, command=command, parameters=parameters,log_result=None), page=page)
+    page = site.resource_loader(['sys','heartbeat'], request, response)
+    site.db.table('sys.task').runTask(dict(table_name=table_name, command=command, parameters=parameters,log_result=None), page=page)
     site.cleanup()

@@ -108,7 +108,7 @@ if __name__ == '__main__':
         site_url=get_site_url(site_name)
     else:
         site_url=site_name
-    url = "%s/task/heartbeat"%site_url
+    url = "%s/sys/heartbeat"%site_url
     while True:
         if options.verbose:
             print 'Calling url %s'%url

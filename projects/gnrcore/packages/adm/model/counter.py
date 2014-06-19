@@ -126,6 +126,10 @@ class Table(object):
             cnt = int(r['cnt'])
             if date_field:
                 rdate = r[date_field]
+                if not rdate:
+                    print 'missing date'
+                    errors.setItem('missing_date.%i' %i,None,cnt=cnt)
+                    continue
                 if prev_date and prev_date>rdate:
                     err = dict(record_id=r['pkey'])
                     err['cnt'] = cnt
@@ -278,6 +282,7 @@ class Table(object):
             raise self.exception('business_logic',msg='!!Missing %s. Mandatory for counter %s' %(date_field,field))
         with self.recordToUpdate(codekey,mode='record') as counter_record:
             sequence = record[field]
+            record[field] = None
             releasing_counter = int(sequence[N_start:N_end])
             if releasing_counter==counter_record['counter']:
                 counter_record['counter'] -= 1
@@ -297,7 +302,7 @@ class Table(object):
                         break
                 if releasing_counter is not None:
                     holes.setItem(str(releasing_counter),None,cnt_from=releasing_counter,cnt_to=releasing_counter,date_from=date,date_to=date)
-            
+    
         
     def getYmd(self, date, phyear=False):
         """Return a tuple (year, month, date) of strings from a date.
