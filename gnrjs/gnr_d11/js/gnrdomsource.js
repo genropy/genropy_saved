@@ -390,8 +390,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     expr = (tag == 'dataformula') ? 'return ' + expr : expr;
                     result = funcCreate(expr, (['_kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }
-                if (dataNode) { // if it has a dataNode set it to the returned value
-                    dataNode.setValue(result);
+                if (destinationPath) { // if it has a dataNode set it to the returned value
+                    this.setRelativeData(destinationPath,result);
+                    //dataNode.setValue(result);
                 }
             }
         }
