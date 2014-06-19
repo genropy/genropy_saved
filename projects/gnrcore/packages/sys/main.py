@@ -20,9 +20,12 @@ class Package(GnrDboPackage):
             tasktbl = db.table('sys.task')
             new_tasks = tasktbl.query().fetch()
             if not new_tasks:
-                for task in db.table('task.task').query().fetch():
-                    new_tasks.insert(dict(task))
-                db.commit()
+                oldtasks = db.table('task.task').query().fetch()
+                if oldtasks:
+                    print '******* moving task records: FROM task package to sys package *******'
+                    for task in oldtasks:
+                        tasktbl.insert(dict(task))
+                    db.commit()
 
 class Table(GnrDboTable):
     pass
