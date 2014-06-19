@@ -1806,6 +1806,13 @@ class Bag(GnrObject):
 
         elif isinstance(source, Bag):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
+            
+        elif hasattr(source, 'items'):
+            for key, value in source.items():
+                if hasattr(value, 'items'):
+                    value = Bag(value)
+                self.setItem(key, value)
+        
         elif isinstance(source, list) or isinstance(source, tuple):
             if len(source) > 0:
                 if not (isinstance(source[0], list) or isinstance(source[0], tuple)):
@@ -1815,11 +1822,6 @@ class Bag(GnrObject):
                         self.setItem(x[0], x[1], _attributes=x[2])
                     else:
                         self.setItem(x[0], x[1])
-        elif hasattr(source, 'items'):
-            for key, value in source.items():
-                if hasattr(value, 'items'):
-                    value = Bag(value)
-                self.setItem(key, value)
 
     def _fromSource(self, source, fromFile, mode):
         """Receive "mode" and "fromFile" and switch between the different
