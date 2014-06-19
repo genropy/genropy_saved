@@ -380,7 +380,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     },
     createHtmlElement:function(domnode, attributes, kw, sourceNode) {
         var innerHTML = objectPop(attributes, 'innerHTML');
-        if ((!innerHTML) && sourceNode) {
+        if ((innerHTML==undefined) && sourceNode) {
             var template = objectPop(attributes, 'template');
             if (template) {
                 objectPop(attributes, 'datasource');
@@ -412,7 +412,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         for (var oneattr in attributes) {
             domnode.setAttribute(oneattr, attributes[oneattr]);
         }
-        if (innerHTML) {
+        if (innerHTML!=undefined) {
             domnode.innerHTML = innerHTML;
         }
         return domnode;
