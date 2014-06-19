@@ -29,17 +29,10 @@ class TaskHandler(GnrBaseService):
     
     def __init__(self, parent=None):
         self.site = parent
-        #if not 'task' in self.site.gnrapp.packages:
-        #    warnings.warn("[task] task package missing",
-        #                  stacklevel=2)
         self.db = self.site.gnrapp.db
     
     def addTask(self, tableName=None,taskName=None,command=None,month=None,day=None,
                     weekday=None,hour=None,minute=None,parameters=None):
-        if not 'task' in self.site.gnrapp.packages:
-            warnings.warn("[task] trying to use taskHandler but task package is missing",
-                          stacklevel=2)
-            return
         new_task=dict()
         new_task['table_name']=tableName
         new_task['task_name']=taskName
@@ -51,9 +44,9 @@ class TaskHandler(GnrBaseService):
         new_task['minute']=minute
         new_task['parameters']=parameters
         with self.db.tempEnv(connectionName='system'):
-            self.db.table('task.task').insert(new_task)
+            self.db.table('sys.task').insert(new_task)
             self.db.commit()
     
     def listTask(self, table=None):
-        return self.db.table('task.task').query(where='$table_name ILIKE :tbl_name',tbl_name='"%%%s%%"'%table)
+        return self.db.table('sys.task').query(where='$table_name ILIKE :tbl_name',tbl_name='"%%%s%%"'%table)
         

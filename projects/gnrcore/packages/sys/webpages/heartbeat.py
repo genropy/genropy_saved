@@ -9,4 +9,4 @@ class GnrCustomWebPage(object):
     def rootPage(self,*args, **kwargs):
         self.response.content_type = 'application/xml'
         request_method = self.request.method
-        self.db.table('task.task').runScheduled(self)
+        self.db.table('sys.task').runScheduled(self)

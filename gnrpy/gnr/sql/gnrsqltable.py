@@ -1356,7 +1356,7 @@ class SqlTable(GnrObject):
 
     def isDraft(self,record):
         if self.draftField:
-            return record[self.draftField]
+            return record.get(self.draftField)
         return False
 
 

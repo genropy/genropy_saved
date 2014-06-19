@@ -12,7 +12,7 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('task_name',width='10em') # char(4)
         r.fieldcell('table_name',width='10em')
-        r.fieldcell('stopped',semaphore=True)
+        r.fieldcell('stopped',inv_semaphore=True)
         r.fieldcell('command',width='15em')
         r.fieldcell('month',width='20em')
         r.fieldcell('day',width='15em')

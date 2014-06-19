@@ -1045,6 +1045,15 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw.storepath = sourceNode.absDatapath(value);
+        sourceNode._('tree',kw);
+    }
+
+});
+
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
@@ -1052,7 +1061,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.formats = objectExtract(kw,'format_*');
         sourceNode.attr._workspace = true;
-        var valuepath = value.slice(1);
+        var valuepath = sourceNode.absDatapath(value);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
         kw.datamode='bag';
@@ -1064,7 +1073,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
         sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
-                        nodeId:kw.nodeId+'_store'});
+                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
         var grid = sourceNode._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setFormat(currentFormat);
