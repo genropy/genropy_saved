@@ -1170,6 +1170,8 @@ class SqlTable(GnrObject):
                     getattr(self, 'trigger_%s' % trgFunc)(record, fldname=fldname,**kwargs)
                 
     def _doExternalPkgTriggers(self, triggerEvent, record,**kwargs):
+        if not self.db.application:
+            return
         for pkg_id in self.db.application.packages.keys():
             trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
             if callable(trgFunc):
