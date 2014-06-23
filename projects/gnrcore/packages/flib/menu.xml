@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+   <categories label="!!Categories" file="/flib/categories"/>
+   <item_uploader label="!!Item uploader" file="/flib/item_uploader"/>
+   <items label="!!Items" table='flib.item'/>
+</GenRoBag>

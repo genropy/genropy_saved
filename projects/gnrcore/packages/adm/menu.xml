@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<adm label="!!Administration" tags='admin'>
+    <users label="!!Users" file='/adm/user_page' />
+    <tags label="!!Auth tags" table='adm.htag' />
+    <letterhead label="!!Letterheads" table="adm.htmltemplate" />
+    <notifications label="!!Notifications" table="adm.notification"/>
+    <menu_manager label="!!Menu Manager" table="adm.menu"/>
+    <menu_pages label="!!Menu Pages" table="adm.menu_page"/>
+    <datacatalog label="!!Datacatalog" table="adm.datacatalog"/>
+    <utility label="!!Utility tables" lookup_manager='adm'/>
+    <counter label="!!Counter" table="adm.counter"/>
+</adm>

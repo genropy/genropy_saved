@@ -1,0 +1,269 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><administration_tool _T="NN" en="Administration Tool" it="Amministrazione sistema"></administration_tool>
+<administration _T="NN" _key="Administration" it="Amministrazione"></administration>
+<user _T="NN" _key="User" it="Utente"></user>
+<isert_date _T="NN" _key="Isert date" it="Data Inserimento"></isert_date>
+<update_date _T="NN" _key="Update date" it="Data aggiornamento"></update_date>
+<username _T="NN" _key="Username" it="Nome utente"></username>
+<name_first _T="NN" _key="First name" it="Nome"></name_first>
+<name_last _T="NN" _key="Last name" it="Cognome"></name_last>
+<registration_date _T="NN" _key="Registration Date" it="Data di registrazione"></registration_date>
+<authorization_tags _T="NN" _key="Authorization Tags" it="Codici di autorizzazione"></authorization_tags>
+<waiting _T="NN" _key="Waiting" it="In attesa"></waiting>
+<confirmed _T="NN" _key="Confirmed" it="Confermato"></confirmed>
+<status _T="NN" _key="Status" it="Stato"></status>
+<adm _T="NN" _key="Adm" it="Amministrazione"></adm>
+<pages _T="NN" _key="Pages" it="Pagine"></pages>
+<change_password _T="NN" _key="Change password" it="Cambia Password"></change_password>
+<login _T="NN" _key="Login" it="Entra"></login>
+<cancel _T="NN" _key="Cancel" it="Annulla"></cancel>
+<confirm _T="NN" _key="Confirm" it="Ok"></confirm>
+<user_unknown_or_wrong_password _T="NN" _key="User unknown or wrong password" it="Utente o password errati"></user_unknown_or_wrong_password>
+<password_lost_q _T="NN" _key="Password lost?" it="Password dimenticata?"></password_lost_q>
+<password_lost _T="NN" _key="Password lost" it="Password dimenticata"></password_lost>
+<new_user _T="NN" _key="New user" it="Registrazione nuovo utente"></new_user>
+<registration_page _T="NN" _key="Register" it="Registrati"></registration_page>
+<registration_expired _T="NN" _key="Your registration expired, please register again." it="La tua registrazione è scaduta, per favore registrati nuovamente."></registration_expired>
+<registration_complete _T="NN" _key="Your registration is complete, thank you!" it="Grazie per esserti registrato, ora puoi accedere al sito!"></registration_complete>
+<registration_thanks _T="NN" _key="Thank you for registering ^.fullname" it="Grazie per la registrazione ^.fullname"></registration_thanks>
+<registration_mail_sent _T="NN" _key="An email was sent to you" it="Ti è stata spedita una mail di conferma"></registration_mail_sent>
+<registration_mail_sent_2 _T="NN" _key="Please check your email to complete the registration." it="Controlla nella posta (anche nello spam) e non appena avrai completato la registrazione potrai accedere al sito."></registration_mail_sent_2>
+<sending_password _T="NN" _key="We are sending you a new password..." it="Invio nuova password in corso..."></sending_password>
+<confirmation_email _T="NN" _key="A confirmation email was sent to:" it="Ti è stata spedita una mail di conferma all'indirizzo:"></confirmation_email>
+<confirmation_email_2 _T="NN" _key="Read instruction in the email to receive a new password" it="Segui le istruzioni nella mail per ricevere i tuoi dati di accesso"></confirmation_email_2>
+<modify_user _T="NN" _key="Modify user" it="Modifica utente"></modify_user>
+<saving _T="NN" _key="Saving..." it="Salvataggio in corso..."></saving>
+<user_profile_saved _T="NN" _key="User profile saved" it="Profilo utente salvato"></user_profile_saved>
+<new_password _T="NN" _key="New password" it="Nuova password"></new_password>
+<Confirm_password _T="NN" _key="Confirm password" it="Conferma password"></Confirm_password>
+<Confirm_password_error _T="NN" _key="The passwords doesn't match" it="La password di conferma digitata è differente dalla nuova."></Confirm_password_error>
+<AND _T="NN" _key="AND" fr="" en="" de=""></AND>
+<Actions _T="NN" _key="Actions" fr="" en="" de=""></Actions>
+<Add _T="NN" _key="Add" fr="" en="" de=""></Add>
+<Ambulatori _T="NN" _key="Ambulatori" fr="" en="" de=""></Ambulatori>
+<Appuntamenti _T="NN" _key="Appuntamenti" fr="" en="" de=""></Appuntamenti>
+<Archivi _T="NN" _key="Archivi" fr="" en="" de=""></Archivi>
+<Are_you_sure_to_delete_ _T="NN" _key="Are you sure to delete ?" fr="" en="" de=""></Are_you_sure_to_delete_>
+<Back _T="NN" _key="Back" fr="" en="" de=""></Back>
+<Between _T="NN" _key="Between" fr="" en="" de=""></Between>
+<Calendario _T="NN" _key="Calendario" fr="" en="" de=""></Calendario>
+<Choose_the_action_to_execute_ _T="NN" _key="Choose the action to execute: " fr="" en="" de=""></Choose_the_action_to_execute_>
+<Code _T="NN" _key="Code" fr="" en="" de=""></Code>
+<Commands _T="NN" _key="Commands" fr="" en="" de=""></Commands>
+<Confirm_record_deletion _T="NN" _key="Confirm record deletion" fr="" en="" de=""></Confirm_record_deletion>
+<Contains _T="NN" _key="Contains" fr="" en="" de=""></Contains>
+<Convenzioni _T="NN" _key="Convenzioni" fr="" en="" de=""></Convenzioni>
+<Default_Language _T="NN" _key="Default Language" fr="" en="" de=""></Default_Language>
+<Delete _T="NN" _key="Delete" fr="" en="" de=""></Delete>
+<Delete_query _T="NN" _key="Delete query" fr="" en="" de=""></Delete_query>
+<Delete_view _T="NN" _key="Delete view" fr="" en="" de=""></Delete_view>
+<Description _T="NN" _key="Description" fr="" en="" de=""></Description>
+<Do_you_really_want_to_delete_the_query_ _T="NN" _key="Do you really want to delete the query: " fr="" en="" de=""></Do_you_really_want_to_delete_the_query_>
+<Doesn_t_contain _T="NN" _key="Doesn't contain" fr="" en="" de=""></Doesn_t_contain>
+<Email _T="NN" _key="Email" fr="" en="" de=""></Email>
+<Equal_to _T="NN" _key="Equal to" fr="" en="" de=""></Equal_to>
+<Export _T="NN" _key="Export" fr="" en="" de=""></Export>
+<Export_or_Print_the_selection _T="NN" _key="Export or Print the selection" fr="" en="" de=""></Export_or_Print_the_selection>
+<Fatture _T="NN" _key="Fatture" fr="" en="" de=""></Fatture>
+<First _T="NN" _key="First" fr="" en="" de=""></First>
+<Firstname _T="NN" _key="Firstname" fr="" en="" de=""></Firstname>
+<Forget_changes _T="NN" _key="Forget changes" fr="" en="" de=""></Forget_changes>
+<Gestione_utenti _T="NN" _key="Gestione utenti" fr="" en="" de=""></Gestione_utenti>
+<Greater_or_equal_to _T="NN" _key="Greater or equal to" fr="" en="" de=""></Greater_or_equal_to>
+<Greater_than _T="NN" _key="Greater than" fr="" en="" de=""></Greater_than>
+<Hidden _T="NN" _key="Hidden" fr="" en="" de=""></Hidden>
+<In _T="NN" _key="In" fr="" en="" de=""></In>
+<Insert_date _T="NN" _key="Insert date" fr="" en="" de=""></Insert_date>
+<Invalid_data_please_check_the_form_ _T="NN" _key="Invalid data, please check the form." fr="" en="" de=""></Invalid_data_please_check_the_form_>
+<Is_not_null _T="NN" _key="Is not null" fr="" en="" de=""></Is_not_null>
+<Is_null _T="NN" _key="Is null" fr="" en="" de=""></Is_null>
+<Last _T="NN" _key="Last" fr="" en="" de=""></Last>
+<Lastname _T="NN" _key="Lastname" fr="" en="" de=""></Lastname>
+<Less_or_equal_to _T="NN" _key="Less or equal to" fr="" en="" de=""></Less_or_equal_to>
+<Less_than _T="NN" _key="Less than" fr="" en="" de=""></Less_than>
+<List_view _T="NN" _key="List view" fr="" en="" de=""></List_view>
+<Lock _T="NN" _key="Lock" fr="" en="" de=""></Lock>
+<Logical_delete_date _T="NN" _key="Logical delete date" fr="" en="" de=""></Logical_delete_date>
+<Logout _T="NN" _key="Logout" fr="" en="" de=""></Logout>
+<Mail _T="NN" _key="Mail" fr="" en="" de=""></Mail>
+<Manage_user _T="NN" _key="Manage user" fr="" en="" de=""></Manage_user>
+<Manage_users _T="NN" _key="Manage users" fr="" en="" de=""></Manage_users>
+<Mandatory_field _T="NN" _key="Mandatory field" fr="" en="" de=""></Mandatory_field>
+<Medici _T="NN" _key="Medici" fr="" en="" de=""></Medici>
+<NOT _T="NN" _key="NOT" fr="" en="" de=""></NOT>
+<New_query _T="NN" _key="New query" fr="" en="" de=""></New_query>
+<New_view _T="NN" _key="New view" fr="" en="" de=""></New_view>
+<Next _T="NN" _key="Next" fr="" en="" de=""></Next>
+<No_change_to_save_ _T="NN" _key="No change to save." fr="" en="" de=""></No_change_to_save_>
+<Not_in _T="NN" _key="Not in" fr="" en="" de=""></Not_in>
+<OR _T="NN" _key="OR" fr="" en="" de=""></OR>
+<Op_ _T="NN" _key="Op." fr="" en="" de=""></Op_>
+<PasswordMD5 _T="NN" _key="PasswordMD5" fr="" en="" de=""></PasswordMD5>
+<Pazienti _T="NN" _key="Pazienti" fr="" en="" de=""></Pazienti>
+<Pdf _T="NN" _key="Pdf" fr="" en="" de=""></Pdf>
+<Permissions _T="NN" _key="Permissions" fr="" en="" de=""></Permissions>
+<Preferences _T="NN" _key="Preferences" fr="" en="" de=""></Preferences>
+<Prestazioni _T="NN" _key="Prestazioni" fr="" en="" de=""></Prestazioni>
+<Previous _T="NN" _key="Previous" fr="" en="" de=""></Previous>
+<Print _T="NN" _key="Print" fr="" en="" de=""></Print>
+<Private _T="NN" _key="Private" fr="" en="" de=""></Private>
+<Queries _T="NN" _key="Queries" fr="" en="" de=""></Queries>
+<Query _T="NN" _key="Query" fr="" en="" de=""></Query>
+<Record_deleted _T="NN" _key="Record deleted" fr="" en="" de=""></Record_deleted>
+<Record_saved _T="NN" _key="Record saved" fr="" en="" de=""></Record_saved>
+<Regular_expression _T="NN" _key="Regular expression" fr="" en="" de=""></Regular_expression>
+<Revert _T="NN" _key="Revert" fr="" en="" de=""></Revert>
+<Run_query _T="NN" _key="Run query" fr="" en="" de=""></Run_query>
+<Save _T="NN" _key="Save" fr="" en="" de=""></Save>
+<Save_changes _T="NN" _key="Save changes" fr="" en="" de=""></Save_changes>
+<Save_query _T="NN" _key="Save query" fr="" en="" de=""></Save_query>
+<Save_view _T="NN" _key="Save view" fr="" en="" de=""></Save_view>
+<Show_hidden_records _T="NN" _key="Show hidden records" fr="" en="" de=""></Show_hidden_records>
+<Specialit_ _T="NN" _key="Specialità" fr="" en="" de=""></Specialit_>
+<Starts_with _T="NN" _key="Starts with" fr="" en="" de=""></Starts_with>
+<Tabelle _T="NN" _key="Tabelle" fr="" en="" de=""></Tabelle>
+<Tagname _T="NN" _key="Tagname" fr="" en="" de="" it="Codice di autorizzazione"></Tagname>
+<Tariffe _T="NN" _key="Tariffe" fr="" en="" de=""></Tariffe>
+<There_are_unsaved_changes _T="NN" _key="There are unsaved changes" fr="" en="" de="" it="Modifiche non salvate"></There_are_unsaved_changes>
+<There_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ _T="NN" _key="There are unsaved changes, do you want to close the page without saving?" fr="" en="" de=""></There_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_>
+<Torna_alla_pagina_precedente _T="NN" _key="Torna alla pagina precedente" fr="" en="" de=""></Torna_alla_pagina_precedente>
+<Unlock _T="NN" _key="Unlock" fr="" en="" de=""></Unlock>
+<Unsaved_changes _T="NN" _key="Unsaved changes" fr="" en="" de=""></Unsaved_changes>
+<Value _T="NN" _key="Value" fr="" en="" de=""></Value>
+<Views _T="NN" _key="Views" fr="" en="" de=""></Views>
+<Warning _T="NN" _key="Warning" fr="" en="" de=""></Warning>
+<Word_start _T="NN" _key="Word start" fr="" en="" de=""></Word_start>
+<You_cannot_unlock_this_table _T="NN" _key="You cannot unlock this table" fr="" en="" de=""></You_cannot_unlock_this_table>
+<first_name _T="NN" _key="first name" fr="" en="" de="" it="Nome"></first_name>
+<last_name _T="NN" _key="last name" fr="" en="" de="" it="Cognome"></last_name>
+<saving_ _tag="saving__" _T="NN" _key="saving..." fr="" en="" de="" it="Salvataggio in corso..."></saving_>
+<Authorizations _T="NN" _key="Authorizations" fr="" en="" de=""></Authorizations>
+<Available_in_shortcuts _T="NN" _key="Available in shortcuts" fr="" en="" de=""></Available_in_shortcuts>
+<Caption _T="NN" _key="Caption" fr="" en="" de=""></Caption>
+<Comma_separated_list_of_auth_tags_ _T="NN" _key="Comma separated list of auth tags." fr="" en="" de=""></Comma_separated_list_of_auth_tags_>
+<Command _T="NN" _key="Command" fr="" en="" de=""></Command>
+<Connections _T="NN" _key="Connections" fr="" en="" de=""></Connections>
+<Crea_file_excel _T="NN" _key="Crea file excel" fr="" en="" de=""></Crea_file_excel>
+<Current_query_record_count _T="NN" _key="Current query record count" fr="" en="" de=""></Current_query_record_count>
+<Current_query_will_return_rec_items _T="NN" _key="Current query will return _rec_ items" fr="" en="" de=""></Current_query_will_return_rec_items>
+<Custom_query _T="NN" _key="Custom query" fr="" en="" de=""></Custom_query>
+<Custom_view _T="NN" _key="Custom view" fr="" en="" de=""></Custom_view>
+<Date _T="NN" _key="Date" fr="" en="" de=""></Date>
+<Delete_ _T="NN" _key="Delete " fr="" en="" de=""></Delete_>
+<Delete_list_of_values _T="NN" _key="Delete list of values" fr="" en="" de=""></Delete_list_of_values>
+<Dotted_path_and_name _T="NN" _key="Dotted path and name" fr="" en="" de=""></Dotted_path_and_name>
+<Edit_view _T="NN" _key="Edit view" fr="" en="" de=""></Edit_view>
+<Enter_a_list_of_values_ _T="NN" _key="Enter a list of values:" fr="" en="" de=""></Enter_a_list_of_values_>
+<Error _T="NN" _key="Error" fr="" en="" de=""></Error>
+<Errors_in_batch_execution _T="NN" _key="Errors in batch execution" fr="" en="" de=""></Errors_in_batch_execution>
+<Helper_TAG _T="NN" _key="Helper TAG" fr="" en="" de=""></Helper_TAG>
+<Is_false _T="NN" _key="Is false" fr="" en="" de=""></Is_false>
+<Is_null_or_empty _T="NN" _key="Is null or empty" fr="" en="" de=""></Is_null_or_empty>
+<Is_true _T="NN" _key="Is true" fr="" en="" de=""></Is_true>
+<Load _T="NN" _key="Load" fr="" en="" de=""></Load>
+<Mails _T="NN" _key="Mails" fr="" en="" de=""></Mails>
+<Messages _T="NN" _key="Messages" fr="" en="" de=""></Messages>
+<Name _T="NN" _key="Name" fr="" en="" de=""></Name>
+<Not_valid_data_Please_check_the_form _T="NN" _key="Not valid data. Please check the form" fr="" en="" de=""></Not_valid_data_Please_check_the_form>
+<Only_for_me_ _T="NN" _key="Only for me." fr="" en="" de=""></Only_for_me_>
+<Please_select_the_column _T="NN" _key="Please select the column" fr="" en="" de=""></Please_select_the_column>
+<Prints _T="NN" _key="Prints" fr="" en="" de=""></Prints>
+<Quicklist _T="NN" _key="Quicklist" fr="" en="" de=""></Quicklist>
+<Remove_filter _T="NN" _key="Remove filter" fr="" en="" de=""></Remove_filter>
+<Required _T="NN" _key="Required" fr="" en="" de=""></Required>
+<Review_changes _T="NN" _key="Review changes" fr="" en="" de=""></Review_changes>
+<Root_Page _T="NN" _key="Root Page" fr="" en="" de=""></Root_Page>
+<Save_as _T="NN" _key="Save as" fr="" en="" de=""></Save_as>
+<Save_list _T="NN" _key="Save list" fr="" en="" de=""></Save_list>
+<Saving_error _T="NN" _key="Saving error" fr="" en="" de=""></Saving_error>
+<Search _T="NN" _key="Search" fr="" en="" de=""></Search>
+<Select_view _T="NN" _key="Select view" fr="" en="" de=""></Select_view>
+<Set_Filter _T="NN" _key="Set Filter" fr="" en="" de=""></Set_Filter>
+<Set_filter _T="NN" _key="Set filter" fr="" en="" de=""></Set_filter>
+<Set_workdate _T="NN" _key="Set workdate" fr="" en="" de=""></Set_workdate>
+<Show_total_count _T="NN" _key="Show total count" fr="" en="" de=""></Show_total_count>
+<Starts_with_Chars _T="NN" _key="Starts with Chars" fr="" en="" de=""></Starts_with_Chars>
+<Stop _T="NN" _key="Stop" fr="" en="" de=""></Stop>
+<System _T="NN" _key="System" fr="" en="" de=""></System>
+<Tag_in _T="NN" _key="Tag in" fr="" en="" de=""></Tag_in>
+<User_tags _T="NN" _key="User tags" fr="" en="" de=""></User_tags>
+<Working__ _tag="Working___" _T="NN" _key="Working....." fr="" en="" de=""></Working__>
+<You_cannot_undo_this_operation_Are_you_sure_ _T="NN" _key="You cannot undo this operation. Are you sure?" fr="" en="" de=""></You_cannot_undo_this_operation_Are_you_sure_>
+<actions _T="NN" _key="actions" fr="" en="" de=""></actions>
+<add _T="NN" _key="add" fr="" en="" de=""></add>
+<and _T="NN" _key="and" fr="" en="" de=""></and>
+<are_you_sure_to_delete_ _T="NN" _key="are you sure to delete ?" fr="" en="" de=""></are_you_sure_to_delete_>
+<between _T="NN" _key="between" fr="" en="" de=""></between>
+<choose_the_action_to_execute_ _T="NN" _key="choose the action to execute: " fr="" en="" de=""></choose_the_action_to_execute_>
+<code _T="NN" _key="code" fr="" en="" de=""></code>
+<commands _T="NN" _key="commands" fr="" en="" de=""></commands>
+<confirm_record_deletion _T="NN" _key="confirm record deletion" fr="" en="" de=""></confirm_record_deletion>
+<contains _T="NN" _key="contains" fr="" en="" de=""></contains>
+<default_language _T="NN" _key="default language" fr="" en="" de=""></default_language>
+<delete _T="NN" _key="delete" fr="" en="" de=""></delete>
+<delete_query _T="NN" _key="delete query" fr="" en="" de=""></delete_query>
+<delete_view _T="NN" _key="delete view" fr="" en="" de=""></delete_view>
+<description _T="NN" _key="description" fr="" en="" de=""></description>
+<email _T="NN" _key="email" fr="" en="" de=""></email>
+<equal_to _T="NN" _key="equal to" fr="" en="" de=""></equal_to>
+<export _T="NN" _key="export" fr="" en="" de=""></export>
+<export_or_print_the_selection _T="NN" _key="export or print the selection" fr="" en="" de=""></export_or_print_the_selection>
+<first _T="NN" _key="first" fr="" en="" de=""></first>
+<firstname _T="NN" _key="firstname" fr="" en="" de=""></firstname>
+<forget_changes _T="NN" _key="forget changes" fr="" en="" de=""></forget_changes>
+<greater_or_equal_to _T="NN" _key="greater or equal to" fr="" en="" de=""></greater_or_equal_to>
+<greater_than _T="NN" _key="greater than" fr="" en="" de=""></greater_than>
+<in _T="NN" _key="in" fr="" en="" de=""></in>
+<insert_date _T="NN" _key="insert date" fr="" en="" de=""></insert_date>
+<invalid_data_please_check_the_form_ _T="NN" _key="invalid data, please check the form." fr="" en="" de=""></invalid_data_please_check_the_form_>
+<is_null _T="NN" _key="is null" fr="" en="" de=""></is_null>
+<last _T="NN" _key="last" fr="" en="" de=""></last>
+<lastname _T="NN" _key="lastname" fr="" en="" de=""></lastname>
+<less_or_equal_to _T="NN" _key="less or equal to" fr="" en="" de=""></less_or_equal_to>
+<less_than _T="NN" _key="less than" fr="" en="" de=""></less_than>
+<list_view _T="NN" _key="list view" fr="" en="" de=""></list_view>
+<lock _T="NN" _key="lock" fr="" en="" de=""></lock>
+<logical_delete_date _T="NN" _key="logical delete date" fr="" en="" de=""></logical_delete_date>
+<logout _T="NN" _key="logout" fr="" en="" de=""></logout>
+<manage_user _T="NN" _key="manage user" fr="" en="" de=""></manage_user>
+<manage_users _T="NN" _key="manage users" fr="" en="" de=""></manage_users>
+<mandatory_field _T="NN" _key="mandatory field" fr="" en="" de=""></mandatory_field>
+<medici _T="NN" _key="medici" fr="" en="" de=""></medici>
+<new_query _T="NN" _key="new query" fr="" en="" de=""></new_query>
+<new_view _T="NN" _key="new view" fr="" en="" de=""></new_view>
+<next _T="NN" _key="next" fr="" en="" de=""></next>
+<no_change_to_save_ _T="NN" _key="no change to save." fr="" en="" de=""></no_change_to_save_>
+<not _T="NN" _key="not" fr="" en="" de=""></not>
+<op_ _T="NN" _key="op." fr="" en="" de=""></op_>
+<or _T="NN" _key="or" fr="" en="" de=""></or>
+<passwordmd5 _T="NN" _key="passwordmd5" fr="" en="" de=""></passwordmd5>
+<pdf _T="NN" _key="pdf" fr="" en="" de=""></pdf>
+<permissions _T="NN" _key="permissions" fr="" en="" de=""></permissions>
+<preferences _T="NN" _key="preferences" fr="" en="" de=""></preferences>
+<previous _T="NN" _key="previous" fr="" en="" de=""></previous>
+<print _T="NN" _key="print" fr="" en="" de=""></print>
+<private _T="NN" _key="private" fr="" en="" de=""></private>
+<queries _T="NN" _key="queries" fr="" en="" de=""></queries>
+<record_deleted _T="NN" _key="record deleted" fr="" en="" de=""></record_deleted>
+<record_saved _T="NN" _key="record saved" fr="" en="" de=""></record_saved>
+<regular_expression _T="NN" _key="regular expression" fr="" en="" de=""></regular_expression>
+<revert _T="NN" _key="revert" fr="" en="" de=""></revert>
+<run_query _T="NN" _key="run query" fr="" en="" de=""></run_query>
+<save _T="NN" _key="save" fr="" en="" de=""></save>
+<save_changes _T="NN" _key="save changes" fr="" en="" de=""></save_changes>
+<save_query _T="NN" _key="save query" fr="" en="" de=""></save_query>
+<save_view _T="NN" _key="save view" fr="" en="" de=""></save_view>
+<show_hidden_records _T="NN" _key="show hidden records" fr="" en="" de=""></show_hidden_records>
+<starts_with _T="NN" _key="starts with" fr="" en="" de=""></starts_with>
+<tagname _T="NN" _key="tagname" fr="" en="" de="" it="Codice di autorizzazione"></tagname>
+<there_are_unsaved_changes _T="NN" _key="there are unsaved changes" fr="" en="" de="" it="Modifiche non salvate"></there_are_unsaved_changes>
+<there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ _T="NN" _key="there are unsaved changes, do you want to close the page without saving?" fr="" en="" de=""></there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_>
+<torna_alla_pagina_precedente _T="NN" _key="torna alla pagina precedente" fr="" en="" de=""></torna_alla_pagina_precedente>
+<unlock _T="NN" _key="unlock" fr="" en="" de=""></unlock>
+<unsaved_changes _T="NN" _key="unsaved changes" fr="" en="" de=""></unsaved_changes>
+<value _T="NN" _key="value" fr="" en="" de=""></value>
+<views _T="NN" _key="views" fr="" en="" de=""></views>
+<warning _T="NN" _key="warning" fr="" en="" de=""></warning>
+<word_start _T="NN" _key="word start" fr="" en="" de=""></word_start>
+<you_cannot_unlock_this_table _T="NN" _key="you cannot unlock this table" fr="" en="" de=""></you_cannot_unlock_this_table>
+<conf_Confirmed_wait_Waiting _T="NN" _key="conf:Confirmed,wait:Waiting" fr="" en="" de=""></conf_Confirmed_wait_Waiting></GenRoBag>

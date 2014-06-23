@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <wsgi debug='true' reload='true' port='8990' mainpackage='base', session_type='memory'/>
+    <connection_timeout _T="NN"/>
+    <connection_refresh _T="NN"/>
+    <dojo _T="NN" version="11"/>
+    <gui css_theme='blues'/>
+</GenRoBag>

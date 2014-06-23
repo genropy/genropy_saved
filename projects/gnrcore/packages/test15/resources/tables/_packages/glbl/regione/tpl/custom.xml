@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><metadata><email><subject></subject>
+<to_address></to_address>
+<cc_address></cc_address></email></metadata>
+<varsbag><n_472><fieldpath>nome</fieldpath>
+<fieldname>Nome</fieldname>
+<varname>nome</varname>
+<virtual_column _T="NN"></virtual_column></n_472>
+<n_527><fieldpath>@province.nome</fieldpath>
+<fieldname>Provincia/Nome</fieldname>
+<varname>provincia_nome</varname>
+<virtual_column _T="NN"></virtual_column></n_527>
+<n_534><fieldpath>@province.cap_valido</fieldpath>
+<fieldname>Provincia/CAP Valido</fieldname>
+<varname>provincia_cap_valido</varname>
+<virtual_column _T="NN"></virtual_column></n_534>
+<n_541><fieldpath>@province.sigla</fieldpath>
+<fieldname>Provincia/Sigla</fieldname>
+<varname>provincia_sigla</varname>
+<virtual_column _T="NN"></virtual_column></n_541></varsbag>
+<parameters></parameters>
+<content>&lt;p&gt;
+$nome $tpl_test $#DATA.gnr.workdate&lt;/p&gt;
+&lt;p&gt;
+&amp;nbsp;&lt;/p&gt;
+&lt;table cellpadding="1" cellspacing="1" row_datasource="@province" style="border-collapse: collapse; width: 500px;"&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;strong&gt;Sigla&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Nome&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Codice&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+$provincia_sigla&lt;/td&gt;
+&lt;td&gt;
+$provincia_nome&lt;/td&gt;
+&lt;td&gt;
+$provincia_cap_valido&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;
+&amp;nbsp;&lt;/p&gt;
+</content>
+<compiled><_province _tag="@province">&lt;tr&gt;&lt;td&gt;
+$sigla&lt;/td&gt;
+&lt;td&gt;
+$nome&lt;/td&gt;
+&lt;td&gt;
+$cap_valido&lt;/td&gt;
+&lt;/tr&gt;</_province>
+<main virtual_columns="" locale="it-IT" masks="{}::JS" dtypes="{}::JS" maintable="glbl.regione" columns="nome,@province.nome,@province.cap_valido,@province.sigla" formats="{}::JS" df_templates="{}::JS">&lt;html&gt;&lt;body&gt;&lt;p&gt;
+$nome $tpl_test $#DATA.gnr.workdate&lt;/p&gt;
+&lt;p&gt;
+&amp;#160;&lt;/p&gt;
+&lt;table cellpadding="1" cellspacing="1" row_datasource="@province" style="border-collapse: collapse; width: 500px;"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;
+&lt;strong&gt;Sigla&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Nome&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Codice&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+$@province
+&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;
+&amp;#160;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</main></compiled>
+<parametersbag _T="NN"></parametersbag></GenRoBag>

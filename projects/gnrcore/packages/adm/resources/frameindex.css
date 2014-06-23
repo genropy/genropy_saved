@@ -1,0 +1,178 @@
+.isDeveloper .thpage{
+    border:1px solid yellow;
+}
+.remote_db_msg{
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 8px;
+    background: darkred;
+    color:white;
+    font-weight: bold;
+}
+
+.isDeveloper .workInProgress{
+    border-left:3px solid red;
+}
+
+
+.button_block  div{
+    width: 30px;
+    height: 20px;
+}
+
+.button_block.iframetab{
+    padding-left:0;
+    padding-right:0;
+}
+
+.menuToggle_icon {
+    background: url(icons/sidemenu.png) no-repeat center center;
+}
+
+/* @group iframetab */
+
+.iframetab:hover{
+	text-decoration: underline;
+}
+
+.iframetab:last-child{
+	border-right: 0px;
+	-moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomright: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-right: 1px;
+}
+.iframetab:first-child{
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+
+.iframetab_selected.iframetab{
+    color: #fff;
+   /* border: 0px;*/
+	/*font-weight: bold;*/
+	 background:#888;
+	-moz-box-shadow: inset 1px 1px 2px #222;
+    box-shadow:inset 1px 1px 2px #222;
+	
+}
+.iframetab_selected.iframetab:hover{
+	text-decoration:none;
+}
+
+._common_d11 .detachPalette.dojoxFloatingPane{
+    border:1px solid silver;
+}
+._common_d11.tundra .detachPalette .dojoxFloatingPaneTitle{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(silver), to(gray));
+    background-image: -moz-linear-gradient(-90deg, silver,gray);
+    color:whitesmoke;
+}
+
+.iframetab{
+    position:relative;
+    display:inline-block;
+    padding-left:12px;
+    padding-right:12px;
+    cursor:pointer;
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    border-right: 0px;
+    line-height:20px;
+    font-size: 9pt;
+    font-variant:small-caps;
+}
+.frameindexroot{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d0d0d0), to(#ffffff));
+    background-image: -moz-linear-gradient(-90deg, #d0d0d0, #ffffff);
+}
+.framefooter{    
+}
+.iframesubtab.iframetab{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#A6CAEE), to(#467399));
+    background-image: -moz-linear-gradient(-90deg, #A6CAEE, #467399);
+}
+.footer_block {
+	font-weight: 1.1;
+	color: #4c4c4c;
+	cursor: pointer;
+}
+
+.footer_block:hover{
+	text-decoration: underline;
+}
+/* @end */
+
+
+
+.iframeroot_bar{
+    height: 20px;
+}
+
+.iframeroot_bar .multibutton{
+}
+
+.iframeroot_bar .multibutton_container{
+    padding-top:0;
+    padding-bottom:0;
+    font-size: 8pt;
+    font-variant:small-caps;
+    height: 18px;
+    line-height: 2.5ex;
+    padding-top: 2px;
+}
+.iframeroot_bar .multibutton_closer{
+    position: absolute;
+    top:1px;
+    right:2px;
+}
+
+.iframeroot_bar .multibutton:last-child{
+
+}
+.iframeroot_bar .multibutton:first-child{
+
+}
+.iframeroot_bar .multibutton:hover{
+    text-decoration: none;
+}
+.iframeroot_bar .multibutton_selected.multibutton{
+    border-color: #444;
+}
+
+
+.iframeroot_appname{
+    cursor: pointer;
+    display: inline-block;
+    background:#777;
+    color: white;
+    padding: 1px;
+    padding-right: 6px;
+    padding-left: 6px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.iframeroot_username{
+    cursor: pointer;
+    display: inline-block;
+    background: whitesmoke;
+    color:#444;
+    padding: 1px;
+    padding-left: 6px;
+    padding-right: 6px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+.iframeroot_pref{
+    border:1px solid #444;
+    border-radius: 4px;
+}

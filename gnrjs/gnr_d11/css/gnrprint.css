@@ -1,0 +1,30 @@
+/* @group Window */
+
+.pageBreakBefore {
+    page-break-before: always;
+}
+
+.pageBreakAfter {
+    page-break-after: always;
+}
+
+.no_print {
+    display: none;
+}
+
+.only_print {
+    display: block;
+}
+
+body {
+    margin: auto;
+    background-color: white;
+}
+
+html, body, #mainWindow {
+    width: auto;
+    height: auto;
+    overflow: visible;
+}
+
+/* @end */

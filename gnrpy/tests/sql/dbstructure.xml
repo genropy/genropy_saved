@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><packages tag="package_list"><video comment="video package" name_short="video" name_full="video" tag="package" name_long="video"><tables tag="table_list"><people name_short="people" pkey="id" name_long="People" tag="table" rowcaption="name,year:%s (%s)"><columns tag="column_list"><id dtype="L" tag="column"/>
+<name name_short="N." tag="column" name_long="Name"/>
+<year name_short="Yr" dtype="L" tag="column" name_long="Birth Year"/>
+<nationality name_short="Ntl" tag="column" name_long="Nationality"/></columns></people>
+<cast name_short="cast" pkey="id" name_long="Cast" tag="table" rowcaption=""><columns tag="column_list"><id dtype="L" tag="column"/>
+<movie_id name_short="Mid" dtype="L" tag="column" name_long="Movie id"><relation related_column="movie.id" mode="relation"/></movie_id>
+<person_id name_short="Prs" dtype="L" tag="column" name_long="Person id"><relation related_column="people.id" mode="relation"/></person_id>
+<role name_short="Rl." tag="column" name_long="Role"/>
+<prizes name_short="Priz." tag="column" size="40" name_long="Prizes"/></columns></cast>
+<movie name_short="Mv" pkey="id" name_long="Movie" tag="table" rowcaption="title"><columns tag="column_list"><id dtype="L" tag="column"/>
+<title name_short="Ttl." validate_case="capitalize" validate_len="3,40" tag="column" name_long="Title"/>
+<genre validate_case="upper" validate_len="3,10" name_short="Gnr" tag="column" indexed="y" name_long="Genre"/>
+<year name_short="Yr" dtype="L" name_long="Year" tag="column" indexed="y"/>
+<nationality name_short="Ntl" tag="column" name_long="Nationality"/>
+<description name_short="Dsc" tag="column" name_long="Movie description"/></columns>
+<indexes tag="index_list"><i_title unique="y" tag="index" columns="title"/></indexes></movie>
+<dvd name_short="Dvd" pkey="code" tag="table" name_long="Dvd"><columns tag="column_list"><code dtype="L" tag="column"/>
+<movie_id name_short="Mid" tag="column" name_long="Movie id"><relation related_column="movie.id" mode="relation"/></movie_id>
+<purchasedate name_short="Pdt" dtype="D" tag="column" name_long="Purchase date"/>
+<available name_short="Avl" tag="column" name_long="Available"/></columns></dvd></tables></video></packages></GenRoBag>

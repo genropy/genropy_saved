@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:admin="http://webns.net/mvcb/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title>Corriere.it - Sport</title>
+<link>http://www.corriere.it/</link>
+<description>Corriere della sera online</description>
+<copyright>Copyright 2004 - RCS MediaGroup</copyright>
+<language>it-IT</language>
+<pubDate>Wed, 6 Dec 2006 10:29:17 +0100</pubDate>
+<lastBuildDate>Wed, 6 Dec 2006 10:29:17 +0100</lastBuildDate>
+<generator>Eidosmedia Méthode</generator>
+<image>
+<title>Corriere della Sera on line versione rss</title>
+<url>http://www.corriere.it/rss/images/logo_small.gif</url>
+<link>http://www.corriere.it</link>
+<width>140</width>
+<height>40</height>
+<description>Corriere.it versione rss</description>
+</image>
+<item>
+<title><![CDATA[]]></title>
+<description><![CDATA[<b/>
+<br/>]]><![CDATA[Champions League, un gol di Panucci al Valencia qualifica i giallorossi. Vieira salva l'Inter in pari al 91°, ma il Bayern passa il turno al primo posto ]]></description>
+<link>http://www.corriere.it/Speciali/Sport/2006/Coppe/articoli/index8.shtml</link>
+<info1>
+<thumbimage url="http://www.corriere.it/Media/Foto/2006/12_Dicembre/05/spallettiC.jpg?uuid=9ecd1a64-848b-11db-9543-0003ba99c53b"/>
+<fullimage/>
+<fullimage/>
+</info1>
+<dc:creator><![CDATA[]]></dc:creator>
+<guid isPermaLink="true">http://www.corriere.it/Speciali/Sport/2006/Coppe/articoli/index8.shtml</guid>
+<category domain="http://www.corriere.it">Sport</category>
+<pubDate>Mon, 4 Dec 2006 18:05:17 +0100</pubDate>
+<info2>FALSE</info2>
+</item>
+<item>
+<title><![CDATA[Napoli, campo squalificato per un turnoPugno duro contro Nedved: cinque giornate]]></title>
+<description><![CDATA[<b>Napoli, campo squalificato per un turnoPugno duro contro Nedved: cinque giornate</b>
+<br/>]]><![CDATA[La squadra di Reja dovrà disputare l'incontro con il Mantova a porte chiuse, dopo i petardi lanciati nell'incontro con il Frosinone]]></description>
+<link>http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/05/napoli.shtml</link>
+<info1>
+<thumbimage/>
+<fullimage url="http://www.corriere.it/Media/Foto/2006/12_Dicembre/05/NAPOLIb.jpg?uuid=0b20198a-8452-11db-9543-0003ba99c53b"/>
+<fullimage/>
+</info1>
+<dc:creator><![CDATA[]]></dc:creator>
+<guid isPermaLink="true">http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/05/napoli.shtml</guid>
+<category domain="http://www.corriere.it">Sport</category>
+<pubDate>Tue, 5 Dec 2006 12:08:47 +0100</pubDate>
+<info2>FALSE</info2>
+</item>
+<item>
+<title><![CDATA[Ultras Lazio, niente cori contro la Roma]]></title>
+<description><![CDATA[<b>Ultras Lazio, niente cori contro la Roma</b>
+<br/>]]><![CDATA[Segno di gratitudine verso la curva  Sud giallorossa che ha dimostrato «solidarietà, sensibilità e  partecipazione»]]></description>
+<link>http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/ultras_lazio.shtml</link>
+<info1>
+<thumbimage/>
+<fullimage/>
+<fullimage/>
+</info1>
+<dc:creator><![CDATA[]]></dc:creator>
+<guid isPermaLink="true">http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/ultras_lazio.shtml</guid>
+<category domain="http://www.corriere.it">Sport</category>
+<pubDate>Mon, 4 Dec 2006 22:08:26 +0100</pubDate>
+<info2>FALSE</info2>
+</item>
+<item>
+<title><![CDATA[Il bidone d'oro 2006 è Adriano]]></title>
+<description><![CDATA[<b>Il bidone d'oro 2006 è Adriano</b>
+<br/>]]><![CDATA[Podio tutto milanese: dietro il brasiliano dell'Inter, due rossoneri: Gilardino e Oliveira. Quarto Ibra, quinto Totti]]></description>
+<link>http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/adriano.shtml</link>
+<info1>
+<thumbimage url="http://www.corriere.it/Media/Foto/2006/12_Dicembre/04/adrianoC.jpg?uuid=704c7538-838a-11db-af84-0003ba99c53b"/>
+<fullimage url="http://www.corriere.it/Media/Foto/2006/12_Dicembre/04/ADRIAb.jpg?uuid=a2fa38f6-83a5-11db-af84-0003ba99c53b"/>
+<fullimage/>
+</info1>
+<dc:creator><![CDATA[]]></dc:creator>
+<guid isPermaLink="true">http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/adriano.shtml</guid>
+<category domain="http://www.corriere.it">Sport</category>
+<pubDate>Mon, 4 Dec 2006 12:19:48 +0100</pubDate>
+<info2>FALSE</info2>
+</item>
+<item>
+<title><![CDATA[Blatter: presto solo 5 stranieri in campo]]></title>
+<description><![CDATA[<b>Blatter: presto solo 5 stranieri in campo</b>
+<br/>]]><![CDATA[Il presidente della Fifa:  i club dovranno schierare almeno 6 giocatori selezionabili dalla propria Nazionale ]]></description>
+<link>http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/blatter.shtml</link>
+<info1>
+<thumbimage/>
+<fullimage/>
+<fullimage/>
+</info1>
+<dc:creator><![CDATA[]]></dc:creator>
+<guid isPermaLink="true">http://www.corriere.it/Primo_Piano/Sport/2006/12_Dicembre/04/blatter.shtml</guid>
+<category domain="http://www.corriere.it">Sport</category>
+<pubDate>Mon, 4 Dec 2006 12:52:34 +0100</pubDate>
+<info2>FALSE</info2>
+</item>
+</channel>
+</rss>

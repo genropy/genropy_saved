@@ -1,0 +1,523 @@
+/* @variables  
+	bg_light=siver
+	fontcolor = #002200
+	=#('all=6')
+*/
+
+/* @group My Group */
+
+/* @end */
+
+/* @group pbl_elements */
+
+/* @group Widget */
+
+/* @group IncludedViewBox */
+
+.pbl_viewBoxLabel {
+    /* @expand
+         color:$fontcolor;
+         $macro:roundedCorner(all=6)
+         height:$hlabel;
+      */
+
+    height: 18px;
+    background-color: gray;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 3px;
+    padding-bottom: 2px;
+}
+
+.pbl_viewBox {
+/*where you place the grid inside an includedviewbox*/
+    background-color: silver;
+    padding: 5px;
+}
+
+/* @end */
+
+/* @group Dialog */
+
+.pbl_dialog_center {
+    background-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Root Layout */
+
+.pbl_root {
+/*the main container of the application*/
+    margin: 8px;
+    margin-left: 0;
+}
+
+/* @group top */
+
+.pbl_title_caption {
+    font-size: 11pt;
+    margin-top: 1px;
+    text-align: center;
+}
+
+.pbl_username {
+    color: white;
+}
+
+.pbl_username {
+    color: white;
+}
+
+.pbl_root_top {
+    height: 24px;
+    background-color: gray;
+    vertical-align: middle;
+    color: white;
+    text-align: center;
+}
+
+/* @group Logo */
+
+.pbl_logo_icon {
+    background: url(icons/genropy.gif) no-repeat center center;
+    width: 30px;
+    height: 24px;
+}
+
+.pbl_logo_caption {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 6px;
+}
+
+/* @end */
+
+/* @end */
+
+.pbl_root_bottom {
+    padding-top: 1px;
+    height: 23px;
+    background-color: silver;
+    border-top: 1px solid gray;
+}
+
+.pbl_root_center {
+    background-color: whitesmoke;
+}
+
+/* @end */
+
+/* @group Form group */
+/*TODO SEARCH AND REPLACE TO CHANGE NAMES*/
+.pbl_roundedGroup {
+/* where you place a form with fields */
+    background-color: silver;
+}
+
+.pbl_roundedGroupLabel {
+/* css for the label of the group */
+    height: 18px;
+    background-color: gray;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 5px;
+}
+
+.pbl_roundedGroupBottom {
+    /* css for the footer of the group
+        is used also in the includedview footer
+     */
+    height: 18px;
+    background-color: gray;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-bottom: 5px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Widget Customization */
+
+/* @group Grid */
+/*very complex*/
+
+.logicalDeleted .dojoxGrid-cell {
+    color: #b50000;
+}
+
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell {
+    color: #b50000;
+}
+
+._common_d11 .dojoxGrid {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-scrollbox {
+    overflow: auto;
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-header {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-cell {
+    padding: 1px 4px;
+    border: 0px;
+    border-right: 1px dotted gray;
+    border-bottom: 1px dotted gray;
+    height: 16px;
+}
+
+._common_d11 nopadding .dojoxGrid-cell {
+    padding: 0px 0px;
+}
+
+/*
+._common_d11 .dojoxGrid-row-table {
+	border-collapse: separate;
+}
+*/
+/*._common_d11 .cell_B .widgetInCell {
+    width: 16px;
+    margin: auto;
+}*/
+
+._common_d11 .invalidCell {
+    background-color: red;
+}
+
+._common_d11 .widgetInCell {
+}
+
+._common_d11 .widgetInCell {
+    background-color: red;
+    color: black;
+    display: block;
+    border: 0px grey;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    width: 100%;
+}
+
+._common_d11 .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell {
+    background-color: #e4e4e4;
+}
+
+._common_d11 .dojoxGrid-row-odd {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row-selected {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: #60a1ea;
+    color: black !important;
+
+}
+
+/* @group No-over and no-selected */
+
+._common_d11 .no_over .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Tooltip & Dialog */
+
+/* @group HiddenTooltipDialog */
+
+/* genro widget */
+
+.tt_dialog_top {
+    background: gray;
+    vertical-align: middle;
+    color: white;
+    text-align: center;
+    height: 18px;
+}
+
+.tt_dialog_bottom {
+    color: white;
+    font-size: .94em;
+    height: 18px;
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: gray;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Tabcontainer */
+
+._common_d11 .dijitTabPaneWrapper {
+    /*-moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    -moz-border-radius-topleft:0px;
+    -webkit-border-top-left-radius:0px;*/
+    background-color: whitesmoke;
+}
+
+._common_d11 .dijitTab {
+    font-size: .9em;
+    background: silver;
+}
+
+._common_d11 .dijitTabHover {
+    opacity: 0.8;
+}
+
+._common_d11 .dijitTabInnerDiv {
+    border-left: 0;
+    border-bottom: 0;
+}
+
+._common_d11 .dijitTabCheckedHover {
+    opacity: 1;
+}
+
+._common_d11 .dijitTabChecked {
+    background: whitesmoke;
+    border-bottom-color: whitesmoke;
+}
+
+._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-bottom-color: whitesmoke;
+    border-bottom-color: whitesmoke;
+}
+
+/* @group righttab */
+
+._common_d11 .dijitTabLabels-right-h .dijitTab {
+    -moz-border-radius-bottomright: 6px;
+    -moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomleft: 0px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    -webkit-border-bottom-left-radius: 0px;
+    -webkit-border-top-left-radius: 0px;
+}
+
+._common_d11 .dijitTabLabels-right-h .dijitTabInnerDiv {
+    border: 0; /*padding: 2px 3px;*/
+}
+
+._common_d11 .dijitTabLabels-right-h.dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-left-color: whitesmoke;
+}
+
+/* @end */
+
+/* @group lefttab */
+
+._common_d11 .dijitTabLabels-left-h .dijitTab {
+    -moz-border-radius-bottomright: 0px;
+    -moz-border-radius-topright: 0px;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-topleft: 6px;
+    -webkit-border-bottom-right-radius: 0px;
+    -webkit-border-top-right-radius: 0px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-top-left-radius: 6px;
+
+}
+
+._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
+    padding: 3px 4px;
+}
+
+._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-right-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Dialog */
+
+/* @group alertbox */
+
+.dlg_msgbox {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    bottom: 5px;
+    right: 5px;
+    border: 0px;
+    background-color: #fbf2e7;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1em;
+    padding-top: 2em;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+/* @end */
+
+._common_d11 .dijitDialogTitleBar {
+    background: gray;
+    vertical-align: middle;
+    color: white;
+    text-align: center;
+}
+
+._common_d11 .dijitDialogCloseIcon {
+    display: none;
+}
+
+._common_d11 .tracebackDialog .dijitDialogCloseIcon {
+    display: inherit;
+}
+
+._common_d11 .dijitDialog {
+    -moz-box-shadow: 4px 4px 6px #403b3b;
+    -webkit-box-shadow: 4px 4px 6px #403b3b;
+    border: 0px;
+}
+
+._common_d11 .dijitDialog .dijitDialogPaneContent {
+    background-color: whitesmoke;
+    border: 0px;
+}
+
+.dialog_bottom {
+    background-color: silver;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group MenuTree */
+.menupane {
+    background-color: whitesmoke;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 8px;
+    margin-right: 0px;
+}
+
+.menu_page  > a {
+    color: whitesmoke;
+    text-decoration: none;
+}
+
+.menu_page  > a:hover {
+    text-decoration: underline;
+}
+
+.menutree .menu_level_0 {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: 1em;
+}
+
+.menutree .menu_level_1 {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: 1em;
+}
+
+.menutree .menu_level_2 {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: 1.1em;
+}
+
+.menutree .menu_level_3 {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: 1em;
+}
+
+.menutree .menu_level_4 {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: 1em;
+}
+
+.menutree .menu_page {
+    background-color: gray;
+    color: whitesmoke;
+    font-size: .9em;
+}
+
+.menutree .menu_shape {
+    cursor: pointer;
+    display: block;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background-color: gray;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+.menutree .menu_current_page {
+    background-color: #b12109 ! important;
+}
+
+.menutree .menu_shape:hover {
+    opacity: .8;
+}
+
+/* @end */
+
+/* @group General */
+
+#mainWindow {
+    background-color: black;
+    font-size: 12px;
+}
+
+.gnrfieldlabel {
+    color: darkblue;
+}
+
+/* @end */
+
+/* @group Standard Table */
+
+/* @end */

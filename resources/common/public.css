@@ -1,0 +1,617 @@
+/* @group Icons */
+.pbl_menu_icon {
+    background: url(icons/sidemenu.png) no-repeat center center;
+    width: 30px;
+    height: 24px;
+}
+
+.application_menu {
+    background: url(icons/sidemenu.png) no-repeat center center;
+}
+
+.application_window {
+    background: url(icons/new_window.png) no-repeat center center;
+}
+
+.pbl_logout {
+    background: url(icons/logout.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+.application_logout {
+    background: url(icons/logout.png) no-repeat center center;
+}
+
+.zoomIcon {
+    height: 14px;
+    width: 14px;
+    background: transparent url(icons/linkto.gif) no-repeat;
+}
+
+.menu_plugin_icon {
+    background: transparent url(icons/menu_plugin.png) no-repeat center;
+}
+
+.iframemenu_plugin_icon {
+    background: transparent url(icons/menu_plugin.png) no-repeat center;
+}
+/* @end */
+
+/* @group zoom */
+
+.gnrzoomcell {
+    text-decoration: none;
+    padding-left: 3px;
+    padding-right: 3px;
+    color: inherit;
+}
+
+/*.gnrzoomlabel {
+    text-decoration: none;
+    padding-left: 15px;
+    display:inline;
+    cursor:pointer;
+}
+
+.gnrzoomlabel:hover {
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    background: transparent url(icons/linkto.gif) no-repeat;
+}*/
+
+.gnrzoomcell:hover {
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    background: yellow;
+}
+
+.button_placeholder {
+    width: 25px;
+}
+
+.gnrmenulabel {
+    text-decoration: none;
+    padding-right: 15px;
+    cursor: pointer; /*font-weight:bold;*/
+    background: url(icons/linktomenu.gif) right no-repeat;
+}
+
+.gnrmenulabel:hover {
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    background: #adc2ff url(icons/linktomenu.gif) right no-repeat;
+}
+
+/* @end */
+
+.hide_row_checker .row_checker {
+    display: none;
+}
+
+/* @group  pbl_messageBottom*/
+
+.pbl_messageBottom {
+    text-align: center;
+    padding-top: 2px;
+}
+
+.pbl_root_center{
+    overflow:hidden;
+}
+/* @end */
+
+/* @group Chat */
+.ct_msglbl {
+    text-align: right;
+    font-size: .8em;
+    color: white;
+    height: 14px;
+}
+
+.ct_msgblock {
+    margin: 2px;
+    border: 1px solid lightgray;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.ct_inmsg .ct_msglbl {
+    background: #00306d;
+}
+
+.ct_outmsg .ct_msglbl {
+    background: #822f1e;
+}
+
+.ct_inmsg .ct_msgbody {
+    background: rgba(1, 94, 201, 0.28);
+}
+
+.ct_outmsg .ct_msgbody {
+    background: rgba(208, 80, 54, 0.27);
+}
+
+.ct_msgrow {
+    font-size: .9em;
+    padding: 1px 3px;
+}
+
+.ct_msglbl_ts {
+    float: right;
+    margin-right: 3px;
+}
+
+.ct_msglbl_from {
+    float: left;
+    margin-left: 3px;
+    font-weight: bold;
+}
+
+/* @end */
+
+element.style {
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+}
+
+/* @group MainLeft */
+
+#gnr_main_left_bottom {
+    min-height: 23px;
+    overflow: hidden;
+}
+
+#gnr_main_left_top {
+    min-height: 23px;
+    overflow: hidden;
+
+}
+
+/* @end */
+
+/* @group MenuTree */
+
+.menu_page  > a {
+    text-decoration: none;
+}
+
+.menu_page  > a:hover {
+    text-decoration: underline;
+}
+
+.menutree {
+    margin-top: 5px;
+    margin-right: 10px;
+    background-position: left;
+}
+
+.xmenutree .dijitTreeIcon {
+    visibility: hidden;
+    cursor: pointer;
+}
+
+.menutree .dijitTreeExpando {
+    display: none;
+}
+
+.menutree .dijitTreeIsLast {
+    background: none;
+}
+
+.menutree .dijitTreeNode {
+    background: none;
+}
+
+.menutree .dijitTreeContent {
+    margin-left: 0px;
+    min-height: 10px;
+    padding-bottom: 4px;
+    padding-top: 0px;
+}
+
+.menutree .menu_shape {
+    cursor: pointer;
+    display: block;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+.menutree .dijitTreeIcon {
+    display: block;
+    float: left;
+}
+
+/* @end */
+
+/* @group Widgets&Components */
+
+/* @group components */
+
+/* @group htablehandler */
+
+.breadcrumbIcn {
+    background: url(icons/breadcrumbIcn.png) center center;
+    height: 13px;
+    width: 13px;
+}
+
+/* @end */
+
+.standard_toolbar {
+    height: 26px;
+}
+
+/* @group MenuStack */
+.menuStackNavigator .dijitButtonNode{
+    background-color: transparent;
+    border-width: 0;
+}
+
+/* @end */
+
+/* @group recordhandler&standard_table */
+/* @group database */
+
+.db_treebtn {
+    width: 18px;
+    height: 12px;
+    background: url(icons/fieldtree.gif) no-repeat center center;
+}
+
+.db_querybtn {
+    width: 18px;
+    height: 12px;
+    background: url(icons/querypane.gif) no-repeat center center;
+}
+
+.db_treebtn:hover {
+    background-color: #bbb
+}
+
+.db_querybtn:hover {
+    background-color: #bbb
+}
+
+.db_revert {
+    background: url(icons/db_revert_16x16.gif) no-repeat center center;
+}
+
+.db_save {
+    background: url(icons/db_save_16x16.gif) no-repeat center center;
+}
+
+.db_add {
+    background: url(icons/db_add_16x16.gif) no-repeat center center;
+}
+
+.db_del {
+    background: url(icons/db_del_16x16.gif) no-repeat center center;
+}
+
+.db_query {
+    background: url(icons/db_query_go_16x16.gif) no-repeat center center;
+}
+
+.tb_button {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.tundra .dijitToolbar .dijitButtonNode {
+    font-size: inherit;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group DynamicEditor */
+
+.formattedBox {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+    background-color: white;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border: 1px solid silver;
+    padding: 5px;
+    overflow: auto;
+}
+
+.editorPane .RichTextEditable {
+    border: 0px !important;
+    background-color: white;
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+}
+
+/* @end */
+
+/* @group includedview */
+
+.searchWidth {
+    width: 6em;
+}
+
+.pbl_viewBoxToolbar {
+    height: 20px;
+    padding: 2px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group tooltip */
+
+/* @group tootlipDialog */
+
+._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
+/*control*/
+    padding: 0px;
+    border: 0;
+    -moz-box-shadow: 4px 4px 4px #403b3b;
+    -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+
+/* @end */
+
+/* @group Pure tooltip */
+
+._common_d11 .dijitTooltipContents {
+
+}
+
+._common_d11 .dijitTooltip .dijitTooltipContainer {
+    color:#555;
+    font-size:.9em;
+}
+
+/* @end */
+
+/* @group connector */
+
+/* they are common for tooltip and tooltipdialog */
+
+._common_d11  .dijitTooltipLeft .dijitTooltipConnector {
+    background-color:transparent;
+}
+
+._common_d11 .dijitTooltipRight .dijitTooltipConnector {
+    background-color:transparent;
+}
+
+._common_d11  .dijitTooltipUp .dijitTooltipConnector {
+    background-color:transparent;
+
+}
+
+._common_d11  .dijitTooltipBelow .dijitTooltipConnector {
+    background-color:transparent;
+
+}
+
+/* @end */
+
+/* @end */
+
+/* @group buttons */
+
+/* @group ddb */
+.dropDownNoArrow .dijitArrowButtonInner {
+    display: none;
+}
+
+/* @end */
+
+
+.bottom_btnDisabled .dijitButtonNode {
+    opacity: .6;
+    cursor: not-allowed !important;
+}
+
+.bottom_btnHover .dijitButtonNode {
+
+    opacity: 1;
+}
+
+/* @end */
+
+/* @group Menu */
+._common_d11__ .dijitMenu {
+    border: 1px solid gray;
+    background-color: whitesmoke;
+    position: relative;
+    top: 3px;
+    left: 4px;
+    border-top: 0px;
+    padding-bottom: 6px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+._common_d11__ .dijitMenuTable {
+    margin: 1px 0;
+    border-collapse: collapse;
+    border-width: 0;
+    background-color: whitesmoke;
+}
+
+._common_d11__ .dijitMenuItem {
+    white-space: nowrap;
+    font-size: .9em;
+    color:;
+    padding: 0em 0em;
+    border-bottom: 1px solid white;
+}
+
+/* @end */
+
+/* @group Grid */
+.logicalDeleted .dojoxGrid-cell {
+    color: #b50000;
+}
+
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell {
+    color: #b50000;
+}
+
+._common_d11 .dojoxGrid {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-scrollbox {
+    overflow: auto;
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-header {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 1px dotted gray;
+    border-bottom: 1px dotted gray;
+    height: 21px;
+    padding: 0 6px 0 3px;
+}
+
+._common_d11 nopadding .dojoxGrid-cell {
+    padding: 0px 0px;
+}
+
+/*
+._common_d11 .dojoxGrid-row-table {
+	border-collapse: separate;
+}
+*/
+._common_d11 .cell_B .widgetInCell {
+    width: 16px;
+    margin: auto;
+}
+
+._common_d11 .widgetInCell {
+    color: black;
+    margin-top: 1px;
+    margin-bottom: 0px;
+    margin-right: 5px;
+    width: 100%;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.cellContent {
+    line-height: 100%;
+}
+
+/*._common_d11 .invalidCell .cellContent {
+    border: 1px solid red;
+    margin-bottom: 1px;
+    padding: 1px;
+}*/
+
+._common_d11 .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell {
+    background-color: #e4e4e4;
+}
+
+._common_d11 .dojoxGrid-row-odd {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row {
+    background-color: transparent;
+}
+
+._common_d11 .canBeDropped .dojoxGrid-cell {
+    background-color: #8fff9d !important;
+}
+
+/*._common_d11 .cannotBeDropped .dojoxGrid-cell {
+    background-color: #ffa997 !important;
+}*/
+
+._common_d11 .dojoxGrid-row-selected {
+    background-color: transparent;
+}
+
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: #60a1ea;
+    color: black !important;
+
+}
+
+._common_d11 .dojoxGrid-row-over .dojoxGrid-cell-focus {
+    border-top: 0;
+}
+
+/* @group No-over and no-selected */
+
+._common_d11 .no_over .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+._common_d11 .no_over .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
+
+._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+._common_d11 .no_selected .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @end */
+
+.noRecordSelected {
+    margin: 50px auto;
+    width: 300px;
+    height: 198px;
+    background: url(icons/norecord.png) no-repeat;
+}
+
+.pbl_slotbar_label {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #bfb6ae;
+    color: #403b3b;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+

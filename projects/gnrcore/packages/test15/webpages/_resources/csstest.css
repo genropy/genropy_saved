@@ -1,0 +1,31 @@
+.easy_in{
+    width:5px;
+    background:gray;
+    -moz-box-shadow: 2px 2px 4px #403b3b;
+    -webkit-box-shadow: 2px 2px 4px #403b3b;
+    }
+
+.easy_in:hover{
+    width:300px;
+    z-index:1000;
+
+    background:gray;
+    -moz-transition:linear;
+    -moz-transition-duration:.5s;
+    -webkit-transition:linear;
+    -webkit-transition-duration:.5s;
+    
+    -moz-box-shadow: 2px 2px 4px #403b3b;
+    -webkit-box-shadow: 2px 2px 4px #403b3b;
+    
+}
+
+.rbox24{
+    width:24px;
+    height:24px;
+    opacity:.7;
+}
+.dijitButtonOver .rbox24{
+    opacity:1;
+}
+  
