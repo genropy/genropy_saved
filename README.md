@@ -22,7 +22,7 @@ Configuration files are:
 Change your development user by editing **~/.gnr/instanceconfig/default.xml**
 
 
-Visit [www.genropy.org](http://) for more information
+Visit [www.genropy.org](http://www.genropy.org) for more information
 
 
 Sandbox
