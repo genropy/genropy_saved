@@ -26,6 +26,7 @@ def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
     genropy_home = os.path.dirname(gnrpy_path)
     genropy_projects = os.path.join(genropy_home,'projects')
     custom_projects = os.path.normpath(os.path.join(genropy_home,'..','genropy_projects'))
+    create_folder(custom_projects)
     genropy_packages = os.path.join(genropy_home,'packages')
     genropy_resources = os.path.join(genropy_home,'resources')
     genropy_webtools = os.path.join(genropy_home,'webtools')
