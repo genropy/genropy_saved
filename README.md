@@ -15,11 +15,11 @@ for making the environment configuration
 
 Configuration files are: 
 
-	/.gnr/environment.xml
-	/.gnr/instanceconfig/default.xml
-	/.gnr/siteconfig/default.xml
+	~/.gnr/environment.xml
+	~/.gnr/instanceconfig/default.xml
+	~/.gnr/siteconfig/default.xml
 
-Change your development edit **/.gnr/instanceconfig/default.xml**
+Change your development user by editing **~/.gnr/instanceconfig/default.xml**
 
 
 Visit [www.genropy.org](http://) for more information
@@ -27,7 +27,7 @@ Visit [www.genropy.org](http://) for more information
 
 Sandbox
 =======
-Sandbox is your first Genropy application.
+Sandbox is the application for learning Genropy framework. (Currently avaliable only in italian)
 
 Inside folder genropy_projects 
 
