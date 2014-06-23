@@ -12,4 +12,5 @@ argparse
 xlrd
 xlwt
 psutil
+docutils
 sh

@@ -25,7 +25,7 @@ def get_random_password(size = 12):
 def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
     genropy_home = os.path.dirname(gnrpy_path)
     genropy_projects = os.path.join(genropy_home,'projects')
-    genropy_tutorial_projects = os.path.join(genropy_home,'tutorial','projects')
+    custom_projects = os.path.normpath(os.path.join(genropy_home,'..','genropy_projects'))
     genropy_packages = os.path.join(genropy_home,'packages')
     genropy_resources = os.path.join(genropy_home,'resources')
     genropy_webtools = os.path.join(genropy_home,'webtools')
@@ -34,7 +34,7 @@ def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None):
     environment_bag = Bag()
     environment_bag.setItem('environment.gnrhome', None, dict(value=genropy_home))
     environment_bag.setItem('projects.genropy', None, dict(path=genropy_projects))
-    environment_bag.setItem('projects.genropy_tutorial', None, dict(path=genropy_tutorial_projects))
+    environment_bag.setItem('projects.custom', None, dict(path=custom_projects))
     environment_bag.setItem('packages.genropy', None, dict(path=genropy_packages))
     environment_bag.setItem('static.js.dojo_11',None, dict(path=dojo_11_path, cdn=""))
     environment_bag.setItem('static.js.gnr_11', None, dict(path=gnr_d11_path))
