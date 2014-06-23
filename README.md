@@ -1,4 +1,4 @@
-genropy
+Genropy
 =======
 
 Genropy framework. To complete the installation:
@@ -11,9 +11,44 @@ inside the folder **gnrpy**
 	
 for making the environment configuration 
 
-	python initgenropy.py.
+	python initgenropy.py
+
+Configuration files are: 
+
+	/.gnr/environment.xml
+	/.gnr/instanceconfig/default.xml
+	/.gnr/siteconfig/default.xml
+
+Change your development edit **/.gnr/instanceconfig/default.xml**
+
 
 Visit [www.genropy.org](http://) for more information
+
+
+Sandbox
+=======
+Sandbox is your first Genropy application.
+
+Inside folder genropy_projects 
+
+	git clone https://github.com/genropy/sandbox.git
+
+Genropy webapplications needs a daemon
+
+Run inside another terminal
+
+	gnrdaemon
+
+Now we are ready for running **sandbox** website
+
+	gnrwsgiserve sandbox
+	
+If you want to edit tutorial files through the application itself run **gnrwsgiserve** with **remote_edit** option
+
+	gnrwsgiserve sandbox --remote_edit
+	
+
+
 
 License
 =======
