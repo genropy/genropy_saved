@@ -190,4 +190,7 @@ class DocumentationPage(DocHandler):
                             window.document.head.appendChild(e);
                             """ %cssurl,**iframepars)
 
+    
+    def source_viewer_open(self):
+        return False
 
