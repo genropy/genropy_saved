@@ -7,9 +7,11 @@ vobject
 pytz
 babel
 httplib2
+serpent
 pyro4
 argparse
 xlrd
 xlwt
 psutil
+docutils
 sh
