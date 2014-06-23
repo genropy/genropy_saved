@@ -14,13 +14,13 @@ class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
     js_requires = 'source_viewer'
 
-    def source_viewer_open(self):
-        return
-
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
-        drawer = self.source_viewer_open() or 'close'
+        drawer_cb = getattr(self,'source_viewer_open',None)
+        drawer = drawer_cb() if drawer_cb else 'close'
+        if drawer is False:
+            return
         sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
                         drawer_background='red',
                        drawer_width='14px',drawer_left='-14px',drawer_height='80px',drawer_margin_top='-40px',
