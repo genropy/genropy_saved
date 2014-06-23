@@ -1,0 +1,226 @@
+#!/usr/bin/env python
+# encoding: utf-8
+from gnr.core.gnrbag import Bag
+import re
+import optparse
+import os
+from gnr.core.gnrsys import expandpath
+import glob
+import sys
+import subprocess
+import atexit
+import signal
+wsgi_options = dict(
+        port=8080,
+        host='0.0.0.0',
+        reload=False,
+        set_user=None,
+        set_group=None,
+        server_name='Genropy',
+        debug=True,
+        profile=False,
+        noclean=False
+        )
+
+
+class ServerException(Exception):
+    pass
+
+class DaemonizeException(Exception):
+    pass
+
+class UwsgiRunner(object):
+    min_args = 0
+    usage = '[start|stop|restart|status] [var=value]'
+    summary = "Start this genropy application"
+    description = """\
+    This command serves a genropy web application.  
+
+    If start/stop/restart is given, then --daemon is implied, and it will
+    start (normal operation), stop (--stop-daemon), or do both.
+
+    """
+
+
+    parser = optparse.OptionParser(usage)
+
+    parser.add_option('--reload',
+                      dest='reload',
+                      action='store_true',
+                      help="Use auto-restart file monitor")
+    parser.add_option('--noreload',
+                      dest='reload',
+                      action='store_false',
+                      help="Do not use auto-restart file monitor")
+    parser.add_option('--debug',
+                      dest='debug',
+                      action='store_true',
+                      help="Use weberror debugger")
+    parser.add_option('--nodebug',
+                      dest='debug',
+                      action='store_false',
+                      help="Don't use weberror debugger")
+    parser.add_option('--profile',
+                      dest='profile',
+                      action='store_true',
+                      help="Use profiler at /__profile__ url")
+    parser.add_option('--bonjour',
+                      dest='bonjour',
+                      action='store_true',
+                      help="Use bonjour server announcing")
+    parser.add_option('--reload-interval',
+                      dest='reload_interval',
+                      default=1,
+                      help="Seconds between checking files (low number can cause significant CPU usage)")
+
+    parser.add_option('-c', '--config',
+                      dest='config_path',
+                      help="gnrserve directory path")
+
+    parser.add_option('-p', '--port',
+                      dest='port',
+                      help="Sets server listening port (Default: 8080)")
+
+    parser.add_option('-H', '--host',
+                      dest='host',
+                      help="Sets server listening address (Default: 0.0.0.0)")
+    parser.add_option('--monitor-restart',
+                      dest='monitor_restart',
+                      action='store_true',
+                      help="Auto-restart server if it dies")
+
+
+    if hasattr(os, 'setuid'):
+    # I don't think these are available on Windows
+        parser.add_option('--user',
+                          dest='set_user',
+                          metavar="USERNAME",
+                          help="Set the user (usually only possible when run as root)")
+        parser.add_option('--group',
+                          dest='set_group',
+                          metavar="GROUP",
+                          help="Set the group (usually only possible when run as root)")
+
+
+    parser.add_option('--verbose',
+                      dest='verbose',
+                      action='store_true',
+                      help='Verbose')
+
+    parser.add_option('-s', '--site',
+                      dest='site_name',
+                      help="Use command on site identified by supplied name")
+
+    parser.add_option('-n', '--noclean',
+                      dest='noclean',
+                      help="Don't perform a clean (full reset) restart",
+                      action='store_true')
+
+    parser.add_option('--counter',
+                      dest='counter',
+                      help="Startup counter")
+
+    _scheme_re = re.compile(r'^[a-z][a-z]+:', re.I)
+
+    default_verbosity = 1
+
+    _reloader_environ_key = 'PYTHON_RELOADER_SHOULD_RUN'
+    _monitor_environ_key = 'PASTE_MONITOR_SHOULD_RUN'
+
+    possible_subcommands = ('start', 'stop', 'restart', 'status')
+
+    def __init__(self, site_script=None, server_name='Genro Server', server_description='Development'):
+        self.site_script = site_script
+        self.server_description = server_description
+        self.server_name = server_name
+        (self.options, self.args) = self.parser.parse_args()
+        self.load_gnr_config()
+        self.set_environment()
+        self.site_name = self.options.site_name or (self.args and self.args[0])
+        if self.site_name:
+            if not self.gnr_config:
+                raise ServerException(
+                        'Error: no ~/.gnr/ or /etc/gnr/ found')
+            self.site_path, self.site_template = self.site_name_to_path(self.site_name)
+            self.site_script = os.path.join(self.site_path, 'root.py')
+            if not os.path.isfile(self.site_script):
+                raise ServerException(
+                        'Error: no root.py in the site provided (%s)' % self.site_name)
+        else:
+            self.site_path = os.path.dirname(os.path.realpath(site_script))
+        self.init_options()
+
+
+    def site_name_to_path(self, site_name):
+        path_list = []
+        if 'sites' in self.gnr_config['gnr.environment_xml']:
+            path_list.extend([(expandpath(path), site_template) for path, site_template in
+                              self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.site_template') if
+                              os.path.isdir(expandpath(path))])
+        if 'projects' in self.gnr_config['gnr.environment_xml']:
+            projects = [(expandpath(path), site_template) for path, site_template in
+                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
+                        os.path.isdir(expandpath(path))]
+            for project_path, site_template in projects:
+                sites = glob.glob(os.path.join(project_path, '*/sites'))
+                path_list.extend([(site_path, site_template) for site_path in sites])
+        for path, site_template in path_list:
+            site_path = os.path.join(path, site_name)
+            if os.path.isdir(site_path):
+                return site_path, site_template
+        raise ServerException(
+                'Error: no site named %s found' % site_name)
+
+    def load_gnr_config(self):
+        if hasattr(self.options, 'config_path') and self.options.config_path:
+            config_path = self.options.config_path
+        else:
+            if sys.platform == 'win32':
+                config_path = '~\gnr'
+            else:
+                config_path = '~/.gnr'
+        config_path = self.config_path = expandpath(config_path)
+        if os.path.isdir(config_path):
+            self.gnr_config = Bag(config_path)
+        else:
+            self.gnr_config = Bag()
+
+    def set_environment(self):
+        for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
+            var = var.upper()
+            if not os.getenv(var):
+                os.environ[str(var)] = str(value)
+
+    def init_options(self):
+        self.siteconfig = self.get_config()
+        options = self.options.__dict__
+        for option in options.keys():
+            if options.get(option, None) is None: # not specified on the command-line
+                site_option = self.siteconfig['wsgi?%s' % option]
+                self.options.__dict__[option] = site_option or wsgi_options.get(option)
+
+    def get_config(self):
+        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
+        base_site_config = Bag(site_config_path)
+        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
+        template = site_config['site?template'] or getattr(self, 'site_template', None)
+        if template:
+            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
+        if 'sites' in self.gnr_config['gnr.environment_xml']:
+            for path, site_template in self.gnr_config.digest('gnr.environment_xml.sites:#a.path,#a.site_template'):
+                if path == os.path.dirname(self.site_path):
+                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
+        site_config.update(base_site_config)
+        return site_config
+
+    def run(self):
+    	self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging'])
+    	atexit.register(self.term_uwsgi)
+    	self.uwsgi_master.wait()
+
+    def term_uwsgi(self):
+        self.uwsgi_master.send_signal(signal.SIGINT)
+
+if __name__ == '__main__':
+    runner = UwsgiRunner()
+    runner.run()

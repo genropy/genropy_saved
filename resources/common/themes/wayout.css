@@ -1,0 +1,914 @@
+/*vico*/
+.frameindexroot{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#f6f6f6) , to(#e7e7e7));
+    background-image: -moz-linear-gradient(-90deg, #f6f6f6, #e7e7e7);
+}
+.frameindexcenter{
+    background:#f6f6f6;
+}
+
+/* @group Floating pane */
+
+._common_d11 .dojoxDockRestoreButton {
+    float: left;
+    height: 13px;
+    margin-top: 1px;
+}
+
+._common_d11 .dojoxDockNode {
+    -moz-border-radius: 3px 3px 3px 3px;
+    border: 1px solid #ADADAD;
+    cursor: pointer;
+    float: left;
+    height: 13px;
+    list-style: none outside none;
+    margin-top: 3px;
+    padding: 0 7px 3px 0;
+    width: auto;
+    font-size: .9em;
+    background-color: rgba(170, 190, 201, 0.2);
+}
+
+.tundra .dojoxFloatingPane .dijitTabInnerDiv {
+    padding: 2px 9px;
+}
+
+.tundra .smallTabs .dijitTabInnerDiv {
+    padding: 2px 9px;
+}
+
+._common_d11 .dojoxFloatingPaneContent {
+
+}
+
+._common_d11 .dojoxFloatingPane {
+    border-radius: 4px;
+    box-shadow: 3px 3px 4px #666;
+    border-color:silver;
+}
+
+._common_d11.tundra .dojoxFloatingPaneTitle {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    vertical-align: middle;
+    text-align: center;
+    color: #f6f6f6;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    padding-top: 2px;
+    padding-bottom: 3px;
+    font-size: .9em;
+    border:0;
+}
+
+/* @end */
+
+/* @group pbl_elements */
+
+/* @group Root Layout */
+
+
+/* @group top */
+
+.pbl_username {
+    border-radius: 6px;
+    background-color: #bfb6ae;
+    color: #403b3b;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-right: 6px;
+}
+
+.pbl_slotbar_label {
+    border-radius: 4px;
+    border-radius: 4px;
+    background-color:#ACACAC;
+    font-weight: bold;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top:2px !important;
+    color:#3E454C !important;
+}
+
+.pbl_root_top {
+    height: 22px;
+    vertical-align: middle;
+    color: white;
+    background:;
+    
+    
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+}
+
+/*background-color: #59514f;
+    color: #ece3da;*/
+
+.pbl_title_caption {
+    font-size: 11pt;
+    margin-top: 1px;
+    text-align: center;
+}
+
+.pbl_background {
+    background-color: #ffffff;
+}
+
+/* @group Logo */
+
+/*.pbl_logo_icon{
+	background: url(icons/genropy.gif) no-repeat  center center;
+	width: 30px;
+	height: 24px;
+}*/
+
+.pbl_logo_caption {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 6px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group bottom */
+
+/* @group  pbl_messageBottom*/
+
+.pbl_messageBottom {
+    text-align: center;
+    padding-top: 2px;
+}
+
+/* @end */
+
+/* @end */
+
+.pbl_root {
+}
+.pbl_root_bottom {
+    vertical-align: middle;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+}
+
+
+/* @end */
+
+/* @group Widget */
+
+/* @group Dialog */
+
+.pbl_dialog_center {
+/*not mandatory*/
+}
+
+/* @end */
+
+/* @group includedviewbox */
+
+.pbl_viewBox {
+    padding: 5px;
+
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    background-color: rgba(170, 190, 201, 0.2);
+}
+
+.pbl_viewBoxLabel {
+    height: 18px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    background-color: rgba(177,191,206,0.9);
+    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(177,191,206,0.9)), to(rgba(254,255,255,0.9)));
+    background-image: -moz-linear-gradient(180deg, rgba(254,255,255,0.9), rgba(177,191,206,0.9));
+    color: #000;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Form group */
+.gnr_footer{
+    background-image: -webkit-gradient(linear,  0% 0%, 0% 90%, from(rgb(190, 196, 204)), to(rgb(217, 227, 233)));
+    background-image: -moz-linear-gradient(0deg, rgb(190, 196, 204), rgb(217, 227, 233));
+}
+.pbl_roundedBlock{
+    border-radius: 6px;
+    position: absolute;
+    top:2px;
+    bottom:2px;
+    left:2px;
+    right: 2px;
+    border:1px solid #ddd;
+}
+
+.pbl_roundedGroup {
+    border-radius: 6px;
+    border:1px solid #ddd;
+}
+
+.pbl_roundedGroupLabel {    
+    height: 20px;
+    line-height:19px;
+    padding-bottom: 0;
+    padding-left: 4px; 
+    padding-right: 4px;    
+    background-color: #49637c;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    font-size: 0.9em;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    color: #555;
+	text-indent: 2px;
+}
+.pbl_roundedGroupVertical { 
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 0, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(0deg, #C8D1DC, #B4BECB);
+}
+
+
+
+.pbl_roundedGroupLabel .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
+    border:0;
+    background:transparent;
+    padding: 0px 0px;
+}
+
+.pbl_roundedGroupLabel.slotbar_horizontal{
+    padding-left:0;
+    padding-right:0;
+    vertical-align: middle;
+}
+.pbl_roundedGroupLabel.slotbar_horizontal .slotbar_cell{
+    height:20px;
+    line-height:14px;
+}
+
+
+.pbl_roundedGroupLabel .dijitButton{
+}
+.tundra._common_d11 .dijitButtonText{
+    text-align: center;
+    padding: 0 0.4em;
+    color: #444;
+}
+
+.pbl_roundedGroupBottom {
+    height: 18px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+}
+
+/* @end */
+
+
+
+/* @group Form group rect */
+.pbl_rectGroup {
+    background-color: rgba(170,190,201,0.2);
+}
+
+.pbl_rectGroupLabel {
+    height: 18px;
+    background-color: #49637c;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 5px;
+    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(73, 99, 124, 99)), to(rgba(225, 233, 233, 0.99)));
+    background-image: -moz-linear-gradient(180deg, rgba(238,245,254, 99), rgba(73, 99, 124, 0.99));
+    color: #feffff;
+}
+
+.pbl_rectGroupBottom {
+    height: 18px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-bottom: 5px;
+    background-color: #B2BDC7
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Widget Customization */
+
+/* @group Dialog */
+
+/* @group alert */
+
+.dlg_msgbox {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    bottom: 5px;
+    right: 5px;
+    border: 0px;
+    background-color: rgba(170, 190, 201, 0.2);
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1em;
+    padding-top: 2em;
+    border-radius: 6px;
+}
+
+.alertBodyMessage{
+    color:#444;
+    margin:12px;
+}
+/* @end */
+
+.tundra._common_d11 .dijitDialogTitleBar {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+    color: #ffffff;
+    vertical-align: middle;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    text-align: center;
+    font-weight:normal;
+    border-bottom:1px solid #ccc;
+    font-size: .9em;
+}
+
+/*._common_d11 .dijitDialogCloseIcon {
+    display: none;
+}*/
+
+._common_d11 .dijitDialog {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: #f6f6f6;
+    box-shadow: 3px 3px 5px #403b3b;
+    border:1px solid silver;
+}
+
+._common_d11 .dijitDialog .dijitDialogPaneContent {
+
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border: 0px;
+    background-color: #f6f6f6;
+
+    /*background-image: -moz-linear-gradient(-90deg, rgba(170, 190, 201, 0.2), #FFFFFF);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, rgba(170, 190, 201, 0.2), to(#FFFFFF));*/
+}
+
+.dialog_bottom {
+    height: 22px;
+    border-top:1px solid silver;
+    padding-top: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+
+/* @end */
+
+/* @group Accordion */
+._common_d11 .dijitAccordionContainer {
+    border: 1px solid gray;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+._common_d11 .dijitAccordionTitle {
+    background: #E0CEBE;
+    padding: 4px 4px 4px 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    font-size: .9em;
+}
+
+._common_d11 .dijitAccordionTitle-selected {
+    background: #4D5962;
+    color: white;
+    padding: 5px 4px 5px 8px;
+}
+
+._common_d11 .dijitAccordionArrow {
+    display: none;
+}
+
+/* @end */
+
+.mycolor {
+    color: #68858e;
+}
+
+.mycolor2 {
+    color: rgba(245, 245, 245, 0.99);
+}
+
+/* @group Tabcontainer */
+
+._common_d11 .dijitTab {
+    font-size: .9em;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    margin-right: 2px;
+    color: #444;
+    font-weight: plain;
+    /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
+  background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
+
+}
+
+._common_d11 .dijitTabHover {
+    opacity: 0.8;
+}
+
+._common_d11 .dijitTabInnerDiv {
+    border-left: 0;
+    border-bottom: 0;
+    padding:3px 5px 3px 5px;
+}
+
+._common_d11 .dijitTabCheckedHover {
+    opacity: 1;
+}
+
+._common_d11 .dijitTabChecked {
+    background: #f6f6f6;
+    border-bottom-color: #8a9ba5;
+    color: #ccc;
+}
+
+._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    background: #f6f6f6;
+    border-bottom-color: #f6f6f6;
+    color: #555;
+}
+
+._common_d11 .dijitTabPaneWrapper {
+    border-radius: 6px;
+    border-top-left-radius: 0px;
+}
+
+/* @group righttab */
+
+._common_d11 .dijitTabLabels-right-h .dijitTab {
+
+    border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+}
+
+._common_d11 .dijitTabLabels-right-h .dijitTabInnerDiv {
+    border: 0; /*padding: 2px 3px;*/
+}
+
+._common_d11 .dijitTabLabels-right-h.dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-left-color: whitesmoke;
+}
+
+/* @end */
+
+/* @group lefttab */
+
+._common_d11 .dijitTabLabels-left-h .dijitTab {
+
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 6px;
+    border-top-left-radius: 6px;
+
+}
+
+._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
+    padding: 3px 4px;
+}
+
+._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-right-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Grid */
+
+/* @end */
+
+/* @group tootlipDialog */
+
+._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
+    border-radius: 4px;
+    padding: 0px;
+    border: 1px solid silver;
+    font-size: inherit;
+    -webkit-box-shadow:3px 3px 5px #adadad !important;
+    -webkit-box-shadow:3px 3px 5px #adadad !important;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+}
+
+/* @end */
+
+/* @group MenuTree */
+
+.menu_page  > a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.menu_page  > a:hover {
+    text-decoration: underline;
+}
+
+.menupane {
+    background-color: rgba(168, 181, 182, 0.8);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(176, 189, 195, 0.20)), to(rgba(176, 189, 195, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(176, 189, 195, 0.20), rgba(238, 245, 254, 0.9));
+    margin-right: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-bottom-right-radius: 6px;
+    border-top-right-radius: 7px;
+    box-shadow: 4px 4px 4px #403b3b;
+    border-left: 0px;
+}
+
+.menutree {
+    margin-top: 5px;
+    margin-right:3px; /*font-weight: bold;*/
+    background-position: left;
+}
+
+.menutree .dijitTreeContent {
+    margin-left: 0px;
+    min-height: 10px;
+    padding-bottom: 4px;
+    padding-top: 0px;
+}
+
+.menutree .menu_shape {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
+    background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
+    margin-right: 8px;
+    box-shadow: 2px 2px 2px #403b3b;
+    margin-top: 3px;
+    color: #444;
+}
+
+.menutree .menu_current_page {
+    background:#488fd7;
+    color:#ddd;
+}
+.menutree .menu_existing_page.menu_shape  {
+    font-weight:bold;
+}
+
+.menutree .menu_shape:hover {
+    box-shadow: 3px 3px 2px #403b3b;
+}
+
+/* @end */
+
+/* @group Standard Table */
+.button_placeholder {
+    width: 25px;
+}
+
+/* @group tablehandler */
+.st_editor_bar {
+    background-color:#49637c; !important;
+}
+
+.st_editor_body {
+    background-color: rgba(124,151,179,0.8);
+!important;
+}
+
+.listbottompane {
+    background-color: rgba(168, 181, 182, 0.8);
+}
+
+.listbottompane .dijitButtonNode {
+    box-shadow: 1px 1px 2px #403b3b;
+}
+
+.listbottompane .dijitButtonNode:hover {
+    box-shadow: 2px 2px 4px #403b3b;
+
+}
+
+
+/* @end */
+/* @end */
+
+/* @group General */
+/* @group form */
+
+.sectionLabel {
+    color: #707070 !important;
+    opacity: 0.7 !important;
+    text-align: left;
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-left: 3px;
+}
+
+
+.gnrfieldlabel {
+    color: #707070;
+}
+
+.label {
+    color: rgba(95, 75, 66, 0.7);
+}
+
+.gnr_recordinfo {
+    padding: 5px;
+    background-color: #f6f6f6;
+    box-shadow: rgb(158, 133, 111) 2px 2px 2px;
+    border-radius: 6px;
+}
+
+/* @end */
+
+#mainWindow {
+    /*background-color: rgba(170, 190, 201, 0.2);*/
+    font-size: 12px;
+}
+
+/* @end */
+
+/* @group Colors */
+
+/* @group font color */
+
+.color_darkest {
+    color: rgba(57, 82, 112, 0.99);
+}
+
+.color_dark {
+    color: #bfb6ae;
+}
+
+.color_medium {
+    color: #97AEA9;
+}
+
+.color_bright {
+    color: #eef2fb;
+}
+
+.color_brightest {
+    color: #f6f6f6;
+}
+
+/* @end */
+
+/* @group bgcolor */
+
+.bgcolor_darkest {
+    background-color: rgba(57, 82, 112, 0.99);
+}
+
+.bgcolor_dark {
+    background-color: #bfb6ae;
+}
+
+.bgcolor_medium {
+    background-color: #97AEA9;
+}
+
+.bgcolor_bright {
+    background-color: #eef2fb;
+}
+
+.bgcolor_brightest {
+    background-color: #f6f6f6;
+}
+
+/* @end */
+
+/* @end */
+
+.fh_bottom_message {
+    background-color: #e6e6e6;
+    color:#555;
+}
+
+
+/*grid*/
+
+
+.draggedItem .dojoxGrid-row{
+    border-bottom:1px solid #333;
+    border-bottom:1px solid #333;
+
+}
+
+._common_d11 .dojoxGrid-row .dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 1px solid #dee;
+    border-bottom: 0px !important;
+    /*height: 21px;*/
+    height:0px;
+    padding-top:2px;
+    padding-bottom:2px;
+    background:none;
+    vertical-align:top;
+}
+._common_d11 .widgetInCell {
+    color: #444;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 5px;
+    width: 100%;
+    border:0px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    box-shadow: 1px 1px 1px #777 inset;
+}
+._common_d11 .cell_B .widgetInCell {
+    width: 16px;
+    margin: auto;
+}
+
+.tundra._common_d11 .dojoxGrid-row{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+}
+
+.tundra._common_d11 .dojoxGrid-row-odd{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FAFCFF), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #FAFCFF, #f6f6f6);
+}
+.tundra._common_d11 .dojoxGrid-row-selected{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#c2d3e7));
+    background-image: -moz-linear-gradient(-90deg, white, #c2d3e7);
+    border-bottom: 0px solid !important;
+    border-right: 1px solid #dee;
+}
+
+
+._common_d11 .canBeDropped.dojoxGrid-row,
+._common_d11 .canBeDropped.dojoxGrid-row-selected,
+._common_d11 .canBeDropped .dojoxGrid-row,
+._common_d11 .canBeDropped .dojoxGrid-row-selected,
+._common_d11 .canBeDropped .dojoxGrid-cell,
+._common_d11 .canBeDropped.dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-selected.canBeDropped .dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-selected .canBeDropped.dojoxGrid-cell{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#8fff9d));
+    background-image: -moz-linear-gradient(-90deg, white, #8fff9d);
+}
+
+._common_d11 .cannotBeDropped.dojoxGrid-row,
+._common_d11 .cannotBeDropped.dojoxGrid-row-selected,
+._common_d11 .cannotBeDropped .dojoxGrid-cell,
+._common_d11 .cannotBeDropped.dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-selected.cannotBeDropped .dojoxGrid-cell,
+._common_d11 .dojoxGrid-row-selected .cannotBeDropped.dojoxGrid-cell{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#ffa997));
+    background-image: -moz-linear-gradient(-90deg, white, #ffa997);
+}
+
+.common_d11 .draggedItem .dojoxGrid-cell,.common_d11 .draggedItem.dojoxGrid-cell{
+    border: 0px solid yellow !important;
+    opacity:.8;
+}
+
+._common_d11.tundra .noheader .dojoxGrid-header {
+    display:none;
+}
+
+
+
+._common_d11.tundra .dojoxGrid-header{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#d8d8d8), to(#f6f6f6));
+    background-image: -moz-linear-gradient(-90deg, #d8d8d8, #f6f6f6);
+    border-color:#666 !important;
+    border-bottom:1px solid silver !important;
+}
+
+._common_d11.tundra .dojoxGrid-header .dojoxGrid-cell{
+    background:none !important;
+    height:14px;
+    padding-top:2px;
+    color:#555 !important;
+    border-bottom:0 !important;
+    border-color:silver !important;
+}
+
+._common_d11 .dojoxGrid-scrollbox {
+    overflow: auto;
+    /*background-color: white ; */
+}
+
+
+
+.buttons_grid th{
+    display:none;
+}
+.buttons_grid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    background: transparent !important;
+}
+
+.tundra._common_d11 .buttons_grid .dojoxGrid-row-selected{
+    background: transparent !important;
+    background-image:none !important;
+}
+.tundra._common_d11 .buttons_grid .dojoxGrid-row{
+    background-image:none !important;
+    background: transparent !important;
+}
+.tundra._common_d11 .buttons_grid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+
+.buttons_grid .cellContent{
+    border-radius:4px;
+    margin-top:0;
+    margin-right:-5px;
+    text-align:center;
+    padding-top:2px;
+    padding-bottom:1px;
+    line-height:16px;
+    font-size: 8pt;
+    font-variant:small-caps;
+    
+    color:#333;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border: 1px solid #666;
+    cursor:pointer;
+    margin-top:2px;
+}
+
+.buttons_grid .dojoxGrid-row-selected .cellContent{
+    background:#888;
+    color: #fff;
+	-moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+}
+
+
+.tundra .dijitSplitter.dijitSplitterV{
+    width:4px;
+    background: transparent;
+}
+
+
+.tundra .dijitSplitter.dijitSplitterV:hover{
+    background:silver;
+    opacity:.5;
+}
+
+.tundra .dijitSplitter.dijitSplitterH{
+    height:4px;
+    background: transparent;
+}
+
+.tundra._common_d11 .dijitSplitterThumb{
+    display:none;
+}
+
+.tundra .dijitSplitter.dijitSplitterV:hover{
+    background:silver;
+    opacity:.5;
+}
+
+
+
+
+
+

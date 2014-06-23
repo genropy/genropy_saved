@@ -1,0 +1,418 @@
+.logicalDeleted .gnrfield * {
+    color: #f00;
+}
+.th_whereDescriptorBar{
+    min-height: 40px;
+    padding: 2px;
+    border-top: 1px solid silver;
+}
+.th_whereDescriptor{
+	font-family: "Courier New", Courier, mono;
+    line-height: 20px;
+    text-align:left;
+    width: 100%;
+}
+
+/* @group toolbarbuttons */
+.th_filterActive .th_filterButton {
+    background: url(../icons/filter_active.png) center center no-repeat;
+}
+
+.th_filterButton {
+    background: url(../icons/filter.png) center center no-repeat;
+}
+
+.tb_button {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.tb_listview {
+    background: url(../icons/listview.gif) no-repeat center center;
+}
+
+.th_isFavoriteView .th_favoriteIcon, .th_isFavoriteQuery .th_favoriteIcon{
+    background-color:lightyellow;
+}
+
+/* @end */
+
+.topmsgcontainer {
+    position: absolute;
+    z-index: 999 !important;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
+}
+
+.topmsgpane {
+    width: 300px;
+    background-color: white;
+    border: 1px solid gray;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* @group editors */
+
+.st_editor_bar {
+    color: white;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    height: 20px;
+    background-color: #666;
+    padding: 1px;
+}
+
+.st_editor_title {
+    margin-left: 15px;
+    font-size: .85em;
+    font-weight: bold;
+}
+
+.listbottompane {
+    height: 27px;
+    font-size: 0.9em;
+    /* background-color:silver;
+     -moz-box-shadow:4px 0px 6px #403b3b;
+     -webkit-box-shadow:4px 0px 5px #403b3b;}*/
+}
+
+.st_editor_body {
+    position: absolute;
+    top: 20px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    overflow: auto;
+    padding: 3px;
+    background-color: #c3c3c3;
+}
+
+/* @end */
+
+.hidden_record_checkbox {
+    margin: 4px;
+    margin-left: 15px;
+}
+
+.hidden_record_checkbox label {
+    line-height: 15px;
+    font-size: .9em;
+    color: gray;
+    font-weight: bold;
+    margin-left: 0 !important;
+    padding: 0 !important;
+}
+
+/* @group th_tree */
+
+._alias_row .cellContent{
+    font-style:italic;
+}
+._hieararchical_inherited .cellContent{
+    opacity:.7;
+}
+
+/* @end */
+
+
+
+/**/
+.button_placeholder {
+    width: 25px;
+}
+ 
+.listbuttons_placeholder {
+    float: right;
+}
+ 
+.th_toolbar {
+    height: 26px;
+}
+ 
+.th_toolbar_left {
+    border-right: 1px solid gray;
+}
+ 
+.sttbl_list_top {
+    height: 30px; /*border-bottom: 1px solid silver;*/
+}
+ 
+.listOptMenu {
+    font-size: .9em;
+    width: 7em;
+    margin-top: 2px;
+}
+ 
+.center_pane {
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+ 
+.query_form {
+    margin-top: 2px;
+}
+.query_form .dijitTextBox,.query_form .fakeTextBox{
+	padding-top: 0!important;
+}
+ 
+.center_pane .smallFakeTextBox, .center_pane .dijitInputField {
+    height: 15px;
+    line-height: 15px;
+}
+ 
+.toolbarStack {
+    background-color: gray;
+    -moz-border-radius-: 4px;
+    -webkit-border-radius: 4px;
+    padding: 2px;
+}
+ 
+.disabled {
+    opacity: 0.3;
+}
+ 
+.semaphore {
+    margin: 5px;
+}
+ 
+/* @group querypane */
+ 
+.query_pane .smallFakeTextBox, .query_pane .dijitInputField {
+    height: 15px;
+    line-height: 15px;
+}
+ 
+.sttbl_treepane {
+    padding: 4px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+}
+ 
+.sttbl_querypane {
+    background-color: white;
+    padding: 4px;
+}
+ 
+.sttbl_gridpane {
+    background-color: white;
+}
+ 
+/* @end */
+
+
+/* @group qb */
+/* @group helper */
+ 
+.helperIcon {
+    background: url(../icons/linkto.gif) no-repeat right;
+    height: 14px;
+    width: 14px;
+}
+ 
+/* @end */
+ 
+.qb_table {
+    border-spacing: 3px;
+    font-size: x-small;
+}
+ 
+.qb_table td {
+    vertical-align: middle;
+}
+ 
+.qb_div {
+    border:1px solid silver;
+    color:#555;
+    border-radius: 4px;
+    padding-left: 6px;
+    min-height: 14px;
+    line-height:15px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#F7F7F7), to(#E4E4E4));    
+    background-image: -moz-linear-gradient(-90deg, #F7F7F7, to(#E4E4E4));
+
+}
+._common_d11 .qb_value .dijitInputField{
+    line-height:14px;
+}
+
+ 
+.qb_group {
+    border:1px solid silver;
+    width: auto;
+}
+ 
+.qb_group_even {
+    background-color: #F2F9FE;
+}
+ 
+.qb_group_odd {
+    background-color: #FFFFFF;
+}
+ 
+.qb_jc {
+ 
+}
+ 
+.qb_jc_noicn {
+ 
+}
+ 
+.qb_field {
+    min-width: 6em;
+}
+ 
+.qb_op {
+    min-width: 2em;
+}
+ 
+.qb_value {
+    min-width: 8em;
+    padding-right: 10px;
+    line-height: .9ex;
+}
+ 
+.qb_btn {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    float: left;
+    margin-left: 3px;
+}
+ 
+.qb_add {
+    background: url(../icons/add.gif) no-repeat center center;
+}
+ 
+.qb_del {
+    background: url(../icons/delete.gif) no-repeat center center;
+}
+ 
+.qb_rem {
+ 
+}
+ 
+/* @end */
+ 
+.querymenu {
+    width: 22px;
+    height: 26px;
+    background: url(../icons/querymenu.gif) no-repeat center center;
+}
+ 
+.querymenu:hover {
+    cursor: pointer;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    background: #dfdfdf url(../icons/querymenu.gif) no-repeat center center;
+}
+ 
+/* @group dijit custom */
+ 
+.toolbox {
+    font-size: 0.9em;
+}
+ 
+.toolbox .dijitTreeExpando {
+    width: 18px;
+    height: 15px;
+}
+ 
+.toolbox .dijitTreeContent {
+    min-height: 12px;
+    min-width: 18px;
+}
+ 
+.toolbox .dijitTreeIcon {
+    height: 12px;
+    width: 12px;
+    padding-right: 2px;
+}
+ 
+.smallmenu .dijitMenuItem {
+    font-size: .85em !important;
+}
+ 
+.smallmenu .dijitMenuItem TD {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: .40em;
+}
+ 
+.toolbox .dijitAccordionTitle {
+    padding: 3px;
+}
+ 
+.toolbox .dijitAccordionArrow {
+    background-image: none;
+    height: 12px;
+    width: 12px;
+    margin-top: 0px;
+}
+ 
+/* @end */
+ 
+/* @group toolbox */
+ 
+.treeContainer {
+    padding: 4px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px solid gray;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    overflow: auto;
+}
+ 
+._common_d11 .toolbox .dijitTabInnerDiv {
+    border-bottom: 1px solid whitesmoke;
+    border-left: 0;
+    padding: 6px 10px 4px;
+}
+ 
+._common_d11 .toolbox .dijitTab {
+    background: #666;
+    border-right: 1px solid gray;
+    border-left: 1px solid gray;
+    border-top: 1px solid gray;
+}
+ 
+._common_d11 .toolbox .dijitTabChecked {
+    background: whitesmoke;
+}
+ 
+._common_d11 .toolbox .dijitTabCheckedHover {
+    opacity: 1;
+}
+ 
+._common_d11 .toolbox .dijitTabPaneWrapper {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-top-left-radius: 0px;
+    border: 1px solid gray;
+    background-color: whitesmoke;
+}
+
+
+/* x   x */
+.th_form_not_allowed .add_row,.th_form_not_allowed .delete_row{
+    display: none;
+}
+
+
+
+

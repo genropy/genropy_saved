@@ -1,0 +1,256 @@
+h1 {
+    font-size: 1em;
+    border-bottom: 1pt solid gray;
+    text-align: center;
+}
+
+h2 {
+    font-size: 0.9em;
+    color: grey;
+    text-align: justify;
+}
+
+h3 {
+    font-size: 0.9em;
+    color: black;
+    text-align: center;
+}
+
+html, body.tableWindow {
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
+    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-size: 12px;
+    font-size-adjust: none;
+    font-stretch: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: normal;
+    margin: 0px;
+}
+
+table.full_page {
+    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-size: 10px;
+    font-size-adjust: none;
+    font-stretch: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: normal;
+    padding-bottom: 3em;
+    width: 100%;
+    height: 100%;
+    border-spacing: 0px;
+    cursor: default;
+}
+
+table.full_page.withfooter {
+    padding-bottom: 5em;
+}
+
+table.full_page tbody {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+table.full_page tbody tr.alt td,
+table.full_page tbody tr.odd_row td {
+    background: #E3EDFA none repeat scroll 0%;
+}
+
+table.full_page tbody tr:hover td {
+    text-decoration: underline;
+}
+
+table.full_page td.rcol,
+table.full_page th.rcol {
+    border-right: 2px solid #BBBBBB;
+}
+
+table.full_page td.num {
+    text-align: right;
+    padding-right: 4px;
+}
+
+table.full_page tbody tr td {
+    background: white;
+    border-bottom: 1px solid #BBBBBB;
+    border-right: 1px solid #BBBBBB;
+    vertical-align: top;
+}
+
+table.full_page tfoot tr td {
+    background-color: lightgrey;
+    background-position: right top;
+    background-repeat: no-repeat;
+    border-right: 1px solid #BBBBBB;
+    font-weight: bold;
+}
+
+table.full_page thead td,
+table.full_page thead th {
+    background-color: whitesmoke;
+    font-weight: bold;
+    border-top: 1px solid #BBBBBB;
+    border-bottom: 1px solid #BBBBBB;
+}
+
+table.full_page td,
+table.full_page th {
+    font-weight: normal;
+    padding: 1px;
+}
+
+table.full_page td:first-child,
+table.full_page th:first-child {
+    border-left: 1px solid #BBBBBB;
+}
+
+table.full_page thead tr td:last-child, table.full_page thead tr th:last-child, table.full_page tbody tr td:last-child,
+table.full_page tfoot tr td:last-child {
+    padding-right: 16px;
+}
+
+/* @group html */
+
+dl {
+    margin-left: 1em;
+}
+
+li {
+    list-style-type: disc;
+    list-style-position: outside;
+    margin-left: 1em;
+}
+
+dt {
+    list-style-type: disc;
+    list-style-position: outside;
+    font-weight: bold;
+    margin-left: 1em;
+}
+
+dd {
+    margin-left: 2em;
+    margin-bottom: 0.4em;
+}
+
+/*statistic styles*/
+.prevperiod {
+    background-color: silver;
+}
+
+.increment {
+    color: green;
+}
+
+.decrement {
+    color: red;
+}
+
+table.full_page tr.data td.increment {
+    background-color: #bafda8;
+    color: black;
+}
+
+table.full_page tr.data td.decrement {
+    background-color: #ffb6a1;
+    color: black;
+}
+
+table.full_page tr.data td.unchanged {
+    background-color: white;
+}
+
+table.full_page tr.data td.noprev {
+    background-color: white;
+    color: green;
+}
+
+table.full_page tr.subtot td.increment {
+    color: green;
+}
+
+table.full_page tr.subtot td.decrement {
+    color: red;
+}
+
+table.full_page tr.subtot td.noprev {
+    color: green;
+}
+
+table.full_page td.inc_0 {
+    background-color: #bafda8 !important;
+    color: black !important;
+}
+
+table.full_page td.inc_1 {
+    background-color: #67fe55 !important;
+    color: black !important;
+}
+
+table.full_page td.inc_2 {
+    background-color: #00bd00 !important;
+    color: white !important;
+}
+
+table.full_page td.dec_0 {
+    background-color: #ffb6a1 !important;
+    color: black !important;
+}
+
+table.full_page td.dec_1 {
+    background-color: #ff5f51 !important;
+    color: black !important;
+}
+
+table.full_page td.dec_2 {
+    background-color: #f00 !important;
+    color: white !important;
+}
+
+tr[rowhidden="y"] {
+    display: none;
+}
+
+tr[isclosed] .showhide {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-color: orange;
+    text-decoration: none;
+}
+
+tr[isclosed=""] .showhide {
+    background-image: url(../icons/zoom_out_btn.png);
+}
+
+tr[isclosed="y"] .showhide {
+    background-image: url(../icons/zoom_in_btn.png);
+}
+
+table.full_page tr.subtot td {
+    border-bottom: 1px solid #BBBBBB;
+    color: navy;
+}
+
+table.full_page tr.subtot_0 td {
+    background-color: navy;
+    color: white;
+    border-top: 2px solid gray;
+}
+
+table.full_page tr.subtot_1 td {
+    background-color: #f9ff5c;
+}
+
+table.full_page tr.subtot_2 td {
+    background-color: #fdffa2;
+}
+
+/* @end */

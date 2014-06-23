@@ -1,0 +1,30 @@
+.df_row{
+    display:none;
+}
+
+/*'TextBox:TextBox,simpleTextArea:TextArea,FilteringSelect:Filtering Select,Combobox:Combobox,DbSelect:DbSelect,checkboxtext:Multi checkbox'*/
+
+.dffb_calculated .field_calculated.df_row,
+.dffb_enterable .field_enterable.df_row{
+    display:table-row;
+}
+
+.dffb_enterable.dffb_horizontalslider .field_horizontalslider.df_row,
+.dffb_enterable.dffb_textbox .field_textbox.df_row,
+.dffb_enterable.dffb_simpletextarea .field_simpletextarea.df_row,
+.dffb_enterable.dffb_filteringselect .field_filteringselect.df_row, 
+.dffb_enterable.dffb_combobox .field_combobox.df_row, 
+.dffb_enterable.dffb_dbselect .field_dbselect.df_row, 
+.dffb_enterable.dffb_dbcombobox .field_dbcombobox.df_row, 
+.dffb_enterable.dffb_checkboxtext .field_checkboxtext.df_row,
+.dffb_enterable.dffb_checkboxtext_nopopup .field_checkboxtext_nopopup.df_row,
+.dffb_enterable.dffb_currencytextbox .field_currencytextbox.df_row,
+.dffb_enterable.dffb_numbertextbox .field_numbertextbox.df_row,
+.dffb_enterable.dffb_numberspinner .field_numberspinner.df_row,
+.dffb_enterable.dffb_img .field_img.df_row,
+.dffb_enterable.dffb_geocoderfield .field_geocoderfield.df_row,
+.dffb_enterable.dffb_graph .field_graph.df_row,
+
+.dffb_calculated .field_calculated.df_row{
+    display:table-row;
+}

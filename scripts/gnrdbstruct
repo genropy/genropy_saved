@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import urllib
+import sys
+
+argv = sys.argv
+argv.pop(0)
+path = ''
+port = argv.pop(0)
+if argv:
+    path = sys.argv[0] or ''
+    path = path.replace('.', '/')
+urlobj = urllib.urlopen('http://127.0.0.1:%s/_tools/dbstructure/%s' % (port, path))
+print urlobj.read()

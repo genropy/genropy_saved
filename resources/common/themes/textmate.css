@@ -1,0 +1,582 @@
+/* Blue Theme */
+
+/* @group pbl_elements */
+
+/* @group Root Layout */
+
+/* @group top */
+
+.pbl_username {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #df3cd3;
+    color: white;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-right: 6px;
+}
+
+.pbl_workdate {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #df3cd3;
+    color: white !important;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-left: 6px;
+    margin-top: 5px;
+}
+
+.pbl_root_top {
+    height: 24px;
+    vertical-align: middle;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    color: #F5F5F5;
+    border-color: rgba(77, 89, 98, 0.99);
+    background-color: #801f78;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(77, 89, 98, 0.99)), to(rgba(101, 135, 142, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(77, 89, 98, 0.99), rgba(101, 135, 142, 0.9));
+}
+
+/*background-color: #59514f;
+    color: #ece3da;*/
+
+.pbl_title_caption {
+    font-size: 11pt;
+    margin-top: 1px;
+    text-align: center;
+}
+
+/* @group Logo */
+
+/*.pbl_logo_icon{
+	background: url(icons/genropy.gif) no-repeat  center center;
+	width: 30px;
+	height: 24px;
+}*/
+
+.pbl_logo_caption {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 6px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group bottom */
+
+/* @group  pbl_messageBottom*/
+
+.pbl_messageBottom {
+    text-align: center;
+    padding-top: 2px;
+}
+
+/* @end */
+
+/* @end */
+
+.pbl_root {
+    margin: 8px;
+    margin-left: 0;
+    margin-right: 12px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: 4px 4px 4px #403b3b;
+    -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+
+.pbl_root_bottom {
+    height: 23px;
+    background-color: rgba(77, 89, 98, 0.99);
+    border-color: #4D5962;
+    padding-top: 1px;
+    vertical-align: middle;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(101, 135, 142, 0.9)), to(rgba(77, 89, 98, 0.99)));
+    background-image: -moz-linear-gradient(-90deg, rgba(101, 135, 142, 0.9), rgba(77, 89, 98, 0.99));
+}
+
+.pbl_root_center {
+    background-color: white;
+}
+
+/* @end */
+
+/* @group Widget */
+
+/* @group Dialog */
+
+.pbl_dialog_center {
+/*not mandatory*/
+    background-color: white;
+}
+
+/* @end */
+
+/* @group includedviewbox */
+
+.pbl_viewBox {
+    background-color: #f4c4ff;
+    padding: 5px;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+}
+
+.pbl_viewBoxLabel {
+    height: 18px;
+    background-color: #df3cd3;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 3px;
+    padding-bottom: 2px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Form group */
+.pbl_roundedGroup {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #E1E9E9;
+}
+
+.pbl_roundedGroupLabel {
+    height: 18px;
+    background-color: #df3cd3;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-top: 5px;
+    background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(151, 174, 169, 99)), to(rgba(225, 233, 233, 0.99)));
+    background-image: -moz-linear-gradient(180deg, rgba(225, 233, 233, 0.99), rgba(151, 174, 169, 99));
+	text-indent: 2px;
+}
+
+.pbl_roundedGroupBottom {
+    height: 18px;
+    background-color: #df3cd3;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    padding-left: 10px;
+    font-size: 0.9em;
+    padding-bottom: 5px;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Widget Customization */
+
+/* @group Dialog */
+
+/* @group alert */
+
+.dlg_msgbox {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    bottom: 5px;
+    right: 5px;
+    border: 0px;
+    background-color: #E1E9E9;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1em;
+    padding-top: 2em;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+/* @end */
+
+._common_d11 .dijitDialogTitleBar {
+    background: #801f78 -moz-linear-gradient(-90deg, rgba(77, 89, 98, 0.99), rgba(101, 135, 142, 0.9)) repeat scroll 0 0;
+    color: #F5F5F5;
+    vertical-align: middle;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    text-align: center;
+}
+
+._common_d11 .dijitDialogCloseIcon {
+    display: none;
+}
+
+._common_d11 .dijitDialog {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: 4px 4px 6px #403b3b;
+    -webkit-box-shadow: 4px 4px 6px #403b3b;
+    border: 0px;
+}
+
+._common_d11 .dijitDialog .dijitDialogPaneContent {
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    background-color: #E1E9E9;
+    border: 0px;
+
+}
+
+.dialog_bottom {
+    background-color: #E1E9E9;
+    font-weight: bold;
+    height: 26px;
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    -moz-border-radius-bottomleft: 7px;
+    -moz-border-radius-bottomright: 7px;
+    -webkit-border-bottom-left-radius: 7px;
+    -webkit-border-bottom-right-radius: 7px;
+}
+
+/* @end */
+
+/* @group Accordion */
+._common_d11 .dijitAccordionContainer {
+    border: 1px solid gray;
+    -moz-border-radius-topleft: 7px;
+    -moz-border-radius-topright: 7px;
+    -webkit-border-top-left-radius: 7px;
+    -webkit-border-top-right-radius: 7px;
+}
+
+._common_d11 .dijitAccordionTitle {
+    background: #E0CEBE;
+    padding: 4px 4px 4px 8px;
+    -moz-border-radius-topleft: 8px;
+    -moz-border-radius-topright: 8px;
+    -webkit-border-top-left-radius: 8px;
+    -webkit-border-top-right-radius: 8px;
+    font-size: .9em;
+}
+
+._common_d11 .dijitAccordionTitle-selected {
+    background: #4D5962;
+    color: white;
+    padding: 5px 4px 5px 8px;
+}
+
+._common_d11 .dijitAccordionArrow {
+    display: none;
+}
+
+/* @end */
+
+.mycolor {
+    color: #68858e;
+}
+
+.mycolor2 {
+    color: rgba(245, 245, 245, 0.99);
+}
+
+/* @group Tabcontainer */
+
+._common_d11 .dijitTab {
+    color: white;
+    font-size: 1em;
+    background: #801f78 none repeat scroll 0 0;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
+  background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
+
+}
+
+._common_d11 .dijitTabHover {
+    opacity: 0.8;
+}
+
+._common_d11 .dijitTabInnerDiv {
+    border-left: 0;
+    border-bottom: 0;
+}
+
+._common_d11 .dijitTabCheckedHover {
+    opacity: 1;
+}
+
+._common_d11 .dijitTabChecked {
+    background: #df3cd3;
+    border-bottom-color: #9E856F;
+    color: #F5F5F5;
+}
+
+._common_d11 .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-bottom-color: #68858e;
+    background-color: #df3cd3;
+}
+
+._common_d11 .dijitTabPaneWrapper {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-top-left-radius: 0px;
+    background-color: #F5F5F5;
+}
+
+/* @group righttab */
+
+._common_d11 .dijitTabLabels-right-h .dijitTab {
+    -moz-border-radius-bottomright: 6px;
+    -moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomleft: 0px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    -webkit-border-bottom-left-radius: 0px;
+    -webkit-border-top-left-radius: 0px;
+}
+
+._common_d11 .dijitTabLabels-right-h .dijitTabInnerDiv {
+    border: 0; /*padding: 2px 3px;*/
+}
+
+._common_d11 .dijitTabLabels-right-h.dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-left-color: whitesmoke;
+}
+
+/* @end */
+
+/* @group lefttab */
+
+._common_d11 .dijitTabLabels-left-h .dijitTab {
+    -moz-border-radius-bottomright: 0px;
+    -moz-border-radius-topright: 0px;
+    -moz-border-radius-bottomleft: 6px;
+    -moz-border-radius-topleft: 6px;
+    -webkit-border-bottom-right-radius: 0px;
+    -webkit-border-top-right-radius: 0px;
+    -webkit-border-bottom-left-radius: 6px;
+    -webkit-border-top-left-radius: 6px;
+
+}
+
+._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
+    padding: 3px 4px;
+}
+
+._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
+    border-right-color: whitesmoke;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group Grid */
+
+/* @end */
+
+/* @group tootlipDialog */
+
+._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    padding: 0px;
+    border: 0;
+    background: #68858E;
+    font-size: inherit;
+}
+
+/* @end */
+
+/* @end */
+
+/* @group MenuTree */
+
+.menu_page  > a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.menu_page  > a:hover {
+    text-decoration: underline;
+}
+
+.menupane {
+    overflow: auto;
+    background-color: rgba(168, 181, 182, 0.8);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(105, 127, 127, 0.50)), to(rgba(192, 192, 192, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(105, 127, 127, 0.50), rgba(192, 192, 192, 0.9));
+    margin-right: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    -moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-top-right-radius: 7px;
+    -moz-box-shadow: 4px 4px 4px #403b3b;
+    -webkit-box-shadow: 4px 4px 4px #403b3b;
+    border-left: 0px;
+}
+
+.menutree {
+    margin-top: 5px;
+    margin-right: 10px; /*font-weight: bold;*/
+    background-position: left;
+}
+
+.menutree .dijitTreeIcon {
+    visibility: hidden;
+    cursor: pointer;
+
+}
+
+.menutree .dijitTreeExpando {
+    display: none;
+}
+
+.menutree .dijitTreeIsLast {
+    background: none;
+}
+
+.menutree .dijitTreeNode {
+    background: none;
+}
+
+.menutree .dijitTreeContent {
+    margin-left: 0px;
+    min-height: 10px;
+    padding-bottom: 4px;
+    padding-top: 0px;
+}
+
+.menutree .menu_level_0 {
+    font-size: 1em;
+}
+
+.menutree .menu_level_1 {
+    font-size: 1em;
+}
+
+.menutree .menu_level_2 {
+    font-size: 1.1em;
+}
+
+.menutree .menu_level_3 {
+    font-size: 1em;
+}
+
+.menutree .menu_level_4 {
+    font-size: 1em;
+}
+
+.menutree .menu_page {
+    color: #403b3b;
+    font-size: .9em;
+}
+
+.menutree .menu_shape {
+    -moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    -webkit-border-top-right-radius: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background-color: #68858E;
+    margin-right: 10px;
+    -moz-box-shadow: 2px 2px 2px #403b3b;
+    -webkit-box-shadow: 2px 2px 2px #403b3b;
+    margin-top: 3px;
+    color: #FFFFFF;
+}
+
+.menutree .menu_shape:hover {
+    -moz-box-shadow: 4px 4px 4px #403b3b;
+    -webkit-box-shadow: 4px 4px 4px #403b3b;
+}
+
+/* @end */
+
+/* @group Standard Table */
+
+/* @group tablehandler */
+.st_editor_bar {
+    background-color: #68858E !important;
+}
+
+.st_editor_body {
+    background-color: rgba(168, 181, 182, 0.8);
+!important;
+}
+
+.qb_group_even {
+    background-color: rgba(168, 181, 182, 0.8);
+!important;
+}
+
+/* @end */
+/* @end */
+
+/* @group General */
+/* @group form */
+.gnrfieldlabel {
+    color: rgba(72, 84, 92, 0.9);
+}
+
+.label {
+    color: rgba(72, 84, 92, 0.9);
+}
+
+.gnr_recordinfo {
+    padding: 5px;
+    background-color: #F5F5F5;
+    -webkit-box-shadow: rgb(158, 133, 111) 2px 2px 2px;
+    -moz-box-shadow: rgb(158, 133, 111) 2px 2px 2px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+/* @end */
+
+#mainWindow {
+    background-color: white;
+    font-size: 13px;
+}
+
+/* @end */

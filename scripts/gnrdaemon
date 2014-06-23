@@ -1,0 +1,81 @@
+#!/usr/bin/env python2.7
+# encoding: utf-8
+# 
+from gnr.web.gnrdaemonhandler import GnrDaemon,GnrDaemonProxy
+
+
+import argparse
+
+PYRO_HOST = 'localhost'
+PYRO_PORT = 40004
+PYRO_HMAC_KEY = 'supersecretkey'
+ 
+def getOptions():
+    usage = "\ngnrdaemon"
+    parser = argparse.ArgumentParser(usage)
+    parser.add_argument('command',nargs='?')
+    parser.add_argument('-H', '--host',
+                      help="The binded host")
+                      
+    parser.add_argument('-P', '--port',
+                      help="The binded port" ,type=int)
+                      
+    parser.add_argument('-K', '--hmac_key',
+                      help="The secret key")
+                      
+    parser.add_argument('-t', '--timeout',type=float,
+                      help="Timeout")
+
+    parser.add_argument('-m', '--multiplex',action='store_false',
+                      help="Use multiplexed server")
+                      
+    parser.add_argument('--polltimeout',type=float,
+                      help="Use multiplexed server poll timeout")
+
+    parser.add_argument('-d', '--debug',
+                      action='store_false',
+                      help="Debug mode")
+                      
+    parser.add_argument('-c', '--compression',
+                      action='store_false',
+                      help="Enable compression")
+
+    parser.add_argument('-s', '--savestatus',
+                      action='store_true',
+                      help="Save status")
+
+    parser.add_argument('-n', '--sitename',
+                      help="Sitename")
+    
+    parser.add_argument('-l', '--size_limit', type=int,
+                      help="Size limit")
+
+
+    arguments= parser.parse_args()
+    return arguments.__dict__
+    
+
+if __name__=="__main__":
+    options = getOptions()
+    command = options.pop('command',None)
+    if command == 'start' or not command:
+        server = GnrDaemon()
+        server.start(use_environment=True,**options)
+    else:
+        p = GnrDaemonProxy(host=options.get('host'),port=options.get('port'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
+        proxy = p.proxy()
+        if command=='stop':
+            print 'savestatus',options.get('savestatus')
+            result = proxy.stop(saveStatus=options.get('savestatus'))   
+            print result
+        elif command =='restart':
+            result = proxy.restart('*')
+        elif command in ('stopping','starting'):
+            result = getattr(proxy,command)()
+            print result
+        else:
+            h = getattr(proxy,command,None)
+            if h:
+                print h(**options)
+            else:
+                print 'unknown command:%s' %command

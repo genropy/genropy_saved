@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+import subprocess
+import sys
+from optparse import OptionParser
+from gnr.app.gnrapp import GnrApp
+from StringIO import StringIO
+
+"""example:   gnrdbgraph -O genropynet sys adm"""
+
+def loadRelations(app, tables):
+    b = {}
+    for full in tables:
+        pkg, tbl = full.split('.', 2)
+        relCols = app.db.packages['%(pkg)s.tables.%(tbl)s' % {'pkg': pkg, 'tbl': tbl}].relatingColumns
+        b[full] = bb = {}
+        if relCols:
+            for c in relCols:
+                pkg_r, tbl_r, fld_r = c.split('.', 3)
+                full_r = "%s.%s" % (pkg_r, tbl_r)
+                if full_r in tables:
+                    bb[full_r] = None
+    return b
+
+def quote(s):
+    return s.replace('.', '_')
+
+def remove_package(full):
+    pkg, tbl = full.split('.', 2)
+    return tbl
+
+def writeDigraph(title, relations, remove_package_prefix, out):
+    print>> out, "digraph", title, "{"
+    for tbl1, tables in relations.items():
+        if remove_package_prefix: tbl1 = remove_package(tbl1)
+        print>> out, quote(tbl1)
+        for tbl2 in tables.keys():
+            if remove_package_prefix: tbl2 = remove_package(tbl2)
+            print>> out, "  ", quote(tbl2), "->", quote(tbl1)
+    print>> out, "}"
+
+def main():
+    p = OptionParser(
+            usage="usage: %prog [options] instance package1 package2.table1 package2.table3- ...\n\nThis program requires graphviz.")
+    p.add_option('-T', '--type', dest='output_type', help='Output type (e.g. png, gif)', default="png")
+    p.add_option('-g', '--graphviz-command', dest='graphviz', help="Graphviz command (e.g. dot, neato, circo)",
+                 default="dot")
+    p.add_option('-G', '--graphviz-options', dest="graphviz_options", help="Graphviz options", default='')
+    p.add_option('-o', '--output-file', dest='output_file',
+                 help='Output file (defaults to <instance name>.<output type>)', default=None)
+    p.add_option('-O', '--auto-open', dest='auto_open', default=False,
+                 help="Auto call 'open' on output file (works on MacOSX)", action="store_true")
+    p.add_option('-P', '--remove-package-prefix', dest='remove_package_prefix', default=False,
+                 help="Remove package prefixes", action="store_true")
+    p.add_option('-D', '--digraph', dest="dump_digraph", default=False, action="store_true",
+                 help="Output digraph to stdout")
+
+    options, params = p.parse_args()
+    if not params:
+        p.print_help()
+        sys.exit(1)
+    instance = params[0]
+    packages_and_tables = params[1:]
+
+    app = GnrApp(instance)
+    tables = []
+    for p_or_t in packages_and_tables:
+        exclude = p_or_t.endswith('-')
+        if exclude:
+            p_or_t = p_or_t[:-1]
+        if '.' in p_or_t:
+            tt = [p_or_t.lower()]
+        else:
+            pkg = app.db.packages[p_or_t]
+            if pkg:
+                tt = ["%s.%s" % (p_or_t, t) for t in pkg.tables.keys()]
+            else:
+                tt = []
+                print>> sys.stderr, "Package not found:", p_or_t
+        if not exclude:
+            tables.extend(tt)
+        else:
+            for t in tt:
+                if t in tables:
+                    tables.remove(t)
+    print "Tables:", " ".join(tables)
+    relations = loadRelations(app, tables)
+
+    output = options.output_file
+    if not output:
+        output = "%s.%s" % (instance, options.output_type)
+    cmdline = "%(cmd)s -T%(type)s -o%(output)s" % {'cmd': options.graphviz,
+                                                   'type': options.output_type,
+                                                   'output': output}
+    if options.graphviz_options:
+        cmdline = "%(cmd)s -G%(options)s" % {'cmd': cmdline, 'options': options.graphviz_options}
+    print cmdline
+    graphviz = subprocess.Popen(cmdline, stdin=subprocess.PIPE, shell=True)
+    buf = StringIO()
+    writeDigraph(instance, relations, options.remove_package_prefix, buf)
+    if options.dump_digraph:
+        print buf.getvalue()
+    graphviz.communicate(buf.getvalue())
+    if options.auto_open:
+        subprocess.call(["open %s" % output], shell=True)
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,28 @@
+html, body.tableWindow {
+    height: auto;
+    overflow-x: visible;
+    overflow-y: visible;
+    width: 100%;
+}
+
+table.full_page {
+    width: 100%;
+    height: auto;
+    margin-right: 5em;
+}
+
+table.full_page tbody {
+    height: auto;
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+table.full_page tbody tr.alt td,
+table.full_page tbody tr.odd_row td {
+    background: white;
+}
+
+table.full_page thead tr td:last-child, table.full_page thead tr th:last-child, table.full_page tbody tr td:last-child {
+    padding-right: 5em;
+}
+

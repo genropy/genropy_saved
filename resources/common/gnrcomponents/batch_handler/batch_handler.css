@@ -1,0 +1,211 @@
+.bm_rootnode {
+    padding: 2px;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+}
+
+.bm_thermoline.dijitProgressBarEmpty {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background: white;
+    border: 1px solid gray;
+    -moz-box-shadow: inset 1px 1px 2px gray;
+    -webkit-box-shadow: inset 1px 1px 2px gray;
+
+}
+
+.bm_thermoline .dijitProgressBarFull {
+    position: absolute;
+    overflow: hidden;
+    z-index: -1;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: 0px;
+}
+
+.bm_thermoline_box {
+    padding-bottom: 2px;
+    padding-right: 2px;
+}
+.bm_resulttd{
+    padding-left:5px;
+    padding-right:5px;
+}
+.bm_resultlink{
+    width:100%;
+}
+.bm_resultlink:link>div{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    border:1px solid silver;
+    border-radius:6px;
+}
+
+.bm_resultlink:visited>div{
+    border:1px navy;
+}
+
+.bm_resultlink .iconbox{
+    width:100%;
+    height:20px;
+}
+
+.bm_thermoline div.dijitProgressBarTile {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    height: auto;
+
+    background-attachment: fixed;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+.bm_thermoline.bm_line_1 div.dijitProgressBarTile {
+    background: #ff8d00;
+}
+
+.bm_thermoline.bm_line_2 div.dijitProgressBarTile {
+    background: #d1fb00;
+}
+
+.bm_thermoline.bm_line_3 div.dijitProgressBarTile {
+    background: #59d6ff;
+}
+
+.bm_thermoline.bm_line_4 div.dijitProgressBarTile {
+    background: #59ffff;
+}
+
+.bm_thermoline {
+    width: 100%;
+    height: 12px;
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+.bm_thermomsg {
+    font-size: 8px;
+    text-align: center;
+    color: black;
+}
+
+
+.bm_batchpane {
+    opacity: .5;
+    position: relative;
+    border: 1px solid gray;
+    margin: 4px;
+    background: white;
+    -moz-border-radius-bottomleft: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+    -moz-box-shadow: 2px 2px 3px gray;
+    -webkit-box-shadow: 2px 2px 3px gray;
+
+}
+
+.fast_polling .bm_batchpane{
+    opacity: 1;
+}
+
+.bm_batchlabel {
+    background: gray;
+    font-size: 10px;
+    padding-left: 4px;
+    padding-bottom: 4px;
+    padding-right: 2px;
+    height: 10px;
+    color: white;
+    position:relative;
+}
+
+.bm_batchtitle {
+    position:absolute;
+    top:1px;
+    left:2px;
+}
+
+.bm_thermoline div.dijitProgressBarLabel {
+}
+
+.bm_label_action_link {
+    position:absolute;
+    top:1px;
+    right:2px;
+}
+
+.bm_label_action_link a {
+    color: white;
+    text-decoration: none;
+}
+
+.bm_label_action_link a:hover {
+    color: yellow;
+}
+
+.bm_contentpane {
+    padding: 2px;
+    font-size: .9em;
+    color: #555;
+    background-color:whitesmoke;
+}
+
+.bm_batchbottom {
+    background: none repeat scroll 0 0 darkred;
+    bottom: 0;
+    color: white;
+    font-size: 0.7em;
+    left: 0;
+    right: 0;
+    text-align: center;
+    -moz-border-radius-bottomleft: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+}
+
+.ts_optionsPane {
+    background-color: rgba(168, 181, 182, 0.8);
+}
+
+.ts_parametersPane {
+    -moz-box-shadow: 1px 1px 2px 1px gray inset;
+    -webkit-box-shadow: 1px 2px 2px 2px gray inset;
+    background: none repeat scroll 0 0 white;
+    height: 100%;
+}
+
+.ts_printMode {
+    background: whitesmoke;
+    margin: 2px;
+    -moz-border-radius: 6px;
+    -moz-box-shadow: inset 2px 2px 2px gray;
+    -webkit-box-shadow: inset 2px 2px 2px gray;
+}
+
+.batch_monitor_icon {
+    background: url(images/batch_monitor.png) no-repeat center center;
+    /*width: 16px;
+    height: 16px;*/
+}
+.runningBatch .batch_monitor_icon{
+    background: url(images/batch_running.gif) no-repeat center center;                
+
+}
+.runningBatch .iframetab_selected .batch_monitor_icon{
+    background: url(images/batch_monitor.png) no-repeat center center;
+}
+

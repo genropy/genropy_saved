@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+# encoding: utf-8
+from __future__ import with_statement
+from lxml import etree
+from z3c.rml import document, interfaces
+import os
+import sys
+
+print 'Processing....' + sys.argv[1]
+with open(sys.argv[1]) as in_file:
+    root = etree.fromstring(in_file.read())
+doc = document.Document(root)
+with open(os.path.splitext(sys.argv[1])[0] + '.pdf', 'wb') as out_file:
+    doc.process(out_file)
+

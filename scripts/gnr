@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""Executes GenroPy commands.
+
+Runs commands written using the :mod:`gnr.devel.commands` module.
+"""
+
+from gnr.devel.commands import CmdRunner
+
+run = CmdRunner()
+
+if __name__ == '__main__':
+    run.main()

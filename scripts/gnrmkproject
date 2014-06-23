@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+create a new genroproject
+usage: gnrmkproject projectname
+
+"""
+import sys, os, shutil
+
+from gnr.core.gnrbag import Bag
+from gnr.app.gnrapp import GnrApp
+from gnr.app.gnrdeploy import ProjectMaker, InstanceMaker, SiteMaker,PackageMaker, PathResolver
+from optparse import OptionParser
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-b", "--base-path", dest="base_path",
+                      help="base path where project will be created")
+    parser.add_option("-s", "--create-site", dest="create_site", action='store_true', default=False,
+                      help="create site")
+    parser.add_option("-i", "--create-instance", dest="create_instance", action='store_true', default=False,
+                      help="create instance")
+    parser.add_option("-a", "--create-all", dest="create_all", action='store_true', default=False,
+                      help="create both site and instance")
+    parser.add_option("-p", "--wsgi-port", dest="wsgi_port", default='8080',
+                      help="Specify WSGI port")
+    parser.add_option("-r", "--wsgi-reload", dest="wsgi_reload", default=True,
+                      help="Specify WSGI autoreload")
+    parser.add_option("-d", "--wsgi-debug", dest="wsgi_debug", default=True,
+                      help="Specify WSGI debug")
+    parser.add_option("-P", "--main-package", dest="main_package", help="Main Package")
+    parser.add_option("-A", "--add-packages", dest="add_packages", help="Add Packages")
+
+    (options, args) = parser.parse_args()
+    base_path = getattr(options, 'base_path', None)
+    create_all = getattr(options, 'create_all', None)
+    create_instance = getattr(options, 'create_instance', None) or create_all
+    create_site = getattr(options, 'create_site', None) or create_all
+    
+    main_package = getattr(options, 'main_package', None)
+    add_packages = getattr(options, 'add_packages', None)
+
+
+    if not args:
+        print 'You should specify a project name'
+    else:
+        project_name = args[0]
+        if '.' in args[0]:
+            path_resolver = PathResolver()
+            repo_name, project_name = args[0].split('.')
+            base_path = base_path or path_resolver.project_repository_name_to_path(repo_name)
+        print 'Creating project %s in %s...' % (project_name, base_path or 'current directory')
+        project_maker = ProjectMaker(project_name, base_path=base_path)
+        print 'Project %s created' % project_name
+        project_maker.do()
+        packages = add_packages.split(',') if add_packages else []
+        if main_package:
+            package_maker = PackageMaker(main_package,base_path=os.path.join((base_path or '.'),project_name,'packages'))
+            package_maker.do()
+            packages.append(main_package)
+        if create_site:
+            print 'Creating site %s in %s...' % (project_name, project_maker.sites_path)
+            site_maker = SiteMaker(project_name, base_path=project_maker.sites_path,wsgi_mainpackage=main_package)
+            site_maker.do()
+            print 'Site %s created' % project_name
+        if create_instance:
+            print 'Creating instance %s in %s...' % (project_name, project_maker.instances_path)
+            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages)
+            instance_maker.do()
+            print 'Instance %s created' % project_name
+
+    

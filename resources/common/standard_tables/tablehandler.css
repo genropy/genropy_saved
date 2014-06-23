@@ -1,0 +1,580 @@
+.logicalDeleted .gnrfield * {
+    color: #f00;
+}
+
+.button_placeholder {
+    width: 25px;
+}
+
+.listbuttons_placeholder {
+    float: right;
+}
+
+.th_toolbar {
+    height: 26px;
+}
+
+.th_toolbar_left {
+    border-right: 1px solid gray;
+}
+
+.sttbl_list_top {
+    height: 30px; /*border-bottom: 1px solid silver;*/
+}
+
+.listOptMenu {
+    font-size: .9em;
+    width: 7em;
+    margin-top: 2px;
+}
+
+.center_pane {
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.query_form {
+    margin-top: 2px;
+}
+
+.center_pane .smallFakeTextBox, .center_pane .dijitInputField {
+    height: 15px;
+    line-height: 15px;
+}
+
+.toolbarStack {
+    background-color: gray;
+    -moz-border-radius-: 4px;
+    -webkit-border-radius: 4px;
+    padding: 2px;
+}
+
+.disabled {
+    opacity: 0.3;
+}
+
+.semaphore {
+    margin: 5px;
+}
+
+/* @group querypane */
+
+.query_pane .smallFakeTextBox, .query_pane .dijitInputField {
+    height: 15px;
+    line-height: 15px;
+}
+
+.sttbl_treepane {
+    padding: 4px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+}
+
+.sttbl_querypane {
+    background-color: white;
+    padding: 4px;
+}
+
+.sttbl_gridpane {
+    background-color: white;
+}
+
+/* @end */
+
+/* @group toolbarbuttons */
+.st_filterOn .st_filterButton {
+    background: url(../icons/filter_active.png) center center no-repeat;
+}
+
+.st_filterButton {
+    height: 18px;
+    width: 20px;
+    cursor: pointer;
+    display: inline-block;
+    background: url(../icons/filter.png) center center no-repeat;
+}
+
+.tb_button {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.tb_listview {
+    background: url(../icons/listview.gif) no-repeat center center;
+}
+
+/* @end */
+
+.topmsgcontainer {
+    position: absolute;
+    z-index: 999 !important;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
+}
+
+.topmsgpane {
+    width: 300px;
+    background-color: white;
+    border: 1px solid gray;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* @group editors */
+
+.st_editor_bar {
+    color: white;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    height: 20px;
+    background-color: #666;
+    padding: 1px;
+}
+
+.st_editor_title {
+    margin-left: 15px;
+    font-size: .85em;
+    font-weight: bold;
+}
+
+.listbottompane {
+    height: 27px;
+    font-size: 0.9em;
+    /* background-color:silver;
+     -moz-box-shadow:4px 0px 6px #403b3b;
+     -webkit-box-shadow:4px 0px 5px #403b3b;}*/
+}
+
+.st_editor_body {
+    position: absolute;
+    top: 20px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    overflow: auto;
+    padding: 3px;
+    background-color: #c3c3c3;
+}
+
+/* @end */
+
+/* @group qb */
+/* @group helper */
+
+.helperIcon {
+    background: url(../icons/linkto.gif) no-repeat right;
+    height: 14px;
+    width: 14px;
+}
+
+/* @end */
+
+.qb_table {
+    border-spacing: 3px;
+    font-size: x-small;
+}
+
+.qb_table td {
+    vertical-align: middle;
+}
+
+.qb_div {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #eee;
+    min-height: 1ex;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 6px;
+}
+
+.qb_group {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    width: auto;
+}
+
+.qb_group_even {
+    background-color: #c3c3c3;
+}
+
+.qb_group_odd {
+    background-color: #939393;
+}
+
+.qb_jc {
+
+}
+
+.qb_jc_noicn {
+
+}
+
+.qb_field {
+    min-width: 6em;
+}
+
+.qb_op {
+    min-width: 2em;
+}
+
+.qb_value {
+    min-width: 8em;
+    padding-right: 10px;
+    line-height: .9ex;
+}
+
+.qb_btn {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    float: left;
+    margin-left: 3px;
+}
+
+.qb_add {
+    background: url(../icons/add.gif) no-repeat center center;
+}
+
+.qb_del {
+    background: url(../icons/delete.gif) no-repeat center center;
+}
+
+.qb_rem {
+
+}
+
+/* @end */
+
+.querymenu {
+    width: 22px;
+    height: 26px;
+    background: url(../icons/querymenu.gif) no-repeat center center;
+}
+
+.querymenu:hover {
+    cursor: pointer;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    background: #dfdfdf url(../icons/querymenu.gif) no-repeat center center;
+}
+
+/* @group dijit custom */
+
+.toolbox {
+    font-size: 0.9em;
+}
+
+.toolbox .dijitTreeExpando {
+    width: 18px;
+    height: 15px;
+}
+
+.toolbox .dijitTreeContent {
+    min-height: 12px;
+    min-width: 18px;
+}
+
+.toolbox .dijitTreeIcon {
+    height: 12px;
+    width: 12px;
+    padding-right: 2px;
+}
+
+.smallmenu .dijitMenuItem {
+    font-size: .85em !important;
+}
+
+.smallmenu .dijitMenuItem TD {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: .40em;
+}
+
+.toolbox .dijitAccordionTitle {
+    padding: 3px;
+}
+
+.toolbox .dijitAccordionArrow {
+    background-image: none;
+    height: 12px;
+    width: 12px;
+    margin-top: 0px;
+}
+
+/* @end */
+
+/* @group toolbox */
+
+.treeContainer {
+    padding: 4px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px solid gray;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    bottom: 5px;
+    left: 5px;
+    overflow: auto;
+}
+
+._common_d11 .toolbox .dijitTabInnerDiv {
+    border-bottom: 1px solid whitesmoke;
+    border-left: 0;
+    padding: 6px 10px 4px;
+}
+
+._common_d11 .toolbox .dijitTab {
+    background: #666;
+    border-right: 1px solid gray;
+    border-left: 1px solid gray;
+    border-top: 1px solid gray;
+}
+
+._common_d11 .toolbox .dijitTabChecked {
+    background: whitesmoke;
+}
+
+._common_d11 .toolbox .dijitTabCheckedHover {
+    opacity: 1;
+}
+
+._common_d11 .toolbox .dijitTabPaneWrapper {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius-topleft: 0px;
+    -webkit-border-top-left-radius: 0px;
+    border: 1px solid gray;
+    background-color: whitesmoke;
+}
+
+.toolbox {
+    background-color: #c3c3c3;
+}
+
+/* @end */
+
+/* @group viewEditor */
+
+.st_editor_body.st_editor_view {
+    font-size: .9em;
+    background-color: #E0E0E0;
+    padding: 4px;
+    bottom: none;
+    height: 7.5ex;
+    overflow-y: hidden;
+}
+
+.ve_cols {
+    height: 5ex;
+    margin-right: 4px;
+    background-color: silver;
+    float: left;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+}
+
+.ve_cols_label {
+    -moz-border-radius-topleft: 8px;
+    -moz-border-radius-topright: 8px;
+    -webkit-border-top-left-radius: 8px;
+    -webkit-border-top-right-radius: 8px;
+    background-color: #656565;
+    color: white;
+    text-align: center;
+    height: 2.5ex;
+    vertical-align: bottom;
+}
+
+/* @end */
+.infoLabels {
+    font-weight: bold;
+    background-color: silver;
+    text-align: right;
+}
+
+/* @group InfoGrid */
+.infoValues {
+    text-align: left;
+}
+
+._common_d11 .infoGrid .dojoxGrid-cell {
+    border: none;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row-odd {
+    background-color: transparent;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row {
+    background-color: transparent;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row-over .dojoxGrid-cell {
+    background-color: transparent;
+    color: black;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row-over .infoLabels {
+    color: black;
+    background-color: silver;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: transparent;
+    color: black;
+}
+
+._common_d11 .infoGrid .dojoxGrid-row-selected .infoLabels {
+    color: black;
+    background-color: silver;
+}
+
+/* @group Misc */
+
+.smalltext {
+    font-style: italic;
+    font-size: 0.8em;
+}
+
+.queryAsk .st_conditionValue {
+    color: navy;
+    background: url(images/questionMark.png) no-repeat right;
+}
+
+/* @end */
+
+/* @group Extra */
+
+/* @group tags */
+
+.tag_button label {
+    font-size: .9em;
+    cursor: pointer;
+}
+
+.tag_button label:hover {
+    text-decoration: underline;
+}
+
+.tag_button .dijitRadio {
+    background: transparent;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.tag_button .dijitRadioChecked {
+    background: url(../icons/greenLight.gif) no-repeat center center;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.tag_false .dijitRadioChecked {
+    background: url(../icons/redLight.gif) no-repeat center center !important;
+    width: 14px;
+    height: 14px;
+}
+
+.tag_button {
+    display: inline-block;
+    margin: 2px;
+    padding: 3px !important;
+    padding-left: 0px !important;
+    padding-right: 17px !important;
+
+    cursor: default !important;
+}
+
+.tag_frame {
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    overflow: auto;
+}
+
+.tag_line {
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    margin-top: 4px;
+    margin-right: 8px;
+    margin-left: 8px;
+    -moz-box-shadow: 2px 2px 4px #403b3b;
+    -webkit-box-shadow: 2px 2px 4px #403b3b;
+}
+
+.tag_odd {
+
+}
+
+.tag_even {
+
+}
+
+.tag_label_col {
+    padding-left: 10px;
+    display: table-cell;
+    text-align: right;
+    line-height: 30px;
+    font-size: .9em;
+    font-weight: bold;
+    padding-right: 4px;
+    white-space: pre;
+}
+
+.tag_left_col {
+    -moz-border-radius-topleft: 8px;
+    -moz-border-radius-bottomleft: 8px;
+    -webkit-border-top-left-radius: 8px;
+    -webkit-border-bottom-left-radius: 8px;
+}
+
+.tag_value_col {
+    display: table-cell;
+    -moz-border-radius-topright: 8px;
+    -moz-border-radius-bottomright: 8px;
+    -webkit-border-top-right-radius: 8px;
+    -webkit-border-bottom-right-radius: 8px;
+}
+
+.protectedRecord .dijitInputField .input {
+    background: url(../icons/readonly.gif) no-repeat right;
+}
+
+.protectedRecord .gnrfield .input {
+    background: url(../icons/readonly.gif) no-repeat right;
+}
+
+/* @end */
+
+/* @end */
+.hidden_record_checkbox {
+    margin: 4px;
+    margin-left: 15px;
+}
+
+.hidden_record_checkbox label {
+    line-height: 15px;
+    font-size: .9em;
+    color: gray;
+    font-weight: bold;
+    margin-left: 0 !important;
+    padding: 0 !important;
+}

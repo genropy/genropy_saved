@@ -1,0 +1,44 @@
+.pe_pages{
+    border:1px solid silver;
+    box-shadow: 2px 2px 4px #777;
+    margin:10mm;
+    position: relative;
+    height: 300mm;
+    width:220mm;
+    padding:4px;
+}
+
+.letterhead_page{
+    border:.3mm solid silver;
+    box-shadow: 4mm 4mm 8mm #777;
+    margin:10mm;
+
+}
+.pe_content{
+    background-color: rgb(248, 248, 248);
+}
+.pe_preview_box{
+    text-align: left;
+}
+.pe_preview_box .pe_node:hover{
+    background-color: yellow;
+}
+
+.pe_body{
+    font-family: Arial, Verdana, sans-serif;
+    font-size: 12px;
+    color: #222;
+}
+
+[visible_if=""]{
+    display:none;
+}
+[hidden_if]{
+    display:none;
+}
+[hidden_if='']{
+    display:block;
+}
+span[hidden_if='']{
+    display:inline;
+}

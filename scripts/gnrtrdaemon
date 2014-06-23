@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+from gnr.app.gnrtransactiond import GnrAppTransactionAgent
+import optparse
+
+
+usage = """
+gnrtrdaemon is used to apply synced 4d transaction pending"""
+
+parser = optparse.OptionParser(usage)
+
+parser.add_option('-v', '--verbose',
+                  dest='verbose',
+                  action='store_true',
+                  help="Verbose mode")
+
+parser.add_option('-d', '--debug',
+                dest='debug',
+                action='store_true',
+                help="Debug mode")
+
+parser.add_option('-i', '--instance',
+                  dest='instance',
+                  help="Use command on instance identified by supplied name")
+
+parser.add_option('-D', '--directory',
+                  dest='directory',
+                  help="Use command on instance identified by supplied directory (overrides -i)")
+
+parser.add_option('-r', '--rebuild',
+                  dest='rebuild',
+                  action='store_true',
+                  help="Rebuild config_db.xml")
+
+parser.add_option('-4', '--4dir',
+                dest='sync4d_name',
+                help="specifies a sync4d folder name")
+
+if __name__=='__main__':
+    options, args = parser.parse_args()
+    debug = options.debug==True
+    app_kwargs=dict(debug=debug)
+    if args:
+        instance_path=args[0]
+    else:
+        instance_path=os.getcwd()
+    app = GnrAppTransactionAgent(instance_path)
+    app.loop()

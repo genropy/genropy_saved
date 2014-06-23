@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import os
+from gnr.xtnd.sync4Dapp_new import GnrAppSync4D
+import optparse
+
+
+usage = """
+gnrsync4d is used to sync genropy instances with 4d genro xml sync files"""
+
+parser = optparse.OptionParser(usage)
+
+parser.add_option('-v', '--verbose',
+                  dest='verbose',
+                  action='store_true',
+                  help="Verbose mode")
+
+parser.add_option('-d', '--debug',
+                dest='debug',
+                action='store_true',
+                help="Debug mode")
+
+parser.add_option('-i', '--instance',
+                  dest='instance',
+                  help="Use command on instance identified by supplied name")
+
+parser.add_option('-D', '--directory',
+                  dest='directory',
+                  help="Use command on instance identified by supplied directory (overrides -i)")
+
+parser.add_option('-r', '--rebuild',
+                  dest='rebuild',
+                  action='store_true',
+                  help="Rebuild config_db.xml")
+
+parser.add_option('-4', '--4dir',
+                dest='sync4d_name',
+                help="specifies a sync4d folder name")
+
+
+if __name__=='__main__':
+    options, args = parser.parse_args()
+    debug = options.debug==True
+    app_kwargs=dict(debug=debug)
+    if args:
+        instance_path=args[0]
+    else:
+        instance_path=os.getcwd()
+    if len(args)>1:
+        app_kwargs['sync4d_name']=args[1]
+        args=(args[0],)
+    app_kwargs['sync4d_name'] = options.sync4d_name or app_kwargs.get('sync4d_name','sync4d')
+    if options.rebuild:
+        app_kwargs['rebuild'] = True
+    app = GnrAppSync4D(*args, **app_kwargs)
+    if options.rebuild:
+        app.rebuildRecipe(modelOnly=True)
+    else:
+        app.loop()

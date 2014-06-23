@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+create a new genrosite from an instance or add it to an existing one
+usage: gnrmksite [instanceName, [siteName]]
+
+instanceName defaults to the current directory name
+siteName     defaults to instanceName
+
+"""
+import re
+import sys, os, shutil
+import getopt
+from gnr.core.gnrbag import Bag
+from gnr.app.gnrapp import GnrApp
+
+
+class SiteLocalizer(object):
+    def __init__(self, paramstring):
+        kwargs, args = getopt.getopt(paramstring, '')
+        if not args:
+            self.sitepath = os.getcwd()
+        else:
+            self.sitepath = args[0]
+
+        siteconf = Bag(os.path.join(self.sitepath, 'siteconfig.xml'))
+
+        instNode = siteconf.getNode('instances.#0')
+        self.instId = instNode.label
+        self.instancepath = instNode.getAttr('path')
+
+    def do(self):
+        missingBag = Bag(os.path.join(self.sitepath, 'data', '_missingloc'))['_missingloc']
+        for pkg, mbag in missingBag.items():
+            pkglocpath = os.path.join('/usr', 'local', 'genro', 'packages', pkg, 'localization.xml')
+            if os.path.exists(pkglocpath):
+                pkgloc = Bag(pkglocpath)
+            else:
+                pkgloc = Bag()
+            for missing in mbag.values():
+                _key = missing['txt']
+
+                lbl = re.sub('\W', '_', _key).replace('__', '_')
+
+                if not lbl in pkgloc:
+                    pkgloc.setItem(lbl, None, _key=_key, it=_key, en='', fr='', de='')
+            pkgloc.toXml(pkglocpath)
+            for fpath in mbag.digest('#a.abs_path'):
+                os.remove(fpath)
+
+if __name__ == '__main__':
+    mk = SiteLocalizer(sys.argv[1:])
+    mk.do()
+    
+    

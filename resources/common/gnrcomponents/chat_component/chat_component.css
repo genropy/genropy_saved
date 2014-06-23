@@ -1,0 +1,180 @@
+.ct_chatpane {
+    background: white;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    -moz-box-shadow: 2px 2px 2px gray;
+    -webkit-box-shadow: 2px 2px 2px gray;
+    margin-right: 3px;
+    margin-bottom: 3px;
+}
+
+._common_d11 .chat_rooms_tab .dijitTabPaneWrapper {
+    background-color: white !important;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border:1px solid silver;
+    margin-top:10px;
+}
+
+.ct_chatlabel {
+    font-size: 10px;
+    padding-left: 4px;
+    padding-bottom: 4px;
+    padding-top: 2px;
+    padding-right: 2px;
+    height: 10px;
+    color: white;
+    cursor:pointer;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    text-align: center;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+}
+
+.dojoxFloatingPaneContent .ct_chatlabel{
+    display: none;
+}
+
+.ct_chatlabel:hover{
+    color:lightyellow;
+}
+
+.ct_chatbottom {
+    background: none repeat scroll 0 0 darkred;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
+    background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
+}
+
+.ct_chat_container {
+    background: white;
+}
+
+.chat_plugin_icon {
+    background: url(images/buddy.png) no-repeat center center;
+   /* width: 16px;
+    height: 16px;*/
+}
+
+.newMessage .chat_plugin_icon {
+    background: url(images/buddy_chat.png) no-repeat center center;
+}
+
+.tundra .chat_rooms_tab .dijitTab {
+    float: none;
+    margin-bottom: -1px;
+    font-size: .9em;
+
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    margin-right:0;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+}
+
+.tundra._common_d11 .chat_rooms_tab  .dijitTabChecked{
+    border-bottom-color:silver;
+    color: #fff;
+   /* border: 0px;*/
+    /*font-weight: bold;*/
+     background:#888;
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
+}
+.tundra .chat_rooms_tab .dijitTab .dijitClosable{
+    padding:4px 20px 4px 10px;
+}
+.tundra .chat_rooms_tab .dijitTab .dijitClosable .closeImage{
+    top:4px;
+}
+
+.tundra .chat_rooms_tab .dijitTab:first-child{
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.tundra .chat_rooms_tab .dijitTab:last-child{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+
+.tundra .chat_rooms_tab .dijitTabLabels-top{
+    padding-bottom:2px;
+    padding-top: 2px;
+}
+
+
+
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-cell {
+    border-left: 0px !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    background: transparent !important;
+    cursor:pointer;
+    border-bottom: 1px dotted #B4BECB !important;
+}
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row{
+    background-image: none;
+    height: 25px;
+}
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row-odd{
+    background-image: none;
+}
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-row-selected{
+    background-image: none;
+    background: #C8D1DC !important;
+}
+
+
+
+
+.tundra._common_d11 .ct_chatgrid .dojoxGrid-cell{
+    padding-top:0px !important;
+}
+
+
+.tundra._common_d11 .ct_chatgrid .cellContent{
+    margin-top: 3px;
+    font-weight: bold;
+    font-size: .9em;
+    color:#666;
+    padding-left: 20px;
+	background: url(../../icons/greenLight.gif) no-repeat left center;
+}
+
+.tundra._common_d11 .ct_chatgrid .user_disconnected .cellContent{
+    color:silver;
+    opacity:.5;
+    background: url(../../icons/grayLight.gif) no-repeat left center;
+
+}
+
+.tundra._common_d11 .ct_chatgrid .user_away .cellContent{
+	background: url(../../icons/redLight.gif) no-repeat left center;
+
+}
+
+.tundra._common_d11 .ct_chatgrid .user_idle .cellContent{
+	background: url(../../icons/yellowLight.gif) no-repeat left center;
+}

@@ -1,0 +1,1358 @@
+/* @group size16 */
+
+.iconbox{
+	height:18px;
+	width: 22px;
+	cursor: pointer;
+	border-radius:2px;
+	margin-top:1px;
+	margin-bottom:1px;
+}
+.iconbox_small .iconbox{
+    margin-top:0px;
+    margin-bottom:0px;
+}
+.bordered_icons .iconbox{
+	border:1px solid silver;
+	background-color:#ddd !important;
+}
+
+.slotbar_toolbar .dijitButtonHover .dijitButtonNode .iconbox, .slotbar_toolbar .iconbox:hover{
+	background-color:#bbb;	
+}
+.slotbar_toolbar .dijitButtonActive .dijitButtonNode .iconbox, .slotbar_toolbar .dijitButtonActive.dijitButtonHover .dijitButtonNode .iconbox, .slotbar_toolbar .iconbox:active{
+    -moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;   
+}
+
+
+
+.add_record{
+	background: url(16/add_record.png) no-repeat center center;
+}
+
+.add_row{
+	background: url(16/add_row.png) no-repeat center center;
+}
+
+.alarm{
+	background: url(16/alarm.png) no-repeat center center;
+}
+
+.alarm_check{
+	background: url(16/alarm_check.png) no-repeat center center;
+}
+
+.alarm_off{
+	background: url(16/alarm_off.png) no-repeat center center;
+}
+
+.alarm_on{
+	background: url(16/alarm_on.png) no-repeat center center;
+}
+
+.app{
+	background: url(16/app.png) no-repeat center center;
+}
+
+.app_globe{
+	background: url(16/app_globe.png) no-repeat center center;
+}
+
+.app_lock{
+	background: url(16/app_lock.png) no-repeat center center;
+}
+
+.app_remove{
+	background: url(16/app_remove.png) no-repeat center center;
+}
+
+.arrow{
+	background: url(16/arrow.png) no-repeat center center;
+}
+
+.arrow_circle_left{
+	background: url(16/arrow_circle_left.png) no-repeat center center;
+}
+
+.arrow_circle_right{
+	background: url(16/arrow_circle_right.png) no-repeat center center;
+}
+
+.arrow_down{
+	background: url(16/arrow_down.png) no-repeat center center;
+}
+
+.arrow_left{
+	background: url(16/arrow_left.png) no-repeat center center;
+}
+
+.arrow_right{
+	background: url(16/arrow_right.png) no-repeat center center;
+}
+
+.arrow_up{
+	background: url(16/arrow_up.png) no-repeat center center;
+}
+
+.attach{
+	background: url(16/attach.png) no-repeat center center;
+}
+
+.auction{
+	background: url(16/auction.png) no-repeat center center;
+}
+
+.book{
+	background: url(16/book.png) no-repeat center center;
+}
+
+.book_bookmark{
+	background: url(16/book_bookmark.png) no-repeat center center;
+}
+
+.bookmark{
+	background: url(16/bookmark.png) no-repeat center center;
+}
+
+.bookmark_add{
+	background: url(16/bookmark_add.png) no-repeat center center;
+}
+
+.brightness{
+	background: url(16/brightness.png) no-repeat center center;
+}
+
+.brush{
+	background: url(16/brush.png) no-repeat center center;
+}
+
+.bulb_off{
+	background: url(16/bulb_off.png) no-repeat center center;
+}
+
+.bulb_on{
+	background: url(16/bulb_on.png) no-repeat center center;
+}
+
+.calculator{
+	background: url(16/calculator.png) no-repeat center center;
+}
+
+.calendar{
+	background: url(16/calendar.png) no-repeat center center;
+}
+
+.cancel{
+	background: url(16/cancel.png) no-repeat center center;
+}
+
+.cart{
+	background: url(16/cart.png) no-repeat center center;
+}
+
+.case{
+	background: url(16/case.png) no-repeat center center;
+}
+
+.chart_area{
+	background: url(16/chart_area.png) no-repeat center center;
+}
+
+.chart_bar{
+	background: url(16/chart_bar.png) no-repeat center center;
+}
+
+.chart_bar1{
+	background: url(16/chart_bar1.png) no-repeat center center;
+}
+
+.chart_bar_down{
+	background: url(16/chart_bar_down.png) no-repeat center center;
+}
+
+.chart_bar_up{
+	background: url(16/chart_bar_up.png) no-repeat center center;
+}
+
+.chart_down{
+	background: url(16/chart_down.png) no-repeat center center;
+}
+
+.chart_line{
+	background: url(16/chart_line.png) no-repeat center center;
+}
+
+.chart_pie{
+	background: url(16/chart_pie.png) no-repeat center center;
+}
+
+.chart_up{
+	background: url(16/chart_up.png) no-repeat center center;
+}
+
+.checkmark{
+	background: url(16/checkmark.png) no-repeat center center;
+}
+
+.clock{
+	background: url(16/clock.png) no-repeat center center;
+}
+
+.comment{
+	background: url(16/comment.png) no-repeat center center;
+}
+
+.comment_check{
+	background: url(16/comment_check.png) no-repeat center center;
+}
+
+.comment_delete{
+	background: url(16/comment_delete.png) no-repeat center center;
+}
+
+.comment_minus{
+	background: url(16/comment_minus.png) no-repeat center center;
+}
+
+.comment_plus{
+	background: url(16/comment_plus.png) no-repeat center center;
+}
+
+.concole{
+	background: url(16/concole.png) no-repeat center center;
+}
+
+.contrast{
+	background: url(16/contrast.png) no-repeat center center;
+}
+
+.copy{
+	background: url(16/copy.png) no-repeat center center;
+}
+
+.credit_card{
+	background: url(16/credit_card.png) no-repeat center center;
+}
+
+.cut{
+	background: url(16/cut.png) no-repeat center center;
+}
+
+.delete{
+	background: url(16/delete.png) no-repeat center center;
+}
+
+.delete_record{
+	background: url(16/delete_record.png) no-repeat center center;
+}
+
+.delete_row{
+	background: url(16/delete_row.png) no-repeat center center;
+}
+
+.disk{
+	background: url(16/disk.png) no-repeat center center;
+}
+.dismiss{
+	background: url(16/dismiss.png) no-repeat center center;
+}
+
+.display_off{
+	background: url(16/display_off.png) no-repeat center center;
+}
+
+.display_on{
+	background: url(16/display_on.png) no-repeat center center;
+}
+
+.iconbox.document{
+	background: url(16/document.png) no-repeat center center;
+}
+
+.document_empty{
+	background: url(16/document_empty.png) no-repeat center center;
+}
+
+.document_empty_48{
+	background: url(48/document_empty.png) no-repeat center center;
+}
+
+.edit{
+	background: url(16/edit.png) no-repeat center center;
+}
+
+.export{
+	background: url(16/export.png) no-repeat center center;
+}
+
+.favorites_add{
+	background: url(16/favorites_add.png) no-repeat center center;
+}
+
+.favorites_remove{
+	background: url(16/favorites_remove.png) no-repeat center center;
+}
+
+.first{
+	background: url(16/first.png) no-repeat center center;
+}
+
+.flag{
+	background: url(16/flag.png) no-repeat center center;
+}
+
+.flag1{
+	background: url(16/flag1.png) no-repeat center center;
+}
+
+.flash{
+	background: url(16/flash.png) no-repeat center center;
+}
+
+.folder{
+	background: url(16/folder.png) no-repeat center center;
+}
+
+.folder_bookmark{
+	background: url(16/folder_bookmark.png) no-repeat center center;
+}
+
+.folder_in{
+	background: url(16/folder_in.png) no-repeat center center;
+}
+
+.font{
+	background: url(16/font.png) no-repeat center center;
+}
+
+.font_case{
+	background: url(16/font_case.png) no-repeat center center;
+}
+
+.font_down{
+	background: url(16/font_down.png) no-repeat center center;
+}
+
+.font_italic{
+	background: url(16/font_italic.png) no-repeat center center;
+}
+
+.font_p{
+	background: url(16/font_p.png) no-repeat center center;
+}
+
+.font_underline{
+	background: url(16/font_underline.png) no-repeat center center;
+}
+
+.font_up{
+	background: url(16/font_up.png) no-repeat center center;
+}
+
+.forward{
+	background: url(16/forward.png) no-repeat center center;
+}
+
+.frame{
+	background: url(16/frame.png) no-repeat center center;
+}
+
+.gear{
+	background: url(16/gear.png) no-repeat center center;
+}
+
+.globe{
+	background: url(16/globe.png) no-repeat center center;
+}
+
+.hat{
+	background: url(16/hat.png) no-repeat center center;
+}
+
+.heart{
+	background: url(16/heart.png) no-repeat center center;
+}
+
+.help{
+	background: url(16/help.png) no-repeat center center;
+}
+
+.home{
+	background: url(16/home.png) no-repeat center center;
+}
+
+.inbox{
+	background: url(16/inbox.png) no-repeat center center;
+}
+
+.info{
+	background: url(16/info.png) no-repeat center center;
+}
+
+.key{
+	background: url(16/key.png) no-repeat center center;
+}
+
+.keyboard{
+	background: url(16/keyboard.png) no-repeat center center;
+}
+
+.laptop{
+	background: url(16/laptop.png) no-repeat center center;
+}
+
+.last{
+	background: url(16/last.png) no-repeat center center;
+}
+
+.link{
+	background: url(16/link.png) no-repeat center center;
+}
+
+.list{
+	background: url(16/list.png) no-repeat center center;
+}
+
+.lock{
+	background: url(16/lock.png) no-repeat center center;
+}
+
+.magnifier{
+	background: url(16/magnifier.png) no-repeat center center;
+}
+/*.menubox.magnifier:hover{
+	background: url(16/magnifier_menu.png) no-repeat center center;
+}*/
+
+.mail{
+	background: url(16/mail.png) no-repeat center center;
+}
+
+.man{
+	background: url(16/man.png) no-repeat center center;
+}
+
+.med{
+	background: url(16/med.png) no-repeat center center;
+}
+
+.mic{
+	background: url(16/mic.png) no-repeat center center;
+}
+
+.minus{
+	background: url(16/minus.png) no-repeat center center;
+}
+
+.money{
+	background: url(16/money.png) no-repeat center center;
+}
+
+.moving{
+	background: url(16/moving.png) no-repeat center center;
+}
+
+.next{
+	background: url(16/next.png) no-repeat center center;
+}
+
+.note{
+	background: url(16/note.png) no-repeat center center;
+}
+
+.on_off{
+	background: url(16/on_off.png) no-repeat center center;
+}
+
+.outbox{
+	background: url(16/outbox.png) no-repeat center center;
+}
+
+.paint{
+	background: url(16/paint.png) no-repeat center center;
+}
+
+.paper_plane{
+	background: url(16/paper_plane.png) no-repeat center center;
+}
+
+.pencil{
+	background: url(16/pencil.png) no-repeat center center;
+}
+
+.phone{
+	background: url(16/phone.png) no-repeat center center;
+}
+
+.photo{
+	background: url(16/photo.png) no-repeat center center;
+}
+
+.plus{
+	background: url(16/plus.png) no-repeat center center;
+}
+
+.previous{
+	background: url(16/previous.png) no-repeat center center;
+}
+
+.print{
+	background: url(16/print.png) no-repeat center center;
+}
+/*.menubox.print:hover{
+	background: url(16/print_menu.png) no-repeat center center;
+}*/
+
+.reload{
+	background: url(16/reload.png) no-repeat center center;
+}
+
+.resize{
+	background: url(16/resize.png) no-repeat center center;
+}
+
+.revert{
+	background: url(16/revert.png) no-repeat center center;
+}
+
+.rss{
+	background: url(16/rss.png) no-repeat center center;
+}
+
+.ruler{
+	background: url(16/ruler.png) no-repeat center center;
+}
+
+.run{
+	background: url(16/run.png) no-repeat center center;
+}
+
+.safe{
+	background: url(16/safe.png) no-repeat center center;
+}
+
+.save{
+	background: url(16/save.png) no-repeat center center;
+}
+
+.shopping_bag{
+	background: url(16/shopping_bag.png) no-repeat center center;
+}
+.sitemap{
+	background: url(16/sitemap.png) no-repeat center center;
+}
+
+.smile{
+	background: url(16/smile.png) no-repeat center center;
+}
+
+.smile_sad{
+	background: url(16/smile_sad.png) no-repeat center center;
+}
+
+.sound{
+	background: url(16/sound.png) no-repeat center center;
+}
+
+.spanner{
+	background: url(16/spanner.png) no-repeat center center;
+}
+
+.speaker{
+	background: url(16/speaker.png) no-repeat center center;
+}
+
+.star{
+	background: url(16/star.png) no-repeat center center;
+}
+
+.stop{
+	background: url(16/stop.png) no-repeat center center;
+}
+
+.storage{
+	background: url(16/storage.png) no-repeat center center;
+}
+
+.sum{
+	background: url(16/sum.png) no-repeat center center;
+}
+
+.tag{
+	background: url(16/tag.png) no-repeat center center;
+}
+
+.tag_add{
+	background: url(16/tag_add.png) no-repeat center center;
+}
+
+.tag_cancel{
+	background: url(16/tag_cancel.png) no-repeat center center;
+}
+
+.tag_remove{
+	background: url(16/tag_remove.png) no-repeat center center;
+}
+
+.trash{
+	background: url(16/trash.png) no-repeat center center;
+}
+
+.trash_mac{
+	background: url(16/trash_mac.png) no-repeat center center;
+}
+
+.tray{
+	background: url(16/tray.png) no-repeat center center;
+}
+
+.tray_full{
+	background: url(16/tray_full.png) no-repeat center center;
+}
+
+.tray_mail{
+	background: url(16/tray_mail.png) no-repeat center center;
+}
+
+.twg_logo{
+	background: url(16/twg_logo.png) no-repeat center center;
+}
+
+.unlock{
+	background: url(16/unlock.png) no-repeat center center;
+}
+
+.volume_down{
+	background: url(16/volume_down.png) no-repeat center center;
+}
+
+.volume_up{
+	background: url(16/volume_up.png) no-repeat center center;
+}
+
+.wallet{
+	background: url(16/wallet.png) no-repeat center center;
+}
+
+.warning{
+	background: url(16/warning.png) no-repeat center center;
+}
+
+.warning1{
+	background: url(16/warning1.png) no-repeat center center;
+}
+
+.wifi{
+	background: url(16/wifi.png) no-repeat center center;
+}
+
+.zoom_in{
+	background: url(16/zoom_in.png) no-repeat center center;
+}
+
+.zoom_out{
+	background: url(16/zoom_out.png) no-repeat center center;
+}
+/* @end */
+
+/* @group _reserved */
+
+.iconbox_text{
+    background: #777;
+    color:whitesmoke;
+    cursor:pointer;
+    opacity:.7;
+    padding-left:2px;
+    padding-right:1px;
+    font-size:.9em;
+}
+.bread_middle {
+    background: url(16/_reserved/bread_middle.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+    opacity:.7;
+
+}
+.bread_add {
+    background: url(16/_reserved/bread_add.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+    cursor:pointer;
+    opacity:.7;
+
+}
+
+
+.bread_root {
+    background: url(16/_reserved/bread_root.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+    cursor:pointer;
+    opacity:.7;
+
+}
+.lockedToolbar .bread_add{
+    display:none;
+}
+
+.lockedToolbar .last_bread_middle.bread_middle{
+    background: url(16/_reserved/bread_last.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+    opacity:.7;
+}
+/*.last_bread_middle{
+    background: url(16/_reserved/bread_last.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+    opacity:.7;
+}*/
+
+/* @end */
+
+
+
+
+
+
+
+
+/*icons48*/
+
+.icon48 .iconbox{
+    height:50px;
+    width: 52px;
+    cursor: pointer;
+    border-radius:2px;
+    margin-top:1px;
+    margin-bottom:1px;
+}
+
+.icon48 .add_record{
+    background: url(48/add_record.png) no-repeat center center;
+}
+
+.icon48 .add_row{
+    background: url(48/add_row.png) no-repeat center center;
+}
+
+.icon48 .alarm{
+    background: url(48/alarm.png) no-repeat center center;
+}
+
+.icon48 .alarm_check{
+    background: url(48/alarm_check.png) no-repeat center center;
+}
+
+.icon48 .alarm_off{
+    background: url(48/alarm_off.png) no-repeat center center;
+}
+
+.icon48 .alarm_on{
+    background: url(48/alarm_on.png) no-repeat center center;
+}
+
+.icon48 .app{
+    background: url(48/app.png) no-repeat center center;
+}
+
+.icon48 .app_globe{
+    background: url(48/app_globe.png) no-repeat center center;
+}
+
+.icon48 .app_lock{
+    background: url(48/app_lock.png) no-repeat center center;
+}
+
+.icon48 .app_remove{
+    background: url(48/app_remove.png) no-repeat center center;
+}
+
+.icon48 .arrow{
+    background: url(48/arrow.png) no-repeat center center;
+}
+
+.icon48 .arrow_circle_left{
+    background: url(48/arrow_circle_left.png) no-repeat center center;
+}
+
+.icon48 .arrow_circle_right{
+    background: url(48/arrow_circle_right.png) no-repeat center center;
+}
+
+.icon48 .arrow_down{
+    background: url(48/arrow_down.png) no-repeat center center;
+}
+
+.icon48 .arrow_left{
+    background: url(48/arrow_left.png) no-repeat center center;
+}
+
+.icon48 .arrow_right{
+    background: url(48/arrow_right.png) no-repeat center center;
+}
+
+.icon48 .arrow_up{
+    background: url(48/arrow_up.png) no-repeat center center;
+}
+
+.icon48 .attach{
+    background: url(48/attach.png) no-repeat center center;
+}
+
+.icon48 .auction{
+    background: url(48/auction.png) no-repeat center center;
+}
+
+.icon48 .book{
+    background: url(48/book.png) no-repeat center center;
+}
+
+.icon48 .book_bookmark{
+    background: url(48/book_bookmark.png) no-repeat center center;
+}
+
+.icon48 .bookmark{
+    background: url(48/bookmark.png) no-repeat center center;
+}
+
+.icon48 .bookmark_add{
+    background: url(48/bookmark_add.png) no-repeat center center;
+}
+
+.icon48 .brightness{
+    background: url(48/brightness.png) no-repeat center center;
+}
+
+.icon48 .brush{
+    background: url(48/brush.png) no-repeat center center;
+}
+
+.icon48 .bulb_off{
+    background: url(48/bulb_off.png) no-repeat center center;
+}
+
+.icon48 .bulb_on{
+    background: url(48/bulb_on.png) no-repeat center center;
+}
+
+.icon48 .calculator{
+    background: url(48/calculator.png) no-repeat center center;
+}
+
+.icon48 .calendar{
+    background: url(48/calendar.png) no-repeat center center;
+}
+
+.icon48 .cancel{
+    background: url(48/cancel.png) no-repeat center center;
+}
+
+.icon48 .cart{
+    background: url(48/cart.png) no-repeat center center;
+}
+
+.icon48 .case{
+    background: url(48/case.png) no-repeat center center;
+}
+
+.icon48 .chart_area{
+    background: url(48/chart_area.png) no-repeat center center;
+}
+
+.icon48 .chart_bar{
+    background: url(48/chart_bar.png) no-repeat center center;
+}
+
+.icon48 .chart_bar1{
+    background: url(48/chart_bar1.png) no-repeat center center;
+}
+
+.icon48 .chart_bar_down{
+    background: url(48/chart_bar_down.png) no-repeat center center;
+}
+
+.icon48 .chart_bar_up{
+    background: url(48/chart_bar_up.png) no-repeat center center;
+}
+
+.icon48 .chart_down{
+    background: url(48/chart_down.png) no-repeat center center;
+}
+
+.icon48 .chart_line{
+    background: url(48/chart_line.png) no-repeat center center;
+}
+
+.icon48 .chart_pie{
+    background: url(48/chart_pie.png) no-repeat center center;
+}
+
+.icon48 .chart_up{
+    background: url(48/chart_up.png) no-repeat center center;
+}
+
+.icon48 .checkmark{
+    background: url(48/checkmark.png) no-repeat center center;
+}
+
+.icon48 .clock{
+    background: url(48/clock.png) no-repeat center center;
+}
+
+.icon48 .comment{
+    background: url(48/comment.png) no-repeat center center;
+}
+
+.icon48 .comment_check{
+    background: url(48/comment_check.png) no-repeat center center;
+}
+
+.icon48 .comment_delete{
+    background: url(48/comment_delete.png) no-repeat center center;
+}
+
+.icon48 .comment_minus{
+    background: url(48/comment_minus.png) no-repeat center center;
+}
+
+.icon48 .comment_plus{
+    background: url(48/comment_plus.png) no-repeat center center;
+}
+
+.icon48 .concole{
+    background: url(48/concole.png) no-repeat center center;
+}
+
+.icon48 .contrast{
+    background: url(48/contrast.png) no-repeat center center;
+}
+
+.icon48 .copy{
+    background: url(48/copy.png) no-repeat center center;
+}
+
+.icon48 .credit_card{
+    background: url(48/credit_card.png) no-repeat center center;
+}
+
+.icon48 .cut{
+    background: url(48/cut.png) no-repeat center center;
+}
+
+.icon48 .delete{
+    background: url(48/delete.png) no-repeat center center;
+}
+
+.icon48 .delete_record{
+    background: url(48/delete_record.png) no-repeat center center;
+}
+
+.icon48 .delete_row{
+    background: url(48/delete_row.png) no-repeat center center;
+}
+
+.icon48 .disk{
+    background: url(48/disk.png) no-repeat center center;
+}
+.icon48 .dismiss{
+    background: url(48/dismiss.png) no-repeat center center;
+}
+
+.icon48 .display_off{
+    background: url(48/display_off.png) no-repeat center center;
+}
+
+.icon48 .display_on{
+    background: url(48/display_on.png) no-repeat center center;
+}
+
+.icon48 .document{
+    background: url(48/document.png) no-repeat center center;
+}
+
+.icon48 .document_empty{
+    background: url(48/document_empty.png) no-repeat center center;
+}
+
+.icon48 .document_empty_48{
+    background: url(48/document_empty.png) no-repeat center center;
+}
+
+.icon48 .edit{
+    background: url(48/edit.png) no-repeat center center;
+}
+
+.icon48 .export{
+    background: url(48/export.png) no-repeat center center;
+}
+
+.icon48 .favorites_add{
+    background: url(48/favorites_add.png) no-repeat center center;
+}
+
+.icon48 .favorites_remove{
+    background: url(48/favorites_remove.png) no-repeat center center;
+}
+
+.icon48 .first{
+    background: url(48/first.png) no-repeat center center;
+}
+
+.icon48 .flag{
+    background: url(48/flag.png) no-repeat center center;
+}
+
+.icon48 .flag1{
+    background: url(48/flag1.png) no-repeat center center;
+}
+
+.icon48 .flash{
+    background: url(48/flash.png) no-repeat center center;
+}
+
+.icon48 .folder{
+    background: url(48/folder.png) no-repeat center center;
+}
+
+.icon48 .folder_bookmark{
+    background: url(48/folder_bookmark.png) no-repeat center center;
+}
+
+.icon48 .folder_in{
+    background: url(48/folder_in.png) no-repeat center center;
+}
+
+.icon48 .font{
+    background: url(48/font.png) no-repeat center center;
+}
+
+.icon48 .font_case{
+    background: url(48/font_case.png) no-repeat center center;
+}
+
+.icon48 .font_down{
+    background: url(48/font_down.png) no-repeat center center;
+}
+
+.icon48 .font_italic{
+    background: url(48/font_italic.png) no-repeat center center;
+}
+
+.icon48 .font_p{
+    background: url(48/font_p.png) no-repeat center center;
+}
+
+.icon48 .font_underline{
+    background: url(48/font_underline.png) no-repeat center center;
+}
+
+.icon48 .font_up{
+    background: url(48/font_up.png) no-repeat center center;
+}
+
+.icon48 .forward{
+    background: url(48/forward.png) no-repeat center center;
+}
+
+.icon48 .frame{
+    background: url(48/frame.png) no-repeat center center;
+}
+
+.icon48 .gear{
+    background: url(48/gear.png) no-repeat center center;
+}
+
+.icon48 .globe{
+    background: url(48/globe.png) no-repeat center center;
+}
+
+.icon48 .hat{
+    background: url(48/hat.png) no-repeat center center;
+}
+
+.icon48 .heart{
+    background: url(48/heart.png) no-repeat center center;
+}
+
+.icon48 .help{
+    background: url(48/help.png) no-repeat center center;
+}
+
+.icon48 .home{
+    background: url(48/home.png) no-repeat center center;
+}
+
+.icon48 .inbox{
+    background: url(48/inbox.png) no-repeat center center;
+}
+
+.icon48 .info{
+    background: url(48/info.png) no-repeat center center;
+}
+
+.icon48 .key{
+    background: url(48/key.png) no-repeat center center;
+}
+
+.icon48 .keyboard{
+    background: url(48/keyboard.png) no-repeat center center;
+}
+
+.icon48 .laptop{
+    background: url(48/laptop.png) no-repeat center center;
+}
+
+.icon48 .last{
+    background: url(48/last.png) no-repeat center center;
+}
+
+.icon48 .link{
+    background: url(48/link.png) no-repeat center center;
+}
+
+.icon48 .list{
+    background: url(48/list.png) no-repeat center center;
+}
+
+.icon48 .lock{
+    background: url(48/lock.png) no-repeat center center;
+}
+
+.icon48 .magnifier{
+    background: url(48/magnifier.png) no-repeat center center;
+}
+/*.icon48 .menubox.icon48 .magnifier:hover{
+    background: url(48/magnifier_menu.png) no-repeat center center;
+}*/
+
+.icon48 .mail{
+    background: url(48/mail.png) no-repeat center center;
+}
+
+.icon48 .man{
+    background: url(48/man.png) no-repeat center center;
+}
+
+.icon48 .med{
+    background: url(48/med.png) no-repeat center center;
+}
+
+.icon48 .mic{
+    background: url(48/mic.png) no-repeat center center;
+}
+
+.icon48 .minus{
+    background: url(48/minus.png) no-repeat center center;
+}
+
+.icon48 .money{
+    background: url(48/money.png) no-repeat center center;
+}
+
+.icon48 .moving{
+    background: url(48/moving.png) no-repeat center center;
+}
+
+.icon48 .next{
+    background: url(48/next.png) no-repeat center center;
+}
+
+.icon48 .note{
+    background: url(48/note.png) no-repeat center center;
+}
+
+.icon48 .on_off{
+    background: url(48/on_off.png) no-repeat center center;
+}
+
+.icon48 .outbox{
+    background: url(48/outbox.png) no-repeat center center;
+}
+
+.icon48 .paint{
+    background: url(48/paint.png) no-repeat center center;
+}
+
+.icon48 .paper_plane{
+    background: url(48/paper_plane.png) no-repeat center center;
+}
+
+.icon48 .pencil{
+    background: url(48/pencil.png) no-repeat center center;
+}
+
+.icon48 .phone{
+    background: url(48/phone.png) no-repeat center center;
+}
+
+.icon48 .photo{
+    background: url(48/photo.png) no-repeat center center;
+}
+
+.icon48 .plus{
+    background: url(48/plus.png) no-repeat center center;
+}
+
+.icon48 .previous{
+    background: url(48/previous.png) no-repeat center center;
+}
+
+.icon48 .print{
+    background: url(48/print.png) no-repeat center center;
+}
+/*.icon48 .menubox.icon48 .print:hover{
+    background: url(48/print_menu.png) no-repeat center center;
+}*/
+
+.icon48 .reload{
+    background: url(48/reload.png) no-repeat center center;
+}
+
+.icon48 .resize{
+    background: url(48/resize.png) no-repeat center center;
+}
+
+.icon48 .revert{
+    background: url(48/revert.png) no-repeat center center;
+}
+
+.icon48 .rss{
+    background: url(48/rss.png) no-repeat center center;
+}
+
+.icon48 .ruler{
+    background: url(48/ruler.png) no-repeat center center;
+}
+
+.icon48 .run{
+    background: url(48/run.png) no-repeat center center;
+}
+
+.icon48 .safe{
+    background: url(48/safe.png) no-repeat center center;
+}
+
+.icon48 .save{
+    background: url(48/save.png) no-repeat center center;
+}
+
+.icon48 .shopping_bag{
+    background: url(48/shopping_bag.png) no-repeat center center;
+}
+.icon48 .sitemap{
+    background: url(48/sitemap.png) no-repeat center center;
+}
+
+.icon48 .smile{
+    background: url(48/smile.png) no-repeat center center;
+}
+
+.icon48 .smile_sad{
+    background: url(48/smile_sad.png) no-repeat center center;
+}
+
+.icon48 .sound{
+    background: url(48/sound.png) no-repeat center center;
+}
+
+.icon48 .spanner{
+    background: url(48/spanner.png) no-repeat center center;
+}
+
+.icon48 .speaker{
+    background: url(48/speaker.png) no-repeat center center;
+}
+
+.icon48 .star{
+    background: url(48/star.png) no-repeat center center;
+}
+
+.icon48 .stop{
+    background: url(48/stop.png) no-repeat center center;
+}
+
+.icon48 .storage{
+    background: url(48/storage.png) no-repeat center center;
+}
+
+.icon48 .sum{
+    background: url(48/sum.png) no-repeat center center;
+}
+
+.icon48 .tag{
+    background: url(48/tag.png) no-repeat center center;
+}
+
+.icon48 .tag_add{
+    background: url(48/tag_add.png) no-repeat center center;
+}
+
+.icon48 .tag_cancel{
+    background: url(48/tag_cancel.png) no-repeat center center;
+}
+
+.icon48 .tag_remove{
+    background: url(48/tag_remove.png) no-repeat center center;
+}
+
+.icon48 .trash{
+    background: url(48/trash.png) no-repeat center center;
+}
+
+.icon48 .trash_mac{
+    background: url(48/trash_mac.png) no-repeat center center;
+}
+
+.icon48 .tray{
+    background: url(48/tray.png) no-repeat center center;
+}
+
+.icon48 .tray_full{
+    background: url(48/tray_full.png) no-repeat center center;
+}
+
+.icon48 .tray_mail{
+    background: url(48/tray_mail.png) no-repeat center center;
+}
+
+.icon48 .twg_logo{
+    background: url(48/twg_logo.png) no-repeat center center;
+}
+
+.icon48 .unlock{
+    background: url(48/unlock.png) no-repeat center center;
+}
+
+.icon48 .volume_down{
+    background: url(48/volume_down.png) no-repeat center center;
+}
+
+.icon48 .volume_up{
+    background: url(48/volume_up.png) no-repeat center center;
+}
+
+.icon48 .wallet{
+    background: url(48/wallet.png) no-repeat center center;
+}
+
+.icon48 .warning{
+    background: url(48/warning.png) no-repeat center center;
+}
+
+.icon48 .warning1{
+    background: url(48/warning1.png) no-repeat center center;
+}
+
+.icon48 .wifi{
+    background: url(48/wifi.png) no-repeat center center;
+}
+
+.icon48 .zoom_in{
+    background: url(48/zoom_in.png) no-repeat center center;
+}
+
+.icon48 .zoom_out{
+    background: url(48/zoom_out.png) no-repeat center center;
+}
