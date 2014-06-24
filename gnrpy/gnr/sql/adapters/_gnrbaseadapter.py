@@ -343,7 +343,8 @@ class SqlDbAdapter(object):
         tblobj = dbtable.model
         sql_flds = []
         columns = []
-        for colname,sqlcolname in tblobj.sqlnamemapper.items():
+        sqlnamemapper_items = filter(lambda x:x[0] in records[0].keys(), tblobj.sqlnamemapper.items())
+        for colname,sqlcolname in sqlnamemapper_items:
             sql_flds.append(sqlcolname)
             columns.append(colname)
         fldmask = FLDMASK.get(self.paramstyle)
