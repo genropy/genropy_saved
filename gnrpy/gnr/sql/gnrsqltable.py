@@ -1183,8 +1183,8 @@ class SqlTable(GnrObject):
         on the current :ref:`database table <table>`"""
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
-            lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
-            return lastid[0] + 1
+            lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
+            return (lastid[0] or 0) + 1
         else:
             return getUuid()
             
