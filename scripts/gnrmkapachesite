@@ -56,7 +56,7 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
                     process_name=None, user=None, filename=None,
                       group=None, tmp_path='/tmp', threads=4,
                       admin_mail=None, port=80, domain=None,
-                      processes=8, maximum_requests=700, base_url='/'):
+                      processes=8, maximum_requests=700, base_url='/', apache24=False):
     gnr_config = load_gnr_config()
     set_environment(gnr_config)
     site_path = site_name_to_path(site_name, gnr_config=gnr_config)
@@ -64,6 +64,11 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
         script_name = 'root.wsgi'
     else:
         script_name = 'root.py'
+    if apache24:
+        permissions = """Require all granted"""
+    else:
+        permissions = """Order allow,deny
+                Allow from all"""
     params = dict(process_name=process_name or 'gnr_%s' % site_name,
                   domain=domain,
                   user=user,
@@ -76,9 +81,11 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
                   admin_mail=admin_mail or 'genro@%s' % domain,
                   site_path=site_path,
                   script_name=script_name,
-                  port=str(port)
+                  port=str(port),
+                  permissions = permissions
                   )
     params['process_env'] = 'ENV_%s' % params['process_name'].upper()
+
     apache_file_content = """<VirtualHost *:80>
             ServerName %(domain)s
             ServerAdmin %(admin_mail)s
@@ -91,8 +98,7 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
             <Directory %(site_path)s>
                 Options Indexes FollowSymLinks
                 AllowOverride All
-                Order allow,deny
-                Allow from all
+                %(permissions)s
             </Directory>
             ErrorLog %(site_path)s/error.log
     </VirtualHost>
@@ -112,12 +118,13 @@ if __name__ == '__main__':
     usage = """
     gnrmkapachesite <site_name> <domain_name> will output an apache site configuration file.
     example usage:
-    gnrmkapachesite genro www.genro.org > genro_site
+    gnrmkapachesite genro www.genro.org > genro_site.conf
     will write the correct apache configuration for 'genro' site in genro_site
-    then copy genro_site to /etc/apache2/sites-available:
-    sudo cp genro_site /etc/apache2/sites-available
+    then copy genro_site.conf to /etc/apache2/sites-available:
+    sudo cp genro_site.conf /etc/apache2/sites-available
     then enable it:
     sudo a2ensite genro_site
+    (with apache < 2.4  sudo a2ensite genro_site.conf)
     and finally restart apache:
     sudo apache2ctl restart
     """
@@ -142,6 +149,8 @@ if __name__ == '__main__':
                         help="max threads")
     parser.add_option("-r", "--maximum_requests", dest="maximum_requests", default=700,
                         help="max requests per process")
+    parser.add_option("-4", "--apache24", dest="apache24", action='store_true', default=False,
+                      help="makes the configuration file compatible with apache 2.4 (remember the .conf at the end of filename!)")
     
     (options, args) = parser.parse_args()
     option_force = getattr(options, 'force', False)
@@ -152,9 +161,11 @@ if __name__ == '__main__':
     processes = getattr(options, 'processes', None)
     threads = getattr(options, 'threads', None)
     maximum_requests = getattr(options, 'maximum_requests', None)
+    apache24 = getattr(options, 'apache24', False)
+    
     if  len(args)<2:
         parser.print_help()
     else:
         build_apache_site(args[0],domain=args[1], user=user,
-          group=group, threads=threads, processes=processes, maximum_requests=maximum_requests, port=port)
+          group=group, threads=threads, processes=processes, maximum_requests=maximum_requests, port=port, apache24=apache24)
         
