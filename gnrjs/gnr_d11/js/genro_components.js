@@ -1914,19 +1914,27 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
-        var child_count = values.split(',').length;
+        if(!values){
+            return;
+        }
+        values = splitStrip(values,',');
+        var child_count = values.length;
         if(child_count==1 && !this.showAlways){
             var mbnode = mb.getParentNode();
             mbnode.attr._class = mbnode.attr._class + ' hidden';
         }
         var deleteAction = this.deleteAction;
         if (mb && values){
-            var values = splitStrip(values,',');
+            values = values.map(function(n){
+                var nlist = n.split(':');
+                var result = [];
+                var caption = nlist.pop();
+                return [nlist.join(':'),caption];
+            });
             var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0][0];
             mb.clear(true);
-            dojo.forEach(values,function(n){
-                vl = n.split(':');
+            dojo.forEach(values,function(vl){
                 _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
                 if(deleteAction){
                     _class = _class +' multibutton_closable';
