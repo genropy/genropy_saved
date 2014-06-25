@@ -3393,6 +3393,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     },
 
     sort:function(sortedBy){
+        console.log('zzz',sortedBy)
         this.sortedBy = sortedBy || this.sortedBy;
         var data = this.getData();
         var sl = [];

@@ -765,7 +765,125 @@ dojo.declare("gnr.GnrDevHandler", null, {
             })
         })
         return errors.join('<br/><hr/>');
-    }
+    },
+    takePicture:function(uploadPath,onResult){
+        console.log('takePicture')
+        const divOffset = 1;
+        var overlay = document.createElement('div');
+        dojo.style(overlay,{position:'fixed',top:'0',bottom:'0',left:'0',right:'0',opacity:'.3',background:'white',zIndex:1000,cursor:'crosshair'});
+        dojo.body().appendChild(overlay);
+        var sel = document.createElement('div');
+        dojo.style(sel,{position:'absolute',top:'0',width:'0',height:'0',display:'none',border:'2px solid black'});
+        overlay.appendChild(sel);
+        var pos = [0, 0];
+        var x1,x2,y1,y2, xDif, yDif = 0;
+        var isSelection, 
+            isBottomRight, 
+            isTopRight, 
+            isTopLeft, 
+            isBottomLeft = false
+
+        dojo.connect(overlay,'mousedown',function(event){
+            isSelection = true
+            x1 = event.pageX - pos[0]
+            y1 = event.pageY - pos[1]
+            sel.style.setProperty('display', 'block')
+            sel.style.setProperty('left', event.pageX + "px")
+            sel.style.setProperty('top', event.pageY + "px")
+            sel.style.setProperty('width', '0px')
+            sel.style.setProperty('height', '0px')
+        });
+
+        dojo.connect(overlay,'mouseup',function(event){
+           isSelection = false
+           if(isBottomRight){
+             x2 = event.pageX - pos[0]
+             y2 = event.pageY - pos[1]
+             xDif = x2-x1
+             yDif = y2-y1 
+           } else if (isBottomLeft){
+             y2 = event.pageY - pos[1]
+             yDif = y2 - y1 
+
+             xDif = x1 - x2
+             x1 = x1 - xDif
+
+           } else if(isTopRight){
+             x2 = event.pageX - pos[0]
+             xDif = x2 - x1 
+             yDif = y1 - y2
+             y1 = y1 - yDif         
+           } else if (isTopLeft){
+             xDif = x1 - x2
+             x1 = x1 - xDif
+             yDif = y1 - y2
+             y1 = y1 - yDif         
+           }
+           sel.style.setProperty('display', 'none');
+           dojo.body().removeChild(overlay);
+           genro.dom.htmlToCanvas(dojo.body(),{uploadPath:uploadPath || 'site:screenshots/'+genro.getData('gnr.pagename'),
+                                               onResult:onResult,
+                                               crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}})
+           console.log('crop',x1, y1, xDif, yDif);
+           //crop(x1, y1, xDif, yDif)
+        });
+
+        dojo.connect(overlay,'mousemove',function(event){
+            if(isSelection){
+                x2 = event.pageX - pos[0]
+                y2 = event.pageY - pos[1]
+                if(x2>x1 && y2>y1){ //moving right bottom selection
+                  isBottomRight = true
+                  isBottomLeft = false
+                  isTopLeft = false
+                  isTopRight = false
+                  
+                  xDif = x2 - x1
+                  yDif = y2 - y1 
+
+                  sel.style.setProperty('width', xDif + 'px')
+                  sel.style.setProperty('height', yDif + 'px')
+                } else if(x2<x1 && y2>y1){ //moving left bottom selection
+                  isBottomLeft = true
+                  isTopLeft = false
+                  isTopRight = false
+                  isBottomRight = false
+                  
+                  xDif = x1 - x2
+                  yDif = y2 - y1 
+
+                  sel.style.setProperty('left', x2 + 'px')
+                  sel.style.setProperty('width', xDif + 'px')
+                  sel.style.setProperty('height', yDif + 'px')
+                  
+                } else if(x2>x1 && y2<y1){
+                  isTopRight = true
+                  isTopLeft = false
+                  isBottomLeft = false
+                  isBottomRight = false
+
+                  xDif = y1 - y2
+                  yDif = x2 - x1 
+
+                  sel.style.setProperty('top', y2 + 'px')
+                  sel.style.setProperty('width', yDif + 'px')
+                  sel.style.setProperty('height', xDif + 'px')
+                } else if (x2<x1 && y2<y1){
+                  isTopLeft = true
+                  isTopRight = false
+                  isBottomLeft = false
+                  isBottomRight = false
+
+                  yDif = y1 - y2 
+                  xDif = x1 - x2
+
+                  sel.style.setProperty('left', x2 + pos[0] + divOffset + 'px')
+                  sel.style.setProperty('top', y2 + pos[1] + divOffset + 'px')
+                  sel.style.setProperty('width', xDif  + 'px')
+                  sel.style.setProperty('height', yDif  + 'px')
+                }
+        }})}
+
 });
 //dojo.declare("gnr.GnrViewEditor",null,{
 //      constructor: function(widget){

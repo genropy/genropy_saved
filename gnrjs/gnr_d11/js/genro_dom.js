@@ -1493,5 +1493,62 @@ dojo.declare("gnr.GnrDomHandler", null, {
             w = window.parent;
         }
         w.postMessage(message,'*');
+    },
+
+    htmlToCanvas:function(where,kw){
+        if(!window.html2canvas){
+            genro.dom.loadJs('/_rsrc/js_libs/html2canvas.js',function(){
+                genro.dom.htmlToCanvas(where,kw);
+            });
+            return;
+        }
+        var domNode = this.getDomNode(where);
+        var onrendered = kw.cb;
+        var uploadPath = kw.uploadPath;
+        if(uploadPath){
+            onrendered = function(canvas){
+                var data;
+                if(kw.crop){
+                    var crop = kw.crop;
+                    var tempcanvas = document.createElement('canvas');
+                    var ctxDest = tempcanvas.getContext("2d");
+                    tempcanvas.width = crop.deltaX;
+                    tempcanvas.height = crop.deltaY;
+                    ctxDest.drawImage(canvas, crop.x, crop.y, crop.deltaX, crop.deltaY, 0, 0, crop.deltaX, crop.deltaY);
+                    canvas = tempcanvas;
+                }
+                data = canvas.toDataURL("image/png");
+
+                genro.dlg.prompt('Upload screenshot',{
+                    widget:function(center){
+                        var preview = center._('div',{margin:'2px',max_height:'150px',border:'1px solid silver', 
+                                                        onCreated:function(domnode){
+                                                            dojo.style(canvas,{height:'100%'})
+                                                            domnode.appendChild(canvas)
+                                                        }})
+                        
+                        var fb = genro.dev.formbuilder(center,1,{border_spacing:'4px',width:'100%',fld_width:'100%'});
+                        fb.addField('textbox',{lbl_color:'#666',lbl_text_align:'right',lbl:'Name',value:'^.filename'});
+                    },
+                    action:function(result){
+                        var filename = result.getItem('filename');
+                        filename = (filename || 'img_'+genro.getCounter()) +'.png';
+                        genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:uploadPath,
+                              filename:filename,
+                              onResult:function(result){
+                                  var url = this.responseText;
+                                  if(kw.onResult){
+                                     kw.onResult(result);
+                                  }
+                                  //sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
+                               }});
+                }})
+            }
+        }
+        html2canvas(domNode, {
+            onrendered: function(canvas) {
+                onrendered(canvas);
+            }
+        });
     }
 });

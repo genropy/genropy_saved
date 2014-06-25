@@ -438,6 +438,10 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dev.showDebugger();
         });
 
+        genro.dev.shortcut("Ctrl+Shift+S", function() {
+            genro.dev.takePicture();
+        });
+
         genro.dev.shortcut("Shift+space", function(e) {
             var sn = dijit.getEnclosingWidget(e.target).sourceNode;
             if('_lastSavedValue' in sn){

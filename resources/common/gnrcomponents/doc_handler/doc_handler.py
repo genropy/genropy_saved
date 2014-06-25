@@ -82,9 +82,7 @@ class DocHandler(BaseComponent):
                             var filepath = attr.filepath;
                             var imagespath = attr.imagespath;
                             this.form.load({destPkey:filepath});
-                            console.log('xxxxx',imagespath);
                             SET #FORM.imgFolders = imagespath;
-
                             """,
                             current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_delay=1)
         iframepars = dict(border=0,height='100%',width='100%')

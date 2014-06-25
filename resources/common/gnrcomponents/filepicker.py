@@ -77,14 +77,39 @@ class FilePicker(BaseComponent):
                                         _uploader_drop_folder='=.#parent.currentFolder',
                                         dropTypes='Files',_uploader_onUploadingMethod=self._fp_pimg_uploadImage)
 
-        bar = view.top.slotToolbar('5,multiFolder,*,delrow,5,searchOn,5')
+        bar = view.top.slotToolbar('5,multiFolder,*,snapShot,5,delrow,5,searchOn,5')
+        bar.snapShot.slotButton('"Snapshot',iconClass='iconbox photo',
+                                action="""var that = this;
+                                        this.getParentWidget('floatingPane').hide()
+                                          genro.dev.takePicture(uploadPath,function(){
+                                                that.getParentWidget('floatingPane').show()
+                                                that.fireEvent('.reloadStore',true);
+                                            });""",uploadPath='=.currentFolder')
         bar.multiFolder.multiButton(value='^.currentFolder',values='^.folderValues')
+        view.data('.grid.sorted','created_ts:d')
+
+        view.grid.tooltip(callback="""
+                    var r = n;
+                    while(!r || r.gridRowIndex==null){
+                        r = r.parentElement;
+                    }
+                    var grid = dijit.getEnclosingWidget(n).grid;
+                    var row = grid.rowByIndex(r.gridRowIndex);
+                    var tpl = "<img src='$fileurl' style='max-height:300px'></img>";
+                    console.log('row',row)
+                    var result = dataTemplate(tpl,row);
+                    console.log('result',result)
+                    return result;
+                """,modifiers='Ctrl',validclass='dojoxGrid-cell,cellContent')
+
         view.grid.fsStore(childname='store',
                                     folders='^.currentFolder',
+                                    _fired='^.reloadStore',
                                     include= include or '*.jpg,*.png,*.gif',
                                     _if='folders',_else='this.store.clear();',
                                     applymethod=self._fp_checkFileImg,
-                                    apply_currentFolder='=.currentFolder')
+                                    apply_currentFolder='=.currentFolder',
+                                    sortedBy='^.grid.sorted')
         bc.contentPane(region='bottom',height='50%',drawer='close',overflow='hidden',
                         border_top='1px solid silver',splitter=True).iframe(src='^.view.grid.selected_url',height='100%',width='100%',border=0)
         return pane
