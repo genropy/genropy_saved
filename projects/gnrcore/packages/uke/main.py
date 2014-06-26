@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_sync_event
+from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_sync_event
 
 
 class Package(GnrDboPackage):
