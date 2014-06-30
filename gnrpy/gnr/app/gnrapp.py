@@ -354,7 +354,7 @@ class GnrPackagePlugin(object):
         
 class GnrPackage(object):
     """TODO"""
-    def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
+    def __init__(self, pkg_id, application, path=None, filename=None, project=None,**pkgattrs):
         self.id = pkg_id
         filename = filename or pkg_id
         self.application = application
@@ -365,6 +365,10 @@ class GnrPackage(object):
         self.tableMixins = {}
         self.plugins = {}
         self.loadPlugins()
+        if not project:
+            projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
+            project = os.path.split(projectPath)[1]
+        self.project = project 
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'),avoidDup=True)
