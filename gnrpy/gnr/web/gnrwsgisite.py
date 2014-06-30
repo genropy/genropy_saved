@@ -14,6 +14,7 @@ import logging
 import subprocess
 import urllib
 import urllib2
+import httplib2
 
 
 from time import time
@@ -588,6 +589,17 @@ class GnrWsgiSite(object):
             url = '%s/%s' %(url,method)
         url= urllib2.urlopen(url,urllib.urlencode(kwargs))
         return url.read()
+
+    def callGnrRpcUrl(self,url,method,*args,**kwargs):
+        kwargs = kwargs or dict()
+        for k in kwargs:
+            kwargs[k] = self.gnrapp.catalog.asTypedText(kwargs[k])
+        urlargs = [url,method]+list(args)
+        url = '/'.join(urlargs)
+        http = httplib2.Http()
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        response,content = http.request(url, 'POST', headers=headers, body=urllib.urlencode(kwargs))
+        return self.gnrapp.catalog.fromTypedText(content)
 
     def writeException(self, exception=None, traceback=None):
         try:
