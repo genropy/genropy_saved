@@ -209,20 +209,22 @@ class SqlModelChecker(object):
         if tbl.columns:
             dbcolumns = dict(
                     [(c['name'], c) for c in self.db.adapter.getColInfo(schema=tbl.sqlschema, table=tbl.sqlname)])
+            
             for col in tbl.columns.values():
-                if col.sqlname in dbcolumns:
+                col_name = col.attributes.get('sqlname', col.name)
+                if col_name in dbcolumns:
                     #it there's the column it should check if has been edited.
                     new_dtype = col.attributes['dtype']
                     new_size = col.attributes.get('size')
                     new_unique = col.attributes.get('unique')
-                    old_dtype = dbcolumns[col.sqlname]['dtype']
-                    old_size = dbcolumns[col.sqlname].get('size')
-                    old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col.sqlname)]
-                    if not self.unique_constraints and col.sqlname in columnsindexes:
-                        if tblattr['pkey']==col.sqlname:
+                    old_dtype = dbcolumns[col_name]['dtype']
+                    old_size = dbcolumns[col_name].get('size')
+                    old_unique = self.unique_constraints['%s.%s.%s'%(tbl.sqlschema,tbl.sqlname,col_name)]
+                    if not self.unique_constraints and col_name in columnsindexes:
+                        if tblattr['pkey']==col_name:
                             old_unique = new_unique
                         else:
-                            old_unique = columnsindexes[col.sqlname].get('unique')
+                            old_unique = columnsindexes[col_name].get('unique')
                     if new_dtype == 'A' and not new_size:
                         new_dtype = 'T'
                     if new_dtype == 'A' and not ':' in new_size:
@@ -247,19 +249,19 @@ class SqlModelChecker(object):
                     tablechanges.append(change)
                     self.bagChanges.setItem('%s.%s.columns.%s' % (tbl.pkg.name, tbl.name, col.name), None,
                                             changes=change)
-                                            
+        print dbindexes                                    
         if tbl.indexes:
             for idx in tbl.indexes.values():
-                if (idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes):
-
-                    change = self.db.adapter.dropIndex(idx.sqlname[0:-4][:63], sqlschema=tbl.sqlschema)
+                if (idx.sqlname.endswith('_idx') and self.db.adapter.sqlIndexName(idx.sqlname[0:-4]) in dbindexes):
+                    print '......', self.db.adapter.sqlIndexName(idx.sqlname[0:-4])
+                    change = self.db.adapter.dropIndex(self.db.adapter.sqlIndexName(idx.sqlname[0:-4][:63]), sqlschema=tbl.sqlschema)
                     if change:
                         self.changes.append(change)
                         tablechanges.append(change)
                         self.bagChanges.setItem('%s.%s.indexes.%s' % (tbl.pkg.name, tbl.name, idx.sqlname), None,
                                                 changes=change)
                                                 
-                if idx.sqlname[:63] in dbindexes:
+                if self.db.adapter.sqlIndexName(idx.sqlname[:63]) in dbindexes:
                     pass
                 else:
                     icols = idx.getAttr('columns')
@@ -409,14 +411,16 @@ class SqlModelChecker(object):
         
     def _buildColumn(self, col):
         """Prepare the sql statement for adding the new column to the given table and return it"""
-        return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
+        return self.db.adapter.addColumnDefinition(col.table.sqlfullname, self._sqlColumn(col))
+        #return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
         
     def _alterColumnType(self, col, new_dtype, new_size=None):
         """Prepare the sql statement for altering the type of a given column and return it"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
         if usedColumn or col.dtype == 'T' and col.dtype ==new_dtype:
-            return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
+            return self.db.adapter.alterColumnDefinition(col.table.sqlfullname, col.sqlname, sqlType)
+            #return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
         else:
             return '; '.join(['ALTER TABLE %s DROP COLUMN %s' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
         
@@ -448,7 +452,7 @@ class SqlModelChecker(object):
         sqlfields = []
         for col in tbl.columns.values():
             sqlfields.append(self._sqlColumn(col))
-        return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
+        return 'CREATE TABLE %s (%s)' % (tablename, ', '.join(sqlfields))
         
     def _sqlDatabase(self, tbl):
         """Return the sql statement string that creates the new database"""

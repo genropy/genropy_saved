@@ -11,7 +11,7 @@ class Table(object):
         self.sysFields(tbl, ins=True, upd=True, md5=True)
         tbl.column('id', size='22', group='_', readOnly='y', name_long='Id')
         tbl.column('username', size=':32', name_long='!!Username', unique='y', _sendback=True,
-                   indexed='y', validate_notnull=True, validate_notnull_error='!!Mandatory field')
+                    validate_notnull=True, validate_notnull_error='!!Mandatory field')
         tbl.column('email', name_long='Email', validate_notnull=True,
                    validate_notnull_error='!!Mandatory field')
 

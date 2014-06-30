@@ -7,7 +7,7 @@ class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('counter', pkey='codekey',pkey_columns='pkg,tbl,code,fld,period', name_long='!!Counter')
         self.sysFields(tbl, id=False, ins=True, upd=True)
-        tbl.column('codekey', size=':80', readOnly='y', name_long='!!Codekey', indexed='y')
+        tbl.column('codekey', size=':80', readOnly='y', name_long='!!Codekey')
         tbl.column('code', size=':12', readOnly='y', name_long='!!Code')
         tbl.column('pkg', size=':12', readOnly='y', name_long='!!Package')
         tbl.column('tbl', size=':30', readOnly='y', name_long='!!Table')

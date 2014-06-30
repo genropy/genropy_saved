@@ -54,6 +54,8 @@ class SqlDbAdapter(object):
     #         pass
     support_multiple_connections = True
     paramstyle = 'named'
+    supports_schema = True
+    quote_names = False
 
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
@@ -473,9 +475,15 @@ class SqlDbAdapter(object):
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s AS %s;" % (sqltable, query), sqlparams)
 
+    def addColumnDefinition(self, sqltable, sqlcol):
+        return 'ALTER TABLE %s ADD COLUMN %s' % (sqltable, sqlcol)
+
+    def alterColumnDefinition(self, sqltable, sqlcol, sqlType):
+        return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (sqltable, sqlcol, sqlType)
+
     def addColumn(self, sqltable, sqlname, dtype='T', size=None, notnull=None, pkey=None, unique=None):
         sqlcol = self.columnSqlDefinition(sqlname, dtype=dtype, size=size, notnull=notnull, pkey=pkey, unique=unique)
-        self.dbroot.execute('ALTER TABLE %s ADD COLUMN %s' % (sqltable, sqlcol))
+        self.dbroot.execute(self.addColumnDefinition(sqltable, sqlcol))
 
     def renameColumn(self, sqltable, sqlname,sqlnewname):
         #automag_deposito_sede_id_idx
@@ -514,6 +522,8 @@ class SqlDbAdapter(object):
             sql = sql + ' UNIQUE'
         return sql
 
+
+
     def columnSqlType(self, dtype, size=None):
         if dtype != 'N' and size:
             if ':' in size:
@@ -542,6 +552,9 @@ class SqlDbAdapter(object):
         if sqlschema:
             index_name = '%s.%s' % (sqlschema, index_name)
         return "DROP INDEX IF EXISTS %s;" % index_name
+
+    def sqlIndexName(self, index_name):
+        return index_name
 
     def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
         """Create a new index

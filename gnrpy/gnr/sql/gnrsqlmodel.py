@@ -567,7 +567,10 @@ class DbModelObj(GnrStructObj):
     adapter = property(_get_adapter)
         
     def _get_sqlname(self):
-        return self.attributes.get('sqlname', self.name)
+        sqlname = self.attributes.get('sqlname', self.name)
+        if self.db.adapter.quote_names:
+            sqlname = '"%s"'%sqlname
+        return sqlname
         
     sqlname = property(_get_sqlname)
         
@@ -726,6 +729,8 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlschema(self):
         """property. Returns the sqlschema"""
+        if not self.db.adapter.supports_schema:
+            return self.db.adapter.defaultMainSchema()
         return self.attributes.get('sqlschema', self.pkg.sqlschema)
         
     sqlschema = property(_get_sqlschema)

@@ -6,7 +6,7 @@ class Table(object):
                       name_plural='!!Permissions')
         self.sysFields(tbl)
         tbl.column('datacatalog_id',size='22',group='_',name_long='Catalog').relation('datacatalog.id', mode='foreignkey', onDelete='raise',relation_name='permissions')
-        tbl.column('tag_id',name_long='!!Tag').relation('htag.id', mode='foreignkey', onDelete='raise',relation_name='permissions')
+        tbl.column('tag_id',size='22',name_long='!!Tag').relation('htag.id', mode='foreignkey', onDelete='raise',relation_name='permissions')
         #PERMISSIONS POSSIBILE VALUES:
         tbl.column('view_read','B',name_long='!!View Read')
         tbl.column('view_add','B',name_long='!!View Add')

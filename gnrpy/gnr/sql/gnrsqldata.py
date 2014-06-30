@@ -591,15 +591,16 @@ class SqlQueryCompiler(object):
         logicalDeletionField = self.tblobj.logicalDeletionField
         draftField = self.tblobj.draftField
         if logicalDeletionField:
+            logicalDeletionCol = self.tblobj.columns[logicalDeletionField]
             if excludeLogicalDeleted is True:
-                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
+                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionCol.sqlname)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionField) #add logicalDeletionField
+                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionCol.sqlname) #add logicalDeletionField
         if draftField:
             if excludeDraft is True:
                 extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
