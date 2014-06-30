@@ -679,7 +679,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
                            'table':objectPop(kw,'table'),
-                           'margin':'6px','configurable':true,
+                           'configurable':true,
                            'structpath': structpath,
                            'frameCode':frameCode,
                            'autoWidth':false,
@@ -694,6 +694,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
         
         kw['contentWidget'] = 'FramePane';
+        kw['center_overflow'] = 'hidden'
         var pane = sourceNode._('PalettePane',kw);
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
@@ -1122,6 +1123,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     gnrwdg_getFormatFromValue:function(value){
         var format = new gnr.GnrBag();
         var formats = this.formats || {};
+        formats = this.sourceNode.evaluateOnNode(formats);
         var guess = this.gnr.guessDtypeAndWidth(value);
         var kw;
         for (var label in guess.types){
@@ -1130,11 +1132,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                           'name':stringCapitalize(label.replace(/_/g,' '))
                                       }
             if(label in formats){
-                var customFormat = this.sourceNode.getAttributeFromDatasource('format_'+label);
+                var customFormat = formats[label];
                 if(customFormat){
-                    objectUpdate(kw,customFormat.asDict());
+                    objectUpdate(kw,customFormat);
                 }
-                
             }
             format.setItem(label,null,kw);
         }
@@ -3393,7 +3394,6 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     },
 
     sort:function(sortedBy){
-        console.log('zzz',sortedBy)
         this.sortedBy = sortedBy || this.sortedBy;
         var data = this.getData();
         var sl = [];
