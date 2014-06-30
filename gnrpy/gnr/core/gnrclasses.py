@@ -288,7 +288,8 @@ class GnrClassCatalog(object):
         
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)
         self.addParser(Bag, lambda txt: Bag(txt))
-        
+        self.addSerializer("asText", Bag, lambda b: b.toXml(catalog=self))
+
         self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
         self.addParser(type(None), lambda txt: None)
         self.addSerializer("asText", type(None), lambda txt: '')
