@@ -27,29 +27,7 @@ class GnrCustomWebPage(object):
         self.usersPane(bc.contentPane(region='center',margin='2px',datapath='#FORM'))
 
     def usersPane(self,pane):
-        def user_struct(struct):
-            r = struct.view().rows()
-            r.cell('username', name='username', width='8em')
-            r.cell('fullname', name='fullname', width='100%')
-            
-        th = pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag')
-        bar = th.view.top.bar    
-        bar.replaceSlots('#','#,delrow,addusers')
-        bar.addusers.paletteGrid('users', title='!!Users',searchOn=True, struct=user_struct,
-                                  grid_filteringGrid=th.view.grid,
-                                  grid_filteringColumn='username:user',
-                                  dockButton_iconClass='icnOpenPalette').selectionStore(table='adm.user')
+        pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag',picker='user_id')
+
         
-        grid = th.view.grid
-        grid.dragAndDrop(dropCodes='users')
-        grid.dataRpc('dummy','addUsers',data='^.dropped_users',tag_id='=#FORM.pkey')
-        
-    def rpc_addUsers(self,data=None,tag_id=None,**kwargs):
-        usertagtbl = self.db.table('adm.user_tag')
-        users=usertagtbl.query(where="$tag_id=:tag_id",tag_id=tag_id).fetchAsDict(key='user_id')
-        for row in data:
-            user_id = row.get('_pkey')
-            if not user_id in users:
-                usertagtbl.insert(dict(user_id=user_id,tag_id=tag_id))
-        self.db.commit()
         
