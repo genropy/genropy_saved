@@ -8,28 +8,32 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
+        r.fieldcell('df_fields')
+        r.fieldcell('df_fbcolumns')
+        r.fieldcell('df_custom_templates')
+        r.fieldcell('df_colswith')
         r.fieldcell('code')
         r.fieldcell('description')
 
     def th_order(self):
-        return 'code'
+        return 'df_fields'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='')
+        return dict(column='df_fields', op='contains', val='')
 
 
 
 class Form(BaseComponent):
 
     def th_form(self, form):
-        bc = form.center.borderContainer()
-        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
+        pane = form.record
+        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        fb.field('df_fields')
+        fb.field('df_fbcolumns')
+        fb.field('df_custom_templates')
+        fb.field('df_colswith')
         fb.field('code')
         fb.field('description')
-        tc = bc.tabContainer(region='center')
-        tc.contentPane(title='Projects').dialogTableHandler(relation='@projects',viewResource='ViewFromCompany',formResource='FormFromCompany')
-        tc.contentPane(title='People').dialogTableHandler(relation='@people',viewResource='ViewFromCompany',formResource='FormFromCompany')
-
 
 
     def th_options(self):

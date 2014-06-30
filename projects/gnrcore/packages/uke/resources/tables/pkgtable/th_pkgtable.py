@@ -10,6 +10,8 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('name')
         r.fieldcell('description')
+        r.fieldcell('package_identifier')
+        r.fieldcell('table_identifier')
 
     def th_order(self):
         return 'name'
@@ -22,14 +24,12 @@ class View(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        bc = form.center.borderContainer()
-        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
+        pane = form.record
+        fb = pane.formbuilder(cols=2, border_spacing='4px')
         fb.field('name')
         fb.field('description')
-        tc = bc.tabContainer(region='center')
-        tc.contentPane(title='Projects').dialogTableHandler(relation='@projects',viewResource='ViewFromCustomer',formResource='FormFromCustomer')
-        tc.contentPane(title='People').dialogTableHandler(relation='@people',viewResource='ViewFromCustomer',formResource='FormFromCustomer')
-
+        fb.field('package_identifier')
+        fb.field('table_identifier')
 
 
     def th_options(self):
