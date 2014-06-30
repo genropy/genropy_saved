@@ -35,7 +35,8 @@ class BaseRpc(BaseComponent):
             args.pop(0)
         else:
             method = self.rpc_index
-        return method(*args, **kwargs)
+        result = method(*args, **kwargs)
+        return self.catalog.asTypedText(result)
 
     def validIpList(self):
         return None
