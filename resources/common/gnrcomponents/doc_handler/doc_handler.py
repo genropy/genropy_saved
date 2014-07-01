@@ -102,7 +102,7 @@ class DocHandler(BaseComponent):
                                 previewHTML='^.body',iframe=iframe)
         editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
         palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock')
-        palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker')
+        palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker');
         editorpane.ckeditor(value='^.body',config_contentsCss=cssurl,toolbar='standard') 
         return form
 

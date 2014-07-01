@@ -766,8 +766,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
         })
         return errors.join('<br/><hr/>');
     },
+
+
     takePicture:function(uploadPath,onResult){
-        console.log('takePicture')
+        genro.publish('onPageSnapshot',{setting:true});
         const divOffset = 1;
         var overlay = document.createElement('div');
         dojo.style(overlay,{position:'fixed',top:'0',bottom:'0',left:'0',right:'0',opacity:'.3',background:'white',zIndex:1000,cursor:'crosshair'});
@@ -821,11 +823,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
            }
            sel.style.setProperty('display', 'none');
            dojo.body().removeChild(overlay);
+           var onResultSnapshot = function(){
+                if(onResult){
+                    onResult();
+                }
+                genro.publish('onPageSnapshot',{setting:false});
+           }
            genro.dom.htmlToCanvas(dojo.body(),{uploadPath:uploadPath || 'site:screenshots/'+genro.getData('gnr.pagename'),
-                                               onResult:onResult,
+                                               onResult:onResultSnapshot,
                                                crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}})
-           console.log('crop',x1, y1, xDif, yDif);
-           //crop(x1, y1, xDif, yDif)
         });
 
         dojo.connect(overlay,'mousemove',function(event){

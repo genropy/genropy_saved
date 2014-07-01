@@ -79,12 +79,16 @@ class FilePicker(BaseComponent):
 
         bar = view.top.slotToolbar('5,multiFolder,*,snapShot,5,delrow,5,searchOn,5')
         bar.snapShot.slotButton('"Snapshot',iconClass='iconbox photo',
-                                action="""var that = this;
-                                        this.getParentWidget('floatingPane').hide()
-                                          genro.dev.takePicture(uploadPath,function(){
-                                                that.getParentWidget('floatingPane').show()
-                                                that.fireEvent('.reloadStore',true);
-                                            });""",uploadPath='=.currentFolder')
+                                action="""FIRE .takeSnapshot;""",uploadPath='=.currentFolder')
+        view.dataController("""
+                        var that = this;
+                        this.getParentWidget('floatingPane').hide();
+                        genro.dev.takePicture(uploadPath,function(){
+                                that.getParentWidget('floatingPane').show()
+                                that.fireEvent('.reloadStore',true);
+                        });
+
+            """,uploadPath='=.currentFolder',_fired='^.takeSnapshot')
         bar.multiFolder.multiButton(value='^.currentFolder',values='^.folderValues')
         view.data('.grid.sorted','created_ts:d')
 

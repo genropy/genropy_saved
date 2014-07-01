@@ -1520,6 +1520,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 data = canvas.toDataURL("image/png");
 
                 genro.dlg.prompt('Upload screenshot',{
+                    cancelCb:kw.onResult,
                     widget:function(center){
                         var preview = center._('div',{margin:'2px',max_height:'150px',border:'1px solid silver', 
                                                         onCreated:function(domnode){

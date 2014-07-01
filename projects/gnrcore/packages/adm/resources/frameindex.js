@@ -263,6 +263,14 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
     },
 
+    reportBugInCurrentIframe:function(rootPageName){
+        var iframe = this.getCurrentIframe(rootPageName);
+        if(iframe){
+            iframe.sourceNode._genro.publish('genro_report_bug');
+        }
+    },
+
+
     getCurrentIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');
         var iframePageId = iframesbag.getItem(rootPageName+'?selectedPage');

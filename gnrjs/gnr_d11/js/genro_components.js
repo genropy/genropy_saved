@@ -2884,6 +2884,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         };
         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
                        'storeType':storeType,'unlinkdict':kw.unlinkdict,
+                       'deletemethod':kw.deletemethod,
                        'allowLogicalDelete':allowLogicalDelete};
         if('startLocked' in kw){
             storeKw.startLocked = kw.startLocked;
@@ -3447,7 +3448,8 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
     deleteRows:function(files,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        genro.serverCall('app.deleteFileRows',{files:files},function(result){
+        var rpcdelete = this.deletemethod || 'app.deleteFileRows';
+        genro.serverCall(rpcdelete,{files:files},function(result){
             that.onDeletedRows(files);
         },null,'POST');
     },
