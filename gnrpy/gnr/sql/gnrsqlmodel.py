@@ -568,7 +568,8 @@ class DbModelObj(GnrStructObj):
         
     def _get_sqlname(self):
         sqlname = self.attributes.get('sqlname', self.name)
-        if self.db.adapter.quote_names:
+        sqlname = self.db.adapter.getSqlName(sqlname)
+        if False and self.db.adapter.quote_names:
             sqlname = '"%s"'%sqlname
         return sqlname
         
@@ -651,9 +652,13 @@ class DbPackageObj(DbModelObj):
         """
         sqlprefix = self.attributes.get('sqlprefix')
         if sqlprefix == '':
-            return tblobj.name
+            sqlname = tblobj.name
         else:
-            return '%s_%s' % (sqlprefix or self.name, tblobj.name)
+            sqlname = '%s_%s' % (sqlprefix or self.name, tblobj.name)
+        sqlname = self.db.adapter.getSqlName(sqlname)
+        if self.db.adapter.quote_names:
+            sqlname = '"%s"'%sqlname
+        return sqlname
             
     def _get_sqlschema(self):
         return self.attributes.get('sqlschema', self.dbroot.main_schema)
@@ -1160,7 +1165,10 @@ class DbColumnObj(DbBaseColumnObj):
             self.attributes['dtype'] = attributes_mixin.pop('dtype')
             attributes_mixin.update(self.attributes)
             self.attributes = attributes_mixin
-        self.table.sqlnamemapper[self.name] = self.sqlname
+        sqlname = self.sqlname
+        if self.dbroot.adapter.quote_names:
+            sqlname = '"%s"'%sqlname
+        self.table.sqlnamemapper[self.name] = sqlname
         column_relation = self.structnode.value['relation']
         if column_relation is not None:
             reldict = dict(column_relation.attributes)

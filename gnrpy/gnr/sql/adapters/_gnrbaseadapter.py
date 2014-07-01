@@ -56,7 +56,7 @@ class SqlDbAdapter(object):
     paramstyle = 'named'
     supports_schema = True
     quote_names = False
-
+    as_specification = 'AS'
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
         self.options = kwargs
@@ -304,6 +304,7 @@ class SqlDbAdapter(object):
         :param onBagColumns: TODO
         """
         data_out = {}
+        
         tbl_virtual_columns = tblobj.virtual_columns
         for k in record_data.keys():
             if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
@@ -510,7 +511,7 @@ class SqlDbAdapter(object):
             command = 'ALTER TABLE %s DROP COLUMN %s CASCADE;'
         self.dbroot.execute(command % (sqltable,sqlname))
 
-    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
+    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique, indexed):
         """Return the statement string for creating a table's column
         """
         sql = '"%s" %s' % (sqlname, self.columnSqlType(dtype, size))
@@ -522,7 +523,8 @@ class SqlDbAdapter(object):
             sql = sql + ' UNIQUE'
         return sql
 
-
+    def getSqlName(self, sqlname):
+        return sqlname
 
     def columnSqlType(self, dtype, size=None):
         if dtype != 'N' and size:

@@ -249,7 +249,6 @@ class SqlModelChecker(object):
                     tablechanges.append(change)
                     self.bagChanges.setItem('%s.%s.columns.%s' % (tbl.pkg.name, tbl.name, col.name), None,
                                             changes=change)
-        print dbindexes                                    
         if tbl.indexes:
             for idx in tbl.indexes.values():
                 if (idx.sqlname.endswith('_idx') and self.db.adapter.sqlIndexName(idx.sqlname[0:-4]) in dbindexes):
@@ -417,7 +416,8 @@ class SqlModelChecker(object):
     def _alterColumnType(self, col, new_dtype, new_size=None):
         """Prepare the sql statement for altering the type of a given column and return it"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
-        usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
+        #usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
+        usedColumn = False
         if usedColumn or col.dtype == 'T' and col.dtype ==new_dtype:
             return self.db.adapter.alterColumnDefinition(col.table.sqlfullname, col.sqlname, sqlType)
             #return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
@@ -486,7 +486,7 @@ class SqlModelChecker(object):
         return self.db.adapter.columnSqlDefinition(sqlname=col.sqlname,
                                                    dtype=col.dtype, size=col.getAttr('size'),
                                                    notnull=col.getAttr('notnull', False),
-                                                   pkey=(col.name == col.table.pkey),unique=col.getAttr('unique'))
+                                                   pkey=(col.name == col.table.pkey),unique=col.getAttr('unique'), indexed=col.getAttr('indexed'))
 
     def changeRelations(self,table,column,old_colname):
         tblobj = self.db.table(table)

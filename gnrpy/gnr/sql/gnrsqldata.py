@@ -154,7 +154,6 @@ class SqlQueryCompiler(object):
         :param fieldpath: a field path. (e.g: '$colname'; e.g: '@relname.@rel2name.colname')
         :param curr: TODO. 
         :param basealias: TODO. """
-
         def expandThis(m):
             fld = m.group(1)
             return self.getFieldAlias(fld,curr=curr,basealias=alias)
@@ -251,6 +250,8 @@ class SqlQueryCompiler(object):
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
+        if self.db.adapter.quote_names:
+            fld = '"%s"'%fld
         return '%s.%s' % (alias, fld)
         
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
@@ -338,8 +339,8 @@ class SqlQueryCompiler(object):
         #        wherelist.append('( %s )' %condition)
         #    where = ' AND '.join(wherelist)
 
-        self.cpl.joins.append('LEFT JOIN %s.%s AS %s ON %s' %
-                              (target_sqlschema, target_sqltable, alias, cnd))
+        self.cpl.joins.append('LEFT JOIN %s.%s %s %s ON %s' %
+                              (target_sqlschema, target_sqltable,self.db.adapter.as_specification, alias, cnd))
         #raise str('LEFT JOIN %s.%s AS %s ON %s' % (target_sqlschema, target_sqltable, alias, cnd))
         
         # if a relation many is traversed the number of returned rows are more of the rows in the main table.
@@ -494,6 +495,7 @@ class SqlQueryCompiler(object):
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
             
         # normalize the columns string
+
         columns = columns or ''
         columns = columns.replace('  ', ' ')
         columns = columns.replace('\n', '')
@@ -576,7 +578,10 @@ class SqlQueryCompiler(object):
             else:
                 columns = 'count(*) AS gnr_row_count'  # use the sql count function istead of load all data
         elif addPkeyColumn and self.tblobj.pkey and not aggregate:
-            columns = columns + ',\n' + '%s.%s AS pkey' % (self.aliasCode(0),self.tblobj.pkey)  # when possible add pkey to all selections
+            pkey = self.tblobj.pkey
+            if self.db.adapter.quote_names:
+                pkey = '"%s"'%pkey
+            columns = columns + ',\n' + '%s.%s AS pkey' % (self.aliasCode(0), pkey)  # when possible add pkey to all selections
             columns = columns.lstrip(',')                                   # if columns was '', now it starts with ','
         else:
             columns = columns.strip('\n').strip(',')
@@ -591,19 +596,20 @@ class SqlQueryCompiler(object):
         logicalDeletionField = self.tblobj.logicalDeletionField
         draftField = self.tblobj.draftField
         if logicalDeletionField:
-            logicalDeletionCol = self.tblobj.columns[logicalDeletionField]
+            logicalDeletionFieldSql = self.tblobj.sqlnamemapper[logicalDeletionField]
             if excludeLogicalDeleted is True:
-                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionCol.sqlname)
+                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionFieldSql)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
-                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionCol.sqlname) #add logicalDeletionField
+                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionFieldSql) #add logicalDeletionField
         if draftField:
+            draftFieldSql = self.tblobj.sqlnamemapper[draftField]
             if excludeDraft is True:
-                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
+                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0), draftFieldSql)
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
@@ -676,9 +682,13 @@ class SqlQueryCompiler(object):
             if 'joiner' in attrs:
                 xattrs['_relmode'] = self._getRelationMode(attrs['joiner'])
             else:
-                self.fieldlist.append('%s.%s AS %s_%s' % (self.aliasCode(0),fieldname, self.aliasCode(0),fieldname))
-                xattrs['as'] = '%s_%s' %(self.aliasCode(0),fieldname)
-            self.cpl.resultmap.setItem(fieldname,None,xattrs)
+                originalfieldname = fieldname
+                if self.db.adapter.quote_names:
+                    fieldname = '"%s"'%fieldname
+                self.fieldlist.append('%s.%s AS %s_%s' % (self.aliasCode(0),fieldname, self.aliasCode(0),originalfieldname))
+
+                xattrs['as'] = '%s_%s' %(self.aliasCode(0),originalfieldname)
+            self.cpl.resultmap.setItem(originalfieldname,None,xattrs)
 
         if virtual_columns:
             self._handle_virtual_columns(virtual_columns)
@@ -2159,7 +2169,6 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.ignoreDuplicate:
-                    print
                     self._result = data[0]
                 else:
                     raise RecordDuplicateError(

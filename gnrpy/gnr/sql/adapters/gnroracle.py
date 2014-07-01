@@ -102,16 +102,26 @@ class DictCursorWrapper(object):
             if k.upper() in ORA_RESERVED:
                 key = '%s_gnrscpd' % k
                 kwargs[key] = kwargs.pop(k)
-            names_kwargs[k] = ':%s'%key
+            if k.startswith('_'):
+                key = 'gnrscpd_%s'% k
+                kwargs[key] = kwargs.pop(k)
+            if isinstance(kwargs[key],tuple) or isinstance(kwargs[key],list):
+                iterable_value = kwargs.pop(key)
+                names_list = []
+                for n,value in enumerate(iterable_value):
+                    new_key = '%s_%i'%(key,n)
+                    names_list.append(":%s "%new_key)
+                    kwargs[new_key] = value
+                key = "(%s)" % ','.join(names_list)
+                names_kwargs[k] = key
+            else:
+                names_kwargs[k] = ':%s '%key
         operation = operation % names_kwargs
-        print operation
         self.cursor.prepare(operation)
         binded = [n.upper() for n in self.cursor.bindnames()]
         for k in kwargs.keys():
             if k.upper() not in binded:
                 kwargs.pop(k, None)
-          #  elif isinstance(kwargs[k],unicode) or isinstance(kwargs[k], basestring):
-           #     kwargs[k] = "'%s'"%kwargs[k]
         return self.cursor.execute(None, kwargs)
         
     def _build_index(self):
@@ -120,7 +130,7 @@ class DictCursorWrapper(object):
                 self.index[self.description[i][0].lower()] = i
             self._query_executed = 0
 
-
+   
 class DictConnectionWrapper(object):
   
   
@@ -139,12 +149,12 @@ class DictConnectionWrapper(object):
   
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'nvarchar2': 'A','varchar2': 'A', 'character': 'C', 'nclob': 'T',
+    typesDict = {'nvarchar2': 'A','varchar2': 'A', 'char': 'C', 'nclob': 'T',
                  'smallint': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp': 'DH',
-                 'timestamp with time zone': 'DH', 'NUMBER': 'N', 'money': 'M',
+                 'timestamp with time zone': 'DH', 'number': 'N', 'money': 'M',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
 
-    revTypesDict = {'A': 'nvarchar2', 'T': 'nclob', 'C': 'character',
+    revTypesDict = {'A': 'varchar2', 'T': 'nclob', 'C': 'char',
                     'X': 'nclob', 'P': 'nclob', 'Z': 'nclob', 'N': 'number', 'M': 'money',
                     'B': 'smallint', 'D': 'date', 'H': 'timestamp', 'DH': 'timestamp',
                     'I': 'integer', 'L': 'long', 'R': 'real',
@@ -154,6 +164,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     paramstyle = 'pyformat'
     supports_schema = False
     quote_names = True
+    as_specification = ''
     def __init__(self, *args, **kwargs):
         #self._lock = threading.Lock()
 
@@ -267,7 +278,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         self.dbroot.execute(command % (sqltable,sqlname))
 
     def sqlIndexName(self, index_name):
-        return index_name[:30]
+        if len(index_name)>30:
+            import hashlib
+            index_name = "i_%s"% hashlib.sha1(index_name).hexdigest()[:28]
+        return index_name
 
     def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
         """Create a new index
@@ -285,12 +299,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             unique = 'UNIQUE '
         else:
             unique = ''
-        return "CREATE %sINDEX %s ON %s (%s)" % (unique, index_name[:30], table_sql, columns)
+        return 
+        return "CREATE %sINDEX %s ON %s (%s)" % (unique, self.sqlIndexName(index_name), table_sql, columns)
 
+    def getSqlName(self, sqlname):
+        if len(sqlname)>30:
+            import hashlib
+            sqlname = "n_%s"% hashlib.sha1(sqlname).hexdigest()[:28]
+        return sqlname
 
-    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
+    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique, indexed):
         """Return the statement string for creating a table's column
         """
+        if dtype.upper()=='T':
+            dtype = 'A'
+            size = ':4000'
         sql = '%s %s' % (sqlname, self.columnSqlType(dtype, size))
         if notnull:
             sql = sql + ' NOT NULL'
@@ -483,7 +506,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             col = dict(col)
             col['length'] = col.pop('char_length', None)
             #col = self._filterColInfo(col, '_pg_')
-            dtype = col['dtype'] = self.typesDict.get(col['dtype'].lower(), 'T') #for unrecognized types default dtype is T
+            col_type = re.sub('\(\d*\)','',col['dtype'])
+            dtype = col['dtype'] = self.typesDict.get(col_type.lower(), 'T') #for unrecognized types default dtype is T
+            
             col['notnull'] = (col['nullable'] == 'N')
             if dtype == 'N':
                 precision, scale = col.get('data_precision'), col.get('data_scale')
@@ -514,16 +539,17 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 x.append('%s %s' % (name, value))
         
         result = ['SELECT  %s%s' % (distinct, columns)]
-        result.append(' FROM %s t0 ' % (maintable, ))
+        maintable_as = maintable_as or 't0'
+        result.append(' FROM %s %s' % (maintable, maintable_as))
         joins = joins or []
         for join in joins:
             result.append('       %s' % join)
 
-        _smartappend(result, 'WHERE', where)
-        _smartappend(result, 'GROUP BY', group_by)
-        _smartappend(result, 'HAVING', having)
-        _smartappend(result, 'ORDER BY', order_by)
-        _smartappend(result, 'OFFSET', offset)
+        _smartappend(result, ' WHERE ', where)
+        _smartappend(result, ' GROUP BY ', group_by)
+        _smartappend(result, ' HAVING ', having)
+        _smartappend(result, ' ORDER BY ', order_by)
+        _smartappend(result, ' OFFSET ', offset)
         if for_update:
             result.append(self._selectForUpdate())
         sql =  '\n'.join(result)
@@ -532,11 +558,118 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             sql = "SELECT * FROM (%s) WHERE ROWNUM <=%i"%(sql, limit)
         return sql
 
+    def _selectForUpdate(self,maintable_as=None):
+        return 'FOR UPDATE'
+
+    def prepareRecordData(self, record_data, tblobj=None, onBagColumns=None, **kwargs):
+        """Normalize a *record_data* object before actually execute an sql write command.
+        Delete items which name starts with '@': eager loaded relations don't have to be
+        written as fields. Convert Bag values to xml, to be stored in text or blob fields.
+        [Convert all fields names to lowercase ascii characters.] REMOVED
+        
+        :param record_data: a dict compatible object
+        :param tblobj: the :ref:`database table <table>` object
+        :param onBagColumns: TODO
+        """
+        data_out = {}
+        tbl_virtual_columns = tblobj.virtual_columns
+        for k in record_data.keys():
+            if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
+                v = record_data[k]
+                if isinstance(v, Bag):
+                    v = v.toXml(onBuildTag=onBagColumns)
+                    #data_out[str(k.lower())] = v
+                data_out[str(k)] = v
+        return data_out
+
+ 
+    def insert(self, dbtable, record_data,**kwargs):
+        """Insert a record in the db
+        All fields in record_data will be added: all keys must correspond to a column in the db.
+        
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param record_data: a dict compatible object
+        """
+        tblobj = dbtable.model
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
+        sql_flds = []
+        data_keys = []
+        for k in record_data.keys():
+            sqlcolname = tblobj.sqlnamemapper.get(k)
+            if sqlcolname: # skip aliasColumns
+                sql_flds.append(sqlcolname)
+                sql_value = tblobj.column(k).attributes.get('sql_value')
+                data_keys.append(sql_value or ':%s' % k)
+        sql = 'INSERT INTO %s(%s) VALUES (%s)' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join(data_keys))
+        return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
+
+
+    def update(self, dbtable, record_data, pkey=None,**kwargs):
+        """Update a record in the db. 
+        All fields in record_data will be updated: all keys must correspond to a column in the db.
+        
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param record_data: a dict compatible object
+        :param pkey: the :ref:`primary key <pkey>`
+        """
+        tblobj = dbtable.model
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
+        sql_flds = []
+        for k in record_data.keys():
+            sqlcolname = tblobj.sqlnamemapper.get(k)
+            sql_par_prefix = ':'
+            if sqlcolname:
+                sql_value = tblobj.column(k).attributes.get('sql_value')
+                if sql_value:
+                    sql_par_prefix = ''
+                    k = sql_value
+                sql_flds.append('%s=%s%s' % (sqlcolname, sql_par_prefix,k))
+        pkeyColumn = tblobj.pkey
+        if pkey:
+            pkeyColumn = '__pkey__'
+            record_data[pkeyColumn] = pkey
+        sql = 'UPDATE %s SET %s WHERE %s=:%s' % (
+        tblobj.sqlfullname, ','.join(sql_flds), tblobj.sqlnamemapper[tblobj.pkey], pkeyColumn)
+        return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
+
+    def delete(self, dbtable, record_data,**kwargs):
+        """Delete a record from the db
+        All fields in record_data will be added: all keys must correspond to a column in the db
+        
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param record_data: a dict compatible object containing at least one entry for the pkey column of the table
+        """
+        tblobj = dbtable.model
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
+        pkey = tblobj.pkey
+        sql = 'DELETE FROM %s WHERE %s=:%s' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey], pkey)
+        return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
+
+
+    def insertMany(self, dbtable, records,**kwargs):
+        tblobj = dbtable.model
+        sql_flds = []
+        columns = []
+        sqlnamemapper_items = filter(lambda x:x[0] in records[0].keys(), tblobj.sqlnamemapper.items())
+        for colname,sqlcolname in sqlnamemapper_items:
+            sql_flds.append(sqlcolname)
+            columns.append(colname)
+        fldmask = FLDMASK.get(self.paramstyle)
+        sql = 'INSERT INTO %s(%s) VALUES (%s)' % (tblobj.sqlfullname, ','.join(sql_flds), ','.join([fldmask %col for col in columns]))
+        records = [self.prepareRecordData(record,tblobj=tblobj) for record in records]
+        cursor = self.cursor(self.dbroot.connection)
+        result = cursor.executemany(sql,records)
+        return result
+
+
 class GnrWhereTranslator(GnrWhereTranslator_base):
-    def op_startswith(self, column, value, dtype, sqlArgs):
+    def op_startswith(self, column, value, dtype, sqlArgs, tblobj):
         "Starts with"
         return 'lower(%s) LIKE lower(:%s)' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
-    def op_contains(self, column, value, dtype, sqlArgs):
+    def op_contains(self, column, value, dtype, sqlArgs, tblobj):
         "Contains"
         return 'lower(%s) LIKE lower(:%s)' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))
