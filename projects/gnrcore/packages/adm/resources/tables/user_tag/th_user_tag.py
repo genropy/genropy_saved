@@ -19,6 +19,9 @@ class ViewFromUser(BaseComponent):
    #     return dict(column='tag_code',op='contains', val='')
    #     
 class ViewFromTag(BaseComponent):
+    def th_hiddencolumns(self):
+        return '$user_id'
+        
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('user',width='10em')

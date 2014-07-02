@@ -1196,6 +1196,8 @@ class SqlTable(GnrObject):
                     getattr(self, 'trigger_%s' % trgFunc)(record, fldname=fldname,**kwargs)
                 
     def _doExternalPkgTriggers(self, triggerEvent, record,**kwargs):
+        if not self.db.application:
+            return
         for pkg_id in self.db.application.packages.keys():
             trgFunc = getattr(self, 'trigger_%s_%s'%(triggerEvent, pkg_id), None)
             if callable(trgFunc):
@@ -1211,8 +1213,8 @@ class SqlTable(GnrObject):
     def pkeyValue(self,record=None):
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
-            lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
-            return lastid[0] + 1
+            lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0]
+            return (lastid[0] or 0) + 1
         elif self.attributes.get('pkey_columns'):
             return '_'.join([record.get(col) for col in self.attributes.get('pkey_columns').split(',') if record.get(col) is not None])
         else:

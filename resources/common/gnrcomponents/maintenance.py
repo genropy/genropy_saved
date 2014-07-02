@@ -10,6 +10,8 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import fromJson
 from gnr.core.gnrlang import uniquify
 from datetime import datetime
+import httplib2
+import urllib
 import os
 import re
 SH_ENABLED = False
@@ -38,8 +40,7 @@ class MaintenancePlugin(BaseComponent):
         #fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.button('Complete Backup',action='PUBLISH table_script_run = {res_type:"action",resource:"dumpall",table:"adm.backup"};')
         if SH_ENABLED:
-            self.__git_panel(tc.contentPane(title='Git',pageName='git',_anchor=True))
-            self.__apache_panel(tc.contentPane(title='Apache',pageName='apache'))
+            self.__develop_panel(tc.borderContainer(title='Developer',pageName='develop',datapath='.dev'))
 
     def __apache_panel(self,pane):
         pass
@@ -86,20 +87,47 @@ class MaintenancePlugin(BaseComponent):
         return dict(to_push=to_push,to_pull=to_pull)
 
 
-    def __git_panel(self,pane):
-        gridview = pane.bagGrid(storepath='#ANCHOR.repositories',
+    def __develop_panel(self,bc):
+        top = bc.contentPane(region='top',datapath='.git',_anchor=True,height='230px')
+        gridview = top.bagGrid(storepath='#ANCHOR.repositories',
                     struct=self.git_struct,
                     pbl_classes=True,title='Repositories status',margin='2px',
                     addrow=False,delrow=False)
-        pane.dataRpc('#ANCHOR.repositories',self.getRepositoryBag,_page='^.selectedPage',
-                    _if='_page=="git"',
+        top.dataRpc('#ANCHOR.repositories',self.getRepositoryBag,_page='^gnr.maintenance.administration.selectedPage',
+                    _if='_page=="develop"',
                     _onCalling='kwargs._gridview.setHiderLayer(true,{message:"Loading"})',
                     _onResult='kwargs._gridview.setHiderLayer()',_gridview=gridview,_fired='^refresh_repo')
 
-        pane.dataRpc("dummy",self.pullRepository,subscribe_git_pull=True,
+        top.dataRpc("dummy",self.pullRepository,subscribe_git_pull=True,
                     _onResult="""FIRE refresh_repo;
                                  genro.publish('floating_message',{message:result})
                     """,_lockScreen=True,timeout=300000)
+
+        bottom = bc.framePane(region='bottom',_class='pbl_roundedGroup',margin='2px',height='80px')
+        bottom.top.slotBar('2,vtitle,*',_class='pbl_roundedGroupLabel',vtitle='Apache')
+
+        center = bc.framePane(region='center',_class='pbl_roundedGroup',margin='2px',datapath='.uke')
+        center.top.slotBar('2,vtitle,*',_class='pbl_roundedGroupLabel',vtitle='Uke sync')
+
+
+        center.dataRpc('#ANCHOR.projects',self.getPackagesBag,_page='^gnr.maintenance.administration.selectedPage',
+                    _if='_page=="develop"',_fired='^.reload_uke_pkg')
+        center.quickGrid(value='^#ANCHOR.projects',format_status=dict(field='status',width='6em'))
+        center.dataRpc('dummy',self.updateUkePackage,subscribe_update_uke_pkg=True,_onResult='FIRE .reload_uke_pkg;')
+
+    @public_method
+    def updateUkePackage(self,**kwargs):
+        url = self.site.gnrapp.config['uke?url']
+        return self.site.callGnrRpcUrl(url,'commands','updatePackage',**kwargs)
+
+    @public_method
+    def getPackagesBag(self):
+        result = Bag()
+        for pkgid,pkg in self.site.gnrapp.packages.items():
+            result['%s/%s' %(pkg.project,pkgid)] = Bag(dict(pkg=pkgid,project=pkg.project,tables=','.join(self.db.packages[pkgid].tables.keys())))
+        url = self.site.gnrapp.config['uke?url']
+        result = self.site.callGnrRpcUrl(url,'commands','checkPackages',pkgbag=result)
+        return result
 
     @public_method
     def pullRepository(self,repository=None):
@@ -126,10 +154,6 @@ class MaintenancePlugin(BaseComponent):
                         _def_message='!!The system is going to be restarted. Finish your pending tasks',
                         _message='=gnr.maintenance.userframe.message',
                         pageId='*',filters='*')
-        footer.flush.button('Flush memcached',action='FIRE .resetMemcached')
-        footer.dataRpc('dummy',self._maintenance_resetMemcached,_fired='^.resetMemcached',_ask='!!You are going to stop every user activity')
-
-
         userframe = bc.contentPane(region='center').frameGrid(frameCode='connectedUsers',struct=self.connected_users_struct,
                                                                         grid_userSets='.sets',
                                                                             datapath='.connectedUsers',margin='2px',_class='pbl_roundedGroup')
@@ -206,12 +230,6 @@ class MaintenancePlugin(BaseComponent):
                                 sortedBy='=.grid.sorted',
                                 data='^gnr.maintenance.data.loaded_connections',selfUpdate=True)
         bar = connectionframe.top.slotBar('2,vtitle,*,searchOn,2',vtitle='Connections',_class='pbl_roundedGroupLabel')
-
-
-
-    @public_method
-    def _maintenance_resetMemcached(self):
-        self.site.shared_data.flush_all()
 
     def _page_grid_struct(self, struct):
         r = struct.view().rows()

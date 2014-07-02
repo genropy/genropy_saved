@@ -428,14 +428,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             confirmbtnKW.disabled = '^.promptvalue?=(#v==null) || (#v=="")';
         }
         bar._('button','confirm',confirmbtnKW);
-        var kwbox = {padding:'10px'};
+        var kwbox = {};
         if(remote){
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
             dlg.center._('div',kwbox);
+        }else if(typeof(wdg)=='function'){
+            kwbox['datapath'] = '.promptvalue'
+            wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
         }
         else{
+            kwbox.padding = '10px';
             kwbox.width=dlg_kw.width;
             var box = dlg.center._('div',kwbox);
             if(msg){

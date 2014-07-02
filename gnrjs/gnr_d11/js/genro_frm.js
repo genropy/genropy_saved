@@ -2007,38 +2007,28 @@ dojo.declare("gnr.formstores.Base", null, {
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         var envelope = new gnr.GnrBag();
-        if(currPkey=='*newrecord*'){
-            var envelope = new gnr.GnrBag();
-            data = new gnr.GnrBag();
-            this._load_prepareDefaults(currPkey,default_kw,kw);
-            data.update(objectExtract(kw,'default_*'));
-            envelope.setItem('content',data,{});
-            return that.loaded(currPkey,envelope.popNode('content'));
-        }else{
-            var path = currPkey;
-            this._load_prepareDefaults(null,default_kw,kw);
-            this.handlers.load.rpcmethod = loader.rpcmethod  || 'getSiteDocument';
-            var deferred = genro.rpc.remoteCall(loader.rpcmethod ,
-                                           objectUpdate({'path':path},kw),null,'POST',null,maincb);
-            deferred.addCallback(function(result){
-                    var contentNode = result.popNode('content');
-                    var content = contentNode.getValue();
-                    var rec;
-                    if (content instanceof gnr.GnrBag){
-                        rec = contentNode;
-                    }else{
-                        rec = new gnr.GnrBag({'content':content})
-                    }
-                    that.loaded(path,rec);
-                    return result;
+        var path = currPkey;
+        this._load_prepareDefaults(null,default_kw,kw);
+        this.handlers.load.rpcmethod = loader.rpcmethod  || 'getSiteDocument';
+        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,
+                                       objectUpdate({'path':path},kw),null,'POST',null,maincb);
+        deferred.addCallback(function(result){
+                var contentNode = result.popNode('content');
+                var content = contentNode.getValue();
+                var rec;
+                if (content instanceof gnr.GnrBag){
+                    rec = contentNode;
+                }else{
+                    rec = new gnr.GnrBag({'content':content})
                 }
-            )
-            if(loader.callbacks){
-                this.handle_deferredCallBacks(deferred,loader.callbacks,kw);
+                that.loaded(path,rec);
+                return result;
             }
-
-            return deferred;
+        )
+        if(loader.callbacks){
+            this.handle_deferredCallBacks(deferred,loader.callbacks,kw);
         }
+        return deferred;
     },
 
     save_document:function(kw){
@@ -2062,7 +2052,8 @@ dojo.declare("gnr.formstores.Base", null, {
                     result = result || {};
                     var resultDict = {};
                     var pkeyNode=result;
-                    resultDict.savedPkey= result.path || path;
+                    resultDict.savedPkey = result.path || path;
+                    that.form.setCurrentPkey(resultDict.savedPkey);
                     that.saved(resultDict);
                     var deferred;
                     if(that.parentStore){
@@ -2087,7 +2078,8 @@ dojo.declare("gnr.formstores.Base", null, {
         var that = this;
         var kw =form.sourceNode.evaluateOnNode(this.handlers.del.kw);
         pkey = pkey || form.getCurrentPkey();
-        this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'app.deleteFileRows';
+        var default_deletemethod = this.parentStore? this.parentStore.deletemethod || 'app.deleteFileRows':'app.deleteFileRows';
+        this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || default_deletemethod;
         var that = this;
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
                                             objectUpdate({'files':pkey,'_sourceNode':form.sourceNode},kw),null,'POST',

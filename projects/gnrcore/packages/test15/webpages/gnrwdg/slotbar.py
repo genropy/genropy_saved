@@ -92,7 +92,7 @@ class GnrCustomWebPage(object):
         top.bar.myslot()
         top.xx.div(width='1px')     
         frame.textbox(value='^.valuesetter')
-        frame.dataFormula('.valuesetter','v',v = 'pippo:Pippo,pluto:Pluto,paperino:Paperino',_onStart=True)
+        frame.dataFormula('.valuesetter','v',v = 'pippo:mmaa:Pippo,pluto:Pluto,paperino:Paperino',_onStart=True)
 
 
         center = frame.center.contentPane()

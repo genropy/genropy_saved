@@ -679,7 +679,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
                            'table':objectPop(kw,'table'),
-                           'margin':'6px','configurable':true,
+                           'configurable':true,
                            'structpath': structpath,
                            'frameCode':frameCode,
                            'autoWidth':false,
@@ -694,6 +694,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
         
         kw['contentWidget'] = 'FramePane';
+        kw['center_overflow'] = 'hidden'
         var pane = sourceNode._('PalettePane',kw);
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
@@ -1122,6 +1123,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     gnrwdg_getFormatFromValue:function(value){
         var format = new gnr.GnrBag();
         var formats = this.formats || {};
+        formats = this.sourceNode.evaluateOnNode(formats);
         var guess = this.gnr.guessDtypeAndWidth(value);
         var kw;
         for (var label in guess.types){
@@ -1130,11 +1132,10 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                                           'name':stringCapitalize(label.replace(/_/g,' '))
                                       }
             if(label in formats){
-                var customFormat = this.sourceNode.getAttributeFromDatasource('format_'+label);
+                var customFormat = formats[label];
                 if(customFormat){
-                    objectUpdate(kw,customFormat.asDict());
+                    objectUpdate(kw,customFormat);
                 }
-                
             }
             format.setItem(label,null,kw);
         }
@@ -1914,19 +1915,27 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
-        var child_count = values.split(',').length;
+        if(!values){
+            return;
+        }
+        values = splitStrip(values,',');
+        var child_count = values.length;
         if(child_count==1 && !this.showAlways){
             var mbnode = mb.getParentNode();
             mbnode.attr._class = mbnode.attr._class + ' hidden';
         }
         var deleteAction = this.deleteAction;
         if (mb && values){
-            var values = splitStrip(values,',');
+            values = values.map(function(n){
+                var nlist = n.split(':');
+                var result = [];
+                var caption = nlist.pop();
+                return [nlist.join(':'),caption];
+            });
             var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0][0];
             mb.clear(true);
-            dojo.forEach(values,function(n){
-                vl = n.split(':');
+            dojo.forEach(values,function(vl){
                 _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
                 if(deleteAction){
                     _class = _class +' multibutton_closable';
@@ -2875,6 +2884,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         };
         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
                        'storeType':storeType,'unlinkdict':kw.unlinkdict,
+                       'deletemethod':kw.deletemethod,
                        'allowLogicalDelete':allowLogicalDelete};
         if('startLocked' in kw){
             storeKw.startLocked = kw.startLocked;
@@ -3438,7 +3448,8 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
     deleteRows:function(files,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        genro.serverCall('app.deleteFileRows',{files:files},function(result){
+        var rpcdelete = this.deletemethod || 'app.deleteFileRows';
+        genro.serverCall(rpcdelete,{files:files},function(result){
             that.onDeletedRows(files);
         },null,'POST');
     },

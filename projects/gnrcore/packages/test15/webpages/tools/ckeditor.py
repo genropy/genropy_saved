@@ -3,7 +3,7 @@
 """ClientPage tester"""
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerFull,public:Public"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull,public:Public,gnrcomponents/filepicker:FilePicker"
     #css_requires = 'rich_edit'
     #js_requires = 'ckeditor/ckeditor'
     
@@ -28,14 +28,9 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.width',lbl='Width')
         pane.ckEditor(value='^.testdata',stylegroup='base',contentsCss='/_rsrc/common/public.css')
 
-  
-    #def main(self, pane):
-    #    """Set in external store"""
-    #    bc=pane.borderContainer(datapath='test')
-    #    #bc.contentPane(region='top',splitter=True,height='150px',overflow='hidden').ckeditor(value='^.textTop', nodeId='ckeTop')
-    #   #bc.contentPane(region='left',splitter=True,width='25%',overflow='hidden').ckeditor(value='^.textLeft', nodeId='ckeLeft')
-    #   #bc.contentPane(region='right',splitter=True,width='25%',overflow='hidden').ckeditor(value='^.textRight', nodeId='ckeRight')
-    #   #bc.contentPane(region='bottom',splitter=True,height='150px',overflow='hidden').ckeditor(value='^.textBottom', nodeId='ckeBottom')
-    #    bc.contentPane(region='center',overflow='hidden').ckeditor(value='^.textCenter', nodeId='ckeCenter')
-    #    #bc.contentPane(region='bottom',height='100px',splitter=True).simpleTextArea(value='^.textCenter',height='100%')
-                
+    def test_3_gallery_handler(self,pane):
+        frame = pane.framePane(height='300px')
+        bar = frame.top.slotToolbar('*,xxx,5')
+        bar.dataFormula('^testpath','p',_onStart=True,p='')
+        bar.xxx.imgPickerPalette(folders='rsrc:common/html_pages/images:Image HTML,rsrc:common/icons:Icons',dockButton=True)
+        frame.center.contentPane(overflow='hidden').ckEditor(value='^.testgallery')

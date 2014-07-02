@@ -23,6 +23,7 @@ PAGEHTML = """
 """
 
 class DocHandler(BaseComponent):   
+    py_requires='gnrcomponents/filepicker:FilePicker'
     @struct_method
     def de_docFrame(self,pane,code=None,storeKey=None,title=None,**kwargs):
         frameCode = code
@@ -48,7 +49,7 @@ class DocHandler(BaseComponent):
         form.store.handler('save',rpcmethod=self.de_saveStoreFile)
         slots = '5,docSelector,*'
         if self.de_isDocWriter():
-            slots= '%s,labelTooltip,revertbtn,savebtn,docsemaphore,5,stackButtons,5' %slots
+            slots= '%s,imgPick,10,labelTooltip,revertbtn,savebtn,docsemaphore,5,stackButtons,5' %slots
         bar = form.top.slotToolbar(slots)
         pagedocpars = self.documentation
         if pagedocpars == 'auto':
@@ -73,11 +74,15 @@ class DocHandler(BaseComponent):
             bar.savebtn.slotButton('!!Save',action="""this.form.save();""",
                             hidden='^#FORM.selectedPage?=#v!="editor"',
                             iconClass='iconbox save')
+            bar.imgPick.slotButton(hidden='^#FORM.selectedPage?=#v!="editor"',iconClass='iconbox note',action='FIRE #FORM.showImagesPicker')
             bar.docsemaphore.div(_class='fh_semaphore',hidden='^#FORM.selectedPage?=#v!="editor"')
         sc = form.center.stackContainer(overflow='hidden',selectedPage='^#FORM.selectedPage')
         viewer = sc.contentPane(pageName='viewer',title='!!View',iconTitle='icnBottomViewer',overflow='hidden',datapath='.record')
-        viewer.dataController("""var filepath = pages.getNode(current).attr.filepath;
-                            this.form.load({destPkey:filepath})
+        viewer.dataController("""var attr = pages.getNode(current).attr;
+                            var filepath = attr.filepath;
+                            var imagespath = attr.imagespath;
+                            this.form.load({destPkey:filepath});
+                            SET #FORM.imgFolders = imagespath;
                             """,
                             current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_delay=1)
         iframepars = dict(border=0,height='100%',width='100%')
@@ -96,6 +101,8 @@ class DocHandler(BaseComponent):
         iframe.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.body',iframe=iframe)
         editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
+        palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock')
+        palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker');
         editorpane.ckeditor(value='^.body',config_contentsCss=cssurl,toolbar='standard') 
         return form
 
@@ -103,6 +110,7 @@ class DocHandler(BaseComponent):
     def de_loadStoreFromFile(self,path,default_title=None,**kwargs):
         html= ''
         title=''
+        path = self.site.getStaticPath(path)
         if os.path.exists(path):
             with open(path,'r') as f:
                 result = f.read()
@@ -119,6 +127,7 @@ class DocHandler(BaseComponent):
     def de_saveStoreFile(self,path=None,data=None,**kwargs):
         spath = os.path.split(path)
         title = data['title'] or spath[1]
+        path = self.site.getStaticPath(path)
         destdir = os.path.dirname(path)
         if not os.path.exists(destdir):
             os.makedirs(destdir)
@@ -130,13 +139,16 @@ class DocHandler(BaseComponent):
         filepath = self.de_documentPath(filepath=filepath,doctype=doctype,language=language)
         code = code or 'main'
         key = key or os.path.splitext(os.path.split(filepath)[1])[0]
+        commonpath = os.path.join(filepath.split(os.path.sep,1)[0],'doc','images')
+        caption=self.de_caption_from_module(filepath) or title
         pane.data('gnr.doc.%s.pages.%s' %(code,key),None,
-                    caption=self.de_caption_from_module(filepath) or title,
-                    filepath=filepath)
+                    caption=caption,
+                    filepath=filepath,
+                    imagespath=','.join(['%s:%s' %(os.path.join(os.path.dirname(filepath),'images'),caption.replace('!!','')),'%s:Common' %(commonpath)]))
 
 
     def de_documentPath(self,filepath=None,doctype=None,language=None,asUrl=False):
-        output = self.site.getStaticUrl if asUrl else self.site.getStaticPath
+        output = self.site.getStaticUrl if asUrl else os.path.join
         language = language or self.language
         doctype = doctype or 'html'
         webpagespath = self.site.getStaticPath('pkg:%s' %self.package.name,'webpages')
