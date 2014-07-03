@@ -371,7 +371,7 @@ class Server(object):
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
         self.load_gnr_config()
         self.set_environment()
-        self.site_name = self.options.site_name or (self.args and self.args[0])
+        self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
         self.remote_db = ''
         if self.site_name:
             if ':' in self.site_name:
