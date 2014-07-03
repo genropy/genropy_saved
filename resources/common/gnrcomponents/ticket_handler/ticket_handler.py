@@ -58,11 +58,15 @@ class TicketHandler(BaseComponent):
         center = bc.roundedGroupFrame(title='Description',region='center')
         center.simpleTextArea(value='^.record.description',editor=True)
         bar = center.top.bar.replaceSlots('#','#,imgPick')
-        customfolder,mainfolder = folders.split(',')
+        customfolder,mainfolder = None,None
+        if ',' in folders:
+            customfolder,mainfolder = folders.split(',')
+        else:
+            mainfolder = folders
         bar.dataController("""
-            SET #FORM.imgFolders = useMainFolder? mainfolder+'/'+ticket_id+'/images':customfolder+'/'+ticket_id+'/images';
+            SET #FORM.imgFolders = (useMainFolder || !customfolder)? mainfolder+'/'+ticket_id+'/images':customfolder+'/'+ticket_id+'/images';
             """,useMainFolder='^.record.mainfolder',ticket_id='^.record.__ticket_id',
-            customfolder=customfolder,mainfolder=mainfolder)
+            customfolder=customfolder or False,mainfolder=mainfolder)
         palette = bar.imgPick.imgPickerPalette(code='_ticket_img_picker',folders='^#FORM.imgFolders',
                                                 dockButton_iconClass='iconbox note')
         form.dataController("""var dlg = this.getParentWidget('dialog');
