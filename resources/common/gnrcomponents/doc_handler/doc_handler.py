@@ -2,6 +2,7 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
+BASELANGUAGE = 'IT'
 
 import sys
 import re
@@ -154,18 +155,22 @@ class DocHandler(BaseComponent):
         webpagespath = self.site.getStaticPath('pkg:%s' %self.package.name,'webpages')
         m = sys.modules[self.__module__]
         basename =  os.path.splitext(m.__file__.replace(webpagespath,''))[0][1:]
-        filepath = filepath
+        fileargs = []
         if not filepath:
-            return output('pkg:%s' %self.package.name,'doc',language,doctype,
-                'webpages','%s.%s' %(basename,doctype))
+            fileargs = ['pkg:%s' %self.package.name,'doc','*lang*',doctype,'webpages','%s.%s' %(basename,doctype)]
         elif ':' in filepath:
-            return output(filepath)
+            fileargs = [filepath]
         elif filepath.startswith('/'):
             filepath = filepath[1:]
-            return output('pkg:%s' %self.package.name,'doc',language,doctype,filepath)
+            fileargs = ['pkg:%s' %self.package.name,'doc','*lang*',doctype,filepath]
         else:
-            return output('pkg:%s' %self.package.name,'doc',language,doctype,'webpages',
-                                        os.path.dirname(basename),filepath)
+            fileargs = ['pkg:%s' %self.package.name,'doc','*lang*',doctype,'webpages',
+                                        os.path.dirname(basename),filepath]
+        fpath = self.site.getStaticPath(*fileargs) 
+        if not os.path.exists(fpath.replace('*lang*',language)):
+            language = BASELANGUAGE
+        return output(*[a if a!='*lang*' else language for a in fileargs])
+
 
     def de_isDocWriter(self):
         return self.application.checkResourcePermission('_DOC_,doc_%s' %self.package.name, self.userTags)
