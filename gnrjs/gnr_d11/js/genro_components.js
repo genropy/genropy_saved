@@ -1050,7 +1050,7 @@ dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         kw.storepath = sourceNode.absDatapath(value);
-        sourceNode._('tree',kw);
+        return sourceNode._('tree',kw);
     }
 
 });
