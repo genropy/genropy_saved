@@ -652,7 +652,8 @@ class FramedIndexLogin(BaseComponent):
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
-        data.setItem('workdate',self.clientDatetime().date(), hidden= not canBeChanged)
+        default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
+        data.setItem('workdate',default_workdate, hidden= not canBeChanged)
         return result
 
     def onUserSelected(self,avatar,data=None):

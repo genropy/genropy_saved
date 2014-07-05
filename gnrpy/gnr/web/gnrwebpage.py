@@ -753,8 +753,8 @@ class GnrWebPage(GnrBaseWebPage):
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
 
-    def clientDatetime(self,ts=None):
-        serverTimeDelta = self.rootenv['serverTimeDelta']
+    def clientDatetime(self,ts=None,serverTimeDelta=None):
+        serverTimeDelta = serverTimeDelta or self.rootenv['serverTimeDelta']
         ts = ts or datetime.datetime.now()
         if serverTimeDelta:
             return ts-timedelta(milliseconds=serverTimeDelta)
