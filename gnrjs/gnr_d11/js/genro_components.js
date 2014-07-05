@@ -2846,6 +2846,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         kw.row_count = chunkSize;
         var identifier = objectPop(kw,'_identifier') || '_pkey';
         var _onError = objectPop(kw,'_onError');
+        var deleteRows = objectPop(kw,'deleteRows');
         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
         var skw = objectUpdate({_cleared:false},kw);
          //skw['_delay'] = kw['_delay'] || 'auto';
@@ -2885,7 +2886,8 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
                        'storeType':storeType,'unlinkdict':kw.unlinkdict,
                        'deletemethod':kw.deletemethod,
-                       'allowLogicalDelete':allowLogicalDelete};
+                       'allowLogicalDelete':allowLogicalDelete,
+                        'deleteRows':deleteRows};
         if('startLocked' in kw){
             storeKw.startLocked = kw.startLocked;
         }
@@ -2902,11 +2904,12 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
             kw.selfUpdate = kw.selfUpdate || false;
             kw.script = "this.store.loadData(data,selfUpdate);";
         }
-        var store = sourceNode._('dataController',kw);
-        var storeNode = store.getParentNode();
         var identifier = objectPop(kw,'_identifier') || '_pkey';
         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows';
-        storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
+        var deleteRows = objectPop(kw,'deleteRows');
+        var store = sourceNode._('dataController',kw);
+        var storeNode = store.getParentNode();
+        storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier,deleteRows:deleteRows});
         return store;
      },
      onChangedView:function(){
@@ -2931,6 +2934,10 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
         this.locked = null;
+        var deleteRows = objectPop(kw,'deleteRows');
+        if (deleteRows){
+            this.deleteRows = funcCreate(deleteRows,'pkeys,protectPkeys',this);
+        }
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):false;
         for (var k in kw){
             this[k] = kw[k];
@@ -3296,7 +3303,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             data.popNode(n);
         });
         this.linkedGrids().forEach(function(grid){
-            grid.sourceNode.publish('onDeletedRows')
+            grid.sourceNode.publish('onDeletedRows',{pkeys:pkeys,protectPkeys:protectPkeys})
         });
 
     },
