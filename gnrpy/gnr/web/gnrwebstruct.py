@@ -970,7 +970,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
 
-    def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
+    def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,_identifier=None,**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -996,11 +996,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
+            if _identifier:
+                attr['identifier'] = _identifier
             parent = self.parent
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
             attr['table'] = table
+            if _identifier:
+                attr['identifier'] = _identifier
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
         #self.data(storepath,Bag())
