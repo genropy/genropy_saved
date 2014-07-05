@@ -1,4 +1,5 @@
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from paste import httpserver
 try:
@@ -432,10 +433,11 @@ class Server(object):
     def init_options(self):
         self.siteconfig = self.get_config()
         options = self.options.__dict__
+        envopt = dictExtract(os.environ,'GNR_WSGI_OPT_')
         for option in options.keys():
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
-                self.options.__dict__[option] = site_option or wsgi_options.get(option)
+                self.options.__dict__[option] = site_option or wsgi_options.get(option) or envopt.get(option)
 
     def get_tunnel_db_params(self,ssh_connection,dbattrs=None):
         conn_dict = self.parse_connection_string(ssh_connection)
