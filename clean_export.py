@@ -16,6 +16,7 @@ INCLUDED_PATHS = [
  'README.rst',
  'resources/common',
  'resources/js_libs/ckeditor',
+ 'resources/js_libs/codemirror',
  'scripts',
  'webtools'
  ]
