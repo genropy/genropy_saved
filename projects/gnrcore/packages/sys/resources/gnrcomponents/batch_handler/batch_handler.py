@@ -38,6 +38,8 @@ class TableScriptRunner(BaseComponent):
         
     @public_method
     def _commonTaskTableHandler(self,pane):
+        if not getattr(pane,'stackTableHandler',None):
+            self.mixinComponent('th/th:TableHandler')
         th = pane.stackTableHandler(table='sys.task',default_command='=gnr.dialog_scheduler.pars.resource_path',
                                     default_table_name='=gnr.dialog_scheduler.pars.table',
                                     default_parameters='=#table_script_runner.data',
