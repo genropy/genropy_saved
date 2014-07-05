@@ -1899,6 +1899,28 @@ class Bag(GnrObject):
             return urlobj.read(), False, 'xml' #it is an url of type xml
         return source, False, 'direct' #urlresolver
 
+    def fromJson(self,json,listJoiner=None):
+        if isinstance(json,basestring):
+            json = gnrstring.fromJson(json)
+        if not (isinstance(json,list) or isinstance(json,dict)):
+            json = dict(value = json)
+        self._nodes[:] = self._fromJson(json,listJoiner=listJoiner)._nodes
+
+    def _fromJson(self,json,listJoiner=None):
+        result = Bag()
+        if isinstance(json,list):
+            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not '::' in r,json)):
+                return listJoiner.join(json)
+            for n,v in enumerate(json):
+                result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner))
+        elif isinstance(json,dict):
+            for k,v in json.items():
+                result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
+        else:
+            if isinstance(json,basestring) and '::' in json:
+                json = converter.fromTypedText(json)
+            return json
+        return result
 
     #-------------------- fromXml --------------------------------
     def fromXml(self, source, catalog=None, bagcls=None, empty=None):

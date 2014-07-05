@@ -1582,7 +1582,10 @@ class GnrWebPage(GnrBaseWebPage):
                     main_handler(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
             else:
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
-                self.main(rootwdg, **kwargs)
+                if getattr(self,'mainWrapper',None):
+                    self.mainWrapper(rootwdg, **kwargs)
+                else:
+                    self.main(rootwdg, **kwargs)
             self.onMainCalls()
             if self.avatar:
                 page.data('gnr.avatar', Bag(self.avatar.as_dict()))
