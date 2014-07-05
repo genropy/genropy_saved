@@ -647,11 +647,12 @@ class FramedIndexLogin(BaseComponent):
         if avatar.status != 'conf':
             return result
         data = Bag()
+
         data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
-        data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
+        data.setItem('workdate',self.clientDatetime().date(), hidden= not canBeChanged)
         return result
 
     def onUserSelected(self,avatar,data=None):
