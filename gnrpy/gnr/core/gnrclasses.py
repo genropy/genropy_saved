@@ -208,6 +208,14 @@ class GnrClassCatalog(object):
             return f(txt, **kwargs)
         else:
             return self.classes[clsname](txt)
+
+
+
+    def isTypedText(self,txt,**kwargs):
+        if not '::' in txt:
+            return False
+        return txt.split('::')[-1] in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
+
             
     def fromTypedText(self, txt, **kwargs):
         """Add???

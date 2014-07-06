@@ -654,13 +654,28 @@ dojo.declare("gnr.GnrBag", null, {
         },'static');
         return '<table class="formattedBagTable">'+h+'<tbody>'+rows+'</tbody></table>';
     },
-     
+    
+    asNestedTable:function(kw,mode){
+        var rows = [];
+        this.forEach(function(n){
+            var v =  n.getValue(mode);
+            v = v instanceof gnr.GnrBag? v.asNestedTable(kw,mode):v;
+            if (!n.attr._autolist){
+                rows += '<tr><td class="_bagformat_lbl">'+n.label+'</td>';
+            }
+            rows += '<td class="_bagformat_value">'+v+'</td></tr>';
+        },mode);
+        return '<table class="nestedBagTable"><tbody>'+rows+'</tbody></table>';
+    },
+
     getFormattedValue:function(kw,mode){
         var kw = kw || {};
         if(this._parentnode && this._parentnode.attr.format_bag_cells){
             return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
         }else if(kw.cells){
             return this.asHtmlTable(kw);
+        }else if(kw.nested){
+            return this.asNestedTable(kw,mode);
         }
         var r = [];
         var kw = kw || {};
