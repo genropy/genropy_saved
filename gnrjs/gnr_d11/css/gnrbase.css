@@ -3206,6 +3206,28 @@ body *{
     border:1px dotted silver;
 }
 
+
+.nestedBagTable{
+    border-collapse: collapse;
+    color:#555;
+    width: 100%;
+    font-size: 90%;
+
+}
+.nestedBagTable td{
+    padding: 3px;
+    border:1px solid #efefef;
+
+}
+.nestedBagTable td._bagformat_lbl{
+    font-weight: bold;
+    vertical-align: top;
+    text-align: right;
+}
+.nestedBagTable td._bagformat_value{
+    width: 100%;
+}
+
 .dijitDialog .form_activeForm{
     -moz-box-shadow: none;
     -webkit-box-shadow: none;

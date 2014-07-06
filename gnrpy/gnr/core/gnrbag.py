@@ -61,7 +61,7 @@ import cPickle as pickle
 from datetime import datetime, timedelta
 import urllib, urlparse
 from gnr.core import gnrstring
-from gnr.core.gnrclasses import GnrClassCatalog as converter
+from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
 import os.path
 import logging
@@ -1907,17 +1907,19 @@ class Bag(GnrObject):
         self._nodes[:] = self._fromJson(json,listJoiner=listJoiner)._nodes
 
     def _fromJson(self,json,listJoiner=None):
+        converter = GnrClassCatalog()
         result = Bag()
         if isinstance(json,list):
-            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not '::' in r,json)):
+            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
                 return listJoiner.join(json)
             for n,v in enumerate(json):
-                result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner))
+                result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
+
         elif isinstance(json,dict):
             for k,v in json.items():
                 result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
         else:
-            if isinstance(json,basestring) and '::' in json:
+            if isinstance(json,basestring) and converter.isTypedText(json):
                 json = converter.fromTypedText(json)
             return json
         return result
@@ -2338,6 +2340,7 @@ class BagValidationList(object):
         """TODO
         
         :param value: TODO"""
+        converter = GnrClassCatalog()
         value = converter.fromText(value, self.gnrtype)
 
     def validate_db(self, value, oldvalue, parameterString):
