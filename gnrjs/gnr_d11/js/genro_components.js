@@ -1152,7 +1152,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
-        if(kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0){
+        if((trigger_reason=='container') || (kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0)){
             if(!this.sourceNode.attr.format){
                 this.setFormat(this.getFormatFromValue(value));
             }
