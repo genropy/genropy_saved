@@ -429,11 +429,13 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             }
         }
         if (savedAttrs.onEnter) {
-            var callback = dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
+            var callback = savedAttrs.onEnter==true? null:dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
             var kbhandler = function(evt) {
                 if (evt.keyCode == genro.PATCHED_KEYS.ENTER) {
                     evt.target.blur();
-                    setTimeout(callback, 100);
+                    if(callback){
+                        setTimeout(callback, 100);
+                    }
                 }
             };
             var domnode = newobj.domNode || newobj;
