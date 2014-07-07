@@ -1105,6 +1105,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var types={}
         var sizes={}
         var w,dtype,v
+        if(!rows){
+            return;
+        }
         rows.forEach(function(n){
             n.getValue().forEach(function(c){
                 if (!(c.label in types)){

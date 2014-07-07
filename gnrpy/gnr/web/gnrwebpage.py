@@ -1442,7 +1442,7 @@ class GnrWebPage(GnrBaseWebPage):
             value['iframe'] = iframe
         if parent:
             value['parent'] = parent
-        self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+        self.setInClientData('gnr.publisher',value=value,page_id=page_id or self.page_id,fired=True)
 
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
