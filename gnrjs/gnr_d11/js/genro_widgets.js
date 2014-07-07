@@ -3553,7 +3553,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     structFromBag_cell:function(sourceNode,cellNode){
         var rowattrs = objectUpdate({}, cellNode.getParentNode().attr);
         rowattrs = objectExtract(rowattrs, 'classes,headerClasses,cellClasses');
-        var cell = objectUpdate({}, rowattrs);
+        var cell = objectUpdate({field:cellNode.label}, rowattrs);
         cell = objectUpdate(cell, cellNode.attr);
         var dtype = cell.dtype;
         cell.original_field = cell.field;

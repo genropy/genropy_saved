@@ -1073,13 +1073,15 @@ var gnrformatter = {
                 opt.pattern = format;
             }
         }
-        if(format=='meter'){
+        if(format=='meter' || format=='progress'){
             formatKw = formatKw || {};
+            formatKw.min = formatKw.min || 0;
+            formatKw.max = formatKw.max || 100;
             var p = [];
             for(var k in formatKw){
                 p.push(k+'="'+formatKw[k]+'"')
             }
-            return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
+            return '<'+format+' style="width:100%;" value="'+value+'"'+' ' +p.join(' ')+ ' ></'+format+'>';
         }
         if(format=='bytes'){
             var s = ['Bytes','KB','MB','GB','TB'];
