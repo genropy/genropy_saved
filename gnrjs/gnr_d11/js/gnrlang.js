@@ -1078,6 +1078,12 @@ var gnrformatter = {
             }
             return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
         }
+        if(format=='bytes'){
+            var s = ['Bytes','KB','MB','GB','TB'];
+            if (value == 0) {return '0 Bytes'};
+            var i = parseInt(Math.floor(Math.log(value) / Math.log(1024)));
+            return (value / Math.pow(1024, i)).toFixed(1) + ' ' + s[[i]]
+        }
         if(format=='DHMS'){
             var r = []
             var curr = value;
