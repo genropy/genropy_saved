@@ -1046,6 +1046,27 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.IframeDiv", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw.border = kw.border || 0;
+        sourceNode.attr.value = value;
+        var iframe = sourceNode._('iframe',kw);
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.zoom = objectPop(kw,'zoom');
+        gnrwdg.iframeNode = iframe.getParentNode();
+        return iframe;
+    },
+
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(this.zoom){
+            value = '<div style="zoom:'+this.zoom+'">'+value+'</div>';
+        }
+        this.iframeNode.domNode.contentWindow.document.body.innerHTML = value;
+    }
+
+});
+
 dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
