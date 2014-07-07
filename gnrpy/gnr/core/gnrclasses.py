@@ -214,7 +214,7 @@ class GnrClassCatalog(object):
     def isTypedText(self,txt,**kwargs):
         if not '::' in txt:
             return False
-        return txt.split('::')[-1] in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
+        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
 
             
     def fromTypedText(self, txt, **kwargs):

@@ -809,7 +809,10 @@ function quoted(astring) {
 
 
 function convertFromText(value, t, fromLocale) {
-    if (value == null || typeof(value)!='string') {
+    if(isNullOrBlank(value)){
+        return null
+    }
+    if (typeof(value)!='string') {
         return value;
     }
     if (!t){
