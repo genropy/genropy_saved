@@ -293,6 +293,8 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True):
             path = getattr(module, '__path__', None)
         except SyntaxError, e:
             raise
+        except ImportError,e:
+            raise
         except Exception, e:
             if not silent:
                 raise
