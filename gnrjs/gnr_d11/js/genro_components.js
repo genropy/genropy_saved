@@ -1085,6 +1085,9 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var format = objectPop(kw,'format');
+        var tools = objectPop(kw,'tools');
+        var tools_position = objectPop(kw,'tools_position');
+
         sourceNode.attr.format = format;
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.formats = objectExtract(kw,'format_*');
@@ -1095,17 +1098,42 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.datamode='bag';
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
+        kw.frameTarget = kw.frameTarget===false?false:true;
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
         sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
+        if(tools){
+            kw.overflow = 'visible';
+            var that = this;
+            tools_position = tools_position || 'TR';
+            if(tools_position[0]=='T'){
+                kw.margin_top = '20px';
+            }else{
+                kw.margin_bottom = '20px';
+            }
+
+            kw.onCreated = function(){
+                that.setTools(this,tools,tools_position);
+                //console.log(this);
+            }
+        }
         var grid = sourceNode._('newIncludedView',kw);
+
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setFormat(currentFormat);
         return grid;
     },
+    setTools:function(gridNode,tools,tools_position){
+        gridNode._('div','tools',{position:'absolute',top:'-18px',right:'0px',height:'18px',width:'40px',z_index:100,border:'1px solid silver',
+                                rounded_top:8})
+    },
+
+
     guessDtypeAndWidth:function(rows){
         var types={}
         var sizes={}

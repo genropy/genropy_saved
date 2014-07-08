@@ -22,13 +22,14 @@ class GnrCustomWebPage(object):
     def test_1_format_editable(self,pane):
         b = Bag()
         pane.data('.griddata',b)
-        frame = pane.framePane(frameCode='test',height='300px')
-        frame.top.slotToolbar('*,delrow,addrow,2')
-        frame.quickGrid(value='^.griddata',
-                        frameTarget=True,
-                        selfsubscribe_addrow='this.widget.addRows($1._counter,$1.evt)',
-                        format=[dict(field='test',name='Test',width='20em',edit=True),
-                                                  dict(field='foo',name='Foo',width='5',dtype='L',edit=True)])
+        format=[dict(field='test',name='Test',width='20em',edit=True),
+                                dict(field='foo',name='Foo',width='5',dtype='L',edit=True)]
+        pane.div(height='50px',background='white')
+        grid = pane.quickGrid(value='^.griddata',
+                        format=format,defualt_test='=pierino',
+                        tools='addrow,delrow:TR',height='300px')
+
+
 
 
     @public_method
