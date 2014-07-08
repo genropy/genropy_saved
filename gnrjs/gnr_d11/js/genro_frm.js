@@ -2355,6 +2355,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         //ITEM
         console.log('load_memory item')
         var default_kw = loadkw.default_kw;
+        var destPkey = loadkw.destPkey;
         var form=this.form;
         var that = this;
         var data;
@@ -2363,14 +2364,21 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         var envelope = new gnr.GnrBag();
-        var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
-        var kw = objectExtract(sourceBag.getParentNode().attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
         var recordLoaded = new gnr.GnrBag();
-        var d = sourceBag.deepCopy();
-        d.walk(function(n){n.attr = {}})
-        d.forEach(function(n){
-            recordLoaded.setItem(n.label,n.getValue());
-        });
+        if(destPkey=='*newrecord*' && default_kw){
+            for(var k in default_kw){
+                recordLoaded.setItem(k,default_kw[k])
+            }
+        }
+        else if(this.locationpath){
+            var sourceBag = form.sourceNode.getRelativeData(this.locationpath);
+            var kw = objectExtract(sourceBag.getParentNode().attr,'lastTS,caption,_protect_delete,_protect_write,_pkey',true);
+            var d = sourceBag.deepCopy();
+            d.walk(function(n){n.attr = {}})
+                d.forEach(function(n){
+                    recordLoaded.setItem(n.label,n.getValue());
+                });
+        }
         envelope.setItem('record',recordLoaded,kw);
         var result = envelope.getNode('record');    
         this.loaded('',result);
