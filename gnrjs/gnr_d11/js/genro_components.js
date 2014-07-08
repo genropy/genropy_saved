@@ -492,10 +492,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
-        var frameCode = objectPop(kw,'frameCode');
+        var frameCode = kw.frameCode;
         genro.assert(frameCode,'Missing frameCode');
         if(frameCode.indexOf('#')>=0){
-            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId());
+            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId()); 
         }
         var frameId = frameCode+'_frame';
         genro.assert(!genro.nodeById(frameId),'existing frame');
@@ -508,6 +508,11 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var slot,slotcontent,v,sidepane,sideKw;
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right'];
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']};
+        children.walk(function(n){
+            if(n.attr.frameTarget && !n.attr.nodeId){
+                n.attr.nodeId = frameCode+'_target';
+            }
+        },'static');
         dojo.forEach(sides,function(side){
             slot = children.popNode(side);
             slotcontent = null;
@@ -1080,6 +1085,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var format = objectPop(kw,'format');
+        sourceNode.attr.format = format;
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.formats = objectExtract(kw,'format_*');
         sourceNode.attr._workspace = true;
@@ -1087,7 +1093,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
         kw.datamode='bag';
-        kw.storepath = valuepath;
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
@@ -1171,7 +1176,17 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     gnrwdg_setFormat:function(format){
         var gridNode = this.sourceNode.gnrwdg.gridNode;
-        var f = format?format.deepCopy():new gnr.GnrBag();
+        var f;
+        if(!format){
+            f = new gnr.GnrBag();
+        }else if(format instanceof gnr.GnrBag){
+            f = format.deepCopy();
+        }else{
+            f = new gnr.GnrBag();
+            format.forEach(function(d){
+                f.setItem(d['field'],null,d);
+            })
+        }
         gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
     },
 
@@ -1810,6 +1825,14 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             if(target){
                 targetNode = genro.nodeById(target,sourceNode);
                 prefix = targetNode?(targetNode.attr.nodeId || targetNode.getStringId()):target;
+            }else if(inherithed.frameCode){
+                var framePane = genro.getFrameNode(inherithed.frameCode);
+                if(framePane){
+                    targetNode = framePane.getValue().getNodeByAttr('frameTarget',true);
+                    if(targetNode){
+                        prefix = targetNode.attr.nodeId || inherithed.frameCode+'_target';
+                    }
+                }
             }
         }else{
             prefix=inherithed.slotbarCode;
