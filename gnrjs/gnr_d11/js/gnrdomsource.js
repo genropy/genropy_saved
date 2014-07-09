@@ -457,7 +457,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.setRelativeData(path, value || true, attributes, true, reason, delay);
     },
     multiClick:function(e,kw) {
-        var delay = 'delay' in kw? kw.delay: 100;
+        var delay = 'delay' in kw? kw.delay: 200;
         if(!delay){
             return kw.action.call(this,e,1);
         }

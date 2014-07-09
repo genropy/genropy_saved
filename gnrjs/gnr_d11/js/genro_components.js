@@ -1099,13 +1099,13 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
-        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'genro.bp(true);this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
-        sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
+        sourceNode._('BagStore',{storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
         if(tools){
             tools_position = tools_position || 'TR';
@@ -1117,7 +1117,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
             var bc = sourceNode._('borderContainer',bckw);
             var tpane = bc._('contentPane',{region:tool_region})
              tpane._('multibutton',{values:'addrow:+,delrow:-',value:'^.abx',sticky:false})
-             tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target})",
+             tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
                                   value:'^.abx',
                                   target:kw.nodeId})
             var grid = bc._('contentPane',{region:'center'})._('newIncludedView',kw);
@@ -1905,15 +1905,17 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var value = objectPop(kw,'value');
         var values = objectPop(kw,'values');
         var storepath = objectPop(kw,'storepath');
-        var mandatory = objectPop(kw,'mandatory',true);
+        
         var multivalue = objectPop(kw,'multivalue');
         var sticky = objectPop(kw,'sticky') == false ? false:true;
+        var mandatory = objectPop(kw,'mandatory',sticky);
         var deleteAction = objectPop(kw,'deleteAction');
         var showAlways = objectPop(kw,'showAlways');
 
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.showAlways = showAlways;
         gnrwdg.sticky = sticky;
+        gnrwdg.mandatory = mandatory;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
@@ -1948,10 +1950,17 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             
         }else{
             var clickHandler=function(evt){
-                action=function(evt,counter){this.fireEvent(value,
-                    {action:mcode, evt:evt,_counter:counter})
+                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+                if(sn){
+                    var mcode = sn.getInheritedAttributes()['multibutton_code'];
+                    if(mcode){
+                        action=function(evt,counter){this.fireEvent(value,
+                            {action:mcode, evt:evt, _counter:counter})
+                        }
+                        sourceNode.multiClick(evt,{action:action})
+                    }
                 }
-                sourceNode.multiClick(evt,{action:action})
+
             }
             
         }
@@ -2022,7 +2031,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 return [nlist.join(':'),caption];
             });
             var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) //|| values[0][0];
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || (this.mandatory && values[0][0]);
             mb.clear(true);
             dojo.forEach(values,function(vl){
                 _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
@@ -3442,7 +3451,8 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
                 result[n.label] = v;
             })
         }
-        result['_pkey'] = result['_pkey'] || item.label;
+        result[this.identifier] = result[this.identifier] || item.label;
+
         return result;
     },
     updateRowNode:function(rowNode,updDict){
