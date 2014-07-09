@@ -147,12 +147,12 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
-        var onerrorcb = function(errorMsg,url,linenumber){
-            genro.onError(errorMsg,url,linenumber);
-        };
-        window.onerror = onerrorcb;
-
-        dojo.connect(console.err,onerrorcb);
+       //var onerrorcb = function(errorMsg,url,linenumber){
+       //    genro.onError(errorMsg,url,linenumber);
+       //};
+       //window.onerror = onerrorcb;
+       //
+       //dojo.connect(console.err,onerrorcb);
 
         if (dojo_version == '1.1') {
             if (dojo.isSafari) {
