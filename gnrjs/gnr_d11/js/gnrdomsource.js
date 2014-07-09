@@ -456,6 +456,25 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     fireEvent:function(path, value, attributes, reason, delay) {
         this.setRelativeData(path, value || true, attributes, true, reason, delay);
     },
+    multiClick:function(e,kw) {
+        var delay = 'delay' in kw? kw.delay: 100;
+        if(!delay){
+            return kw.action.call(this,e,1);
+        }
+        if(this._pendingMultiClick){
+            var pc = this._pendingMultiClick;
+            delete this._pendingMultiClick
+            clearTimeout(pc);
+        }
+         var that = this;
+         this._pendingClickCount = (this._pendingClickCount || 0)+1;
+         this._pendingMultiClick = setTimeout(function(){
+             var count = that._pendingClickCount;
+             that._pendingClickCount = 0;
+             kw.action.call(that,e,count);
+         },delay);
+     },
+     
     setRelativeData: function(path, value, attributes, fired, reason, delay,_kwargs) {
         // var reason=reason || this
         if (delay) {

@@ -3687,10 +3687,8 @@ p {
     border-bottom-left-radius: 6px;
 }
 
-.multibutton_selected.multibutton{
+.multibutton_selected.multibutton, .multibutton:active{
     color: #fff;
-   /* border: 0px;*/
-	/*font-weight: bold;*/
 	 background:#888;
 	-moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
