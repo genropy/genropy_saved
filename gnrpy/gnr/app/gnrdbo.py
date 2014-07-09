@@ -698,7 +698,7 @@ class TableBase(object):
                                                               AND sub.tablename = '%s'
                                                         AND sub.%s = #THIS.%s
                                                         )""" %(tblfullname,fkey,pkey),dtype='B',
-                                                        name_long='!!Subscribed',_sysfield=True)
+                                                        name_long='!!Subscribed',_sysfield=True,group=group)
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
