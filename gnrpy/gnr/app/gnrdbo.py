@@ -125,7 +125,62 @@ class GnrDboPackage(object):
             db.commit()
         return changed
 
-    def pickleAllData(self,basepath=None):
+
+         
+    @public_method
+    def loadStartupData(self,basepath=None):
+        btc = self.db.currentPage.btc if self.db.currentPage else None
+        if btc:
+            btc.batch_create(title='%s Importer' %self.name,cancellable=True,delay=.5)
+        self._loadStartupData_do(basepath=basepath,btc=btc)
+        if btc:
+            btc.batch_complete(result='ok', result_attr=dict())
+
+    def _loadStartupData_do(self,basepath=None,btc=None):
+    #def unpickleAllData(self,basepath=None,tables=None,btc=None):
+        basepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'data_pickled')
+        if not os.path.isdir(basepath):
+            extractpath = '%s.zip' %basepath
+            from zipfile import ZipFile
+            myzip =  ZipFile(extractpath, 'r')
+            myzip.extractall(basepath)
+        db = self.db
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        with open(os.path.join(basepath,'_index_%s.pik' %self.name), 'r') as storagefile:
+            tables = pickle.load(storagefile)
+        rev_tables =  list(tables)
+        rev_tables.reverse()
+        for t in rev_tables:
+            db.table('%s.%s' %(self.name,t)).empty()
+        db.commit()
+        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tablename in tables:
+            tblobj = db.table('%s.%s' %(self.name,tablename))
+            with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
+                records = pickle.load(storagefile)
+            records = records or []
+            tblobj.insertMany(records)
+            db.commit()
+        import shutil
+        shutil.rmtree(basepath)
+
+    def startupData_tables(self):
+        return self.db.tablesMasterIndex()[self.name].keys()
+
+    @public_method
+    def createStartupData(self,basepath=None):
+        btc = self.db.currentPage.btc if self.db.currentPage else None
+        if btc:
+            btc.batch_create(title='%s Exporter' %self.name,cancellable=True,delay=.5)
+        self._createStartupData_do(basepath=basepath,btc=btc)
+        if btc:
+            btc.batch_complete(result='ok', result_attr=dict())
+
+    def _createStartupData_do(self,basepath=None,btc=None):
         pkgapp = self.db.application.packages[self.name]
         basepath = basepath or os.path.join(pkgapp.packageFolder,'data_pickled')
         if not os.path.isdir(basepath):
@@ -135,16 +190,28 @@ class GnrDboPackage(object):
         except ImportError:
             import pickle
         file_list = []
-        for tname,tblobj in self.tables.items():
-            f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
+        tables = self.startupData_tables()
+        if not tables:
+            return
+        z = os.path.join(basepath,'_index_%s.pik' %self.name)
+        with open(z, 'w') as storagefile:
+            pickle.dump(tables, storagefile)
+        file_list.append(z)
+        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tname in tables:
+            tblobj = self.tables[tname]
+            handler = getattr(tblobj,'startupData',None)
+            if handler:
+                f = handler()
+            else:
+                f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
             z = os.path.join(basepath,'%s.pik' %tname)
-            file_list.append(z)
-            with open(z, 'w') as storagefile:
-                pickle.dump(f, storagefile)
-
+            if f:
+                file_list.append(z)
+                with open(z, 'w') as storagefile:
+                    pickle.dump(f, storagefile)
         import zipfile
         zipPath = '%s.zip' %basepath
-
         zipresult = open(zipPath, 'wb')
         zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
         for fname in file_list:
@@ -153,40 +220,6 @@ class GnrDboPackage(object):
         zipresult.close()
         import shutil
         shutil.rmtree(basepath)
-
-    def unpickleAllData(self,basepath=None,tables=None,btc=None):
-        basepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'data_pickled')
-        if not os.path.isdir(basepath):
-            extractpath = '%s.zip' %basepath
-            from zipfile import ZipFile
-            myzip =  ZipFile(extractpath, 'r')
-            myzip.extractall(basepath)
-        db = self.db
-        tables = tables or self.allTables()
-        rev_tables =  list(tables)
-        rev_tables.reverse()
-        for t in rev_tables:
-            db.table('%s.%s' %(self.name,t)).empty()
-        db.commit()
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
-        for tablename in tables:
-            tblobj = db.table('%s.%s' %(self.name,tablename))
-            with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
-                records = pickle.load(storagefile)
-            records = records or []
-            tblobj.insertMany(records)
-            db.commit()
-
-        import shutil
-        shutil.rmtree(basepath)
-
-
-    def allTables(self):
-        return []
 
         
 class TableBase(object):

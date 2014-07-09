@@ -807,7 +807,11 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
             proxy_name, submethod = method.split('.', 1)
-            if proxy_name=='_table':
+            if proxy_name=='_package':
+                sep='.'
+                pkg_name,sep,submethod = submethod.rpartition(sep)
+                proxy_object = self.db.package(pkg_name)
+            elif proxy_name=='_table':
                 sep='.'
                 table_name,sep,submethod = submethod.rpartition(sep)
                 proxy_object = self.db.table(table_name)

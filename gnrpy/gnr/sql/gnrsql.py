@@ -556,7 +556,26 @@ class GnrSqlDb(GnrObject):
         return self.model.obj
             
     packages = property(_get_packages)
-            
+
+    def tablesMasterIndex(self,):
+        packages = self.packages.keys()
+        toImport = []
+        for pkg in packages:
+            pkgobj = self.package(pkg)
+            toImport.extend(pkgobj.tables.values())
+        imported = set()
+        result = Bag()
+        while toImport:
+            tbl = toImport.pop(0)
+            dependencies=set(['.'.join(x.split('.')[:-1]) for x in tbl.relations_one.values() if not x.startswith(tbl.fullname)])
+            if dependencies.issubset(imported):  
+                imported.add(tbl.fullname)
+                result.setItem(tbl.fullname,None)
+                result.setItem('_index_.%s' %tbl.fullname.replace('.','/'),None,tbl=tbl.fullname)
+            else:
+                toImport.append(tbl)
+        return result
+
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """TODO
         

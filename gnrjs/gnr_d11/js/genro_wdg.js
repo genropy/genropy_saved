@@ -1154,19 +1154,18 @@ dojo.declare("gnr.GridEditor", null, {
         var newnode = grid.addBagRow('#id', '*', grid.newBagRow(row));
         this.newRowEditor(newnode);
     },
+
     callRemoteControllerBatch:function(rows,kw){
         var that = this;
         kw = kw || {};
-        genro.lockScreen(true,'callingRemoteBatch');
-        genro.serverCall('remoteRowControllerBatch',
-                    objectUpdate(kw,{handlerName:this.remoteRowController,rows:rows,
-                                 _sourceNode:this.grid.sourceNode
-                                }),function(result){
-            result.forEach(function(n){
-                var rowEditor = that.rowEditors[n.label];
-                rowEditor.data.update(n.getValue(),null,'remoteController');
-            });
-            genro.lockScreen(false,'callingRemoteBatch');
+        var result = genro.serverCall('remoteRowControllerBatch',
+                                    objectUpdate(kw,{handlerName:this.remoteRowController,
+                                    rows:rows,_sourceNode:this.grid.sourceNode})
+                                    );
+
+        result.forEach(function(n){
+            var rowEditor = that.rowEditors[n.label];
+            rowEditor.data.update(n.getValue(),null,'remoteController');
         });
     },
 
@@ -1178,11 +1177,9 @@ dojo.declare("gnr.GridEditor", null, {
         if(batchmode){
             this._pendingRemoteController = this._pendingRemoteController || new gnr.GnrBag();
             this._pendingRemoteController.setItem(rowId,rowNode.getValue().deepCopy(),objectUpdate({},rowNode.attr));
-            genro.callAfter(function(){
-                var rows = this._pendingRemoteController;
-                this._pendingRemoteController = null;
-                this.callRemoteControllerBatch(rows,kw);
-            },1,this,'callRemoteControllerBatch');
+            var rows = this._pendingRemoteController;
+            this._pendingRemoteController = null;
+            this.callRemoteControllerBatch(rows,kw);
             return;
         }
         if( ! this.rowEditors[rowId]){
