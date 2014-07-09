@@ -1099,7 +1099,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
         kw.frameTarget = kw.frameTarget===false?false:true;
-        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'genro.bp(true);this.widget.addRows($1._counter,$1.evt)';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
@@ -1108,32 +1108,28 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
         if(tools){
-            kw.overflow = 'visible';
-            var that = this;
             tools_position = tools_position || 'TR';
-            if(tools_position[0]=='T'){
-                kw.margin_top = '20px';
-            }else{
-                kw.margin_bottom = '20px';
-            }
-
-            kw.onCreated = function(){
-                that.setTools(this,tools,tools_position);
-                //console.log(this);
-            }
+            var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
+            var bckw = {height: objectPop(kw,'height') || '100%',
+                      width: objectPop(kw,'width') ||'100%'}
+            kw.height='100%';
+            kw.width='100%';
+            var bc = sourceNode._('borderContainer',bckw);
+            var tpane = bc._('contentPane',{region:tool_region})
+             tpane._('multibutton',{values:'addrow:+,delrow:-',value:'^.abx',sticky:false})
+             tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target})",
+                                  value:'^.abx',
+                                  target:kw.nodeId})
+            var grid = bc._('contentPane',{region:'center'})._('newIncludedView',kw);
+        }else{
+            var grid = sourceNode._('newIncludedView',kw);
         }
-        var grid = sourceNode._('newIncludedView',kw);
+        
 
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setFormat(currentFormat);
         return grid;
     },
-    setTools:function(gridNode,tools,tools_position){
-        gridNode._('div','tools',{position:'absolute',top:'-18px',right:'0px',height:'18px',width:'40px',z_index:100,border:'1px solid silver',
-                                rounded_top:8})
-    },
-
-
     guessDtypeAndWidth:function(rows){
         var types={}
         var sizes={}
@@ -1911,11 +1907,13 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw,'storepath');
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
+        var sticky = objectPop(kw,'sticky') == false ? false:true;
         var deleteAction = objectPop(kw,'deleteAction');
         var showAlways = objectPop(kw,'showAlways');
 
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.showAlways = showAlways;
+        gnrwdg.sticky = sticky;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
@@ -1924,28 +1922,41 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         sourceNode.attr.storepath = storepath;
         sourceNode.registerDynAttr('storepath');
         var containerKw = {_class:'multibutton_container'};
-        containerKw.connect_onclick = function(evt){
-            var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
-            if(sn){
-                var mcode = sn.getInheritedAttributes()['multibutton_code'];
-                if(mcode){
-                    if(evt.shiftKey && multivalue){
-                        var prevmcode = sourceNode.getRelativeData(value);
-                        if(prevmcode){
-                            prevmcode = prevmcode.split(',');
-                            var j = prevmcode.indexOf(mcode);
-                            if(j<0){
-                                prevmcode.push(mcode);
-                            }else if(prevmcode.length>1 || !mandatory){
-                                prevmcode.splice(j,1);
+        if (sticky){
+            var clickHandler = function(evt){
+                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+                if(sn){
+                    var mcode = sn.getInheritedAttributes()['multibutton_code'];
+                    if(mcode){
+                        if(evt.shiftKey && multivalue){
+                            var prevmcode = sourceNode.getRelativeData(value);
+                            if(prevmcode){
+                                prevmcode = prevmcode.split(',');
+                                var j = prevmcode.indexOf(mcode);
+                                if(j<0){
+                                    prevmcode.push(mcode);
+                                }else if(prevmcode.length>1 || !mandatory){
+                                    prevmcode.splice(j,1);
+                                }
+                                mcode = prevmcode.join(',');
                             }
-                            mcode = prevmcode.join(',');
                         }
+                        sourceNode.setRelativeData(value,mcode);
                     }
-                    sourceNode.setRelativeData(value,mcode);
                 }
+            };
+            
+        }else{
+            var clickHandler=function(evt){
+                action=function(evt,counter){this.fireEvent(value,
+                    {action:mcode, evt:evt,_counter:counter})
+                }
+                sourceNode.multiClick(evt,{action:action})
             }
-        };
+            
+        }
+        containerKw.connect_onclick = clickHandler
+        
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
         if(values){
             gnrwdg.makeButtons(values);
@@ -1964,13 +1975,16 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setValue:function(value,kw){
-        var mb = this.sourceNode._value.getItem('multibutton');
-        value = value.split(',');
-        if (mb){
-            mb.forEach(function(n){
-                genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
-            });
+        if (this.sticky){
+            var mb = this.sourceNode._value.getItem('multibutton');
+            value = value.split(',');
+            if (mb){
+                mb.forEach(function(n){
+                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+                });
+            } 
         }
+
     },
     gnrwdg_setValues:function(values,kw){
         this.makeButtons(values);
@@ -2008,7 +2022,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 return [nlist.join(':'),caption];
             });
             var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0][0];
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) //|| values[0][0];
             mb.clear(true);
             dojo.forEach(values,function(vl){
                 _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
