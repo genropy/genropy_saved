@@ -3654,6 +3654,59 @@ p {
 
 /* @end */
 
+
+
+.pbl_roundedGroupLabel.slotbar_horizontal .multibutton_container{
+    height: 18px;
+    font-variant:normal;
+    line-height:15px;
+    font-size: .9em;
+}
+/* @group quickgrid_container_multibutton */
+
+.quickgrid_container .multibutton_container {
+padding-top: 0px;
+padding-bottom: 0px;
+height: 18px;
+background-color: #eee;
+display: inline-block;
+}
+
+.quickgrid_container .iconbox {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+.quickgrid_container .multibutton,
+.quickgrid_container .multibutton:last-child,
+.quickgrid_container .multibutton:first-child
+{
+    background:none;
+    border:0px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding-left:5px;
+    padding-right:5px;
+
+    opacity:.7;
+}
+.quickgrid_container .multibutton_selected.multibutton,
+.quickgrid_container .multibutton:active
+.quickgrid_container .multibutton_selected.multibutton,
+.quickgrid_container .multibutton:active
+{
+    background:#eee;
+	-moz-box-shadow: none;
+    -webkit-box-shadow:none;
+}
+
+.quickgrid_container .multibutton:hover{
+	opacity:1;
+}
+/* @end */
+
 /* @group multibutton */
 
 .multibutton_container{
@@ -3663,18 +3716,6 @@ p {
     font-size: .9em;
     font-variant:small-caps;
     height: 19px;
-}
-
-
-.pbl_roundedGroupLabel.slotbar_horizontal .multibutton_container{
-    height: 18px;
-    font-variant:normal;
-    line-height:15px;
-    font-size: .9em;
-}
-
-.multibutton:hover{
-	text-decoration: underline;
 }
 
 .multibutton:last-child{

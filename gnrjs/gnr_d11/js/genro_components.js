@@ -1085,9 +1085,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var format = objectPop(kw,'format');
-        var tools = objectPop(kw,'tools');
-        var tools_position = objectPop(kw,'tools_position');
-
         sourceNode.attr.format = format;
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.formats = objectExtract(kw,'format_*');
@@ -1107,28 +1104,38 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         sourceNode.setRelativeData(kw.structpath,struct)
         sourceNode._('BagStore',{storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
-        if(tools){
-            tools_position = tools_position || 'TR';
-            var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
-            var bckw = {height: objectPop(kw,'height') || '100%',
-                      width: objectPop(kw,'width') ||'100%'}
-            kw.height='100%';
-            kw.width='100%';
-            var bc = sourceNode._('borderContainer',bckw);
-            var tpane = bc._('contentPane',{region:tool_region})
-             tpane._('multibutton',{values:'addrow:+,delrow:-',value:'^.abx',sticky:false})
-             tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
-                                  value:'^.abx',
-                                  target:kw.nodeId})
-            var grid = bc._('contentPane',{region:'center'})._('newIncludedView',kw);
-        }else{
-            var grid = sourceNode._('newIncludedView',kw);
-        }
-        
-
+        var gridRoot=kw.tools? this.toolsGridRoot(sourceNode,kw) : sourceNode;
+        var grid = gridRoot._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setFormat(currentFormat);
         return grid;
+    },
+    toolsGridRoot:function(sourceNode,kw){
+        
+       var tools = objectPop(kw,'tools');
+       var default_tools={ 'addrow':'<div class="iconbox add_row"/>',
+                           'delrow':'<div class="iconbox delete_row"/>',
+                           'duprow':'<div class="iconbox copy"/>',
+                           'export':'<div class="iconbox export"/>'}
+       tools=tools==true? 'addrow,delrow' : tools;
+       var values=[];
+       tools.split(',').forEach(function(t){
+           values.push((t.indexOf(':')>0)? t : t+':'+default_tools[t]);
+       })
+       values=values.join(',')
+       var tools_position = objectPop(kw,'tools_position') || 'TR';
+       var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
+       var bckw = {height: objectPop(kw,'height') || '100%',
+                   width: objectPop(kw,'width') ||'100%',
+                  _class:'quickgrid_container'}
+       kw.height='100%';
+       kw.width='100%';
+       var bc = sourceNode._('borderContainer',bckw);
+       var tpane = bc._('contentPane',{region:tool_region})    
+       tpane._('multibutton',{values:values,value:'^.abx',sticky:false})
+       tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
+                                value:'^.abx',target:kw.nodeId})
+       return bc._('contentPane',{region:'center'})
     },
     guessDtypeAndWidth:function(rows){
         var types={}
