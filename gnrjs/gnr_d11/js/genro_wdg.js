@@ -201,7 +201,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleVisualization':'',
             'CkEditor':'',
             'protovis':'',
-            'codemirror':''
+            'codemirror':'',
+            'LightButton':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
@@ -1070,11 +1071,16 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
     },
     getNewRowDefaults:function(externalDefaults){
+
         if(!this.editorPars){
             return externalDefaults;
         }
         else{
-            var default_kwargs = objectUpdate({},(this.editorPars.default_kwargs || {}));
+            var editorDefaults = this.editorPars.default_kwargs;
+            if(typeof(editorDefaults)=='function'){
+                editorDefaults = editorDefaults.call();
+            }
+            var default_kwargs = objectUpdate({},(editorDefaults || {}));
             if(externalDefaults){
                 default_kwargs = objectUpdate(default_kwargs,externalDefaults);
             }

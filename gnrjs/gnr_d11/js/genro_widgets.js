@@ -2343,69 +2343,30 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
     }
 
 });
-
-dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
-    constructor: function(application) {
-        this._domtag = 'div';
-        this._dojotag = 'Button';
-    },
-    creating:function(attributes, sourceNode) {
-        var buttoNodeAttr = 'height,width,padding';
-        var savedAttrs = objectExtract(attributes, 'fire_*');
-        savedAttrs['_style'] = genro.dom.getStyleDict(objectExtract(attributes, buttoNodeAttr));
-        savedAttrs['action'] = objectPop(attributes, 'action');
-        savedAttrs['fire'] = objectPop(attributes, 'fire');
-        savedAttrs['publish'] = objectPop(attributes, 'publish');
-        savedAttrs['ask_params'] = objectPop(attributes,'ask');
-        var focusOnTab = objectPop(attributes,'focusOnTab');
-        if(attributes.iconRight){
-            attributes.templateString = "<div class=\"dijit dijitReset dijitLeft dijitInline\"\n\tdojoAttachEvent=\"onclick:_onButtonClick,onmouseenter:_onMouse,onmouseleave:_onMouse,onmousedown:_onMouse\"\n\twaiRole=\"presentation\"\n\t><button class=\"dijitReset dijitStretch dijitButtonNode dijitButtonContents\" dojoAttachPoint=\"focusNode,titleNode\"\n\t\ttype=\"${type}\" waiRole=\"button\" waiState=\"labelledby-${id}_label\"\n\t\t><div class=\"dijitReset dijitInline\"><center class=\"dijitReset dijitButtonText\" id=\"${id}_label\" dojoAttachPoint=\"containerNode\">${label}</center></div\n\t><span class=\"dijitReset dijitInline ${iconClass}\" dojoAttachPoint=\"iconNode\" \n \t\t\t><span class=\"dijitReset dijitToggleButtonIconChar\">&#10003;</span \n\t\t></span\n\t\t></button\n></div>\n";
-        }
-        if (!focusOnTab){
-            attributes['tabindex'] = 32767;
-        }
-        return savedAttrs;
-    },
-    
-    created: function(widget, savedAttrs, sourceNode) {
-        dojo.connect(widget, 'onClick', sourceNode, this.onClick);
-        objectExtract(sourceNode._dynattr, 'fire_*');
-        objectExtract(sourceNode._dynattr, 'fire,publish');
-        if (savedAttrs['_style']) {
-            var buttonNode = dojo.query(".dijitButtonNode", widget.domNode)[0];
-            dojo.style(buttonNode, savedAttrs['_style']);
-        }
-        if(savedAttrs.ask_params){
-            sourceNode._ask_params = savedAttrs.ask_params;
-        }
-
-    },
-
-
-    onClick:function(e) {
-        var inattr = this.getInheritedAttributes();
+dojo.declare("gnr.widgets._ButtonLogic",null, {
+    clickHandler:function(sourceNode,e) {
+        var inattr = sourceNode.getInheritedAttributes();
         //var _delay = '_delay' in inattr? inattr._delay: 100;
         var _delay = inattr._delay;
         if(!_delay){
-            return this.widget._onClickDo(e,inattr);
+            return this._clickHandlerDo(sourceNode,e,inattr);
         }
-        if(this._pendingClick){
-            var pc = this._pendingClick;
-            delete this._pendingClick
+        if(sourceNode._pendingClick){
+            var pc = sourceNode._pendingClick;
+            delete sourceNode._pendingClick
             clearTimeout(pc);
         }
         var that = this;
-        this._pendingClickCount = (this._pendingClickCount || 0)+1;
-        this._pendingClick = setTimeout(function(){
-            var count = that._pendingClickCount;
-            that._pendingClickCount = 0;
-            that.widget._onClickDo(e,inattr,count);
+        sourceNode._pendingClickCount = (sourceNode._pendingClickCount || 0)+1;
+        sourceNode._pendingClick = setTimeout(function(){
+            var count = sourceNode._pendingClickCount;
+            sourceNode._pendingClickCount = 0;
+            that._clickHandlerDo(sourceNode,e,inattr,count);
         },_delay);
     },
-    mixin__onClickDo:function(e,inattr,count) {
+    _clickHandlerDo:function(sourceNode,e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;
-        var sourceNode = this.sourceNode;
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
@@ -2455,6 +2416,72 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         var fire_list = objectExtract(sourceNode.attr, 'fire_*', true);
         for (var fire in fire_list) {
             sourceNode.setRelativeData(fire_list[fire], fire, {modifier:modifier,_counter:count}, true);
+        }
+    }
+});
+dojo.declare("gnr.widgets.LightButton", [gnr.widgets.baseHtml,gnr.widgets._ButtonLogic], {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
+
+    creating:function(attributes, sourceNode) {
+        var savedAttrs = objectExtract(attributes, 'fire_*');
+        savedAttrs['action'] = objectPop(attributes, 'action');
+        savedAttrs['fire'] = objectPop(attributes, 'fire');
+        savedAttrs['publish'] = objectPop(attributes, 'publish');
+        savedAttrs['ask_params'] = objectPop(attributes,'ask');
+        return savedAttrs;
+    },
+    
+    created: function(widget, savedAttrs, sourceNode) {
+        var that = this;
+        dojo.connect(widget, 'onclick', function(e){
+            that.clickHandler(sourceNode,e)
+        });
+        objectExtract(sourceNode._dynattr, 'fire_*');
+        objectExtract(sourceNode._dynattr, 'fire,publish');
+        if(savedAttrs.ask_params){
+            sourceNode._ask_params = savedAttrs.ask_params;
+        }
+    }
+});
+
+dojo.declare("gnr.widgets.Button", [gnr.widgets.baseDojo,gnr.widgets._ButtonLogic], {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'Button';
+    },
+    creating:function(attributes, sourceNode) {
+        var buttoNodeAttr = 'height,width,padding';
+        var savedAttrs = objectExtract(attributes, 'fire_*');
+        savedAttrs['_style'] = genro.dom.getStyleDict(objectExtract(attributes, buttoNodeAttr));
+        savedAttrs['action'] = objectPop(attributes, 'action');
+        savedAttrs['fire'] = objectPop(attributes, 'fire');
+        savedAttrs['publish'] = objectPop(attributes, 'publish');
+        savedAttrs['ask_params'] = objectPop(attributes,'ask');
+        var focusOnTab = objectPop(attributes,'focusOnTab');
+        if(attributes.iconRight){
+            attributes.templateString = "<div class=\"dijit dijitReset dijitLeft dijitInline\"\n\tdojoAttachEvent=\"onclick:_onButtonClick,onmouseenter:_onMouse,onmouseleave:_onMouse,onmousedown:_onMouse\"\n\twaiRole=\"presentation\"\n\t><button class=\"dijitReset dijitStretch dijitButtonNode dijitButtonContents\" dojoAttachPoint=\"focusNode,titleNode\"\n\t\ttype=\"${type}\" waiRole=\"button\" waiState=\"labelledby-${id}_label\"\n\t\t><div class=\"dijitReset dijitInline\"><center class=\"dijitReset dijitButtonText\" id=\"${id}_label\" dojoAttachPoint=\"containerNode\">${label}</center></div\n\t><span class=\"dijitReset dijitInline ${iconClass}\" dojoAttachPoint=\"iconNode\" \n \t\t\t><span class=\"dijitReset dijitToggleButtonIconChar\">&#10003;</span \n\t\t></span\n\t\t></button\n></div>\n";
+        }
+        if (!focusOnTab){
+            attributes['tabindex'] = 32767;
+        }
+        return savedAttrs;
+    },
+    
+    created: function(widget, savedAttrs, sourceNode) {
+        var that = this;
+        dojo.connect(widget, 'onClick', function(e){
+            that.clickHandler(sourceNode,e)
+        });
+        objectExtract(sourceNode._dynattr, 'fire_*');
+        objectExtract(sourceNode._dynattr, 'fire,publish');
+        if (savedAttrs['_style']) {
+            var buttonNode = dojo.query(".dijitButtonNode", widget.domNode)[0];
+            dojo.style(buttonNode, savedAttrs['_style']);
+        }
+        if(savedAttrs.ask_params){
+            sourceNode._ask_params = savedAttrs.ask_params;
         }
     },
     mixin_setIconClass:function(iconClass){
@@ -5510,7 +5537,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         
         this.sourceNode.publish('onDeletedRows');
     },
-    mixin_addRows:function(counter,evt){
+    mixin_addRows:function(counter,evt,duplicate){
         var lenrows = this.storebag().len();
         var r = this.selection.selectedIndex;
         if(r>=0 && lenrows>0){
@@ -5518,11 +5545,33 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }else{
             r = lenrows;
         }
-        for(var i=0;i<counter;i++){
-            this.addBagRow('#id', '*', this.newBagRow(),evt);
+        var source = [];
+        var that = this;
+        if(duplicate){
+            var sel = this.selection.getSelected();
+            var r;
+            var identifier = this.rowIdentifier();
+            sel.forEach(function(n){
+                r = that.rowByIndex(n);
+                objectPop(r,identifier);
+                source.push(r);
+            });
         }
-        this.editBagRow(r);
+        for(var i=0;i<counter;i++){
+            if(duplicate){
+                source.forEach(function(dflt){
+                    that.addBagRow('#id', null, that.newBagRow(dflt),evt);
+                })
+            }else{
+                this.addBagRow('#id', '*', this.newBagRow(),evt);
+            }
+            
+        }
         this.sourceNode.publish('onAddedRows');
+        if(!duplicate){
+            this.editBagRow(r);
+        }
+
     },
 
     mixin_batchUpdating: function(state) {

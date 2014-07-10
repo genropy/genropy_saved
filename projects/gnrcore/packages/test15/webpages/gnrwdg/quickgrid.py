@@ -11,25 +11,28 @@ from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid"
     css_requires='public'
-    
-
-    def test_0_firsttest(self,pane):
-        """basic"""
-        bc = pane.borderContainer(height='400px')
-        bc.dataRpc('.data.rows',self.getCpuTimes,_timer=10)
-        bc.contentPane(region='center').quickGrid(value='^.data.rows')
-   
     def test_1_format_editable(self,pane):
+        t = pane.table().tbody()
+        r = t.tr()
+        self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='TL')
+        self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='TR')
+        r = t.tr()
+        self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BL')
+        self.quickGridEditable(r.td(border='1px solid silver',padding='4px'),pos='BR')
+
+
+    def quickGridEditable(self,pane,pos=None):
+        box = pane.div(datapath='.%s' %pos)
         b = Bag()
         pane.data('.griddata',b)
-        pane.formbuilder().textBox('^.def_location',lbl='Default location')
+        box.formbuilder().textBox('^.def_location',lbl='Default location')
         format=[dict(field='name',name='Name',width='20em',edit=True),
-                dict(field='location',name='Location',width='20em',dtype='L',edit=True)]
-        pane.div(height='50px',background='white')
-        grid = pane.quickGrid(value='^.griddata',
+                dict(field='location',name='Location',width='5em',edit=True)]
+        box.quickGrid(value='^.griddata',
                         format=format,default_location='=.def_location',
                         tools='addrow,delrow,duprow,export',
-                        tools_position='TR',height='300px')
+                        tools_position=pos,height='150px',width='400px' ,border='1px solid silver'
+                        )
                         
     def _test_2_syntax(self,pane):
         """basic"""

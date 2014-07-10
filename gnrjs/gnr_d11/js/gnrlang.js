@@ -1564,9 +1564,12 @@ function highlightLinks(text) {
 
 }
 function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
+    var parsobj = parsobj || {};
+    if(!argNames && typeof(fnc)=='function'){
+        return fnc.call(scope,parsobj);
+    }
     var argNames = argNames || [];
     var argValues = argValues || [];
-    var parsobj = parsobj || {};
     for (var attr in parsobj) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);

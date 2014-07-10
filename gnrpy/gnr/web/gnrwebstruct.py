@@ -422,6 +422,9 @@ class GnrDomSrc(GnrStructData):
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
                             parentStore=parentStore,handler=handler,**kwargs)
                             
+    def multibutton_item(self,code,caption=None,**kwargs):
+        return self.child('multiButtonItem',code=code,caption=caption or code,**kwargs)
+
     def formstore_handler(self, action, handler_type=None, **kwargs):
         """TODO Return the formstore handler
         
@@ -504,6 +507,9 @@ class GnrDomSrc(GnrStructData):
         
     def button(self, caption=None, **kwargs):
         return self.child('button', caption=caption, **kwargs)
+
+    def lightbutton(self, innerHTML=None, **kwargs):
+        return self.child('lightbutton', innerHTML=innerHTML, **kwargs)
         
    #def column(self, label='', field='', expr='', name='', **kwargs):
    #    if not 'columns' in self:
@@ -829,7 +835,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk']
+             'FramePane', 'FrameForm','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
