@@ -49,12 +49,14 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         if (this.onloading) {
             this.onloading(kwargs);
         }
-        var sync = this.xhrKwargs.sync;
+        var xhrKwargs = objectUpdate({},this.xhrKwargs);
+        objectUpdate(xhrKwargs,objectExtract(kwargs,'rpc_*'));
+        var sync = xhrKwargs.sync;
         if(kwargs._sourceNode && kwargs.resolverPars && kwargs.resolverPars.kwargs){
             kwargs.resolverPars.kwargs = kwargs._sourceNode.evaluateOnNode(kwargs.resolverPars.kwargs);
         }
         var kw = objectUpdate({},kwargs);
-        var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod);
+        var result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
         if (sync) {
             result.addCallback(function(value) {
                 result = value;
