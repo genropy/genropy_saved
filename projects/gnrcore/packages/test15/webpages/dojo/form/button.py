@@ -3,11 +3,11 @@
 """Buttons"""
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     
     def test_1_basic(self, pane):
         """Basic button"""
-        pane.button('i am a button', action='alert("you clicked me")')
+        pane.button('i am a button', action='console.log("you clicked me ",event,_counter)',_delay=50)
         
     def test_2_styled(self, pane):
         """Styled button"""
