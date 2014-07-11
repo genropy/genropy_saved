@@ -1323,7 +1323,7 @@ dojo.declare("gnr.GridEditor", null, {
 
         var attr = objectUpdate({}, fldDict.attr);
         attr.datapath = '.' + rowLabel;
-        attr.width = attr.width || cellNode.firstChild.clientWidth+'px';
+        attr.width = attr.width || (cellNode.clientWidth-10)+'px';
         if(attr.tag.toLowerCase()=='checkbox'){
             attr.margin_left = ( (cellNode.clientWidth-10-16)/2)+'px';
             attr.margin_top ='1px';

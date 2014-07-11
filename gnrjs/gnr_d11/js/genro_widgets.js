@@ -3604,8 +3604,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         cell = sourceNode.evaluateOnNode(cell);
 
         if(sourceNode.attr.draggable_column){
-            cell.name = '<div draggable="true">'+cell.name+'</div>';
+            
         }
+        cell.name = '<div '+ ((sourceNode.attr.draggable_column)?'draggable="true"' :'' )+ ' class="cellHeaderContent" >'+cell.name+'</div>';
         if (cell.field) {
             if(cell.field.indexOf(':')>=0 && !cell._customGetter){
                 var f = cell.field.split(':');

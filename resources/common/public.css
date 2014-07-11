@@ -477,15 +477,6 @@ element.style {
     background-color: transparent;
 }
 
-._common_d11 .dojoxGrid-cell {
-    border-left: 0px !important;
-    border-top: 0 !important;
-    border-right: 1px dotted gray;
-    border-bottom: 1px dotted gray;
-    height: 21px;
-    padding: 0 6px 0 3px;
-}
-
 ._common_d11 nopadding .dojoxGrid-cell {
     padding: 0px 0px;
 }
@@ -495,24 +486,6 @@ element.style {
 	border-collapse: separate;
 }
 */
-._common_d11 .cell_B .widgetInCell {
-    width: 16px;
-    margin: auto;
-}
-
-._common_d11 .widgetInCell {
-    color: black;
-    margin-top: 1px;
-    margin-bottom: 0px;
-    margin-right: 5px;
-    width: 100%;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-}
-
-.cellContent {
-    line-height: 100%;
-}
 
 /*._common_d11 .invalidCell .cellContent {
     border: 1px solid red;
