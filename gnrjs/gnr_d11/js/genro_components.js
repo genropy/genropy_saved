@@ -492,10 +492,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
-        var frameCode = objectPop(kw,'frameCode');
+        var frameCode = kw.frameCode;
         genro.assert(frameCode,'Missing frameCode');
         if(frameCode.indexOf('#')>=0){
-            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId());
+            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId()); 
         }
         var frameId = frameCode+'_frame';
         genro.assert(!genro.nodeById(frameId),'existing frame');
@@ -508,6 +508,11 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var slot,slotcontent,v,sidepane,sideKw;
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right'];
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']};
+        children.walk(function(n){
+            if(n.attr.frameTarget && !n.attr.nodeId){
+                n.attr.nodeId = frameCode+'_target';
+            }
+        },'static');
         dojo.forEach(sides,function(side){
             slot = children.popNode(side);
             slotcontent = null;
@@ -1080,26 +1085,67 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var format = objectPop(kw,'format');
+        sourceNode.attr.format = format;
         var gnrwdg = sourceNode.gnrwdg;
         gnrwdg.formats = objectExtract(kw,'format_*');
+        var default_kwargs = objectExtract(kw,'default_*');
+        if(default_kwargs){
+            kw.gridEditor = {default_kwargs:function(){
+                return sourceNode.evaluateOnNode(default_kwargs);
+            }};
+        }
         sourceNode.attr._workspace = true;
         var valuepath = sourceNode.absDatapath(value);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
         kw.datamode='bag';
-        kw.storepath = valuepath;
         kw.structpath = kw.structpath || '#WORKSPACE.struct';
         kw.controllerPath = '#WORKSPACE.controllers';
+        kw.frameTarget = kw.frameTarget===false?false:true;
+        kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
+        kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
+        kw.selfsubscribe_export= kw.selfsubscribe_export || 'this.widget.serverAction({command:"export",opt:{rawData:true,export_mode:"xls"}});';
+        kw.selfsubscribe_duprow= kw.selfsubscribe_duprow|| 'this.widget.addRows($1._counter,$1.evt,true);';
+
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentFormat = sourceNode.getAttributeFromDatasource('format');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
-        sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
+        sourceNode._('BagStore',{storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
-        var grid = sourceNode._('newIncludedView',kw);
+        var gridRoot=kw.tools? this.toolsGridRoot(sourceNode,kw) : sourceNode;
+        var grid = gridRoot._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
         gnrwdg.setFormat(currentFormat);
         return grid;
+    },
+    toolsGridRoot:function(sourceNode,kw){
+         
+        var tools = objectPop(kw,'tools');
+        var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
+                            'delrow':{content_class:'iconbox delete_row'}, 
+                            'duprow': {content_class:'iconbox copy'}, 
+                            'export': {content_class:'iconbox export'}}
+        tools=tools==true? 'addrow,delrow' : tools;
+        var tools_position = objectPop(kw,'tools_position') || 'TR';
+        var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
+        var bckw = {height: objectPop(kw,'height'),
+                    width: objectPop(kw,'width'),
+                   _class:'quickgrid_container'}
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+        var bc = sourceNode._('borderContainer',bckw);
+        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden'}) 
+        var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
+                       'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
+                        'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},
+                        'BL':{left:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'}}   
+        var mb = tpane._('div',objectUpdate(posdict[tools_position],{position:'absolute'}))._('multibutton',{value:'^.abx',sticky:false});
+        tools.split(',').forEach(function(t){
+            mb._('item',t,default_tools[t]);
+        });
+        tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
+                                 value:'^.abx',target:kw.nodeId})
+        return bc._('contentPane',centerkw)
     },
     guessDtypeAndWidth:function(rows){
         var types={}
@@ -1171,7 +1217,17 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
 
     gnrwdg_setFormat:function(format){
         var gridNode = this.sourceNode.gnrwdg.gridNode;
-        var f = format?format.deepCopy():new gnr.GnrBag();
+        var f;
+        if(!format){
+            f = new gnr.GnrBag();
+        }else if(format instanceof gnr.GnrBag){
+            f = format.deepCopy();
+        }else{
+            f = new gnr.GnrBag();
+            format.forEach(function(d){
+                f.setItem(d['field'],null,d);
+            })
+        }
         gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
     },
 
@@ -1810,6 +1866,14 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             if(target){
                 targetNode = genro.nodeById(target,sourceNode);
                 prefix = targetNode?(targetNode.attr.nodeId || targetNode.getStringId()):target;
+            }else if(inherithed.frameCode){
+                var framePane = genro.getFrameNode(inherithed.frameCode);
+                if(framePane){
+                    targetNode = framePane.getValue().getNodeByAttr('frameTarget',true);
+                    if(targetNode){
+                        prefix = targetNode.attr.nodeId || inherithed.frameCode+'_target';
+                    }
+                }
             }
         }else{
             prefix=inherithed.slotbarCode;
@@ -1854,123 +1918,175 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
 
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
+    subtags:{'item':true},
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var values = objectPop(kw,'values');
-        var storepath = objectPop(kw,'storepath');
-        var mandatory = objectPop(kw,'mandatory',true);
+        var items = objectPop(kw,'items');
+        var itemsArray = []; 
+        var storepath = objectPop(kw,'storepath'); //deprecated
+        if(storepath){
+            console.warn('use items attr instead of');
+            sourceNode.registerDynAttr('items');
+            items = '^'+storepath;
+        }
+
+        if(items instanceof Array){
+            sourceNode.registerDynAttr('items');
+            itemsArray = items;
+            items = null;
+        }
         var multivalue = objectPop(kw,'multivalue');
+        var sticky = objectPop(kw,'sticky') == false ? false:true;
+        var mandatory = objectPop(kw,'mandatory',sticky);
         var deleteAction = objectPop(kw,'deleteAction');
         var showAlways = objectPop(kw,'showAlways');
-
         var gnrwdg = sourceNode.gnrwdg;
+        var items_bag = items?sourceNode.getRelativeData(items):new gnr.GnrBag();
+        var multibutton_items = children._nodes.filter(function(n){
+            return n.attr.tag=='multibutton_item';
+        });
+        multibutton_items.forEach(function(n){
+            children.pop(n.label);
+            var r = n.attr;
+            r.code = r.code || n.label;
+            itemsArray.push(n.attr);
+        });
+        itemsArray.forEach(function(n){
+            objectPop(n,'tag');
+            items_bag.setItem(n.code,null,n);
+        });
+        if(values){
+            items_bag = this.itemsFromValues(values);
+        }
+        items = items || '^#WORKSPACE.items';
         gnrwdg.showAlways = showAlways;
+        gnrwdg.sticky = sticky;
+        gnrwdg.mandatory = mandatory;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
+        sourceNode.attr._workspace = true;
         sourceNode.attr.value = value;
         sourceNode.attr.values = values;
-        sourceNode.attr.storepath = storepath;
-        sourceNode.registerDynAttr('storepath');
+        sourceNode.attr.items = items;
         var containerKw = {_class:'multibutton_container'};
-        containerKw.connect_onclick = function(evt){
-            var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
-            if(sn){
-                var mcode = sn.getInheritedAttributes()['multibutton_code'];
-                if(mcode){
-                    if(evt.shiftKey && multivalue){
-                        var prevmcode = sourceNode.getRelativeData(value);
-                        if(prevmcode){
-                            prevmcode = prevmcode.split(',');
-                            var j = prevmcode.indexOf(mcode);
-                            if(j<0){
-                                prevmcode.push(mcode);
-                            }else if(prevmcode.length>1 || !mandatory){
-                                prevmcode.splice(j,1);
+        if (sticky){
+            var btn_action = function(kw){
+                var evt = kw.event;
+                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+                if(sn){
+                    var mcode = sn.getInheritedAttributes()['multibutton_code'];
+                    if(mcode){
+                        if(evt.shiftKey && multivalue){
+                            var prevmcode = sourceNode.getRelativeData(value);
+                            if(prevmcode){
+                                prevmcode = prevmcode.split(',');
+                                var j = prevmcode.indexOf(mcode);
+                                if(j<0){
+                                    prevmcode.push(mcode);
+                                }else if(prevmcode.length>1 || !mandatory){
+                                    prevmcode.splice(j,1);
+                                }
+                                mcode = prevmcode.join(',');
                             }
-                            mcode = prevmcode.join(',');
                         }
+                        sourceNode.setRelativeData(value,mcode);
                     }
-                    sourceNode.setRelativeData(value,mcode);
+                }
+            };
+        }else{
+            var btn_action=function(kw){
+                var evt = kw.event;
+                var _counter = kw._counter;
+                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+                if(sn){
+                    var mcode = sn.getInheritedAttributes()['multibutton_code'];
+                    if(mcode){
+                        this.fireEvent(value,{action:mcode, evt:evt, _counter:_counter})
+                    }
                 }
             }
-        };
+        }
+        containerKw.action = btn_action;
         var multibutton = sourceNode._('div','multibutton',objectUpdate(containerKw,kw));
-        if(values){
-            gnrwdg.makeButtons(values);
-        }else if(storepath){
-            gnrwdg.makeButtons(this.valuesFromBag(sourceNode.getRelativeData(storepath)));
+        if(items_bag){
+            sourceNode.setRelativeData(sourceNode.attr.items,items_bag);
+            gnrwdg.makeButtons(items_bag);
         }
         return multibutton;
     },
-    valuesFromBag:function(storebag){
-        var d = storebag.digest('#k,#a.caption');
-        var r = [];
-        dojo.forEach(d,function(n){
-            r.push((n[0]+':'+n[1]));
+
+    itemsFromValues:function(values){
+        var result = new gnr.GnrBag();
+        if(!values){
+            return result;
+        }
+        var l;
+        values.split(',').forEach(function(n){
+            l = n.split(':');
+            result.setItem(l[0],null,{code:l[0],caption:l[1]});
         });
-        return r.join(',');
+        return result;
     },
 
     gnrwdg_setValue:function(value,kw){
-        var mb = this.sourceNode._value.getItem('multibutton');
-        value = value.split(',');
-        if (mb){
-            mb.forEach(function(n){
-                genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
-            });
+        if (this.sticky){
+            var mb = this.sourceNode._value.getItem('multibutton');
+            value = value.split(',');
+            if (mb){
+                mb.forEach(function(n){
+                    genro.dom.setClass(n,'multibutton_selected',value.indexOf(n.label)>=0);
+                });
+            } 
         }
     },
+
     gnrwdg_setValues:function(values,kw){
-        this.makeButtons(values);
+        this.sourceNode.setRelativeData(this.sourceNode.attr.items,this.gnr.itemsFromValues(values));
     },
 
-    gnrwdg_setStorepath:function(val,kw){
-        var storebag = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
-        if(storebag && storebag.len()>0){
-            this.makeButtons(this.gnr.valuesFromBag(storebag));
-        }
+    gnrwdg_setItems:function(items){
+        this.makeButtons(items);
     },
 
-    gnrwdg_makeButtons:function(values){
-        if(!values){
-            return;
-        }
+    gnrwdg_makeButtons:function(items){
+        items = items || new gnr.GnrBag();
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
-        values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
-        if(!values){
-            return;
-        }
-        values = splitStrip(values,',');
-        var child_count = values.length;
+        var child_count = items.len();
         if(child_count==1 && !this.showAlways){
             var mbnode = mb.getParentNode();
             mbnode.attr._class = mbnode.attr._class + ' hidden';
         }
         var deleteAction = this.deleteAction;
-        if (mb && values){
-            values = values.map(function(n){
-                var nlist = n.split(':');
-                var result = [];
-                var caption = nlist.pop();
-                return [nlist.join(':'),caption];
-            });
-            var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0][0];
-            mb.clear(true);
-            dojo.forEach(values,function(vl){
-                _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
+        mb.clear(true);
+        if (mb){
+            var btn,content_kw,btn_class,code,caption,kw;
+            var firstItem = items.getNode('#0');
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value);
+            if(!currentSelected && this.mandatory && firstItem){
+                currentSelected = firstItem.attr.code || firstItem.label;
+            }
+            items.forEach(function(n){
+                kw = objectUpdate({},n.attr);
+                content_kw = objectExtract(kw,'content_*');
+                content_kw._class = objectPop(content_kw,'class');
+                caption = objectPop(kw,'caption');
+                code = kw.code || n.label;
+                btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
                 if(deleteAction){
-                    _class = _class +' multibutton_closable';
+                    btn_class = btn_class +' multibutton_closable';
                 }
-                btn = mb._('div',vl[0],{multibutton_code:vl[0],_class:_class})._('div',{innerHTML:vl[1],_class:'multibutton_caption'});
+                kw.multibutton_code = code;
+                kw._class = (kw._class || '') +' '+btn_class
+                content_kw.innerHTML = caption;
+                content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
+                btn = mb._('lightbutton',code,kw)._('div',content_kw);
                 if(deleteAction){
-                    var key = vl[0];
-                    var caption = vl[1];
                     btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
                         dojo.stopEvent(e);
-                        deleteAction.call(sourceNode,key,caption);
+                        deleteAction.call(sourceNode,code,caption);
                     }});
                 }
             });
@@ -3377,7 +3493,8 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
                 result[n.label] = v;
             })
         }
-        result['_pkey'] = result['_pkey'] || item.label;
+        result[this.identifier] = result[this.identifier] || item.label;
+
         return result;
     },
     updateRowNode:function(rowNode,updDict){

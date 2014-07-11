@@ -26,22 +26,10 @@ class AppPref(object):
     def prefpane_glbl(self, parent, **kwargs):
         pane = parent.contentPane(**kwargs)
         fb = pane.formbuilder(cols=1,border_spacing='3px')
-        #fb.button('Dump GLBL',action='PUBLISH dump_glbl')
-        fb.button('Restore GLBL',action='PUBLISH restore_glbl')
-        #fb.dataRpc('dummy',self._glbl_dumpPickle,subscribe_dump_glbl=True,_lockScreen=True)
-        fb.dataRpc('dummy',self._glbl_loadPickle,subscribe_restore_glbl=True,timeout=0,_onCalling="genro.mainGenroWindow.genro.publish('open_batch');")
-
-
-    @public_method
-    def _glbl_dumpPickle(self):
-         self.db.package('glbl').pickleAllData()
-         
-    @public_method
-    def _glbl_loadPickle(self):
-        pkg = self.db.package('glbl')
-        self.btc.batch_create(title='Glbl Importer',
-                              cancellable=True,
-                              delay=.5)
-        pkg.unpickleAllData(btc=self.btc)
-        self.btc.batch_complete(result='ok', result_attr=dict())
+        fb.button('Dump GLBL',action="""genro.mainGenroWindow.genro.publish('open_batch');
+                                        genro.serverCall('_package.glbl.createStartupData',function(){});
+                                    """,_tags='_DEV_')
+        fb.button('Restore GLBL',action="""genro.mainGenroWindow.genro.publish('open_batch');
+                                        genro.serverCall('_package.glbl.loadStartupData',function(){});
+                                    """,_tags='_DEV_')
 

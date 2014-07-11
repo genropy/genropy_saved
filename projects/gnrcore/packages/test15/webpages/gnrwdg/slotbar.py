@@ -100,6 +100,36 @@ class GnrCustomWebPage(object):
 
 
 
+    def test_7_slotToolbar_multibutton_base(self,pane):
+        pane.multibutton(value='^.base',values='pippo:Pippo,paperino:Paperino')
+        pane.textbox(value='^.base')
+
+
+
+    def test_11_slotToolbar_multibutton_base(self,pane):
+        pane.dataController("console.log(z);",z='^.base')
+        mb = pane.multibutton(value='^.base',sticky=False)
+
+        mb.item('pippo',caption='Pippo')
+        mb.item('paperino',caption='Paperino')
+        mb.item('delayed',caption='Delayed',_delay=400)
+        mb.item('different',caption='Different',action='alert("I am different")')
+
+
+    def test_8_slotToolbar_multibutton_items_path(self,pane):
+        pane.data('.multibutton.data',self.getmbdata())
+        pane.multibutton(value='^.base',items='^.multibutton.data')
+        pane.textbox(value='^.base')
+
+    def test_9_slotToolbar_multibutton_items_array(self,pane):
+        pane.multibutton(value='^.base',items=[dict(code='pippo',caption='Pippo'),dict(code='paperino',caption='Paperino')])
+        pane.textbox(value='^.base')
+
+    def test_10_slotToolbar_multibutton_items_struct(self,pane):
+        mb = pane.multibutton(value='^.base')
+        mb.item('pippo',caption='Pippo')
+        mb.item('paperino',caption='Paperino')
+
 
     def test_6_slotToolbar_multibutton_storepath(self,pane):
         """Multiline"""
@@ -109,6 +139,7 @@ class GnrCustomWebPage(object):
 
         bar.data('.multibutton.data',self.getmbdata())
         bar.mb.multibutton(value='^.multibutton.value',storepath='.multibutton.data')
+        frame.textbox(value='^.multibutton.value')
         frame.textbox(value='^.multibutton.data.pippo?caption')
 
     def getmbdata(self):

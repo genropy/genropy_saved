@@ -201,7 +201,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'GoogleVisualization':'',
             'CkEditor':'',
             'protovis':'',
-            'codemirror':''
+            'codemirror':'',
+            'LightButton':''
         };
         var tag;
         for (tag in this.widgetcatalog) {
@@ -1070,11 +1071,16 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
     },
     getNewRowDefaults:function(externalDefaults){
+
         if(!this.editorPars){
             return externalDefaults;
         }
         else{
-            var default_kwargs = objectUpdate({},(this.editorPars.default_kwargs || {}));
+            var editorDefaults = this.editorPars.default_kwargs;
+            if(typeof(editorDefaults)=='function'){
+                editorDefaults = editorDefaults.call();
+            }
+            var default_kwargs = objectUpdate({},(editorDefaults || {}));
             if(externalDefaults){
                 default_kwargs = objectUpdate(default_kwargs,externalDefaults);
             }
@@ -1154,19 +1160,18 @@ dojo.declare("gnr.GridEditor", null, {
         var newnode = grid.addBagRow('#id', '*', grid.newBagRow(row));
         this.newRowEditor(newnode);
     },
+
     callRemoteControllerBatch:function(rows,kw){
         var that = this;
         kw = kw || {};
-        genro.lockScreen(true,'callingRemoteBatch');
-        genro.serverCall('remoteRowControllerBatch',
-                    objectUpdate(kw,{handlerName:this.remoteRowController,rows:rows,
-                                 _sourceNode:this.grid.sourceNode
-                                }),function(result){
-            result.forEach(function(n){
-                var rowEditor = that.rowEditors[n.label];
-                rowEditor.data.update(n.getValue(),null,'remoteController');
-            });
-            genro.lockScreen(false,'callingRemoteBatch');
+        var result = genro.serverCall('remoteRowControllerBatch',
+                                    objectUpdate(kw,{handlerName:this.remoteRowController,
+                                    rows:rows,_sourceNode:this.grid.sourceNode})
+                                    );
+
+        result.forEach(function(n){
+            var rowEditor = that.rowEditors[n.label];
+            rowEditor.data.update(n.getValue(),null,'remoteController');
         });
     },
 
@@ -1178,11 +1183,9 @@ dojo.declare("gnr.GridEditor", null, {
         if(batchmode){
             this._pendingRemoteController = this._pendingRemoteController || new gnr.GnrBag();
             this._pendingRemoteController.setItem(rowId,rowNode.getValue().deepCopy(),objectUpdate({},rowNode.attr));
-            genro.callAfter(function(){
-                var rows = this._pendingRemoteController;
-                this._pendingRemoteController = null;
-                this.callRemoteControllerBatch(rows,kw);
-            },1,this,'callRemoteControllerBatch');
+            var rows = this._pendingRemoteController;
+            this._pendingRemoteController = null;
+            this.callRemoteControllerBatch(rows,kw);
             return;
         }
         if( ! this.rowEditors[rowId]){
@@ -1389,7 +1392,7 @@ dojo.declare("gnr.GridEditor", null, {
                 'RIGHT': {'r': 0, 'c': 1},
                 'STAY':{'r': 0, 'c': 0}
             };
-            gridEditor._exitCellTimeout = setTimeout(dojo.hitch(gridEditor, 'endEdit', this.widget, deltaDict[cellNext], editingInfo), 300);
+            gridEditor.endEdit(this.widget,deltaDict[cellNext],editingInfo);
         };
         attr._parentDomNode = cellNode;
         attr._class = attr._class ? attr._class + ' widgetInCell' : 'widgetInCell';

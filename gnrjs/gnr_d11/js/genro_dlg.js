@@ -430,6 +430,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         bar._('button','confirm',confirmbtnKW);
         var kwbox = {};
         if(remote){
+            kwbox['padding'] = '10px';
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';

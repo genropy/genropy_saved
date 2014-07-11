@@ -639,10 +639,11 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                     dojo.hitch(scope, request.onItem)(result);
                 //}
             });
-            var result = this.rootDataNode().getValue('', {_id:id});
-            if (result instanceof dojo.Deferred) {
-                result.addCallback(finalize);
-            }
+            var result = this.rootDataNode().getValue('', {_id:id,rpc_sync:true});
+            return finalize(result)
+            //if (result instanceof dojo.Deferred) {
+            //    result.addCallback(finalize);
+            //}
         }
     },
     _doFetch : function(request, findCallback, errCallback) {
@@ -666,6 +667,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 }
                 findCallback(result, request);
             });
+            if(this._parentSourceNode && this._parentSourceNode.widget &&!this._parentSourceNode.widget._focused){
+                kwargs.rpc_sync = true;
+            }
             var result = this.rootDataNode().getValue('', kwargs);
             if (result instanceof dojo.Deferred) {
                 return  result.addCallback(cb);

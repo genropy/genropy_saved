@@ -2,6 +2,7 @@
 import re
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
+from datetime import datetime
 
 class Table(object):
     def config_db(self, pkg):
@@ -238,6 +239,8 @@ class Table(object):
             date = record[date_field]
             if not date:
                 raise self.exception('business_logic', msg='!!Missing date %s for counter %s' %(date_field,field))
+            if isinstance(date,datetime):
+                date = date.date()
         counter_record = self.record(codekey,ignoreMissing=True,for_update=update).output('record')
         counter_record = counter_record or self.newCounterRecord(tblobj=tblobj,field=field,record=record)
         last_used = counter_record['last_used']

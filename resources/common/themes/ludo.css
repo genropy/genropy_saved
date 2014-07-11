@@ -738,8 +738,6 @@
     border-bottom: 0px !important;
     /*height: 21px;*/
     height:0px;
-    padding-top:2px;
-    padding-bottom:2px;
     background:none;
     vertical-align:top;
 }
@@ -759,37 +757,30 @@
     vertical-align:top;
 }
 
-._common_d11 .widgetInCell {
-    color: #444;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-right: 5px;
-    width: 100%;
-    border:0px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    box-shadow: 1px 1px 1px #777 inset;
+
+.tundra._common_d11 .dojoxGrid-content{
+    border-bottom: 1px solid #DDEEEE;
+    border-right: 1px solid #DDEEEE;
 }
-._common_d11 .cell_B .widgetInCell {
-    width: 16px;
-    margin: auto;
+.tundra._common_d11 .emptyGrid .dojoxGrid-content{
+    border-bottom:0;
+    border-right: 0;
 }
 
 .tundra._common_d11 .dojoxGrid-row{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+    background-color:#fff; 
 }
 
 .tundra._common_d11 .dojoxGrid-row-odd{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FAFCFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FAFCFF, #f6f6f6);
+    background-color: #F3F6FA;
 }
 .tundra._common_d11 .dojoxGrid-row-selected{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#c2d3e7));
-    background-image: -moz-linear-gradient(-90deg, white, #c2d3e7);
-    border-bottom: 0px solid !important;
-    border-right: 1px solid #dee;
+    background-color: #AFCBEC;
 }
+.tundra._common_d11 .dojoxGrid-row-selected.dojoxGrid-row-odd{
+    background-color: #AFCBEC;
+}
+
 
 
 ._common_d11 .canBeDropped.dojoxGrid-row,
