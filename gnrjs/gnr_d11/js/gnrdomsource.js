@@ -1590,6 +1590,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     setDisabled:function(value){
         var value = value ? true : false;
+        this.disabled = value;
         if(this.widget){
             if (dijit.form._FormWidget.prototype.setDisabled == this.widget.setDisabled) {
                 this.widget.setAttribute('disabled', value);
@@ -1686,6 +1687,14 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         var content;
         tag = tag.toLowerCase();
         if (tag) {
+            var tagHandler = genro.wdg.getHandler(tag);
+            if(!tagHandler){
+                var parentTag = this.getParentNode().attr.tag;
+                var parentTagHandler = genro.wdg.getHandler(parentTag);
+                if(parentTagHandler && parentTagHandler.subtags && tag.toLowerCase() in parentTagHandler.subtags){
+                    tag = parentTag.toLowerCase()+'_'+tag;
+                }
+            }
             if (name instanceof Object) {
                 var extrakw = attributes || {};
                 var attributes = name || {};

@@ -423,7 +423,7 @@ class GnrDomSrc(GnrStructData):
                             parentStore=parentStore,handler=handler,**kwargs)
                             
     def multibutton_item(self,code,caption=None,**kwargs):
-        return self.child('multiButtonItem',code=code,caption=caption or code,**kwargs)
+        return self.child('multibutton_item',code=code,caption=caption or code,**kwargs)
 
     def formstore_handler(self, action, handler_type=None, **kwargs):
         """TODO Return the formstore handler

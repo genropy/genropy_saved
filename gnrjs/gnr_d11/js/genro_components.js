@@ -1120,34 +1120,32 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         return grid;
     },
     toolsGridRoot:function(sourceNode,kw){
-        
-       var tools = objectPop(kw,'tools');
-       var default_tools={ 'addrow':'<div class="iconbox add_row"/>',
-                           'delrow':'<div class="iconbox delete_row"/>',
-                           'duprow':'<div class="iconbox copy"/>',
-                           'export':'<div class="iconbox export"/>'}
-       tools=tools==true? 'addrow,delrow' : tools;
-       var values=[];
-       tools.split(',').forEach(function(t){
-           values.push((t.indexOf(':')>0)? t : t+':'+default_tools[t]);
-       })
-       values=values.join(',')
-       var tools_position = objectPop(kw,'tools_position') || 'TR';
-       var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
-       var bckw = {height: objectPop(kw,'height'),
-                   width: objectPop(kw,'width'),
-                  _class:'quickgrid_container'}
-       var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
-       var bc = sourceNode._('borderContainer',bckw);
-       var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden'}) 
-       var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
-                      'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
-                       'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},
-                       'BL':{left:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'}}   
-       tpane._('div',objectUpdate(posdict[tools_position],{position:'absolute'}))._('multibutton',{values:values,value:'^.abx',sticky:false});
-       tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
-                                value:'^.abx',target:kw.nodeId})
-       return bc._('contentPane',centerkw)
+         
+        var tools = objectPop(kw,'tools');
+        var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
+                            'delrow':{content_class:'iconbox delete_row'}, 
+                            'duprow': {content_class:'iconbox copy'}, 
+                            'export': {content_class:'iconbox export'}}
+        tools=tools==true? 'addrow,delrow' : tools;
+        var tools_position = objectPop(kw,'tools_position') || 'TR';
+        var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
+        var bckw = {height: objectPop(kw,'height'),
+                    width: objectPop(kw,'width'),
+                   _class:'quickgrid_container'}
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+        var bc = sourceNode._('borderContainer',bckw);
+        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden'}) 
+        var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
+                       'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
+                        'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},
+                        'BL':{left:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'}}   
+        var mb = tpane._('div',objectUpdate(posdict[tools_position],{position:'absolute'}))._('multibutton',{value:'^.abx',sticky:false});
+        tools.split(',').forEach(function(t){
+            mb._('item',t,default_tools[t]);
+        });
+        tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
+                                 value:'^.abx',target:kw.nodeId})
+        return bc._('contentPane',centerkw)
     },
     guessDtypeAndWidth:function(rows){
         var types={}
@@ -1920,6 +1918,7 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
 
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
+    subtags:{'item':true},
     createContent:function(sourceNode, kw,children) {
         var value = objectPop(kw,'value');
         var values = objectPop(kw,'values');
@@ -1945,10 +1944,12 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         var items_bag = items?sourceNode.getRelativeData(items):new gnr.GnrBag();
         var multibutton_items = children._nodes.filter(function(n){
-            return n.attr.tag=='multiButtonItem';
+            return n.attr.tag=='multibutton_item';
         });
         multibutton_items.forEach(function(n){
             children.pop(n.label);
+            var r = n.attr;
+            r.code = r.code || n.label;
             itemsArray.push(n.attr);
         });
         itemsArray.forEach(function(n){
@@ -2061,7 +2062,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var deleteAction = this.deleteAction;
         mb.clear(true);
         if (mb){
-            var btn,btn_class,_class,code,caption,kw;
+            var btn,content_kw,btn_class,code,caption,kw;
             var firstItem = items.getNode('#0');
             var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value);
             if(!currentSelected && this.mandatory && firstItem){
@@ -2069,13 +2070,19 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             }
             items.forEach(function(n){
                 kw = objectUpdate({},n.attr);
+                content_kw = objectExtract(kw,'content_*');
+                content_kw._class = objectPop(content_kw,'class');
                 caption = objectPop(kw,'caption');
                 code = kw.code || n.label;
-                _class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
+                btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
                 if(deleteAction){
-                    _class = _class +' multibutton_closable';
+                    btn_class = btn_class +' multibutton_closable';
                 }
-                btn = mb._('lightbutton',code,objectUpdate({multibutton_code:code,_class:_class},kw))._('div',{innerHTML:caption,_class:'multibutton_caption'});
+                kw.multibutton_code = code;
+                kw._class = (kw._class || '') +' '+btn_class
+                content_kw.innerHTML = caption;
+                content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
+                btn = mb._('lightbutton',code,kw)._('div',content_kw);
                 if(deleteAction){
                     btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
                         dojo.stopEvent(e);

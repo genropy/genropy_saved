@@ -26,8 +26,8 @@ class GnrCustomWebPage(object):
         b = Bag()
         pane.data('.griddata',b)
         box.formbuilder().textBox('^.def_location',lbl='Default location')
-        format=[dict(field='name',name='Name',width='20em',edit=True),
-                dict(field='location',name='Location',width='5em',edit=True)]
+        format=[dict(field='location',name='Location',width='15em',edit=dict(tag='dbselect',dbtable='glbl.provincia')),
+                dict(field='name',name='Name',width='15em',edit=True)]
         box.quickGrid(value='^.griddata',
                         format=format,default_location='=.def_location',
                         tools='addrow,delrow,duprow,export',

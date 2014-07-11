@@ -2345,10 +2345,18 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
 });
 dojo.declare("gnr.widgets._ButtonLogic",null, {
     clickHandler:function(sourceNode,e) {
+        if(sourceNode.disabled){
+            return;
+        }
         var inattr = sourceNode.getInheritedAttributes();
         //var _delay = '_delay' in inattr? inattr._delay: 100;
         var _delay = inattr._delay;
         if(!_delay){
+            sourceNode.setDisabled(true);
+            sourceNode._clickTimeout = setTimeout(function(){
+                sourceNode._clickTimeout = null;
+                sourceNode.setDisabled(false);
+            },500);
             return this._clickHandlerDo(sourceNode,e,inattr);
         }
         if(sourceNode._pendingClick){
@@ -4208,6 +4216,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
                 row.customStyles =( typeof(_customStyles)=='function')?attr._customStyles(row) : attr._customStyles;
             }
         }
+        row.over = this.enableOver  && row.over;
         this.onStyleRow_replaced(row);
     }
 });
@@ -4540,6 +4549,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (attr._customStyles) {
             row.customStyles = attr._customStyles;
         }
+        row.over = this.enableOver && row.over;
         this.onStyleRow_replaced(row);
     },
     
@@ -4585,6 +4595,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     patch_updateRowCount:function(n) {
+        genro.dom.setClass(this.domNode,'emptyGrid',this.storeRowCount()===0);
         if(this.sourceNode._isBuilding && this.sourceNode._useStore){
             return;
         }
@@ -5538,6 +5549,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt,duplicate){
+        var counter = counter || 1;
         var lenrows = this.storebag().len();
         var r = this.selection.selectedIndex;
         if(r>=0 && lenrows>0){
