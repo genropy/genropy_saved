@@ -468,10 +468,6 @@ element.style {
     color: #b50000;
 }
 
-._common_d11 .dojoxGrid {
-    background-color: transparent;
-}
-
 ._common_d11 .dojoxGrid-scrollbox {
     overflow: auto;
     background-color: transparent;
@@ -556,11 +552,6 @@ element.style {
     background-color: #AEC7E3;
 }
 
-._common_d11 .dojoxGrid-row-over .dojoxGrid-cell {
-    background-color: #60a1ea;
-    color: black !important;
-
-}
 
 ._common_d11 .dojoxGrid-row-over .dojoxGrid-cell-focus {
     border-top: 0;

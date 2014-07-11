@@ -3761,6 +3761,9 @@ p {
 .multibutton_selected.multibutton:hover{
 	text-decoration:none;
 }
+.multibutton_selected.multibutton[disabled='true']{
+    opacity: 1;
+}
 
 .multibutton{
     position:relative;
@@ -3901,7 +3904,7 @@ p {
 }
 
 div[disabled='true'], div[disabled='disabled']{
-    opacity: .5;
+    opacity: .4;
 }
 .slotbar_toolbar .buttonDiv:hover{
     cursor:pointer;
@@ -4268,7 +4271,7 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 ._common_d11 .dojoxGrid {
-    background-color: transparent;
+    background-color: white;
 }
 
 ._common_d11 .dojoxGrid-scrollbox {
@@ -4353,12 +4356,6 @@ div[disabled='true'], div[disabled='disabled']{
 
 ._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell {
     background-color: #AEC7E3;
-}
-
-._common_d11 .dojoxGrid-row-over .dojoxGrid-cell {
-    background-color: #60a1ea;
-    color: black !important;
-
 }
 
 ._common_d11 .dojoxGrid-row-over .dojoxGrid-cell-focus {
