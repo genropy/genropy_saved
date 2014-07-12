@@ -30,6 +30,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         else if(datapath===false){
             sourceNode.attr.datapath = '';
         }
+
         var contentKwargs = this.contentKwargs(sourceNode, attributes);
         if (!this.createContent) {
             return false;
@@ -37,7 +38,8 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.freeze();
         var children = sourceNode.getValue();
         sourceNode._value = null; // remove content that will be used in the inner construction
-        var content = this.createContent(sourceNode, contentKwargs,children);
+        var subTagItems = this.subtags?this.popSubTagItems(sourceNode.attr.tag,children):{};
+        var content = this.createContent(sourceNode, contentKwargs,children,subTagItems);
         genro.assert(content,'create content must return');
         content.concat(children);
         sourceNode._isComponentNode=true;
@@ -45,6 +47,24 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.unfreeze(true);
         return false;
     },
+
+    popSubTagItems:function(maintag,children){
+        var result = {};
+        for (var tag in this.subtags){
+            var sc = children._nodes.filter(function(n){
+                return n.attr.tag == (maintag+'_'+tag).toLowerCase();
+            });
+            var subtag_items = new gnr.GnrBag();
+            sc.forEach(function(n){
+                delete n.attr.tag;
+                subtag_items.setItem(n.label,children.popNode(n.label));
+            })
+            subtag_items._subtag_handler = this.subtags[tag];
+            result[tag] = subtag_items;
+        }
+        return result;
+    },
+
     onStructChild:function(attributes,source) {
         var parentNode = source.getParentNode();
         var attr = parentNode?parentNode.attr:{};
@@ -1082,19 +1102,41 @@ dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw,children) {
-        var value = objectPop(kw,'value');
-        var format = objectPop(kw,'format');
-        sourceNode.attr.format = format;
+    subtags : {column:true,
+               selectionstore:true,
+               tools:true},
+
+    createContent:function(sourceNode, kw,children,subTagItems) {
+        sourceNode.attr._workspace = true;
         var gnrwdg = sourceNode.gnrwdg;
-        gnrwdg.formats = objectExtract(kw,'format_*');
+        var value = objectPop(kw,'value');
+        var columns = objectPop(kw,'columns');
+        var fields = objectPop(kw,'fields');
+        gnrwdg.guessColumns = fields;
+        sourceNode.attr.fields = fields;
+        if(!columns){ 
+            columns = '^#WORKSPACE.columns';
+            sourceNode.registerDynAttr('columns');
+        }
+        sourceNode.attr.columns = columns;
+        var columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
+        if(columns_bag.len()==0){
+            gnrwdg.guessColumns = gnrwdg.guessColumns || '*';
+        }
+        if(gnrwdg.guessColumns){
+            gnrwdg.columns_extra = {};
+            columns_bag.forEach(function(n){
+                gnrwdg.columns_extra[n.attr.field] = n.attr;
+            });
+            columns_bag = new gnr.GnrBag();
+        }
+        sourceNode.setAttributeInDatasource('columns',columns_bag);
         var default_kwargs = objectExtract(kw,'default_*');
         if(default_kwargs){
             kw.gridEditor = {default_kwargs:function(){
                 return sourceNode.evaluateOnNode(default_kwargs);
             }};
         }
-        sourceNode.attr._workspace = true;
         var valuepath = sourceNode.absDatapath(value);
         kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
         kw.store = kw.nodeId;
@@ -1108,26 +1150,37 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.selfsubscribe_duprow= kw.selfsubscribe_duprow|| 'this.widget.addRows($1._counter,$1.evt,true);';
 
         var currentValue = sourceNode.getAttributeFromDatasource('value');
-        var currentFormat = sourceNode.getAttributeFromDatasource('format');
+        var currentColumns = sourceNode.getAttributeFromDatasource('columns');
         var struct = new gnr.GnrBag();
         sourceNode.setRelativeData(kw.structpath,struct)
         sourceNode._('BagStore',{storepath:valuepath,
                         nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
-        var gridRoot=kw.tools? this.toolsGridRoot(sourceNode,kw) : sourceNode;
+        var tools = subTagItems.tools;
+        var gridRoot= tools.len()? this.toolsGridRoot(sourceNode,kw,tools.getAttr('#0')) : sourceNode;
         var grid = gridRoot._('newIncludedView',kw);
         gnrwdg.gridNode = grid.getParentNode();
-        gnrwdg.setFormat(currentFormat);
+        gnrwdg.setColumns(sourceNode.getRelativeData(columns));
         return grid;
     },
-    toolsGridRoot:function(sourceNode,kw){
-         
-        var tools = objectPop(kw,'tools');
+
+    _getColumnsBag:function(sourceNode,columns,childrenColumns){
+        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();;
+        childrenColumns.forEach(function(n){
+            var attr = n.attr;
+            attr.field = attr.field || n.label;
+            columns_bag.setItem(attr.field,null,attr);
+        })
+        return columns_bag;
+    },
+
+    toolsGridRoot:function(sourceNode,kw,tools_kw){
+        var tools = objectPop(tools_kw,'tools');
         var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
                             'delrow':{content_class:'iconbox delete_row'}, 
                             'duprow': {content_class:'iconbox copy'}, 
                             'export': {content_class:'iconbox export'}}
         tools=tools==true? 'addrow,delrow' : tools;
-        var tools_position = objectPop(kw,'tools_position') || 'TR';
+        var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
         var bckw = {height: objectPop(kw,'height'),
                     width: objectPop(kw,'width'),
@@ -1139,47 +1192,54 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                        'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                         'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},
                         'BL':{left:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'}}   
-        var mb = tpane._('div',objectUpdate(posdict[tools_position],{position:'absolute'}))._('multibutton',{value:'^.abx',sticky:false});
+        var mb = tpane._('div',objectUpdate(posdict[tools_position],{position:'absolute'}))._('multibutton',{value:'^.command',sticky:false});
         tools.split(',').forEach(function(t){
             mb._('item',t,default_tools[t]);
         });
         tpane._('datacontroller',{script:"genro.publish({topic:value.action,nodeId:target},value)",
-                                 value:'^.abx',target:kw.nodeId})
+                                 value:'^.command',target:kw.nodeId})
         return bc._('contentPane',centerkw)
     },
-    guessDtypeAndWidth:function(rows){
+    guessDtypeAndWidth:function(rows,fields){
         var types={}
         var sizes={}
         var w,dtype,v
         if(!rows){
             return;
         }
+        if(fields=='*'){
+            fields = rows.getItem('#0').keys()
+        }else{
+            fields = fields.split(',');
+        }
         rows.forEach(function(n){
-            n.getValue().forEach(function(c){
-                if (!(c.label in types)){
-                    types[c.label]=null
-                    sizes[c.label]=0
+            var r = n.getValue();
+            fields.forEach(function(field){
+                var c = r.getNode(field);
+                if (!(field in types)){
+                    types[field]=null
+                    sizes[field]=0
                 }
                 v=c.getValue()
                 if(v){
-                    dtype=types[c.label]
+                    dtype=types[field]
                     if (!dtype) {
                         dtype=guessDtype(v)
-                        types[c.label]=dtype
+                        types[field]=dtype
                     }   
                     w = 8 
                     if (dtype=='D'){w = 8}
                     else if (dtype=='H'){w = 6}
                     else if (dtype=='DH'){w = 12}
                     if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
-                        sizes[c.label]=Math.max(sizes[c.label]||c.label.length,v.toString().length)
+                        sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
                     }
-                    else if (sizes[c.label]==0){
+                    else if (sizes[field]==0){
                         w=8;
                         if (dtype=='D'){w = 8}
                         else if (dtype=='H'){w = 6}
                         else if (dtype=='DH'){w = 12}
-                        sizes[c.label]=Math.max(c.label.length,w)
+                        sizes[field]=Math.max(field.length,w)
                     }
                 }
             })
@@ -1190,51 +1250,42 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         }
         return {types:types,sizes:sizes}
     },
-    gnrwdg_getFormatFromValue:function(value){
-        var format = new gnr.GnrBag();
-        var formats = this.formats || {};
-        formats = this.sourceNode.evaluateOnNode(formats);
-        var guess = this.gnr.guessDtypeAndWidth(value);
+    gnrwdg_setFields:function(fields){
+        gnrwdg.guessColumns = fields;
+        var columns = this.getColumnsFromValue(this.gridNode.widget.storebag());
+    },
+    gnrwdg_getColumnsFromValue:function(value){
+        var columns = new gnr.GnrBag();
+        var columns_extra = this.columns_extra || {};
+        var guess = this.gnr.guessDtypeAndWidth(value,this.guessColumns);
         var kw;
         for (var label in guess.types){
             kw = {'field':label,'dtype':guess.types[label],
                                          'width':guess.sizes[label],
                                           'name':stringCapitalize(label.replace(/_/g,' '))
                                       }
-            if(label in formats){
-                var customFormat = formats[label];
-                if(customFormat){
-                    objectUpdate(kw,customFormat);
+            if(label in columns_extra){
+                var customColumn = columns_extra[label];
+                if(customColumn){
+                    objectUpdate(kw,customColumn);
                 }
             }
-            format.setItem(label,null,kw);
+            columns.setItem(label,null,kw);
         }
-        return format;
+        return columns;
     },
-    gnrwdg_catch_format:function(attr,value){
-        this.setFormat(this.getFormatFromValue(this.gridNode.widget.storebag()));
+    gnrwdg_catch_column:function(attr,value){
+        this.setColumns(this.getColumnsFromValue(this.gridNode.widget.storebag()));
     },
 
-    gnrwdg_setFormat:function(format){
-        var gridNode = this.sourceNode.gnrwdg.gridNode;
-        var f;
-        if(!format){
-            f = new gnr.GnrBag();
-        }else if(format instanceof gnr.GnrBag){
-            f = format.deepCopy();
-        }else{
-            f = new gnr.GnrBag();
-            format.forEach(function(d){
-                f.setItem(d['field'],null,d);
-            })
-        }
-        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
+    gnrwdg_setColumns:function(columns){
+        this.gridNode.getRelativeData(this.gridNode.attr.structpath).setItem('view_0.rows_0',columns);
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
         if((trigger_reason=='container') || (kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0)){
-            if(!this.sourceNode.attr.format){
-                this.setFormat(this.getFormatFromValue(value));
+            if(this.guessColumns){
+                this.sourceNode.setRelativeData(this.sourceNode.attr.columns,this.getColumnsFromValue(value));
             }
         }
     }
@@ -1919,22 +1970,15 @@ dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     subtags:{'item':true},
-    createContent:function(sourceNode, kw,children) {
+    createContent:function(sourceNode, kw,children,subTagItems) {
         var value = objectPop(kw,'value');
         var values = objectPop(kw,'values');
         var items = objectPop(kw,'items');
-        var itemsArray = []; 
         var storepath = objectPop(kw,'storepath'); //deprecated
         if(storepath){
             console.warn('use items attr instead of');
             sourceNode.registerDynAttr('items');
             items = '^'+storepath;
-        }
-
-        if(items instanceof Array){
-            sourceNode.registerDynAttr('items');
-            itemsArray = items;
-            items = null;
         }
         var multivalue = objectPop(kw,'multivalue');
         var sticky = objectPop(kw,'sticky') == false ? false:true;
@@ -1943,18 +1987,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var showAlways = objectPop(kw,'showAlways');
         var gnrwdg = sourceNode.gnrwdg;
         var items_bag = items?sourceNode.getRelativeData(items):new gnr.GnrBag();
-        var multibutton_items = children._nodes.filter(function(n){
-            return n.attr.tag=='multibutton_item';
-        });
-        multibutton_items.forEach(function(n){
-            children.pop(n.label);
-            var r = n.attr;
-            r.code = r.code || n.label;
-            itemsArray.push(n.attr);
-        });
-        itemsArray.forEach(function(n){
-            objectPop(n,'tag');
-            items_bag.setItem(n.code,null,n);
+        subTagItems['item'].forEach(function(n){
+            var attr = n.attr;
+            attr.code = attr.code || n.label;
+            items_bag.setItem(attr.code,null,attr);
         });
         if(values){
             items_bag = this.itemsFromValues(values);

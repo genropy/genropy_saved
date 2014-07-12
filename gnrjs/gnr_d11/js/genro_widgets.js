@@ -2941,7 +2941,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     },
     
     mixin_setStructpath:function(val, kw) {
-        this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath'));
+        this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath')) || new gnr.GnrBag();
         this.cellmap = {};
         this.setStructure(this.gnr.structFromBag(this.sourceNode, this.structBag, this.cellmap));
         this.onSetStructpath(this.structBag);

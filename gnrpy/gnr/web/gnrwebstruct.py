@@ -425,6 +425,16 @@ class GnrDomSrc(GnrStructData):
     def multibutton_item(self,code,caption=None,**kwargs):
         return self.child('multibutton_item',code=code,caption=caption or code,**kwargs)
 
+
+    def quickgrid_column(self,field,**kwargs):
+        return self.child('quickgrid_column',field=field,**kwargs)  
+
+    def quickgrid_selectionstore(self,table=None,**kwargs):
+        return self.child('quickgrid_selectionstore',table=table,**kwargs) 
+
+    def quickgrid_tools(self,tools,position=None,**kwargs):
+        return self.child('quickgrid_tools',tools=tools,position=position,**kwargs) 
+
     def formstore_handler(self, action, handler_type=None, **kwargs):
         """TODO Return the formstore handler
         
