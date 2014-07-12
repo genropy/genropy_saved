@@ -69,7 +69,7 @@ class Table(object):
             return False
         return True
         
-    def newPkeyValue(self):
+    def newPkeyValue(self, record=None):
         toassign=True
         record_data = dict()
         while toassign:

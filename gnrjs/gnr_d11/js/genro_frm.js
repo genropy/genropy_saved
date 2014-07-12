@@ -1784,7 +1784,7 @@ dojo.declare("gnr.GnrValidator", null, {
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();
-                result = {'errorcode':'missing'};
+                result = validate_notnull?{'errorcode':'missing'}:{};
             }
             sourceNode.widget._lastValueReported = null;
             return result;

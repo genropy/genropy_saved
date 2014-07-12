@@ -115,7 +115,7 @@ class FormHandler(BaseComponent):
                                             },100,this,'editselectedrow');
                                             """
         gridattr['selfsubscribe_addrow'] = """ var newrecord_kw = {pkey:"*newrecord*"};
-                                                if($1.opt){
+                                                if($1 && $1.opt){
                                                     objectUpdate(newrecord_kw,objectPop($1,'opt'));
                                                     objectUpdate(newrecord_kw,$1);
                                                 }
