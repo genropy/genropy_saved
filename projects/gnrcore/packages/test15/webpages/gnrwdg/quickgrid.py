@@ -40,11 +40,12 @@ class GnrCustomWebPage(object):
     def test_2_syntax(self,pane):
         """basic"""
         bc = pane.borderContainer(height='200px')
-        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
-        fb.dbselect(value='^.provincia',dbtable='glbl.provincia')
+        fb = bc.contentPane(region='top').formbuilder(cols=2,border_spacing='3px')
+        fb.dbselect(value='^.provincia',dbtable='glbl.provincia',lbl='provincia')
+        fb.textBox('^.fields',lbl='Fields')
         fb.dataRpc('.data',self.bagComuni,provincia='^.provincia',_if='provincia',_else='null')
 
-        grid = pane.quickGrid(value='^.data',height='300px',fields='denominazione,sigla_provincia')
+        grid = pane.quickGrid(value='^.data',height='300px',fields='^.fields')
         grid.column('denominazione',color='red',width='40em',name='Den',edit=True)
         grid.tools('export',position='TR')
        #grid.column('denominazione')

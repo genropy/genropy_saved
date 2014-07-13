@@ -1111,9 +1111,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var gnrwdg = sourceNode.gnrwdg;
         var value = objectPop(kw,'value');
         var columns = objectPop(kw,'columns');
-        var fields = objectPop(kw,'fields');
-        gnrwdg.guessColumns = fields;
-        sourceNode.attr.fields = fields;
+        sourceNode.attr.fields = objectPop(kw,'fields');
+        gnrwdg.guessColumns = sourceNode.attr.fields;
         if(!columns){ 
             columns = '^#WORKSPACE.columns';
             sourceNode.registerDynAttr('columns');
@@ -1178,7 +1177,18 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var default_tools={ 'addrow': {content_class:'iconbox add_row',_delay:500},
                             'delrow':{content_class:'iconbox delete_row'}, 
                             'duprow': {content_class:'iconbox copy'}, 
-                            'export': {content_class:'iconbox export'}}
+                            'export': {content_class:'iconbox export',
+                                                 action:"console.log(arguments)",
+                                                 ask:{title:'Export selection',skipOn:'Shift',
+                                                 fields:[{name:'opt_downloadAs',lbl:'Download as'},
+                                                         {name:'opt_export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'}]
+                                             }}
+                           }
+                           
+                           
+                           
+                           
+                           
         tools=tools==true? 'addrow,delrow' : tools;
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom'
@@ -1207,7 +1217,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         if(!rows){
             return;
         }
-        if(fields=='*'){
+        if(!fields || fields=='*'){
             fields = rows.getItem('#0').keys()
         }else{
             fields = fields.split(',');
@@ -1216,30 +1226,32 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
             var r = n.getValue();
             fields.forEach(function(field){
                 var c = r.getNode(field);
-                if (!(field in types)){
-                    types[field]=null
-                    sizes[field]=0
-                }
-                v=c.getValue()
-                if(v){
-                    dtype=types[field]
-                    if (!dtype) {
-                        dtype=guessDtype(v)
-                        types[field]=dtype
-                    }   
-                    w = 8 
-                    if (dtype=='D'){w = 8}
-                    else if (dtype=='H'){w = 6}
-                    else if (dtype=='DH'){w = 12}
-                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
-                        sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
+                if (c){
+                    if (!(field in types)){
+                        types[field]=null
+                        sizes[field]=0
                     }
-                    else if (sizes[field]==0){
-                        w=8;
+                    v=c.getValue()
+                    if(v){
+                        dtype=types[field]
+                        if (!dtype) {
+                            dtype=guessDtype(v)
+                            types[field]=dtype
+                        }   
+                        w = 8 
                         if (dtype=='D'){w = 8}
                         else if (dtype=='H'){w = 6}
                         else if (dtype=='DH'){w = 12}
-                        sizes[field]=Math.max(field.length,w)
+                        if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                            sizes[field]=Math.max(sizes[field]||field.length,v.toString().length)
+                        }
+                        else if (sizes[field]==0){
+                            w=8;
+                            if (dtype=='D'){w = 8}
+                            else if (dtype=='H'){w = 6}
+                            else if (dtype=='DH'){w = 12}
+                            sizes[field]=Math.max(field.length,w)
+                        }
                     }
                 }
             })
@@ -1251,13 +1263,14 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         return {types:types,sizes:sizes}
     },
     gnrwdg_setFields:function(fields){
-        gnrwdg.guessColumns = fields;
         var columns = this.getColumnsFromValue(this.gridNode.widget.storebag());
+        this.setColumns(columns);
     },
     gnrwdg_getColumnsFromValue:function(value){
         var columns = new gnr.GnrBag();
         var columns_extra = this.columns_extra || {};
-        var guess = this.gnr.guessDtypeAndWidth(value,this.guessColumns);
+        var fields= this.sourceNode.getAttributeFromDatasource('fields')
+        var guess = this.gnr.guessDtypeAndWidth(value, fields);
         var kw;
         for (var label in guess.types){
             kw = {'field':label,'dtype':guess.types[label],
