@@ -1577,13 +1577,18 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
         var signature = fnc.toString().match(/function +\((.*)\)/)[1];
         var idx;
         if(signature){
+            var argValuesCopy = copyArray(argValues);
+            var valid = true;
             splitStrip(signature).reverse().forEach(function(par){
                 idx = argNames.indexOf(par);
                 if(idx>0){
                     argNames = argNames.splice(idx,1).concat(argNames);
-                    argValues = argValues.splice(idx,1).concat(argValues);
+                    argValuesCopy = argValuesCopy.splice(idx,1).concat(argValuesCopy);
+                }else{
+                    valid = false;
                 }
             });
+            argValues = valid?argValuesCopy:argValues;
         }       
     }else{
         fnc = funcCreate(fnc, argNames.join(','),scope,showError);
