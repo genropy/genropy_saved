@@ -1565,9 +1565,6 @@ function highlightLinks(text) {
 }
 function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     var parsobj = parsobj || {};
-    if(!argNames && typeof(fnc)=='function'){
-        return fnc.call(scope,parsobj);
-    }
     var argNames = argNames || [];
     var argValues = argValues || [];
     for (var attr in parsobj) {
@@ -1576,9 +1573,22 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     }
     argNames.push('__orig_kw');
     argValues.push(parsobj);
-    var func = funcCreate(fnc, argNames.join(','),scope,showError);
-    var result = func.apply(scope, argValues);
-    return result;
+    if(typeof(fnc)=='function'){
+        var signature = fnc.toString().match(/function +\((.*)\)/)[1];
+        var idx;
+        if(signature){
+            splitStrip(signature).reverse().forEach(function(par){
+                idx = argNames.indexOf(par);
+                if(idx>0){
+                    argNames = argNames.splice(idx,1).concat(argNames);
+                    argValues = argValues.splice(idx,1).concat(argValues);
+                }
+            });
+        }       
+    }else{
+        fnc = funcCreate(fnc, argNames.join(','),scope,showError);
+    }
+    return fnc.apply(scope, argValues);
 }
 
 function deltaDays(dateStart,dateEnd,excludeWD){

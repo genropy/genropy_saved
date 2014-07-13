@@ -2021,13 +2021,12 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         sourceNode.attr.items = items;
         var containerKw = {_class:'multibutton_container'};
         if (sticky){
-            var btn_action = function(kw){
-                var evt = kw.event;
-                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+            var btn_action = function(event){
+                var sn = event.target?genro.dom.getBaseSourceNode(event.target):null;
                 if(sn){
                     var mcode = sn.getInheritedAttributes()['multibutton_code'];
                     if(mcode){
-                        if(evt.shiftKey && multivalue){
+                        if(event.shiftKey && multivalue){
                             var prevmcode = sourceNode.getRelativeData(value);
                             if(prevmcode){
                                 prevmcode = prevmcode.split(',');
@@ -2045,14 +2044,12 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 }
             };
         }else{
-            var btn_action=function(kw){
-                var evt = kw.event;
-                var _counter = kw._counter;
-                var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
+            var btn_action = function(event,_counter){
+                var sn = event.target?genro.dom.getBaseSourceNode(event.target):null;
                 if(sn){
                     var mcode = sn.getInheritedAttributes()['multibutton_code'];
                     if(mcode){
-                        this.fireEvent(value,{action:mcode, evt:evt, _counter:_counter})
+                        this.fireEvent(value,{action:mcode, evt:event, _counter:_counter})
                     }
                 }
             }
