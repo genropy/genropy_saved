@@ -2405,11 +2405,6 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
 
                 genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
             }else{
-                if(ask_params && ask_params.fields){
-                    for (var k in ask_params.fields){
-                        action_attributes[ask_params.fields[k]['name']] = ask_params.fields[k]['default_value'];
-                    }
-                }
                 funcApply(action, objectUpdate(action_attributes, {event:e,_counter:count}), sourceNode);
             }
             return;

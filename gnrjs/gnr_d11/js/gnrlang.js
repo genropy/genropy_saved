@@ -1571,7 +1571,7 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);
     }
-    argNames.push('__orig_kw');
+    argNames.push('_kwargs');
     argValues.push(parsobj);
     if(typeof(fnc)=='function'){
         var signature = fnc.toString().match(/function +\((.*)\)/)[1];

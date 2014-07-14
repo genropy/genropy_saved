@@ -1145,8 +1145,13 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         kw.frameTarget = kw.frameTarget===false?false:true;
         kw.selfsubscribe_addrow= kw.selfsubscribe_addrow || 'this.widget.addRows($1._counter,$1.evt)';
         kw.selfsubscribe_delrow= kw.selfsubscribe_delrow || 'this.widget.deleteSelectedRows();';
-        kw.selfsubscribe_export= kw.selfsubscribe_export || 'this.widget.serverAction({command:"export",opt:{rawData:true,export_mode:"xls"}});';
-        kw.selfsubscribe_duprow= kw.selfsubscribe_duprow|| 'this.widget.addRows($1._counter,$1.evt,true);';
+        kw.selfsubscribe_export= kw.selfsubscribe_export || function(kwargs){
+            this.widget.serverAction({command:"export", opt:{rawData:true,
+                                                               export_mode:kwargs.export_mode ,
+                                                               downloadAs:kwargs.downloadAs || 'export_'+genro.getCounter()}
+                                        });     
+        } ;
+        kw.selfsubscribe_duprow= kw.selfsubscribe_duprow || 'this.widget.addRows($1._counter,$1.evt,true);';
 
         var currentValue = sourceNode.getAttributeFromDatasource('value');
         var currentColumns = sourceNode.getAttributeFromDatasource('columns');
@@ -1178,10 +1183,11 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                             'delrow':{content_class:'iconbox delete_row'}, 
                             'duprow': {content_class:'iconbox copy'}, 
                             'export': {content_class:'iconbox export',
-                                                 action:"console.log(arguments)",
+                                                 export_mode:'xls',
+                                                 downloadAs:'',
                                                  ask:{title:'Export selection',skipOn:'Shift',
-                                                 fields:[{name:'opt_downloadAs',lbl:'Download as'},
-                                                         {name:'opt_export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'}]
+                                                 fields:[{name:'downloadAs',lbl:'Download as'},
+                                                         {name:'export_mode',wdg:'filteringSelect',values:'xls:Excel,csv:CSV',lbl:'Mode'}]
                                              }}
                            }
                            
@@ -2044,12 +2050,14 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 }
             };
         }else{
-            var btn_action = function(event,_counter){
+            var btn_action = function(_kwargs){
+                var event=_kwargs.event
+
                 var sn = event.target?genro.dom.getBaseSourceNode(event.target):null;
                 if(sn){
                     var mcode = sn.getInheritedAttributes()['multibutton_code'];
                     if(mcode){
-                        this.fireEvent(value,{action:mcode, evt:event, _counter:_counter})
+                        this.fireEvent(value,objectUpdate(_kwargs,{action:mcode}))
                     }
                 }
             }
