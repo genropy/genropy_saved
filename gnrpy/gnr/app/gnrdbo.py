@@ -125,7 +125,6 @@ class GnrDboPackage(object):
             db.commit()
         return changed
 
-
          
     @public_method
     def loadStartupData(self,basepath=None):
@@ -136,40 +135,41 @@ class GnrDboPackage(object):
         if btc:
             btc.batch_complete(result='ok', result_attr=dict())
 
-    def _loadStartupData_do(self,basepath=None,btc=None):
-    #def unpickleAllData(self,basepath=None,tables=None,btc=None):
-        basepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'data_pickled')
-        if not os.path.isdir(basepath):
-            extractpath = '%s.zip' %basepath
-            from zipfile import ZipFile
-            myzip =  ZipFile(extractpath, 'r')
-            myzip.extractall(basepath)
-        db = self.db
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
 
-        with open(os.path.join(basepath,'_index_%s.pik' %self.name), 'r') as storagefile:
-            tables = pickle.load(storagefile)
+    def _loadStartupData_do(self,basepath=None,btc=None):
+        shelvepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
+        if not os.path.isfile('%s.db' %shelvepath):
+            import gzip
+            with gzip.open('%s.gz' %shelvepath,'rb') as gzfile:
+                with open('%s.db' %shelvepath,'wb') as f:
+                    f.write(gzfile.read())
+        db = self.db
+        import shelve 
+        s = shelve.open(shelvepath)
+        tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
         for t in rev_tables:
             db.table('%s.%s' %(self.name,t)).empty()
+        all_pref = self.db.table('adm.preference').loadPreference()
+        all_pref[self.name] = s['preferences']
+        self.db.table('adm.preference').savePreference(all_pref)
         db.commit()
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tablename in tables:
             tblobj = db.table('%s.%s' %(self.name,tablename))
-            with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
-                records = pickle.load(storagefile)
+            records = s[tablename]
             records = records or []
-            tblobj.insertMany(records)
-            db.commit()
-        import shutil
-        shutil.rmtree(basepath)
+            if records:
+                tblobj.insertMany(records)
+                db.commit()
+        s.close()
+
+        os.remove('%s.db' %shelvepath)
+
 
     def startupData_tables(self):
-        return self.db.tablesMasterIndex()[self.name].keys()
+        return  [tbl for tbl in self.db.tablesMasterIndex()[self.name].keys() if self.table(tbl).dbtable.isInStartupData()]
 
     @public_method
     def createStartupData(self,basepath=None):
@@ -182,21 +182,13 @@ class GnrDboPackage(object):
 
     def _createStartupData_do(self,basepath=None,btc=None):
         pkgapp = self.db.application.packages[self.name]
-        basepath = basepath or os.path.join(pkgapp.packageFolder,'data_pickled')
-        if not os.path.isdir(basepath):
-            os.mkdir(basepath)
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-        file_list = []
         tables = self.startupData_tables()
         if not tables:
             return
-        z = os.path.join(basepath,'_index_%s.pik' %self.name)
-        with open(z, 'w') as storagefile:
-            pickle.dump(tables, storagefile)
-        file_list.append(z)
+        shelvepath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
+        import shelve
+        s = shelve.open(shelvepath)
+        s['tables'] = tables
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tname in tables:
             tblobj = self.tables[tname]
@@ -205,22 +197,15 @@ class GnrDboPackage(object):
                 f = handler()
             else:
                 f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
-            z = os.path.join(basepath,'%s.pik' %tname)
-            if f:
-                file_list.append(z)
-                with open(z, 'w') as storagefile:
-                    pickle.dump(f, storagefile)
-        import zipfile
-        zipPath = '%s.zip' %basepath
-        zipresult = open(zipPath, 'wb')
-        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
-        for fname in file_list:
-            zip_archive.write(fname, os.path.basename(fname))
-        zip_archive.close()
-        zipresult.close()
-        import shutil
-        shutil.rmtree(basepath)
-
+            s[tname] = f
+        s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
+        s.close()
+        import gzip
+        zipPath = '%s.gz' %shelvepath
+        with open('%s.db' %shelvepath,'rb') as sfile:
+            with gzip.open(zipPath, 'wb') as f_out:
+                f_out.writelines(sfile)
+        os.remove('%s.db' %shelvepath)
         
 class TableBase(object):
     """TODO"""
@@ -810,6 +795,15 @@ class TableBase(object):
     def getCustomFieldsMenu(self):
         data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
         return data,metadata
+
+
+    def isInStartupData(self):
+        if self.attributes.get('inStartupData') is False:
+            return False
+        for t in self.model.dependencies:
+            if not self.db.table(t).isInStartupData():
+                return False
+        return True
 
     ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
 
