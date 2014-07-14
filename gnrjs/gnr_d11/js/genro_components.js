@@ -1959,7 +1959,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             kw.command = kw.command || null;
             //kw.opt = objectExtract(kw,'opt_*',true);
             if(tag=='button'){
-                kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
+                kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(_kwargs,'opt_*'),evt:event,_counter:_counter});";
             }else{
                 kw['action'] = "objectPop($1,'caption');genro.publish('"+kw.topic+"',{'command':'"+(kw.command || '')+ "' ||null,modifiers:genro.dom.getEventModifiers(event),evt:event,opt:$1});";
             }
