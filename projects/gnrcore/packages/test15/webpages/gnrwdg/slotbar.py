@@ -121,9 +121,6 @@ class GnrCustomWebPage(object):
         pane.multibutton(value='^.base',items='^.multibutton.data')
         pane.textbox(value='^.base')
 
-    def test_9_slotToolbar_multibutton_items_array(self,pane):
-        pane.multibutton(value='^.base',items=[dict(code='pippo',caption='Pippo'),dict(code='paperino',caption='Paperino')])
-        pane.textbox(value='^.base')
 
     def test_10_slotToolbar_multibutton_items_struct(self,pane):
         mb = pane.multibutton(value='^.base')
