@@ -26,7 +26,7 @@ import logging
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag, BagResolver
-from gnr.core.gnrlang import moduleDict
+from gnr.core.gnrlang import moduleDict,uniquify
 from gnr.core.gnrstructures import GnrStructObj, GnrStructData
 from gnr.sql.gnrsqlutils import SqlModelChecker, ModelExtractor
 from gnr.sql.gnrsqltable import SqlTable
@@ -818,6 +818,10 @@ class DbTableObj(DbModelObj):
         return self['relations']
         
     relations = property(_get_relations)
+
+    @property  
+    def dependencies(self):
+        return uniquify(['.'.join(x.split('.')[:-1]) for x in self.relations_one.values() if not x.startswith(self.fullname)])
       
     @property  
     def virtual_columns(self):

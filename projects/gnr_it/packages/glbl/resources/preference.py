@@ -27,9 +27,9 @@ class AppPref(object):
         pane = parent.contentPane(**kwargs)
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.button('Dump GLBL',action="""genro.mainGenroWindow.genro.publish('open_batch');
-                                        genro.serverCall('_package.glbl.createStartupData',function(){});
+                                        genro.serverCall('_package.glbl.createStartupData',null,function(){});
                                     """,_tags='_DEV_')
         fb.button('Restore GLBL',action="""genro.mainGenroWindow.genro.publish('open_batch');
-                                        genro.serverCall('_package.glbl.loadStartupData',function(){});
+                                        genro.serverCall('_package.glbl.loadStartupData',null,function(){});
                                     """,_tags='_DEV_')
 
