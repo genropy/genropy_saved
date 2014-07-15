@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
+import sys
 
 def mkdir(path, privileges=0777):
     """Create a directory named *path* with numeric mode *privileges*.
@@ -55,6 +56,16 @@ def listdirs(path, invisible_files=False):
     files = []
     os.path.walk(path, callb, files)
     return files
+
+def gnr_config_path():
+    if os.environ.has_key('VIRTUAL_ENV'):
+        config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
+    elif sys.platform == 'win32':
+        config_path = '~\gnr'
+    else:
+        config_path = '~/.gnr'
+    config_path  = expandpath(config_path)
+    return config_path
         
 def resolvegenropypath(path):
     """added by Jeff.
