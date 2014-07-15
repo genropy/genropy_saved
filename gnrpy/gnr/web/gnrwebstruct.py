@@ -380,7 +380,7 @@ class GnrDomSrc(GnrStructData):
                             namespace='form',storeCode=storeCode,table=table,
                             autoslots='top,bottom,left,right,center',**kwargs)
         if store:
-            store_kwargs['storeType'] = storeType
+            store_kwargs['storeType'] = storeType or store_kwargs.get('storeType')
             if store is True:
                 store = 'recordCluster'
             store_kwargs['handler'] = store
