@@ -18,11 +18,11 @@ PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
 
-def createSiteRegister(sitename=None,daemon_uri=None,host=None,hmac_key=None,storage_path=None,debug=None,autorestore=False):
+def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None, hmac_key=None,storage_path=None,debug=None,autorestore=False):
     print 'creating'
     server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,storage_path=storage_path,debug=debug)
     print 'starting'
-    server.start(host=host,hmac_key=hmac_key,port='*',autorestore=autorestore)
+    server.start(host=host,socket=socket,hmac_key=hmac_key,port='*',autorestore=autorestore)
 
 def createHeartBeat(site_url=None,interval=None,**kwargs):
     server = GnrHeartBeat(site_url=site_url,interval=interval,**kwargs)
@@ -36,6 +36,11 @@ def getFullOptions(options=None):
         gnr_path = '~/.gnr'
     enviroment_path = os.path.join(gnr_path,'environment.xml')
     env_options = Bag(expandpath(enviroment_path)).getAttr('gnrdaemon')
+    if env_options['sockets']:
+        if env_options['sockets'].lower() in ('t','true','y') :
+            env_options['sockets']=os.path.join(gnr_path,'sockets')
+        env_options['socket']=env_options.get('socket') or os.path.join(env_options['sockets'],'gnrdaemon.sock')
+
     assert env_options,"Missing gnrdaemon configuration."
     for k,v in options.items():
         if v:
@@ -67,14 +72,17 @@ class GnrHeartBeat(object):
 
 
 class GnrDaemonProxy(object):
-    def __init__(self,host=None,port=None,hmac_key=None,compression=True,use_environment=False,serializer='pickle'):
-        options=dict(host=host,port=port,hmac_key=hmac_key,compression=compression)
+    def __init__(self,host=None,port=None, socket=None,hmac_key=None,compression=True,use_environment=False,serializer='pickle'):
+        options=dict(host=host, socket=socket, port=port,hmac_key=hmac_key,compression=compression)
         if use_environment:
             options = getFullOptions(options=options)
         Pyro4.config.HMAC_KEY = str(options.get('hmac_key') or PYRO_HMAC_KEY)
         Pyro4.config.SERIALIZER = options.get('serializer','pickle')
         Pyro4.config.COMPRESSION = options.get('compression',True)
-        self.uri = 'PYRO:GnrDaemon@%s:%s' %(options.get('host') or PYRO_HOST,options.get('port') or PYRO_PORT)
+        if options.get('socket'):
+            self.uri='PYRO:GnrDaemon@./u:%s' % options.get('socket')
+        else:
+            self.uri = 'PYRO:GnrDaemon@%s:%s' %(options.get('host') or PYRO_HOST,options.get('port') or PYRO_PORT)
     
     def proxy(self):
         return Pyro4.Proxy(self.uri)
@@ -92,26 +100,29 @@ class GnrDaemon(object):
         self.do_start(**options)
 
 
-    def do_start(self,host=None,port=None,hmac_key=None,
+    def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None,use_environment=False, size_limit=None):
-        self.pyroConfig(host=host,port=port,hmac_key=hmac_key,debug=debug,
+        self.pyroConfig(host=host,port=port, socket=socket, hmac_key=hmac_key,debug=debug,
                         compression=compression,timeout=timeout,
                         multiplex=multiplex,polltimeout=polltimeout, size_limit=size_limit)
-                        
-        self.daemon = Pyro4.Daemon(host=self.host,port=int(self.port))
+        if self.socket:
+            self.daemon = Pyro4.Daemon(unixsocket=self.socket)
+        else:
+            self.daemon = Pyro4.Daemon(host=self.host,port=int(self.port))
         self.main_uri = self.daemon.register(self,'GnrDaemon')
         print "uri=",self.main_uri
         self.running = True
         atexit.register(self.stop)
         self.daemon.requestLoop(lambda : self.running)
         
-    def pyroConfig(self,host=None,port=None,hmac_key=None,
+    def pyroConfig(self,host=None,port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None, size_limit=None):
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         self.port=port or PYRO_PORT
         self.host = host or PYRO_HOST
+        self.socket = socket 
         self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
         Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:
@@ -150,6 +161,7 @@ class GnrDaemon(object):
             return dict()
         
     def stop(self,saveStatus=False,**kwargs):
+        self.daemon.close()
         self.siteregister_stop('*',saveStatus=saveStatus)
         for t in self.sshtunnel_index.values():
             t.stop()
@@ -161,8 +173,8 @@ class GnrDaemon(object):
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
-            process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,hmac_key=self.hmac_key,
-                                    storage_path=storage_path,autorestore=autorestore)
+            process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=self.socket
+                                   ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,register_uri=False,start_ts=datetime.now())
             childprocess.daemon = True
