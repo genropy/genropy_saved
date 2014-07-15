@@ -182,7 +182,7 @@ class ResourceLoader(object):
             
         # if module_path in self.page_factories:
         #    return self.page_factories[module_path]
-        page_module = gnrImport(module_path, avoidDup=True)
+        page_module = gnrImport(module_path, avoidDup=True,silent=False)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         mainPkg = pkg
