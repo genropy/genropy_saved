@@ -5,7 +5,7 @@ from datetime import datetime
 from multiprocessing import Process
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrsys import expandpath
+from gnr.core.gnrsys import expandpath,gnr_config_path
 import atexit
 import sys
 import os
@@ -30,17 +30,15 @@ def createHeartBeat(site_url=None,interval=None,**kwargs):
     server.start()
 
 def getFullOptions(options=None):
-    if sys.platform == 'win32':
-        gnr_path = '~\gnr'
-    else:
-        gnr_path = '~/.gnr'
+    gnr_path = gnr_config_path()
     enviroment_path = os.path.join(gnr_path,'environment.xml')
     env_options = Bag(expandpath(enviroment_path)).getAttr('gnrdaemon')
-    if env_options['sockets']:
+    if env_options.get('sockets'):
         if env_options['sockets'].lower() in ('t','true','y') :
             env_options['sockets']=os.path.join(gnr_path,'sockets')
+        if not os.path.isdir(env_options['sockets']):
+            os.makedirs(env_options['sockets'])
         env_options['socket']=env_options.get('socket') or os.path.join(env_options['sockets'],'gnrdaemon.sock')
-
     assert env_options,"Missing gnrdaemon configuration."
     for k,v in options.items():
         if v:
@@ -102,11 +100,14 @@ class GnrDaemon(object):
 
     def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
-                      multiplex=False,polltimeout=None,use_environment=False, size_limit=None):
+                      multiplex=False,polltimeout=None,use_environment=False, size_limit=None,
+                      sockets=None):
         self.pyroConfig(host=host,port=port, socket=socket, hmac_key=hmac_key,debug=debug,
                         compression=compression,timeout=timeout,
-                        multiplex=multiplex,polltimeout=polltimeout, size_limit=size_limit)
+                        multiplex=multiplex,polltimeout=polltimeout, size_limit=size_limit,
+                        sockets=sockets)
         if self.socket:
+            print 'start daemon new socket',self.socket
             self.daemon = Pyro4.Daemon(unixsocket=self.socket)
         else:
             self.daemon = Pyro4.Daemon(host=self.host,port=int(self.port))
@@ -118,11 +119,12 @@ class GnrDaemon(object):
         
     def pyroConfig(self,host=None,port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
-                      multiplex=False,polltimeout=None, size_limit=None):
+                      multiplex=False,polltimeout=None, size_limit=None,sockets=None):
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
         self.port=port or PYRO_PORT
         self.host = host or PYRO_HOST
         self.socket = socket 
+        self.sockets = sockets
         self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
         Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:
@@ -173,7 +175,8 @@ class GnrDaemon(object):
     
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None):
         if not sitename in self.siteregisters:
-            process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=self.socket
+            socket = os.path.join(self.sockets,'%s_daemon.sock' %sitename) if self.sockets else None
+            process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=socket
                                    ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             self.siteregisters[sitename] = dict(sitename=sitename,server_uri=False,register_uri=False,start_ts=datetime.now())

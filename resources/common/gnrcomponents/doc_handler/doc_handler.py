@@ -57,12 +57,7 @@ class DocHandler(BaseComponent):
             pagedocpars = dict(title='Main')
         if pagedocpars is not True:
             bar.addToDocumentation(key='__page__',**pagedocpars)
-        bar.docSelector.multiButton(value='^.current',storepath='.pages',showAlways=True
-                                   #onCreating="""var b = this.getRelativeData('.pages');
-                                   #                var p = b.popNode('__page__');
-                                   #                b.setItem('')
-                                    #                """
-                                                    )
+        bar.docSelector.multiButton(value='^.current',items='^.pages',showAlways=True)
         if self.de_isDocWriter():
             fb = bar.labelTooltip.div(_class='dijitButtonNode',hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
             fb.textbox(value='^.record.title',lbl='Title')

@@ -10,6 +10,7 @@ from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceExc
 import os
 import glob
 import re
+import sys
 import logging
 import subprocess
 import urllib
@@ -23,7 +24,7 @@ from gnr.core.gnrdecorator import public_method
 from threading import RLock
 import thread
 import mimetypes
-from gnr.core.gnrsys import expandpath
+from gnr.core.gnrsys import expandpath,gnr_config_path
 import cPickle
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
@@ -522,13 +523,7 @@ class GnrWsgiSite(object):
                 
     def load_gnr_config(self):
         """TODO"""
-        config_path = expandpath('~/.gnr')
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        config_path = expandpath(os.path.join('/etc/gnr'))
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        return Bag()
+        return Bag(gnr_config_path())
         
     def load_site_config(self):
         """TODO"""

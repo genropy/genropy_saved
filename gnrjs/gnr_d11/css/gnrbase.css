@@ -3672,7 +3672,7 @@ p {
 
 .quickgrid_toolsbox{
     display: inline-block;
-    border:1px solid #efefef;
+    border:1px solid silver;
     height: 19px;
 }
 .quickgrid_toolsbox:hover{

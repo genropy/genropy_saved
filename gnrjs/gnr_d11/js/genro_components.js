@@ -1203,7 +1203,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                    _class:'quickgrid_container'}
         var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
-        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden'}) 
+        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools'}) 
         var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                        'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                         'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},

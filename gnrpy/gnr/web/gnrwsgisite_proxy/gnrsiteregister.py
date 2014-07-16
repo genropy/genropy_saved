@@ -26,6 +26,7 @@ import time
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
+from gnr.core.gnrsys import gnr_config_path
 
 try:
     import cPickle as pickle
@@ -845,7 +846,16 @@ class SiteRegisterClient(object):
         self.errors = Pyro4.errors
 
         daemonconfig = self.site.config.getAttr('gnrdaemon')
-        daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
+        if 'sockets' in daemonconfig:
+            if daemonconfig['sockets'].lower() in ('t','true','y') :
+                daemonconfig['sockets'] = os.path.join(gnr_config_path(),'sockets')
+            if not os.path.isdir(daemonconfig['sockets']):
+                os.makedirs(daemonconfig['sockets'])
+            daemonconfig['socket'] = daemonconfig.get('socket') or os.path.join(daemonconfig['sockets'],'gnrdaemon.sock')
+        if daemonconfig.get('socket'):
+            daemon_uri = 'PYRO:GnrDaemon@./u:%(socket)s' %daemonconfig
+        else:
+            daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
         Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
@@ -1011,12 +1021,15 @@ class GnrSiteRegisterServer(object):
             print 'SAVED STATUS STATUS'
         self._running = False
 
-    def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None,autorestore=False):
-        pyrokw = dict(host=host)
-        if port != '*':
-            pyrokw['port'] = int(port or PYRO_PORT)
+    def start(self,port=None,host=None,socket=None,hmac_key=None,compression=None,multiplex=None,
+                    timeout=None,polltimeout=None,autorestore=False):
+        if socket:
+            pyrokw = dict(unixsocket=socket)
+        else:
+            pyrokw = dict(host=host)
+            if port != '*':
+                pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
         multiplex = multiplex or PYRO_MULTIPLEX
         Pyro4.config.HMAC_KEY = str(hmac_key)
