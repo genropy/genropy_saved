@@ -114,7 +114,7 @@ class MenuResolver(BagResolver):
                 attributes = {}
                 attributes.update(node.getAttr())
                 labelClass = 'menu_level_%i' % level
-                if isinstance(value, Bag):
+                if isinstance(value, Bag) and len(value):
                     attributes['isDir'] = True
                     newpath = node.label
                     if self.path:

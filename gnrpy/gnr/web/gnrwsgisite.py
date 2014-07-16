@@ -10,7 +10,6 @@ from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceExc
 import os
 import glob
 import re
-import sys
 import logging
 import subprocess
 import urllib
@@ -21,10 +20,11 @@ import httplib2
 from time import time
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
+from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
 import thread
 import mimetypes
-from gnr.core.gnrsys import expandpath,gnr_config_path
+from gnr.core.gnrsys import expandpath
 import cPickle
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
@@ -301,7 +301,7 @@ class GnrWsgiSite(object):
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
-            self.gnr_config = self.load_gnr_config()
+            self.gnr_config = getGnrConfig()
             self.set_environment()
             
         self.config = self.load_site_config()
@@ -521,9 +521,6 @@ class GnrWsgiSite(object):
             if not os.getenv(var):
                 os.environ[var] = str(value)
                 
-    def load_gnr_config(self):
-        """TODO"""
-        return Bag(gnr_config_path())
         
     def load_site_config(self):
         """TODO"""

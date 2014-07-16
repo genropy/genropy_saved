@@ -5,9 +5,9 @@ from datetime import datetime
 from multiprocessing import Process
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrsys import expandpath,gnr_config_path
+from gnr.core.gnrsys import expandpath
+from gnr.app.gnrconfig import gnrConfigPath
 import atexit
-import sys
 import os
 import urllib
 import time
@@ -30,7 +30,7 @@ def createHeartBeat(site_url=None,interval=None,**kwargs):
     server.start()
 
 def getFullOptions(options=None):
-    gnr_path = gnr_config_path()
+    gnr_path = gnrConfigPath()
     enviroment_path = os.path.join(gnr_path,'environment.xml')
     env_options = Bag(expandpath(enviroment_path)).getAttr('gnrdaemon')
     if env_options.get('sockets'):

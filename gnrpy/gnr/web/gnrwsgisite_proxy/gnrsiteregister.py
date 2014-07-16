@@ -26,7 +26,7 @@ import time
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
-from gnr.core.gnrsys import gnr_config_path
+from gnr.app.gnrconfig import gnrConfigPath
 
 try:
     import cPickle as pickle
@@ -848,7 +848,7 @@ class SiteRegisterClient(object):
         daemonconfig = self.site.config.getAttr('gnrdaemon')
         if 'sockets' in daemonconfig:
             if daemonconfig['sockets'].lower() in ('t','true','y') :
-                daemonconfig['sockets'] = os.path.join(gnr_config_path(),'sockets')
+                daemonconfig['sockets'] = os.path.join(gnrConfigPath(),'sockets')
             if not os.path.isdir(daemonconfig['sockets']):
                 os.makedirs(daemonconfig['sockets'])
             daemonconfig['socket'] = daemonconfig.get('socket') or os.path.join(daemonconfig['sockets'],'gnrdaemon.sock')

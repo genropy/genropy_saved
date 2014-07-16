@@ -57,16 +57,6 @@ def listdirs(path, invisible_files=False):
     os.path.walk(path, callb, files)
     return files
 
-def gnr_config_path():
-    if os.environ.has_key('VIRTUAL_ENV'):
-        config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
-    elif sys.platform == 'win32':
-        config_path = '~\gnr'
-    else:
-        config_path = '~/.gnr'
-    config_path  = expandpath(config_path)
-    return config_path
-        
 def resolvegenropypath(path):
     """added by Jeff.
        

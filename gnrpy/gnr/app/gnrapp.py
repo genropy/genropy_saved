@@ -36,10 +36,10 @@ import glob
 from email.MIMEText import MIMEText
 from gnr.utils import ssmtplib
 from gnr.app.gnrdeploy import PathResolver
+from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrlang import getUuid
-
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -347,8 +347,7 @@ class GnrPackagePlugin(object):
         webpages_path = os.path.join(self.pluginFolder,'webpages')
         self.webpages_path = webpages_path if os.path.isdir(webpages_path) else ''
         config_path = os.path.join(self.pluginFolder,'config.xml')
-        menu_path = os.path.join(self.pluginFolder,'menu.xml')
-        self.menuBag = Bag(menu_path) if os.path.isfile(menu_path) else Bag()
+        self.menuBag = MenuStruct(os.path.join(self.pluginFolder,'menu'))
         self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
         
@@ -377,8 +376,7 @@ class GnrPackage(object):
             raise GnrImportException(
                     "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
         try:
-            menupath = os.path.join(self.packageFolder, 'menu.xml')
-            self.pkgMenu = Bag(menupath) if os.path.isfile(menupath) else Bag()
+            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'))
             for pluginname,plugin in self.plugins.items():
                 self.pkgMenu.update(plugin.menuBag)
         except:
@@ -652,9 +650,7 @@ class GnrApp(object):
         
     def load_instance_menu(self):
         """TODO"""
-        instance_menu_path = os.path.join(self.instanceFolder, 'menu.xml')
-        if os.path.exists(instance_menu_path):
-            return Bag(instance_menu_path)
+        return MenuStruct(os.path.join(self.instanceFolder, 'menu'))
 
     def load_instance_config(self):
         """TODO"""
