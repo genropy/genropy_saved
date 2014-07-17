@@ -347,7 +347,7 @@ class GnrPackagePlugin(object):
         webpages_path = os.path.join(self.pluginFolder,'webpages')
         self.webpages_path = webpages_path if os.path.isdir(webpages_path) else ''
         config_path = os.path.join(self.pluginFolder,'config.xml')
-        self.menuBag = MenuStruct(os.path.join(self.pluginFolder,'menu'))
+        self.menuBag = MenuStruct(os.path.join(self.pluginFolder,'menu'),application=self.application,autoconvert=True)
         self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
         
@@ -376,7 +376,7 @@ class GnrPackage(object):
             raise GnrImportException(
                     "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
         try:
-            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'))
+            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
             for pluginname,plugin in self.plugins.items():
                 self.pkgMenu.update(plugin.menuBag)
         except:
@@ -650,7 +650,7 @@ class GnrApp(object):
         
     def load_instance_menu(self):
         """TODO"""
-        return MenuStruct(os.path.join(self.instanceFolder, 'menu'))
+        return MenuStruct(os.path.join(self.instanceFolder, 'menu'),application=self,autoconvert=True)
 
     def load_instance_config(self):
         """TODO"""

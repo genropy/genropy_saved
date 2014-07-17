@@ -34,7 +34,7 @@ from gnr.core.gnrstring import slugify
 from gnr.core.gnrstructures import  GnrStructData
 
 class MenuStruct(GnrStructData):
-    def __init__(self,filepath=None,autoconvert=False):
+    def __init__(self,filepath=None,application=None,autoconvert=False):
         super(MenuStruct, self).__init__()
         self.setBackRef()
         if not filepath:
@@ -47,13 +47,17 @@ class MenuStruct(GnrStructData):
             elif os.path.exists('%s.xml' %filepath):
                 filepath = '%s.xml' %filepath
                 ext = '.xml'
+            else:
+                return
         if ext=='.py':
             m = gnrImport(filepath, avoidDup=True)
-            m.config(self)
+            m.config(self,application=application)
         elif ext=='.xml':
             self.fillFrom(filepath)
-            if autoconvert:
+            if len(self) and autoconvert:
                 self.toPython(filepath.replace('.xml','.py'))
+        else:
+            raise Exception('Wrong extension for filepath')
 
     def branch(self, label, basepath=None ,tags='', **kwargs):
         return self.child('branch',label=label,basepath=basepath,tags=tags,**kwargs)
@@ -73,7 +77,7 @@ class MenuStruct(GnrStructData):
             text = """
 #!/usr/bin/env python
 # encoding: utf-8
-def config(root):"""         
+def config(root,application=None):"""         
             f.write(text)
             self._toPythonInner(f,self,'root')
 

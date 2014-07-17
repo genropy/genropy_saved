@@ -2715,13 +2715,11 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-                    
+                nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
+                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption)
                 if self.callback:
-                    moreattr = self.callback(fullpath)
-                else:
-                    moreattr = {}
-                result.setItem(label, handler(fullpath), file_name=fname, file_ext=ext, rel_path=relpath,
-                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption, **moreattr)
+                    self.callback(nodeattr=nodeattr)
+                result.setItem(label, handler(fullpath),**nodeattr)
         return result
         
     def makeLabel(self, name, ext):
