@@ -50,7 +50,7 @@ class MenuStruct(GnrStructData):
         if ext=='.py':
             m = gnrImport(filepath, avoidDup=True)
             m.config(self)
-        else:
+        elif ext=='.xml':
             self.fillFrom(filepath)
             if autoconvert:
                 self.toPython(filepath.replace('.xml','.py'))
