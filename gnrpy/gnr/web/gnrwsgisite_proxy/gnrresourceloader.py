@@ -86,30 +86,19 @@ class ResourceLoader(object):
             if node._value is None:
                 node._value = ''
 
-        self.dynmap = Bag()
         self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',readOnly=False,cacheTime=-1,
-                                         exclude='_*,.*,*.pyc')()
-        self.dynmap.setItem('_main_',DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',cacheTime=10,
-                                         exclude='_*,.*,*.pyc',dropext=True,readOnly=False))
-                                         
-                                         
+                                         exclude='_*,.*,*.pyc')()                                         
         self.automap.walk(handleNode, _mode='', pkg='*')
         for package in self.site.gnrapp.packages.values():
             packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),readOnly=False,cacheTime=-1,
                                            include='*.py', exclude='_*,.*')()
             packagemap.walk(handleNode, _mode='', pkg=package.id)
             self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
-            self.dynmap.setItem(package.id,DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),cacheTime=10,
-                                           include='*.py', exclude='_*,.*',dropext=True,readOnly=False,
-                                           callback=lambda nodeattr,pkgId=package.id: nodeattr.update(pkg=pkgId,path=nodeattr.get('rel_path'))))
             for pluginname,plugin in package.plugins.items():
                 pluginmap = DirectoryResolver(plugin.webpages_path,readOnly=False,cacheTime=-1,
                                                include='*.py', exclude='_*,.*')()
                 pluginmap.walk(handleNode, _mode='', pkg=package.id,plugin=plugin.id)
                 self.automap.setItem("%s._plugin.%s"%(package.id,plugin.id), pluginmap, name=plugin.id)
-                self.dynmap.setItem("%s._plugin.%s"%(package.id,plugin.id), DirectoryResolver(plugin.webpages_path,cacheTime=10,
-                                               include='*.py', exclude='_*,.*',dropext=True,readOnly=False), name=plugin.id)
-
         self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
         
     @property
