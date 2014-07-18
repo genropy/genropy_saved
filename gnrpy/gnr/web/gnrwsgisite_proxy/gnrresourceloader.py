@@ -9,18 +9,20 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
 import re
+import inspect
+import glob
+import logging
+
 from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
-import inspect
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
 from gnr.core.gnrclasses import GnrMixinError
 from gnr.core.gnrlang import uniquify
-import glob
-import logging
+
 
 log = logging.getLogger(__name__)
 
@@ -169,18 +171,32 @@ class ResourceLoader(object):
         return page
 
     def _getPageClassParameters(self,path_list,mobile=None):
-        page_node = None
+        path_list = list(path_list)
+        if path_list[0]=='pages':
+            pkg = self.site.mainpackage
+            basepath =  self.site.site_static_dir
+        else:
+            pkg_obj = self.site.gnrapp.packages[path_list[0]]
+            if pkg_obj:
+                path_list.pop(0)
+            else:
+                pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
+            basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
+            pkg = pkg_obj.id
         if mobile:
-            page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
-        if not page_node:
-            page_node, page_node_attributes = self.get_page_node(path_list, default_path=self.default_path)
-        if not page_node:
-            return None,None,None,None
-        request_args = page_node._tail_list
-        path = page_node_attributes.get('path')
-        pkg = page_node_attributes.get('pkg')
-        plugin = page_node_attributes.get('plugin')
-        return path,request_args,pkg,plugin
+            basepath = os.path.join(basepath,'mobile')
+        plugin = None
+        currpath = []
+        while path_list:
+            currpath.append(path_list.pop(0))
+            path = '%s.py' %os.path.join(basepath,*currpath)
+            isfile = self.isfile_cache.get(path)
+            if isfile is None:
+                isfile = os.path.isfile(path)
+                self.isfile_cache[path] = isfile
+            if isfile:
+                return path,path_list,pkg,plugin
+        return path,path_list,pkg,plugin
         
     def get_page_class(self, path=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
         """TODO
