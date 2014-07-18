@@ -26,6 +26,52 @@ from gnr.core.gnrlang import uniquify
 
 log = logging.getLogger(__name__)
 
+class UrlInfo(object):
+    def __init__(self,parent,url_list=None,request_kwargs=None): 
+        self.parent = parent  
+        self.site = parent.site
+        self.url_list = url_list
+        self.request_args = None
+        self.request_kwargs = request_kwargs or dict()
+        self.relpath = None
+        self.plugin = None
+        path_list = list(url_list)
+        self.path_list = path_list
+        if path_list[0]=='pages':
+            self.pkg = self.site.mainpackage
+            self.basepath =  self.site.site_static_dir
+        else:
+            pkg_obj = self.site.gnrapp.packages[path_list[0]]
+            if pkg_obj:
+                path_list.pop(0)
+            else:
+                pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
+            if path_list[0]=='_plugin':
+                path_list.pop(0)
+                self.plugin = path_list.pop(0)
+                self.basepath= pkg_obj.plugins[self.plugin].webpages_path
+            else:
+                self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
+            self.pkg = pkg_obj.id
+        if self.request_kwargs.pop('_mobile',False):
+            self.basepath = os.path.join(self.basepath,'mobile')
+        currpath = []
+        isfile_cache = self.parent.isfile_cache
+        path_list_copy = list(self.path_list)
+        while self.path_list:
+            currpath.append(self.path_list.pop(0))
+            path = '%s.py' %os.path.join(self.basepath,*currpath)
+            isfile = isfile_cache.get(path)
+            if isfile is None:
+                isfile = os.path.isfile(path)
+                isfile_cache[path] = isfile
+            if isfile:
+                self.relpath = '%s.py' %os.path.join(*currpath)
+                self.request_args = list(self.path_list)
+                return
+        self.request_args = path_list_copy
+
+
 class ResourceLoader(object):
     """Base class to load :ref:`intro_resources`"""
     def __init__(self, site=None):
@@ -148,69 +194,40 @@ class ResourceLoader(object):
             return page_node, page_node_attributes
         return None, None
         
+    def getUrlInfo(self,path_list,request_kwargs=None,default_path=None):
+        info = UrlInfo(self,path_list,request_kwargs)
+        if not info.relpath and default_path:
+            default_info = UrlInfo(self,default_path,request_kwargs)
+            default_info.request_args = path_list
+            return default_info
+        return info
+
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         request_kwargs = request_kwargs or dict()
-        mobile = request_kwargs.pop('_mobile',False)
-        path,request_args,pkg,plugin = self._getPageClassParameters(path_list,mobile=mobile)
-        if not path:
+        info = self.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
+
+        #basepath,relpath,request_args,pkg,plugin = self._getPageClassParameters(path_list,request_kwargs=request_kwargs)
+        if not info.relpath:
             return None
-        page_class = self.get_page_class(path=path, pkg=pkg,request_args=request_args,request_kwargs=request_kwargs)
+        page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
+                                        request_args=info.request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
-                          request_kwargs=request_kwargs, request_args=request_args,
-                          filepath=path, packageId=page_class._packageId, pluginId=plugin,  basename=path, environ=environ)
+                          request_kwargs=request_kwargs, request_args=info.request_args,
+                          filepath=info.relpath, packageId=page_class._packageId, 
+                          pluginId=info.plugin,  basename=info.relpath, environ=environ)
         return page
 
-    def _getPageClassParameters(self,path_list,mobile=None):
-        path_list = list(path_list)
-        if path_list[0]=='pages':
-            pkg = self.site.mainpackage
-            basepath =  self.site.site_static_dir
-        else:
-            pkg_obj = self.site.gnrapp.packages[path_list[0]]
-            if pkg_obj:
-                path_list.pop(0)
-            else:
-                pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
-            if path_list[0]=='_plugin':
-                path_list.pop(0)
-                basepath= pkg_obj.plugins[path_list.pop(0)].webpages_path
-            else:
-                basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
-            pkg = pkg_obj.id
 
-        if mobile:
-            basepath = os.path.join(basepath,'mobile')
-        plugin = None
-        currpath = []
-        while path_list:
-            currpath.append(path_list.pop(0))
-            path = '%s.py' %os.path.join(basepath,*currpath)
-            isfile = self.isfile_cache.get(path)
-            if isfile is None:
-                isfile = os.path.isfile(path)
-                self.isfile_cache[path] = isfile
-            if isfile:
-                return path,path_list,pkg,plugin
-        return path,path_list,pkg,plugin
-        
-    def get_page_class(self, path=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
+
+    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
-        if pkg == '*':
-            pkg = self.site.mainpackage
-        else:
-            if plugin:
-                module_path= os.path.join(self.gnrapp.packages[pkg].plugins[plugin].webpages_path, path)
-            else:
-                print 'PATH',path
-                print 'MODULEPATH',module_path
-                module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
-        
 
         # if module_path in self.page_factories:
         #    return self.page_factories[module_path]
+        module_path = os.path.join(basepath,relpath)
         page_module = gnrImport(module_path, avoidDup=True,silent=False)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
@@ -222,7 +239,7 @@ class ResourceLoader(object):
                 kw.update(request_kwargs)
             mainPkg = custom_class.getMainPackage(request_args=request_args,request_kwargs=kw)
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', ''), ',')
-        plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=mainPkg)
+        plugin_webpage_classes = self.plugin_webpage_classes(relpath, pkg=mainPkg)
         for plugin_webpage_class in plugin_webpage_classes:
             plugin_py_requires = splitAndStrip(getattr(plugin_webpage_class, 'py_requires', ''), ',')
             py_requires.extend(plugin_py_requires)
@@ -264,7 +281,7 @@ class ResourceLoader(object):
                 self.gnr_static_handler.path(page_class.gnrjsversion, 'tpl')]
         page_class._packageId = mainPkg
         self.page_class_plugin_mixin(page_class, plugin_webpage_classes)
-        self.page_class_custom_mixin(page_class, path, pkg=mainPkg)
+        self.page_class_custom_mixin(page_class, relpath, pkg=mainPkg)
         self.page_factories[module_path] = page_class
         return page_class
         
