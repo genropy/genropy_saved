@@ -1,4 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><gnrpkg tags='_DEV_'><error _T="NN" table="gnr.error" label="!!Error"></error>
-<sync_out _T="NN" table="gnr.sync_out" label="!!Sync_out"></sync_out>
-<transaction _T="NN" table="gnr.transaction" label="!!Transaction"></transaction></gnrpkg></GenRoBag>
+<GenRoBag>
+    <gnrpkg tags='_DEV_'>
+        <error _T="NN" table="gnr.error" label="!!Error"></error>
+        <sync_out _T="NN" table="gnr.sync_out" label="!!Sync_out"></sync_out>
+        <transaction _T="NN" table="gnr.transaction" label="!!Transaction"></transaction>
+    </gnrpkg>
+</GenRoBag>

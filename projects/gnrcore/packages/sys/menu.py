@@ -1,8 +1,8 @@
 
 #!/usr/bin/env python
 # encoding: utf-8
-def config(root):
+def config(root,application=None):
     system = root.branch("!!System", tags="sysadmin")
-    system.webpage("Onering", file="/sys/onering")
-    system.webpage("Db Structure", file="/sys/dbstruct")
+    system.webpage("Onering", filepath="/sys/onering")
+    system.webpage("Db Structure", filepath="/sys/dbstruct")
 

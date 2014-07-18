@@ -1,9 +1,9 @@
 
 #!/usr/bin/env python
 # encoding: utf-8
-def config(root):
+def config(root,application=None):
     administration = root.branch("!!Administration", tags="admin")
-    administration.webpage("!!Users", file="/adm/user_page")
+    administration.webpage("!!Users", filepath="/adm/user_page")
     administration.thpage("!!Auth tags", table="adm.htag")
     administration.thpage("!!Letterheads", table="adm.htmltemplate")
     administration.thpage("!!Notifications", table="adm.notification")

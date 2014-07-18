@@ -40,13 +40,14 @@ class MenuStruct(GnrStructData):
         if not filepath:
             return
         filename,ext = os.path.splitext(filepath)
+
         if not ext:
-            if os.path.exists('%s.py' %filepath):
-                filepath = '%s.py' %filepath
-                ext = '.py'
-            elif os.path.exists('%s.xml' %filepath):
+            if os.path.exists('%s.xml' %filepath):
                 filepath = '%s.xml' %filepath
                 ext = '.xml'
+            elif os.path.exists('%s.py' %filepath):
+                filepath = '%s.py' %filepath
+                ext = '.py'
             else:
                 return
         if ext=='.py':
@@ -59,17 +60,18 @@ class MenuStruct(GnrStructData):
         else:
             raise Exception('Wrong extension for filepath')
 
+
     def branch(self, label, basepath=None ,tags='', **kwargs):
         return self.child('branch',label=label,basepath=basepath,tags=tags,**kwargs)
 
     def webpage(self, label,filepath=None,tags='',multipage=None, **kwargs):
-        return self.child('webpage',label=label,multipage=multipage,tags=tags,**kwargs)
+        return self.child('webpage',label=label,multipage=multipage,tags=tags,file=filepath,_returnStruct=False,**kwargs)
 
     def thpage(self, label,table=None,tags='',multipage=None, **kwargs):
-        return self.child('thpage',label=label,table=table,multipage=multipage,tags=tags,**kwargs)
+        return self.child('thpage',label=label,table=table,multipage=multipage,tags=tags,_returnStruct=False,**kwargs)
 
     def lookups(self,label,lookup_manager=None,tags=None,**kwargs):
-        return self.child('lookups',label=label,lookup_manager=lookup_manager,tags=tags,**kwargs)
+        return self.child('lookups',label=label,lookup_manager=lookup_manager,tags=tags,_returnStruct=False,**kwargs)
 
     def toPython(self,filepath=None):
         filepath = filepath or 'menu.py'
@@ -81,13 +83,16 @@ def config(root,application=None):"""
             f.write(text)
             self._toPythonInner(f,self,'root')
 
+
     def _toPythonInner(self,filehandle,b,rootname):
         filehandle.write('\n')
         for n in b:
             kw = dict(n.attr)
-            label = kw.pop('label')
+            label = kw.pop('label',n.label)
             attrlist = ['"%s"' %label]
             for k,v in kw.items():
+                if k=='file':
+                    k = 'filepath'
                 attrlist.append('%s="%s"' %(k,v))
             if n.value:
                 varname = slugify(label).replace('!!','').replace('-','_')
