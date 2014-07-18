@@ -157,24 +157,30 @@ class ResourceLoader(object):
         return None, None
         
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
-        page_node = None
         request_kwargs = request_kwargs or dict()
         mobile = request_kwargs.pop('_mobile',False)
-        if mobile:
-            page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
-        if not page_node:
-            page_node, page_node_attributes = self.get_page_node(path_list, default_path=self.default_path)
-        if not page_node:
+        path,request_args,pkg,plugin = self._getPageClassParameters(path_list,mobile=mobile)
+        if not path:
             return None
-        request_args = page_node._tail_list
-        path = page_node_attributes.get('path')
-        pkg = page_node_attributes.get('pkg')
-        plugin = page_node_attributes.get('plugin')
         page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin,request_args=request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=request_args,
                           filepath=path, packageId=page_class._packageId, pluginId=plugin,  basename=path, environ=environ)
         return page
+
+    def _getPageClassParameters(self,path_list,mobile=None):
+        page_node = None
+        if mobile:
+            page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
+        if not page_node:
+            page_node, page_node_attributes = self.get_page_node(path_list, default_path=self.default_path)
+        if not page_node:
+            return None,None,None,None
+        request_args = page_node._tail_list
+        path = page_node_attributes.get('path')
+        pkg = page_node_attributes.get('pkg')
+        plugin = page_node_attributes.get('plugin')
+        return path,request_args,pkg,plugin
         
     def get_page_class(self, path=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
         """TODO

@@ -89,7 +89,7 @@ def config(root,application=None):"""
         for n in b:
             kw = dict(n.attr)
             label = kw.pop('label',n.label)
-            attrlist = ['"%s"' %label]
+            attrlist = ['u"%s"' %label]
             for k,v in kw.items():
                 if k=='file':
                     k = 'filepath'
