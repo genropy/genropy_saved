@@ -38,6 +38,7 @@ class ResourceLoader(object):
         self.gnr_static_handler = self.site.getStatic('gnr')
         self.build_automap()
         self.page_factories = {}
+        self.isfile_cache = {}
         self.default_path = self.site.default_page and self.site.default_page.split('/')
         
     def find_webtools(self):
@@ -153,7 +154,7 @@ class ResourceLoader(object):
         path,request_args,pkg,plugin = self._getPageClassParameters(path_list,mobile=mobile)
         if not path:
             return None
-        page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin,request_args=request_args,request_kwargs=request_kwargs)
+        page_class = self.get_page_class(path=path, pkg=pkg,request_args=request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=request_kwargs, request_args=request_args,
                           filepath=path, packageId=page_class._packageId, pluginId=plugin,  basename=path, environ=environ)
@@ -170,8 +171,13 @@ class ResourceLoader(object):
                 path_list.pop(0)
             else:
                 pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
-            basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
+            if path_list[0]=='_plugin':
+                path_list.pop(0)
+                basepath= pkg_obj.plugins[path_list.pop(0)].webpages_path
+            else:
+                basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             pkg = pkg_obj.id
+
         if mobile:
             basepath = os.path.join(basepath,'mobile')
         plugin = None
@@ -193,14 +199,16 @@ class ResourceLoader(object):
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
         if pkg == '*':
-            module_path = os.path.join(self.site_path,'pages', path)
             pkg = self.site.mainpackage
         else:
             if plugin:
                 module_path= os.path.join(self.gnrapp.packages[pkg].plugins[plugin].webpages_path, path)
             else:
+                print 'PATH',path
+                print 'MODULEPATH',module_path
                 module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
-            
+        
+
         # if module_path in self.page_factories:
         #    return self.page_factories[module_path]
         page_module = gnrImport(module_path, avoidDup=True,silent=False)
