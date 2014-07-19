@@ -26,50 +26,7 @@ from gnr.core.gnrlang import uniquify
 
 log = logging.getLogger(__name__)
 
-class UrlInfo(object):
-    def __init__(self,parent,url_list=None,request_kwargs=None): 
-        self.parent = parent  
-        self.site = parent.site
-        self.url_list = url_list
-        self.request_args = None
-        self.request_kwargs = request_kwargs or dict()
-        self.relpath = None
-        self.plugin = None
-        path_list = list(url_list)
-        self.path_list = path_list
-        if path_list[0]=='pages':
-            self.pkg = self.site.mainpackage
-            self.basepath =  self.site.site_static_dir
-        else:
-            pkg_obj = self.site.gnrapp.packages[path_list[0]]
-            if pkg_obj:
-                path_list.pop(0)
-            else:
-                pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
-            if path_list[0]=='_plugin':
-                path_list.pop(0)
-                self.plugin = path_list.pop(0)
-                self.basepath= pkg_obj.plugins[self.plugin].webpages_path
-            else:
-                self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
-            self.pkg = pkg_obj.id
-        if self.request_kwargs.pop('_mobile',False):
-            self.basepath = os.path.join(self.basepath,'mobile')
-        currpath = []
-        isfile_cache = self.parent.isfile_cache
-        path_list_copy = list(self.path_list)
-        while self.path_list:
-            currpath.append(self.path_list.pop(0))
-            path = '%s.py' %os.path.join(self.basepath,*currpath)
-            isfile = isfile_cache.get(path)
-            if isfile is None:
-                isfile = os.path.isfile(path)
-                isfile_cache[path] = isfile
-            if isfile:
-                self.relpath = '%s.py' %os.path.join(*currpath)
-                self.request_args = list(self.path_list)
-                return
-        self.request_args = path_list_copy
+
 
 
 class ResourceLoader(object):
@@ -193,18 +150,10 @@ class ResourceLoader(object):
                 page_node._tail_list =  unescape_path_list(path_list)
             return page_node, page_node_attributes
         return None, None
-        
-    def getUrlInfo(self,path_list,request_kwargs=None,default_path=None):
-        info = UrlInfo(self,path_list,request_kwargs)
-        if not info.relpath and default_path:
-            default_info = UrlInfo(self,default_path,request_kwargs)
-            default_info.request_args = path_list
-            return default_info
-        return info
 
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         request_kwargs = request_kwargs or dict()
-        info = self.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
+        info = self.site.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
 
         #basepath,relpath,request_args,pkg,plugin = self._getPageClassParameters(path_list,request_kwargs=request_kwargs)
         if not info.relpath:
