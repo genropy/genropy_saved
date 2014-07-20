@@ -205,7 +205,7 @@ class BagNode(object):
             _attributes = _attributes or {}
             _attributes.update(value.attr)
             value = value._value
-        if hasattr(value, '_htraverse'):
+        if hasattr(value, 'rootattributes'):
             rootattributes = value.rootattributes
             if rootattributes:
                 _attributes = dict(_attributes or {})
