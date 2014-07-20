@@ -70,9 +70,6 @@ class ResourceLoader(object):
                     except ImportError:
                         pass
         return tools
-        
-  
-
 
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         request_kwargs = request_kwargs or dict()
@@ -95,8 +92,6 @@ class ResourceLoader(object):
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
 
-        # if module_path in self.page_factories:
-        #    return self.page_factories[module_path]
         module_path = os.path.join(basepath,relpath)
         page_module = gnrImport(module_path, avoidDup=True,silent=False)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
