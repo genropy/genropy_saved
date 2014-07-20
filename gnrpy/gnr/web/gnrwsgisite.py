@@ -75,7 +75,6 @@ class PrintHandlerError(Exception):
     
 class UrlInfo(object):
     def __init__(self,site,url_list=None,request_kwargs=None): 
-        print 'url_list',url_list
         self.site = site
         self.url_list = url_list
         self.request_args = None
@@ -352,11 +351,11 @@ class GnrWsgiSite(object):
         #            self.connFolderRemove(connection_id, rnd=False)
         #
         
-    def _get_automap(self):
-        return self.resource_loader.automap
-        
-    automap = property(_get_automap)
-        
+  # def _get_automap(self):
+  #     return self.resource_loader.automap
+  #     
+  # automap = property(_get_automap)
+  #     
     def onInited(self, clean):
         """TODO
         
@@ -462,10 +461,10 @@ class GnrWsgiSite(object):
         return self._custom_config
 
 
-    def _get_sitemap(self):
-        return self.resource_loader.sitemap
-        
-    sitemap = property(_get_sitemap)
+   #def _get_sitemap(self):
+   #    return self.resource_loader.sitemap
+   #    
+   #sitemap = property(_get_sitemap)
     
     def getPackageFolder(self,pkg):
         return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')

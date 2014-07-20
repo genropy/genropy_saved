@@ -39,9 +39,7 @@ class ResourceLoader(object):
         self.gnrapp = self.site.gnrapp
         self.debug = self.site.debug
         self.gnr_static_handler = self.site.getStatic('gnr')
-        self.build_automap()
         self.page_factories = {}
-        self.isfile_cache = {}
         self.default_path = self.site.default_page and self.site.default_page.split('/')
         
     def find_webtools(self):
@@ -73,89 +71,12 @@ class ResourceLoader(object):
                         pass
         return tools
         
-    def build_automap(self):
-        """Build the :ref:`automap` file"""
-        def handleNode(node, pkg=None, plugin=None):
-            attr = node.attr
-            file_name = attr['file_name']
-            m=re.match(r'(\d+)_(.*)',file_name)
-            name = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else file_name.capitalize()
-            node.attr = dict(
-                    name=name.replace('_',' '),
-                    pkg=pkg
-                    )
-            if plugin:
-                node.attr['plugin']=plugin
-            if attr['file_ext'] == 'py':
-                node.attr['path'] = attr['rel_path']
-            node.label = file_name
-            if node._value is None:
-                node._value = ''
+  
 
-        self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',readOnly=False,cacheTime=-1,
-                                         exclude='_*,.*,*.pyc')()                                         
-        self.automap.walk(handleNode, _mode='', pkg='*')
-        for package in self.site.gnrapp.packages.values():
-            packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),readOnly=False,cacheTime=-1,
-                                           include='*.py', exclude='_*,.*')()
-            packagemap.walk(handleNode, _mode='', pkg=package.id)
-            self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
-            for pluginname,plugin in package.plugins.items():
-                pluginmap = DirectoryResolver(plugin.webpages_path,readOnly=False,cacheTime=-1,
-                                               include='*.py', exclude='_*,.*')()
-                pluginmap.walk(handleNode, _mode='', pkg=package.id,plugin=plugin.id)
-                self.automap.setItem("%s._plugin.%s"%(package.id,plugin.id), pluginmap, name=plugin.id)
-        self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
-        
-    @property
-    def sitemap(self):
-        """Return the sitemap Bag (if there is no sitemap, creates it)"""
-        if not hasattr(self, '_sitemap'):
-            sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
-            if not os.path.isfile(sitemap_path):
-                sitemap_path = os.path.join(self.site_path, 'automap.xml')
-            _sitemap = Bag(sitemap_path)
-            _sitemap.setBackRef()
-            self._sitemap = _sitemap
-        return self._sitemap
-        
-    def get_page_node(self, path_list, default_path=None):
-        """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
-        
-        :param path_list: TODO
-        :param default: TODO"""
-        def escape_path_list(path_list):
-            return [p.replace('.','\\.') for p in path_list]
-        def unescape_path_list(path_list):
-            return [p.replace('\\.','.') for p in path_list]
-        path_list = escape_path_list(path_list)
-        page_node = self.sitemap.getDeepestNode('.'.join(path_list))
-        if not page_node and self.site.mainpackage: # try in the main package
-            page_node = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage] + path_list))
-        if page_node:
-            page_node_attributes = page_node.getInheritedAttributes()
-            if page_node_attributes.get('path'):
-                page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
-                return page_node, page_node_attributes
-            else:
-                page_node = self.sitemap.getDeepestNode('.'.join(path_list + ['index']))
-                if page_node:
-                    page_node_attributes = page_node.getInheritedAttributes()
-                    if page_node_attributes.get('path'):
-                        page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
-                        return page_node, page_node_attributes
-        if not page_node and default_path:
-            page_node, page_node_attributes = self.get_page_node(default_path)
-            if page_node:
-                page_node._tail_list =  unescape_path_list(path_list)
-            return page_node, page_node_attributes
-        return None, None
 
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         request_kwargs = request_kwargs or dict()
         info = self.site.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
-
-        #basepath,relpath,request_args,pkg,plugin = self._getPageClassParameters(path_list,request_kwargs=request_kwargs)
         if not info.relpath:
             return None
         page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,

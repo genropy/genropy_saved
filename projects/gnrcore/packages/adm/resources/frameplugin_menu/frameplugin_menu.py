@@ -45,11 +45,10 @@ class MenuIframes(BaseComponent):
         root_id = None
         customMenu = self.db.table('adm.menu').getMenuBag(root_id=root_id,userTags=self.userTags)
         if customMenu:
-
             b['root'] = customMenu 
         else:
             b['root'] = MenuResolver(path=getattr(self,'menu_path',None), pagepath=self.pagepath,_page=self)
-            b.getIndex()
+            #b.getIndex()
         pane.data('gnr.appmenu', b)
         #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
@@ -101,7 +100,7 @@ class MenuResolver(BagResolver):
         level = 0
         if self.path:
             level = len(self.path.split('.'))
-        for node in sitemenu[self.path].nodes:
+        for node in sitemenu[self.path]:
             allowed = True
             nodetags = node.getAttr('tags')
             filepath = node.getAttr('file')
@@ -110,18 +109,25 @@ class MenuResolver(BagResolver):
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if allowed:
-                value = node.getStaticValue()
+                value=node.getValue()
+                if node.resolver:
+                    basepath='%(pkg)s/%(dir)s' % node.attr if 'dir' in node.attr else node.attr.get('basepath')
+                    def cb(n):
+                        n.attr['label']=n.attr.get('caption')
+                        if n.attr.get('file_ext')== 'py':
+                            n.attr['file']= '%s/%s' %(basepath,n.attr.get('rel_path'))
+                        else:
+                            n.attr['basepath']=basepath
+                            n.attr['child_count']=len(n.value)
+                    value.walk(cb)
                 attributes = {}
                 attributes.update(node.getAttr())
                 labelClass = 'menu_level_%i' % level
+           
                 if isinstance(value, Bag):
                     attributes['isDir'] = True
-                    newpath = node.label
-                    if self.path:
-                        newpath = '%s.%s' % (self.path, node.label)
-                    else:
-                        newpath = node.label
-                    value = MenuResolver(path=newpath, pagepath=self.pagepath,_page=self._page)
+                    newpath = '%s.%s' % (self.path, node.label) if self.path else node.label
+                    value = MenuResolver(path=newpath, pagepath=self.pagepath,_page=self._page)()
                    # labelClass = 'menu_level_%i' % level
                 else:
                     value = None
