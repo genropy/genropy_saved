@@ -563,9 +563,13 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
-        treeattr['dropTargetCb_%s' %dragCode]="""if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
+        treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
+                                                    return true;
+                                                }
+                                                if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
                                                     return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;
-                                                }return true;
+                                                }
+                                                return true;
                                                 """  
 
         treeattr['onDrop_%s' %dragCode] = """  var relationValue = dropInfo.treeItem.attr.pkey || null;

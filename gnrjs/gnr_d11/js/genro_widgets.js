@@ -4591,7 +4591,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     patch_updateRowCount:function(n) {
-        genro.dom.setClass(this.domNode,'emptyGrid',this.storebag().len()===0);
         if(this.sourceNode._isBuilding && this.sourceNode._useStore){
             return;
         }
