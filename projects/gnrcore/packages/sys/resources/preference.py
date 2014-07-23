@@ -93,8 +93,4 @@ class UserPref(object):
 
 
     def _allSounds(self):
-        return """Basso:Basso,Blow:Blow,Bottle:Bottle,
-                  Frog:Frog,Funk:Funk,Glass:Glass,Hero:Hero,
-                  Morse:Morse,NewMessage:NewMessage,Ping:Ping,
-                  Pop:Pop,Purr:Purr,Sosumi:Sosumi,sound1:Sound1,
-                  Submarine:Submarine,Tink:Tink"""
+        return """Basso:Basso,Blow:Blow,Bottle:Bottle,Frog:Frog,Funk:Funk,Glass:Glass,Hero:Hero,Morse:Morse,NewMessage:NewMessage,Ping:Ping,Pop:Pop,Purr:Purr,Sosumi:Sosumi,sound1:Sound1,Submarine:Submarine,Tink:Tink"""
