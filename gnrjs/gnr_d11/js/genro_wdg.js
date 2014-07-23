@@ -630,8 +630,8 @@ dojo.declare("gnr.RowEditor", null, {
                 var v = this.original_values[k];
                 var nkw = {dtype:cellmap[k].dtype};
                 if(this.newrecord){
-                    if(isNullOrBlank(v) && cellmap[k].validate_notnull){
-                        nkw['_validationError'] = cellmap[k].validate_notnull_error || 'not null';
+                    if(isNullOrBlank(v) && cellmap[k].edit && cellmap[k].edit.validate_notnull){
+                        nkw['_validationError'] = cellmap[k].edit.validate_notnull_error || 'not null';
                     }
                 }else{
                     nkw['_loadedValue'] = v;

@@ -50,7 +50,12 @@ def cellFromField(field,tableobj):
     kwargs['dtype'] =  fldobj.dtype
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     relfldlst = tableobj.fullRelationPath(field).split('.')
-    kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
+    validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
+    if validations and kwargs.get('edit'):
+        edit = kwargs['edit']
+        if edit is not True:
+            validations.update(edit)
+        kwargs['edit'] = validations
     #if 'values' in fldobj.attributes:
     #    kwargs['values']=fldobj.attributes['values']
     if hasattr(fldobj,'relatedColumnJoiner'):
