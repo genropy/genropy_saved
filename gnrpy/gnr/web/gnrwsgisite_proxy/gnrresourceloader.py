@@ -9,20 +9,25 @@
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
 import re
+import inspect
+import glob
+import logging
+
 from gnr.core.gnrlang import gnrImport, classMixin, cloneClass
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
-import inspect
 from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
 from gnr.core.gnrclasses import GnrMixinError
 from gnr.core.gnrlang import uniquify
-import glob
-import logging
+
 
 log = logging.getLogger(__name__)
+
+
+
 
 class ResourceLoader(object):
     """Base class to load :ref:`intro_resources`"""
@@ -34,7 +39,6 @@ class ResourceLoader(object):
         self.gnrapp = self.site.gnrapp
         self.debug = self.site.debug
         self.gnr_static_handler = self.site.getStatic('gnr')
-        self.build_automap()
         self.page_factories = {}
         self.default_path = self.site.default_page and self.site.default_page.split('/')
         
@@ -66,127 +70,29 @@ class ResourceLoader(object):
                     except ImportError:
                         pass
         return tools
-        
-    def build_automap(self):
-        """Build the :ref:`automap` file"""
-        def handleNode(node, pkg=None, plugin=None):
-            attr = node.attr
-            file_name = attr['file_name']
-            m=re.match(r'(\d+)_(.*)',file_name)
-            name = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else file_name.capitalize()
-            node.attr = dict(
-                    name=name.replace('_',' '),
-                    pkg=pkg
-                    )
-            if plugin:
-                node.attr['plugin']=plugin
-            if attr['file_ext'] == 'py':
-                node.attr['path'] = attr['rel_path']
-            node.label = file_name
-            if node._value is None:
-                node._value = ''
 
-        self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',readOnly=False,cacheTime=-1,
-                                         exclude='_*,.*,*.pyc')()                                         
-        self.automap.walk(handleNode, _mode='', pkg='*')
-        for package in self.site.gnrapp.packages.values():
-            packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),readOnly=False,cacheTime=-1,
-                                           include='*.py', exclude='_*,.*')()
-            packagemap.walk(handleNode, _mode='', pkg=package.id)
-            self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
-            for pluginname,plugin in package.plugins.items():
-                pluginmap = DirectoryResolver(plugin.webpages_path,readOnly=False,cacheTime=-1,
-                                               include='*.py', exclude='_*,.*')()
-                pluginmap.walk(handleNode, _mode='', pkg=package.id,plugin=plugin.id)
-                self.automap.setItem("%s._plugin.%s"%(package.id,plugin.id), pluginmap, name=plugin.id)
-        self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
-        
-    @property
-    def sitemap(self):
-        """Return the sitemap Bag (if there is no sitemap, creates it)"""
-        if not hasattr(self, '_sitemap'):
-            sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
-            if not os.path.isfile(sitemap_path):
-                sitemap_path = os.path.join(self.site_path, 'automap.xml')
-            _sitemap = Bag(sitemap_path)
-            _sitemap.setBackRef()
-            self._sitemap = _sitemap
-        return self._sitemap
-        
-    def get_page_node(self, path_list, default_path=None):
-        """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
-        
-        :param path_list: TODO
-        :param default: TODO"""
-        def escape_path_list(path_list):
-            return [p.replace('.','\\.') for p in path_list]
-        def unescape_path_list(path_list):
-            return [p.replace('\\.','.') for p in path_list]
-        path_list = escape_path_list(path_list)
-        page_node = self.sitemap.getDeepestNode('.'.join(path_list))
-        if not page_node and self.site.mainpackage: # try in the main package
-            page_node = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage] + path_list))
-        if page_node:
-            page_node_attributes = page_node.getInheritedAttributes()
-            if page_node_attributes.get('path'):
-                page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
-                return page_node, page_node_attributes
-            else:
-                page_node = self.sitemap.getDeepestNode('.'.join(path_list + ['index']))
-                if page_node:
-                    page_node_attributes = page_node.getInheritedAttributes()
-                    if page_node_attributes.get('path'):
-                        page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
-                        return page_node, page_node_attributes
-        if not page_node and default_path:
-            page_node, page_node_attributes = self.get_page_node(default_path)
-            if page_node:
-                page_node._tail_list =  unescape_path_list(path_list)
-            return page_node, page_node_attributes
-        return None, None
-        
     def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         request_kwargs = request_kwargs or dict()
-        mobile = request_kwargs.pop('_mobile',False)
-        path,request_args,pkg,plugin = self._getPageClassParameters(path_list,mobile=mobile)
-        if not path:
+        info = self.site.getUrlInfo(path_list,request_kwargs,default_path=self.default_path)
+        if not info.relpath:
             return None
-        page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin,request_args=request_args,request_kwargs=request_kwargs)
+        page_class = self.get_page_class(basepath=info.basepath,relpath=info.relpath, pkg=info.pkg,
+                                        request_args=info.request_args,request_kwargs=request_kwargs)
         page = page_class(site=self.site, request=request, response=response,
-                          request_kwargs=request_kwargs, request_args=request_args,
-                          filepath=path, packageId=page_class._packageId, pluginId=plugin,  basename=path, environ=environ)
+                          request_kwargs=request_kwargs, request_args=info.request_args,
+                          filepath=info.relpath, packageId=page_class._packageId, 
+                          pluginId=info.plugin,  basename=info.relpath, environ=environ)
         return page
 
-    def _getPageClassParameters(self,path_list,mobile=None):
-        page_node = None
-        if mobile:
-            page_node, page_node_attributes = self.get_page_node(['mobile']+path_list)
-        if not page_node:
-            page_node, page_node_attributes = self.get_page_node(path_list, default_path=self.default_path)
-        if not page_node:
-            return None,None,None,None
-        request_args = page_node._tail_list
-        path = page_node_attributes.get('path')
-        pkg = page_node_attributes.get('pkg')
-        plugin = page_node_attributes.get('plugin')
-        return path,request_args,pkg,plugin
-        
-    def get_page_class(self, path=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
+
+
+    def get_page_class(self, basepath=None,relpath=None, pkg=None, plugin=None,request_args=None,request_kwargs=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
-        if pkg == '*':
-            module_path = os.path.join(self.site_path,'pages', path)
-            pkg = self.site.mainpackage
-        else:
-            if plugin:
-                module_path= os.path.join(self.gnrapp.packages[pkg].plugins[plugin].webpages_path, path)
-            else:
-                module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
-            
-        # if module_path in self.page_factories:
-        #    return self.page_factories[module_path]
+
+        module_path = os.path.join(basepath,relpath)
         page_module = gnrImport(module_path, avoidDup=True,silent=False)
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
@@ -198,7 +104,7 @@ class ResourceLoader(object):
                 kw.update(request_kwargs)
             mainPkg = custom_class.getMainPackage(request_args=request_args,request_kwargs=kw)
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', ''), ',')
-        plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=mainPkg)
+        plugin_webpage_classes = self.plugin_webpage_classes(relpath, pkg=mainPkg)
         for plugin_webpage_class in plugin_webpage_classes:
             plugin_py_requires = splitAndStrip(getattr(plugin_webpage_class, 'py_requires', ''), ',')
             py_requires.extend(plugin_py_requires)
@@ -240,7 +146,7 @@ class ResourceLoader(object):
                 self.gnr_static_handler.path(page_class.gnrjsversion, 'tpl')]
         page_class._packageId = mainPkg
         self.page_class_plugin_mixin(page_class, plugin_webpage_classes)
-        self.page_class_custom_mixin(page_class, path, pkg=mainPkg)
+        self.page_class_custom_mixin(page_class, relpath, pkg=mainPkg)
         self.page_factories[module_path] = page_class
         return page_class
         

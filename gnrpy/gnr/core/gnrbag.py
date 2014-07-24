@@ -66,6 +66,7 @@ from gnr.core.gnrlang import setCallable, GnrObject, GnrException
 import os.path
 import logging
 import sys
+import re
 
 gnrlogger = logging.getLogger(__name__)
 
@@ -204,7 +205,7 @@ class BagNode(object):
             _attributes = _attributes or {}
             _attributes.update(value.attr)
             value = value._value
-        if hasattr(value, '_htraverse'):
+        if hasattr(value, 'rootattributes'):
             rootattributes = value.rootattributes
             if rootattributes:
                 _attributes = dict(_attributes or {})
@@ -2715,8 +2716,11 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
+                m=re.match(r'(\d+)_(.*)',fname)
+                caption = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
-                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption)
+                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
+                               caption=caption.replace('_',' '))
                 if self.callback:
                     self.callback(nodeattr=nodeattr)
                 result.setItem(label, handler(fullpath),**nodeattr)
