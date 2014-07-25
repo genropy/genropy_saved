@@ -76,8 +76,7 @@ class MenuStruct(GnrStructData):
     def toPython(self,filepath=None):
         filepath = filepath or 'menu.py'
         with open(filepath,'w') as f:
-            text = """
-#!/usr/bin/env python
+            text = """#!/usr/bin/env python
 # encoding: utf-8
 def config(root,application=None):"""         
             f.write(text)
