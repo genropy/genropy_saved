@@ -901,11 +901,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.setCellValue(path,value);
         }
         colattr.selectedCb = function(item){
-            if(!item){
-                return;
-            }
-            
-            var selectRow = objectUpdate({},item.attr);
+            var selectRow = item?objectUpdate({},item.attr):{};
             var rowNode = this.getRelativeData().getParentNode();
             var values = {}; 
             for (var k in related_setter){
