@@ -1,4 +1,5 @@
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from paste import httpserver
 try:
@@ -45,6 +46,7 @@ wsgi_options = dict(
         noclean=False,
         restore=False,
         source_instance=None,
+        remote_edit=None,
         remotesshdb=None
         )
 
@@ -305,6 +307,12 @@ class Server(object):
     parser.add_option('--source_instance',
                       dest='source_instance',
                       help="Import from instance")
+
+    parser.add_option('--remote_edit',
+                      dest='remote_edit',
+                      action='store_true',
+                      help="Enable remote edit")
+
    #parser.add_option('--remotesshdb',
    #                  dest='remotesshdb',
    #                  help="""Allow remote db connections over ssh tunnels.
@@ -364,7 +372,7 @@ class Server(object):
         enable_colored_logging(level=self.LOGGING_LEVELS[self.options.log_level])
         self.load_gnr_config()
         self.set_environment()
-        self.site_name = self.options.site_name or (self.args and self.args[0])
+        self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
         self.remote_db = ''
         if self.site_name:
             if ':' in self.site_name:
@@ -425,10 +433,11 @@ class Server(object):
     def init_options(self):
         self.siteconfig = self.get_config()
         options = self.options.__dict__
+        envopt = dictExtract(os.environ,'GNR_WSGI_OPT_')
         for option in options.keys():
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
-                self.options.__dict__[option] = site_option or wsgi_options.get(option)
+                self.options.__dict__[option] = site_option or wsgi_options.get(option) or envopt.get(option)
 
     def get_tunnel_db_params(self,ssh_connection,dbattrs=None):
         conn_dict = self.parse_connection_string(ssh_connection)

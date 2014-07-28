@@ -28,16 +28,18 @@ class Table(object):
                 if condition:
                     return True
         where = []
+        _flags = None
         if objtype:
             where.append('$objtype = :val_objtype')
         if tbl:
             where.append('$tbl = :val_tbl')
         if flags:
-            where.append(' position(:_flags IN $flags)>0 ')
+            where.append(' ($flags LIKE :_flags)  ')
+            _flags = '%%'+flags+'%%'
         where = ' AND '.join(where)
         sel = self.query(columns='$id, $code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist, $flags',
                          where=where, order_by='$code',
-                         val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
+                         val_objtype=objtype, val_tbl=tbl,_flags=_flags).selection()
         sel.filter(checkUserObj)
         return sel.output('records')
 

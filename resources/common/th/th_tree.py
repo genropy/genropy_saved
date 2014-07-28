@@ -201,12 +201,11 @@ class HTableTree(BaseComponent):
                 var treeWdg = tree.widget;
                 treeWdg.collapseAll();
                 var pathToSelect =null;
-                var store = GET %s;
                 if(currvalue){
-                    pathToSelect = THTree.fullPathByIdentifier(treeWdg,store,currvalue);
+                    pathToSelect = THTree.fullPathByIdentifier(treeWdg,currvalue);
                 }
                 treeWdg.setSelectedPath(null,{value:pathToSelect});
-            """ %(storepath))
+            """)
         menuItem = menu.menuItem().div(max_height=max_height or '350px',min_width= min_width or '300px',overflow='auto')
         menuItem.div(padding_top='4px', padding_bottom='4px').tree(storepath='%s.root' %storepath,
                          hideValues=True,autoCollapse=True,excludeRoot=True,
@@ -299,6 +298,8 @@ class HTableTree(BaseComponent):
         treeattr.update(kwargs)
         if excludeRoot:
             treeattr['storepath'] = '%(storepath)s.root' %treeattr
+            if excludeRoot==root_id:
+                treeattr['storepath'] = '%s.%s' %(treeattr['storepath'],root_id)
         tree = pane.tree(**treeattr)
         tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,root_id=root_id,columns=columns,related_kwargs=related_kwargs,dbstore=dbstore,resolved=resolved,**condition_kwargs)
         if moveTreeNode:
@@ -380,7 +381,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                       if(sn.form.isNewRecord() || sn.form.locked ){return false;}""", 
                           selected_pkey='.tree.pkey',
                           selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
-                          selectedPath='.tree.path',margin='2px',_class=_class)
+                          selectedPath='.tree.path',margin='2px',_class=_class,**kwargs)
         if picker:
             picker_kwargs = dictExtract(kwargs,'picker_')
             picker_table = self.db.table(table).column(picker).relatedTable().dbtable.fullname
@@ -497,7 +498,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
             condlist.append("""( CASE WHEN :curr_fkey IS NULL 
                                      THEN $%s IS NULL 
-                                     ELSE (( :showInherited AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
+                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
                                  END )""" %(fkey_name,fkey_name,fkey_name)) 
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
@@ -510,7 +511,7 @@ class TableHandlerHierarchicalView(BaseComponent):
             rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
             ( ( @%s.%s =:curr_fkey ) OR 
-                  ( :showInherited AND
+                  ( :showInherited IS TRUE AND
                         ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
                   )
             )

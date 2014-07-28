@@ -3,6 +3,7 @@
 
 import datetime
 import os
+from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -112,18 +113,80 @@ class GnrDboPackage(object):
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
-    def tableBroadcast(self,evt,autocommit=False):
+    def tableBroadcast(self,evt,autocommit=False,**kwargs):
         changed = False
         db = self.application.db
         for tname,tblobj in db.packages[self.id].tables.items():
             handler = getattr(tblobj.dbtable,evt,None)
             if handler:
-                result = handler()
+                result = handler(**kwargs)
                 changed = changed or result
         if changed and autocommit:
             db.commit()
         return changed
 
+    def pickleAllData(self,basepath=None):
+        pkgapp = self.db.application.packages[self.name]
+        basepath = basepath or os.path.join(pkgapp.packageFolder,'data_pickled')
+        if not os.path.isdir(basepath):
+            os.mkdir(basepath)
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        file_list = []
+        for tname,tblobj in self.tables.items():
+            f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
+            z = os.path.join(basepath,'%s.pik' %tname)
+            file_list.append(z)
+            with open(z, 'w') as storagefile:
+                pickle.dump(f, storagefile)
+
+        import zipfile
+        zipPath = '%s.zip' %basepath
+
+        zipresult = open(zipPath, 'wb')
+        zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
+        for fname in file_list:
+            zip_archive.write(fname, os.path.basename(fname))
+        zip_archive.close()
+        zipresult.close()
+        import shutil
+        shutil.rmtree(basepath)
+
+    def unpickleAllData(self,basepath=None,tables=None,btc=None):
+        basepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'data_pickled')
+        if not os.path.isdir(basepath):
+            extractpath = '%s.zip' %basepath
+            from zipfile import ZipFile
+            myzip =  ZipFile(extractpath, 'r')
+            myzip.extractall(basepath)
+        db = self.db
+        tables = tables or self.allTables()
+        rev_tables =  list(tables)
+        rev_tables.reverse()
+        for t in rev_tables:
+            db.table('%s.%s' %(self.name,t)).empty()
+        db.commit()
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tablename in tables:
+            tblobj = db.table('%s.%s' %(self.name,tablename))
+            with open(os.path.join(basepath,'%s.pik' %tablename), 'r') as storagefile:
+                records = pickle.load(storagefile)
+            records = records or []
+            tblobj.insertMany(records)
+            db.commit()
+
+        import shutil
+        shutil.rmtree(basepath)
+
+
+    def allTables(self):
+        return []
 
         
 class TableBase(object):
@@ -189,7 +252,8 @@ class TableBase(object):
                                                                                         deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            tbl.formulaColumn('hlevel',"""array_length(string_to_array($hierarchical_pkey,'/'),1)""")
+            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""")
+
             hfields = hierarchical.split(',')
             for fld in hfields:
                 if fld=='pkey':
@@ -280,8 +344,15 @@ class TableBase(object):
         tbl.column('df_colswith',group='_')
 
     def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
-        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setCounter',counter=True,
+        tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
+
+    def addPhonetic(self,tbl,column,mode=None,size=':5',group=None):
+        mode = mode or 'dmetaphone'
+        group = group or 'zzz'
+        phonetic_column = '__phonetic_%s' %column
+        tbl.column(column).attributes.update(phonetic=phonetic_column,_sendback=True,query_dtype='PHONETIC')
+        tbl.column(phonetic_column,size=size,sql_value='%s(:%s)' %(mode,column),phonetic_mode=mode,group=group,_sendback=True)
 
 
     def invalidFieldsBag(self,record):
@@ -340,7 +411,9 @@ class TableBase(object):
                     new_row['_h_count'] = '%s%s' %(new_row['_parent_h_count'] or '',encode36(new_row['_row_count'],2))
                 self.update(new_row, row)
 
-    def trigger_setCounter(self,record,fldname,**kwargs):
+
+    def trigger_setRowCounter(self,record,fldname,**kwargs):
+        """field trigger used for manage rowCounter field"""
         if record.get(fldname) is not None:
             return
         counter_fkey = self.column(fldname).attributes.get('_counter_fkey')
@@ -704,6 +777,54 @@ class TableBase(object):
     def getCustomFieldsMenu(self):
         data,metadata = self.db.table('adm.userobject').loadUserObject(code='%s_fieldstree' %self.fullname.replace('.','_'),objtype='fieldsmenu')
         return data,metadata
+
+    ################## COUNTER SEQUENCE TRIGGER RELATED TO adm.counter ############################################
+
+    def counterColumns(self):
+        adm_counter = self.db.package('adm').attributes.get('counter')
+        if adm_counter is not None and boolean(adm_counter) is False:
+            return []
+        return [k[8:] for k in dir(self) if k.startswith('counter_')]
+
+    def getCounterPars(self,field,record=None):
+        return getattr(self,'counter_%s' %field)(record=record)
+
+
+    def trigger_releaseCounters(self,record=None,backToDraft=None):
+        for field in self.counterColumns():
+            if record.get(field):
+                if not backToDraft or not self.getCounterPars(field,record).get('assignIfDraft'):
+                    self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+
+    def trigger_assignCounters(self,record=None,old_record=None):
+        "Inside dbo"
+        if old_record and self.isDraft(record) and not self.isDraft(old_record):
+            self.trigger_releaseCounters(record,backToDraft=True)
+        else:
+            for field in self.counterColumns():
+                self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
+
+    def _sequencesOnLoading(self,newrecord,recInfo=None):
+        for field in self.counterColumns():
+            pars = getattr(self,'counter_%s' %field)()
+            if self.isDraft(newrecord) and not pars.get('assignIfDraft'):
+                continue
+            if pars.get('showOnLoad'):
+                sequence,sequenceInfo = self.db.table('adm.counter').guessNextSequence(tblobj=self,field=field,record=newrecord)
+                kw = dict(promised=True,wdg_color='green')
+                if sequenceInfo.get('recycled'):
+                    kw['wdg_color'] = 'darkblue'
+                    fieldname = self.column(field).name_long or field
+                    fieldname.replace('!!','')
+                    message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+                    loaded_message = recInfo.setdefault('loaded_message',[])
+                    if not isinstance(loaded_message,list):
+                        loaded_message = [loaded_message]
+                    message = message %dict(fieldname=fieldname,sequence=sequence) 
+                    loaded_message.append(dict(message=message,messageType='warning',duration_out=5))
+                    kw['wdg_tip'] = message
+                    recInfo['loaded_message'] = loaded_message
+                newrecord.setItem(field,sequence,**kw)
 
 
 class GnrDboTable(TableBase):

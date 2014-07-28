@@ -27,7 +27,7 @@ class View(BaseComponent):
         return 'to_address'
 
     def th_query(self):
-        return dict(column='to_address',op='contains', val='%',runOnStart=False)
+        return dict(column='to_address',op='contains', val='',runOnStart=False)
 
 
 class ViewFromMailbox(View):

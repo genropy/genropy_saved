@@ -36,7 +36,7 @@ import logging
 
 gnrlogger = logging.getLogger(__name__)
 
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
@@ -45,6 +45,7 @@ from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fr
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
 from gnr.sql.gnrsql_exceptions import GnrSqlSaveException, GnrSqlDeleteException
+from gnr.sql.gnrsql import GnrSqlException
 
 
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
@@ -634,7 +635,46 @@ class GnrWebAppHandler(GnrBaseProxy):
             r[counterField] = updaterDict[r[tblobj.pkey]]
         tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
         self.db.commit()
-        
+
+    @public_method      
+    def deleteFileRows(self,files=None,**kwargs):
+        if isinstance(files,basestring):
+            files = files.split(',')
+        for f in files:
+            os.remove(f)
+
+    @public_method      
+    def getFileSystemSelection(self,folders=None,ext=None,include=None,exclude=None,
+                                columns=None,hierarchical=False,applymethod=None,**kwargs):
+        files = Bag()
+        resultAttributes = dict()
+        def setFileAttributes(node,**kwargs):
+            attr = node.attr
+            if not node.value and node.attr:
+                abs_path = attr['abs_path']
+                attr['_pkey'] = abs_path
+                attr['created_ts'] = datetime.fromtimestamp(os.path.getctime(abs_path))
+                attr['changed_ts'] = datetime.fromtimestamp(os.path.getmtime(abs_path))
+                attr['size'] = os.path.getsize(abs_path)
+                if columns and attr['file_ext'].lower() == 'xml':
+                    b = Bag(abs_path)
+                    for c in columns.split(','):
+                        c = c.replace('$','')
+                        attr[c] = b[c]
+        for f in folders.split(','):
+            f = self.page.site.getStaticPath(f)
+            files[f] = DirectoryResolver(path=f,include=include,exclude=exclude,ext=ext,**kwargs)
+        files.walk(setFileAttributes,_mode='')
+        if hierarchical:
+            return files
+        result = Bag([('r_%i' %i,None,t[1].attr) for i,t in enumerate(files.getIndex()) if t[1].attr and t[1].attr['file_ext']!='directory'])
+        if applymethod:
+            applyPars = self._getApplyMethodPars(kwargs)
+            applyresult = self.page.getPublicMethod('rpc', applymethod)(result, **applyPars)
+            if applyresult:
+                resultAttributes.update(applyresult)
+        return result,resultAttributes
+
     @public_method      
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
@@ -1224,6 +1264,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['table'] = dbtable
         _eager_record_stack = _eager_record_stack or []
         self._handleEagerRelations(record,_eager_level,_eager_record_stack=_eager_record_stack)
+        if newrecord and tblobj.counterColumns():
+            try:
+                tblobj._sequencesOnLoading(record,recInfo)
+            except GnrSqlException, e:
+                recInfo['_onLoadingError'] = str(e)
         return (record, recInfo)
         
     def _handleEagerRelations(self,record,_eager_level,_eager_record_stack=None):
@@ -1468,7 +1513,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getSelection(None)
 
         result = getSelection("%s ILIKE :searchval" % querycolumns[0], searchval='%s%%' % ('%% '.join(srclist)))
-        columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
+        #columns_concat = "ARRAY_TO_STRING(ARRAY[%s], ' ')" % ','.join(querycolumns)
+        columns_concat = " || ' ' || ".join(["CAST ( COALESCE(%s,'') AS TEXT ) " %c for c in querycolumns])
         if len(result) == 0: # few results from the startswith query on first col
             #self.page.gnotify('dbselect','filter')
             regsrc = [x for x in re.split(" ", ESCAPE_SPECIAL.sub('', querystring)) if x]

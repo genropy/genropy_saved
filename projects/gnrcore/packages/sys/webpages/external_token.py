@@ -42,7 +42,7 @@ class GnrCustomWebPage(object):
         return 'datetime'
 
     def queryBase(self):
-        return dict(column='datetime', op='contains', val='%')
+        return dict(column='datetime', op='contains', val='')
 
     ############################## FORM METHODS ##################################
     def formBase(self, parentBC, disabled=False, **kwargs):

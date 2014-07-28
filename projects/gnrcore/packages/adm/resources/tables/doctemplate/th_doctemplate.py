@@ -19,7 +19,7 @@ class View(BaseComponent):
         return 'maintable'
         
     def th_query(self):
-        return dict(column='maintable',op='contains', val='%')
+        return dict(column='maintable',op='contains', val='')
 
 class Form(BaseComponent):
     pass

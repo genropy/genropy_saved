@@ -35,5 +35,5 @@ class View(BaseComponent):
         return dict(widget='border',vpane_region='left', vpane_width='40%',dialog_height='200px',dialog_width='400px')
     
     def th_query(self):
-        return dict(column='nome',op='contains', val='%')
+        return dict(column='nome',op='contains', val='')
         

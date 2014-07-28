@@ -8,6 +8,10 @@
 	margin-top:1px;
 	margin-bottom:1px;
 }
+.iconbox_small .iconbox{
+    margin-top:0px;
+    margin-bottom:0px;
+}
 .bordered_icons .iconbox{
 	border:1px solid silver;
 	background-color:#ddd !important;
@@ -262,7 +266,7 @@
 	background: url(16/display_on.png) no-repeat center center;
 }
 
-.document{
+.iconbox.document{
 	background: url(16/document.png) no-repeat center center;
 }
 

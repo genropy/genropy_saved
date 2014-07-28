@@ -7,7 +7,9 @@ class Table(object):
         self.sysFields(tbl,id=False)
         tbl.column('code',name_long='!!Code',unique=True)
         tbl.column('description',name_long='!!Description')
-        tbl.column('company_code',name_long='!!Company id').relation('company.code', mode='foreignkey', 
+        tbl.column('company_code',name_long='!!Company',group='_').relation('company.code', mode='foreignkey', 
                                                                         onDelete='raise',
                                                                         relation_name='projects')
-        tbl.column('customer_id',size='22',name_long='!!Customer id').relation('customer.id', mode='foreignkey', onDelete='raise')
+        tbl.column('customer_id',size='22',name_long='!!Customer',group='_').relation('customer.id', mode='foreignkey',
+                                                                                relation_name='projects',
+                                                                                 onDelete='raise')

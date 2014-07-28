@@ -24,6 +24,7 @@ class FrameIndex(BaseComponent):
     css_requires='frameindex,public'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover,maintenance'
     custom_plugin_list = None
+    index_page = False
     index_url = 'html_pages/splashscreen.html'
     indexTab = False
     hideLeftPlugins = False
@@ -56,8 +57,9 @@ class FrameIndex(BaseComponent):
             else:
                 self.index_dashboard(root)
         else:         
-            sc = root.stackContainer(selectedPage='^indexStack')
-
+            sc = root.stackContainer(selectedPage='^indexStack',
+                subscribe_openApplicationPage="this.widget.switchPage('dashboard')",
+                subscribe_openFrontPage="this.widget.switchPage('frontpage')")
             sc.loginPage(new_window=new_window,gnrtoken=gnrtoken)
             sc.contentPane(pageName='dashboard',overflow='hidden').remote(self.remoteFrameRoot,custom_index='=gnr.rootenv.custom_index',**kwargs)
             root.screenLockDialog()
@@ -72,8 +74,7 @@ class FrameIndex(BaseComponent):
         box.div('!!Insert password',text_align='center',font_size='.9em',font_style='italic')
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE .checkPwd;',
                                 width='100%',
-                                fld_width='100%',row_height='3ex',keeplabel=True
-                                ,fld_attr_editable=True)
+                                fld_width='100%',row_height='3ex')
         fb.textbox(value='^.password',lbl='!!Password',type='password',row_hidden=False)
         btn=fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE .checkPwd;this.widget.setAttribute("disabled",true);',position='absolute',right='-5px',top='8px')
         box.div().slotBar('*,messageBox,*',messageBox_subscribeTo='failed_screenout',height='18px',width='100%',tdl_width='6em')
@@ -218,7 +219,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageTickets,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='20px',
                         gradient_from='gray',gradient_to='silver',gradient_deg=90)
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -228,8 +229,6 @@ class FrameIndex(BaseComponent):
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
-
-
         box = sb.preferences.div(_class='iframeroot_pref')
         appPref = box.div(innerHTML='==_owner_name || "Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
                                 connect_onclick='PUBLISH app_preference')
@@ -243,7 +242,9 @@ class FrameIndex(BaseComponent):
         sb.count_errors.div('^gnr.errors?counter',hidden='==!_error_count',_error_count='^gnr.errors?counter',
                             _msg='!!Errors:',_class='countBoxErrors',connect_onclick='genro.dev.errorPalette();')
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
-        
+        sb.manageTickets.slotButton('!!Report bug',action='genro.framedIndexManager.reportBugInCurrentIframe(sf);',
+                                sf='=selectedFrame',
+                                iconClass='iconbox icnBottomTicket')
         appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_nodeId:'mainpreference'});""",
@@ -289,7 +290,7 @@ class FrameIndex(BaseComponent):
         else:
             indexpane = sc.contentPane(pageName='indexpage',title='Index',overflow='hidden')
             if self.index_url:
-                indexpane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')         
+                indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
                        
@@ -363,10 +364,9 @@ class FramedIndexLogin(BaseComponent):
         box = dlg.div(**self.loginboxPars())
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!Lost password')  
-        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE send_lost_password_mail;',
+        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE recover_password;',
                                 datapath='lost_password',width='100%',
-                                fld_width='100%',row_height='3ex',keeplabel=True
-                                ,fld_attr_editable=True)
+                                fld_width='100%',row_height='3ex')
         fb.textbox(value='^.email',lbl='!!Email')
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Recover',action='FIRE recover_password',position='absolute',right='-5px',top='8px')
         fb.dataRpc("dummy",self.login_confirmNewPassword, _fired='^recover_password',_if='email',email='=.email',
@@ -388,14 +388,13 @@ class FramedIndexLogin(BaseComponent):
         return dlg
 
     def login_newPassword(self,pane,gnrtoken=None,dlg_login=None):
-        dlg = pane.dialog(_class='lightboxDialog')
+        dlg = pane.dialog(_class='lightboxDialog',subscribe_closeNewPwd='this.widget.hide();',subscribe_openNewPwd='this.widget.show();')
         box = dlg.div(**self.loginboxPars())
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New Password')  
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE set_new_password;',
                                 datapath='new_password',width='100%',
-                                fld_width='100%',row_height='3ex',keeplabel=True
-                                ,fld_attr_editable=True)
+                                fld_width='100%',row_height='3ex')
         fb.data('.gnrtoken',gnrtoken)
         fb.textbox(value='^.password',lbl='!!New Password',type='password')
         fb.textbox(value='^.password_confirm',lbl='!!Confirm New Password',type='password',
@@ -405,7 +404,7 @@ class FramedIndexLogin(BaseComponent):
                     password='=.password',password_confirm='=.password_confirm',
                     _if='password==password_confirm',
                     _else="genro.dlg.floatingMessage(sn,{message:'Passwords must be equal',messageType:'error',yRatio:.95})",
-                    gnrtoken=gnrtoken,_onResult='genro.pageReload()')
+                    gnrtoken=gnrtoken,_onResult='genro.publish("closeNewPwd");genro.publish("openLogin")')
         return dlg
 
 
@@ -419,8 +418,7 @@ class FramedIndexLogin(BaseComponent):
         box.div(self.loginPreference['confirm_user_message'],padding='10px',color='#777',font_style='italic',font_size='.9em',text_align='center')
         fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE confirm_email;',
                                 datapath='new_password',width='100%',
-                                fld_width='100%',row_height='3ex',keeplabel=True
-                                ,fld_attr_editable=True)
+                                fld_width='100%',row_height='3ex')
         fb.textbox(value='^.email',lbl='!!Email')
         fb.dataController("SET .email = avatar_email;",avatar_email='^gnr.avatar.email')
         fb.div(width='100%',position='relative',row_hidden=False).button('!!Send Email',action='FIRE confirm_email',position='absolute',right='-5px',top='8px')
@@ -433,33 +431,58 @@ class FramedIndexLogin(BaseComponent):
         return dlg
         
         
-    def login_newUser(self,pane,dlg_login):
-        dlg = pane.dialog(_class='lightboxDialog')
+    def login_newUser(self,pane):
+        dlg = pane.dialog(_class='lightboxDialog',
+                            subscribe_openNewUser='this.widget.show(); genro.formById("newUser_form").newrecord();',
+                            subscribe_closeNewUser='this.widget.hide();')
         kw = self.loginboxPars()
         kw['width'] = '400px'
-        box = dlg.div(**kw)
-        topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
+        kw['height'] = '250px'
+        form = dlg.frameForm(frameCode='newUser',datapath='new_user',store='memory',**kw)
+        form.dataController("PUT creating_new_user = false;",_fired='^#FORM.controller.loaded')
+        topbar = form.top.slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         topbar.wtitle.div('!!New User')  
-        fb = box.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='4px',onEnter='FIRE send_lost_password_mail;',
-                                datapath='new_user',width='100%',tdl_width='6em',
-                                fld_width='100%',row_height='3ex',keeplabel=True
-                                ,fld_attr_editable=True)
-        fb.textbox(value='^.firstname',lbl='!!First name')
-        fb.textbox(value='^.lastname',lbl='!!Last name')
-        fb.textbox(value='^.mobile',lbl='!!Mobile')
-        fb.textbox(value='^.email',lbl='!!Email')
-        fb.textbox(value='^.username',lbl='!!Username')
-        fb.textbox(value='^.password',lbl='!!Password',type='password')
-        fb.textbox(value='^.password_confirm',lbl='!!Confirm',type='password')
+        fb = form.record.div(margin='10px',margin_right='20px',padding='10px').formbuilder(cols=1, border_spacing='6px',onEnter='SET creating_new_user = true;',
+                                width='100%',tdl_width='6em',fld_width='100%',row_height='3ex')
+        fb.textbox(value='^.firstname',lbl='!!First name',validate_notnull=True,validate_case='c',validate_len='2:')
+        fb.textbox(value='^.lastname',lbl='!!Last name',validate_notnull=True,validate_case='c',validate_len='2:')
+        fb.textbox(value='^.email',lbl='!!Email',validate_notnull=True)
+        fb.textbox(value='^.username',lbl='!!Username',validate_notnull=True,validate_nodup='adm.user.username',validate_len='4:')
 
-        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='FIRE new_user',position='absolute',right='-5px',top='8px')
-
-        footer = box.div().slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
-        footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick='FIRE back_login;',
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Send',action='SET creating_new_user = true;',position='absolute',right='-5px',top='8px')
+        form.dataRpc('dummy',self.login_createNewUser,data='=#FORM.record',
+                    _do='^creating_new_user',_if='_do && this.form.isValid()',
+                    _else='this.form.publish("message",{message:_error_message,messageType:"error"})',
+                    _error_message='!!Missing data',
+                    _onResult="""if(result.ok){
+                        genro.publish('closeNewUser');
+                        genro.publish('floating_message',{message:result.ok,duration_out:6})
+                    }else{
+                        this.form.publish("message",{message:result.error,messageType:"error"});
+                        PUT creating_new_user = false;
+                    }
+                    """,_lockScreen=True)
+        footer = form.bottom.slotBar('12,loginbtn,*',height='18px',width='100%',tdl_width='6em')
+        footer.loginbtn.div('!!Login',cursor='pointer',connect_onclick="genro.publish('closeNewUser');genro.publish('openLogin');",
                             color='silver',font_size='12px',height='15px')
-        footer.dataController("dlg_nu.hide();dlg_login.show();",_fired='^back_login',
-                        dlg_login=dlg_login.js_widget,dlg_nu=dlg.js_widget)
         return dlg
+
+    @public_method
+    def login_createNewUser(self,data=None,**kwargs):
+        try:
+            data['status'] = 'new'
+            self.db.table('adm.user').insert(data)
+            data['link'] = self.externalUrlToken(self.site.homepage, userid=data['id'],max_usages=1)
+            data['greetings'] = data['firstname'] or data['lastname']
+            email = data['email']
+            body = self.loginPreference['confirm_user_tpl'] or 'Dear $greetings to confirm click $link'
+            self.getService('mail').sendmail_template(data,to_address=email,
+                                body=body, subject=self.loginPreference['subject'] or 'Confirm user',
+                                async=False,html=True)
+            self.db.commit()
+        except Exception,e:
+            return dict(error=str(e))
+        return dict(ok=self.loginPreference['new_user_ok_message'] or 'Check your email to confirm')
 
     @property
     def loginPreference(self):
@@ -467,14 +490,22 @@ class FramedIndexLogin(BaseComponent):
             self._loginPreference = self.getPreference('general',pkg='adm') or Bag()
         return self._loginPreference
 
+
     @struct_method
     def login_loginPage(self,sc,new_window=None,gnrtoken=None):
-        pane = sc.contentPane(overflow='hidden',pageName='login')   
-        if self.index_url:
+        pane = sc.contentPane(overflow='hidden',pageName='frontpage') 
+        homePageHandler = getattr(self,'homePagePane',None)
+        loginOnBuilt= homePageHandler is None
+        if homePageHandler:
+            homePageHandler(pane)
+
+        elif self.index_url:
             pane.iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')   
-        dlg = pane.dialog(_class='lightboxDialog')
+        dlg = pane.dialog(_class='lightboxDialog',subscribe_openLogin="this.widget.show()",subscribe_closeLogin="this.widget.hide()")
        
         box = dlg.div(**self.loginboxPars())
+        if not loginOnBuilt:
+            dlg.div(_class='dlg_closebtn',connect_onclick='PUBLISH closeLogin;')
         doLogin = self.avatar is None and self.auth_page
         topbar = box.div().slotBar('*,wtitle,*',_class='index_logintitle',height='30px') 
         wtitle = (self.loginPreference['login_title'] or self.login_title) if doLogin else (self.loginPreference['new_window_title'] or self.new_window_title) 
@@ -493,8 +524,8 @@ class FramedIndexLogin(BaseComponent):
             fb.textbox(value='^_login.password',lbl='!!Password',type='password',row_hidden=False)
             pane.dataRpc('dummy',self.login_checkAvatar,user='^_login.user',password='^_login.password',
                         _onCalling='kwargs.serverTimeDelta = genro.serverTimeDelta;',
-                        _if='user&&password&&!_avatar',_else='SET gnr.avatar = null;',
-                        _avatar='=gnr.avatar',
+                        _if='user&&password&&!_avatar_user',_else='SET gnr.avatar = null;',
+                        _avatar_user='=gnr.avatar.user',
                         _onResult="""var avatar = result.getItem('avatar');
                                     if (!avatar){
                                         return;
@@ -521,76 +552,74 @@ class FramedIndexLogin(BaseComponent):
                 fbnode.attr['hidden'] = '==!_avatar || _hide'
                 fbnode.attr['_avatar'] = '^gnr.avatar.user'
                 fbnode.attr['_hide'] = '%s?hidden' %fbnode.value['#1.#0?value']
-        
-        
+                
         pane.dataController("""
                             var href = window.location.href;
                             if(window.location.search){
                                 href = href.replace(window.location.search,'');
                                 window.history.replaceState({},document.title,href);
                             }
-                            if(startPage=='login'){
+                            if(startPage=='frontpage'){
                                 if(new_password){
                                     newPasswordDialog.show();
-                                }else{
-                                    loginDialog.show();
+                                }else if(loginOnBuilt){
+                                    PUBLISH openLogin;
                                 }
-                            }else{
-                                SET indexStack = 'dashboard';
+                            }else if(loginOnBuilt){
+                                PUBLISH openApplicationPage;
                             }
                             """,_onBuilt=True,
+                            loginOnBuilt= loginOnBuilt,
                             new_password=gnrtoken or False,
                             loginDialog = dlg.js_widget,
                             newPasswordDialog = self.login_newPassword(pane,gnrtoken=gnrtoken,dlg_login=dlg).js_widget,
                             sc=sc.js_widget,fb=fb,
-                            _if='indexStack=="login"',indexStack='^indexStack',
+                            _if='indexStack=="frontpage"',indexStack='^indexStack',
                             startPage=self._getStartPage(new_window))
 
 
-        btn = fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
+        fb.div(width='100%',position='relative',row_hidden=False).button('!!Enter',action='FIRE do_login',position='absolute',right='-5px',top='8px')
         dlg.dataController("genro.dlg.floatingMessage(sn,{message:message,messageType:'error',yRatio:.95})",subscribe_failed_login_msg=True,sn=dlg)
 
         footer = box.div().slotBar('12,lost_password,*,new_user,12',height='18px',width='100%',tdl_width='6em')
         lostpass = footer.lost_password.div()
         new_user = footer.new_user.div()
-
         if self.loginPreference['forgot_password']:
             lostpass.div('!!Lost password',cursor='pointer',connect_onclick='FIRE lost_password_dlg;',
                             color='silver',font_size='12px',height='15px')
             lostpass.dataController("dlg_login.hide();dlg_lp.show();",_fired='^lost_password_dlg',dlg_login=dlg.js_widget,dlg_lp=self.login_lostPassword(pane,dlg).js_widget)
         if self.loginPreference['new_user']:
-            new_user.div('!!New User',cursor='pointer',connect_onclick='FIRE new_user_dlg;',
+            self.login_newUser(pane)
+            new_user.div('!!New User',cursor='pointer',connect_onclick='genro.publish("closeLogin");genro.publish("openNewUser");',
                             color='silver',font_size='12px',height='15px')
-            new_user.dataController("dlg_login.hide();dlg_nu.show();",_fired='^new_user_dlg',dlg_login=dlg.js_widget,dlg_nu=self.login_newUser(pane,dlg).js_widget)
-
-
 
         pane.dataController("dlg_login.hide();dlg_cu.show();",dlg_login=dlg.js_widget,
                     dlg_cu=self.login_confirmUserDialog(pane,dlg).js_widget,subscribe_confirmUserDialog=True)
 
 
         footer.dataController("""
-        btn.setAttribute('disabled',true);
-        var result = genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},null,null,'POST');
-        if (!result){
-            genro.publish('failed_login_msg',{'message':error_msg});
-            btn.setAttribute('disabled',false);
-        }else if(result.error){
-            genro.publish('failed_login_msg',{'message':result.error});
-            btn.setAttribute('disabled',false);
-        }else{
-            dlg.hide();
-            rootpage = rootpage || result['rootpage'];
-            if(rootpage){
-                genro.gotoURL(rootpage);
+        dlg.hide();
+        genro.lockScreen(true,'login');
+        genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
+            genro.lockScreen(false,'login');
+            if (!result || result.error){
+                dlg.show();
+                genro.publish('failed_login_msg',{'message':result?result.error:error_msg});
+            }else{
+                rootpage = rootpage || result['rootpage'];
+                if(rootpage){
+                    genro.gotoURL(rootpage);
+                }
+                if(loginOnBuilt){
+                    genro.publish('openApplicationPage');
+                }
+                genro.publish('logged');
             }
-            sc.switchPage('dashboard');
-            genro.publish('logged');
-        }
+        },null,'POST');
         """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
             avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
-            rootpage='=gnr.rootenv.rootpage',
-            error_msg=self.login_error_msg,dlg=dlg.js_widget,sc=sc.js_widget,btn=btn.js_widget,_delay=1)  
+            rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
+            error_msg=self.login_error_msg,dlg=dlg.js_widget,_delay=1)  
         return dlg
 
     @public_method
@@ -599,6 +628,8 @@ class FramedIndexLogin(BaseComponent):
         if self.avatar:
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
+            rootenv['workdate'] = rootenv['workdate'] or self.workdate
+            rootenv['language'] = rootenv['language'] or self.language
             self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
         return dict(error=login['error']) if login['error'] else False
@@ -616,11 +647,13 @@ class FramedIndexLogin(BaseComponent):
         if avatar.status != 'conf':
             return result
         data = Bag()
+
         data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
-        data.setItem('workdate',self.workdate, hidden= not canBeChanged)
         result['rootenv'] = data
+        default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
+        data.setItem('workdate',default_workdate, hidden= not canBeChanged)
         return result
 
     def onUserSelected(self,avatar,data=None):
@@ -642,11 +675,11 @@ class FramedIndexLogin(BaseComponent):
                 self.pageStore().setItem('rootenv',newrootenv)
                 self.connectionStore().setItem('defaultRootenv',Bag(newrootenv))
             else:
-                return 'login'
+                return 'frontpage'
         elif new_window:
             for n in self.rootenv:
                 if n.attr.get('editable') and not n.attr.get('hidden'):
-                    startPage = 'login'
+                    startPage = 'frontpage'
                     break               
         return startPage
 

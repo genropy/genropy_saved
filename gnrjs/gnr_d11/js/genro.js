@@ -50,16 +50,16 @@ dojo.declare('gnr.GenroClient', null, {
 
     constructor: function(kwargs) {
         //this.patchConsole();
+        kwargs = mapConvertFromText(kwargs);
         this.domRootName = kwargs.domRootName || 'mainWindow';
         this.page_id = kwargs.page_id;
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
         this.debug_py = kwargs.startArgs.debug_py;
-
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
-        this.serverTime = convertFromText(objectPop(kwargs.startArgs,'servertime'));
+        this.serverTime =objectPop(kwargs.startArgs,'servertime');
         var start_ts = new Date();
         this.serverTimeDelta = this.serverTime - start_ts;
         this.lockingElements = {};
@@ -389,7 +389,7 @@ dojo.declare('gnr.GenroClient', null, {
             this.startArgs['_root_page_id'] = this.root_page_id;
             this.startArgs['_parent_page_id'] = this.parent_page_id;
         }
-        var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
+        var mainBagPage = genro.src.getMainSource();
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
             if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
@@ -437,6 +437,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
+
+        genro.dev.shortcut("Ctrl+Shift+S", function() {
+            genro.dev.takePicture();
+        });
+
         genro.dev.shortcut("Shift+space", function(e) {
             var sn = dijit.getEnclosingWidget(e.target).sourceNode;
             if('_lastSavedValue' in sn){
@@ -557,7 +562,9 @@ dojo.declare('gnr.GenroClient', null, {
 
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
-            genro.publish('SAVERECORD', e);
+            if(genro.activeForm){
+                genro.activeForm.save();
+            }
         });
         genro.dev.shortcut('f3', function(e) {
             genro.publish('PRINTRECORD', e);
@@ -639,7 +646,7 @@ dojo.declare('gnr.GenroClient', null, {
             try{
                 cb(f,result);
             }catch(e){
-                console.log('external iframe detected: error ',e);
+                //console.log('external iframe detected: error ',e);
             }
         });
         return objectUpdate({},result);
@@ -744,6 +751,7 @@ dojo.declare('gnr.GenroClient', null, {
         console.log(v);
     },
     resizeAll: function() {
+        genro.wdgById('_gnrRoot').resize();
         //window.resizeBy(1,1);
         //window.resizeBy(-1,-1);
 

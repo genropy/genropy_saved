@@ -24,6 +24,9 @@ class TableHandlerView(BaseComponent):
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+        options = self._th_hook('options',mangler=frameCode)() or dict()
+        self._th_setDocumentation(table=table,resource = viewResource or 'View',doc=options.get('doc'),
+                                    custdoc=options.get('custdoc'))
         resourceConditionPars = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         resourceCondition = resourceConditionPars.pop('condition',None)
         if resourceCondition:
@@ -66,7 +69,7 @@ class TableHandlerView(BaseComponent):
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','*']
+                base_slots = ['5','searchOn','5','count','viewsMenu','*','export','resourcePrints','resourceMails','resourceActions','10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
@@ -183,6 +186,8 @@ class TableHandlerView(BaseComponent):
         condition_kwargs = condition_kwargs or dict()
         f = section_table.query(columns='*,$%s' %caption_field,where=condition,**condition_kwargs).fetch()
         s = []
+        if all_begin is None and all_end is None:
+            all_begin = True
         if all_begin:
             s.append(dict(code='c_all_begin',caption='!!All' if all_begin is True else all_begin))
         for i,r in enumerate(f):
@@ -416,7 +421,6 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         options = self._th_hook('options',mangler=th_root)() or dict()
-
         pageOptions = self.pageOptions or dict()
         #liveUpdate: 'NO','LOCAL','PAGE'
         liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or 'LOCAL'
@@ -682,7 +686,7 @@ class TableHandlerView(BaseComponent):
         column_dtype = None
         val = querybase.get('val')
         if column:
-            column_dtype = tblobj.column(column).getAttr('dtype')
+            column_dtype = tblobj.column(column).getAttr('query_dtype') or tblobj.column(column).getAttr('dtype')
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
         result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
@@ -770,9 +774,12 @@ class THViewUtils(BaseComponent):
     @public_method
     def getSqlOperators(self):
         result = Bag()
-        listop = ('equal', 'startswith', 'wordstart', 'contains', 'startswithchars', 'greater', 'greatereq',
+        listop = ('equal', 'startswith', 'wordstart', 'contains','similar', 'startswithchars', 'greater', 'greatereq',
                   'less', 'lesseq', 'between', 'isnull', 'istrue', 'isfalse', 'nullorempty', 'in', 'regex')
         optype_dict = dict(alpha=['contains', 'startswith', 'equal', 'wordstart',
+                                  'startswithchars', 'isnull', 'nullorempty', 'in', 'regex',
+                                  'greater', 'greatereq', 'less', 'lesseq', 'between'],
+                           alpha_phonetic = ['contains','similar', 'startswith', 'equal', 'wordstart',
                                   'startswithchars', 'isnull', 'nullorempty', 'in', 'regex',
                                   'greater', 'greatereq', 'less', 'lesseq', 'between'],
                            date=['equal', 'in', 'isnull', 'greater', 'greatereq', 'less', 'lesseq', 'between'],

@@ -599,11 +599,11 @@ dojo.declare("gnr.GnrBag", null, {
         var kw = kw || {};
         var headers = kw.headers;
         var h ='';
-        
-        if(headers){
+        var hheadcel = this.getItem('#0');
+        if(headers && hheadcel){
             if(headers===true){
                 headers = '';
-                this.getItem('#0').forEach(function(n){
+                hheadcel.forEach(function(n){
                     var calclabel = (n.attr._valuelabel || n.attr.name_long || stringCapitalize(n.label));
                     headers+=headers?','+calclabel:calclabel;
                 })
@@ -654,13 +654,28 @@ dojo.declare("gnr.GnrBag", null, {
         },'static');
         return '<table class="formattedBagTable">'+h+'<tbody>'+rows+'</tbody></table>';
     },
-     
+    
+    asNestedTable:function(kw,mode){
+        var rows = [];
+        this.forEach(function(n){
+            var v =  n.getValue(mode);
+            v = v instanceof gnr.GnrBag? v.asNestedTable(kw,mode):v;
+            if (!n.attr._autolist){
+                rows += '<tr><td class="_bagformat_lbl">'+n.label+'</td>';
+            }
+            rows += '<td class="_bagformat_value">'+v+'</td></tr>';
+        },mode);
+        return '<table class="nestedBagTable"><tbody>'+rows+'</tbody></table>';
+    },
+
     getFormattedValue:function(kw,mode){
         var kw = kw || {};
         if(this._parentnode && this._parentnode.attr.format_bag_cells){
             return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
         }else if(kw.cells){
             return this.asHtmlTable(kw);
+        }else if(kw.nested){
+            return this.asNestedTable(kw,mode);
         }
         var r = [];
         var kw = kw || {};
@@ -1353,7 +1368,11 @@ dojo.declare("gnr.GnrBag", null, {
     merge: function() {
     },
     
-    update:function(bagOrObj,mode){
+    update:function(bagOrObj,mode,reason){
+        var kwargs;
+        if (reason){
+            kwargs = {doTrigger:reason}
+        }
         if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
                 this.setItem(k,bagOrObj[k]);
@@ -1370,18 +1389,18 @@ dojo.declare("gnr.GnrBag", null, {
             }
             var currNode = that.getNode(n.label);
             if(currNode){
-                 currNode.updAttributes(n.attr);
+                 currNode.updAttributes(n.attr,reason);
                  currNodeValue = currNode.getValue();
                  if (node_resolver){
                      currNode.setResolver(node_resolver);
                  }
                  if ((node_value instanceof gnr.GnrBag) && (currNodeValue instanceof gnr.GnrBag)){
-                     currNodeValue.update(node_value)
+                     currNodeValue.update(node_value,mode,reason)
                  }else{
-                     currNode.setValue(node_value);
+                     currNode.setValue(node_value,reason);
                  }
             }else{
-                that.setItem(n.label,node_value,n.attr);
+                that.setItem(n.label,node_value,n.attr,kwargs);
             }
             
         },mode);
@@ -1776,7 +1795,7 @@ dojo.declare("gnr.GnrBag", null, {
     walk: function (callback, mode, kw, notRecursive) {
         var result;
         var bagnodes = this.getNodes();
-        for (var i = 0; ((i < bagnodes.length) && (result == null)); i++) {
+        for (var i = 0; ((i < bagnodes.length) && ((result == null)|| (result=='__continue__'))); i++) {
             result = callback(bagnodes[i], kw, i);
             if (result == null) {
                 var value = bagnodes[i].getValue(mode);
@@ -1893,9 +1912,7 @@ dojo.declare("gnr.GnrBag", null, {
                     }
                     else {
                         if (attrvalue.indexOf('::') >= 0) {
-                            aux = attrvalue.split('::');
-                            var dt = aux.pop();
-                            attrvalue = convertFromText(aux.join('::'), dt);
+                            attrvalue = convertFromText(attrvalue);
                         }
                         attributes[attrname] = attrvalue;
                     }
@@ -1919,9 +1936,7 @@ dojo.declare("gnr.GnrBag", null, {
                     if (convertAs != 'T') {
                         itemValue = convertFromText(itemValue, convertAs);
                     } else if (stringContains(itemValue, '::')) {
-                        itemValue = itemValue.split('::');
-                        convertAs = itemValue[1];
-                        itemValue = convertFromText(itemValue[0], convertAs);
+                        itemValue = convertFromText(itemValue);
                     }
                     if (convertAs == 'H') {
                         attributes.dtype = convertAs;

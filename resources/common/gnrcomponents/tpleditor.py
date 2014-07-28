@@ -8,13 +8,19 @@ from gnr.web.gnrbaseclasses import BaseComponent,TableScriptToHtml
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
-import re
 from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
 #from gnr.core.gnrbaghtml import BagToHtml
-import lxml.html as ht
+HT = None
+TEMPLATEROW = None
+try:
+    import lxml.html as HT
+    import re
+    TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
+except:
+    pass
 
-TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
+
 
 class TemplateEditorBase(BaseComponent):
     @public_method
@@ -119,8 +125,8 @@ class TemplateEditorBase(BaseComponent):
         virtual_columns = []
         varsdict = dict()
         if varsbag:
-            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
-            for varname,fldpath,virtualcol,format,mask,editable,df_template,dtype in tplvars:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.required_columns,#v.format,#v.mask,#v.editable,#v.df_template,#v.dtype')
+            for varname,fldpath,virtualcol,required_columns,format,mask,editable,df_template,dtype in tplvars:
                 fk=''
                 if format:
                     fk=varname
@@ -139,10 +145,14 @@ class TemplateEditorBase(BaseComponent):
                 if fk:
                     fk='^%s'%fk
                 varsdict[varname] = '$%s%s' %(fldpath,fk)
-                
                 columns.append(fldpath)
                 if virtualcol:
                     virtual_columns.append(fldpath)
+                if required_columns:
+                    prefix = '.'.join(fldpath.split('.')[0:-1])
+                    for c in required_columns.split(','):
+                        if not c in virtual_columns:
+                            virtual_columns.append('%s.%s' %(prefix,c.replace('$','')) if prefix else c)
         if parametersbag:
             tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
             for code,format,mask in tplpars:
@@ -150,18 +160,21 @@ class TemplateEditorBase(BaseComponent):
                 masks[code] = mask
         template = templateReplace(datacontent, varsdict, True,False,conditionalMode=False)
         compiled = Bag()
-        doc = ht.parse(StringIO(template)).getroot()
-        htmltables = doc.xpath('//table')
-        for t in htmltables:
-            attributes = t.attrib
-            if 'row_datasource' in attributes:
-                subname = attributes['row_datasource']
-                tbody = t.xpath('tbody')[0]
-                tbody_lastrow = tbody.getchildren()[-1]
-                tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
-                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
-                compiled.setItem(subname.replace('.','_'),subtemplate)
-        compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc).replace('%24','$')),
+        cmain = template
+        if HT:
+            doc = HT.parse(StringIO(template)).getroot()
+            htmltables = doc.xpath('//table')
+            for t in htmltables:
+                attributes = t.attrib
+                if 'row_datasource' in attributes:
+                    subname = attributes['row_datasource']
+                    tbody = t.xpath('tbody')[0]
+                    tbody_lastrow = tbody.getchildren()[-1]
+                    tbody.replace(tbody_lastrow,HT.etree.Comment('TEMPLATEROW:$%s' %subname))
+                    subtemplate=HT.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
+                    compiled.setItem(subname.replace('.','_'),subtemplate)
+            cmain = TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),HT.tostring(doc).replace('%24','$'))
+        compiled.setItem('main', cmain,
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
                             columns=','.join(columns),formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,dtypes=dtypes)
         result.setItem('compiled',compiled)
@@ -262,6 +275,7 @@ class TemplateEditor(TemplateEditorBase):
                                                                             fieldname:caption,
                                                                             varname:varname,
                                                                             virtual_column:data.virtual_column,
+                                                                            required_columns:data.required_columns,
                                                                             df_template:df_template}]);""",
                              data="^.dropped_fieldvars",grid=grid.js_widget)    
     

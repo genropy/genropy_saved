@@ -20,7 +20,7 @@ class View(BaseComponent):
         return 'filename'
 
     def th_query(self):
-        return dict(column='filename',op='contains', val='%',runOnStart=False)
+        return dict(column='filename',op='contains', val='',runOnStart=False)
 
     def th_dialog(self):
         return dict(height='400px',width='600px')

@@ -16,7 +16,7 @@ class View(BaseComponent):
         return '_h_count'
 
     def th_query(self):
-        return dict(column='hierarchical_label', op='contains', val='%')
+        return dict(column='hierarchical_label', op='contains', val='')
 
 
 

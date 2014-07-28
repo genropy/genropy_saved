@@ -11,7 +11,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import boolean
+from gnr.core.gnrstring import boolean,slugify
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 from datetime import date
@@ -297,15 +297,18 @@ class PublicSlots(BaseComponent):
         else:
             pane.div()
 
+
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler"""
+    py_requires = """public:Public,gnrcomponents/bottomplugins:BottomPlugins,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
     formInIframe = False
     th_readOnly = False
     maintable = None
-    
+    documentation = True
+    tickets = True
+
     #DA RIVEDERE
     @struct_method
     def th_slotbar_mainFilter(self,pane,**kwargs):
@@ -330,7 +333,7 @@ class TableHandlerMain(BaseComponent):
 
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
-    
+
     @extract_kwargs(th=True,current=True)
     @struct_method
     def pbl_rootTableHandler(self,root,th_kwargs=None,current_kwargs=None,**kwargs):
@@ -350,6 +353,7 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
+        self._th_setDocumentation(key='thmain',table=self.maintable,doc=True)
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
         insidePublic = False
@@ -622,20 +626,6 @@ class TableHandlerMain(BaseComponent):
     @struct_method
     def public_publicRoot_tablelimiter(self,pane,title='',**kwargs): 
         pane.div()
-
-        #limit = self.application.config.getItem('tablelimiter.%s' %self.maintable)
-        #if limit:
-        #    limit = int(limit)
-        #    tablecode = self.maintable.replace('.','_')
-        #    pane.data('%s.view.tablelimit' %tablecode,limit)
-        #    pane.dataController("""SET .view.tablelimitBlock = totalRowCount>=tablelimit;
-        #                        SET .view.limitcaption = totalRowCount+'/'+tablelimit;""",datapath=tablecode,totalRowCount='^.view.store?totalRowCount',
-        #                        tablelimit='=.view.tablelimit',_onStart=True)
-#
-        #    pane.div('^.view.limitcaption',color='white')
-#
-        #else:
-        #    pane.div()
 
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):

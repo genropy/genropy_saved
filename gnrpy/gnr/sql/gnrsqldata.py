@@ -225,7 +225,7 @@ class SqlQueryCompiler(object):
                         sq_pars.setdefault('excludeLogicalDeleted',False)
                         aliasPrefix = '%s_t' %alias
                         sq_where = THISFINDER.sub(expandThis,sq_where)
-                        sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,**sq_pars)
+                        sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,ignoreTableOrderBy=True,**sq_pars)
                         sql_formula = re.sub('#%s\\b' %susbselect, tpl %sql_text,sql_formula)
                 subreldict = {}
                 sql_formula = self.updateFieldDict(sql_formula, reldict=subreldict)
@@ -448,7 +448,7 @@ class SqlQueryCompiler(object):
                       relationDict=None,
                       bagFields=False,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
-                      ignorePartition=False,
+                      ignorePartition=False,ignoreTableOrderBy=False,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -486,6 +486,9 @@ class SqlQueryCompiler(object):
         #                  but SqlQueryCompiler need to know that result will aggregate db rows
         if group_by == '*':
             group_by = None
+
+        if not ignoreTableOrderBy and not aggregate:
+            order_by = order_by or self.tblobj.attributes.get('order_by')
         self.init()
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
@@ -541,6 +544,8 @@ class SqlQueryCompiler(object):
         new_col_list = []
         for col in col_list:
             col = col.strip()
+            if re.search("(sum|count) *?\\(", col, re.I):
+                aggregate = True
             if not ' AS ' in col:
                 if col.startswith('$') and col[1:].replace('_', '').isalnum():
                     as_ = col[1:]
@@ -553,7 +558,6 @@ class SqlQueryCompiler(object):
                 # leave the col as is, but save the AS name to recover the db column original name from selection result
                 self.cpl.aliasDict[as_.strip()] = colbody.strip()
             new_col_list.append(col)
-            
         # build the clean and complete sql string for the columns, but still all fields are expressed as $fieldname
         columns = ',\n'.join(new_col_list)
         
@@ -893,7 +897,8 @@ class SqlQuery(object):
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
                  ignorePartition=False,
-                 addPkeyColumn=True, locale=None,_storename=None,
+                 addPkeyColumn=True, ignoreTableOrderBy=False,
+                 locale=None,_storename=None,
                  aliasPrefix=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -910,6 +915,7 @@ class SqlQuery(object):
         self.excludeDraft = excludeDraft
         self.ignorePartition = ignorePartition
         self.addPkeyColumn = addPkeyColumn
+        self.ignoreTableOrderBy = ignoreTableOrderBy
         self.locale = locale
         self.storename = _storename
         self.aliasPrefix = aliasPrefix
@@ -971,6 +977,7 @@ class SqlQuery(object):
                                                                   excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   ignorePartition=self.ignorePartition,
+                                                                  ignoreTableOrderBy=self.ignoreTableOrderBy,
                                                                   **self.querypars)
                                                                   
     def cursor(self):

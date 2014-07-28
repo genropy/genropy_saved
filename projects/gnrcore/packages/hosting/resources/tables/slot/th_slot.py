@@ -17,7 +17,7 @@ class View(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='code', op='contains', val='')
 
 
 class ViewFromInstance(BaseComponent):
@@ -31,7 +31,7 @@ class ViewFromInstance(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='code', op='contains', val='')
 
 
 

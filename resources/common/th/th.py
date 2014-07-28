@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=None,hider=True,preview=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
@@ -38,10 +38,11 @@ class TableHandler(BaseComponent):
                             parentFormSave=None,
                             rowStatusColumn=None,
                             picker=None,addrow=True,addrowmenu=None,delrow=True,export=False,title=None,
-                            addrowmenu_kwargs=True,
+                            addrowmenu_kwargs=None,
                             export_kwargs=None,
                             liveUpdate=None,
-                            picker_kwargs=True,dbstore=None,hider_kwargs=None,view_kwargs=True,preview_kwargs=None,parentForm=None,
+                            picker_kwargs=True,
+                            dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
@@ -71,7 +72,8 @@ class TableHandler(BaseComponent):
                         context_dbstore=dbstore,
                         overflow='hidden',
                         **kwargs) 
-        top_slots = ['#']     
+        top_slots = ['#']   
+        addrow_defaults = None  
         if readOnly:
             delrow = False
             addrow =False
@@ -83,6 +85,9 @@ class TableHandler(BaseComponent):
             top_slots.append('delrow')
         if addrow:
             top_slots.append('addrow')
+            if addrow is not True:
+                addrow_defaults = addrow
+
         if picker:
             top_slots.append('thpicker')
             picker_kwargs['relation_field'] = picker
@@ -105,6 +110,7 @@ class TableHandler(BaseComponent):
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,
                                 top_thpicker_picker_kwargs=picker_kwargs,top_export_parameters=export_kwargs,
                                 top_addrowmenu_parameters=addrowmenu_kwargs,
+                                top_addrow_defaults=addrow_defaults,
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
@@ -330,8 +336,15 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,handlerType='inline',
                                         default_kwargs=default_kwargs,configurable=configurable,
                                         foreignKeyGetter='=#FORM.pkey',**kwargs)
+        remoteRowController = self._th_hook('remoteRowController',dflt=None,mangler=wdg.view) or None
+        options = self._th_hook('options',mangler=wdg.view)() or dict()
         wdg.view.store.attributes.update(recordResolver=False)
-        wdg.view.grid.attributes.update(gridEditor=dict(saveMethod=saveMethod,default_kwargs=default_kwargs,autoSave=autoSave,statusColumn=statusColumn))
+        wdg.view.grid.attributes.update(remoteRowController=remoteRowController,
+                                        gridEditor=dict(saveMethod=saveMethod,
+                                                        default_kwargs=default_kwargs,
+                                                        autoSave=autoSave or options.get('autoSave'),
+                                                        statusColumn=statusColumn or options.get('statusColumn')))
+
         wdg.view.attributes.update(height=height,width=width)
 
         if saveButton:

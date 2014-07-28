@@ -51,13 +51,14 @@ pip install paste webob weberror
 pip install mako
 pip install pypdf
 pip install python-dateutil==1.5
+pip install xlwt
 pip install ipython
 
 THE GREAT MAGIC WORD - easy_install
 easy install -U -Z pip pypdf
 
 THE GREAT MAGIC WORD - pip
-pip install -—upgrade paver babel pytz vobject paste webob weberror mako python-dateutil==1.5 ipython
+pip install -—upgrade paver babel pytz vobject paste webob weberror mako python-dateutil==1.5 xlwt ipython
 
 
 RECOMMENDED

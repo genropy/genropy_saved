@@ -10,8 +10,8 @@ class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('user_notification', pkey='id', name_long='User notification', name_plural='!!User notifications')
         self.sysFields(tbl)
-        tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='user_notifications',mode='foreignkey',onDelete='raise')
-        tbl.column('notification_id',size='22' ,group='_',name_long='!!User').relation('notification.id',relation_name='notification_users',mode='foreignkey',onDelete='raise')
+        tbl.column('user_id',size='22' ,group='_',name_long='!!User').relation('user.id',relation_name='user_notifications',mode='foreignkey',onDelete='cascade')
+        tbl.column('notification_id',size='22' ,group='_',name_long='!!User').relation('notification.id',relation_name='notification_users',mode='foreignkey',onDelete='cascade')
         tbl.column('confirmed',dtype='B',name_long='!!Confirmed')
 
 
@@ -28,10 +28,9 @@ class Table(object):
 
     @public_method
     def confirmNotification(self,pkey=None):
-        user_notification = self.record(pkey=pkey,for_update=True).output('dict')
-        oldrec = dict(user_notification)
-        user_notification['confirmed'] = True
-        self.update(user_notification,oldrec)
+        user_notification = self.record(pkey=pkey).output('dict')
+        self.batchUpdate(dict(confirmed=True),where='$user_id=:uid AND $notification_id=:nid',
+                        uid=user_notification['user_id'],nid=user_notification['notification_id'])
         self.db.commit()
         return self.nextUserNotification(user_notification['user_id'])
 
@@ -49,8 +48,9 @@ class Table(object):
         commit = False
         for n in generic_notification:
             if n['all_users'] or self.db.application.checkResourcePermission(n['tag_rule'],user_tags):
-                commit = True
-                self.insert(dict(user_id=user_id,notification_id=n['id']))
+                if not self.checkDuplicate(user_id=user_id,notification_id=n['id']):
+                    commit = True
+                    self.insert(dict(user_id=user_id,notification_id=n['id']))
         if commit:
             self.db.commit()
 

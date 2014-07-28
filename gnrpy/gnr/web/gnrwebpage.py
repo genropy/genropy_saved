@@ -347,12 +347,31 @@ class GnrWebPage(GnrBaseWebPage):
         return self._workdate
 
     def _set_workdate(self, workdate):
-        with self.pageStore() as store:
-            store.setItem('rootenv.workdate', workdate)
+        self.pageStore().setItem('rootenv.workdate', workdate)
         self._workdate = workdate
         self.db.workdate = workdate
-        
     workdate = property(_get_workdate, _set_workdate)
+
+    def _get_language(self):
+        if not self._language:
+            self._language = self.pageStore().getItem('rootenv.language') or self.locale.split('-')[0].upper()
+        return self._language
+
+    def _set_language(self, language):
+        self.pageStore().setItem('rootenv.language', language)
+        self._language = language
+    language = property(_get_language, _set_language)
+
+    def _set_locale(self, val):
+        self._locale = val
+        
+    def _get_locale(self):
+        if not getattr(self,'_locale',None):
+            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
+            self._locale = (self.avatar.locale if self.avatar and getattr(self.avatar,'locale',None) else headers_locale) or 'en' #to check
+            #self._locale = headers_locale or 'en'
+        return self._locale
+    locale = property(_get_locale, _set_locale)
     
     @property
     def workdate_timestamp(self):
@@ -715,19 +734,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.htmlHeaders()
         return mytemplate.render(mainpage=self, **arg_dict)
         
-    def _set_locale(self, val):
-        self._locale = val
-        
-    def _get_locale(self):
-        if not hasattr(self, '_locale'):
-            headers_locale = self.request.headers.get('Accept-Language', 'en').split(',')[0]
-
-            self._locale = (self.avatar.locale if self.avatar and getattr(self.avatar,'locale',None) else headers_locale) or 'en' #to check
-            #self._locale = headers_locale or 'en'
-        return self._locale
-        
-    locale = property(_get_locale, _set_locale)
-        
     def rpc_changeLocale(self, locale):
         """TODO
         
@@ -747,8 +753,8 @@ class GnrWebPage(GnrBaseWebPage):
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
 
-    def clientDatetime(self,ts=None):
-        serverTimeDelta = self.rootenv['serverTimeDelta']
+    def clientDatetime(self,ts=None,serverTimeDelta=None):
+        serverTimeDelta = serverTimeDelta or self.rootenv['serverTimeDelta']
         ts = ts or datetime.datetime.now()
         if serverTimeDelta:
             return ts-timedelta(milliseconds=serverTimeDelta)
@@ -860,6 +866,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['baseUrl'] = self.site.home_uri
         kwargs['servertime'] = datetime.datetime.now()
         favicon = self.site.config['favicon?name']
+        google_fonts = getattr(self,'google_fonts',None)
+        if google_fonts:
+            arg_dict['google_fonts'] = google_fonts
         if favicon:
             arg_dict['favicon'] = self.site.getStaticUrl('site:favicon',favicon)
             arg_dict['favicon_ext'] = favicon.split('.')[1]
@@ -1433,7 +1442,7 @@ class GnrWebPage(GnrBaseWebPage):
             value['iframe'] = iframe
         if parent:
             value['parent'] = parent
-        self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+        self.setInClientData('gnr.publisher',value=value,page_id=page_id or self.page_id,fired=True)
 
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None):
@@ -1508,6 +1517,9 @@ class GnrWebPage(GnrBaseWebPage):
             page.data('gnr.package',self.package.name)
             page.data('gnr.root_page_id',self.root_page_id)
             page.data('gnr.workdate', self.workdate) #serverpath='rootenv.workdate')
+            page.data('gnr.language', self.language,serverpath='rootenv.language',dbenv=True)
+            page.dataController("""genro.publish({topic:'changedLanguage',iframe:'*',kw:{lang:language}})""",language='^gnr.language')
+            page.dataController('SET gnr.language = lang;',subscribe_changedLanguage=True)
             #page.data('gnr.userTags', self.userTags)
             page.data('gnr.locale', self.locale)
             page.data('gnr.pagename', self.pagename)
@@ -1545,8 +1557,7 @@ class GnrWebPage(GnrBaseWebPage):
             page.dock(id='dummyDock',display='none')
 
             root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
-                                        nodeId='_gnrRoot',_class='hideSplitter notvisible',
-                                        subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
+                                        nodeId='_gnrRoot',subscribe_floating_message='genro.dlg.floatingMessage(this,$1);')
             
             typekit_code = self.site.config['gui?typekit']
             if typekit_code and False:
@@ -1571,7 +1582,10 @@ class GnrWebPage(GnrBaseWebPage):
                     main_handler(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
             else:
                 rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
-                self.main(rootwdg, **kwargs)
+                if getattr(self,'mainWrapper',None):
+                    self.mainWrapper(rootwdg, **kwargs)
+                else:
+                    self.main(rootwdg, **kwargs)
             self.onMainCalls()
             if self.avatar:
                 page.data('gnr.avatar', Bag(self.avatar.as_dict()))
@@ -1887,11 +1901,24 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             if ext=='.xml':
                 content = Bag(path)
-            else:
+            elif os.path.exists(path):
                 with open(path) as f:
                     content = f.read()
+            else:
+                content = ''
         result.setItem('content',content)
         return result
+
+    @public_method
+    def saveSiteDocument(self,path=None,data=None):
+        filename,ext =os.path.splitext(path)
+        if ext == '.xml':
+            data.toXml(filename=path)
+        else:
+            with open(path,'w') as f:
+                f.write(data['content'])
+        return dict(path=path)
+
 
     def isLocalizer(self):
         """TODO"""

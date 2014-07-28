@@ -19,7 +19,7 @@ class View(BaseComponent):
         return 'label'
 
     def th_query(self):
-        return dict(column='label', op='contains', val='%')
+        return dict(column='label', op='contains', val='')
 
 
 class PagePickerView(BaseComponent):

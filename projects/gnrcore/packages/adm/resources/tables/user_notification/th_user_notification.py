@@ -45,7 +45,7 @@ class ViewFromNotification(BaseComponent):
         return 'user_id'
 
     def th_query(self):
-        return dict(column='user_id', op='contains', val='%')
+        return dict(column='user_id', op='contains', val='')
 
 
 

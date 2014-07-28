@@ -18,7 +18,7 @@ class View(BaseComponent):
         return 'permalink'
         
     def th_query(self):
-        return dict(column='permalink',op='contains',val='%',runOnStart=True)
+        return dict(column='permalink',op='contains',val='',runOnStart=True)
         
 class Form(BaseComponent):
     def th_form(self,form):

@@ -46,7 +46,7 @@ from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 
 RE_SQL_PARAMS = re.compile(":(\S\w*)(\W|$)")
 #IN_TO_ANY = re.compile(r'([$]\w+|[@][\w|@|.]+)\s*(NOT)?\s*(IN ([:]\w+))')
-IN_TO_ANY = re.compile(r'(?P<what>\w+.\w+)\s*(?P<not>NOT)?\s*(?P<inblock>IN\s*(?P<value>[:]\w+))',re.IGNORECASE)
+#IN_TO_ANY = re.compile(r'(?P<what>\w+.\w+)\s*(?P<not>NOT)?\s*(?P<inblock>IN\s*(?P<value>[:]\w+))',re.IGNORECASE)
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 import threading
@@ -67,6 +67,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'serial': 'serial8', 'O': 'bytea'}
 
     _lock = threading.Lock()
+    paramstyle = 'pyformat'
 
     def __init__(self, *args, **kwargs):
         #self._lock = threading.Lock()
@@ -80,7 +81,6 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Return a new connection object: provides cursors accessible by col number or col name
         
         :returns: a new connection object"""
-        dbroot = self.dbroot
         kwargs = self.dbroot.get_connection_params(storename=storename)
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
         kwargs = dict(
@@ -96,16 +96,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             self._lock.release()
         return conn
         
-    def in_to_any(self,m,**kwargs):
-        tpl = "NOT ( %s = ANY(%s) )"  if m.group('not') else "%s = ANY(%s)"
-        return tpl %(m.group('what'),m.group('value'))
-
     def adaptTupleListSet(self,sql,sqlargs):
-        if self.dbroot.in_to_any:
-            sql = IN_TO_ANY.sub(self.in_to_any,sql)
-            return sql
-        else:
-            return super(SqlDbAdapter, self).adaptTupleListSet(sql,sqlargs)
+        for k,v in sqlargs.items():
+            if isinstance(v, list) or isinstance(v, set) or isinstance(v,tuple):
+                if not isinstance(v,tuple):
+                    sqlargs[k] = tuple(v)
+                if len(v)==0:
+                    re_pattern = "((t\\d+)(_t\\d+)*.\\w+ +)(NOT +)*(IN) *:%s" %k
+                    sql = re.sub(re_pattern,lambda m: 'TRUE' if m.group(4) else 'FALSE',sql,flags=re.I)
+        return sql
 
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
@@ -115,9 +114,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param kwargs: the params dict
         :returns: tuple (sql, kwargs)
         """
-        for k,v in kwargs.items():
-            if isinstance(v, tuple) or isinstance(v, set):
-                kwargs[k] = list(v)
+        sql = self.adaptTupleListSet(sql,kwargs)
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
     def _managerConnection(self):
@@ -276,12 +273,23 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def _list_views(self):
         return """SELECT table_name FROM information_schema.views WHERE table_schema=:schema"""
 
+    def _list_extensions(self):
+        return """SELECT name FROM pg_available_extensions;"""
+
+    def _list_enabled_extensions(self):
+        return """SELECT name FROM pg_available_extensions where installed_version IS NOT NULL;"""
+
     def _list_columns(self):
         return """SELECT column_name as col
                                   FROM information_schema.columns 
                                   WHERE table_schema=:schema 
                                   AND table_name=:table 
                                   ORDER BY ordinal_position"""
+
+
+    def createExtensionSql(self,extension):
+        "override this"
+        return """CREATE extension %s;""" %extension
 
     def relations(self):
         """Get a list of all relations in the db. 

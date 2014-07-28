@@ -15,17 +15,21 @@ class View(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='code', op='contains', val='')
 
 
 
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
         fb.field('description')
+        tc = bc.tabContainer(region='center')
+        tc.contentPane(title='Projects').dialogTableHandler(relation='@projects',viewResource='ViewFromCompany',formResource='FormFromCompany')
+        tc.contentPane(title='People').dialogTableHandler(relation='@people',viewResource='ViewFromCompany',formResource='FormFromCompany')
+
 
 
     def th_options(self):

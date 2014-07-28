@@ -494,6 +494,22 @@ function objectAny(obj,cb) {
     return false;
 }
 
+function mapConvertFromText(value){
+    if (value instanceof Array){
+        return value.map(mapConvertFromText)
+    }
+    if (typeof(value)=='string'){
+        return convertFromText(value)
+    }
+    if(typeof(value)=='object' && !(value instanceof Date)){
+        var result = {};
+        for (var k in value){
+            result[k] = mapConvertFromText(value[k]);
+        }
+        return result;
+    }
+    return value;
+}
 
 function objectString(obj) {
     var result = [];
@@ -793,14 +809,19 @@ function quoted(astring) {
 
 
 function convertFromText(value, t, fromLocale) {
-    if (value == null || typeof(value)!='string') {
+    if(isNullOrBlank(value)){
+        return null
+    }
+    if (typeof(value)!='string') {
         return value;
     }
     if (!t){
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            value = value.slice(0,k);
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X'].indexOf(t)>=0){
+                value = value.slice(0,k);
+            }
         }
     }
     var t = t || 'T';
@@ -1052,13 +1073,24 @@ var gnrformatter = {
                 opt.pattern = format;
             }
         }
-        if(format=='meter'){
+        if(format=='meter' || format=='progress'){
             formatKw = formatKw || {};
+            formatKw.min = formatKw.min || 0;
+            formatKw.max = formatKw.max || 100;
             var p = [];
             for(var k in formatKw){
                 p.push(k+'="'+formatKw[k]+'"')
             }
-            return '<meter value="'+value+'"'+' ' +p.join(' ')+ ' ></meter>';
+            return '<'+format+' style="width:100%;" value="'+value+'"'+' ' +p.join(' ')+ ' ></'+format+'>';
+        }
+        if(format=='bytes'){
+            var s = ['Bytes','KB','MB','GB','TB'];
+            if (value == 0) {return '0 Bytes'};
+            var i = parseInt(Math.floor(Math.log(value) / Math.log(1024)));
+            return (value / Math.pow(1024, i)).toFixed(1) + ' ' + s[[i]]
+        }
+        if(format=='epoch'){
+            return _F(new Date(value*1000))
         }
         if(format=='DHMS'){
             var r = []

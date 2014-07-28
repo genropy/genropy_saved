@@ -143,7 +143,7 @@ class THPicker(BaseComponent):
         condition_kwargs = dictExtract(parameters,'condition_')
         unique = parameters.get('unique',False)
         cacheTime = parameters.get('cacheTime',-1)
-
+        one = False
         maintable = pane.getInheritedAttributes()['table']
         relation_tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
 
@@ -151,7 +151,8 @@ class THPicker(BaseComponent):
         if formNode:
             formtblobj = self.db.table(formNode.attr.get('table'))
             oneJoiner = formtblobj.model.getJoiner(maintable)
-            one = oneJoiner.get('many_relation').split('.')[-1]  
+            one = oneJoiner.get('many_relation').split('.')[-1] 
+
         hiddenItemCb = None
         if unique:
             hiddenItemCb="""var excludelist = genro.wdgById('%s').getColumnValues('%s')

@@ -20,7 +20,7 @@ class View(BaseComponent):
         return 'tablename'
 
     def th_query(self):
-        return dict(column='tablename', op='contains', val='%')
+        return dict(column='tablename', op='contains', val='')
 
 
 

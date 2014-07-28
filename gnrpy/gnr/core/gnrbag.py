@@ -61,7 +61,7 @@ import cPickle as pickle
 from datetime import datetime, timedelta
 import urllib, urlparse
 from gnr.core import gnrstring
-from gnr.core.gnrclasses import GnrClassCatalog as converter
+from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
 import os.path
 import logging
@@ -1806,6 +1806,13 @@ class Bag(GnrObject):
 
         elif isinstance(source, Bag):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
+            
+        elif hasattr(source, 'items'):
+            for key, value in source.items():
+                if hasattr(value, 'items'):
+                    value = Bag(value)
+                self.setItem(key, value)
+        
         elif isinstance(source, list) or isinstance(source, tuple):
             if len(source) > 0:
                 if not (isinstance(source[0], list) or isinstance(source[0], tuple)):
@@ -1815,11 +1822,6 @@ class Bag(GnrObject):
                         self.setItem(x[0], x[1], _attributes=x[2])
                     else:
                         self.setItem(x[0], x[1])
-        elif hasattr(source, 'items'):
-            for key, value in source.items():
-                if hasattr(value, 'items'):
-                    value = Bag(value)
-                self.setItem(key, value)
 
     def _fromSource(self, source, fromFile, mode):
         """Receive "mode" and "fromFile" and switch between the different
@@ -1897,6 +1899,30 @@ class Bag(GnrObject):
             return urlobj.read(), False, 'xml' #it is an url of type xml
         return source, False, 'direct' #urlresolver
 
+    def fromJson(self,json,listJoiner=None):
+        if isinstance(json,basestring):
+            json = gnrstring.fromJson(json)
+        if not (isinstance(json,list) or isinstance(json,dict)):
+            json = dict(value = json)
+        self._nodes[:] = self._fromJson(json,listJoiner=listJoiner)._nodes
+
+    def _fromJson(self,json,listJoiner=None):
+        converter = GnrClassCatalog()
+        result = Bag()
+        if isinstance(json,list):
+            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
+                return listJoiner.join(json)
+            for n,v in enumerate(json):
+                result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
+
+        elif isinstance(json,dict):
+            for k,v in json.items():
+                result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
+        else:
+            if isinstance(json,basestring) and converter.isTypedText(json):
+                json = converter.fromTypedText(json)
+            return json
+        return result
 
     #-------------------- fromXml --------------------------------
     def fromXml(self, source, catalog=None, bagcls=None, empty=None):
@@ -2314,6 +2340,7 @@ class BagValidationList(object):
         """TODO
         
         :param value: TODO"""
+        converter = GnrClassCatalog()
         value = converter.fromText(value, self.gnrtype)
 
     def validate_db(self, value, oldvalue, parameterString):
@@ -2654,7 +2681,7 @@ class DirectoryResolver(BagResolver):
     
     def load(self):
         """TODO"""
-        extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')])
+        extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')]) if self.ext else dict()
         extensions['directory'] = 'directory'
         result = Bag()
         try:

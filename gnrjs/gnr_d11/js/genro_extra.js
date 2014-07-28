@@ -63,7 +63,109 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     }
 
 });
+dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
+    creating: function(attributes, sourceNode) {
+        //if (sourceNode.attr.storepath) {
+        //    sourceNode.registerDynAttr('storepath');
+        //}
+        var cmAttrs = objectExtract(attributes,'config_*');
+        var readOnly = objectPop(attributes,'readOnly');
+        if(readOnly){
+            cmAttrs.readOnly = readOnly;
+        }
+        cmAttrs.value = objectPop(attributes,'value') || '';
+        return {cmAttrs:cmAttrs}
+    },
 
+    created: function(widget, savedAttrs, sourceNode) {
+        var that = this;
+        var cmAttrs = objectPop(savedAttrs,'cmAttrs');
+        var cb = function(){
+            var mode = cmAttrs.mode;
+            var theme = cmAttrs.theme;
+            var cb2 = function(){
+                dojo.style(widget,{position:'relative'})
+                var cm = CodeMirror(widget,cmAttrs);
+                dojo.style(widget.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
+                cm.refresh();
+                cm.sourceNode = sourceNode;
+                cm.gnr = that;
+                sourceNode.externalWidget = cm;
+                for (var prop in that) {
+                    if (prop.indexOf('mixin_') == 0) {
+                        cm[prop.replace('mixin_', '')] = that[prop];
+                    }
+                }
+                cm.on('update',function(){
+                    sourceNode.delayedCall(function(){
+                        var v = sourceNode.externalWidget.getValue();
+                        sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
+                    },500,'updatingContent')
+                })
+            }
+            var cb1 = function(){
+                if(theme){
+                    genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,function(){
+                        cb2();
+                    })
+                }else{
+                    cb2();
+                }
+            }
+            that.load_mode(mode,cb1);
+        }
+        if(!window.CodeMirror){
+            genro.dom.loadJs('/_rsrc/js_libs/codemirror/lib/codemirror.js',function(){
+                CodeMirror.keyMap['softTab'] = objectUpdate({'Tab':function(cm){
+                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                    cm.replaceSelection(spaces);
+                }},CodeMirror.keyMap['default']);
+                genro.dom.loadCss('/_rsrc/js_libs/codemirror/lib/codemirror.css','codemirror_default',function(){
+                    genro.dom.loadJs('/_rsrc/js_libs/codemirror/addon/mode/overlay.js',function(){cb();});
+                })
+            });
+        }else{
+            cb();
+        }
+    },
+
+    load_mode:function(mode,cb){
+        var that = this;
+        if (!(mode in CodeMirror.modes)){
+            genro.dom.loadJs('/_rsrc/js_libs/codemirror/mode/'+mode+'/'+mode+'.js',function(){
+                if(CodeMirror.modes[mode].dependencies){
+                    var i =0;
+                    CodeMirror.modes[mode].dependencies.forEach(function(dep){
+                        i++;
+                        if(CodeMirror.modes[mode].dependencies.length==i){
+                            that.load_mode(dep,function(){
+                                setTimeout(function(){cb()},10);
+                            });
+                        }else{
+                            that.load_mode(dep);
+                        }
+                    });
+                }
+                else if(cb){
+                    cb()
+                }
+            });
+        }
+        else if(cb){
+            cb();
+        }
+    },
+
+    mixin_gnr_value:function(value,kw, trigger_reason){
+        this.setValue(value)
+    },
+    mixin_gnr_readOnly:function(value,kw,trigger_reason){
+        this.options.readOnly = value?'nocursor':false;
+    }
+});
 
 dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
     constructor: function(application) {
@@ -485,7 +587,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
     },
     
     mixin_gnr_getFromDatastore : function() {
-        this.setData(this.sourceNode.getAttributeFromDatasource('value'));
+        this.setData(this.sourceNode.getAttributeFromDatasource('value') || '');
     },
 
     mixin_gnr_setInDatastore : function() {

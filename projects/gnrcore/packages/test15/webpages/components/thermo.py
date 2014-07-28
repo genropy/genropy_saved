@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
         box.button('Start', fire='.start_test')
         box.dataRpc('dummy', 'test_3_batch', _fired='^.start_test')
         
-    def rpc_test_1_batch(self, ):
+    def rpc_test_1_batch(self):
         t = time.time()
         # thermo_lines = [{'title':'Clients',_class=}]
         thermo_lines = 'clients,invoices,rows'

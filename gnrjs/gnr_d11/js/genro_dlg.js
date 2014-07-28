@@ -153,11 +153,20 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var message = objectPop(kw,'message');
         var msgType = objectPop(kw,'messageType') || 'message';
         var transition = 'opacity '+duration_in+'s';
+        var onClosedCb = objectPop(kw,'onClosedCb');
+        if (onClosedCb){
+            onClosedCb = funcCreate(onClosedCb,null,sourceNode)
+        }
         var messageBox = sourceNode._('div','_floatingmess',{_class:'invisible fm_box fm_'+msgType,transition:transition}).getParentNode()
         kw.innerHTML = message;
         messageBox._('div',kw);
-        var deleteCb = function(){that._value.popNode('_floatingmess')};
-        messageBox._('div',{_class:'fm_closebtn',connect_onclick:deleteCb});
+        var deleteCb = function(){
+                                    that._value.popNode('_floatingmess');
+                                    if(onClosedCb){
+                                        onClosedCb();
+                                    }
+                                 };
+        messageBox._('div',{_class:'dlg_closebtn',connect_onclick:deleteCb});
         genro.dom.centerOn(messageBox,sourceNode,xRatio,yRatio);
         var that = sourceNode;
         if(sound){
@@ -165,8 +174,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         }
         var t1 = setTimeout(function(){
                               genro.dom.removeClass(messageBox,'invisible');
-                              setTimeout(function(){genro.dom.addClass(messageBox,'invisible')
-                                    setTimeout(deleteCb,(duration_out*1000)+1)
+                              setTimeout(function(){
+                                    if(duration_out>0){
+                                        var dt = duration_out/2;
+                                        setTimeout(function(){
+                                            genro.dom.addClass(messageBox,'invisible');
+                                            setTimeout(function(){
+                                                deleteCb();
+                                            },dt*1000)
+                                        },(dt*1000)+1)
+                                    }
+                                    
                               },(duration_in*1000)+1);
                             },1)
 
@@ -191,6 +209,42 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             dlgNode._iframeNode.domNode.gnr.postMessage(dlgNode._iframeNode,kw.openKw);
         }
     },
+
+    lightboxDialog:function(kwOrCb,onClosedCb){        
+        genro.src.getNode()._('div', '_dlg_lightbox');
+        var node = genro.src.getNode('_dlg_lightbox').clearValue().freeze();
+        var onClosedCb = onClosedCb?funcCreate(onClosedCb):null;
+        var dlg = node._('dialog',{_class:'lightboxDialog',nodeId:'_dlg_lightbox',connect_hide:function(){
+            if(onClosedCb){
+                onClosedCb.call(this);
+            }
+            genro.src.getNode('_dlg_lightbox').clearValue();
+        }});
+        dlg._('div',{_class:'dlg_closebtn',connect_onclick:'genro.wdgById("_dlg_lightbox").hide()',top:'-20px',right:'-20px'});
+        if(typeof(kwOrCb)=='function'){
+            kwOrCb(dlg);
+        }else{
+            dlg._(objectPop(kwOrCb,'tag'),kwOrCb);
+        }
+        node.unfreeze();
+        genro.wdgById('_dlg_lightbox').show();
+    },
+
+    lightboxVideo:function(url,kw){
+        this.lightboxDialog(function(dlg){
+            kw = kw || {};
+            var caption = objectPop(kw,'caption');
+            
+            var box = dlg._('div',{padding:'10px',background:'white',rounded:6});
+            if(caption){
+                dlg._('div',{innerHTML:caption,text_align:'center',color:'#999',font_weight:'bold'});
+            }
+            box._('htmliframe',objectUpdate({src:url,height:'500px',width:'600px',border:'0',nodeId:'_videoiframe_'},kw))
+        },function(){
+            genro.domById('_videoiframe_').setAttribute('src','');
+        });
+    },     
+
 
     alert:function(msg, title, buttons, resultPath, kw) {
         genro.src.getNode()._('div', '_dlg_alert');
@@ -374,14 +428,19 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             confirmbtnKW.disabled = '^.promptvalue?=(#v==null) || (#v=="")';
         }
         bar._('button','confirm',confirmbtnKW);
-        var kwbox = {padding:'10px'};
+        var kwbox = {};
         if(remote){
+            kwbox['padding'] = '10px';
             kwbox['remote'] = remote;
             objectUpdate(kwbox,objectExtract(kw,'remote_*',false,true));
             kwbox['remote_valuepath'] = '.promptvalue';
             dlg.center._('div',kwbox);
+        }else if(typeof(wdg)=='function'){
+            kwbox['datapath'] = '.promptvalue'
+            wdg.call(sourceNode,dlg.center._('div',kwbox)); // nn ho un sourcenode
         }
         else{
+            kwbox.padding = '10px';
             kwbox.width=dlg_kw.width;
             var box = dlg.center._('div',kwbox);
             if(msg){

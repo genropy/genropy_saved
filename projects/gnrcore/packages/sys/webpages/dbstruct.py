@@ -9,7 +9,8 @@ class GnrCustomWebPage(object):
         self.topPane(bc.contentPane(region='top', _class='tm_top'))
         tc = bc.tabContainer(region='center', margin='6px', background_color='white', font_size='.9em')
         for pkg in self.db.packages.values():
-            self.packagePane(tc.borderContainer(title=pkg.name,
+            if pkg['tables']:
+                self.packagePane(tc.borderContainer(title=pkg.name,
                                                 datapath='packages.%s' % pkg.name), pkg)
 
     def topPane(self, pane):
@@ -21,7 +22,7 @@ class GnrCustomWebPage(object):
         for table in pkg['tables'].values():
             center.dataRemote('.tree.%s' % table.name, 'relationExplorer', table=table.fullname, dosort=False)
         center.tree(storepath='.tree', persist=False,
-                    inspect='shift', labelAttribute='caption',
+                    inspect='shift', #labelAttribute='label',
                     _class='fieldsTree',
                     hideValues=True,
                     margin='6px',

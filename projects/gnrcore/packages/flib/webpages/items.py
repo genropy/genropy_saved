@@ -50,4 +50,4 @@ class GnrCustomWebPage(object):
         pass
 
     def queryBase(self):
-        return dict(column='title', op='contains', val='%')
+        return dict(column='title', op='contains', val='')

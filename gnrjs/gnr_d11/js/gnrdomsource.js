@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return parentNode.getBuiltObj();
         }
     },
-
+    
     getDomNode:function() {
         if (this.domNode) {
             return  this.domNode;
@@ -90,10 +90,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         };
     },
     
-    getParentWidget:function() {
+    getParentWidget:function(tagToFind) {
+		var tag=tagToFind?tagToFind.toLowerCase():none;
         var parentNode = this.getParentNode();
         if (parentNode) {
-            return parentNode.widget?parentNode.widget : parentNode.getParentWidget();
+            return (parentNode.widget && (!tag || ((parentNode.attr.tag ||'' ).toLowerCase()==tag)))?parentNode.widget : parentNode.getParentWidget(tagToFind);
         }
     },
     destroy:function() {
@@ -123,7 +124,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             mydpath = gnr.bagRealPath(mydpath);
         }
         if (mydpath.indexOf('?') >= 0) {
-            if ((kw.updattr) || (mydpath.indexOf('?=') >= 0)) {
+            if ((kw.updattr) || (kw.evt=='fired') ||(mydpath.indexOf('?=') >= 0)) {
                 mydpath = mydpath.split('?')[0];
             }
         }
@@ -389,8 +390,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     expr = (tag == 'dataformula') ? 'return ' + expr : expr;
                     result = funcCreate(expr, (['_kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
                 }
-                if (dataNode) { // if it has a dataNode set it to the returned value
-                    dataNode.setValue(result);
+                if (destinationPath) { // if it has a dataNode set it to the returned value
+                    this.setRelativeData(destinationPath,result);
+                    //dataNode.setValue(result);
                 }
             }
         }
@@ -555,7 +557,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
-            return 'gnr.workspace.'+(node.attr.nodeId || node.getStringId())+'.'+relpath;
+            return 'gnr.workspace.'+(node.attr.nodeId || (node.attr.tag+'_'+node.getStringId()))+'.'+relpath;
         }
         if(nodeId=='DATA'){
             return relpath;
@@ -578,6 +580,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if (path.indexOf('#') == 0) {
             return this.symbolicDatapath(path);
+        }
+        if(path=='.'){
+            return this.absDatapath();
         }
         var currNode = this;
         var datapath;
@@ -602,6 +607,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if (path.indexOf('.') == 0) {
             console.error('unresolved relativepath ' + path);
+            debugger
         }
         path = path.replace('.?', '?');
         if (path.indexOf('#parent') > 0) {
@@ -802,6 +808,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _onDeleting:function(){
         if(this.form){
             this.form.unregisterChild(this);
+        }
+        if (this._timing){
+            clearInterval(this._timing)
         }
         if(this.watches){
             for(var w in this.watches){
@@ -1386,9 +1395,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 //domnode.setAttribute(attr,value);
             }
         }else if(this.gnrwdg){
-            var setter = 'set' + stringCapitalize(attr);
-            if(setter in this.gnrwdg){
-                this.gnrwdg[setter].call(this.gnrwdg,value,kw,trigger_reason);
+            var handler = this.gnrwdg['set' + stringCapitalize(attr)];
+            if(!handler && (attr in this.gnrwdg['catchers'])){
+                handler = this.gnrwdg[this.gnrwdg['catchers'][attr]];
+            }
+            if(handler){
+                handler.call(this.gnrwdg,value,kw,trigger_reason);
             }
         }
     },

@@ -20,11 +20,9 @@ class View(BaseComponent):
         return 'username'
         
     def th_query(self):
-        return dict(column='username',op='contains', val='%')
+        return dict(column='username',op='contains', val='')
 
 class Form(BaseComponent):
-    def prova(self,pane):
-        pass
     def th_form(self, form):
         pane = form.record
         self.prova(pane)
@@ -33,7 +31,6 @@ class Form(BaseComponent):
         fb.field('firstname',lbl='!!Firstname')
         fb.field('username',lbl='!!Username',validate_nodup=True,validate_notnull_error='!!Existing')
         fb.field('lastname',lbl='!!Lastname')
-        
         fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')

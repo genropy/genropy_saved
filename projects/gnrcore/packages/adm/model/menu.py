@@ -4,7 +4,7 @@
 #from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import stringDict,asDict
+from gnr.core.gnrstring import stringDict,asDict,slugify
 from datetime import datetime
 import os
 
@@ -28,7 +28,7 @@ class Table(object):
     def pkgId(self,pkgId):
         return ('_ROOT_%s_' %pkgId).ljust(22,'_')
 
-    def getMenuBag(self,root_id=None,userTags=None):
+    def getMenuBag(self,root_id=None,userTags=None,exportMode=None):
         root_id = root_id or self.rootId()
         q = self.query(where="$hierarchical_pkey LIKE :root_id || '/%%' " ,
                         root_id=root_id,columns='*,$hlevel,$page_label,$page_filepath,$page_tbl,$page_metadata',
@@ -40,7 +40,7 @@ class Table(object):
         result = Bag()
         app = self.db.application
         forbidden = []
-        for r in f:
+        for i,r in enumerate(f):
             if userTags is True or (app.checkResourcePermission(r['tags'], userTags) and not r['parent_id'] in forbidden):
                 kw = dict()      
                 r = dict(r)   
@@ -53,7 +53,9 @@ class Table(object):
                 else:
                     kw['isDir'] = True
                     labelClass='menu_shape menu_level_%i' %(r['hlevel']-2)
-                result.setItem(r['hierarchical_pkey'].split('/')[1:],None,label=r['label'],tags=r['tags'], labelClass=labelClass,
+                if not exportMode:
+                    kw['labelClass'] = labelClass
+                result.setItem(r['hierarchical_pkey'].split('/')[1:],None,label=r['label'],tags=r['tags'],
                                 **kw)  
             else:
                 forbidden.append(r['id'])
@@ -73,7 +75,7 @@ class Table(object):
         name = '%s.xml' %name
         site = self.db.application.site
         path = site.getStaticPath('site:exported_menu',name,autocreate=-1)
-        self.getMenuBag(userTags=True).toXml(filename=path)
+        self.getMenuBag(userTags=True,exportMode=True).toXml(filename=path,pretty=True,typevalue=False)
         return site.getStaticUrl('site:exported_menu',name)
 
 

@@ -103,7 +103,7 @@ class ThResourceMaker(object):
         self.write(out_file, "return '%s'"%columns[0][0], indent=2)
         self.write(out_file)
         self.write(out_file, "def th_query(self):", indent=1)
-        self.write(out_file, "return dict(column='%s', op='contains', val='%%')"%columns[0][0], indent=2)
+        self.write(out_file, "return dict(column='%s', op='contains', val='')"%columns[0][0], indent=2)
         self.write(out_file)
         self.write(out_file)
         self.write(out_file)

@@ -92,7 +92,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None,in_to_any=False,**kwargs):
+                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -127,7 +127,6 @@ class GnrSqlDb(GnrObject):
         self.started = False
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
-        self.in_to_any = in_to_any
 
     #-----------------------Configure and Startup-----------------------------
 
@@ -370,8 +369,6 @@ class GnrSqlDb(GnrObject):
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
-            sql = self.adapter.adaptTupleListSet(sql,sqlargs)
-            sql = self.adapter.empty_IN_patch(sql)
             sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
@@ -419,6 +416,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
         tblobj._doExternalPkgTriggers('onInserting', record)
+        tblobj.trigger_assignCounters(record=record)
         if hasattr(tblobj,'dbo_onInserting'):
             tblobj.dbo_onInserting(record,**kwargs)
         if tblobj.draftField:
@@ -428,7 +426,11 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
+
         
+    def insertMany(self, tblobj, records, **kwargs):
+        self.adapter.insertMany(tblobj, records,**kwargs)
+
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
 
@@ -453,6 +455,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onUpdating', record, old_record=old_record)
         if hasattr(tblobj,'dbo_onUpdating'):
             tblobj.dbo_onUpdating(record,old_record=old_record,pkey=pkey,**kwargs)
+        tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
@@ -474,7 +477,8 @@ class GnrSqlDb(GnrObject):
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)
-        
+        tblobj.trigger_releaseCounters(record)
+
     def commit(self):
         """Commit a transaction"""
         self.onCommitting()
@@ -597,9 +601,7 @@ class GnrSqlDb(GnrObject):
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
               addPkeyColumn=True,ignorePartition=False, locale=None,
-              mode=None,_storename=None,aliasPrefix=None, **kwargs):
-
-        
+              mode=None,_storename=None,aliasPrefix=None,ignoreTableOrderBy=None, **kwargs):
         q = self.table(table).query(columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -607,7 +609,7 @@ class GnrSqlDb(GnrObject):
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
                          ignorePartition=ignorePartition,
                          addPkeyColumn=addPkeyColumn, locale=locale,_storename=_storename,
-                         aliasPrefix=aliasPrefix)
+                         aliasPrefix=aliasPrefix,ignoreTableOrderBy=ignoreTableOrderBy)
         result = q.sqltext
         if kwargs:
             prefix = str(id(kwargs))

@@ -11,7 +11,7 @@ class View(BaseComponent):
         r.fieldcell('dbstore',name_long='!!Store')
         
     def th_query(self):
-        return dict(column='tablename',op='contains', val='%')
+        return dict(column='tablename',op='contains', val='')
 
 
 

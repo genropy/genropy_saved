@@ -4,6 +4,10 @@
 % if favicon:
      <link rel="icon" href="${favicon}" type="image/${favicon_ext}" />
 % endif
+% if google_fonts:
+    <link href='http://fonts.googleapis.com/css?family=${google_fonts}' rel='stylesheet' type='text/css'>
+% endif
+
 % if dijitImport:
     % for single in dijitImport:
         <script type="text/javascript" src="${single}"></script>

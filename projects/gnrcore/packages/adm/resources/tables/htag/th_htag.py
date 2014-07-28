@@ -17,26 +17,22 @@ class View(BaseComponent):
         return 'code'
         
     def th_query(self):
-        return dict(column='code',op='contains', val='%')
+        return dict(column='code',op='contains', val='')
 
 class Form(BaseComponent):
     def th_form(self, form):
-        bc = form.center.borderContainer(datapath='.record')
-        top = bc.contentPane(region='top')
+        bc = form.center.borderContainer()
+        top = bc.contentPane(region='top',datapath='.record')
         fb = top.div(margin='5px').formbuilder(cols=2, border_spacing='2px',width='100%',fld_width='100%')
         fb.field('code')
         fb.field('description')
         fb.field('isreserved', lbl='',label='Is reserved')
         fb.field('note')
-        self.usersPane(bc.contentPane(region='center',margin='2px',datapath='#FORM'))
+        self.usersPane(bc.contentPane(region='center',datapath='#FORM'))
 
     def usersPane(self,pane):
-        def user_struct(struct):
-            r = struct.view().rows()
-            r.cell('username', name='username', width='8em')
-            r.cell('fullname', name='fullname', width='100%')
-            
-        pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag',picker='user_id',delrow=True)
+        pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag',picker='user_id',
+                                delrow=True,pbl_classes=True,margin='2px')
  
 
     def th_options(self):

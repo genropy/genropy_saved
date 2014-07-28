@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,customizable
 
 class View(BaseComponent):
 
@@ -18,8 +18,10 @@ class View(BaseComponent):
         return 'code'
 
     def th_query(self):
-        return dict(column='code', op='contains', val='%')
+        return dict(column='code', op='contains', val='')
 
+    def th_options(self):
+        return dict(virtualStore=False)
 
 
 class Form(BaseComponent):
@@ -27,11 +29,14 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.formbuilder(cols=2, border_spacing='4px')
+        self.main_fb(fb)
+
+    @customizable
+    def main_fb(self,fb):
         fb.field('code')
         fb.field('name')
         fb.field('code3')
         fb.field('nmbr')
-        fb.field('nmbrunico')
 
 
     def th_options(self):

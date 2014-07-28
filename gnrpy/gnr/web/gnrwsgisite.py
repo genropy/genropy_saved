@@ -14,6 +14,7 @@ import logging
 import subprocess
 import urllib
 import urllib2
+import httplib2
 
 
 from time import time
@@ -344,6 +345,7 @@ class GnrWsgiSite(object):
         self.task_handler = self.addService(TaskHandler, service_name='task')
         self.services.addSiteServices()
         self._register = None
+        self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -361,6 +363,10 @@ class GnrWsgiSite(object):
         if not self._register:
             self._register = SiteRegisterClient(self)
         return self._register
+
+    @property
+    def remote_edit(self):
+        return self._remote_edit
 
     def addService(self, service_handler, service_name=None, **kwargs):
         """TODO
@@ -583,6 +589,17 @@ class GnrWsgiSite(object):
             url = '%s/%s' %(url,method)
         url= urllib2.urlopen(url,urllib.urlencode(kwargs))
         return url.read()
+
+    def callGnrRpcUrl(self,url,method,*args,**kwargs):
+        kwargs = kwargs or dict()
+        for k in kwargs:
+            kwargs[k] = self.gnrapp.catalog.asTypedText(kwargs[k])
+        urlargs = [url,method]+list(args)
+        url = '/'.join(urlargs)
+        http = httplib2.Http()
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        response,content = http.request(url, 'POST', headers=headers, body=urllib.urlencode(kwargs))
+        return self.gnrapp.catalog.fromTypedText(content)
 
     def writeException(self, exception=None, traceback=None):
         try:
@@ -1205,6 +1222,13 @@ class GnrWsgiSite(object):
         self._currentRequests[thread.get_ident()] = request
         
     currentRequest = property(_get_currentRequest, _set_currentRequest)
+
+    @property
+    def heartbeat_options(self):
+        heartbeat = boolean(self.config['wsgi?heartbeat'])
+        if heartbeat:
+            site_url = self.config['wsgi?external_host'] or self.currentRequest.host_url
+            return dict(interval=60,site_url=site_url)
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).

@@ -48,9 +48,14 @@ def cellFromField(field,tableobj):
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
-    kwargs['width'] = '%iem' % int(fldobj.print_width*.8) if fldobj.print_width else None
+    kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     relfldlst = tableobj.fullRelationPath(field).split('.')
-    kwargs.update(dictExtract(fldobj.attributes,'validate_',slice_prefix=False))
+    validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
+    if validations and kwargs.get('edit'):
+        edit = kwargs['edit']
+        if edit is not True:
+            validations.update(edit)
+        kwargs['edit'] = validations
     #if 'values' in fldobj.attributes:
     #    kwargs['values']=fldobj.attributes['values']
     if hasattr(fldobj,'relatedColumnJoiner'):
@@ -58,10 +63,13 @@ def cellFromField(field,tableobj):
         if columnjoiner:
             relatedTable = fldobj.relatedColumn().table
             kwargs['related_table'] = relatedTable.fullname
+            kwargs['related_table_lookup'] = relatedTable.attributes.get('lookup')
             if len(relfldlst) == 1:
                 caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
                     rel_caption_field = '@%s.%s' %(field,caption_field)
+                    caption_fieldobj = tableobj.column(rel_caption_field)
+                    kwargs['width'] = '%iem' % int(caption_fieldobj.print_width*.6) if caption_fieldobj.print_width else None
                     kwargs['caption_field'] = rel_caption_field
                     caption_field_kwargs = cellFromField(rel_caption_field,tableobj)
                     if '_joiner_storename' in caption_field_kwargs:
@@ -266,6 +274,9 @@ class GnrDomSrc(GnrStructData):
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: TODO"""
+        if childname and childname.startswith('^') and not 'value' in kwargs:
+            kwargs['value'] = childname
+            childname = None
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
             kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
@@ -347,7 +358,7 @@ class GnrDomSrc(GnrStructData):
         return self.center.contentPane(datapath='.record')
         
     @extract_kwargs(store=True)
-    def frameform(self, formId=None, frameCode=None, store=None, storeCode=None,
+    def frameform(self, formId=None, frameCode=None, store=None,storeType=None, storeCode=None,
                   slots=None, table=None, store_kwargs=None, **kwargs):
         """TODO
         
@@ -374,6 +385,7 @@ class GnrDomSrc(GnrStructData):
                             namespace='form',storeCode=storeCode,table=table,
                             autoslots='top,bottom,left,right,center',**kwargs)
         if store:
+            store_kwargs['storeType'] = storeType or store_kwargs.get('storeType')
             if store is True:
                 store = 'recordCluster'
             store_kwargs['handler'] = store
@@ -480,6 +492,9 @@ class GnrDomSrc(GnrStructData):
     def div(self, childcontent=None, **kwargs):
         return self.htmlChild('div', childcontent=childcontent, **kwargs)
         
+    def style(self,childcontent=None,**kwargs):
+        return self.htmlChild('style', childcontent=childcontent, **kwargs)
+
     def a(self, childcontent=None, **kwargs):
         return self.htmlChild('a', childcontent=childcontent, **kwargs)
         
@@ -617,6 +632,8 @@ class GnrDomSrc(GnrStructData):
             what = None
         return self.child('subscribe', obj=what, objPath=objPath, event=event, childcontent=func, **kwargs)
         
+
+
     def css(self, rule, styleRule=''):
         """Handle the CSS rules
         
@@ -652,6 +669,8 @@ class GnrDomSrc(GnrStructData):
         :param source: TODO"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
+    def input(self, value=None, **kwargs):
+        return self.child('input', value=value, **kwargs)
     
     def getMainFormBuilder(self):
         return getattr(self.parentNode,'_mainformbuilder',None)
@@ -784,7 +803,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     htmlNS = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
               'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
               'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'frame', 'frameset',
-              'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'hr', 'html', 'i', 'iframe', 'img', 'input',
+              'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'hr', 'html', 'i', 'iframe','htmliframe', 'img', 'input',
               'ins', 'kbd', 'label', 'legend', 'li', 'link', 'map', 'meta', 'noframes', 'noscript',
               'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'samp',
               'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
@@ -813,9 +832,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
+             'FramePane', 'FrameForm','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -956,7 +975,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
 
-    def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
+    def bagStore(self,table=None,storeCode=None,storepath=None,columns=None,_identifier=None,**kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -982,15 +1001,43 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             attr['tag'] = 'newincludedview'
+            if _identifier:
+                attr['identifier'] = _identifier
             parent = self.parent
         if parentTag == 'palettegrid':            
             storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
             attr['table'] = table
+            if _identifier:
+                attr['identifier'] = _identifier
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
         #self.data(storepath,Bag())
         return parent.child('BagStore',storepath=storepath, nodeId=nodeId,**kwargs)
+
+    def fsStore(self,folders=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
+        """FileSystem Store
+        """
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        parent = self
+        if parentTag:
+            parentTag = parentTag.lower()
+        if parentTag =='includedview' or  parentTag =='newincludedview':
+            storepath = storepath or attr.get('storepath') or '.store'
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+            attr['tag'] = 'newincludedview'
+            parent = self.parent
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
+            attr['store'] = storeCode
+            storepath = storepath or attr.get('storepath') or '.store'
+        nodeId = '%s_store' %storeCode
+        return parent.child('SelectionStore',storepath=storepath,storeType='FileSystem',
+                            nodeId=nodeId,method='app.getFileSystemSelection',
+                            folders=folders,include=include,columns=columns,
+                            **kwargs)
 
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
@@ -1109,17 +1156,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
 
 
+    def docItem(self, store=None,key=None,contentpath=None,**kwargs):        
+        return self.child('DocItem',store=store,key=key,contentpath=contentpath,**kwargs)
+
     def ckeditor(self,stylegroup=None,**kwargs):
         style_table = self.page.db.table('adm.ckstyle')
         if style_table:
-            cs = dict()
-            cs.update(style_table.query(where="$stylegroup IS NULL OR $stylegroup=''",g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if stylegroup:
-                for st in stylegroup.split(','):
-                    cs.update(style_table.query(where='$stylegroup=:g',g=stylegroup,columns='$name,$element,$styles,$attributes').fetchAsDict('name'))
-            if cs:
-                kwargs['customStyles'] = [dict(v) for v in cs.values()]
-
+            customStyles = style_table.getCustomStyles(stylegroup=stylegroup)
+            if customStyles:
+                kwargs['customStyles'] = customStyles
         return self.child('ckEditor',**kwargs)
 
     def palettePane(self, paletteCode, datapath=None, **kwargs):
@@ -1457,7 +1502,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         return self.child('radiobutton', label=label, **kwargs)
         
-    def checkbox(self, label=None, value=None, **kwargs):
+    def checkbox(self, value=None, label=None,**kwargs):
         """Return a :ref:`checkbox`: setting the value to true will check the box
         while false will uncheck it
         
@@ -1612,6 +1657,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
+            isLookup = lnktblobj.attributes.get('lookup') or False
             joiner = fieldobj.relatedColumnJoiner()
             onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
@@ -1640,7 +1686,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         zoomKw.setdefault('formOnly',False)
                         result['lbl__zoomKw'] = zoomKw #,slice_prefix=False)
                         result['lbl__zoomKw_table'] = lnktblobj.fullname
-                        result['lbl__zoomKw_lookup'] = lnktblobj.attributes.get('lookup')
+                        result['lbl__zoomKw_lookup'] = isLookup
                         result['lbl__zoomKw_title'] = forcedTitle or lnktblobj.name_plural or lnktblobj.name_long
                         result['lbl__zoomKw_pkey'] = '=.%s' %fld
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPaletteFromSourceNode(this,$1);"  
@@ -1659,6 +1705,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['method'] = 'app.dbSelect'
             result['size'] = size
             result['_guess_width'] = '%iem' % (int(size * .7) + 2)
+            result.setdefault('hasDownArrow',isLookup)
             if(onerelfld != relcol.table.pkey):
                 result['alternatePkey'] = onerelfld
         #elif attr.get('mode')=='M':

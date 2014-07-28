@@ -43,7 +43,7 @@ class GnrCustomWebPage(object):
         pass
 
     def queryBase(self):
-        return dict(column='lock_table', op='contains', val='%')
+        return dict(column='lock_table', op='contains', val='')
 
     ############################## FORM METHODS ##################################
 

@@ -18,7 +18,7 @@ class View(BaseComponent):
         return 'user_id'
 
     def th_query(self):
-        return dict(column='user_id',op='contains', val='%',runOnStart=False)
+        return dict(column='user_id',op='contains', val='',runOnStart=False)
 
     def th_dialog(self):
         return dict(height='400px',width='600px')

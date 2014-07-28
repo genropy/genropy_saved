@@ -276,6 +276,32 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     #        indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
     #        return indexes
 
+    def getTableContraints(self, table=None, schema=None):
+        """Get a (list of) dict containing details about a column or all the columns of a table.
+        Each dict has those info: name, position, default, dtype, length, notnull
+        Every other info stored in information_schema.columns is available with the prefix '_mysql_'"""
+        sql = """SELECT constraint_type,column_name,tc.table_name,tc.table_schema,tc.constraint_name
+            FROM information_schema.table_constraints AS tc 
+            JOIN information_schema.key_column_usage AS cu 
+                ON cu.constraint_name=tc.constraint_name  
+                WHERE constraint_type='UNIQUE'
+                %s%s;"""
+        filtertable = ""
+        if table:
+            filtertable = " AND tc.table_name=:table"
+        filterschema = ""
+        if schema:
+            filterschema = " AND tc.table_schema=:schema"
+        result = self.dbroot.execute(sql % (filtertable,filterschema),
+                                      dict(schema=schema,
+                                           table=table)).fetchall()
+            
+        res_bag = Bag()
+        for row in result:
+            row=dict(row)
+            res_bag.setItem('%(table_schema)s.%(table_name)s.%(column_name)s'%row,row['constraint_name'])
+        return res_bag
+
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
@@ -308,9 +334,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             if not coltype:
                 print 'unrecognized column type: %s' % col['dtype']
                 coltype = 'T'
-            col['dtype'] = coltype
+            dtype = col['dtype'] = coltype
             col['notnull'] = (col['notnull'] == 'NO')
             result.append(col)
+            if dtype == 'N':
+                precision, scale = col.get('numeric_precision'), col.get('numeric_scale')
+                if precision:
+                    col['size'] = '%i,%i' % (precision, scale)
+            elif dtype == 'A':
+                size = col.get('length')
+                if size:
+                    col['size'] = '0:%i' % size
+                else:
+                    dtype = col['dtype'] = 'T'
+            elif dtype == 'C':
+                col['size'] = str(col.get('length'))
         if column:
             result = result[0]
         return result

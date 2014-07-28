@@ -208,6 +208,14 @@ class GnrClassCatalog(object):
             return f(txt, **kwargs)
         else:
             return self.classes[clsname](txt)
+
+
+
+    def isTypedText(self,txt,**kwargs):
+        if not '::' in txt:
+            return False
+        return txt.split('::')[-1].upper() in ['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X']
+
             
     def fromTypedText(self, txt, **kwargs):
         """Add???
@@ -288,7 +296,8 @@ class GnrClassCatalog(object):
         
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)
         self.addParser(Bag, lambda txt: Bag(txt))
-        
+        self.addSerializer("asText", Bag, lambda b: b.toXml(catalog=self))
+
         self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
         self.addParser(type(None), lambda txt: None)
         self.addSerializer("asText", type(None), lambda txt: '')

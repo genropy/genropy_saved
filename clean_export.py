@@ -16,6 +16,7 @@ INCLUDED_PATHS = [
  'README.rst',
  'resources/common',
  'resources/js_libs/ckeditor',
+ 'resources/js_libs/codemirror',
  'scripts',
  'webtools'
  ]
@@ -30,7 +31,7 @@ EXCLUDED_PATHS = [
 'gnrpy/gnr/xtnd',
 'gnrpy/gnr/pdf',
 'gnrpy/gnr/devel',
-'gnrpy/gnr/utils',
+#'gnrpy/gnr/utils',
 'projects/gnrcore/packages/website',
 'projects/gnrcore/packages/uke',
 'projects/gnrcore/packages/qfrm',
@@ -74,7 +75,7 @@ def do_clean_export(genropy_path = None):
 			if os.path.join(dirpath,dirname) in excluded_paths:
 				print 'Will skip: ',dirname
 				dirnames.pop(dirnames.index(dirname))
-		if os.path.basename(dirpath)[0] not in ('.', '_') and is_included(dirpath):
+		if os.path.basename(dirpath)[0] not in ('.') and is_included(dirpath):
 			out_dir = make_out_file_path(make_relative_filename(dirpath))
 			mkdirhier(out_dir)
 			#print 'Copying included path: %s to %s'%(dirpath, out_dir) 

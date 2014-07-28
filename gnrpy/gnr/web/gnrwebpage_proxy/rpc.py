@@ -137,9 +137,7 @@ class GnrWebRpc(GnrBaseProxy):
         site = self.page.site
 
         #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
-
         file_actions = dictExtract(kwargs, 'process_') or {}
-
         if not uploadPath:
             uploadPath = 'site:uploaded_files'
             if uploaderId:
@@ -166,6 +164,9 @@ class GnrWebRpc(GnrBaseProxy):
             file_ext = original_ext
         file_path = site.getStaticPath(uploadPath, filename,autocreate=-1)
         file_url = site.getStaticUrl(uploadPath, filename)
+        dirname = os.path.dirname(file_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
         with file(file_path, 'wb') as outfile:
             outfile.write(content)
         action_results = dict()

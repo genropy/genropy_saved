@@ -24,6 +24,7 @@ import os, re, time
 
 import datetime
 import pprint
+import decimal
 
 try:
     import sqlite3 as pysqlite
@@ -50,6 +51,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'serial': 'serial8'}
 
     support_multiple_connections = False
+    paramstyle = 'named'
 
     def defaultMainSchema(self):
         return 'main'
@@ -58,7 +60,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         r = re.compile(expr, re.U)
         return r.match(item) is not None
 
-    def connect(self):
+    def connect(self,*args,**kwargs):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbpath = self.dbroot.dbname
@@ -97,8 +99,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def prepareSqlText(self, sql, kwargs):
         """Replace the 'REGEXP' operator with '~*'.
         Replace the ILIKE operator with LIKE: sqlite LIKE is case insensitive"""
+        sql = self.adaptTupleListSet(sql,kwargs)
         sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
+        sql = re.sub(" +IS +(NOT +)?(TRUE|FALSE)",self._booleanSubCb,sql,flags=re.I)
         return sql, kwargs
+
+    def _booleanSubCb(self,m):
+        op = '!=' if m.group(1) else '='
+        val = '1' if m.group(2).lower() == 'true' else '0'
+        return ' %s%s ' %(op,val)
 
     def _selectForUpdate(self,maintable_as=None):
         return ''
@@ -180,14 +189,23 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             colType = col.pop('type').lower()
             if '(' in colType:
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
+                col['size'] = col['length']
                 colType = colType[:colType.find('(')]
             col['dtype'] = self.typesDict[colType]
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
+            if col['dtype'] in ('A','C') and col.get('length'):
+                col['size'] = col['_sl_size'] if col['dtype']=='C' else '0:%s' %col['_sl_size']
+                if col['size'] == '255':
+                    col['size'] = None
+                    col['dtype'] = 'T'
+            elif col['dtype'] == 'N':
+                col['size'] = col.get('_sl_size')
             result.append(col)
         if column:
             result = result[0]
         return result
+
 
     def listen(self, msg, timeout=None, onNotify=None, onTimeout=None):
         """Actually sqlite has no message comunications: so simply sleep and executes onTimeout
@@ -330,6 +348,11 @@ def convert_time(val):
 
 pysqlite.register_adapter(datetime.time, adapt_time)
 pysqlite.register_converter("time", convert_time)
+
+# ------------------------------------------------------------------------------------------------------- Add support for decimal fields to sqlite3 module
+
+pysqlite.register_adapter(decimal.Decimal, lambda x: float(x))
+pysqlite.register_converter('numeric', lambda x: decimal.Decimal(str(x)))
 
 # ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
 

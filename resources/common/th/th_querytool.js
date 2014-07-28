@@ -7,7 +7,8 @@ dojo.declare("gnr.QueryManager", null, {
         this.th_root = this.th.th_root;
         this.frameNode = genro.getFrameNode(this.th_root);
         this.wherepath = this.sourceNode.absDatapath('.query.where');
-        this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
+        this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha','X':'alpha',
+            'PHONETIC':'alpha_phonetic',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
@@ -48,7 +49,7 @@ dojo.declare("gnr.QueryManager", null, {
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
 
-        var opmenu_types = ['alpha','date','number','other','boolean','unselected_column'];
+        var opmenu_types = ['alpha','alpha_phonetic','date','number','other','boolean','unselected_column'];
         for (var i = 0; i < opmenu_types.length; i++) {
             node._('menu', {modifiers:'*',_class:'smallmenu',
                 storepath:'gnr.qb.sqlop.op_spec.' + opmenu_types[i],id:this.relativeId('qb_op_menu_') + opmenu_types[i]});
@@ -85,7 +86,7 @@ dojo.declare("gnr.QueryManager", null, {
         contextNode.setRelativeData(relpath + '?column', column_attr.fieldpath);
         var currentDtype = contextNode.getRelativeData(relpath + '?column_dtype');
         if (currentDtype != column_attr.dtype) {
-            contextNode.setRelativeData(relpath + '?column_dtype', column_attr.dtype);
+            contextNode.setRelativeData(relpath + '?column_dtype', column_attr.query_dtype || column_attr.dtype);
             var default_op = genro._('gnr.qb.sqlop.op_spec.' + this.getDtypeGroup(column_attr.dtype) + '.#0');
             if (default_op) {
                 contextNode.setRelativeData(relpath + '?op', default_op);
@@ -141,7 +142,7 @@ dojo.declare("gnr.QueryManager", null, {
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         node.unfreeze();
-        this._editorRoot = editorRoot.getParentNode();
+        this._editorRoot = editorRoot;
         this.buildQueryPane();
         this.checkFavorite();
     },
@@ -166,7 +167,13 @@ dojo.declare("gnr.QueryManager", null, {
         var sourceNode = this.sourceNode;
         var that = this;
         var finalize = function(where,run){
+            if(that._editorRoot){
+                that._editorRoot.popNode('root');
+            }
             sourceNode.setRelativeData('.query.where',where);
+            if(that._editorRoot){
+                that.buildQueryPane();
+            }
             that.checkFavorite();
             if(run){
                 sourceNode.fireEvent('.runQuery'); //provvisorio
@@ -197,10 +204,8 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     buildQueryPane: function() {
-        this._editorRoot.clearValue();
-        this._editorRoot.freeze();
-        this._buildQueryGroup(this._editorRoot, this.sourceNode.getRelativeData('.query.where'), 0);
-        this._editorRoot.unfreeze();
+        this._editorRoot.popNode('root');
+        this._buildQueryGroup(this._editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
     },
     
     addDelFunc : function(mode, pos, e) {
@@ -269,7 +274,7 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     helper_in:function(rowNode){
-        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px'});
+        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px',autoSize:true});
         var center = dlg.center;
         var relpath = rowNode.attr.relpath;
         var val = rowNode.getRelativeData(relpath);
@@ -413,6 +418,7 @@ dojo.declare("gnr.QueryManager", null, {
         var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
+            console.log('xxxx',node)
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
         }
     },
@@ -484,7 +490,7 @@ dojo.declare("gnr.QueryManager", null, {
         this.sourceNode.setRelativeData('.query.favoriteQueryPath',currfavorite);
         this.refreshQueryMenues();
         if(this._editorRoot){
-            genro.dom.setClass(this._editorRoot.attributeOwnerNode('frameCode'),
+            genro.dom.setClass(this._editorRoot.getParentNode().attributeOwnerNode('frameCode'),
                             'th_isFavoriteQuery',currfavorite==currPath);
         }
     },
@@ -510,7 +516,7 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildParsDialog:function(parslist) {
         var sourceNode = this.sourceNode;
-        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px'});
+        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px',autoSize:true});
         var that = this;
         var confirm = function(){
             that.runQuery()

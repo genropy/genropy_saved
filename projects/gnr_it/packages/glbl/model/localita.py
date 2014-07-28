@@ -15,8 +15,6 @@ class Table(object):
         tbl.column('cap', size='5', name_long='CAP', indexed=True)
         tbl.column('comune_id' ,size='22',name_long='!!Comune').relation('glbl.comune.id', mode='foreignkey',relation_name='localita')
         
-    def baseView_min(self):
-        return "nome:80%,prefisso_tel:20%"
 
 
     def allineaComune(self):

@@ -6,12 +6,23 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
+        objectPop(attributes,'onCreating');
         sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
-        sourceNode.attr.tag=objectPop(attributes,'tag');
+        sourceNode.attr.tag = objectPop(attributes,'tag');
+        var catchersHandlers = objectExtract(this,'gnrwdg_catch_*',true);
+        sourceNode.gnrwdg.catchers = {};
         for (var k in sourceNode._dynattr){
             if(this['gnrwdg_set'+stringCapitalize(k)]){
                 sourceNode.attr[k] = attributes[k];
+            }else{
+                for(var c in catchersHandlers){
+                    if(k.indexOf(c+'_')==0){
+                        sourceNode.attr[k] = attributes[k];
+                        sourceNode.gnrwdg.catchers[k] = 'catch_'+c;
+                        break;
+                    }
+                }
             }
         }
         var datapath=objectPop(attributes,'datapath');
@@ -101,7 +112,7 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
         var parentForm = objectPop(kw,'parentForm');
         var tip = objectPop(kw,'tip');
         var iconClass = iconClass? 'iconbox ' +iconClass :null;
-        var box_kw = {_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip}
+        var box_kw = objectUpdate({_class:'menuButtonDiv buttonDiv',disabled:disabled,tip:tip},buttonkw)
         if(parentForm){
             box_kw.parentForm = parentForm;
         }
@@ -481,10 +492,10 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
-        var frameCode = objectPop(kw,'frameCode');
+        var frameCode = kw.frameCode;
         genro.assert(frameCode,'Missing frameCode');
         if(frameCode.indexOf('#')>=0){
-            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId());
+            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId()); 
         }
         var frameId = frameCode+'_frame';
         genro.assert(!genro.nodeById(frameId),'existing frame');
@@ -497,6 +508,11 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var slot,slotcontent,v,sidepane,sideKw;
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right'];
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']};
+        children.walk(function(n){
+            if(n.attr.frameTarget && !n.attr.nodeId){
+                n.attr.nodeId = frameCode+'_target';
+            }
+        },'static');
         dojo.forEach(sides,function(side){
             slot = children.popNode(side);
             slotcontent = null;
@@ -668,7 +684,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
                            'table':objectPop(kw,'table'),
-                           'margin':'6px','configurable':true,
+                           'configurable':true,
                            'structpath': structpath,
                            'frameCode':frameCode,
                            'autoWidth':false,
@@ -683,6 +699,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
         
         kw['contentWidget'] = 'FramePane';
+        kw['center_overflow'] = 'hidden'
         var pane = sourceNode._('PalettePane',kw);
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
@@ -1032,6 +1049,155 @@ dojo.declare("gnr.widgets.DocumentFrame", gnr.widgets.gnrwdg, {
         frame._('dataController',scriptkw);
         return frame;
     }
+});
+
+dojo.declare("gnr.widgets.IframeDiv", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw.border = kw.border || 0;
+        sourceNode.attr.value = value;
+        var iframe = sourceNode._('iframe',kw);
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.zoom = objectPop(kw,'zoom');
+        gnrwdg.iframeNode = iframe.getParentNode();
+        return iframe;
+    },
+
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(this.zoom){
+            value = '<div style="zoom:'+this.zoom+'">'+value+'</div>';
+        }
+        this.iframeNode.domNode.contentWindow.document.body.innerHTML = value;
+    }
+
+});
+
+dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        kw.storepath = sourceNode.absDatapath(value);
+        return sourceNode._('tree',kw);
+    }
+
+});
+
+dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var value = objectPop(kw,'value');
+        var format = objectPop(kw,'format');
+        sourceNode.attr.format = format;
+        var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.formats = objectExtract(kw,'format_*');
+        sourceNode.attr._workspace = true;
+        var valuepath = sourceNode.absDatapath(value);
+        kw.nodeId = kw.nodeId || '_qg_'+genro.getCounter();
+        kw.store = kw.nodeId;
+        kw.datamode='bag';
+        kw.structpath = kw.structpath || '#WORKSPACE.struct';
+        kw.controllerPath = '#WORKSPACE.controllers';
+        var currentValue = sourceNode.getAttributeFromDatasource('value');
+        var currentFormat = sourceNode.getAttributeFromDatasource('format');
+        var struct = new gnr.GnrBag();
+        sourceNode.setRelativeData(kw.structpath,struct)
+        sourceNode._('BagStore',{storepath:valuepath,_identifier:'nodelabel',
+                        nodeId:kw.nodeId+'_store',datapath:kw.controllerPath});
+        var grid = sourceNode._('newIncludedView',kw);
+        gnrwdg.gridNode = grid.getParentNode();
+        gnrwdg.setFormat(currentFormat);
+        return grid;
+    },
+    guessDtypeAndWidth:function(rows){
+        var types={}
+        var sizes={}
+        var w,dtype,v
+        if(!rows){
+            return;
+        }
+        rows.forEach(function(n){
+            n.getValue().forEach(function(c){
+                if (!(c.label in types)){
+                    types[c.label]=null
+                    sizes[c.label]=0
+                }
+                v=c.getValue()
+                if(v){
+                    dtype=types[c.label]
+                    if (!dtype) {
+                        dtype=guessDtype(v)
+                        types[c.label]=dtype
+                    }   
+                    w = 8 
+                    if (dtype=='D'){w = 8}
+                    else if (dtype=='H'){w = 6}
+                    else if (dtype=='DH'){w = 12}
+                    if ((dtype=='T') || (dtype=='N')|| (dtype=='L')){
+                        sizes[c.label]=Math.max(sizes[c.label]||c.label.length,v.toString().length)
+                    }
+                    else if (sizes[c.label]==0){
+                        w=8;
+                        if (dtype=='D'){w = 8}
+                        else if (dtype=='H'){w = 6}
+                        else if (dtype=='DH'){w = 12}
+                        sizes[c.label]=Math.max(c.label.length,w)
+                    }
+                }
+            })
+        })
+        for (var t in types){
+            if(!types[t]){types[t]='T'}
+            sizes[t]=(2 +(sizes[t]|| 8)*.5)+'em'
+        }
+        return {types:types,sizes:sizes}
+    },
+    gnrwdg_getFormatFromValue:function(value){
+        var format = new gnr.GnrBag();
+        var formats = this.formats || {};
+        formats = this.sourceNode.evaluateOnNode(formats);
+        var guess = this.gnr.guessDtypeAndWidth(value);
+        var kw;
+        for (var label in guess.types){
+            kw = {'field':label,'dtype':guess.types[label],
+                                         'width':guess.sizes[label],
+                                          'name':stringCapitalize(label.replace(/_/g,' '))
+                                      }
+            if(label in formats){
+                var customFormat = formats[label];
+                if(customFormat){
+                    objectUpdate(kw,customFormat);
+                }
+            }
+            format.setItem(label,null,kw);
+        }
+        return format;
+    },
+    gnrwdg_catch_format:function(attr,value){
+        this.setFormat(this.getFormatFromValue(this.gridNode.widget.storebag()));
+    },
+
+    gnrwdg_setFormat:function(format){
+        var gridNode = this.sourceNode.gnrwdg.gridNode;
+        var f;
+        if(!format){
+            f = new gnr.GnrBag();
+        }else if(format instanceof gnr.GnrBag){
+            f = format.deepCopy();
+        }else{
+            f = new gnr.GnrBag();
+            format.forEach(function(d){
+                f.setItem(d['field'],null,d);
+            })
+        }
+        gridNode.getRelativeData(gridNode.attr.structpath).setItem('view_0.rows_0',f);
+    },
+
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if((trigger_reason=='container') || (kw.node.parentshipLevel(this.gridNode.widget.storebag().getParentNode())==0)){
+            if(!this.sourceNode.attr.format){
+                this.setFormat(this.getFormatFromValue(value));
+            }
+        }
+    }
+
 });
 
 dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
@@ -1653,26 +1819,62 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             kw['_class']= kw['_class'] ? kw['_class']+' slotButtonIconOnly':' slotButtonIconOnly';
         }
         var targetNode,prefix;
+        var tag = 'button';
         var target = objectPop(kw,'target') || inherithed.target;
         if(target!=false){
             if(target){
                 targetNode = genro.nodeById(target,sourceNode);
                 prefix = targetNode?(targetNode.attr.nodeId || targetNode.getStringId()):target;
+            }else if(inherithed.frameCode){
+                var framePane = genro.getFrameNode(inherithed.frameCode);
+                if(framePane){
+                    targetNode = framePane.getValue().getNodeByAttr('frameTarget',true);
+                    if(targetNode){
+                        prefix = targetNode.attr.nodeId || inherithed.frameCode+'_target';
+                    }
+                }
             }
         }else{
             prefix=inherithed.slotbarCode;
         }
         var publish=objectPop(kw,'publish');
-        if(!kw.action){
+        if(kw.menupath){
+            kw['storepath'] = objectPop(kw,'menupath');
+            tag = 'menudiv';
+        }
+
+        if(!kw.action && publish){
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             //kw.opt = objectExtract(kw,'opt_*',true);
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
+            if(tag=='button'){
+                kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:objectExtract(__orig_kw,'opt_*'),evt:event,_counter:_counter});";
+            }else{
+                kw['action'] = "objectPop($1,'caption');genro.publish('"+kw.topic+"',{'command':'"+(kw.command || '')+ "' ||null,modifiers:genro.dom.getEventModifiers(event),evt:event,opt:$1});";
+            }
         }
-        return sourceNode._('button',kw);
+        return sourceNode._(tag,kw);
+        
     }
 
 });
+dojo.declare("gnr.widgets.DocItem", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var _class = objectPop(kw,'_class');
+        kw._class = _class? 'doc_item selectable' +_class : 'doc_item selectable';
+        var docpars = objectExtract(kw,'store,key,contentpath');
+        kw._docKey = docpars.key;
+        kw._docStore = docpars.store;
+        kw._docContentPath = docpars.contentpath;
+        kw.datapath = '==(_docStore && _docKey && _docContentPath)?"_doc.content."+_docStore+"."+_docKey+"."+_docContentPath:"_emptypath"';
+        kw.connect_ondblclick = "genro.publish('editDocItem',{docItem:this});" 
+        kw.connect_onclick = "genro.publish('focusDocItem',{docItem:this});"   
+        return sourceNode._('div',kw)._('div', {innerHTML:'==(_allcontent&&_current_lang)?_allcontent.getItem(_current_lang):"";',
+                            '_class':'^.?contentClasses','style':'^.?contentStyles',_current_lang:'^gnr.language',_allcontent:'^.'})
+    }
+
+});
+
 
 dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
@@ -1682,7 +1884,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var mandatory = objectPop(kw,'mandatory',true);
         var multivalue = objectPop(kw,'multivalue');
         var deleteAction = objectPop(kw,'deleteAction');
+        var showAlways = objectPop(kw,'showAlways');
+
         var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg.showAlways = showAlways;
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
@@ -1690,7 +1895,6 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         sourceNode.attr.values = values;
         sourceNode.attr.storepath = storepath;
         sourceNode.registerDynAttr('storepath');
-
         var containerKw = {_class:'multibutton_container'};
         containerKw.connect_onclick = function(evt){
             var sn = evt.target?genro.dom.getBaseSourceNode(evt.target):null;
@@ -1744,9 +1948,10 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         this.makeButtons(values);
     },
 
-    gnrwdg_setStorepath:function(storebag,kw){
+    gnrwdg_setStorepath:function(val,kw){
+        var storebag = this.sourceNode.getRelativeData(this.sourceNode.attr.storepath);
         if(storebag && storebag.len()>0){
-            this.makeButtons(this.sourceNode,this.gnr.valuesFromBag(storebag));
+            this.makeButtons(this.gnr.valuesFromBag(storebag));
         }
     },
 
@@ -1757,14 +1962,27 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var sourceNode = this.sourceNode;
         var mb = sourceNode._value.getItem('multibutton');
         values = sourceNode.isPointerPath(values)? sourceNode.getRelativeData(values):values;
+        if(!values){
+            return;
+        }
+        values = splitStrip(values,',');
+        var child_count = values.length;
+        if(child_count==1 && !this.showAlways){
+            var mbnode = mb.getParentNode();
+            mbnode.attr._class = mbnode.attr._class + ' hidden';
+        }
         var deleteAction = this.deleteAction;
         if (mb && values){
-            var values = splitStrip(values,',');
+            values = values.map(function(n){
+                var nlist = n.split(':');
+                var result = [];
+                var caption = nlist.pop();
+                return [nlist.join(':'),caption];
+            });
             var vl,btn,btn_class,_class;
-            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0].split(':')[0];
+            var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value) || values[0][0];
             mb.clear(true);
-            dojo.forEach(values,function(n){
-                vl = n.split(':');
+            dojo.forEach(values,function(vl){
                 _class =vl[0]==currentSelected?'multibutton multibutton_selected':'multibutton';
                 if(deleteAction){
                     _class = _class +' multibutton_closable';
@@ -1899,7 +2117,17 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             var multibutton_kw = objectExtract(childattr,'stackbutton_*');
             var btn_kw = {_class:btn_class,_childSourceNode:childSourceNode};
             var btn = sourceNode._('div',childSourceNode.getStringId(),btn_kw,{_position:stackbag.len()-stackNode._n_children});
-            btn._('div',objectUpdate({innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'},multibutton_kw));
+            var title = childSourceNode.attr.title;
+            var iconTitle = childSourceNode.attr.iconTitle;
+            if(iconTitle){
+                multibutton_kw.innerHTML = '&nbsp;'
+                multibutton_kw._class= 'multibutton_caption '+iconTitle
+                multibutton_kw.tip = title;
+            }else{
+                multibutton_kw.innerHTML = title;
+                multibutton_kw._class = 'multibutton_caption';
+            }
+            btn._('div',multibutton_kw);
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
                 btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(evt){
@@ -1962,12 +2190,13 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             codeSeparator =  codeSeparator || ':'
         }
         var rootNode = sourceNode;
-
         var table_kw = objectExtract(kw,'table_*');
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         if(popup){
             var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
+        }else{
+            table_kw['tooltip']=objectPop(kw,'tooltip');
         }
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
@@ -1979,7 +2208,16 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var that = this;
         tblNode.attr._textvaluepath = value.replace('^','');
         
-        tblNode.attr.action = function(){that.onCheckboxCheck(tblNode,separator);};
+        tblNode.attr.action = function(attr,cbNode,e){
+            if(e.shiftKey && attr.tag.toLowerCase()=='checkbox'){
+                tblNode._value.walk(function(n){
+                    if(n.attr.tag=='checkbox'){
+                        n.widget.setAttribute('checked',cbNode.widget.checked);
+                    }
+                });
+            }
+            that.onCheckboxCheck(tblNode,separator);
+        };
 
         var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
                                     textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();
@@ -2001,6 +2239,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     },
 
     createCheckBoxes:function(tblNode,values,kw){
+        var kw = objectUpdate({},kw);
         tblNode._value.clear(true);
         var that = this;
         var splitter = values.indexOf('\n')>=0? '\n':',';
@@ -2116,6 +2355,7 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var table_kw = objectExtract(kw,'table_*');
+        table_kw['tooltip']=objectPop(kw,'tooltip');
         var label_kw = objectExtract(kw,'label_*',null,true);
         var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
         var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
@@ -2648,61 +2888,60 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      },
 
      createContent:function(sourceNode, kw,children) {
-         var chunkSize = objectPop(kw,'chunkSize',0);
-         var storeType = chunkSize? 'VirtualSelection':'Selection';
-         kw.row_count = chunkSize;
-         var identifier = objectPop(kw,'_identifier') || '_pkey';
-         var _onError = objectPop(kw,'_onError');
-         var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
-         var skw = objectUpdate({_cleared:false},kw);
-          //skw['_delay'] = kw['_delay'] || 'auto';
-
-         skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
-         objectPop(skw,'nodeId')
-         objectPop(skw,'_onCalling');
-         objectPop(skw,'_onResult');
-         objectPop(skw,'columns');
-
-         var selectionStarter = sourceNode._('dataController',skw).getParentNode();
-         objectPop(kw,'_onStart');
-         objectPop(kw,'_cleared');
-         objectPop(kw,'_fired');
-         objectPop(kw,'_delay');
-         objectPop(kw,'_delay');
-
-         var v;
-         for (var k in kw){
-            v = kw[k];
-            if(typeof(v)=='string'){
-                if(v[0]=='^'){
-                    kw[k] = v.replace('^','=');
-                }
-            }
-         }
+        var chunkSize = objectPop(kw,'chunkSize',0);
+        var storeType = objectPop(kw,'storeType') || (chunkSize? 'VirtualSelection':'Selection');
+        kw.row_count = chunkSize;
+        var identifier = objectPop(kw,'_identifier') || '_pkey';
+        var _onError = objectPop(kw,'_onError');
+        var deleteRows = objectPop(kw,'deleteRows');
+        var allowLogicalDelete = objectPop(kw,'allowLogicalDelete');
+        var skw = objectUpdate({_cleared:false},kw);
+         //skw['_delay'] = kw['_delay'] || 'auto';
+        skw.script="if(_cleared){this.store.clear();}else{this.store.loadData();}";
+        objectPop(skw,'nodeId')
+        objectPop(skw,'_onCalling');
+        objectPop(skw,'_onResult');
+        objectPop(skw,'columns');
+        var selectionStarter = sourceNode._('dataController',skw).getParentNode();
+        objectPop(kw,'_onStart');
+        objectPop(kw,'_cleared');
+        objectPop(kw,'_fired');
+        objectPop(kw,'_delay');
+        var v;
+        for (var k in kw){
+           v = kw[k];
+           if(typeof(v)=='string'){
+               if(v[0]=='^'){
+                   kw[k] = v.replace('^','=');
+               }
+           }
+        }
         kw['_POST'] = true;
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
-         var rpcNode = selectionStore.getParentNode();
-
-         rpcNode.attr['_onError'] = function(error,originalKwargs){
-            if(_onError){
-                funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
-            }
-            rpcNode.store.clear();
-            rpcNode.store.gridBroadcast(function(grid){
-                 grid.sourceNode.publish('loadingData',{loading:false});
-            });
-         };
-         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
-                        'storeType':storeType,'unlinkdict':kw.unlinkdict,'allowLogicalDelete':allowLogicalDelete};
-         if('startLocked' in kw){
-             storeKw.startLocked = kw.startLocked;
-         }
-         var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
-         rpcNode.store = storeInstance;
-         selectionStarter.store = storeInstance;
-         return selectionStore;
+        var rpcNode = selectionStore.getParentNode();
+        rpcNode.attr['_onError'] = function(error,originalKwargs){
+           if(_onError){
+               funcApply(_onError,{error:error,kwargs:originalKwargs},rpcNode);
+           }
+           rpcNode.store.clear();
+           rpcNode.store.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+           });
+        };
+        var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,
+                       'storeType':storeType,'unlinkdict':kw.unlinkdict,
+                       'deletemethod':kw.deletemethod,
+                       'allowLogicalDelete':allowLogicalDelete,
+                        'deleteRows':deleteRows};
+        if('startLocked' in kw){
+            storeKw.startLocked = kw.startLocked;
+        }
+        var storeInstance = new gnr.stores[storeType](rpcNode,storeKw);
+        rpcNode.store = storeInstance;
+        selectionStarter.store = storeInstance;
+        return selectionStore;
      }
 });
 
@@ -2712,11 +2951,12 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
             kw.selfUpdate = kw.selfUpdate || false;
             kw.script = "this.store.loadData(data,selfUpdate);";
         }
-        var store = sourceNode._('dataController',kw);
-        var storeNode = store.getParentNode();
         var identifier = objectPop(kw,'_identifier') || '_pkey';
         var storeType = objectPop(kw,'storeType') || 'ValuesBagRows';
-        storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier});
+        var deleteRows = objectPop(kw,'deleteRows');
+        var store = sourceNode._('dataController',kw);
+        var storeNode = store.getParentNode();
+        storeNode.store = new gnr.stores[storeType](storeNode,{identifier:identifier,deleteRows:deleteRows});
         return store;
      },
      onChangedView:function(){
@@ -2741,6 +2981,10 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null,null,null,'initStore');
         this.locked = null;
+        var deleteRows = objectPop(kw,'deleteRows');
+        if (deleteRows){
+            this.deleteRows = funcCreate(deleteRows,'pkeys,protectPkeys',this);
+        }
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):false;
         for (var k in kw){
             this[k] = kw[k];
@@ -2790,6 +3034,12 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return result;
     },
+    
+    onLoaded:function(result){
+        this.storeNode.setRelativeData(this.storepath,result);
+        return result;
+    },
+
     onChangedView:function(){
         return;
     },
@@ -3100,7 +3350,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             data.popNode(n);
         });
         this.linkedGrids().forEach(function(grid){
-            grid.sourceNode.publish('onDeletedRows')
+            grid.sourceNode.publish('onDeletedRows',{pkeys:pkeys,protectPkeys:protectPkeys})
         });
 
     },
@@ -3185,6 +3435,7 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
 });
 
+
 dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     rowFromItem:function(item){
         return objectUpdate({},item.attr);
@@ -3212,6 +3463,53 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     }
     
 });
+
+dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
+    loadData:function(){
+        var that = this;
+        if(!this.someVisibleGrids()){
+            this.storeNode.watch('someVisibleGrids',function(){
+                return that.someVisibleGrids();
+            },function(){
+                that.loadingDataDo();
+            });
+            return;
+        }
+        return this.loadingDataDo();
+    },
+
+    loadingDataDo:function(){
+        var that = this;
+        this.loadingData = true;
+        this.gridBroadcast(function(grid){
+            grid.selectionKeeper('save');
+            grid.sourceNode.publish('loadingData',{loading:true});
+        });
+        var cb = function(result){
+            that.onLoaded(result);
+            that.resetFilter();
+            that.loadingData = false;
+            that.gridBroadcast(function(grid){
+                grid.sourceNode.publish('loadingData',{loading:false});
+            });
+        };
+        return this.runQuery(cb);
+    },
+
+    onDeletedRows:function(pkeys){
+        return this.loadData()
+    },
+    deleteRows:function(files,protectPkeys){
+        var that = this;
+        var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        var rpcdelete = this.deletemethod || 'app.deleteFileRows';
+        genro.serverCall(rpcdelete,{files:files},function(result){
+            that.onDeletedRows(files);
+        },null,'POST');
+    },
+
+});
+
 
 dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     constructor:function(){
@@ -3430,7 +3728,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var delKeys_wasInSelection=wasInSelectionCb(delKeys);
         var changeCount = objectSize(willBeInSelection) + objectSize(insOrUpdKeys_wasInSelection) + objectSize(delKeys_wasInSelection);
         var rt = this.reload_treshold || 0.3;
-        if(changeCount>0 && ((changeCount>this.len()*rt) || this.sum_columns)){
+        var sum_columns = this.storeNode.getAttributeFromDatasource('sum_columns');
+        var fullReloadOnChange = this.storeNode.getAttributeFromDatasource('fullReloadOnChange');
+        if(changeCount>0 && (changeCount>this.len()*rt) || sum_columns || fullReloadOnChange){
             this.loadData();
             return
         }
