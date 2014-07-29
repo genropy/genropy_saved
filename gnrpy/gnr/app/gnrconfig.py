@@ -33,14 +33,14 @@ from gnr.core.gnrstring import slugify
 
 from gnr.core.gnrstructures import  GnrStructData
 
-class MenuStruct(GnrStructData):
-    def __init__(self,filepath=None,application=None,autoconvert=False):
-        super(MenuStruct, self).__init__()
+class ConfigStruct(GnrStructData):
+    config_method = 'config'
+    def __init__(self,filepath=None,autoconvert=False,**kwargs):
+        super(ConfigStruct, self).__init__()
         self.setBackRef()
         if not filepath:
             return
         filename,ext = os.path.splitext(filepath)
-
         if not ext:
             if os.path.exists('%s.xml' %filepath):
                 filepath = '%s.xml' %filepath
@@ -52,7 +52,7 @@ class MenuStruct(GnrStructData):
                 return
         if ext=='.py':
             m = gnrImport(filepath, avoidDup=True)
-            m.config(self,application=application)
+            getattr(m,self.config_method)(self,**kwargs)
         elif ext=='.xml':
             self.fillFrom(filepath)
             if len(self) and autoconvert:
@@ -61,6 +61,13 @@ class MenuStruct(GnrStructData):
             raise Exception('Wrong extension for filepath')
 
 
+class InstanceConfigStruct(ConfigStruct):
+    config_method = 'instanceconfig'
+    def db(self, implementation='postgres', dbname=None,filename=None,**kwargs):
+        return self.child('db',implementation=implementation,dbname=dbname,filename=filename,**kwargs)
+
+
+class MenuStruct(ConfigStruct):
     def branch(self, label, basepath=None ,tags='', **kwargs):
         return self.child('branch',label=label,basepath=basepath,tags=tags,**kwargs)
 
