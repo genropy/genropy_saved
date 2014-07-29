@@ -540,7 +540,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 var val = source[prop];
                 if (typeof(val) == 'string' && val.length>1) {
                     var dynval = stringStrip(val);
-                    var toConvert = ( (dynval[0] == '=') || (dynval[0]== '^') ) && !((prop in sourceNode.attr) && (sourceNode.attr[prop]!=dynval));
+                    var sourceNodeKw = sourceNode?sourceNode.attr : {};
+                    var toConvert = ( (dynval[0] == '=') || (dynval[0]== '^') ) && !((prop in sourceNodeKw) && (sourceNodeKw[prop]!=dynval));
                     if(toConvert){
                         if (dynval.indexOf('==') == 0) {
                             formulaProp.push(prop);
