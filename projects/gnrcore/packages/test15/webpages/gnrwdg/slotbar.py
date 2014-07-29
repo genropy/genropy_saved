@@ -123,9 +123,11 @@ class GnrCustomWebPage(object):
 
 
     def test_10_slotToolbar_multibutton_items_struct(self,pane):
-        mb = pane.multibutton(value='^.base')
-        mb.item('pippo',caption='Pippo')
-        mb.item('paperino',caption='Paperino')
+        pane.checkbox(value='^.disabled')
+        mb = pane.multibutton(value='^.base',sticky=False)
+
+        mb.item('pippo',caption='Pippo',disabled='^.disabled',action='alert("xxx")')
+        mb.item('paperino',caption='Paperino',deleteAction='genro.bp(true)')
 
 
     def test_6_slotToolbar_multibutton_storepath(self,pane):

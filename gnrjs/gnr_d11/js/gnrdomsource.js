@@ -1587,6 +1587,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             genro.dom.removeClass(domnode, 'gnrrequired');
         }
     },
+    isDisabled:function(){
+        return this.getAttributeFromDatasource('disabled'); 
+    },
 
     setDisabled:function(value){
         var value = value ? true : false;

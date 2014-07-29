@@ -28,7 +28,6 @@ dojo.require('dijit.Menu');
 
 
 function inlineWidget(evt){
-    console.log('inlineWidget',domNode,evt);
     var domNode = evt.target;
     var varname = domNode.getAttribute('varname');
     var chunkNode = genro.dom.getBaseSourceNode(domNode);

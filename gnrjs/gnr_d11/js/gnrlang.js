@@ -309,7 +309,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 }else{
                                     if(editpars){
                                         if(editpars['relating_column'] && editpars['caption_field']){
-                                            value = data.getItem('@'+editpars['relating_column']+'.'+editpars['caption_field']);
+                                            value = data.getItem(editpars['caption_field']);
                                         }
                                     }else{
                                         value = valueattr._displayedValue || value;
