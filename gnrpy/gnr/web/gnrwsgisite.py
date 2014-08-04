@@ -82,7 +82,6 @@ class UrlInfo(object):
         self.relpath = None
         self.plugin = None
         path_list = list(url_list)
-        self.path_list = path_list
         if path_list[0]=='pages':
             self.pkg = self.site.mainpackage
             self.basepath =  self.site.site_static_dir
@@ -102,21 +101,30 @@ class UrlInfo(object):
         if self.request_kwargs.pop('_mobile',False):
             self.basepath = os.path.join(self.basepath,'mobile')
         currpath = []
-        isfile_cache = self.site.isfile_cache
-        path_list_copy = list(self.path_list)
-        while self.path_list:
-            currpath.append(self.path_list.pop(0))
-            path = '%s.py' %os.path.join(self.basepath,*currpath)
-            isfile = isfile_cache.get(path)
-            if isfile is None:
-                isfile = os.path.isfile(path)
-                isfile_cache[path] = isfile
-            if isfile:
-                self.relpath = '%s.py' %os.path.join(*currpath)
-                self.request_args = list(self.path_list)
+        pathfile_cache = self.site.pathfile_cache
+        path_list_copy = list(path_list)
+        while path_list_copy:
+            currpath.append(path_list_copy.pop(0))
+            searchpath = os.path.join(self.basepath,*currpath)
+            cached_path = pathfile_cache.get(searchpath)
+            if cached_path is None:
+                cached_path = '%s.py' %searchpath
+                if not os.path.isfile(cached_path):
+                    cached_path = False
+                pathfile_cache[searchpath] = cached_path
+            if cached_path:
+                self.relpath = cached_path
+                self.request_args = path_list_copy
                 return
-        self.request_args = path_list_copy
-    
+        last_path = os.path.join(self.basepath,*path_list)
+        last_index_path = os.path.join(last_path,'index.py')
+        if os.path.isfile(last_index_path):
+            pathfile_cache[last_path] = last_index_path
+            pathfile_cache[last_index_path.replace('.py','')] = last_index_path
+            self.relpath = last_index_path
+            self.request_args = []
+        else:
+            self.request_args = path_list
 
 class SafeEvalException(EvalException):
     def __call__(self, environ, start_response):
@@ -167,7 +175,7 @@ class GnrWsgiSite(object):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
-        self.isfile_cache = {}
+        self.pathfile_cache = {}
         self._currentPages = {}
         self._currentRequests = {}
         self._currentMaintenances = {}
