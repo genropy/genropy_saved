@@ -1002,6 +1002,9 @@ var gnrformatter = {
         }
     },
     format_D:function(value,format,formatKw){
+        if(!value){
+            return '';
+        }
         var opt = {selector:'date'};
         var standard_format = 'long,short,medium,full'
         if(format){
