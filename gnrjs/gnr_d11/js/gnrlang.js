@@ -914,6 +914,7 @@ var gnrformatter = {
             return formattedValue;
         }
         return mask.replace(/%s/g, formattedValue);
+
     },
     format_P:function(value,format,formatKw){
         if (!format){
@@ -1015,14 +1016,7 @@ var gnrformatter = {
             }
         }
         var result = '';
-        var fkw = objectUpdate(opt, formatKw);
-        try{
-            result = dojo.date.locale.format(value, fkw);
-        }catch(e){
-            console.log('date format error',e,'value',value,'fkw',fkw)
-        }
-        return result;
-        
+        return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
     },
     
     format_H:function(value,format,formatKw){
