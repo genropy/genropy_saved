@@ -284,7 +284,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 if (valueNode){
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
-                                   value = attrname?valueattr[attrname]:valueNode.getValue(); //{_sourceNode:scopeSourceNode}
+                                   value = attrname?valueattr[attrname]:valueNode.getValue(null,{_sourceNode:scopeSourceNode});
                                    if('values' in valueattr){
                                         value = objectFromString(valueattr.values)[value];
                                    }
@@ -1014,7 +1014,15 @@ var gnrformatter = {
                 opt.datePattern = format;
             }
         }
-        return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
+        var result = '';
+        var fkw = objectUpdate(opt, formatKw);
+        try{
+            result = dojo.date.locale.format(value, fkw);
+        }catch(e){
+            console.log('date format error',e,'value',value,'fkw',fkw)
+        }
+        return result;
+        
     },
     
     format_H:function(value,format,formatKw){
