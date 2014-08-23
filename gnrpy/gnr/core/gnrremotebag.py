@@ -24,6 +24,8 @@
 
 
 import Pyro4
+Pyro4.config.METADATA = False
+
 from gnr.core.gnrbag import Bag
 
 PYRO_HOST = 'localhost'
