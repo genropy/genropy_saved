@@ -1,6 +1,6 @@
 import os
 
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 #from gnr.core.gnrlang import gnrImport
 
@@ -97,6 +97,7 @@ class GnrWsgiWebApp(GnrApp):
     def _buildSiteMenu(self):
         menubag = self.config['menu']
         if not menubag:
+            print x
             menubag = self._buildSiteMenu_autoBranch()
         menubag = self._buildSiteMenu_prepare(menubag)
         return menubag
@@ -110,12 +111,15 @@ class GnrWsgiWebApp(GnrApp):
             currbasepath = basepath
             if 'pkg' in attributes:
                 if 'dir' in attributes:
-                    autobranch = self._buildSiteMenu_autoBranch(attributes['pkg'],attributes['dir'].replace('/','.'))
-                    node.value = autobranch
+                    url_info = self.site.getUrlInfo([attributes['pkg'], attributes['dir']])
+                    dirpath=os.path.join(url_info.basepath,*url_info.request_args)  
+                    value=DirectoryResolver(dirpath,cacheTime=10,
+                                                include='*.py', exclude='_*,.*',dropext=True,readOnly=False)
                     currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
-                    node.value = self.packages[attributes['pkg']].pkgMenu['#0']
-            value = node.getStaticValue()
+                    value = self.packages[attributes['pkg']].pkgMenu['#0']
+            else:
+                value = node.getStaticValue()
             if 'basepath' in attributes:
                 newbasepath = attributes.pop('basepath')
                 if newbasepath.startswith('/'):
@@ -124,7 +128,7 @@ class GnrWsgiWebApp(GnrApp):
                     currbasepath = basepath + [newbasepath]
             if isinstance(value, Bag):
                 value = self._buildSiteMenu_prepare(value, currbasepath)
-            else:
+            elif not isinstance(value, DirectoryResolver):
                 value = None
                 filepath = attributes.get('file')
                 if filepath:

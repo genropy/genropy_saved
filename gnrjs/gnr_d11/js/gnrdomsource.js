@@ -1324,17 +1324,21 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         }
                         if(this.attr.format || this.attr.mask){
                             var valueToFormat = value;
+                            var nattr = this.currentAttributes();
                             if(this.widget.getDisplayedValue){
-                                valueToFormat = this.widget.getDisplayedValue();
-                                if(valueToFormat!=value){
-                                    if(isNullOrBlank(valueToFormat) && isNullOrBlank(value)){
+                                var _displayedValue = this.widget.getDisplayedValue();
+                                if(_displayedValue!=value){
+                                    if(isNullOrBlank(_displayedValue) && isNullOrBlank(value)){
                                         delete valueAttr._displayedValue;
                                     }else{
-                                        valueAttr['_displayedValue'] = valueToFormat;
+                                        valueAttr['_displayedValue'] = _displayedValue;
                                     }
                                 }
+                                if(typeof(value)=='string' || nattr.dtype=='T'){
+                                    valueToFormat = _displayedValue;
+                                }
                             }
-                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, this.currentAttributes())},this);
+                            valueNode.updAttributes({_formattedValue:genro.formatter.asText(valueToFormat, nattr)},this);
                         }
 
                     }
@@ -1586,6 +1590,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         } else {
             genro.dom.removeClass(domnode, 'gnrrequired');
         }
+    },
+    isDisabled:function(){
+        return this.getAttributeFromDatasource('disabled'); 
     },
 
     setDisabled:function(value){

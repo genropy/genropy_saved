@@ -3672,7 +3672,7 @@ p {
 
 .quickgrid_toolsbox{
     display: inline-block;
-    border:1px solid #efefef;
+    border:1px solid silver;
     height: 19px;
 }
 .quickgrid_toolsbox:hover{
@@ -3769,7 +3769,18 @@ p {
 }
 .multibutton_selected.multibutton[disabled='true']{
     opacity: 1;
+    cursor: not-allowed;
 }
+.multibutton_container .multibutton:active[disabled='true'],.multibutton_container .multibutton:active[disabled='disabled']{
+    color:#333;
+    cursor: not-allowed;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    opacity: .3;
+    box-shadow: none;
+}
+
+
 
 .multibutton{
     position:relative;
@@ -3911,6 +3922,7 @@ p {
 
 div[disabled='true'], div[disabled='disabled']{
     opacity: .4;
+    cursor:not-allowed;
 }
 .slotbar_toolbar .buttonDiv:hover{
     cursor:pointer;

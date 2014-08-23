@@ -20,6 +20,9 @@ def getOptions():
     parser.add_argument('-P', '--port',
                       help="The binded port" ,type=int)
                       
+    parser.add_argument('-S', '--socket',
+                      help="socket to use")
+                      
     parser.add_argument('-K', '--hmac_key',
                       help="The secret key")
                       
@@ -62,7 +65,7 @@ if __name__=="__main__":
         server = GnrDaemon()
         server.start(use_environment=True,**options)
     else:
-        p = GnrDaemonProxy(host=options.get('host'),port=options.get('port'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
+        p = GnrDaemonProxy(host=options.get('host'),port=options.get('port'),socket=options.get('socket'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
         proxy = p.proxy()
         if command=='stop':
             print 'savestatus',options.get('savestatus')

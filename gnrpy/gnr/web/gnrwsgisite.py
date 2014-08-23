@@ -20,6 +20,7 @@ import httplib2
 from time import time
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
+from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
 import thread
 import mimetypes
@@ -72,148 +73,58 @@ class GnrWebServerError(Exception):
 class PrintHandlerError(Exception):
     pass
     
-#class LockInfo():
-#    def __init__(self, val=False, **kwargs):
-#        self._status = val
-#        self.info = kwargs
-#        
-#    def __getattr__(self, attr):
-#        return getattr(self._status, attr)
-#        
-#class SiteLock(object):
-#    """TODO"""
-#    def __init__(self, site, locked_path, expiry=600):
-#        self.site = site
-#        self.locked_path = locked_path
-#        self.expiry = expiry or None
-#        
-#    def __enter__(self):
-#        return self.acquire()
-#        
-#    def __exit__(self, type, value, traceback):
-#        self.release()
-#        
-#    def acquire(self):
-#        """TODO"""
-#        page = self.site.currentPage
-#        lockinfo = dict(user=page.user,
-#                        page_id=page.page_id,
-#                        connection_id=page.connection_id,
-#                        currtime=time.time())
-#                        
-#        result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
-#        if result:
-#            return LockInfo(True)
-#        else:
-#            info = self.site.shared_data.get(self.locked_path)
-#            return LockInfo(False, **info)
-#            
-#    def release(self):
-#        """TODO"""
-#        self.site.shared_data.delete(self.locked_path)
-
-
-
-
-class memoize(object):
-    """TODO"""
-    class Node(object):
-        __slots__ = ['key', 'value', 'older', 'newer']
-        
-        def __init__(self, key, value, older=None, newer=None):
-            self.key = key
-            self.value = value
-            self.older = older
-            self.newer = newer
-            
-    def __init__(self, capacity=30): #, keyfunc=lambda *args, **kwargs: cPickle.dumps((args, kwargs))):
-        self.capacity = capacity
-        #self.keyfunc = keyfunc
-        global site_cache
-        self.nodes = site_cache or {}
-        self.reset()
-        
-    def reset(self):
-        """TODO"""
-        for node in self.nodes:
-            del self.nodes[node]
-        self.mru = self.Node(None, None)
-        self.mru.older = self.mru.newer = self.mru
-        self.nodes[self.mru.key] = self.mru
-        self.count = 1
-        self.hits = 0
-        self.misses = 0
-        
-    def cached_call(self):
-        """TODO"""
-        def decore(func):
-            def wrapper(*args, **kwargs):
-                key = (((func.__name__,) + args[1:]), cPickle.dumps(kwargs))
-                #key = self.keyfunc(*((func.__name__,)+args), **kwargs)
-                if key in self.nodes:
-                    node = self.nodes[key]
-                else:
-                    # We have an entry not in the cache
-                    self.misses += 1
-                    
-                    value = func(*args, **kwargs)
-                    
-                    lru = self.mru.newer  # Always true
-                    
-                    # If we haven't reached capacity
-                    if self.count < self.capacity:
-                        # Put it between the MRU and LRU - it'll be the new MRU
-                        node = self.Node(key, value, self.mru, lru)
-                        self.mru.newer = node
-                        
-                        lru.older = node
-                        self.mru = node
-                        self.count += 1
-                    else:
-                        # It's FULL! We'll make the LRU be the new MRU, but replace its
-                        # value first
-                        del self.nodes[lru.key]  # This mapping is now invalid
-                        lru.key = key
-                        lru.value = value
-                        self.mru = lru
-                        
-                    # Add the new mapping
-                    self.nodes[key] = self.mru
-                    return value
-                    
-                # We have an entry in the cache
-                self.hits += 1
-                
-                # If it's already the MRU, do nothing
-                if node is self.mru:
-                    return node.value
-                    
-                lru = self.mru.newer  # Always true
-                
-                # If it's the LRU, update the MRU to be it
-                if node is lru:
-                    self.mru = lru
-                    return node.value
-                    
-                # Remove the node from the list
-                node.older.newer = node.newer
-                node.newer.older = node.older
-                
-                # Put it between MRU and LRU
-                node.older = self.mru
-                self.mru.newer = node
-                
-                node.newer = lru
-                lru.older = node
-                
-                self.mru = node
-                return node.value
-                
-            return wrapper
-            
-        return decore
-        
-cache = memoize()
+class UrlInfo(object):
+    def __init__(self,site,url_list=None,request_kwargs=None): 
+        self.site = site
+        self.url_list = url_list
+        self.request_args = None
+        self.request_kwargs = request_kwargs or dict()
+        self.relpath = None
+        self.plugin = None
+        path_list = list(url_list)
+        if path_list[0]=='pages':
+            self.pkg = self.site.mainpackage
+            self.basepath =  self.site.site_static_dir
+        else:
+            pkg_obj = self.site.gnrapp.packages[path_list[0]]
+            if pkg_obj:
+                path_list.pop(0)
+            else:
+                pkg_obj = self.site.gnrapp.packages[self.site.mainpackage]
+            if path_list and path_list[0]=='_plugin':
+                path_list.pop(0)
+                self.plugin = path_list.pop(0)
+                self.basepath= pkg_obj.plugins[self.plugin].webpages_path
+            else:
+                self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
+            self.pkg = pkg_obj.id
+        if self.request_kwargs.pop('_mobile',False):
+            self.basepath = os.path.join(self.basepath,'mobile')
+        currpath = []
+        pathfile_cache = self.site.pathfile_cache
+        path_list_copy = list(path_list)
+        while path_list_copy:
+            currpath.append(path_list_copy.pop(0))
+            searchpath = os.path.join(self.basepath,*currpath)
+            cached_path = pathfile_cache.get(searchpath)
+            if cached_path is None:
+                cached_path = '%s.py' %searchpath
+                if not os.path.isfile(cached_path):
+                    cached_path = False
+                pathfile_cache[searchpath] = cached_path
+            if cached_path:
+                self.relpath = cached_path
+                self.request_args = path_list_copy
+                return
+        last_path = os.path.join(self.basepath,*path_list)
+        last_index_path = os.path.join(last_path,'index.py')
+        if os.path.isfile(last_index_path):
+            pathfile_cache[last_path] = last_index_path
+            pathfile_cache[last_index_path.replace('.py','')] = last_index_path
+            self.relpath = last_index_path
+            self.request_args = []
+        else:
+            self.request_args = path_list
 
 class SafeEvalException(EvalException):
     def __call__(self, environ, start_response):
@@ -224,23 +135,7 @@ class SafeEvalException(EvalException):
 
 class GnrWsgiSite(object):
     """TODO"""
-    #cache = memoize()
-   # def siteLock(self, **kwargs):
-   #     """TODO"""
-   #     return SiteLock(self, **kwargs)
-        
-   #@property
-   #def shared_data(self):
-   #    """TODO"""
-   #    if not hasattr(self, '_shared_data'):
-   #        memcache_config = self.config['memcache']
-   #        if memcache_config:
-   #            self._shared_data = GnrSharedData_memcache(self, memcache_config,
-   #                                                       debug=self.config.getAttr('memcache').get('debug'))
-   #        else:
-   #            self._shared_data = GnrSharedData_dict(self)
-   #    return self._shared_data
-   #    
+    
     @property
     def guest_counter(self):
         """TODO"""
@@ -280,6 +175,7 @@ class GnrWsgiSite(object):
         global GNRSITE
         GNRSITE = self
         counter = int(counter or '0')
+        self.pathfile_cache = {}
         self._currentPages = {}
         self._currentRequests = {}
         self._currentMaintenances = {}
@@ -300,7 +196,7 @@ class GnrWsgiSite(object):
         if _gnrconfig:
             self.gnr_config = _gnrconfig
         else:
-            self.gnr_config = self.load_gnr_config()
+            self.gnr_config = getGnrConfig()
             self.set_environment()
             
         self.config = self.load_site_config()
@@ -463,11 +359,11 @@ class GnrWsgiSite(object):
         #            self.connFolderRemove(connection_id, rnd=False)
         #
         
-    def _get_automap(self):
-        return self.resource_loader.automap
-        
-    automap = property(_get_automap)
-        
+  # def _get_automap(self):
+  #     return self.resource_loader.automap
+  #     
+  # automap = property(_get_automap)
+  #     
     def onInited(self, clean):
         """TODO
         
@@ -502,7 +398,16 @@ class GnrWsgiSite(object):
                     return res_path
         if safe:
             raise Exception('Error: resource %s not found' % res_id)
-            
+         
+         
+    def getUrlInfo(self,path_list,request_kwargs=None,default_path=None):
+        info = UrlInfo(self,path_list,request_kwargs)
+        if not info.relpath and default_path:
+            default_info = UrlInfo(self,default_path,request_kwargs)
+            default_info.request_args = path_list
+            return default_info
+        return info
+           
     def find_gnrjs_and_dojo(self):
         """TODO"""
         self.dojo_path = {}
@@ -520,15 +425,6 @@ class GnrWsgiSite(object):
             if not os.getenv(var):
                 os.environ[var] = str(value)
                 
-    def load_gnr_config(self):
-        """TODO"""
-        config_path = expandpath('~/.gnr')
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        config_path = expandpath(os.path.join('/etc/gnr'))
-        if os.path.isdir(config_path):
-            return Bag(config_path)
-        return Bag()
         
     def load_site_config(self):
         """TODO"""
@@ -573,10 +469,10 @@ class GnrWsgiSite(object):
         return self._custom_config
 
 
-    def _get_sitemap(self):
-        return self.resource_loader.sitemap
-        
-    sitemap = property(_get_sitemap)
+   #def _get_sitemap(self):
+   #    return self.resource_loader.sitemap
+   #    
+   #sitemap = property(_get_sitemap)
     
     def getPackageFolder(self,pkg):
         return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')

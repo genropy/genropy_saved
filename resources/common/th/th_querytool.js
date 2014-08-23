@@ -142,7 +142,7 @@ dojo.declare("gnr.QueryManager", null, {
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         node.unfreeze();
-        this._editorRoot = editorRoot.getParentNode();
+        this._editorRoot = editorRoot;
         this.buildQueryPane();
         this.checkFavorite();
     },
@@ -167,7 +167,13 @@ dojo.declare("gnr.QueryManager", null, {
         var sourceNode = this.sourceNode;
         var that = this;
         var finalize = function(where,run){
+            if(that._editorRoot){
+                that._editorRoot.popNode('root');
+            }
             sourceNode.setRelativeData('.query.where',where);
+            if(that._editorRoot){
+                that.buildQueryPane();
+            }
             that.checkFavorite();
             if(run){
                 sourceNode.fireEvent('.runQuery'); //provvisorio
@@ -198,10 +204,8 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     buildQueryPane: function() {
-        this._editorRoot.clearValue();
-        this._editorRoot.freeze();
-        this._buildQueryGroup(this._editorRoot, this.sourceNode.getRelativeData('.query.where'), 0);
-        this._editorRoot.unfreeze();
+        this._editorRoot.popNode('root');
+        this._buildQueryGroup(this._editorRoot._('div','root'), this.sourceNode.getRelativeData('.query.where'), 0);
     },
     
     addDelFunc : function(mode, pos, e) {
@@ -414,6 +418,7 @@ dojo.declare("gnr.QueryManager", null, {
         var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
+            console.log('xxxx',node)
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
         }
     },
@@ -485,7 +490,7 @@ dojo.declare("gnr.QueryManager", null, {
         this.sourceNode.setRelativeData('.query.favoriteQueryPath',currfavorite);
         this.refreshQueryMenues();
         if(this._editorRoot){
-            genro.dom.setClass(this._editorRoot.attributeOwnerNode('frameCode'),
+            genro.dom.setClass(this._editorRoot.getParentNode().attributeOwnerNode('frameCode'),
                             'th_isFavoriteQuery',currfavorite==currPath);
         }
     },

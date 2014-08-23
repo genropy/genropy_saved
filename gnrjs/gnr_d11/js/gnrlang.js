@@ -284,7 +284,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 if (valueNode){
                                    valueattr = valueNode.attr;
                                    dtype = valueattr.dtype || dtype;
-                                   value = attrname?valueattr[attrname]:valueNode.getValue();
+                                   value = attrname?valueattr[attrname]:valueNode.getValue(null,{_sourceNode:scopeSourceNode});
                                    if('values' in valueattr){
                                         value = objectFromString(valueattr.values)[value];
                                    }
@@ -309,7 +309,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 }else{
                                     if(editpars){
                                         if(editpars['relating_column'] && editpars['caption_field']){
-                                            value = data.getItem('@'+editpars['relating_column']+'.'+editpars['caption_field']);
+                                            value = data.getItem(editpars['caption_field']);
                                         }
                                     }else{
                                         value = valueattr._displayedValue || value;
@@ -914,6 +914,7 @@ var gnrformatter = {
             return formattedValue;
         }
         return mask.replace(/%s/g, formattedValue);
+
     },
     format_P:function(value,format,formatKw){
         if (!format){
@@ -1002,6 +1003,9 @@ var gnrformatter = {
         }
     },
     format_D:function(value,format,formatKw){
+        if(!value){
+            return '';
+        }
         var opt = {selector:'date'};
         var standard_format = 'long,short,medium,full'
         if(format){
@@ -1011,6 +1015,7 @@ var gnrformatter = {
                 opt.datePattern = format;
             }
         }
+        var result = '';
         return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
     },
     
@@ -1574,7 +1579,7 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     argNames.push('_kwargs');
     argValues.push(parsobj);
     if(typeof(fnc)=='function'){
-        var signature = fnc.toString().match(/function +\((.*)\)/)[1];
+        var signature = fnc.toString().match(/function +\(([\w \,]*)\)/)[1];
         var idx;
         if(signature){
             var argValuesCopy = copyArray(argValues);

@@ -228,7 +228,7 @@ class TableHandlerView(BaseComponent):
             pane.data('.current',dflt)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        pane.multiButton(storepath='.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
+        pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label

@@ -758,14 +758,10 @@
 }
 
 
-.tundra._common_d11 .dojoxGrid-content{
+.tundra._common_d11 .dojoxGrid-content>div{
     border-bottom: 1px solid #DDEEEE;
-    border-right: 1px solid #DDEEEE;
 }
-.tundra._common_d11 .emptyGrid .dojoxGrid-content{
-    border-bottom:0;
-    border-right: 0;
-}
+
 
 .tundra._common_d11 .dojoxGrid-row{
     background-color:#fff; 

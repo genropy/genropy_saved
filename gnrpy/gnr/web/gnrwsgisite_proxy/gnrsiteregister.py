@@ -21,11 +21,13 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import Pyro4
+Pyro4.config.METADATA = False
 from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
 from gnr.core.gnrclasses import GnrClassCatalog
+from gnr.app.gnrconfig import gnrConfigPath
 
 try:
     import cPickle as pickle
@@ -85,6 +87,21 @@ class RemoteStoreBagHandler(BaseRemoteObject):
 
         return decore
 
+    def exp__getitem__(self,*args,**kwargs):
+        return self.__getitem__(*args,**kwargs)
+
+    def exp__setitem__(self,*args,**kwargs):
+        return self.__setitem__(*args,**kwargs)
+
+
+    def exp__len__(self,*args,**kwargs):
+        return self.__len__(*args,**kwargs)
+
+    def exp__contains__(self,*args,**kwargs):
+        return self.__contains__(*args,**kwargs)
+
+    def exp__eq__(self,*args,**kwargs):
+        return self.__eq__(*args,**kwargs)
 
 #------------------------------- REMOTEBAG CLIENT SIDE ---------------------------
 
@@ -102,21 +119,26 @@ class RemoteStoreBag(object):
     @remotebag_wrapper
     def __str__(self,*args,**kwargs):
         return self.proxy.asString(*args,**kwargs)
+
     @remotebag_wrapper 
     def __getitem__(self,*args,**kwargs):
-        return self.proxy.__getitem__(*args,**kwargs)
+        return self.proxy.exp__getitem__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __setitem__(self,*args,**kwargs):
-        return self.proxy.__setitem__(*args,**kwargs)
+        return self.proxy.exp__setitem__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __len__(self,*args,**kwargs):
-        return self.proxy.__len__(*args,**kwargs)
+        return self.proxy.exp__len__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __contains__(self,*args,**kwargs):
-        return self.proxy.__contains__(*args,**kwargs)
+        return self.proxy.exp__contains__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __eq__(self,*args,**kwargs):
-        return self.proxy.__eq__(*args,**kwargs)
+        return self.proxy.exp__eq__(*args,**kwargs)
 
     def __getattr__(self,name):
         h = getattr(self.proxy,name) 
@@ -845,7 +867,16 @@ class SiteRegisterClient(object):
         self.errors = Pyro4.errors
 
         daemonconfig = self.site.config.getAttr('gnrdaemon')
-        daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
+        if 'sockets' in daemonconfig:
+            if daemonconfig['sockets'].lower() in ('t','true','y') :
+                daemonconfig['sockets'] = os.path.join(gnrConfigPath(),'sockets')
+            if not os.path.isdir(daemonconfig['sockets']):
+                os.makedirs(daemonconfig['sockets'])
+            daemonconfig['socket'] = daemonconfig.get('socket') or os.path.join(daemonconfig['sockets'],'gnrdaemon.sock')
+        if daemonconfig.get('socket'):
+            daemon_uri = 'PYRO:GnrDaemon@./u:%(socket)s' %daemonconfig
+        else:
+            daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
         Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
@@ -1011,12 +1042,15 @@ class GnrSiteRegisterServer(object):
             print 'SAVED STATUS STATUS'
         self._running = False
 
-    def start(self,port=None,host=None,hmac_key=None,compression=None,multiplex=None,timeout=None,polltimeout=None,autorestore=False):
-        pyrokw = dict(host=host)
-        if port != '*':
-            pyrokw['port'] = int(port or PYRO_PORT)
+    def start(self,port=None,host=None,socket=None,hmac_key=None,compression=None,multiplex=None,
+                    timeout=None,polltimeout=None,autorestore=False):
+        if socket:
+            pyrokw = dict(unixsocket=socket)
+        else:
+            pyrokw = dict(host=host)
+            if port != '*':
+                pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
         multiplex = multiplex or PYRO_MULTIPLEX
         Pyro4.config.HMAC_KEY = str(hmac_key)

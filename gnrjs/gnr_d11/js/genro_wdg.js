@@ -28,7 +28,6 @@ dojo.require('dijit.Menu');
 
 
 function inlineWidget(evt){
-    console.log('inlineWidget',domNode,evt);
     var domNode = evt.target;
     var varname = domNode.getAttribute('varname');
     var chunkNode = genro.dom.getBaseSourceNode(domNode);
@@ -631,8 +630,8 @@ dojo.declare("gnr.RowEditor", null, {
                 var v = this.original_values[k];
                 var nkw = {dtype:cellmap[k].dtype};
                 if(this.newrecord){
-                    if(isNullOrBlank(v) && cellmap[k].validate_notnull){
-                        nkw['_validationError'] = cellmap[k].validate_notnull_error || 'not null';
+                    if(isNullOrBlank(v) && cellmap[k].edit && cellmap[k].edit.validate_notnull){
+                        nkw['_validationError'] = cellmap[k].edit.validate_notnull_error || 'not null';
                     }
                 }else{
                     nkw['_loadedValue'] = v;
@@ -902,11 +901,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.setCellValue(path,value);
         }
         colattr.selectedCb = function(item){
-            if(!item){
-                return;
-            }
-            
-            var selectRow = objectUpdate({},item.attr);
+            var selectRow = item?objectUpdate({},item.attr):{};
             var rowNode = this.getRelativeData().getParentNode();
             var values = {}; 
             for (var k in related_setter){
@@ -1240,7 +1235,8 @@ dojo.declare("gnr.GridEditor", null, {
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
         if(cell.edit || cell.counter){
-            rowEditor.data.setItem(cellname,value);
+            var n = rowEditor.data.setItem(cellname,value);
+            delete n.attr._validationError //trust the programmatical value
             this.updateStatus();
             this.lastEditTs = new Date();
         }

@@ -1203,7 +1203,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
                    _class:'quickgrid_container'}
         var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
-        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden'}) 
+        var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools'}) 
         var posdict = {'TR':{right:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                        'TL':{left:'0',_class:'quickgrid_toolsbox_top quickgrid_toolsbox'},
                         'BR':{right:'0',_class:'quickgrid_toolsbox_bottom quickgrid_toolsbox'},
@@ -2114,6 +2114,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             mbnode.attr._class = mbnode.attr._class + ' hidden';
         }
         var deleteAction = this.deleteAction;
+        var customDelete;
         mb.clear(true);
         if (mb){
             var btn,content_kw,btn_class,code,caption,kw;
@@ -2129,6 +2130,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 caption = objectPop(kw,'caption');
                 code = kw.code || n.label;
                 btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
+                customDelete = kw.deleteAction;
+                if(customDelete){
+                    customDelete = funcCreate(kw.deleteAction,'value,caption')
+                }
+                deleteAction = customDelete===false?false:(customDelete || deleteAction);
                 if(deleteAction){
                     btn_class = btn_class +' multibutton_closable';
                 }
@@ -2136,7 +2142,8 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 kw._class = (kw._class || '') +' '+btn_class
                 content_kw.innerHTML = caption;
                 content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
-                btn = mb._('lightbutton',code,kw)._('div',content_kw);
+                btn = mb._('lightbutton',code,kw)
+                btn._('div',content_kw);
                 if(deleteAction){
                     btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
                         dojo.stopEvent(e);
