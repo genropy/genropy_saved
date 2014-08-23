@@ -13,6 +13,7 @@ import urllib
 import time
 
 import Pyro4
+Pyro4.config.METADATA = False
 
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004

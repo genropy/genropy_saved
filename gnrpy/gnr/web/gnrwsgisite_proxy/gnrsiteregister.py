@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import Pyro4
+Pyro4.config.METADATA = False
 from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
@@ -86,6 +87,21 @@ class RemoteStoreBagHandler(BaseRemoteObject):
 
         return decore
 
+    def exp__getitem__(self,*args,**kwargs):
+        return self.__getitem__(*args,**kwargs)
+
+    def exp__setitem__(self,*args,**kwargs):
+        return self.__setitem__(*args,**kwargs)
+
+
+    def exp__len__(self,*args,**kwargs):
+        return self.__len__(*args,**kwargs)
+
+    def exp__contains__(self,*args,**kwargs):
+        return self.__contains__(*args,**kwargs)
+
+    def exp__eq__(self,*args,**kwargs):
+        return self.__eq__(*args,**kwargs)
 
 #------------------------------- REMOTEBAG CLIENT SIDE ---------------------------
 
@@ -103,21 +119,26 @@ class RemoteStoreBag(object):
     @remotebag_wrapper
     def __str__(self,*args,**kwargs):
         return self.proxy.asString(*args,**kwargs)
+
     @remotebag_wrapper 
     def __getitem__(self,*args,**kwargs):
-        return self.proxy.__getitem__(*args,**kwargs)
+        return self.proxy.exp__getitem__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __setitem__(self,*args,**kwargs):
-        return self.proxy.__setitem__(*args,**kwargs)
+        return self.proxy.exp__setitem__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __len__(self,*args,**kwargs):
-        return self.proxy.__len__(*args,**kwargs)
+        return self.proxy.exp__len__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __contains__(self,*args,**kwargs):
-        return self.proxy.__contains__(*args,**kwargs)
+        return self.proxy.exp__contains__(*args,**kwargs)
+
     @remotebag_wrapper 
     def __eq__(self,*args,**kwargs):
-        return self.proxy.__eq__(*args,**kwargs)
+        return self.proxy.exp__eq__(*args,**kwargs)
 
     def __getattr__(self,name):
         h = getattr(self.proxy,name) 
