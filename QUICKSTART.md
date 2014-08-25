@@ -1,4 +1,4 @@
-DEPENDENCES
+Dependencies
 ===========
 
 **Python**
