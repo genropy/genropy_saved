@@ -326,6 +326,7 @@ class PackageMaker(object):
 </GenRoBag>
 """)
             menu_xml.close()
+        sqlprefixstring = ''
         if not os.path.exists(self.main_py_path):
             if self.sqlprefix is not None:
                 sqlprefixstring = "sqlprefix='%s',"%(self.sqlprefix)
