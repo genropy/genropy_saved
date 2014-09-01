@@ -21,7 +21,8 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import Pyro4
-Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'METADATA'):
+    Pyro4.config.METADATA = False
 from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
