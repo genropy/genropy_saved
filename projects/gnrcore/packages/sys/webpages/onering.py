@@ -9,7 +9,8 @@
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 import Pyro4
-Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'METADATA'):
+    Pyro4.config.METADATA = False
 
 from gnr.core.gnrstring import fromJson
 from datetime import datetime,timedelta
