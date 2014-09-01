@@ -24,7 +24,8 @@
 
 
 import Pyro4
-Pyro4.config.METADATA = False
+if hasattr(Pyro4.config, 'METADATA'):
+    Pyro4.config.METADATA = False
 
 from gnr.core.gnrbag import Bag
 
