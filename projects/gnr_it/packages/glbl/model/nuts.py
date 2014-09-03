@@ -7,7 +7,7 @@ class Table(object):
                 name_plural='!!Nomenclatura statistica',
                 caption_field='description',rowcaption='$code,$description')
         self.sysFields(tbl,hierarchical=True)
-        tbl.column('code' ,name_long='!!Code')
+        tbl.column('code' ,size=':128' ,name_long='!!Code')
         tbl.column('description' ,name_long='!!Description',name_short='Label')
         tbl.column('level',dtype='I',name_long='!!Level')
         tbl.column('country',size='2',name_long='!!Country')
