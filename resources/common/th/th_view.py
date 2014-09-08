@@ -198,10 +198,10 @@ class TableHandlerView(BaseComponent):
 
     @extract_kwargs(condition=True)
     @struct_method
-    def th_slotbar_sections(self,pane,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
-        inattr = pane.getInheritedAttributes()    
+    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
+        inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
-        pane = pane.div(datapath='.sections.%s' %sections)
+        pane = parent.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
         if sections in  tblobj.model.columns and tblobj.column(sections).relatedTable() is not None:
             sectionslist = self._th_section_from_fkey(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
@@ -210,6 +210,8 @@ class TableHandlerView(BaseComponent):
             variable_struct = False
             isMain = False
             mandatory = None
+            depending_condition = False
+            depending_condition_kwargs = dict()
         else:
             m = self._th_hook('sections_%s' %sections,mangler=th_root)
             sectionslist = m()
@@ -218,6 +220,8 @@ class TableHandlerView(BaseComponent):
             isMain = getattr(m,'isMain',False)
             variable_struct = getattr(m,'variable_struct',False)
             mandatory=getattr(m,'mandatory',True)
+            depending_condition = getattr(m,'_if',False)
+            depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         if not sectionslist:
             return
         sectionsBag = Bag()
@@ -228,7 +232,13 @@ class TableHandlerView(BaseComponent):
             pane.data('.current',dflt)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
+        mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
+        parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
+                                genro.dom.toggleVisible(__mb,enabled)
+                                SET .%s.enabled = enabled;""" %sections,
+                                __mb=mb,ss=sections,datapath='.sections',
+                                depending_condition=depending_condition,_onBuilt=True,
+                                        **depending_condition_kwargs)
         pane.dataController("""
             if(!currentSection){
                 currentSection = sectionbag.getNode('#0').label
@@ -247,16 +257,17 @@ class TableHandlerView(BaseComponent):
                     genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
                 }
                 genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
-            }         
+            } 
             var loadingData = GET .#parent.#parent.grid.loadingData;
             if(storeServerTime!=null && !loadingData){
-                FIRE .#parent.#parent.runQueryDo;
+                FIRE .#parent.#parent.sections_changed;
             }
-            """,isMain=isMain,
+            """,isMain=isMain,mb=mb,
+            section_enabled='^.enabled',
             currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
             th_root=th_root,secname=sections,multivalue=multivalue,
-            storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
-            #_init=True)
+            storeServerTime='=.#parent.#parent.store?servertime')
+ 
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
@@ -475,6 +486,7 @@ class TableHandlerView(BaseComponent):
         store_kwargs.update(condPars)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
+        frame.dataController("FIRE .runQueryDo;",_fired='^.sections_changed',_delay=1)
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',

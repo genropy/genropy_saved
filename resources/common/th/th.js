@@ -72,12 +72,13 @@ var th_usersettings = function(th){
 var th_sections_manager = {
     onCalling:function(sections,kwargs){
         var currentSections = [];
-
         var original_condition = kwargs['condition'];
         var andlist = [];
-
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
+            if(!sectionsbag.getItem('enabled')){
+                return;
+            }
             var currents = sectionsbag.getItem('current').split(',');
             var orlist = [];
             var conditions = sectionsbag.getItem('data');
@@ -111,6 +112,9 @@ var th_sections_manager = {
         var captions = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
+            if(!sectionsbag.getItem('enabled')){
+                return;
+            }
             var current = sectionsbag.getItem('current');
             var currents = current ? current.split(','): [];
             var orlist = [];
