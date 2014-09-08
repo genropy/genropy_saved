@@ -54,7 +54,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     revTypesDict = {'A': 'varchar', 'T': 'text', 'C': 'char',
                     'X': 'text', 'P': 'text', 'Z': 'text',
                     'B': 'boolean', 'D': 'date', 'H': 'time', 'DH': 'datetime',
-                    'I': 'int', 'L': 'bigint', 'R': 'real',
+                    'I': 'int', 'L': 'bigint', 'R': 'real','N':'decimal',
                     'serial': 'serial8', 'O': 'bytea'}
 
     def defaultMainSchema(self):
@@ -92,6 +92,18 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """
         sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
+
+    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
+        """Return the statement string for creating a table's column
+        """
+        sql = '%s %s' % (sqlname, self.columnSqlType(dtype, size))
+        if notnull:
+            sql = sql + ' NOT NULL'
+        if pkey:
+            sql = sql + ' PRIMARY KEY'
+        if unique:
+            sql = sql + ' UNIQUE'
+        return sql
 
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)
