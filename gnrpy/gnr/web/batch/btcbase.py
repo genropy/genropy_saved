@@ -204,18 +204,18 @@ class BaseResourceBatch(object):
                                             excludeDraft=False,columns=columns).selection()
         return selection
 
-    def get_records(self):
+    def get_records(self,for_update=None,virtual_columns=None):
         """TODO"""
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
-            yield self.get_record(pkey)
+            yield self.get_record(pkey,for_update=for_update,virtual_columns=virtual_columns)
 
-    def get_record(self, pkey, virtual_columns=None):
+    def get_record(self, pkey, virtual_columns=None,for_update=None):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
         :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
-        return self.tblobj.record(pkey=pkey, virtual_columns=self.virtual_columns).output('bag')
+        return self.tblobj.record(pkey=pkey, virtual_columns=virtual_columns or self.virtual_columns,for_update=for_update).output('bag')
 
     def get_selection_pkeys(self):
         """TODO"""
