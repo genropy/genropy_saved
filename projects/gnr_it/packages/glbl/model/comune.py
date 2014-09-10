@@ -8,7 +8,7 @@ class Table(object):
         self.sysFields(tbl)
         tbl.column('codice_regione',name_long='!!Codice Regione')
         tbl.column('codice_provincia',name_long='!!Codice Provincia')
-        tbl.column('sigla_provincia',name_long='!!Sigla Provincia').relation('glbl.provincia.sigla',relation_name='comuni',mode='foreignkey')
+        tbl.column('sigla_provincia', size='2', name_long='!!Sigla Provincia').relation('glbl.provincia.sigla',relation_name='comuni',mode='foreignkey')
         tbl.column('codice_comune',name_long='!!Codice Comune')
         tbl.column('denominazione',name_long='!!Denominazione')
         tbl.column('denominazione_tedesca',name_long='!!Denominazione tedesca')

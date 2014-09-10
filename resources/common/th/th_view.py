@@ -94,6 +94,7 @@ class TableHandlerView(BaseComponent):
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
+        self._th_menu_sources(frame)
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
         self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
@@ -198,10 +199,10 @@ class TableHandlerView(BaseComponent):
 
     @extract_kwargs(condition=True)
     @struct_method
-    def th_slotbar_sections(self,pane,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
-        inattr = pane.getInheritedAttributes()    
+    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
+        inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
-        pane = pane.div(datapath='.sections.%s' %sections)
+        pane = parent.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
         if sections in  tblobj.model.columns and tblobj.column(sections).relatedTable() is not None:
             sectionslist = self._th_section_from_fkey(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
@@ -210,6 +211,8 @@ class TableHandlerView(BaseComponent):
             variable_struct = False
             isMain = False
             mandatory = None
+            depending_condition = False
+            depending_condition_kwargs = dict()
         else:
             m = self._th_hook('sections_%s' %sections,mangler=th_root)
             sectionslist = m()
@@ -218,51 +221,46 @@ class TableHandlerView(BaseComponent):
             isMain = getattr(m,'isMain',False)
             variable_struct = getattr(m,'variable_struct',False)
             mandatory=getattr(m,'mandatory',True)
+            depending_condition = getattr(m,'_if',False)
+            depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         if not sectionslist:
             return
         sectionsBag = Bag()
         for i,kw in enumerate(sectionslist):
             sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
         pane.data('.data',sectionsBag)
-        if dflt:
-            pane.data('.current',dflt)
+        if not dflt:
+            dflt = sectionsBag.getNode('#0').label
+        pane.data('.current',dflt)
+        pane.data('.variable_struct',variable_struct)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,**kwargs)
+        mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+                                disabled='^.#parent.parent.grid.loadingData',**kwargs)
+        parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
+                                genro.dom.toggleVisible(__mb,enabled)
+                                SET .%s.enabled = enabled;
+                                FIRE .#parent.#parent.sections_changed;
+                                """ %sections,
+                                __mb=mb,ss=sections,datapath='.sections',
+                                depending_condition=depending_condition,_onBuilt=True,
+                                        **depending_condition_kwargs)
         pane.dataController("""
-            if(!currentSection){
-                currentSection = sectionbag.getNode('#0').label
-                PUT .current = currentSection;
-            }
+            genro.assert(currentSection,'missing current section for sections %s')
+            var sectionNode = sectionbag.getNode(currentSection);
             if(isMain){
-                var sectionNode = sectionbag.getNode(currentSection);
                 FIRE .#parent.#parent.clearStore;
                 SET .#parent.#parent.excludeDraft = !sectionNode.attr.includeDraft;
-                if(variable_struct){
-                    SET .#parent.#parent.grid.currViewPath = sectionNode.attr.struct;
-                }
-                var oldSectionValue = _triggerpars.kw?_triggerpars.kw.oldvalue:null;
-                var viewNode = genro.getFrameNode(th_root);
-                if(oldSectionValue){
-                    genro.dom.removeClass(viewNode,'section_'+secname+'_'+oldSectionValue);
-                }
-                genro.dom.addClass(viewNode,'section_'+secname+'_'+currentSection);
-            }         
-            var loadingData = GET .#parent.#parent.grid.loadingData;
-            if(storeServerTime!=null && !loadingData){
-                FIRE .#parent.#parent.runQueryDo;
-            }
-            """,isMain=isMain,
-            currentSection='^.current',sectionbag='=.data',variable_struct=variable_struct,
-            th_root=th_root,secname=sections,multivalue=multivalue,
-            storeServerTime='=.#parent.#parent.store?servertime',_onBuilt=True)
-            #_init=True)
+            } 
+            FIRE .#parent.#parent.sections_changed;
+            """ %sections
+            ,isMain=isMain,mb=mb,_onBuilt=True,
+            currentSection='^.current',sectionbag='=.data',
+            th_root=th_root)
+ 
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
-        table = inattr['table']
         pane.div(_class='iconbox menubox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
                                 SET .query.currentQuery = $1.fullpath;
@@ -271,7 +269,15 @@ class TableHandlerView(BaseComponent):
                                 }
                                 SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
                             """)
-                    
+
+
+    def _th_menu_sources(self,pane):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        table = inattr['table']
+        gridId = '%s_grid' %th_root
+
+        #SOURCE MENUQUERIES
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
         pane.dataController("""
@@ -298,24 +304,13 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
                         objtype='list_in',table=table,cacheTime=5)
                         
-
         pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
-
-    @struct_method
-    def th_slotbar_viewsMenu(self,pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
-        table = inattr['table']
-        gridId = '%s_grid' %th_root
-       #b = pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
-       #            margin='1px',overflow='hidden',text_align='left',cursor='pointer',display='inline-block',
-       #            color='#555',datapath='.grid')
-
-        b = pane.div(_class='iconbox list',datapath='.grid')
-        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
-        pane.dataController("genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);",currentView="^.grid.currViewPath",
+        #SOURCE MENUVIEWS
+        pane.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView),th_root);
+                                """,
+                            currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
                             gridId=gridId,th_root=th_root)
         q = Bag()
@@ -324,34 +319,47 @@ class TableHandlerView(BaseComponent):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        
-
         pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30,)
+                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+
+        options = self._th_hook('options',mangler=pane)() or dict()
+        #SOURCE MENUPRINT
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=options.get('print_flags'),
+                        from_resource=options.get('print_from_resource',True),cacheTime=5)
+
+        #SOURCE MENUMAIL
+        pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=options.get('mail_flags'),
+                        from_resource=options.get('mail_from_resource',True),cacheTime=5)
+
+        #SOURCE MENUACTIONS
+        pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
+                        res_type='action', table=table,cacheTime=5)
+
+
+    @struct_method
+    def th_slotbar_viewsMenu(self,pane,**kwargs):
+        b = pane.div(_class='iconbox list',datapath='.grid')
+        b.menu(storepath='.structMenuBag',_class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        table = inattr['table']
         pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
-        options = self._th_hook('options',mangler=pane)() or dict()
-        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=flags or options.get('print_flags'),
-                        from_resource=from_resource or options.get('print_from_resource',True),cacheTime=5)
-    
+
     @public_method
     def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
         return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
-
+        
+    @struct_method
+    def th_slotbar_resourceActions(self,pane,**kwargs):
+        pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
+                            FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
+                            """,_class='smallmenu')
     @struct_method
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        table = inattr['table']
         pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',
                         action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'mail'};""")
-        options = self._th_hook('options',mangler=pane)() or dict()
-        pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=flags or options.get('mail_flags'),
-                        from_resource=from_resource or options.get('mail_from_resource',True),cacheTime=5)
-                        
+
     @public_method
     def th_mailMenu(self,table=None,flags=None,from_resource=True,**kwargs):
         return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='mail')
@@ -381,15 +389,7 @@ class TableHandlerView(BaseComponent):
         table = inattr['table']
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
-        
-    @struct_method
-    def th_slotbar_resourceActions(self,pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        table = inattr['table']
-        pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
-                            FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
-                            """,_class='smallmenu')
-        pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
+
       
 
    # @struct_method
@@ -475,6 +475,20 @@ class TableHandlerView(BaseComponent):
         store_kwargs.update(condPars)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
+        frame.dataController("""
+            th_sections_manager.updateSectionsStatus(sectionbag,genro.getFrameNode(th_root));
+            var loadingData = GET .grid.loadingData;
+            if(lastQueryTime!==null && !loadingData){
+                FIRE .runQueryDo;
+            }
+            """,
+            th_root=th_root,
+            lastQueryTime = '=.store?servertime',
+            sectionbag = '=.sections',
+            _fired = '^.sections_changed',
+            _if = 'sectionbag.len()',
+            _delay = 100)
+
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
