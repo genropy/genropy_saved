@@ -96,6 +96,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
         """Return the statement string for creating a table's column
         """
+        if dtype.upper()=='T' and (pkey or unique):
+            dtype = 'A'
+            size = ':704'
         sql = '%s %s' % (sqlname, self.columnSqlType(dtype, size))
         if notnull:
             sql = sql + ' NOT NULL'
@@ -104,6 +107,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         if unique:
             sql = sql + ' UNIQUE'
         return sql
+
 
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)
