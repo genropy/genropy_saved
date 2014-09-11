@@ -15,3 +15,4 @@ xlwt
 psutil
 docutils
 sh
+uwsgi
