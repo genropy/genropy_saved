@@ -7,10 +7,14 @@ import os
 def main():
     hostname = os.environ.get('HOSTNAME' )
     if os.environ.get('GNR_WSGI_MODE' ) == 'uwsgi':
-        subprocess.call(['uwsgi','--socket', '/shared_data/%s/uwsgi.sock' %hostname,
+        hostpath = '/shared_data/%s' %hostname
+        if not os.path.exists(hostpath):
+            os.makedirs(hostpath)
+        subprocess.call(['uwsgi','--socket', '%s/uwsgi.sock' %hostpath,
                         '--chdir' ,'/home/genropy_projects/sandbox/sites/sandbox',
                         '--wsgi-file', '/home/genropy_projects/sandbox/sites/sandbox/root.py',
-                         '--master', '--processes', '4' ,'--threads' ,'2'
+                         '--master', '--processes', '4' ,'--threads' ,'2','--uid','www-data',
+                         '--gid','www-data'
                         ])
     else:
         subprocess.call(['gnrwsgiserve'])
