@@ -10,6 +10,7 @@ def main():
         hostpath = '/shared_data/%s' %hostname
         if not os.path.exists(hostpath):
             os.makedirs(hostpath)
+        os.chmod(hostpath,0666)
         subprocess.call(['uwsgi','--socket', '%s/uwsgi.sock' %hostpath,
                         '--chdir' ,'/home/genropy_projects/sandbox/sites/sandbox',
                         '--wsgi-file', '/home/genropy_projects/sandbox/sites/sandbox/root.py',
