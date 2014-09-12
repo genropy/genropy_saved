@@ -108,11 +108,11 @@ class GnrSqlDb(GnrObject):
         """
         
         self.implementation = implementation
-        self.dbname = dbname
-        self.host = host
-        self.port = port
-        self.user = user
-        self.password = password
+        self.dbname = self.dbpar(dbname)
+        self.host = self.dbpar(host)
+        self.port = self.dbpar(port)
+        self.user = self.dbpar(user)
+        self.password = self.dbpar(password)
         self.read_only = read_only
         self.typeConverter = GnrClassCatalog()
         self.debugger = debugger
@@ -129,6 +129,11 @@ class GnrSqlDb(GnrObject):
         self.stores_handler = DbStoresHandler(self)
 
     #-----------------------Configure and Startup-----------------------------
+
+    def dbpar(self,parvalue):
+        if parvalue.startswith("$"):
+            return os.os.environ.get(parvalue[1:])
+        return parvalue
 
     @property
     def debug(self):
