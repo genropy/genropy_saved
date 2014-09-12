@@ -5,9 +5,8 @@ import subprocess
 import os
 
 def main():
-    hostname = os.environ.get('HOSTNAME' )
     if os.environ.get('GNR_WSGI_MODE' ) == 'uwsgi':
-        hostpath = '/shared_data/%s' %hostname
+        hostpath = '/shared/sockets' 
         if not os.path.exists(hostpath):
             os.makedirs(hostpath)
         os.chmod(hostpath,0777)
