@@ -131,8 +131,8 @@ class GnrSqlDb(GnrObject):
     #-----------------------Configure and Startup-----------------------------
 
     def dbpar(self,parvalue):
-        if parvalue.startswith("$"):
-            return os.os.environ.get(parvalue[1:])
+        if parvalue and parvalue.startswith("$"):
+            return os.environ.get(parvalue[1:])
         return parvalue
 
     @property

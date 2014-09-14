@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<db filename="data/gnrdocker"/>
+	<packages>
+		<gnrcore_sys pkgcode="gnrcore:sys"/>
+		<gnrcore_adm pkgcode="gnrcore:adm"/>
+		<docker pkgcode="docker"/>
+	</packages>
+	<authentication pkg="gnrcore:sys">
+		<py_auth defaultTags="user" method="authenticate" pkg="adm"/>
+	</authentication>
+</GenRoBag>
