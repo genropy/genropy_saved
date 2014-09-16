@@ -6100,6 +6100,9 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
                 this.sourceNode.setRelativeData(path, val, null, false, 'selected_');
             }
         }
+        if (this.sourceNode.selectedCb){
+            this.sourceNode.selectedCb(item);
+        }
         if(this.sourceNode._selectedCb){
             this.sourceNode._selectedCb(item);
         }
