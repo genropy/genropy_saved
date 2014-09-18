@@ -248,15 +248,22 @@ class FormHandler(BaseComponent):
                         **kwargs)
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,**kwargs):
-        fb = pane.formbuilder(cols=1, border_spacing='1px')
         table = table or pane.getInheritedAttributes()['table']
-        tblobj = self.db.table(table)
-        fb.dbselect(value="^.pkey",dbtable=table,
-                    parentForm=False,condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
+        pane.dataController("genro.bp(true);",_fired='^#FORM.controller.loaded')
+        pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
+                        hidden='^#FORM.controller.temp.selectorVisible')
+        box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
+        box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
+                    parentForm=False,_class='th_linker',rounded=8,
+                    #condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
                     #condition_pkeys='==this.form?this.form.store.parentStore? this.form.store.parentStore.currentPkeys():null:null;',
-                    #validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
-                    hasDownArrow=True,
-                    lbl=tblobj.name_long)
+                    validate_onAccept="""this.widget.focusNode.blur();
+                                        if(value && userChange){
+                                            var form = this.getParentNode().getFormHandler()
+                                            form.goToRecord(value);
+
+                                        }""",
+                    lbl='!!Search',width='12em')
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):

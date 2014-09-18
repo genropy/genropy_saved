@@ -838,7 +838,7 @@ label{
 }*/
 
 .gnrfieldlabel.gnrzoomlabel{
-    padding-left: 15px;
+    /*padding-left: 15px;*/
     cursor: pointer;
 }
 .gnrzoomicon{

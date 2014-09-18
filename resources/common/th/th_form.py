@@ -180,7 +180,7 @@ class TableHandlerForm(BaseComponent):
                 default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
             elif navigation:
                 default_slots = 'navigation,%s' %default_slots
-            elif options.pop('selector',False):
+            if options.pop('selector',False):
                 default_slots = default_slots.replace('*','5,form_selectrecord,*')
             if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
