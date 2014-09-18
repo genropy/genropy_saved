@@ -263,7 +263,8 @@ class FormHandler(BaseComponent):
                                         if(value && userChange){
                                             var form = this.getParentNode().getFormHandler()
                                             form.goToRecord(value);
-
+                                            SET #FORM.controller.temp.selector_pkey = null;
+                                            SET #FORM.controller.temp.selectorVisible = null;
                                         }""",**dbselect_pars)
     
     @struct_method          
