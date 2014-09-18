@@ -247,14 +247,16 @@ class FormHandler(BaseComponent):
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
     @struct_method          
-    def fh_slotbar_form_selectrecord(self,pane,table=None,**kwargs):
+    def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
         pane.dataController("genro.bp(true);",_fired='^#FORM.controller.loaded')
         pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
                         hidden='^#FORM.controller.temp.selectorVisible')
         box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
+        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8)
+        dbselect_pars.update(pars)
         box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
-                    parentForm=False,_class='th_linker',rounded=8,
+                    parentForm=False,
                     #condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
                     #condition_pkeys='==this.form?this.form.store.parentStore? this.form.store.parentStore.currentPkeys():null:null;',
                     validate_onAccept="""this.widget.focusNode.blur();
@@ -262,8 +264,7 @@ class FormHandler(BaseComponent):
                                             var form = this.getParentNode().getFormHandler()
                                             form.goToRecord(value);
 
-                                        }""",
-                    lbl='!!Search',width='12em')
+                                        }""",**dbselect_pars)
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
