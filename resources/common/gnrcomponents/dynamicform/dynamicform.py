@@ -389,7 +389,7 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-        pane.contentPane(background='lime').remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,df_is_new=True,cachedRemote=True,**kwargs)
+        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,df_is_new=True,cachedRemote=True,**kwargs)
         
     @struct_method
     def df_dynamicFieldsPane(self,pane,field=None,**kwargs):
