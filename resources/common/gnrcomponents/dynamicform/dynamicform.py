@@ -389,7 +389,7 @@ class DynamicForm(BaseComponent):
 
     @struct_method
     def df_dynamicFieldsTestPane(self,pane,df_table=None,df_pkey=None,**kwargs):
-        pane.contentPane().remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,df_is_new=True,cachedRemote=True,**kwargs)
+        pane.contentPane(background='lime').remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,df_is_new=True,cachedRemote=True,**kwargs)
         
     @struct_method
     def df_dynamicFieldsPane(self,pane,field=None,**kwargs):
@@ -460,11 +460,11 @@ class DynamicForm(BaseComponent):
         for r in fields:
             page = r.pop('page',None) or 'Main'
             fdict.setdefault(page,[]).append(r)
-        if len(fdict)==1:
+        if len(fdict)<2:
             pane.div(margin_right='10px',datapath=datapath,padding='10px').dynamicFormGroup(fields=fields,ncol=ncol,colswith=colswith or None,**kwargs)
             return
-        tc = pane.tabContainer(datapath=datapath,margin='2px')
         pages = fdict.keys()
+        tc = pane.tabContainer(datapath=datapath,margin='2px')
         if 'Main' in pages:
             pages.remove('Main')
             pages = ['Main']+pages
