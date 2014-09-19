@@ -108,7 +108,6 @@ class Table(object):
         dccol = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i)" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+delta+1)
         l = tblobj.query(columns=columns ,
                         where="%s = :sq" %dccol,
-                        excludeDraft=False,
                         sq=sq).fetch()
         i = 0
         errors = Bag()
@@ -116,11 +115,12 @@ class Table(object):
         prev_date = None
         prevcnt = None
         cnt = 0
-        l = sorted(l,key=lambda r: r['cnt'])  
+        l = sorted(l,key=lambda r: r['cnt'])   
         if l and date_field and period['Y'] and len(period['Y']) <4:
             period['Y'] = str(l[0][date_field].year)
         if period:
             period = '%(Y)s%(M)s%(D)s' %period
+        
         period =period or None
         for r in l:
             i+=1
