@@ -23,14 +23,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-import os
-import datetime
 
-import py.test
 
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.core.gnrbag import Bag
-from gnr.core import gnrstring
 
 def setup_module(module):
     module.CONFIG = Bag('data/configTest.xml')
@@ -60,6 +56,8 @@ class TestDbModelSrc(object):
         cls.db_fromcode.model.src.save(SAMPLE_XMLSTRUCT_FINAL)
 
     def test_modelSrcEqual(self):
+        if self.db_fromcode.model.src!=self.db_fromxml.model.src:
+            print self.db_fromcode.model.src.diff(self.db_fromxml.model.src)
         assert self.db_fromcode.model.src == self.db_fromxml.model.src
 
     def test_mixinPackage(self):
@@ -95,9 +93,6 @@ class TestDbModelSrc(object):
         self.db_fromxml.packageSrc('video').table('movie')['columns.genre?name_full'] == 'Genre'
         self.db_fromcode.packageSrc('video').table('movie').column('genre', name_full='Genre')
         self.db_fromcode.packageSrc('video').table('movie')['columns.genre?name_full'] == 'Genre'
-
-    def test_index(self):
-        assert self.db_fromxml.packageSrc('video').table('movie').index(name='i_title').attributes['unique'] == 'y'
 
     def test_relation(self):
         assert self.db_fromxml.packageSrc('video').table('cast').column('person_id')[
@@ -135,7 +130,6 @@ def configurePackage(pkg):
     movie.column('id', 'L')
     movie.column('title', name_short='Ttl.', name_long='Title',
                  validate_case='capitalize', validate_len='3,40')
-    movie.index('title', 'i_title', unique='y')
     movie.column('genre', name_short='Gnr', name_long='Genre',
                  validate_case='upper', validate_len='3,10', indexed='y')
     movie.column('year', 'L', name_short='Yr', name_long='Year', indexed='y')
@@ -144,7 +138,7 @@ def configurePackage(pkg):
 
     dvd = pkg.table('dvd', name_short='Dvd', name_long='Dvd', pkey='code')
     dvd_id = dvd.column('code', 'L')
-    dvd.column('movie_id', name_short='Mid', name_long='Movie id').relation('movie.id')
+    dvd.column('movie_id', 'L',name_short='Mid', name_long='Movie id').relation('movie.id')
     dvd.column('purchasedate', 'D', name_short='Pdt', name_long='Purchase date')
     dvd.column('available', name_short='Avl', name_long='Available')
 
