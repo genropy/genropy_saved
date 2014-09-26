@@ -88,22 +88,6 @@ class RemoteStoreBagHandler(BaseRemoteObject):
 
         return decore
 
-    def __getitem__(self,*args,**kwargs):
-        return self.__getitem__(*args,**kwargs)
-
-    def __setitem__(self,*args,**kwargs):
-        return self.__setitem__(*args,**kwargs)
-
-
-    def __len__(self,*args,**kwargs):
-        return self.__len__(*args,**kwargs)
-
-    def __contains__(self,*args,**kwargs):
-        return self.__contains__(*args,**kwargs)
-
-    def __eq__(self,*args,**kwargs):
-        return self.__eq__(*args,**kwargs)
-
 #------------------------------- REMOTEBAG CLIENT SIDE ---------------------------
 
 class RemoteStoreBag(object):
