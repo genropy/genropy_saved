@@ -811,7 +811,7 @@ class TableBase(object):
         adm_counter = self.db.package('adm').attributes.get('counter')
         if adm_counter is not None and boolean(adm_counter) is False:
             return []
-        return [k[8:] for k in dir(self) if k.startswith('counter_')]
+        return [k[8:] for k in dir(self) if k.startswith('counter_') and not k[-1]=='_']
 
     def getCounterPars(self,field,record=None):
         return getattr(self,'counter_%s' %field)(record=record)
