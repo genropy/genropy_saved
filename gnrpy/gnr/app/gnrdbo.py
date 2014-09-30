@@ -820,7 +820,8 @@ class TableBase(object):
     def trigger_releaseCounters(self,record=None,backToDraft=None):
         for field in self.counterColumns():
             if record.get(field):
-                if not backToDraft or not self.getCounterPars(field,record).get('assignIfDraft'):
+                counter_pars = self.getCounterPars(field,record)
+                if not backToDraft or (counter_pars.get('recycled') and not counter_pars.get('assignIfDraft')):
                     self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
     def trigger_assignCounters(self,record=None,old_record=None):
