@@ -2,7 +2,8 @@
 <GenRoBag><packages tag="package_list"><video name_short="video" comment="video package" name_full="video" tag="package" name_long="video"><tables tag="table_list"><people pkey="id" name_short="people" tag="table" pkg="video" rowcaption="name,year:%s (%s)" fullname="video.people" name_long="People"><columns tag="column_list"><id _T="BAG" dtype="L" tag="column"></id>
 <name _T="BAG" name_short="N." tag="column" name_long="Name"></name>
 <year _T="BAG" name_short="Yr" dtype="L" tag="column" name_long="Birth Year"></year>
-<nationality _T="BAG" name_short="Ntl" tag="column" name_long="Nationality"></nationality></columns></people>
+<nationality _T="BAG" name_short="Ntl" tag="column" name_long="Nationality"></nationality>
+<foo _T="BAG" tag="column"></foo></columns></people>
 <cast pkey="id" name_short="cast" tag="table" pkg="video" rowcaption="" fullname="video.cast" name_long="Cast"><columns tag="column_list"><id _T="BAG" dtype="L" tag="column"></id>
 <movie_id name_short="Mid" dtype="L" tag="column" name_long="Movie id"><relation _T="BAG" related_column="movie.id" mode="relation"></relation></movie_id>
 <person_id name_short="Prs" dtype="L" tag="column" name_long="Person id"><relation _T="BAG" related_column="people.id" mode="relation"></relation></person_id>
@@ -17,4 +18,5 @@
 <dvd pkey="code" name_short="Dvd" tag="table" pkg="video" fullname="video.dvd" name_long="Dvd"><columns tag="column_list"><code _T="BAG" dtype="L" tag="column"></code>
 <movie_id name_short="Mid" dtype="L" tag="column" name_long="Movie id"><relation _T="BAG" related_column="movie.id" mode="relation"></relation></movie_id>
 <purchasedate _T="BAG" name_short="Pdt" dtype="D" tag="column" name_long="Purchase date"></purchasedate>
-<available _T="BAG" name_short="Avl" tag="column" name_long="Available"></available></columns></dvd></tables></video></packages></GenRoBag>
+<available _T="BAG" name_short="Avl" tag="column" name_long="Available"></available></columns></dvd>
+<actor pkey="id" name_short="act" tag="table" pkg="video" fullname="video.actor" name_long="actor"><columns tag="column_list"><id _T="BAG" dtype="L" tag="column"></id></columns></actor></tables></video></packages></GenRoBag>

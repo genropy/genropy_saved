@@ -84,7 +84,7 @@ class TestSqlStructure(object):
 
     def test_SqlTableObj_rel_many(self):
         tbl = self.db.model.table('video.movie')
-        assert tbl.relations_many['video.dvd.movie_id'] == 'id'
+        assert tbl.relations_many['video_dvd_movie_id'] == 'id'
 
     def test_SqlTableObj_rel_column(self):
         tbl = self.db.model.table('video.cast')

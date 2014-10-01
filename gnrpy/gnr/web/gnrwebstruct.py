@@ -314,6 +314,8 @@ class GnrDomSrc(GnrStructData):
                 clientpath = clientpath.replace('^','').replace('=','')
                 value=kwargs.get('default_value')
                 self.data(clientpath,value,**sourceNodeValueAttr)
+        if childname and childname != '*_#':
+            kwargs['_childname'] = childname
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):

@@ -8,6 +8,8 @@ class BottomPlugins(BaseComponent):
     tickets = False
 
     def onMain_bottomplugin(self):
+        if self.parent_page_id != self.root_page_id:
+            return
         _gnrRoot = self.pageSource('_gnrRoot')
         #tblcode = self.maintable.replace('.','_')
         #if self.pbl_isDocWriter() or os.path.exists(self.de_documentPath(storeKey=tblcode,doctype='html')):

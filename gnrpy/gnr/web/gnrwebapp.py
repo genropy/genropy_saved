@@ -23,7 +23,7 @@ class GnrWsgiWebApp(GnrApp):
         if dbeventsDict:
             page = self.site.currentPage
             tables = [k for k,v in dbeventsDict.items() if v]
-            subscribed_tables = self.site.register.filter_subscribed_tables(tables,register_name='page')
+            subscribed_tables = self.site.getSubscribedTables(tables)
             if subscribed_tables:
                 for table in set(tables).difference(subscribed_tables):
                     dbeventsDict.pop(table)         

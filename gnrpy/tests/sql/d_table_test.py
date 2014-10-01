@@ -72,7 +72,9 @@ class BaseSql(object):
         tbl = self.db.table('video.dvd')
 
     def test_noStructDiff(self):
-        assert not self.db.checkDb()
+        check = self.db.checkDb()
+        print self.db.model.modelChanges
+        assert not check
 
     def test_execute1(self):
         result = self.db.execute('SELECT 1;').fetchall()
@@ -111,16 +113,10 @@ class BaseSql(object):
     def test_insertNoId(self):
         today = datetime.date.today()
         self.db.table('video.dvd').insert({'movie_id': 2, 'purchasedate': today})
-        result = self.db.query('video.dvd', columns='$title',
-                               relationDict={'title': '@movie_id.title'},
+        result = self.db.query('video.dvd', columns='@movie_id.title AS title',
                                where="$purchasedate = :today", today=today).fetch()
         self.db.commit()
         assert result[0][0] == 'Munich'
-
-    def test_createStructureFromCode(self):
-        configurePackage(self.db.packageSrc('video'))
-        self.db.saveModel('dbstructure.xml')
-        assert self.db.model.src['packages.video.tables.people?pkey'] == 'id'
 
     def test_record(self):
         result = self.db.table('video.dvd').record(1, mode='bag')

@@ -460,11 +460,11 @@ class DynamicForm(BaseComponent):
         for r in fields:
             page = r.pop('page',None) or 'Main'
             fdict.setdefault(page,[]).append(r)
-        if len(fdict)==1:
+        if len(fdict)<2:
             pane.div(margin_right='10px',datapath=datapath,padding='10px').dynamicFormGroup(fields=fields,ncol=ncol,colswith=colswith or None,**kwargs)
             return
-        tc = pane.tabContainer(datapath=datapath,margin='2px')
         pages = fdict.keys()
+        tc = pane.tabContainer(datapath=datapath,margin='2px')
         if 'Main' in pages:
             pages.remove('Main')
             pages = ['Main']+pages

@@ -260,6 +260,10 @@ class GnrWsgiSite(object):
             self._register = SiteRegisterClient(self)
         return self._register
 
+    def getSubscribedTables(self,tables):
+        if self._register:
+            return self.register.filter_subscribed_tables(tables,register_name='page')
+
     @property
     def remote_edit(self):
         return self._remote_edit

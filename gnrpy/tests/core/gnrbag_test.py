@@ -25,8 +25,8 @@ class TestBasicBag:
         assert b == self.mybag
 
     def test_fillFromUrl(self):
-        b = Bag('http://blog.genropy.org/rss.xml')
-        assert b['rss.channel.title'] == 'GenroPy'
+        b = Bag('http://genropy.wordpress.com/feed/')
+        assert b['rss.channel.title'] == 'Genropy'
 
     def test_fillFromXml(self):
         b = Bag("<name>John</name>")
@@ -184,7 +184,6 @@ class TestBasicBag:
         assert bag.fullpath == None
 
         b.setBackRef()
-        assert b.fullpath == ''
         assert b['just.a.simple'].fullpath == 'just.a.simple'
 
 class TestBagTrigger:
@@ -273,18 +272,17 @@ def testToTree():
     treeBag = b.toTree(group_by=('number', 'text'), caption='title', attributes=('date', 'text'))
 
     expectedStr =\
-    """0 - (Bag) 1:
-0 - (Bag) group1:
-0 - (None) alfa: None  <date='2010-05-10' text='group1'>
-1 - (Bag) group2:
-0 - (None) beta: None  <date='2010-05-05' text='group2'>
-1 - (Bag) 2:
-0 - (Bag) group1:
-0 - (None) gamma: None  <date='2010-05-10' text='group1'>
-1 - (Bag) group2:
-0 - (None) delta: None  <date='2010-05-05' text='group2'>"""
+"""0 - (Bag) 1: 
+    0 - (Bag) group1: 
+        0 - (None) alfa: None  <date='2010-05-10' text='group1'>
+    1 - (Bag) group2: 
+        0 - (None) beta: None  <date='2010-05-05' text='group2'>
+1 - (Bag) 2: 
+    0 - (Bag) group1: 
+        0 - (None) gamma: None  <date='2010-05-10' text='group1'>
+    1 - (Bag) group2: 
+        0 - (None) delta: None  <date='2010-05-05' text='group2'>"""
 
     assert str(treeBag) == expectedStr
-
     treeBag2 = b.toTree(group_by='number,text', caption='alfa', attributes=('date', 'text'))
     assert treeBag == treeBag2

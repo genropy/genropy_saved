@@ -260,6 +260,18 @@ class BagNode(object):
         """TODO"""
         self._resolver.reset()
         self.setValue(None)
+
+    def diff(self,other):
+        if self.label !=other.label:
+            return 'Other label: %s' %other.label
+        if self.attr != other.attr:
+            return 'attributes self:%s --- other:%s' %(self.attr,other.attr) 
+        if self._value != other._value:
+            if isinstance(self._value,Bag):
+                return 'value:%s' %self._value.diff(other._value)
+            else:
+                return 'value self:%s --- other:%s' %(self._value,other._value)
+
         
     def getAttr(self, label=None, default=None):
         """It returns the value of an attribute. You have to specify the attribute's label.
@@ -1054,6 +1066,19 @@ class Bag(GnrObject):
                 return False
         except:
             return False
+
+    def diff(self,other):
+        if self == other:
+            return None
+        if not isinstance(other, self.__class__):
+            return 'Other class is %s, self class is %s' %(other.__class__,self.__class__)
+        if len(other)!=len(self):
+            return 'Different length'
+        result = []
+        for k,n in enumerate(self._nodes):
+            if n != other._nodes[k]:
+                result.append('Node %i label %s difference %s' %(k,n.label,n.diff(other._nodes[k])))
+        return '\n'.join(result)
 
     def __getstate__(self):
         result = dict(self.__dict__)

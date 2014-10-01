@@ -127,7 +127,7 @@ class TableHandlerForm(BaseComponent):
         allowSaveInvalid= options.pop('allowSaveInvalid',draftIfInvalid)
         form_add = options.pop('form_add',True)
         form_delete = options.pop('form_delete',True)
-
+        selector = options.pop('selector',False)
         form.attributes.update(form_draftIfInvalid=draftIfInvalid,form_allowSaveInvalid=allowSaveInvalid)
         if autoSave:
             form.store.attributes.update(autoSave=autoSave)
@@ -173,15 +173,16 @@ class TableHandlerForm(BaseComponent):
                 default_slots.replace('form_add','')
             if form_delete is False:
                 default_slots.replace('form_delete','')
-
             if options.pop('duplicate',False):
                 default_slots= default_slots.replace('form_add','form_add,form_duplicate')
             if hierarchical:
                 default_slots = 'dismiss,hbreadcrumb,%s' %default_slots
             elif navigation:
                 default_slots = 'navigation,%s' %default_slots
-            elif options.pop('selector',False):
+            if selector:
                 default_slots = default_slots.replace('*','5,form_selectrecord,*')
+                if isinstance(selector,dict):
+                    options['form_selectrecord_pars'] = selector
             if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')

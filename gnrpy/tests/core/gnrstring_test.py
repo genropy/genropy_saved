@@ -114,7 +114,7 @@ def test_smartjoin():
 
 def test_smartsplit():
     """docstring for smartsplit"""
-    assert gnrstring.smartsplit('Hello\\, dog,you,are,yellow', ',') == ['Hello, dog', 'you', 'are', 'yellow']
+    assert gnrstring.smartsplit('Hello\\, dog,you,are,yellow', ',') == ['Hello\\, dog', 'you', 'are', 'yellow']
 
 def test_fromIsoDate():
     """docstring for test_fromIsoDate"""

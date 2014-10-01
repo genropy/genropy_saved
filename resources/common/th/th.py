@@ -362,7 +362,8 @@ class TableHandler(BaseComponent):
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
         iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
-                            main_pkey='=#FORM.pkey',src=src,**kwargs)
+                            main_pkey='=#FORM.pkey',
+                            src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
     

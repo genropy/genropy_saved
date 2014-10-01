@@ -96,7 +96,7 @@ class BaseDb(object):
 
     def test_freeze(self):
         self.mysel.freeze('data/myselection')
-        sel = self.db.table('cast').frozenSelection('data/myselection')
+        sel = self.db.table('video.cast').frozenSelection('data/myselection')
         assert self.mysel.data == sel.data
 
     def xtest_formatSelection(self):

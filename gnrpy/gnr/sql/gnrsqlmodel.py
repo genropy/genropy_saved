@@ -66,10 +66,11 @@ class DbModel(object):
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
-            for pkg_id in self.db.application.packages.keys():
-                config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
-                if config_from_pkg:
-                    config_from_pkg(pkgsrc)
+            if self.db.application:
+                for pkg_id in self.db.application.packages.keys():
+                    config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
+                    if config_from_pkg:
+                        config_from_pkg(pkgsrc)
             if hasattr(objmix, 'config_db_custom'):
                 objmix.config_db_custom(pkgsrc)
                 

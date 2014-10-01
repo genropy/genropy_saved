@@ -108,7 +108,7 @@ class Table(object):
         dccol = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i)" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+delta+1)
         l = tblobj.query(columns=columns ,
                         where="%s = :sq" %dccol,
-                        sq=sq).fetch()
+                        sq=sq,excludeDraft=False).fetch()
         i = 0
         errors = Bag()
         holes = Bag()
@@ -196,7 +196,7 @@ class Table(object):
 
     def assignCounter(self,tblobj=None,field=None,record=None):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
-        if record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
+        if not counter_pars or record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
 

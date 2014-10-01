@@ -1,0 +1,323 @@
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x110662290>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1106bbd10>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 37, 58, 52160)} 
+
+
+error executing:SELECT  t1.title AS "title",
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.code = %(code)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ed40250>, 'code': 0, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ed49990>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 39, 30, 239824)} 
+
+
+error executing:SELECT  DISTINCT t1.year AS "year"
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+ORDER BY t1.year - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ed40250>, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ed49990>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 39, 30, 353366)} 
+
+
+error executing:SELECT  t1.nationality AS "nationality",
+count(*) AS "count___"
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+GROUP BY t1.nationality
+ORDER BY t1.nationality - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ed40250>, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ed49990>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 39, 30, 457741)} 
+
+
+error executing:SELECT  t1.title AS "title",
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.code = %(code)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ed40250>, 'code': 0, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ed49990>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 39, 30, 558206)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10f15b190>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10f1d7d90>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 6, 421534)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10fa15c10>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10fa218d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 7, 91831)} 
+
+
+error executing:SELECT  t1.title AS "title",
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.purchasedate = %(today)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10fa15c10>, 'today': datetime.date(2014, 9, 26), 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10fa218d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 7, 105842)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1109c1190>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x111257d90>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 16, 657133)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x111275c10>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1112818d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 17, 399684)} 
+
+
+error executing:SELECT  t1.title AS "title",
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.purchasedate = %(today)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x111275c10>, 'today': datetime.date(2014, 9, 26), 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1112818d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 40, 17, 412837)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x109e682d0>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109ec4050>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 14, 712796)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x109ef7090>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109f06ed0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 15, 404019)} 
+
+
+error executing:SELECT  t1.title AS title,
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.purchasedate = %(today)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x109ef7090>, 'today': datetime.date(2014, 9, 26), 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109f06ed0>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 15, 417918)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10c518210>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10c576e10>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 48, 269292)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10c5b4c90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10c5c0950>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 48, 916271)} 
+
+
+error executing:SELECT  t1.title AS title,
+t0.code AS pkey
+ FROM public.video_dvd AS t0
+       LEFT JOIN public.video_movie AS t1 ON t1.id = t0.movie_id
+WHERE t0.purchasedate = %(today)s - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10c5b4c90>, 'today': datetime.date(2014, 9, 26), 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10c5c0950>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 43, 48, 927813)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x108987210>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109217e10>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 54, 7, 267569)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x109255c90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109261950>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 54, 7, 962179)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10d0fe1d0>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10d15af10>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 56, 11, 336242)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10d199d90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10d1a5e10>, 'env_workdate': datetime.datetime(2014, 9, 26, 17, 56, 12, 100489)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ccf3210>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10cd51e10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 0, 54, 357079)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10cd8fc90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10cd9b950>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 0, 55, 44426)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10da3e350>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10da9a190>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 1, 34, 425407)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10dad2710>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10dae51d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 1, 35, 151149)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x106fb1310>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x107816090>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 2, 23, 460444)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10784e610>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10785e3d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 2, 24, 179884)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1050f6310>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x105152150>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 2, 38, 425689)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10518a6d0>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10519d290>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 2, 39, 142834)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1024f3250>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10256ff10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 5, 0, 706435)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10258ed90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10259ad50>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 5, 1, 395796)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x103cc0250>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x103d3df10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 5, 24, 264773)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x103d5bd90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x103d67d50>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 5, 25, 7074)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10e3d4250>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ec56f10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 6, 19, 294028)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10ec75d90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10ec81d50>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 6, 20, 55901)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1036ff250>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10377bf10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 8, 14, 851281)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x103799d90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1037a5d50>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 8, 15, 559565)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10e487250>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10e503f10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 8, 43, 35443)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10e522d90>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10e52ed50>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 8, 43, 730368)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10221b2d0>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x102232f10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 11, 5, 951124)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105dfd610>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x105e85c10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 11, 35, 483241)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x100f82810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x101810650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 12, 57, 920724)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1052b2810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10530e650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 13, 12, 502831)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x109935810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x109991650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 15, 57, 682774)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10e70f810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10e76b650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 16, 54, 419416)} 
+
+
+column id is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column id is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10f793650>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x110004210>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 20, 2, 314961)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x105b7f810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x106410650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 22, 41, 755059)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10146e810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1014ca650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 27, 45, 266733)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x1043fb810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x104457650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 28, 32, 225499)} 
+
+
+column title is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column title is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10dff2810>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x10e04e650>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 29, 8, 289877)} 
+
+
+column id is not unique
+Traceback (most recent call last):
+  File "/Users/fporcari/sviluppo/genro/gnrpy/gnr/sql/adapters/gnrsqlite.py", line 336, in execute
+    return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
+IntegrityError: column id is not unique
+error executing:INSERT INTO main.video_movie(id,title) VALUES (:id,:title); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x10323c150>, 'title': u'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x1032858d0>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 39, 1, 338498)} 
+
+
+error executing:INSERT INTO public.video_movie(id,title) VALUES (%(id)s,%(title)s); - with kwargs:{'env_deferredCalls': <gnr.core.gnrbag.Bag object at 0x103324dd0>, 'title': 'The Departed', 'id': 10, 'env__trigger_stack': <gnr.sql.gnrsql.TriggerStack object at 0x103331a10>, 'env_workdate': datetime.datetime(2014, 9, 26, 18, 39, 2, 106693)} 
+
+
