@@ -110,7 +110,7 @@ class GnrSqlDb(GnrObject):
         self.implementation = implementation
         self.dbname = self.dbpar(dbname)
         self.host = self.dbpar(host)
-        self.port = self.dbpar(str(port))
+        self.port = self.dbpar(str(port) if port else None)
         self.user = self.dbpar(user)
         self.password = self.dbpar(password)
         self.read_only = read_only
