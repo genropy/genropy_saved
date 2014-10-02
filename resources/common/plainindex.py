@@ -14,8 +14,6 @@ class PlainIndex(BaseComponent):
         if 'adm' in self.packages.keys():
             self.mixinComponent('frameindex')
 
-    def isDeveloper(self):
-        return True
     def main(self,root):
         currdir = os.path.dirname(self.filepath)
         folder = DirectoryResolver(currdir,cacheTime=10,
