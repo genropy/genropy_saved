@@ -43,7 +43,6 @@ if __name__ == '__main__':
     main_package = getattr(options, 'main_package', None)
     add_packages = getattr(options, 'add_packages', None)
     helloworld = getattr(options, 'helloworld', None)
-    dbdemo = getattr(options, 'dbdemo', None)
 
 
     if not args:
@@ -61,7 +60,7 @@ if __name__ == '__main__':
         packages = add_packages.split(',') if add_packages else []
         if main_package:
             package_maker = PackageMaker(main_package,base_path=os.path.join((base_path or '.'),
-                                        project_name,'packages'),helloworld=helloworld,dbdemo=dbdemo)
+                                        project_name,'packages'),helloworld=helloworld)
             package_maker.do()
             packages.append(main_package)
         if create_site:
@@ -71,7 +70,7 @@ if __name__ == '__main__':
             print 'Site %s created' % project_name
         if create_instance:
             print 'Creating instance %s in %s...' % (project_name, project_maker.instances_path)
-            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages,dbdemo=dbdemo)
+            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages)
             instance_maker.do()
             print 'Instance %s created' % project_name
 

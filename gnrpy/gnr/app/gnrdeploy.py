@@ -224,7 +224,7 @@ class InstanceMaker(object):
     """
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
-                 db_user=None, db_password=None, use_dbstores=False, config=None,dbdemo=False):
+                 db_user=None, db_password=None, use_dbstores=False, config=None):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -246,8 +246,7 @@ class InstanceMaker(object):
         self.db_password = db_password
         self.use_dbstores = use_dbstores
         self.config = config
-        self.dbdemo = dbdemo
-        
+
     def do(self):
         """TODO"""
         self.instance_path = os.path.join(self.base_path, self.instance_name)
@@ -296,7 +295,7 @@ class PackageMaker(object):
     """
     def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=None,
                  name_short=None, name_long=None, name_full=None,
-                 login_url=None, comment=None,helloworld=False,dbdemo=False):
+                 login_url=None, comment=None,helloworld=False):
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -307,7 +306,6 @@ class PackageMaker(object):
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
         self.helloworld = helloworld
-        self.dbdemo = dbdemo
         
     def do(self):
         """Creates the files of the ``packages`` folder"""
