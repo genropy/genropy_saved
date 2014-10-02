@@ -582,7 +582,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def freezedSelectionPkeys(self,table=None,selectionName=None,caption_field=None):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         l = selection.output('dictlist')
-        return [dict(pkey=r['_pkey'],caption=r['caption_field']) if caption_field else r['_pkey'] for r in l]
+        return [dict(pkey=r['pkey'],caption=r['caption_field']) if caption_field else r['pkey'] for r in l]
 
     
     @public_method
