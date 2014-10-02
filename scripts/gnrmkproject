@@ -31,6 +31,8 @@ if __name__ == '__main__':
                       help="Specify WSGI debug")
     parser.add_option("-P", "--main-package", dest="main_package", help="Main Package")
     parser.add_option("-A", "--add-packages", dest="add_packages", help="Add Packages")
+    parser.add_option('--helloworld',help="Create helloworld page",action='store_true',default=False)
+    parser.add_option('--dbdemo',help="Create some tables to show gnrsql",action='store_true',default=False)
 
     (options, args) = parser.parse_args()
     base_path = getattr(options, 'base_path', None)
@@ -40,6 +42,8 @@ if __name__ == '__main__':
     
     main_package = getattr(options, 'main_package', None)
     add_packages = getattr(options, 'add_packages', None)
+    helloworld = getattr(options, 'helloworld', None)
+    dbdemo = getattr(options, 'dbdemo', None)
 
 
     if not args:
@@ -56,7 +60,8 @@ if __name__ == '__main__':
         project_maker.do()
         packages = add_packages.split(',') if add_packages else []
         if main_package:
-            package_maker = PackageMaker(main_package,base_path=os.path.join((base_path or '.'),project_name,'packages'))
+            package_maker = PackageMaker(main_package,base_path=os.path.join((base_path or '.'),
+                                        project_name,'packages'),helloworld=helloworld,dbdemo=dbdemo)
             package_maker.do()
             packages.append(main_package)
         if create_site:
@@ -66,7 +71,7 @@ if __name__ == '__main__':
             print 'Site %s created' % project_name
         if create_instance:
             print 'Creating instance %s in %s...' % (project_name, project_maker.instances_path)
-            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages)
+            instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages,dbdemo=dbdemo)
             instance_maker.do()
             print 'Instance %s created' % project_name
 

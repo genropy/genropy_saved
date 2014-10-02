@@ -224,7 +224,7 @@ class InstanceMaker(object):
     """
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
-                 db_user=None, db_password=None, use_dbstores=False, config=None):
+                 db_user=None, db_password=None, use_dbstores=False, config=None,dbdemo=False):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -246,6 +246,7 @@ class InstanceMaker(object):
         self.db_password = db_password
         self.use_dbstores = use_dbstores
         self.config = config
+        self.dbdemo = dbdemo
         
     def do(self):
         """TODO"""
@@ -295,7 +296,7 @@ class PackageMaker(object):
     """
     def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=None,
                  name_short=None, name_long=None, name_full=None,
-                 login_url=None, comment=None):
+                 login_url=None, comment=None,helloworld=False,dbdemo=False):
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -305,6 +306,8 @@ class PackageMaker(object):
         self.sqlprefix = sqlprefix
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
+        self.helloworld = helloworld
+        self.dbdemo = dbdemo
         
     def do(self):
         """Creates the files of the ``packages`` folder"""
@@ -351,13 +354,20 @@ class Table(GnrDboTable):
             main_py.close()
 
         if not os.path.exists(self.framedindex_path):
-            indexpage = open(self.framedindex_path, 'w')
-            indexpage.write("""# -*- coding: UTF-8 -*-
+            with open(self.framedindex_path, 'w') as indexpage:
+                indexpage.write("""# -*- coding: UTF-8 -*-
             
 class GnrCustomWebPage(object):
-    py_requires = 'frameindex'
+    py_requires = 'plainindex'
     """)
-            indexpage.close()
+        if self.helloworld:
+            with open(os.path.join(self.webpages_path,'hello_world.py'), 'w') as helloworld:
+                helloworld.write("""# -*- coding: UTF-8 -*-
+            
+class GnrCustomWebPage(object):
+    def main(self,root,**kwargs):
+        root.h1('Hello world',text_align='center')
+    """)
             
 class ResourceMaker(object):
     """Handle the creation of the ``resources`` folder"""
