@@ -13,25 +13,59 @@ for making the environment configuration
 
 	python initgenropy.py
 
+Configuration files
+===================
 Configuration files are: 
 
 	~/.gnr/environment.xml
 	~/.gnr/instanceconfig/default.xml
-	~/.gnr/siteconfig/default.xml
+	~/.gnr/siteconfig/default.xmli
+	
+**Projects**
 
-Change your development user by editing **~/.gnr/instanceconfig/default.xml**
+	vi ~/.gnr/environment.xml
+
+Inside *environment.xml* you can link the directories for your projects. The *initgenropy script creates an environment.xml that has 2 slots for projects one named 'genropy' that links 
+genropy standard projects and packages (eg: gnrcore) and 'custom' for your projects.
+
+	<projects>
+		<genropy path="/home/genro/genropy/projects"/>
+		<custom path="/home/genro/genropy_projects"/>
+	</projects>
+
+**Default for instances**
+
+	vi ~/.gnr/instanceconfig/default.xml
+
+Inside this file you can set all default parameters for every application instances of your installation. You can also set your default login as developer
+
+	<authentication>
+		<xml_auth defaultTags="user,xml">
+			<admin pwd="......." tags="_DEV_,admin,user"/>
+		</xml_auth>
+	</authentication>
+
+**Default for sites**
+
+	vi ~/.gnr/instanceconfig/default.xml
+	
+Inside this file you can set all default parameters for every application site of your installation
 
 
-Visit [www.genropy.org](http://www.genropy.org) for more information
+First project: Hello world
+=========================
+The command *gnrmkproject* is the standard way to create a new project: 
 
-Hello world
-===========
-Create your first Genropy project using *gnrmkproject* script
+	gnrmkproject --help
 
+Normally you create a project and (with the option -P) also a main package.
+You can also add one or more standard packages for the project with the option -A (eg: -A gnrcore:sys, gnrcore:adm)
 
-    gnrmkproject foo -P bar --helloworld -a
+With the special option --helloworld you can create your first project:
+
+    gnrmkproject custom.myhelloworld -P mypackage -a  --helloworld
     
-Now you have a folder for the project foo with instance configuration (named foo), a specific package named bar and the simpliest page example inside bar's webpages
+In this way a project **myhelloworld** is been created inside the **custom** folder of projects ("/home/genro/genropy_projects" in the standard environment.xml configuration), with a package **mypackage**, with instance and site configurations (-a option) and a simple example page inside the webpages folder of the main package.
 
 
 Sandbox
