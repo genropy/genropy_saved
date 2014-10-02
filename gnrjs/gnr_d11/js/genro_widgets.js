@@ -3499,8 +3499,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return result;
     },
     mixin_getAllPkeys:function(caption_field){ 
-        if(this.selectionStore){
-            return this.selectionStore().currentPkeys(caption_field);
+        if(this.collectionStore){
+            return this.collectionStore().currentPkeys(caption_field);
         }else{
             var result = [];
             for (var i = 0; i < this.rowCount; i++) {
