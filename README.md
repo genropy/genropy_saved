@@ -24,6 +24,15 @@ Change your development user by editing **~/.gnr/instanceconfig/default.xml**
 
 Visit [www.genropy.org](http://www.genropy.org) for more information
 
+Hello world
+===========
+Create your first Genropy project using *gnrmkproject* script
+
+
+    gnrmkproject foo -P bar --helloworld -a
+    
+Now you have a folder for the project foo with instance configuration (named foo), a specific package named bar and the simpliest page example inside bar's webpages
+
 
 Sandbox
 =======
