@@ -48,7 +48,7 @@ try:
             return value
     
     class LocalizedWrapper(object):
-
+        """Missin doc"""
         def __init__(self,data, locale=None,templates=None, formats=None,masks=None,editcols=None,df_templates=None,dtypes=None,
                          localizer=None,urlformatter=None,noneIsBlank=None,emptyMode=None):
             self.data=data
