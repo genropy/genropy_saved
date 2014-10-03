@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><auto><py_class _T="NN" table="coderev.py_class" label="!!Py_class"></py_class>
+<py_method _T="NN" table="coderev.py_method" label="!!Py_method"></py_method>
+<py_module _T="NN" table="coderev.py_module" label="!!Py_module"></py_module>
+<py_package _T="NN" table="coderev.py_package" label="!!Py_package"></py_package></auto></GenRoBag>
