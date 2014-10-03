@@ -10,10 +10,6 @@ import os
 from gnr.core.gnrbag import DirectoryResolver
 
 class PlainIndex(BaseComponent):
-    def onMain(self):
-        if 'adm' in self.packages.keys():
-            self.mixinComponent('frameindex')
-
     def main(self,root):
         currdir = os.path.dirname(self.filepath)
         folder = DirectoryResolver(currdir,cacheTime=10,
