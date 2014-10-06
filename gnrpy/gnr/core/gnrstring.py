@@ -438,7 +438,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
                     urlformatter=None,emptyMode=None,conditionalMode=True):
     """Allow to replace string's chunks.
     
-    :param myString: template string
+    :param myString: template string or bag
     :param symbolDict: dictionary that links symbol and values. .
     :param safeMode: if ``True`` (``False``) uses the ``safe_substitute()`` (``substitute()``) Python method.
                      Default value is ``False``.
