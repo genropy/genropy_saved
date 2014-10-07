@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
 
     py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True)
+    @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,altrelation=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
@@ -43,10 +43,11 @@ class TableHandler(BaseComponent):
                             liveUpdate=None,
                             picker_kwargs=True,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
-                            form_kwargs=None,**kwargs):
+                            form_kwargs=None,altrelation_kwargs=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
+                                                    altrelation_kwargs=altrelation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         readOnly = readOnly or self.db.table(table).attributes.get('readOnly')
         if form_kwargs:
