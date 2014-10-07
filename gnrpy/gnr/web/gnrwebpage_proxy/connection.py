@@ -9,7 +9,7 @@
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
-
+from datetime import datetime
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 CONNECTION_TIMEOUT = 3600
@@ -148,7 +148,7 @@ class GnrWebConnection(GnrBaseProxy):
         users = self.page.site.register.users()
         result = Bag()
         exclude = exclude or []
-        now = self.page.clientDatetime()
+        now = datetime.now()
         if isinstance(exclude, basestring):
             exclude = exclude.split(',')
         for user, arguments in users.items():
