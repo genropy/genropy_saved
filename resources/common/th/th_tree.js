@@ -111,7 +111,7 @@ var THTree = {
     }
 };
 var THTreeRelatedTableHandler = {
-    onRelatedRow:function(r,curr_hfkey){
+    onRelatedRow:function(r,curr_hfkey,alt_relations){
         var result = [];
         if(r.one_hpkey == curr_hfkey){
             return;
@@ -119,6 +119,13 @@ var THTreeRelatedTableHandler = {
         if(r.one_hpkey && r.one_hpkey.indexOf(curr_hfkey)==0){
             r['_hieararchical_inherited'] = true;
             return '_hieararchical_inherited';
+        }
+        if(alt_relations){
+            for (var k in alt_relations){
+                if(r[alt_relations[k]['fkey_name']]==r['_pkey']){
+                    r['_alt_'+k] = true;
+                }
+            }
         }
         if(r.many_hpkey==curr_hfkey){
             if(r.one_hpkey){

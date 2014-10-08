@@ -473,7 +473,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,alt_relations=None):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
@@ -489,6 +489,10 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragTable = th.attributes['table']
         fkey_name = vstoreattr.get('_fkey_name')
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
+        if alt_relations:
+            fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
+            for k,v in alt_relations:
+                v['fkey_name'] = fkey_name_alt[k]
         condlist = []
         condpars = dict(suffix='/%%',curr_fkey='=#FORM.pkey',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
         
@@ -538,12 +542,13 @@ class TableHandlerHierarchicalView(BaseComponent):
         gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
                                     var curr_hfkey = sourceNode._curr_hfkey;
+                                    var alt_relations = sourceNode._th_alt_relations;
                                     var rows = dragValues.gridrow.rowset;
                                     var inherited_pkeys = [];
                                     var alias_pkeys = [];
                                     var pkeys = [];
                                     dojo.forEach(rows,function(r){
-                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey);
+                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey,alt_relations);
                                         var pkey = r['_pkey'];
                                         if(r['_hieararchical_inherited']){
                                             inherited_pkeys.push(pkey);
@@ -558,9 +563,10 @@ class TableHandlerHierarchicalView(BaseComponent):
                                     }
                                     dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
                                         rowCustomClassesCb="""function(row){
-                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey);
+                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey,sourceNode._th_alt_relations);
                                                       }""",                                        
-                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
+                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId,
+                                        _th_alt_relations=alt_relations or False)
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
         treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
