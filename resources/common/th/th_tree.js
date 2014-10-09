@@ -121,9 +121,11 @@ var THTreeRelatedTableHandler = {
             return '_hieararchical_inherited';
         }
         if(alt_relations){
+            var i = 1;
             for (var k in alt_relations){
                 if(r[alt_relations[k]['fkey_name']]==r['_pkey']){
-                    r['_alt_'+k] = true;
+                    r['_alt_'+i] = true;
+                    i++;
                 }
             }
         }
