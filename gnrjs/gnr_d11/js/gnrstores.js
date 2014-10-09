@@ -97,6 +97,8 @@ dojo.declare("gnr.GnrStoreBag", null, {
             var itemvalue = item.getValue(null,{_sourceNode:this.sourceNode});
             if (itemvalue instanceof gnr.GnrBag) {
                 return itemvalue.getNodes();
+            }else if(this.isDictItem(itemvalue)){
+                return new gnr.GnrBag(itemvalue).getNodes()
             }
             else {
                 return [
@@ -148,6 +150,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
                         return null;
                     }
                     else {
+                        console.log('result 151 gnrstores',result)
                         //return (result != null);
                         return true;
                     }
@@ -156,7 +159,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
             else {
                 return (attribute in item.attr);
             }
-        } else {
+        }else {
             return false;
         }
 
@@ -171,6 +174,10 @@ dojo.declare("gnr.GnrStoreBag", null, {
     isItem: function(/* anything */ something) {
         genro.debug('isItem');
         return (something instanceof gnr.GnrBagNode);
+    },
+
+    isDictItem:function(/* anything */ something){
+        return (typeof(something)=='object') && !(something instanceof Date)
     },
 
     isItemLoaded: function(/* anything */ something) {
