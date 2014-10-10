@@ -496,16 +496,20 @@ class TableHandlerHierarchicalView(BaseComponent):
                 v['fkey_name'] = fkey_name_alt[k]
                 assert v['modifiers'],'Missing modifiers for handling alt relation %s' %k
         condlist = []
-        condpars = dict(suffix='/%%',curr_fkey='=#FORM.pkey',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
         
         hiddencolumns = gridattr.get('hiddencolumns') or []
         rel_fkey_name = False 
         if fkey_name:
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
-            condlist.append("""( CASE WHEN :curr_fkey IS NULL 
+            condlist.append("""( CASE WHEN :fkey IS NULL 
                                      THEN $%s IS NULL 
-                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
-                                 END )""" %(fkey_name,fkey_name,fkey_name)) 
+                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:fkey ) ) 
+                                 END ) """ %(fkey_name,fkey_name,fkey_name)) 
+            if altrelation_kwargs:
+                for v in altrelation_kwargs.values():
+                    hiddencolumns.append("$%(fkey_name)s" %v)
+                    condlist.append(" $%(fkey_name)s = :fkey " %v)
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
         if relation_table:
@@ -516,18 +520,15 @@ class TableHandlerHierarchicalView(BaseComponent):
             
             rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
-            ( ( @%s.%s =:curr_fkey ) OR 
+            ( ( @%s.%s =:fkey ) OR 
                   ( :showInherited IS TRUE AND
                         ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
                   )
             )
             """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
             hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
-        
         vstoreattr['condition'] = ' OR '.join(condlist)
-
         vstoreattr.update(condpars)
-        
         dragCode = 'hrows_%s' %dragTable.replace('.','_')
         trashId = False
         if fkey_name and relation_table:
@@ -566,7 +567,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                     }
                                     dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys,alt_relations:alt_relations};""" %dragCode,
                                         rowCustomClassesCb="""function(row){
-                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey);
+                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey,this.sourceNode.attr._th_alt_relations);
                                                       }""",                                        
                                         hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId,
                                         _th_alt_relations=altrelation_kwargs or False

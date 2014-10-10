@@ -121,12 +121,18 @@ var THTreeRelatedTableHandler = {
             return '_hieararchical_inherited';
         }
         if(alt_relations){
+            var curr_hfkey_list = curr_hfkey.split('/');
             var i = 1;
+            var alt_relations_result = []
             for (var k in alt_relations){
-                if(r[alt_relations[k]['fkey_name']]==r['_pkey']){
+                if(r[alt_relations[k]['fkey_name']]==curr_hfkey_list[curr_hfkey_list.length-1]){
                     r['_alt_'+i] = true;
+                    alt_relations_result.push('_alt_'+i)
                     i++;
                 }
+            }
+            if(alt_relations_result){
+                return alt_relations_result.join(' ');
             }
         }
         if(r.many_hpkey==curr_hfkey){
