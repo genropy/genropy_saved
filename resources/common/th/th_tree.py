@@ -490,26 +490,25 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragTable = th.attributes['table']
         fkey_name = vstoreattr.get('_fkey_name')
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
-        if altrelation_kwargs:
-            fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
-            for k,v in altrelation_kwargs.items():
-                v['fkey_name'] = fkey_name_alt[k]
-                assert v['modifiers'],'Missing modifiers for handling alt relation %s' %k
+        fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
         condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
-        
         hiddencolumns = gridattr.get('hiddencolumns') or []
+
+        for k,v in fkey_name_alt.items():
+            condlist.append(" $%s = :fkey " %v)
+            if k in altrelation_kwargs:
+                hiddencolumns.append("$%s" %v)
+                altrelation_kwargs[k]['fkey_name'] = v
+                assert altrelation_kwargs[k]['modifiers'],'Missing modifiers for handling alt relation %s' %k
+        
         rel_fkey_name = False 
         if fkey_name:
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
             condlist.append("""( CASE WHEN :fkey IS NULL 
                                      THEN $%s IS NULL 
                                      ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:fkey ) ) 
-                                 END ) """ %(fkey_name,fkey_name,fkey_name)) 
-            if altrelation_kwargs:
-                for v in altrelation_kwargs.values():
-                    hiddencolumns.append("$%(fkey_name)s" %v)
-                    condlist.append(" $%(fkey_name)s = :fkey " %v)
+                                 END ) """ %(fkey_name,fkey_name,fkey_name))                     
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
         if relation_table:
@@ -541,7 +540,6 @@ class TableHandlerHierarchicalView(BaseComponent):
             """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
                 genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
             """ %(relation_table,dragTable)})
-        print 'altrelation_kwargs',altrelation_kwargs
         gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
                                     var curr_hfkey = sourceNode._curr_hfkey;

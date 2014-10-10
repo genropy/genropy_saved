@@ -122,13 +122,11 @@ var THTreeRelatedTableHandler = {
         }
         if(alt_relations){
             var curr_hfkey_list = curr_hfkey.split('/');
-            var i = 1;
             var alt_relations_result = []
             for (var k in alt_relations){
                 if(r[alt_relations[k]['fkey_name']]==curr_hfkey_list[curr_hfkey_list.length-1]){
-                    r['_alt_'+i] = true;
-                    alt_relations_result.push('_alt_'+i)
-                    i++;
+                    r['_altrelation_'+k] = true;
+                    alt_relations_result.push('_altrelation_'+k)
                 }
             }
             if(alt_relations_result){
