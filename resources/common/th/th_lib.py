@@ -21,7 +21,7 @@ class TableHandlerCommon(BaseComponent):
         return th_root
         
     def _th_relationExpand(self,pane,relation=None,condition=None,
-                        condition_kwargs=None,default_kwargs=None,altrelation_kwargs=None,original_kwargs=None):
+                        condition_kwargs=None,default_kwargs=None,relation_kwargs=None,original_kwargs=None):
         inheritedAttributes = pane.getInheritedAttributes()
         if inheritedAttributes.get('_lazyBuild'):
             condition_kwargs['_onBuilt']=True
@@ -34,7 +34,7 @@ class TableHandlerCommon(BaseComponent):
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
         condition_kwargs['if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'
         relcondition,table = self._th_relationExpand_one(tblrel,relation,condition=condition,original_kwargs=original_kwargs,condition_kwargs=condition_kwargs,default_kwargs=default_kwargs)
-        for suffix,altrelation in altrelation_kwargs.items():
+        for suffix,altrelation in relation_kwargs.items():
             altcond,table = self._th_relationExpand_one(tblrel,altrelation,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
             relcondition = '%s OR %s' %(relcondition,altcond)
         condition = relcondition if not condition else '(%s) AND (%s)' %(relcondition,condition)  
