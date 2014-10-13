@@ -643,10 +643,9 @@ dojo.declare("gnr.RowEditor", null, {
                     data.setItem(k,this.original_values[k]);
                 }
             }
+            rowNode.setValue(data);
         }
         this.data = data;
-        rowNode.setValue(this.data);
-        
     },
 
     hasChanges:function(){
