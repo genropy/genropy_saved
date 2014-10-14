@@ -493,7 +493,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
         condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
-        hiddencolumns = gridattr.get('hiddencolumns') or []
+        hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
         for k in relation_kwargs.keys():
             altrelname = k.split('_')[0] #altrelname must not contain '_'
             if not altrelname in relation_kwargs:
