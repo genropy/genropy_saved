@@ -556,4 +556,15 @@ class ThLinker(BaseComponent):
     def th_thIframePalette(self,pane,**kwargs):
         return pane.child('ThIframePalette',**kwargs)
 
-
+    @public_method
+    def th_remoteTableHandler(self,pane,thkwargs=None,**kwargs):
+        thkwargs.update(kwargs)
+        thwidget=thkwargs.pop('thwidget','plain')
+        if thwidget == 'form':
+            thkwargs.setdefault('startKey','*newrecord*')
+            thkwargs.setdefault('modal',True)
+            #fix lock 
+            pane.thFormHandler(**thkwargs)
+        else:
+            thkwargs.setdefault('view_store__onBuilt',True)
+            getattr(pane,'%sTableHandler' %thwidget)(**thkwargs)
