@@ -693,13 +693,33 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         return attributes;
     },
     createContent:function(sourceNode, kw,children) {
-        var frameCode = kw.frameCode;
-        var reloadOnShow = objectPop(kw,'reloadOnShow');
+        kw['contentWidget'] = 'FramePane';
+        kw['center_overflow'] = 'hidden'
+        var pane = sourceNode._('PalettePane',kw);
+        if(kw.viewResource){
+            return this.createContent_remoteTableHandler(pane,sourceNode,kw);
+        }else{
+            return this.createContent_paletteGrid(pane,sourceNode,kw);
+        }
+    },
+
+    createContent_remoteTableHandler:function(pane,sourceNode,kw){
+        var paletteCode=kw.paletteCode;
+        kw['grid_onDrag'] = "dragValues['"+paletteCode+"']=dragValues.gridrow.rowset;"
+        kw['nodeId'] = kw.paletteCode
+        return pane._('ContentPane','remoteTH',{
+            remote:'th_remoteTableHandler',
+            remote_thkwargs:kw
+        });
+    },
+
+    createContent_paletteGrid:function(pane,sourceNode,kw){
         var gridId = objectPop(kw, 'gridId') || frameCode+'_grid';
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
         var store = objectPop(kw, 'store');
         var _newGrid = objectPop(kw,'_newGrid',true);
+        var frameCode = kw.frameCode;
         var paletteCode=kw.paletteCode;
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
@@ -717,23 +737,14 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         };     
         gridKwargs.draggable_row=true;
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
-        
-        kw['contentWidget'] = 'FramePane';
-        kw['center_overflow'] = 'hidden'
-        var pane = sourceNode._('PalettePane',kw);
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
         pane._(_newGrid?'newIncludedView':'includedview', 'grid',gridKwargs);
         var gridnode = pane.getNode('grid');
-       //gridnode.watch('isVisibile',function(){return genro.dom.isVisible(gridnode);},
-       //                function(){
-       //                    if(gridnode.widget.storebag().len()==0 && reloadOnShow!==false){
-       //                        gridnode.widget.reload(true)
-       //                    }
-       //                });
         return pane;
-    }    
+    }
+
 });
 
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {

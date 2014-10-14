@@ -1205,7 +1205,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
         
-    def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
+    def paletteGrid(self, paletteCode=None, struct=None,
+                     columns=None, structpath=None, 
+                     datapath=None,viewResource=None, **kwargs):
         """Return a :ref:`palettegrid`
         
         :param paletteCode: create the paletteGrid :ref:`nodeid` (if no *gridId* is defined)
@@ -1239,6 +1241,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
         paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
                                 structpath=structpath,datapath=datapath,
+                                viewResource=viewResource,
                                 autoslots='top,left,right,bottom',**kwargs)
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)
