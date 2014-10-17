@@ -474,15 +474,18 @@ class TableHandlerHierarchicalView(BaseComponent):
                                add_label='!!Add')
     @extract_kwargs(relation=True)
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,relation_kwargs=None):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,
+                                inherited=None,relation_kwargs=None):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
         gridattr = grid.attributes
         maintable = tree.getInheritedAttributes()['table']
         maintableobj = self.db.table(maintable)
-        bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
-        bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',parentForm=False,label_color='#666')
+        if inherited:
+            bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
+            bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',
+                                    parentForm=False,label_color='#666')
         if not relation_table:
             tblalias = maintableobj.pkg.tables['%s_alias' %maintable.split('.')[1]]
             relation_table = tblalias.fullname if tblalias else ''
