@@ -49,6 +49,8 @@ def cellFromField(field,tableobj):
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
+    if fldattr.get('caption_field'):
+        kwargs['caption_field'] = fldattr['caption_field']
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
     if validations and kwargs.get('edit'):

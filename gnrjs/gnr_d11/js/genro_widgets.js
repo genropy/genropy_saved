@@ -88,7 +88,9 @@ gnr.columnsFromStruct = function(struct, columns) {
         }
         if (fld) {
             if(node.attr.caption_field){
-                arrayPushNoDup(columns,node.attr.caption_field);
+                var caption_field = node.attr.caption_field;
+                caption_field = (stringStartsWith(caption_field, '$') || stringStartsWith(caption_field, '@'))?caption_field:'$'+caption_field;
+                arrayPushNoDup(columns,caption_field);
             }
             if(node.attr['_joiner_storename']){
                 //_extname considerare
