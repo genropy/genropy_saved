@@ -23,5 +23,5 @@ class Table(object):
 
 
     @public_method
-    def pkeyFromCaption(self,caption=None):
+    def pkeyFromCaption(self,caption=None, **kwargs):
         return self.readColumns(where='$denominazione ILIKE :comune_denominazione',comune_denominazione=caption,columns='$id')
