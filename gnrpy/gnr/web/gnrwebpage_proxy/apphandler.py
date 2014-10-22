@@ -1536,6 +1536,14 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method
+    def getValuesString(self,table,**kwargs):
+        tblobj = self.db.table(table)
+        pkey = tblobj.pkey
+        caption_field = tblobj.attributes.get('caption_field')
+        f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
+        return ','.join(['%s:%s' %(r[pkey],r[caption_field]) for r in f])
+
+    @public_method
     def getMultiFetch(self,queries=None):
         result = Bag()
         for query in queries:
