@@ -1007,6 +1007,11 @@ class SqlQuery(object):
                 for d in data:
                     d[field] = handler(d,field=field)
 
+    def fetchPkeys(self):
+        fetch = self.fetch()
+        pkeyfield = self.dbtable.pkey
+        return [r[pkeyfield] for r in fetch]
+
         
     def fetchAsDict(self, key=None, ordered=False):
         """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key

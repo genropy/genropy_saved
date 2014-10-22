@@ -111,7 +111,7 @@ var THTree = {
     }
 };
 var THTreeRelatedTableHandler = {
-    onRelatedRow:function(r,curr_hfkey){
+    onRelatedRow:function(r,curr_hfkey,alt_relations){
         var result = [];
         if(r.one_hpkey == curr_hfkey){
             return;
@@ -119,6 +119,21 @@ var THTreeRelatedTableHandler = {
         if(r.one_hpkey && r.one_hpkey.indexOf(curr_hfkey)==0){
             r['_hieararchical_inherited'] = true;
             return '_hieararchical_inherited';
+        }
+        if(alt_relations){
+            alt_relations = objectUpdate({},alt_relations);
+            var curr_hfkey_list = curr_hfkey.split('/');
+            var currpkey = curr_hfkey_list[curr_hfkey_list.length-1];
+            var alt_relations_result = []
+            for (var k in alt_relations){
+                if(r[alt_relations[k]['fkey_name']]==currpkey){
+                    r['_altrelation_'+k] = true;
+                    alt_relations_result.push(alt_relations[k]['_class'] || '_altrelation_'+k)
+                }
+            }
+            if(alt_relations_result){
+                return alt_relations_result.join(' ');
+            }
         }
         if(r.many_hpkey==curr_hfkey){
             if(r.one_hpkey){

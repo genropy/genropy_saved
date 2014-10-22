@@ -472,16 +472,20 @@ class TableHandlerHierarchicalView(BaseComponent):
                                hpkey = '=.form.record.hierarchical_pkey',
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
+    @extract_kwargs(relation=True)
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,
+                                inherited=None,relation_kwargs=None):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
         gridattr = grid.attributes
         maintable = tree.getInheritedAttributes()['table']
         maintableobj = self.db.table(maintable)
-        bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
-        bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',parentForm=False,label_color='#666')
+        if inherited:
+            bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
+            bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',
+                                    parentForm=False,label_color='#666')
         if not relation_table:
             tblalias = maintableobj.pkg.tables['%s_alias' %maintable.split('.')[1]]
             relation_table = tblalias.fullname if tblalias else ''
@@ -489,17 +493,28 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragTable = th.attributes['table']
         fkey_name = vstoreattr.get('_fkey_name')
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
+        fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
-        condpars = dict(suffix='/%%',curr_fkey='=#FORM.pkey',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
+        for k in relation_kwargs.keys():
+            altrelname = k.split('_')[0] #altrelname must not contain '_'
+            if not altrelname in relation_kwargs:
+                relation_kwargs[altrelname] = dictExtract(relation_kwargs,altrelname+'_',pop=True)
+        for k,v in fkey_name_alt.items():
+            condlist.append(" $%s = :fkey " %v)
+            if k in relation_kwargs:
+                hiddencolumns.append("$%s" %v)
+                relation_kwargs[k]['fkey_name'] = v
+                assert relation_kwargs[k]['modifiers'],'Missing modifiers for handling alt relation %s' %k
         
-        hiddencolumns = gridattr.get('hiddencolumns') or []
         rel_fkey_name = False 
         if fkey_name:
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
-            condlist.append("""( CASE WHEN :curr_fkey IS NULL 
+            condlist.append("""( CASE WHEN :fkey IS NULL 
                                      THEN $%s IS NULL 
-                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
-                                 END )""" %(fkey_name,fkey_name,fkey_name)) 
+                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:fkey ) ) 
+                                 END ) """ %(fkey_name,fkey_name,fkey_name))                     
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
         if relation_table:
@@ -510,18 +525,15 @@ class TableHandlerHierarchicalView(BaseComponent):
             
             rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
-            ( ( @%s.%s =:curr_fkey ) OR 
+            ( ( @%s.%s =:fkey ) OR 
                   ( :showInherited IS TRUE AND
                         ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
                   )
             )
             """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
             hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
-        
         vstoreattr['condition'] = ' OR '.join(condlist)
-
         vstoreattr.update(condpars)
-        
         dragCode = 'hrows_%s' %dragTable.replace('.','_')
         trashId = False
         if fkey_name and relation_table:
@@ -534,16 +546,17 @@ class TableHandlerHierarchicalView(BaseComponent):
             """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
                 genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
             """ %(relation_table,dragTable)})
-
         gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
                                     var curr_hfkey = sourceNode._curr_hfkey;
+                                    var alt_relations = objectUpdate({},sourceNode.attr._th_alt_relations);
                                     var rows = dragValues.gridrow.rowset;
                                     var inherited_pkeys = [];
                                     var alias_pkeys = [];
                                     var pkeys = [];
+
                                     dojo.forEach(rows,function(r){
-                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey);
+                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey,alt_relations);
                                         var pkey = r['_pkey'];
                                         if(r['_hieararchical_inherited']){
                                             inherited_pkeys.push(pkey);
@@ -551,16 +564,26 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         if(r['_alias_row']){
                                             alias_pkeys.push(pkey);
                                         }
+                                        var d = objectExtract(r,'_altrelation_*',true)
+                                        if(objectNotEmpty(d)){
+                                            for(var k in d){
+                                                alt_relations[k]['pkeys'] = alt_relations[k]['pkeys'] || [];
+                                                alt_relations[k]['pkeys'].push(pkey)
+                                            }
+                                        }
                                         pkeys.push(pkey);
                                     });
                                     if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.locked ){
                                         dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
                                     }
-                                    dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
+                                    dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys,
+                                                        alt_relations:alt_relations};""" %dragCode,
                                         rowCustomClassesCb="""function(row){
-                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey);
+                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey,this.sourceNode.attr._th_alt_relations);
                                                       }""",                                        
-                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
+                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId,
+                                        _th_alt_relations=relation_kwargs or False
+                                        )
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
         treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
@@ -576,7 +599,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
-                                                                                        relation_table:'%s',maintable:'%s'},null,null,'POST');
+                                                                                        relation_table:'%s',maintable:'%s',alt_relations:data.alt_relations},null,null,'POST');
                                                 }else{
                                                     return false;
                                                 }
@@ -585,14 +608,25 @@ class TableHandlerHierarchicalView(BaseComponent):
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
-                             relationValue=None,modifiers=None,relation_table=None):
+                             relationValue=None,modifiers=None,relation_table=None,alt_relations=None):
         tblobj = self.db.table(table)
+        alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in alt_relations.items()])
         reltblobj = None
+        if alt_relations:
+            for k,v in alt_relations.items():
+                alt_pkeys = v.get('pkeys')
+                if alt_pkeys:
+                    pkeys = filter(lambda r: r not in alt_pkeys, pkeys)
+                    tblobj.batchUpdate({alt_relations[k]['fkey_name']:relationValue},_pkeys=alt_pkeys)
         if relation_table:
             reltblobj = self.db.table(relation_table)
             rel_fkey_name = self.db.table(maintable).model.getJoiner(relation_table)['many_relation'].split('.')[-1]
             rkey_name = tblobj.model.getJoiner(relation_table)['many_relation'].split('.')[-1]
-        if modifiers == 'Shift' or not fkey_name:
+        if alt_relations and alt_relations_modifiers_dict.get(modifiers):
+            alt_fkey_name = alt_relations_modifiers_dict[modifiers]
+            tblobj.batchUpdate({alt_fkey_name:relationValue},_pkeys=pkeys)
+
+        elif modifiers == 'Shift' or not fkey_name:
             if reltblobj:
                 currRelatedRecords = reltblobj.query(where='$%s=:v AND $%s IS NOT NULL' %(rel_fkey_name,rkey_name),v=relationValue).fetchAsDict(rkey_name)
                 for pkey in pkeys:

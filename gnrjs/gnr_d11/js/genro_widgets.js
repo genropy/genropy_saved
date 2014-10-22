@@ -88,7 +88,9 @@ gnr.columnsFromStruct = function(struct, columns) {
         }
         if (fld) {
             if(node.attr.caption_field){
-                arrayPushNoDup(columns,node.attr.caption_field);
+                var caption_field = node.attr.caption_field;
+                caption_field = (stringStartsWith(caption_field, '$') || stringStartsWith(caption_field, '@'))?caption_field:'$'+caption_field;
+                arrayPushNoDup(columns,caption_field);
             }
             if(node.attr['_joiner_storename']){
                 //_extname considerare
@@ -3499,8 +3501,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return result;
     },
     mixin_getAllPkeys:function(caption_field){ 
-        if(this.selectionStore){
-            return this.selectionStore().currentPkeys(caption_field);
+        if(this.collectionStore){
+            return this.collectionStore().currentPkeys(caption_field);
         }else{
             var result = [];
             for (var i = 0; i < this.rowCount; i++) {

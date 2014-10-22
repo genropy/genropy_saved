@@ -265,7 +265,8 @@ class Table(object):
                 msgTpl = counter_pars.get('message_dateError','!!Incompatible date assigning %(fieldname)s counter')
                 fieldname = tblobj.column(field).name_long or field
                 fieldname = fieldname.replace('!!','')
-                raise self.exception('business_logic',msg=msgTpl %dict(fieldname=fieldname,last_used=last_used))
+                if not counter_pars.get('date_tolerant'):
+                    raise self.exception('business_logic',msg=msgTpl %dict(fieldname=fieldname,last_used=last_used))
         if update:
             if counter_record['codekey']:
                 oldrec = dict(counter_record)

@@ -643,10 +643,9 @@ dojo.declare("gnr.RowEditor", null, {
                     data.setItem(k,this.original_values[k]);
                 }
             }
+            rowNode.setValue(data);
         }
         this.data = data;
-        rowNode.setValue(this.data);
-        
     },
 
     hasChanges:function(){
@@ -1395,6 +1394,7 @@ dojo.declare("gnr.GridEditor", null, {
         attr.connect_keydown = cbKeys;
         attr.connect_onBlur = cbBlur;
         attr._autoselect = true;
+        attr._inGridEditor = true;
         var wdgtag = fldDict.tag;
         if (!wdgtag || attr.autoWdg) {
             var dt = convertToText(cellDataNode.getValue())[0];
@@ -1422,17 +1422,19 @@ dojo.declare("gnr.GridEditor", null, {
                 return;
             }
         }
+        this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
         editWidgetNode.editedRowIndex = row;
-        this.onEditCell(true,row);
         if (cellDataNode.attr._validationError || cellDataNode.attr._validationWarnings) {
             editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
             editWidgetNode.updateValidationStatus();
         }
-        editWidgetNode.widget.focus();
+        if(editWidgetNode.widget && editWidgetNode.widget.focus){
+            editWidgetNode.widget.focus();
+        }
         editWidgetNode.grid = gridEditor.grid;
 
     },

@@ -582,7 +582,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def freezedSelectionPkeys(self,table=None,selectionName=None,caption_field=None):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         l = selection.output('dictlist')
-        return [dict(pkey=r['_pkey'],caption=r['caption_field']) if caption_field else r['_pkey'] for r in l]
+        return [dict(pkey=r['pkey'],caption=r['caption_field']) if caption_field else r['pkey'] for r in l]
 
     
     @public_method
@@ -1534,6 +1534,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = getSelection(where, **whereargs)
 
         return result
+
+    @public_method
+    def getValuesString(self,table,**kwargs):
+        tblobj = self.db.table(table)
+        pkey = tblobj.pkey
+        caption_field = tblobj.attributes.get('caption_field')
+        f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
+        return ','.join(['%s:%s' %(r[pkey],r[caption_field]) for r in f])
 
     @public_method
     def getMultiFetch(self,queries=None):

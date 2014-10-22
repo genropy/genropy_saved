@@ -49,6 +49,8 @@ def cellFromField(field,tableobj):
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
+    if fldattr.get('caption_field'):
+        kwargs['caption_field'] = fldattr['caption_field']
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
     if validations and kwargs.get('edit'):
@@ -1207,7 +1209,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
         
-    def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
+    def paletteGrid(self, paletteCode=None, struct=None,
+                     columns=None, structpath=None, 
+                     datapath=None,viewResource=None, **kwargs):
         """Return a :ref:`palettegrid`
         
         :param paletteCode: create the paletteGrid :ref:`nodeid` (if no *gridId* is defined)
@@ -1241,6 +1245,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
         paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
                                 structpath=structpath,datapath=datapath,
+                                viewResource=viewResource,
                                 autoslots='top,left,right,bottom',**kwargs)
         if struct or columns or not structpath:
             paletteGrid.gridStruct(struct=struct,columns=columns)

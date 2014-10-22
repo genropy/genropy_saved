@@ -930,9 +930,9 @@ class SqlTable(GnrObject):
         if method != 'update':
             columns = columns or getattr(handler,'columns',None)
             for_update = getattr(handler,'for_update',False)
-            isUpdater = getattr(handler,'updater',False)
-            for_update = isUpdater or for_update
-            if isUpdater:
+            doUpdate = getattr(handler,'doUpdate',False)
+            for_update = doUpdate or for_update
+            if doUpdate:
                 onUpdating = handler
                 handler = self.update
         sel = self.query(addPkeyColumn=False, for_update=for_update,columns=columns or '*', **kwargs).fetch()
@@ -1063,6 +1063,7 @@ class SqlTable(GnrObject):
         :param record: TODO
         :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
+        pkey = old_record[self.pkey] if old_record and old_record[self.pkey] != record[self.pkey] else None
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):

@@ -194,5 +194,4 @@ class THPicker(BaseComponent):
         for i,r in enumerate(fetch):
             result.setItem('r_%i' %i,None,caption=r[caption_field],pkey=r['pkey'])
         return result
-
     
