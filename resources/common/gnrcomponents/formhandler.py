@@ -249,7 +249,6 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
-        pane.dataController("genro.bp(true);",_fired='^#FORM.controller.loaded')
         pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
                         hidden='^#FORM.controller.temp.selectorVisible')
         box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
