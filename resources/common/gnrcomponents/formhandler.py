@@ -253,6 +253,7 @@ class FormHandler(BaseComponent):
                         hidden='^#FORM.controller.temp.selectorVisible')
         box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
         dbselect_pars = dict(width='12em',_class='th_linker',rounded=8)
+        pars = pars or dict()
         dbselect_pars.update(pars)
         box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
                     parentForm=False,
