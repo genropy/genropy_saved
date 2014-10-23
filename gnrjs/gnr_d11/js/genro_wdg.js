@@ -1424,6 +1424,7 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
+        console.log('editWidgetNode',editWidgetNode)
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
@@ -1439,10 +1440,12 @@ dojo.declare("gnr.GridEditor", null, {
 
     },
 
-    endEdit:function(editWidget, delta, editingInfo) {
+    endEdit:function(blurredWidget, delta, editingInfo) {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
-        var removedNode = editWidget.sourceNode._destroy();
+        var editWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
+        console.log('end edit',editWidgetNode);
+        editWidgetNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);
         if(editingInfo.editedRowId){

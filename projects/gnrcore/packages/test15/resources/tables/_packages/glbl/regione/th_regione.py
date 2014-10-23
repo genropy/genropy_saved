@@ -32,7 +32,7 @@ class TestDyinCheckboxForm(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
         #fb.field('province_principali_sigla')
-        fb.checkBoxText(value='^.province_principali_sigla',#values='MI:Milano,CO:Como,SO:Sondrio')
+        fb.radioButtonText(value='^.province_principali_sigla',#values='MI:Milano,CO:Como,SO:Sondrio')
                         table='glbl.provincia',
-                        condition='$regione=:reg',condition_reg='^.sigla'
+                        condition='$regione=:reg',condition_reg='^.sigla' #,popup=True
                         )

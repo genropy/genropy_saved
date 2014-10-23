@@ -42,6 +42,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         var content = this.createContent(sourceNode, contentKwargs,children,subTagItems);
         genro.assert(content,'create content must return');
         content.concat(children);
+        content.getParentNode()._componentNode = sourceNode;
         sourceNode._isComponentNode=true;
         genro.src.stripData(sourceNode);
         sourceNode.unfreeze(true);
@@ -2339,18 +2340,20 @@ dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
 
 
 dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
-
+    checker : 'checkbox',
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
     },
-    createContent:function(sourceNode, kw,children) {
+    createContent:function(sourceNode, kw,children) { 
         var value = objectPop(kw,'value');
+        sourceNode.attr.value = value;
         var originalKwargs = objectUpdate({},kw);
         kw = sourceNode.evaluateOnNode(kw);
         var popup = objectPop(kw,'popup',kw._inGridEditor);
         var values = objectPop(kw,'values');
         var separator = objectPop(kw,'separator') || ',';
         var codeSeparator = objectPop(kw,'codeSeparator');
+        var tb;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -2372,7 +2375,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var rootNode = sourceNode;
         var table_kw = objectExtract(kw,'table_*');
         if(popup){
-            var tb = sourceNode._('textbox',objectUpdate({'value':has_code?value+'?value_caption':value,position:'relative'},kw));
+            var tbkw = {'value':has_code?value+'?value_caption':value,position:'relative'};
+            if(kw._inGridEditor){
+                tbkw.onCreated = "this.widget.focusNode.focus();"
+            }
+            tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
@@ -2380,12 +2387,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var tbl = rootNode._('table',table_kw)._('tbody')
         var tblNode = tbl.getParentNode();
         sourceNode.gnrwdg.tblNode = tblNode;
-        tblNode.attr._has_code = has_code;
-        tblNode.attr._codeSeparator = codeSeparator;
+        sourceNode.gnrwdg.separator = separator;
+        sourceNode.gnrwdg.has_code = has_code;
+        sourceNode.gnrwdg.codeSeparator = codeSeparator;
         sourceNode.gnrwdg.kw = objectUpdate({},kw);
-        this.createCheckBoxes(tblNode,values,kw);
-        var that = this;
-        tblNode.attr._textvaluepath = value.replace('^','');
+        sourceNode.gnrwdg.setValues(values);
         tblNode.attr.action = function(attr,cbNode,e){
             if(e.shiftKey && attr.tag.toLowerCase()=='checkbox'){
                 tblNode._value.walk(function(n){
@@ -2394,48 +2400,97 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                     }
                 });
             }
-            that.onCheckboxCheck(tblNode,separator);
+            sourceNode.gnrwdg.onCheck();
         };
-
-        var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
-                                    textvalue:value,textdescription:value+'?value_caption',_onBuilt:true,_delay:1}).getParentNode();
-        dcNode._readValue = function(textvalue,textdescription,_triggerpars,_node){
-            if(_triggerpars.kw){
-                if(_triggerpars.kw.reason=='cbgroup'){return}
-                if(!_triggerpars.kw.updvalue){
-                    textvalue=null;
-                }
-            }
-            that.readValue(tblNode,textvalue,textdescription,separator);
-        }
-        sourceNode.gnrwdg.dcNode = dcNode;
-        return tbl;
+        return popup?tb:tbl;
     },
 
     gnrwdg_setValues:function(values,kw){
-        this.gnr.createCheckBoxes(this.tblNode,values,this.kw);
-        this.dcNode.fireNode();
-    },
-    gnrwdg_catch_condition:function(value,kw,trigger_reason){
-        if(trigger_reason=='container'){
+        if(this.values==values){
             return;
         }
-        var values = this.getRemoteValuesFromQuery();
-        console.log('creating values',values)
-        this.setValues(values);
+        this.values = values;
+        this.createCheckers();
+        this.readValue();
+    },
+    gnrwdg_catch_condition:function(value,kw,trigger_reason){
+        this.setValues(this.getRemoteValuesFromQuery());
+    },
+    gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(kw.reason!='cbgroup'){
+            var changedCaption;
+            if(kw.changedAttr){
+                if (kw.changedAttr=='value_caption'){
+                    changedCaption = kw.node.attr['value_caption'];
+                }else{
+                    return;
+                }
+            }
+            this.readValue(changedCaption);
+        }
+    },
+
+    gnrwdg_getValue:function(){
+        return this.sourceNode.getAttributeFromDatasource('value');
+    },
+
+    gnrwdg_getDisplayedValue:function(){
+        return this.has_code?this.sourceNode.getRelativeData(this.sourceNode.attr.value+'?value_caption'):this.sourceNode.getAttributeFromDatasource('value');
     },
 
     gnrwdg_getRemoteValuesFromQuery:function(){
         return genro.serverCall('app.getValuesString',objectUpdate({_sourceNode:this.sourceNode},this.query_kw));
     },
 
-    createCheckBoxes:function(tblNode,values,kw){
-        var kw = objectUpdate({},kw);
+    gnrwdg_readCheckedValues:function(changedCaption){
+        var sourceNode = this.sourceNode;
+        var splitter = this.separator;
+        var textvalue,checkcodes;
+        if(changedCaption){
+            checkcodes = false;
+            textvalue = changedCaption;
+        }else{
+            textvalue =  sourceNode.getAttributeFromDatasource('value') || '';
+            checkcodes = textvalue && this.has_code;  
+        }
+        sourceNode.setRelativeData(sourceNode.attr.value,null,null,null,'cbgroup');
+        if(checkcodes){
+            splitter = ',';
+        }
+        var values = splitStrip(textvalue,splitter);
+        var v;
+        var checker = this.gnr.checker;
+        var compareCb = function(node,value){
+            if(checkcodes){
+                return node.attr._code == value;
+            }
+            return node.attr.label.toLowerCase() == value.toLowerCase()
+        };
+        sourceNode._value.walk(function(n){
+            if(n.attr.tag==checker){
+                n.widget.setAttribute('checked',dojo.some(values,function(v){return compareCb(n,v)}));
+            }
+        });
+        this.onCheck();
+    },
+
+    gnrwdg_readValue:function(changedCaption){
+        genro.callAfter(function(){
+            this.readCheckedValues(changedCaption);
+        },1,this,'readingValue');
+    },
+
+    gnrwdg_createCheckers:function(){
+        var values = this.values;
+        var tblNode = this.tblNode;
+        var kw = this.kw;
+        var has_code = this.has_code;
+        var codeSeparator = this.codeSeparator;
+        kw = objectUpdate({},kw);
         tblNode._value.clear(true);
         if(!values){
             return;
         }
-        var that = this;
         var splitter = values.indexOf('\n')>=0? '\n':',';
         var valuelist = splitStrip(values,splitter);
         var curr_row = tblNode._('tr',row_kw);
@@ -2446,8 +2501,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var label_kw = objectExtract(kw,'label_*',null,true);
-        var has_code = tblNode.attr._has_code;
-        var codeSeparator = tblNode.attr._codeSeparator;
+        var wdgtag = this.gnr.checker;
         dojo.forEach(valuelist,function(v){
             if(v=='/'){
                 curr_row =  tblNode._('tr',row_kw);
@@ -2458,7 +2512,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                 i = 1;
                 curr_row =  tblNode._('tr',row_kw);
             }
-
             label = v;
             if(has_code){
                 v = v.split(codeSeparator);
@@ -2473,15 +2526,19 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
             var z = objectUpdate(cell_kw,{colspan:colspan});
             cell = curr_row._('td',z);  
-            cbpars ={label:label,_code:_code};
-            cell._('checkbox',objectUpdate(cbpars,label_kw));
+            cbpars = {label:label,_code:_code};
+            if(kw.group){
+                cbpars.group = kw.group;
+            }
+            cell._(wdgtag,objectUpdate(cbpars,label_kw));
             i= i + colspan;
         })
     },
 
-    onCheckboxCheck:function(sourceNode,separator){
-        var textvaluepath = sourceNode.attr._textvaluepath;
-        var has_code = sourceNode.attr._has_code;
+    gnrwdg_onCheck:function(){
+        var sourceNode = this.sourceNode;
+        var separator = this.separator;
+        var has_code = this.has_code;
         var i = 0;
         var labels = [];
         var codes = [];
@@ -2498,187 +2555,21 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
         });
         if(has_code){
-            sourceNode.setRelativeData(textvaluepath,codes.length>0?codes.join(','):null,{value_caption:labels.join(separator)},null,'cbgroup',null,{_updattr:true});
+            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,{value_caption:labels.length?labels.join(separator):null},null,'cbgroup',null,{_updattr:true});
         }else{
-            sourceNode.setRelativeData(textvaluepath,labels.length>0?labels.join(separator):null,null,null,'cbgroup');
+            sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,null,null,'cbgroup');
         }
-    },
-    readValue:function(sourceNode,textvalue,textdescription,separator){
-        var splitter = separator;
-        var textvaluepath = sourceNode.attr._textvaluepath;
-        var checkcodes = textvalue && sourceNode.attr._has_code;
-        sourceNode.setRelativeData(textvaluepath,null,{},null,'cbgroup');
-        if(checkcodes){
-            splitter = ',';
-        }
-        textvalue = textvalue || textdescription || '';
-        var values = splitStrip(textvalue,splitter);
-        var v;
-        var compareCb = function(node,value){
-            if(checkcodes){
-                return node.attr._code == value;
-            }
-            return node.attr.label.toLowerCase() == value.toLowerCase()
-        };
-        sourceNode._value.walk(function(n){
-            if(n.attr.tag=='checkbox'){
-                n.widget.setAttribute('checked',dojo.some(values,function(v){return compareCb(n,v)}));
-            }
-        });
-        this.onCheckboxCheck(sourceNode,separator)
     }
 });
 
-
-dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.gnrwdg, {
-    contentKwargs: function(sourceNode, attributes) {
+dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.CheckBoxText, {
+    checker:'radiobutton',
+    contentKwargs:function(sourceNode,attributes){
+        attributes.group = attributes.group || genro.getCounter();
         return attributes;
-    },
-    createContent:function(sourceNode, kw,children) {
-        var value = objectPop(kw,'value');
-        kw = sourceNode.evaluateOnNode(kw);
-        var values = objectPop(kw,'values');
-        var separator = objectPop(kw,'separator') || ',';
-        var codeSeparator = objectPop(kw,'codeSeparator');
-
-        kw.group = kw.group || genro.getCounter();
-        if(codeSeparator!==false){
-            codeSeparator =  codeSeparator || ':'
-        }
-        var rootNode = sourceNode;
-        var cell_kw = objectExtract(kw,'cell_*');
-        var row_kw = objectExtract(kw,'row_*');
-        var table_kw = objectExtract(kw,'table_*');
-        table_kw['tooltip']=objectPop(kw,'tooltip');
-        var label_kw = objectExtract(kw,'label_*',null,true);
-        var has_code = codeSeparator?values.indexOf(codeSeparator)>=0:false;
-        var tbl = rootNode._('table',objectUpdate({border_spacing:0},table_kw))._('tbody')
-        var tblNode = tbl.getParentNode();
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
-        var curr_row = tblNode._('tr',row_kw);
-        var cell,cbpars,label,_code;
-        var that = this;
-        tblNode.attr._textvaluepath = value.replace('^','');
-        tblNode.attr._has_code = has_code;
-        tblNode.attr._codeSeparator = codeSeparator;
-        tblNode.attr.action = function(){that.onRadioCheck(tblNode,separator);};
-        sourceNode.gnrwdg.tblNode = tblNode;
-        sourceNode.gnrwdg.kw = objectUpdate({},kw);
-        this.createRadioButtons(tblNode,values,kw);
-        var dcNode = tblNode._('dataController',{'script':"this._readValue(textvalue,textdescription,_triggerpars,_node);",
-                                    textvalue:value,textdescription:value+'?value_caption',_onBuilt:true}).getParentNode();
-        dcNode._readValue = function(textvalue,textdescription,_triggerpars,_node){
-            if(_triggerpars.kw){
-                if(_triggerpars.kw.reason=='cbgroup'){return}
-                if(!_triggerpars.kw.updvalue){
-                    textvalue=null;
-                }
-            }
-            that.readValue(tblNode,textvalue,textdescription,separator);
-        }
-        return tbl;
-    },
-
-    gnrwdg_setValues:function(values,kw){
-        this.gnr.createRadioButtons(this.tblNode,values,this.kw);
-    },
-
-    createRadioButtons:function(tblNode,values,kw){
-        tblNode._value.clear(true);
-        var that = this;
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
-        var curr_row = tblNode._('tr',row_kw);
-        var cell,cbpars,label,_code;
-        var i = 1;
-        var colspan;
-        var cols = objectPop(kw,'cols');
-
-        var cell_kw = objectExtract(kw,'cell_*');
-        var row_kw = objectExtract(kw,'row_*');
-        var label_kw = objectExtract(kw,'label_*',null,true);
-        var has_code = tblNode.attr._has_code;
-        var codeSeparator = tblNode.attr._codeSeparator;
-        dojo.forEach(valuelist,function(v){
-            if(v=='/'){
-                curr_row =  tblNode._('tr',row_kw);
-                i = 1;
-                return;
-            }
-            if(cols && i>cols){
-                i = 1;
-                curr_row =  tblNode._('tr',row_kw);
-            }
-
-            label = v;
-            if(has_code){
-                v = v.split(codeSeparator);
-                _code = v[0];
-                label = v[1];
-            }  
-            colspan = 1;
-            if(label.indexOf('\\')>=0){
-                label = label.split('\\');
-                colspan = parseInt(label[1]);
-                label = label[0];
-            }
-            var z = objectUpdate(cell_kw,{colspan:colspan});
-            cell = curr_row._('td',z);  
-            cbpars ={label:label,_code:_code,group:kw.group};
-            cell._('radiobutton',objectUpdate(cbpars,label_kw));
-            i= i + colspan;
-        })
-    },
-    onRadioCheck:function(sourceNode,separator){
-        var textvaluepath = sourceNode.attr._textvaluepath;
-        var has_code = sourceNode.attr._has_code;
-        var i = 0;
-        var label = null;
-        var code = null;
-        var rows = sourceNode.getValue().getItem('#0');
-        var sourceNodes = dojo.query('.dijitCheckBoxInput',sourceNode.domNode).map(function(n){
-            return dijit.getEnclosingWidget(n).sourceNode
-        });
-        dojo.forEach(sourceNodes,function(cbNode){
-            if(cbNode.widget.checked){
-                if(has_code){
-                    code = cbNode.attr._code;
-                }
-                label = cbNode.attr.label;
-            }
-        });
-        if(has_code){
-            sourceNode.setRelativeData(textvaluepath,code,{value_caption:label},null,'cbgroup');
-        }else{
-            sourceNode.setRelativeData(textvaluepath,label,{},null,'cbgroup');
-        }
-    },
-    readValue:function(sourceNode,textvalue,textdescription,separator){
-        var splitter = separator;
-        var textvaluepath = sourceNode.attr._textvaluepath;
-        var checkcodes = textvalue && sourceNode.attr._has_code;
-        sourceNode.setRelativeData(textvaluepath,null,{},null,'cbgroup');
-        if(checkcodes){
-            splitter = ',';
-        }
-        textvalue = textvalue || textdescription || '';
-        var v;
-        var compareCb = function(node,value){
-            if(checkcodes){
-                return node.attr._code == value;
-            }
-            return node.attr.label.toLowerCase() == value.toLowerCase()
-        };
-        sourceNode._value.walk(function(n){
-            if(n.attr.tag=='radiobutton'){
-                n.widget.setAttribute('checked',compareCb(n,textvalue));
-            }
-        });
-        this.onRadioCheck(sourceNode,separator)
     }
-
 });
+
 
 
 dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
