@@ -300,6 +300,7 @@ dojo.declare("gnr.LinkerManager", null, {
             that.setCurrentPkey(kw.pkey);
         });
         this.linkerform.subscribe('onDismissed',function(kw){
+            genro.publish('changeInTable',{pkey:that.getCurrentPkey(),table:that.table})
             that.thdialog.hide();
         });
         
