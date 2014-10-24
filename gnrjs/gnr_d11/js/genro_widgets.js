@@ -551,6 +551,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
     created:function(newobj, savedAttrs, sourceNode) {
         /*override this for each widget*/
         return null;
+    },
+
+    cell_onCreating:function(gridEditor,colname,colattr){
+        //pass
+    },
+
+    cell_onDestroying:function(gridEditor,colname,colattr){
+        //pass
     }
 });
 
@@ -1302,7 +1310,14 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
             this.onChanged(newobj);
         }));
     },
-    
+
+    cell_onCreating:function(gridEditor,colname,colattr){
+        colattr['z_index']= 1;
+        colattr['position'] = 'fixed';
+        colattr['height'] = colattr['height'] || '100px';
+    },
+
+
     mixin_setSuggestions:function(suggestions){
         this.sourceNode._value.popNode('suggestionMenu');
         this.sourceNode._('menu','suggestionMenu',{'_class':'smallmenu',action:"genro.dom.setTextInSelection($2,($1.fullpath.indexOf('caption_')==0?$1.label:$1.fullpath));",values:suggestions});
@@ -1313,16 +1328,16 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
     },
 
     mixin_displayMessage: function(/*String*/ message){
-    			// summary:
-    			//		User overridable method to display validation errors/hints.
-    			//		By default uses a tooltip.
-    			if(this._message == message){ return; }
-    			this._message = message;
-    			dijit.hideTooltip(this.domNode);
-    			if(message){
-    				dijit.showTooltip(message, this.domNode, this.tooltipPosition);
-    			}
-    		}
+		// summary:
+		//		User overridable method to display validation errors/hints.
+		//		By default uses a tooltip.
+		if(this._message == message){ return; }
+		this._message = message;
+		dijit.hideTooltip(this.domNode);
+		if(message){
+			dijit.showTooltip(message, this.domNode, this.tooltipPosition);
+		}
+	}
 });
 
 dojo.declare("gnr.widgets.ProgressBar", gnr.widgets.baseDojo, {
@@ -2675,7 +2690,10 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     patch_setValue: function(/*String*/ value, pc) {
         //this.setChecked(value);
         this.setAttribute('checked', value);
-    }
+    },
+    cell_onCreating:function(gridEditor,colname,colattr){
+        colattr['margin'] = 'auto';
+    },
 });
 
 dojo.declare("gnr.widgets.TextArea_", gnr.widgets.baseDojo, {
@@ -6431,9 +6449,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
                 this.widget.clearCache(kw.pkey);
             }
         });
-
-
-
         //store._parentSourceNode = sourceNode;
         resolverAttrs._sourceNode = sourceNode;
         //resolverAttrs.sync = true
@@ -6653,7 +6668,47 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                     }
                 }
             }
-    }
+    },
+
+    cell_onCreating:function(gridEditor,colname,colattr){
+        if(!gridEditor.editorPars){
+            return;
+        }
+        var cellmap = gridEditor.grid.cellmap;
+        var related_setter = {};
+        var grid = gridEditor.grid;
+        colattr['dbtable'] = colattr['dbtable'] || colattr['related_table'];
+        //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
+        var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
+        for(var k in cellmap){
+            if(cellmap[k].relating_column == colname){
+                hiddencol.push(cellmap[k].related_column);
+                related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
+            }
+        }
+        colattr['hiddenColumns'] = hiddencol.join(',');
+        colattr.selectedSetter = function(path,value){
+            if(path.indexOf('.')>=0){
+                path = path.split('.');
+                path = path[path.length-1];
+            }
+            gridEditor.setCellValue(path,value);
+        }
+        colattr.selectedCb = function(item){
+            var selectRow = item?objectUpdate({},item.attr):{};
+            var rowNode = gridEditor.getRelativeData().getParentNode();
+            var values = {}; 
+            for (var k in related_setter){
+                values[related_setter[k]] = selectRow[k];
+            }
+            grid.collectionStore().updateRow(gridEditor.editedRowIndex,values)
+
+            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
+            //setTimeout(function(){
+            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
+            //},1)
+        }
+    },
 });
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {

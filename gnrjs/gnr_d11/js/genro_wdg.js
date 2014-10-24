@@ -280,7 +280,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     create:function(tag, destination, attributes, ind, sourceNode) {
         var attributes = attributes || {};
         var newobj, domnode,domtag;
-        var handler = this.getHandler(tag,attributes,sourceNode);
+        var handler = this.getHandler(tag);
         var zoomToFit = objectPop(attributes,'zoomToFit')
 
         genro.assert(handler,'missing handler for tag:'+tag);
@@ -839,6 +839,7 @@ dojo.declare("gnr.GridEditor", null, {
             this.grid.sourceNode.form.updateStatus();
         }
     },
+    
     addEditColumn:function(colname,colattr){
         colattr['parentForm'] = false;
         var edit = objectPop(colattr,'edit');
@@ -861,62 +862,15 @@ dojo.declare("gnr.GridEditor", null, {
             }
         }
         var lowertag = colattr['tag'].toLowerCase();
-        if(this['tag_'+lowertag]){
-            this['tag_'+lowertag].call(this,colname,colattr);
-        }
+        var wdghandler = genro.wdg.getHandler(colattr['tag']);
+        wdghandler.cell_onCreating(this,colname,colattr);
         this.columns[colname.replace(/\W/g, '_')] = {'tag':colattr.tag,'attr':colattr};
     },
-    tag_simpletextarea:function(colname,colattr){
-        colattr['z_index']= 1;
-        colattr['position'] = 'fixed';
-        colattr['height'] = colattr['height'] || '100px';
-    },
-    tag_checkbox:function(colname,colattr){
-        colattr['margin'] = 'auto';
-    },
 
-    tag_dbselect:function(colname,colattr){
-        if(!this.editorPars){
-            return;
-        }
-        var cellmap = this.grid.cellmap;
-        var related_setter = {};
-        var grid = this.grid;
-        colattr['dbtable'] = colattr['dbtable'] || colattr['related_table'];
-        //colattr['selected_'+colattr['caption_field']] = '.'+colattr['caption_field'];
-        var hiddencol = colattr['hiddenColumns']? colattr['hiddenColumns'].split(','):[];
-        for(var k in cellmap){
-            if(cellmap[k].relating_column == colname){
-                hiddencol.push(cellmap[k].related_column);
-                related_setter[cellmap[k].related_column.replace(/\W/g, '_')] = cellmap[k].field_getter;
-            }
-        }
-        colattr['hiddenColumns'] = hiddencol.join(',');
-        colattr.selectedSetter = function(path,value){
-            if(path.indexOf('.')>=0){
-                path = path.split('.');
-                path = path[path.length-1];
-            }
-            this.setCellValue(path,value);
-        }
-        colattr.selectedCb = function(item){
-            var selectRow = item?objectUpdate({},item.attr):{};
-            var rowNode = this.getRelativeData().getParentNode();
-            var values = {}; 
-            for (var k in related_setter){
-                values[related_setter[k]] = selectRow[k];
-            }
-            grid.collectionStore().updateRow(this.editedRowIndex,values)
-
-            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
-            //setTimeout(function(){
-            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
-            //},1)
-        }
-    },
     delEditColumn:function(colname){
         objectPop(this.columns,colname.replace(/\W/g, '_'));
     },
+    
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
         var form = gridSourceNode.form;
