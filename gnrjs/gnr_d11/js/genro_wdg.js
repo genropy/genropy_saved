@@ -621,8 +621,10 @@ dojo.declare("gnr.RowEditor", null, {
         this.rowLabel = rowNode.label;
         this.gridEditor.rowEditors[this.rowId] = this;
         var data = rowNode.getValue();
+        this.data = data;
         if (!data){
             data  = new gnr.GnrBag();
+            this.data = data;
             var cellmap = this.grid.cellmap;
             var default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
             for(var k in cellmap){
@@ -645,7 +647,6 @@ dojo.declare("gnr.RowEditor", null, {
             }
             rowNode.setValue(data);
         }
-        this.data = data;
     },
 
     hasChanges:function(){

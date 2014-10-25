@@ -6692,11 +6692,11 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                 path = path.split('.');
                 path = path[path.length-1];
             }
-            gridEditor.setCellValue(path,value);
+            this.setCellValue(path,value);
         }
         colattr.selectedCb = function(item){
             var selectRow = item?objectUpdate({},item.attr):{};
-            var rowNode = gridEditor.getRelativeData().getParentNode();
+            var rowNode = this.getRelativeData().getParentNode();
             var values = {}; 
             for (var k in related_setter){
                 values[related_setter[k]] = selectRow[k];
