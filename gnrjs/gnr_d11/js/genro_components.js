@@ -3,6 +3,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     constructor: function(application) {
         this._domtag = 'div';
     },
+
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
@@ -2415,8 +2416,21 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(this.values!=values){
             this.values = values;
             this.createCheckers();
-            this.alignCheckedValues();
-            this.onCheck();
+            var gnrwdg = this;
+            var cb = function(){
+                gnrwdg.alignCheckedValues();
+                gnrwdg.onCheck();
+            }
+            if(!this.sourceNode._isBuilding){
+                cb()
+            }else{
+                this.sourceNode.watch('buildingNode',function(){
+                    return !gnrwdg.sourceNode._isBuilding;
+                },function(){
+                    cb()
+                },10);
+            }
+            
         }
     },
 

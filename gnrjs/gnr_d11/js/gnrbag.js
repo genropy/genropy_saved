@@ -1338,8 +1338,10 @@ dojo.declare("gnr.GnrBag", null, {
             var sx = this._nodes.slice(0, p);
             var dx = this._nodes.slice(p + 1, this._nodes.length);
             this._nodes = sx.concat(dx);
-            if ((this._backref) && (doTrigger))
+            if (this._backref && doTrigger){
                 this.onNodeTrigger({'evt':'del','node':node,'where':this, 'ind':p, 'reason':doTrigger});
+            }
+                
         }
         return node;
     },
@@ -1862,8 +1864,9 @@ dojo.declare("gnr.GnrBag", null, {
         }
     },
     subscribe: function(subscriberId, kwargs/*obj*/) {
-        if (this._backref == false)
+        if (this._backref == false){
             this.setBackRef();
+        }
         this._subscribers[subscriberId] = kwargs;
     },
     unsubscribe:function(subscriberId, events) {
