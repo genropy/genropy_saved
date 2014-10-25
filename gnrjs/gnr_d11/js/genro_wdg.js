@@ -648,6 +648,7 @@ dojo.declare("gnr.RowEditor", null, {
             rowNode.setValue(data);
         }
     },
+    
 
     hasChanges:function(){
         var changed = false;

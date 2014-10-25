@@ -6701,14 +6701,9 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             for (var k in related_setter){
                 values[related_setter[k]] = selectRow[k];
             }
-            grid.collectionStore().updateRow(gridEditor.editedRowIndex,values)
-
-            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
-            //setTimeout(function(){
-            //rowNode.updAttributes(newAttr,{editedRowIndex:this.editedRowIndex});
-            //},1)
+            grid.collectionStore().updateRow(this.editedRowIndex,values)
         }
-    },
+    }
 });
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {
