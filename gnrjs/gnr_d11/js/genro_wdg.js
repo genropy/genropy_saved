@@ -648,7 +648,6 @@ dojo.declare("gnr.RowEditor", null, {
             rowNode.setValue(data);
         }
     },
-    
 
     hasChanges:function(){
         var changed = false;
@@ -1400,7 +1399,8 @@ dojo.declare("gnr.GridEditor", null, {
         var cellNode = editingInfo.cellNode;
         var contentText = editingInfo.contentText;
         var editWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
-        console.log('end edit',editWidgetNode);
+        var h = editWidgetNode.widget || editWidgetNode.gnrwdg || editWidgetNode.domNode;
+        h.gnr.cell_onDestroying(editWidgetNode,this,editingInfo);
         editWidgetNode._destroy();
         editingInfo.cellNode.innerHTML = contentText;
         this.onEditCell(false);

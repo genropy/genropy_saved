@@ -89,7 +89,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         //override
     },
 
-    cell_onDestroying:function(gridEditor,colname,colattr){
+    cell_onDestroying:function(gridEditor){
         //override
     }
 });
@@ -2610,8 +2610,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         colattr['onCreated'] = 'this.widget.focusNode.focus()'
     },
 
-    cell_onDestroying:function(gridEditor,colname,colattr){
-        //override
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
+        var newAttr = {};
+        newAttr[sourceNode._saved_attributes.field_getter] = sourceNode.gnrwdg.getDisplayedValue();
+        gridEditor.grid.collectionStore().updateRow(editingInfo.row,newAttr);
     }
         
 });

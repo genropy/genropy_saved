@@ -23,6 +23,7 @@ class TestEditInlineCheckbox(BaseComponent):
         r.fieldcell('nome')
         r.fieldcell('province_principali_sigla',edit=dict(tag='checkBoxText',table='glbl.provincia',
                                                           condition='$regione=:reg',condition_reg='^.sigla'))
+        #r.fieldcell('province_principali_nome',hidden=True)
 
     def th_options(self):
         return dict(tags=None)
