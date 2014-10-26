@@ -1,5 +1,5 @@
 # encoding: utf-8
-from gnr.app.gnrdbo import GnrHTable
+from gnr.app.gnrdbo_legacy import GnrHTable
 
 class Table(GnrHTable):
     def config_db(self, pkg):

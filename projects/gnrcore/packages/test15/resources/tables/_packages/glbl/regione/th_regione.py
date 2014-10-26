@@ -37,3 +37,13 @@ class TestDyinCheckboxForm(BaseComponent):
                         table='glbl.provincia',
                         condition='$regione=:reg',condition_reg='^.sigla' ,popup=True
                         )
+
+
+class TestDyinCheckboxTree(BaseComponent):
+    def th_form(self,form):
+        fb = form.record.formbuilder(cols=1,border_spacing='3px')
+        #fb.field('province_principali_sigla')
+        fb.checkBoxText(value='^.province_principali_sigla',
+                        table='glbl.nuts',hierarchical=True
+                        
+                        )

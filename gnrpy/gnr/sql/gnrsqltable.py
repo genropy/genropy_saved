@@ -32,6 +32,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
+from gnr.sql.gnrsqltable_proxy.hierarchical import HierarchicalHandler
 from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
@@ -190,6 +191,8 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        if tblobj.attributes.get('hierarchical'):
+            self.hierarchicalHandler = HierarchicalHandler(self)
         
     def use_dbstores(self,**kwargs):
         pass
