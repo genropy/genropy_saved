@@ -557,7 +557,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         //pass
     },
 
-    cell_onDestroying:function(gridEditor,colname,colattr){
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
         //pass
     }
 });

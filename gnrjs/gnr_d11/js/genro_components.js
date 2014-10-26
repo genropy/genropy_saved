@@ -89,7 +89,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         //override
     },
 
-    cell_onDestroying:function(gridEditor){
+    cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
         //override
     }
 });
