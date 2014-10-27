@@ -2383,7 +2383,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                     gnrwdg.treestorepath = kw.treestorepath || 'gnr.workspace._hierarchicalStores.'+(kw.nodeId || table.replace('.','_'));
                     gnrwdg.checkedpath = gnrwdg.treestorepath+'_checkedpaths';
                     query_kw.dbstore = dbstore;
-                    popup = popup==null? 'readOnly':popup;
                     query_kw.related_kwargs = objectExtract(originalKwargs,'related_*');
                     query_kw.condition = condition;
                     query_kw.resolved = objectPop(kw,'resolved');
@@ -2403,7 +2402,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var rootNode = sourceNode;
         var table_kw = objectExtract(kw,'table_*');
         if(popup){
-            var tbkw = {'value':has_code?value+'?value_caption':value,position:'relative',readOnly:popup=='readOnly'};
+            var tbkw = {'value':has_code?value+'?value_caption':value,position:'relative',readOnly:true};
             tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
@@ -2488,14 +2487,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(kw.reason=='cbgroup'){
             return;
         }
-        if(kw.changedAttr=='value_caption'){
-            this.sourceNode.setRelativeData(this.sourceNode.attr.value,
-                                            this.getValueFromLabels(kw.node.attr['value_caption']))
-        }
-        else if(this.has_code && this.isValidValue(value)){
+        if(this.has_code && this.isValidValue(value)){
             this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?value_caption',this.getLabelsFromValue(value),null,null,'cbgroup')
-            this.alignCheckedValues();
         }
+        this.alignCheckedValues();
     },
 
     gnrwdg_isValidValue:function(value){
@@ -2512,14 +2507,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         }
         var valuesDict = this.valuesDict;
         return value.split(this.separator).map(function(c){return valuesDict[c]}).join(this.separator)
-    },
-
-    gnrwdg_getValueFromLabels:function(labels){
-        if(!labels){
-            return
-        }
-        var captionDict = this.captionDict;
-        return labels.split(this.separator).map(function(c){return captionDict[c]}).filter(function(n){return n!=undefined}).join(this.separator) || null
     },
 
     gnrwdg_getValue:function(){
