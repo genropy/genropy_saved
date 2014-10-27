@@ -6891,7 +6891,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var selectedLabelClass = attributes['selectedLabelClass'];
         attributes.getLabelClass = function(node, opened) {
             if (node.attr) {
-                var labelClass = labelClassGetter.call(this, node, opened);
+                var labelClass = labelClassGetter.call(this, node, opened) || '';
                 if (selectedLabelClass) {
                     return (this.currentSelectedNode && this.currentSelectedNode.item == node) ? labelClass + ' ' + selectedLabelClass : labelClass;
                 } else {

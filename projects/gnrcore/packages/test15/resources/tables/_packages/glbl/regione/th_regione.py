@@ -44,6 +44,7 @@ class TestDyinCheckboxTree(BaseComponent):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
         #fb.field('province_principali_sigla')
         fb.checkBoxText(value='^.province_principali_sigla',
-                        table='glbl.nuts',hierarchical=True
-                        
+                        table='glbl.nuts',condition='$country=:ct',
+                        condition_ct='IT',
+                        hierarchical=True
                         )
