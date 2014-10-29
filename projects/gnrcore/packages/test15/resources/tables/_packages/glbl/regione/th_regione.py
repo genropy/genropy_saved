@@ -14,6 +14,11 @@ class TestDyinCheckbox(BaseComponent):
         r.fieldcell('nome')
         r.fieldcell('province_principali_sigla')
 
+class TestDyinCheckboxNuts(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome')
+        r.fieldcell('province_principali_nuts')
 
 class TestEditInlineCheckbox(BaseComponent):
     def th_struct(self,struct):
@@ -43,8 +48,15 @@ class TestDyinCheckboxTree(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
         #fb.field('province_principali_sigla')
-        fb.checkBoxText(value='^.province_principali_sigla',
-                        table='glbl.nuts',condition='$country=:ct',
-                        condition_ct='IT',
+        fb.checkBoxText(value='^.province_principali_nuts',
+                        table='glbl.nuts',parent_id='YWoeKA1qM2m69mJZWsLo3A',
                         hierarchical=True
                         )
+
+class TestDyinCheckboxNutsEdit(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome')
+        r.fieldcell('province_principali_nuts',edit=dict(tag='checkBoxText',value='^.province_principali_nuts',
+                                                        table='glbl.nuts',parent_id='YWoeKA1qM2m69mJZWsLo3A',
+                                                        hierarchical=True))

@@ -83,6 +83,7 @@ class HTableTree(BaseComponent):
                         **kwargs)
             
             return d
+            
         b = tblobj.getHierarchicalData(caption_field=caption_field,dbstore=dbstore,
                                                     related_kwargs=related_kwargs,
                                                     root_id=root_id,columns=columns,resolved=resolved)

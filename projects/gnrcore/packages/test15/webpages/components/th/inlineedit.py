@@ -29,8 +29,14 @@ class GnrCustomWebPage(object):
                                                             pbl_classes=True,condition_onStart=True,saveButton=True)
 
 
-    def test_2_testCheckbox_b(self, pane):
+    def test_2_testCheckbox_c(self, pane):
         bc = pane.borderContainer(height='400px')
-        bc.contentPane(region='center').stackTableHandler(table='glbl.regione',viewResource='TestDyinCheckbox',
+        bc.contentPane(region='center').stackTableHandler(table='glbl.regione',viewResource='TestDyinCheckboxNuts',
                                                             condition_onStart=True,
                                                             formResource='TestDyinCheckboxTree')
+
+
+    def test_3_testCheckbox_c(self, pane):
+        bc = pane.borderContainer(height='400px')
+        bc.contentPane(region='center').inlineTableHandler(table='glbl.regione',viewResource='TestDyinCheckboxNutsEdit',
+                                                            pbl_classes=True,condition_onStart=True,saveButton=True)

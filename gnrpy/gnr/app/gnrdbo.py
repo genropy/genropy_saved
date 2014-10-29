@@ -401,6 +401,12 @@ class TableBase(object):
     def pathFromPkey(self,pkey=None,dbstore=None):
         return self.hierarchicalHandler.pathFromPkey(pkey=pkey,dbstore=dbstore)
 
+    @public_method
+    def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,**kwargs):
+        return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
+                                                               related_kwargs=related_kwargs,parent_id=parent_id,
+                                                              dbstore=dbstore)
+
     def trigger_setRowCounter(self,record,fldname,**kwargs):
         """field trigger used for manage rowCounter field"""
         if record.get(fldname) is not None:
