@@ -2651,7 +2651,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var labels = [];
         var codes = [];
         var rows = sourceNode.getValue().getItem('#0');
-        var sourceNodes = dojo.query('.dijitCheckBoxInput',sourceNode.domNode).map(function(n){
+        var sourceNodes = dojo.query('.dijitCheckBoxInput',this.tblNode.domNode).map(function(n){
             return dijit.getEnclosingWidget(n).sourceNode
         });
         dojo.forEach(sourceNodes,function(cbNode){
