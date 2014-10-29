@@ -1379,7 +1379,6 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
-        console.log('editWidgetNode',editWidgetNode)
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
             gridEditor.setCellValue(this.editedRowIndex,cellname,value,valueCaption);
         };
