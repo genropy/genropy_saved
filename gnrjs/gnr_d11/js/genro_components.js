@@ -2364,6 +2364,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var codeSeparator = objectPop(kw,'codeSeparator');
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
+        gnrwdg._valuelabel = sourceNode.attr._valuelabel;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
@@ -2406,7 +2407,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var rootNode = sourceNode;
         var table_kw = objectExtract(kw,'table_*');
         if(popup){
-            var tbkw = {'value':has_code?value+'?value_caption':value,position:'relative',readOnly:true};
+            var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true};
             tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
             rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
@@ -2482,7 +2483,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                                 labelAttribute:'caption',selectedLabelClass:'',_class:'pickerCheckboxTree',
                                 checked_pkey:valuepath,
                                 checkedPaths:this.checkedpath,
-                                checked_caption:valuepath+'?value_caption',
+                                checked_caption:valuepath+'?_displayedValue',
                                 onChecked:true});
         this.treeNode = tree.getParentNode();
     },
@@ -2492,28 +2493,31 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setHierarchicalCheckedPaths:function(value){
-        this.sourceNode.setRelativeData(this.checkedpath,null);
+        this.sourceNode.setRelativeData(this.checkedpath,null,null,null,'cbgroup');
         if(value){
             var pathsFromPkeys = genro.serverCall('_table.'+this.query_kw.table+'.getHierarchicalPathsFromPkeys',{pkeys:value,related_kwargs:this.query_kw.related_kwargs,
                                                                                                                       dbstore:this.query_kw.dbstore,parent_id:this.query_kw.parent_id,
                                                                                                                       _sourceNode:this.sourceNode});
                 
-            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys);
+            
+            this.sourceNode.setRelativeData(this.checkedpath,pathsFromPkeys,null,null,'cbgroup');
         }
     },
 
     gnrwdg_setValue:function(value,kw,trigger_reason){
+        if(kw.reason=='cbgroup'){
+            return;
+        }
         if(this.hierarchical){
             if(trigger_reason=='container'){
+                console.log('container',value,kw,trigger_reason)
                 this.setHierarchicalCheckedPaths(value);
             }
             return;
         }
-        if(kw.reason=='cbgroup'){
-            return;
-        }
+        
         if(this.has_code && this.isValidValue(value)){
-            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?value_caption',this.getLabelsFromValue(value),null,null,'cbgroup')
+            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(value),null,null,'cbgroup')
         }
         this.alignCheckedValues();
     },
@@ -2540,9 +2544,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
 
     gnrwdg_getDisplayedValue:function(){
         if(this.hierarchical){
-            return this.sourceNode.getRelativeData(this.sourceNode.attr.value+'?value_caption');
+            return this.sourceNode.getRelativeData(this.sourceNode.attr.value+'?_displayedValue');
         }else{
-            return this.has_code?this.sourceNode.getRelativeData(this.sourceNode.attr.value+'?value_caption'):this.sourceNode.getAttributeFromDatasource('value');
+            return this.has_code?this.sourceNode.getRelativeData(this.sourceNode.attr.value+'?_displayedValue'):this.sourceNode.getAttributeFromDatasource('value');
         }
     },
 
@@ -2664,7 +2668,11 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         });
         sourceNode.setRelativeData(sourceNode.attr.value,null,null,null,'cbgroup');
         if(has_code){
-            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,{value_caption:labels.length?labels.join(separator):null},null,'cbgroup',null,{_updattr:true});
+            var fkw = {_displayedValue:labels.length?labels.join(separator):null};
+            if(this._valuelabel){
+                fkw._valuelabel = this._valuelabel;
+            }
+            sourceNode.setRelativeData(sourceNode.attr.value,codes.length>0?codes.join(','):null,fkw,null,'cbgroup',null,{_updattr:true});
         }else{
             sourceNode.setRelativeData(sourceNode.attr.value,labels.length>0?labels.join(separator):null,null,null,'cbgroup');
         }
