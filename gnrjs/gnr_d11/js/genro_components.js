@@ -2442,12 +2442,12 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(this.values==values){
             return;
         }
+        var gnrwdg = this;
         if(this.hierarchical){
             if(this.omitRoot){
                 values = values.getItem('root');
             }
             var cb;
-            var gnrwdg = this;
             this.sourceNode.setRelativeData(this.treestorepath,values);
             if(!this.treeNode){
                 this.createTreeCheckbox();
