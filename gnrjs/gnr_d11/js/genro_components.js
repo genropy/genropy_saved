@@ -2364,7 +2364,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var codeSeparator = objectPop(kw,'codeSeparator');
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
-        gnrwdg._valuelabel = sourceNode.attr._valuelabel;
+        gnrwdg._valuelabel = kw._valuelabel;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
