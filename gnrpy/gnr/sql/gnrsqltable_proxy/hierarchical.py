@@ -173,6 +173,7 @@ class HierarchicalHandler(object):
     """docstring for HierarchicalHandler"""
     def __init__(self, tblobj):
         self.tblobj = tblobj
+        self.db = self.tblobj.db
 
 
     def trigger_before(self,record,old_record=None):
@@ -257,9 +258,9 @@ class HierarchicalHandler(object):
             related_table = self.db.table(related_kwargs['table'])
             relpkey =related_table.pkey
             f = related_table.query(where='$id IN :pk',pk=pkeys,addPkeyColumn=True,
-                    columns='@%s.hierarchical_pkey AS _hpath,%s' %(related_kwargs['path'],relpkey) ,
+                    columns='@%s.hierarchical_pkey AS _hpath,$%s' %(related_kwargs['path'],relpkey) ,
                     _storename=dbstore).fetch()
-            f = ['%s/%s' %(r['_hpath'],r[relpkey]) for r in f]
+            f = [dict(_hpath='%s/%s' %(r['_hpath'],r[relpkey]) ) for r in f]
         if parent_id:
             return ','.join([r['_hpath'].split(parent_id,1)[1][1:].replace('/','.') for r in f if r['_hpath']])
         else:
