@@ -6,6 +6,7 @@ import inspect
 import os
 import sys
 from gnr.core.gnrsys import expandpath
+from urllib2 import urlparse
 from paste import fileapp
 from paste.httpheaders import ETAG
 import random
@@ -160,9 +161,28 @@ class VolumesStaticHandler(StaticHandler):
     def url(self, volume, *args, **kwargs):
         return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
 
-    def path(self, volume, *args, **kwargs):
+    def path(self,volume,*args,**kwargs):
         vpath = self.volumes.get(volume,volume)
         return expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
+
+class ExternalVolumesStaticHandler(VolumesStaticHandler):
+    prefix = 'xvol'
+    def serve(self, f, environ, start_response, download=False, **kwargs):
+        pkg = f[1]
+        table = f[2]
+        field = f[3]
+        pkey = f[4]
+        url = self.site.db.table('%s.%s' %(pkg,table)).readColumns(columns='$%s' %field,pkey=pkey) #_
+        p = urlparse.urlparse(url)
+        urlkwargs = dict(urlparse.parse_qsl(p.query))
+        kwargs.update(urlkwargs)
+        return super(VolumesStaticHandler, self).serve(p.path.split('/')[1:],environ,start_response,download=download,**kwargs)
+
+
+    def url(self,pkg,table,field,pkey,*args,**kwargs):
+        return '%s_xvol/%s/%s/%s/%s' % (self.home_uri, pkg,table,field,pkey)
+
+
 
 class SiteStaticHandler(StaticHandler):
     prefix = 'site'
