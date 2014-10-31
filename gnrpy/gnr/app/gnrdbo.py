@@ -137,15 +137,14 @@ class GnrDboPackage(object):
 
 
     def _loadStartupData_do(self,basepath=None,btc=None):
-        shelvepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
-        if not os.path.isfile('%s.db' %shelvepath):
+        bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
+        if not os.path.isfile('%s.pik' %bagpath):
             import gzip
-            with gzip.open('%s.gz' %shelvepath,'rb') as gzfile:
-                with open('%s.db' %shelvepath,'wb') as f:
+            with gzip.open('%s.gz' %bagpath,'rb') as gzfile:
+                with open('%s.pik' %bagpath,'wb') as f:
                     f.write(gzfile.read())
         db = self.db
-        import shelve 
-        s = shelve.open(shelvepath)
+        s = Bag('%s.pik' %bagpath)
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
@@ -163,9 +162,7 @@ class GnrDboPackage(object):
             if records:
                 tblobj.insertMany(records)
                 db.commit()
-        s.close()
-
-        os.remove('%s.db' %shelvepath)
+        os.remove('%s.pik' %bagpath)
 
 
     def startupData_tables(self):
@@ -185,9 +182,10 @@ class GnrDboPackage(object):
         tables = self.startupData_tables()
         if not tables:
             return
-        shelvepath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
-        import shelve
-        s = shelve.open(shelvepath)
+        bagpath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
+       # import shelve
+       # s = shelve.open(shelvepath)
+        s = Bag()
         s['tables'] = tables
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tname in tables:
@@ -199,13 +197,14 @@ class GnrDboPackage(object):
                 f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
-        s.close()
+        s.makePicklable()
+        s.pickle('%s.pik' %bagpath)
         import gzip
-        zipPath = '%s.gz' %shelvepath
-        with open('%s.db' %shelvepath,'rb') as sfile:
+        zipPath = '%s.gz' %bagpath
+        with open('%s.pik' %bagpath,'rb') as sfile:
             with gzip.open(zipPath, 'wb') as f_out:
                 f_out.writelines(sfile)
-        os.remove('%s.db' %shelvepath)
+        os.remove('%s.pik' %bagpath)
         
 class TableBase(object):
     """TODO"""
