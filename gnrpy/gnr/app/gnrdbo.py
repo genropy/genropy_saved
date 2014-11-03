@@ -741,7 +741,7 @@ class TableBase(object):
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
         all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,**kwargs).fetchAsDict(pkey)
-        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$id IN :pk',pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
+        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
         if source_rows:
             fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts')])
