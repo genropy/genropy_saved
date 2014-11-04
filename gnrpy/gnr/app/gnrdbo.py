@@ -194,7 +194,7 @@ class GnrDboPackage(object):
             if handler:
                 f = handler()
             else:
-                f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
+                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
         s.makePicklable()
@@ -773,7 +773,7 @@ class TableBase(object):
     def isInStartupData(self):
         if self.attributes.get('inStartupData') is False:
             return False
-        for t in self.model.dependencies:
+        for t,isdeferred in self.model.dependencies:
             if not self.db.table(t).isInStartupData():
                 return False
         return True

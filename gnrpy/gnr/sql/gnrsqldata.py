@@ -409,7 +409,7 @@ class SqlQueryCompiler(object):
         :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
                           ``*@relname.filter``."""
         subfield_name = None
-        if flt in self.tblobj.virtual_columns:
+        if flt and flt in self.tblobj.virtual_columns:
             subfield_name = flt
             vc = self.tblobj.virtual_columns[flt]
             flt = vc.sql_formula
