@@ -143,6 +143,7 @@ class THPicker(BaseComponent):
         condition_kwargs = dictExtract(parameters,'condition_')
         unique = parameters.get('unique',False)
         cacheTime = parameters.get('cacheTime',-1)
+        loadWithDefault = parameters.get('loadWithDefault')
         one = False
         maintable = pane.getInheritedAttributes()['table']
         relation_tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
@@ -178,11 +179,18 @@ class THPicker(BaseComponent):
                         });
                         grid.gridEditor.addNewRows(rows);
                     }else if(mainpkey){
-                        genro.serverCall(rpcmethod,kw,function(){},null,'POST');
+                        if(loadWithDefault){
+                            var default_kw = {};
+                            default_kw[many] = fkey;
+                            grid.sourceNode.publish('editrow',{pkey:'*newrecord*',default_kw:default_kw});
+                        }else{
+                            genro.serverCall(rpcmethod,kw,function(){},null,'POST');
+                        }
                     }
                 """,fkey='^.addrowmenu_%s' %many ,mainpkey='=#FORM.pkey',
                         rpcmethod=method,tbl=maintable,
-                        one=one,many=many,grid=grid.js_widget)  
+                        one=one,many=many,grid=grid.js_widget,
+                        loadWithDefault=loadWithDefault or False)  
 
     @public_method
     def th_addmenu_menucontent(self,dbtable=None,condition=None,condition_kwargs=None,**kwargs):

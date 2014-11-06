@@ -183,8 +183,6 @@ class GnrDboPackage(object):
         if not tables:
             return
         bagpath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
-       # import shelve
-       # s = shelve.open(shelvepath)
         s = Bag()
         s['tables'] = tables
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
