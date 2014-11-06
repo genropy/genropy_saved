@@ -159,12 +159,19 @@ class THPicker(BaseComponent):
             hiddenItemCb="""var excludelist = genro.wdgById('%s').getColumnValues('%s')
                               return (dojo.indexOf(excludelist,item.pkey)>=0)
                               """ %(grid.attributes.get('nodeId'),many)
-        pane.menudiv(storepath='.picker_menu',iconClass='add_row',tip='!!Add',
+
+        if(relation_tblobj.hierarchicalHandler):
+            pane.dataRemote('.picker_menu',relation_tblobj.getHierarchicalData,
+                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,
+                        condition_kwargs=condition_kwargs)
+            menupath = '.picker_menu.root'
+        else:
+            pane.dataRemote('.picker_menu',self.th_addmenu_menucontent,dbtable=relation_tblobj.fullname,many=many,one=one,
+                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,condition_kwargs=condition_kwargs)
+            menupath = '.picker_menu'
+        pane.menudiv(storepath=menupath,iconClass='add_row',tip='!!Add',
                         action='FIRE .grid.addrowmenu_%s = $1.pkey' %many,
                         hiddenItemCb=hiddenItemCb,parentForm=True)
-
-        pane.dataRemote('.picker_menu',self.th_addmenu_menucontent,dbtable=relation_tblobj.fullname,many=many,one=one,
-                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,condition_kwargs=condition_kwargs)
         method = getattr(relation_tblobj,'insertMenu',self._th_insertPicker)
         grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
