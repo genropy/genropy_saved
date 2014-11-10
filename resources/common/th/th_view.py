@@ -477,12 +477,13 @@ class TableHandlerView(BaseComponent):
         if liveUpdate!='NO':
             self.subscribeTable(table,True,subscribeMode=liveUpdate)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
-        _if = condPars.pop('_if',None) or condPars.pop('if',None)
-        _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
+        
+        store_kwargs.update(condPars)
+        _if = store_kwargs.pop('_if',None) or store_kwargs.pop('if',None)
+        _onStart = store_kwargs.pop('_onStart',None) or store_kwargs.pop('onStart',None)
         _else = None
         if _if:
             _else = "this.store.clear();"
-        store_kwargs.update(condPars)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
         frame.dataController("""
