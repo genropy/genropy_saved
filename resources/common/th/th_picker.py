@@ -160,7 +160,7 @@ class THPicker(BaseComponent):
                               return (dojo.indexOf(excludelist,item.pkey)>=0)
                               """ %(grid.attributes.get('nodeId'),many)
 
-        if(relation_tblobj.hierarchicalHandler):
+        if(hasattr(relation_tblobj,'hierarchicalHandler')):
             pane.dataRemote('.picker_menu',relation_tblobj.getHierarchicalData,
                         formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,
                         condition_kwargs=condition_kwargs)
