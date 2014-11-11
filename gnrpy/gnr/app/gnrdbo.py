@@ -38,7 +38,7 @@ class GnrDboPackage(object):
         :param codekey: the codekey format (e.g. ``$YY`` for year)
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
         :param date: the current date
-        :param phyear: the fiscal year
+        :param phyear: the fisfcal year
         :param lastAssigned: TODO"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, lastAssigned=lastAssigned,**kwargs)
@@ -412,7 +412,7 @@ class TableBase(object):
             return
         counter_fkey = self.column(fldname).attributes.get('_counter_fkey')
         where = None
-        wherekw = dict()        
+        wherekw = dict()       
         if counter_fkey is not True:
             filtered = filter(lambda n: record.get(n),counter_fkey.split(','))
             if not filtered:
@@ -420,9 +420,11 @@ class TableBase(object):
             counter_fkey = filtered[0]
             where = '$%s=:p_%s' %(counter_fkey,counter_fkey)
             wherekw['p_%s' %counter_fkey] = record[counter_fkey]
-        last_counter = self.readColumns(columns='$%s' %fldname,where=where,
-                                    order_by='$%s desc' %fldname,limit=1,**wherekw)
-        record[fldname] = (last_counter or 0)+1
+        last_counter_fetch = self.query(columns='$%s' %fldname,where=where,
+                                    order_by='$%s desc' %fldname,limit=1,
+                                    **wherekw).fetch()
+        last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 1
+        record[fldname] = last_counter +1
         
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
