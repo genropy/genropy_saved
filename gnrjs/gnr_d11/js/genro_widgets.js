@@ -3238,7 +3238,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 };
                 widget.excludeCol=filteringColumn;
             };
-            genro.src.afterBuildCalls.push(connectFilteringGrid);
+            genro.src.onBuiltCall(connectFilteringGrid);
         }
         if(sourceNode.attr.rowCustomClassesCb){
             widget.rowCustomClassesCb = funcCreate(sourceNode.attr.rowCustomClassesCb,'row');
@@ -3299,7 +3299,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
         dojo.connect(widget, 'onSelected', widget, '_gnrUpdateSelect');
-        genro.src.afterBuildCalls.push(dojo.hitch(widget, 'render'));
+        genro.src.onBuiltCall(dojo.hitch(widget, 'render'));
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode, this.modelAllChange));
 
 
@@ -4252,7 +4252,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
 
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
-        genro.src.afterBuildCalls.push(dojo.hitch(widget, 'render'));
+        genro.src.onBuiltCall(dojo.hitch(widget, 'render'));
         dojo.connect(widget, 'onSelected', widget, '_gnrUpdateSelect');
         widget.updateRowCount('*');
     },
@@ -5502,7 +5502,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             widget.autoSelect = funcCreate(widget.autoSelect, null, widget);
         }
         widget.linkedSelection = genro.nodeById(selectionId);
-        genro.src.afterBuildCalls.push(dojo.hitch(widget, 'render'));
+        genro.src.onBuiltCall(dojo.hitch(widget, 'render'));
         //dojo.connect(widget, 'onSelected', widget,'_gnrUpdateSelect');
         dojo.connect(widget, 'modelAllChange', dojo.hitch(sourceNode, this.modelAllChange));
 

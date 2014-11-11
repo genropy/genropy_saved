@@ -23,6 +23,7 @@
 from gnr.core.gnrstring import encode36
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrdecorator import extract_kwargs
 
 class TableHandlerTreeResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
@@ -57,6 +58,7 @@ class TableHandlerTreeResolver(BagResolver):
                 r = dict(related_row)
                 pkey = r.pop('pkey',None)
                 result.setItem(pkey, None,
+                                child_count=0,
                                  caption=r[self.relatedCaptionField],
                                  pkey=pkey, treeIdentifier='%s_%s'%(self.parent_id, pkey),
                                  node_class='tree_related',**r)
@@ -226,6 +228,7 @@ class HierarchicalHandler(object):
                     new_row['_h_count'] = '%s%s' %(new_row['_parent_h_count'] or '',encode36(new_row['_row_count'],2))
                 tblobj.update(new_row, row)
 
+    @extract_kwargs(condition=True,related=True)
     def getHierarchicalData(self,caption_field=None,condition=None,
                             condition_kwargs=None,caption=None,
                             dbstore=None,columns=None,related_kwargs=None,

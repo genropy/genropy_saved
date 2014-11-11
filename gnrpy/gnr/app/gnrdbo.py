@@ -390,6 +390,8 @@ class TableBase(object):
                             condition_kwargs=None,caption=None,
                             dbstore=None,columns=None,related_kwargs=None,
                             resolved=False,**kwargs):
+        condition_kwargs = condition_kwargs or dict()
+        related_kwargs = related_kwargs or dict()
         return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
                                                 condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
                                                 related_kwargs=related_kwargs,resolved=resolved,**kwargs)

@@ -427,6 +427,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
+    
     goToRecord:function(pkey){
         if(pkey!=this.getCurrentPkey()){
             this.load({destPkey:pkey});
@@ -2411,7 +2412,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         this.load(kw);
     },
     getDefaultDestPkey:function(){
-        return '*itemkey*';
+        return '*norecord*';
     }
 });
 

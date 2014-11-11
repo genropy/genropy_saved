@@ -21,6 +21,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdict import dictExtract
 
 from gnr.core.gnrbag import Bag
 
@@ -28,7 +29,10 @@ class TableHandler(BaseComponent):
     js_requires = 'th/th'
     css_requires= 'th/th'
 
-    py_requires='th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
+    py_requires="""th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,
+                  th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker,
+                  th/th:MultiButtonForm
+                  """
     
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,relation=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
@@ -440,6 +444,100 @@ class TableHandler(BaseComponent):
     def th_saveUserSetting(self,data=None,thkey=None):
         self.db.table('adm.user').setPreference(data=data,path='thpref.%s' %thkey,pkg='sys',username=self.user)
 
+class MultiButtonForm(BaseComponent):
+    @extract_kwargs(condition=True,store=True,multibutton=True,default=True,formhandler=True,form=True)
+    @struct_method
+    def th_multiButtonForm(self,pane,relation=None,table=None,condition=None,condition_kwargs=None,store_kwargs=None,
+                            storepath=None,caption=None,switch=None,
+                            multibutton_kwargs=None,formhandler_kwargs=None,form_kwargs=None,
+                            frameCode=None,formResource=None,default_kwargs=None,modal=True,datapath=None,**kwargs):
+        if relation:
+            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
+                                                    condition_kwargs=condition_kwargs,
+                                                    default_kwargs=default_kwargs,original_kwargs=kwargs)
+        pane.attributes.update(overflow='hidden')
+        frame = pane.framePane(frameCode=frameCode or 'fhmb_%s' %table.replace('.','_'),
+                                datapath=datapath,**kwargs)
+        storepath  = storepath or '.store' 
+        store_kwargs['storepath'] = storepath
+        store_kwargs.update(condition_kwargs)
+        bar = frame.top.slotToolbar('2,mbslot,*')
+        multibutton_kwargs.setdefault('caption',caption or self.db.table(table).attributes['caption_field'])
+        self.subscribeTable(table,True)
+        mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
+        if formhandler_kwargs:
+            sc = frame.center.stackContainer(selectedPage='^.selectedForm')
+            sc.contentPane(pageName='emptypage').div('!!Add new')
+            columnslist = ['*','$%s' %switch,'$%(caption)s' %multibutton_kwargs]
+            switchdict = dict()
+            for formId,pars in formhandler_kwargs.items():
+                self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,switchdict=switchdict,storetable=table)
+            store_kwargs['columns'] = ','.join(columnslist)
+            formIdlist = formhandler_kwargs.keys()
+            bar.dataController("""
+                var selectedNode = storebag.getNodeByAttr('_pkey',pkey);
+                var record = selectedNode.attr;
+                SET .row = new gnr.GnrBag(record);
+                """,pkey='^.pkey',storebag='^%s' %storepath,
+                _if='pkey && storebag && storebag.len()>0',
+                _else="""
+                SET .row = new gnr.GnrBag();
+                formIdlist.forEach(function(formId){
+                        genro.formById(formId).abort();
+                    });
+                SET .pkey = null;
+                SET .selectedForm = "emptypage";
+                """,_delay=1)
+            bar.dataController("""
+                var switchValue = row.getItem(sw);
+                var pars = switchdict[switchValue];
+                var formId = pars['formId'];
+                var pkeyColumn = pars['pkeyColumn'];
+                SET .selectedForm = formId;
+                var loadPkeyValue = row.getItem(pkeyColumn);
+                var relatedForm = genro.formById(formId);
+                if(loadPkeyValue){
+                    relatedForm.goToRecord(loadPkeyValue);
+                }else{
+                    var default_kwargs = pars['default_kwargs'];
+                    default_kwargs[pars['fkey']] = row.getItem('_pkey');
+                    default_kwargs = this.evaluateOnNode(default_kwargs);
+                    relatedForm.newrecord(default_kwargs);
+                }
+                """,row='^.row',switchdict=switchdict,
+                sw=switch,formIdlist=formIdlist,_if='row && row.getItem("_pkey")')
+        else:
+            form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
+                                    default_kwargs=default_kwargs,**form_kwargs)
+
+            bar.dataController("frm.form.goToRecord(pkey)",pkey='^.pkey',frm=form)
+            form.dataController("""if(pkey && pkey!='*norecord*'){
+                    mb.setRelativeData('.pkey',pkey)
+                }
+                """,formsubscribe_onLoaded=True,mb=mb)
+        store_kwargs['_if'] = store_kwargs.pop('if')
+        store_kwargs['_else'] = "this.store.clear();"
+        mb.store(table=table,condition=condition,**store_kwargs)
+        return frame
+
+    def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None):
+        form_kwargs = dictExtract(pars,'form_',pop=True)
+        default_kwargs = dictExtract(pars,'default_',pop=True)
+        datapath = pars.pop('datapath','.form_%s' %formId)
+        pkeyColumn = pars.pop('pkeyColumn')
+        columnslist.append('$%s' %pkeyColumn)
+        switchValues = pars.pop('switchValues')
+        table = pars.pop('table')
+        joiner = self.db.table(table).model.getJoiner(storetable)
+        fkey = joiner['many_relation'].split('.')[-1]
+        for c in switchValues.split(','):
+            switchdict[c] = dict(formId=formId,pkeyColumn=pkeyColumn,fkey=fkey,default_kwargs=default_kwargs)
+        sc.contentPane(pageName=formId,overflow='hidden').thFormHandler(table=table,
+                                                                        formResource=pars.pop('formResource','Form'),
+                                                                        formId=formId,datapath=datapath,
+                                                                        **form_kwargs) 
+
+
 class ThLinker(BaseComponent):
     py_requires='gnrcomponents/tpleditor:ChunkEditor'
     @extract_kwargs(dialog=True,default=True)
@@ -492,7 +590,9 @@ class ThLinker(BaseComponent):
                                  SET .tip_add = addtpl.replace('$table2',t2);""",
                             _init=True,linktpl='!!Link current $table1 record to an existing record of $table2',
                             addtpl='!!Add a new $table2',
-                            t1=tblobj.name_long, t2=related_tblobj.name_long)        
+                            t1=tblobj.name_long, t2=related_tblobj.name_long) 
+        if kwargs.get('validate_notnull'):
+            openIfEmpty = True
         if (formResource or formUrl) and addEnabled is not False:
             add = linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
@@ -502,8 +602,10 @@ class ThLinker(BaseComponent):
             embedded = False
             openIfEmpty = True if openIfEmpty is None else openIfEmpty
         if openIfEmpty:
-            pane.dataController("linker.linkerManager.openLinker(false);",linker=linker,
-                                currvalue='^#FORM.record.%s' %field,_if='!currvalue',_else='linker.linkerManager.closeLinker()')          
+            pane.dataController("""
+                                   linker.linkerManager.openLinker(false);""",linker=linker,
+                                currvalue='^#FORM.record.%s' %field,_if='!currvalue',
+                                _else='linker.linkerManager.closeLinker()')          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
@@ -513,8 +615,10 @@ class ThLinker(BaseComponent):
         
     @extract_kwargs(template=True)
     @struct_method 
-    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
-                    _class='pbl_roundedGroup',label=None,template_kwargs=None,margin=None,editEnabled=True,clientTemplate=False,**kwargs):
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,
+                    formUrl=None,newRecordOnly=None,openIfEmpty=None,
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,
+                    margin=None,editEnabled=True,clientTemplate=False,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'

@@ -40,4 +40,14 @@ class GnrCustomWebPage(object):
         right.tree(storepath='.addressbag',_fired='^.addressbag')
 
 
+    def test_2_ask(self, pane):
+        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        b = Bag()
+        b.setItem('r1',None,caption='Prova')
+        b.setItem('r2',None,caption='Test')
+        fb.data('.testmenu',b)
+        fb.textbox(value='^.ssss').comboMenu(storepath='.testmenu')
+        fb.textbox(value='^.address',lbl='tooltip').geoSearch()
+        fb.textbox(value='^.address',lbl='menu').geoSearch(menu=True)
+
         

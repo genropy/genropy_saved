@@ -1503,7 +1503,6 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
             page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
             page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
-
             page.dataController(""" var changelist = copyArray(_node._value);
                                     dojo.forEach(changelist,function(c){
                                         for (var k in c){
