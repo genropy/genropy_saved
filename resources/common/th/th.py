@@ -450,7 +450,10 @@ class MultiButtonForm(BaseComponent):
     def th_multiButtonForm(self,pane,relation=None,table=None,condition=None,condition_kwargs=None,store_kwargs=None,
                             storepath=None,caption=None,switch=None,
                             multibutton_kwargs=None,formhandler_kwargs=None,form_kwargs=None,
-                            frameCode=None,formResource=None,default_kwargs=None,modal=True,datapath=None,**kwargs):
+                            frameCode=None,formResource=None,default_kwargs=None,modal=True,datapath=None,
+                            addrow=None,
+
+                            **kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -518,6 +521,7 @@ class MultiButtonForm(BaseComponent):
         store_kwargs['_if'] = store_kwargs.pop('if')
         store_kwargs['_else'] = "this.store.clear();"
         mb.store(table=table,condition=condition,**store_kwargs)
+        frame.multibuttonView = mb
         return frame
 
     def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None):

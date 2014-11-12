@@ -2044,12 +2044,18 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var showAlways = objectPop(kw,'showAlways');
         
         var items_bag = items?sourceNode.getRelativeData(items):new gnr.GnrBag();
-
+        var childItemsPost = new gnr.GnrBag();
+        var childItemsPrev = new gnr.GnrBag();
         subTagItems['item'].forEach(function(n){
             var attr = n.attr;
             attr.code = attr.code || n.label;
-            items_bag.setItem(attr.code,null,attr);
+            if(attr.prev){
+                childItemsPrev.setItem(attr.code,null,attr);
+            }
+            childItemsPost.setItem(attr.code,null,attr);
         });
+        gnrwdg.childItemsPrev = childItemsPrev;
+        gnrwdg.childItemsPost = childItemsPost;
         if(values){
             items_bag = gnrwdg.itemsFromValues(values);
         }
@@ -2188,19 +2194,28 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
                 currentSelected = firstItem.attr[gnrwdg.identifier] || firstItem.label;
             }
             var that = this;
+            this.childItemsPrev.forEach(function(n){
+                that.oneButton(n,currentSelected,'code','caption');
+            },'static');
             items.forEach(function(n){
                 that.oneButton(n,currentSelected);
             },'static');
+            this.childItemsPost.forEach(function(n){
+                that.oneButton(n,currentSelected,'code','caption');
+            },'static');
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
+
         }
     },
-    gnrwdg_oneButton:function(n,currentSelected){
+    gnrwdg_oneButton:function(n,currentSelected,identifier,caption){
         var mb = this.multibuttonSource;
         var kw = objectUpdate({},n.attr);
         var content_kw = objectExtract(kw,'content_*');
         content_kw._class = objectPop(content_kw,'class');
-        var caption = objectPop(kw,this.caption);
-        var code = kw[this.identifier] || n.label;
+        var captionKey = caption || this.caption;
+        var codeKey = identifier || this.identifier;
+        var caption = objectPop(kw,captionKey);
+        var code = kw[codeKey] || n.label;
         var btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
         var customDelete = kw.deleteAction;
         if(customDelete){
