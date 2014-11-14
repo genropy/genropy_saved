@@ -1073,7 +1073,8 @@ class GnrSiteRegisterServer(object):
         print "uri=",self.main_uri
         if self.gnr_daemon_uri:
             with Pyro4.Proxy(self.gnr_daemon_uri) as proxy:
-                proxy._pyroHmacKey = hmac_key
+                if not OLD_HMAC_MODE:
+                    proxy._pyroHmacKey = hmac_key
                 proxy.onRegisterStart(self.sitename,str(self.main_uri),str(self.register_uri))
         self.run(autorestore=autorestore)
 
