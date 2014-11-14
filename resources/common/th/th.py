@@ -450,7 +450,7 @@ class MultiButtonForm(BaseComponent):
     def th_multiButtonForm(self,pane,relation=None,table=None,condition=None,condition_kwargs=None,store_kwargs=None,
                             storepath=None,caption=None,switch=None,
                             multibutton_kwargs=None,formhandler_kwargs=None,form_kwargs=None,
-                            frameCode=None,formResource=None,default_kwargs=None,modal=True,datapath=None,
+                            frameCode=None,formId=None,formResource=None,default_kwargs=None,modal=True,datapath=None,
                             addrow=None,
 
                             **kwargs):
@@ -464,18 +464,19 @@ class MultiButtonForm(BaseComponent):
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
-        bar = frame.top.slotToolbar('2,mbslot,*')
+        bar = frame.top.slotToolbar('2,mbslot,*',gradient_from='#999',gradient_to='#666')
         multibutton_kwargs.setdefault('caption',caption or self.db.table(table).attributes['caption_field'])
         self.subscribeTable(table,True)
         mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
+        columnslist = ['*','$%(caption)s' %multibutton_kwargs]
+
         if formhandler_kwargs:
             sc = frame.center.stackContainer(selectedPage='^.selectedForm')
             sc.contentPane(pageName='emptypage').div('!!Add new')
-            columnslist = ['*','$%s' %switch,'$%(caption)s' %multibutton_kwargs]
+            columnslist = columnslist.append('$%s' %switch)
             switchdict = dict()
             for formId,pars in formhandler_kwargs.items():
                 self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,switchdict=switchdict,storetable=table)
-            store_kwargs['columns'] = ','.join(columnslist)
             formIdlist = formhandler_kwargs.keys()
             bar.dataController("""
                 var selectedNode = storebag.getNodeByAttr('_pkey',pkey);
@@ -511,8 +512,8 @@ class MultiButtonForm(BaseComponent):
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
-                                    default_kwargs=default_kwargs,**form_kwargs)
-
+                                    default_kwargs=default_kwargs,formId=formId,**form_kwargs)
+            frame.form = form
             bar.dataController("frm.form.goToRecord(pkey)",pkey='^.pkey',frm=form)
             form.dataController("""if(pkey && pkey!='*norecord*'){
                     mb.setRelativeData('.pkey',pkey)
@@ -520,8 +521,9 @@ class MultiButtonForm(BaseComponent):
                 """,formsubscribe_onLoaded=True,mb=mb)
         store_kwargs['_if'] = store_kwargs.pop('if')
         store_kwargs['_else'] = "this.store.clear();"
+        store_kwargs['columns'] = ','.join(columnslist)
         mb.store(table=table,condition=condition,**store_kwargs)
-        frame.multibuttonView = mb
+        frame.multiButtonView = mb
         return frame
 
     def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None):
