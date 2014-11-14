@@ -490,7 +490,7 @@ class MultiButtonForm(BaseComponent):
                     });
                 SET .pkey = null;
                 SET .selectedForm = "emptypage";
-                """,_delay=1)
+                """,_delay=1,formIdlist=formIdlist)
             bar.dataController("""
                 var switchValue = row.getItem(sw);
                 var pars = switchdict[switchValue];
@@ -508,7 +508,7 @@ class MultiButtonForm(BaseComponent):
                     relatedForm.newrecord(default_kwargs);
                 }
                 """,row='^.row',switchdict=switchdict,
-                sw=switch,formIdlist=formIdlist,_if='row && row.getItem("_pkey")')
+                sw=switch,_if='row && row.getItem("_pkey")')
         else:
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
                                     default_kwargs=default_kwargs,**form_kwargs)
