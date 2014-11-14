@@ -43,7 +43,6 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         var content = this.createContent(sourceNode, contentKwargs,children,subTagItems);
         genro.assert(content,'create content must return');
         content.concat(children);
-        content.getParentNode()._componentNode = sourceNode;
         sourceNode._isComponentNode=true;
         genro.src.stripData(sourceNode);
         sourceNode.unfreeze(true);
@@ -626,15 +625,7 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         var frameCode = kw.frameCode;
         formId = formId || frameCode+'_form';
         var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
-                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));
-        //if(kw.hasBottomMessage!==false){
-           //frame.getParentNode().subscribe('form_'+formId+'_message',function(kw){
-           //    console.log(kw);
-           //});
-        
-            //frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
-        //}
-        var storeId = kw.store+'_store';
+                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        var storeId = kw.store+'_store';
         return frame;
     },
     createStore:function(storeNode){

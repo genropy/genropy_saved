@@ -162,7 +162,6 @@ class TableHandlerForm(BaseComponent):
             form.attributes.update(form_parentLock=options.pop('parentLock'))
         if modal:
             slots='revertbtn,*,cancel,savebtn'
-            form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v',hidden=readOnly)
             bar.cancel.button('!!Cancel',action='this.form.abort();')
@@ -199,8 +198,6 @@ class TableHandlerForm(BaseComponent):
             if table == self.maintable:
                 slots = 'logicalDeleter,%s' %slots 
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
-        if not options.pop('showfooter',True):
-            form.attributes['hasBottomMessage'] = False
         if hierarchical:
             form.left.attributes.update(splitter=True)
             leftkw = dict()

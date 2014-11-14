@@ -2332,7 +2332,10 @@ dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
             parentRecord.setItem(n.label,n.getValue());
         });
         this.saved({});
-        form.load(kw);   
+        form.loaded();
+        if(kw.destPkey=='*dismiss*'){
+            form.dismiss(kw);   
+        }
     },
     getDefaultDestPkey:function(){
         return '*subform*';
