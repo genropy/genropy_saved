@@ -25,7 +25,6 @@ class View(BaseComponent):
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        self.prova(pane)
         pane.div('!!Login Data', _class='pbl_roundedGroupLabel')
         fb = pane.div(margin='5px').formbuilder(cols=2, border_spacing='6px',width='100%',fld_width='100%')
         fb.field('firstname',lbl='!!Firstname')
