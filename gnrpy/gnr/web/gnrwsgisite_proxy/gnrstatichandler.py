@@ -173,10 +173,11 @@ class ExternalVolumesStaticHandler(VolumesStaticHandler):
         table = f[2]
         field = f[3]
         pkey = f[4]
-        url = self.site.db.table('%s.%s' %(pkg,table)).readColumns(columns='$%s' %field,pkey=pkey) #_
+        url = self.site.db.table('%s.%s' %(pkg,table)).readColumns(columns='$%s' %field,pkey=pkey)
         p = urlparse.urlparse(url)
         urlkwargs = dict(urlparse.parse_qsl(p.query))
         kwargs.update(urlkwargs)
+        print 'URL:',url, '\nRESULT:',p.path.split('/')[1:], '\nkwargs', kwargs
         return super(VolumesStaticHandler, self).serve(p.path.split('/')[1:],environ,start_response,download=download,**kwargs)
 
 
