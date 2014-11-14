@@ -15,7 +15,7 @@ import time
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
-
+OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
 PYRO_HOST = 'localhost'
 PYRO_PORT = 40004
 PYRO_HMAC_KEY = 'supersecretkey'
@@ -76,16 +76,21 @@ class GnrDaemonProxy(object):
         options=dict(host=host, socket=socket, port=port,hmac_key=hmac_key,compression=compression)
         if use_environment:
             options = getFullOptions(options=options)
-        Pyro4.config.HMAC_KEY = str(options.get('hmac_key') or PYRO_HMAC_KEY)
+        self.hmac_key = str(options.get('hmac_key') or PYRO_HMAC_KEY)
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = self.hmac_key
         Pyro4.config.SERIALIZER = options.get('serializer','pickle')
         Pyro4.config.COMPRESSION = options.get('compression',True)
+
         if options.get('socket'):
             self.uri='PYRO:GnrDaemon@./u:%s' % options.get('socket')
         else:
             self.uri = 'PYRO:GnrDaemon@%s:%s' %(options.get('host') or PYRO_HOST,options.get('port') or PYRO_PORT)
     
     def proxy(self):
-        return Pyro4.Proxy(self.uri)
+        proxy = Pyro4.Proxy(self.uri)
+        proxy._pyroHmacKey = self.hmac_key
+        return proxy
 
 class GnrDaemon(object):
     def __init__(self):
@@ -113,6 +118,8 @@ class GnrDaemon(object):
             self.daemon = Pyro4.Daemon(unixsocket=self.socket)
         else:
             self.daemon = Pyro4.Daemon(host=self.host,port=int(self.port))
+        if not OLD_HMAC_MODE:
+            self.daemon._pyroHmacKey = self.hmac_key
         self.main_uri = self.daemon.register(self,'GnrDaemon')
         print "uri=",self.main_uri
         self.running = True
@@ -128,7 +135,8 @@ class GnrDaemon(object):
         self.socket = socket 
         self.sockets = sockets
         self.hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-        Pyro4.config.HMAC_KEY = self.hmac_key
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = self.hmac_key
         if compression:
             Pyro4.config.COMPRESSION = True
         if multiplex:
@@ -157,6 +165,7 @@ class GnrDaemon(object):
         return 'ping'
     
     def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,heartbeat_options=None,**kwargs):
+        print 'getSite',sitename
         if sitename in self.siteregisters and self.siteregisters[sitename]['server_uri']:
             return self.siteregisters[sitename]
         elif create:
