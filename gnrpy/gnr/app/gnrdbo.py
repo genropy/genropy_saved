@@ -703,31 +703,6 @@ class TableBase(object):
     
     def trigger_multidbSyncDeleting(self, record,**kwargs):        
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
-     
-                                                               
-    def setTagColumn(self, tbl, name_long=None, group=None):
-        """TODO
-        
-        :param tbl: the :ref:`table` object
-        :param name_long: the :ref:`name_long`
-        :param group: a hierarchical path of logical categories and subacategories
-                      the columns belongs to. For more information, check the :ref:`group` section"""
-        name_long = name_long or '!!Tag'
-        tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
-        tblname = tbl.parentNode.label
-        tbl.parentNode.attr['hasRecordTags'] = True
-        pkey = tbl.parentNode.getAttr('pkey')
-        pkeycolAttrs = tbl.column(pkey).getAttr()
-        rel = '%s.%s' % (tblname, pkey)
-        fkey = rel.replace('.', '_')
-        tagtbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
-                      size=pkeycolAttrs.get('size'), group='_').relation(rel, mode='foreignkey',
-                                                                         many_group='_', one_group='_')
-        relation_path = '@%s_recordtag_link_%s.@tag_id' % (tbl.getAttr()['pkg'], fkey)
-        tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
-                        name_long=name_long, dtype='TAG')
-        tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-
 
     def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
         self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
