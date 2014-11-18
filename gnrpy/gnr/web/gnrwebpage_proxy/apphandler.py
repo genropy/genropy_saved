@@ -1398,7 +1398,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 order_list.append('%s desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
             #order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
-            order_by = order_by or showcolumns[0]
+            order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
             order_by = ', '.join(order_list)
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,

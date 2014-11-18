@@ -165,7 +165,6 @@ class GnrDaemon(object):
         return 'ping'
     
     def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,heartbeat_options=None,**kwargs):
-        print 'getSite',sitename
         if sitename in self.siteregisters and self.siteregisters[sitename]['server_uri']:
             return self.siteregisters[sitename]
         elif create:

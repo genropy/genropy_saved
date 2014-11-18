@@ -548,23 +548,13 @@ class TableHandlerView(BaseComponent):
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
-            #if options.get('tableRecordCount',True):
-            #    frame.data('.store?totalrows',0)
-            #    countPars = dict(condPars)
-            #    countPars['_onStart'] = 1
-            #    frame.dataRpc('dummy','app.getRecordCount',table=table,condition=condition,
-            #                _onCalling="""if(_sections){
-            #                        th_sections_manager.onCalling(_sections,kwargs);
-            #                   }""",_sections='=.sections',_onResult='this.getRelativeData(".store").getParentNode().updAttributes({totalRowCount:result})',**countPars)
-#
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
                          excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %(_if or 'true'),
                          _else='return 0;',
-                         **condPars)
-        
+                         **store_kwargs)
         frame.dataController("""
                                SET .grid.selectedId = null;
                                if(runOnStart){
