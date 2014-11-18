@@ -2047,15 +2047,15 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         });
         gnrwdg.childItemsPrev = childItemsPrev;
         gnrwdg.childItemsPost = childItemsPost;
-        if(values){
-            items_bag = gnrwdg.itemsFromValues(values);
-        }
-        items = items || '^#WORKSPACE.items';
         gnrwdg.showAlways = showAlways;
         gnrwdg.sticky = sticky;
         gnrwdg.mandatory = mandatory;
         gnrwdg.identifier = identifier;
         gnrwdg.caption = caption;
+        if(values){
+            items_bag = gnrwdg.itemsFromValues(values);
+        }
+        items = items || '^#WORKSPACE.items';
         if(deleteAction){
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
         }
