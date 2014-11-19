@@ -1164,7 +1164,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     setCurrentPkey:function(pkey){
         this.sourceNode.setRelativeData(this.pkeyPath,pkey);
-        if(pkey!=currentPkey && this.store){
+        if(pkey !=currentPkey && this.store){
             this.store.loadedIndex = -1;
         }
     },
