@@ -1164,6 +1164,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     setCurrentPkey:function(pkey){
         this.sourceNode.setRelativeData(this.pkeyPath,pkey);
+        if(pkey!=currentPkey && this.store){
+            this.store.loadedIndex = -1;
+        }
     },
     getVirtualColumns:function() {
         var virtual_columns = [];
