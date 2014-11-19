@@ -473,7 +473,7 @@ class MultiButtonForm(BaseComponent):
         if formhandler_kwargs:
             sc = frame.center.stackContainer(selectedPage='^.selectedForm')
             sc.contentPane(pageName='emptypage').div('!!Add new')
-            columnslist = columnslist.append('$%s' %switch)
+            columnslist.append('$%s' %switch)
             switchdict = dict()
             for formId,pars in formhandler_kwargs.items():
                 self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,switchdict=switchdict,storetable=table)
