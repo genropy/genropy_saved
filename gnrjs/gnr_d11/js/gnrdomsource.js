@@ -1595,9 +1595,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return this.getAttributeFromDatasource('disabled'); 
     },
 
-    setDisabled:function(value){
-        var value = value ? true : false;
-        this.disabled = value;
+    setDisabled:function(reason){
+        var value = reason ? true : false;
+        this.disabled = reason || false;
         if(this.widget){
             if (dijit.form._FormWidget.prototype.setDisabled == this.widget.setDisabled) {
                 this.widget.setAttribute('disabled', value);
