@@ -246,7 +246,7 @@ class TableHandlerView(BaseComponent):
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
         mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
-                                disabled='^.#parent.parent.grid.loadingData',**kwargs)
+                                disabled='^.#parent.#parent.grid.loadingData',**kwargs)
         parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
                                 genro.dom.toggleVisible(__mb,enabled)
                                 SET .%s.enabled = enabled;
