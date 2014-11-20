@@ -427,6 +427,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         this.load(objectUpdate({destPkey:this.getCurrentPkey()},kw));
     },
+    
     goToRecord:function(pkey){
         if(pkey!=this.getCurrentPkey()){
             this.load({destPkey:pkey});
@@ -1165,7 +1166,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     setCurrentPkey:function(pkey){
         var currentPkey = this.getCurrentPkey()
         this.sourceNode.setRelativeData(this.pkeyPath,pkey);
-        if(pkey!=currentPkey){
+        if(pkey!=currentPkey && this.store){
             this.store.loadedIndex = -1;
         }
     },
@@ -1274,7 +1275,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
         if( kw.value==kw.oldvalue  || (isNullOrBlank(kw.value) && isNullOrBlank(kw.oldvalue))){
-            if(kw.updattr){
+            if(kw.updattr && kw.changedAttr){
                 var cattr = kw.changedAttr;
                 var oldvalue = kw.oldattr[cattr];
                 var newvalue = kw.node.attr[cattr];
@@ -2331,7 +2332,10 @@ dojo.declare("gnr.formstores.SubForm", gnr.formstores.Base, {
             parentRecord.setItem(n.label,n.getValue());
         });
         this.saved({});
-        form.load(kw);   
+        form.loaded();
+        if(kw.destPkey=='*dismiss*'){
+            form.dismiss(kw);   
+        }
     },
     getDefaultDestPkey:function(){
         return '*subform*';
@@ -2411,7 +2415,7 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
         this.load(kw);
     },
     getDefaultDestPkey:function(){
-        return '*itemkey*';
+        return '*norecord*';
     }
 });
 

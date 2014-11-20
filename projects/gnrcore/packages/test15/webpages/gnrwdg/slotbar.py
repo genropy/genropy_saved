@@ -11,7 +11,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     testOnly = '_0_'
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler"
     
     def windowTitle(self):
         return 'SlotBar test'
@@ -147,9 +147,29 @@ class GnrCustomWebPage(object):
         return result
 
 
+    def test_12_slotToolbar_multibutton_store(self,pane):
+        frame = pane.framePane(frameCode='frameMultibuttonStore',height='400px')
+        bar = frame.top.slotToolbar(slots='10,selettore_regione,*,mb,10')
+        bar.selettore_regione.dbselect(value='^.regione',dbtable='glbl.regione')
+        mb = bar.mb.multibutton(value='^.provincia_selected',caption='nome')
+        mb.store(table='glbl.provincia',where='$regione=:reg',reg='^.regione')
 
 
+    def test_13_multibuttonForm(self,pane):
+        bc = pane.borderContainer(height='500px')
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbselect(value='^aux.regione',dbtable='glbl.regione',lbl='Regione')
+        bc.contentPane(region='center').multiButtonForm(table='glbl.provincia',
+                                                                        condition='$regione=:reg',
+                                                                        condition_reg='^aux.regione',
+                                                                        formResource='Form')
 
+   #def test_14_multibuttonForm(self,pane):
+   #    pane.multiButtonForm(table='glbl.provincia',condition='$regione=:reg',reg='MOL',switch='zona',
+   #                        form_nord=dict(table='glbl.provincia',formResource='Alfa'),
+   #                        form_sud=dict(table='glbl.provincia',formResource='Beta'),
+   #                        form_centro=dict(table='glbl.pippo',keyfield='zzz'))
 
+   #    
 
 

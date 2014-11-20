@@ -2711,7 +2711,7 @@ class DirectoryResolver(BagResolver):
         extensions['directory'] = 'directory'
         result = Bag()
         try:
-            directory = os.listdir(self.path)
+            directory = sorted(os.listdir(self.path))
         except OSError:
             directory = []
         if not self.invisible:

@@ -822,7 +822,7 @@ class DbTableObj(DbModelObj):
 
     @property  
     def dependencies(self):
-        return uniquify(['.'.join(x.split('.')[:-1]) for x in self.relations_one.values() if not x.startswith(self.fullname)])
+        return uniquify([('.'.join(x.split('.')[:-1]),deferred) for x,deferred in self.relations_one.digest('#v,#a.deferred') if not x.startswith(self.fullname)])
       
     @property  
     def virtual_columns(self):

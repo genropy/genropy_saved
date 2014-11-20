@@ -232,9 +232,6 @@ dojo.declare("gnr.LinkerManager", null, {
     openLinker:function(focus){
         var sourceNode = this.sourceNode;
         var that =this;
-        if(sourceNode.form.locked){
-            return;
-        } 
         genro.dom.addClass(sourceNode,"th_enableLinker");
         if(this.embedded && focus!=false){
             setTimeout(function(){
@@ -300,6 +297,7 @@ dojo.declare("gnr.LinkerManager", null, {
             that.setCurrentPkey(kw.pkey);
         });
         this.linkerform.subscribe('onDismissed',function(kw){
+            genro.publish('changeInTable',{pkey:that.getCurrentPkey(),table:that.table})
             that.thdialog.hide();
         });
         

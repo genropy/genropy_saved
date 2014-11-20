@@ -477,12 +477,13 @@ class TableHandlerView(BaseComponent):
         if liveUpdate!='NO':
             self.subscribeTable(table,True,subscribeMode=liveUpdate)
         selectmethod = self._th_hook('selectmethod',mangler=frame,defaultCb=False)
-        _if = condPars.pop('_if',None) or condPars.pop('if',None)
-        _onStart = condPars.pop('_onStart',None) or condPars.pop('onStart',None)
+        
+        store_kwargs.update(condPars)
+        _if = store_kwargs.pop('_if',None) or store_kwargs.pop('if',None)
+        _onStart = store_kwargs.pop('_onStart',None) or store_kwargs.pop('onStart',None)
         _else = None
         if _if:
             _else = "this.store.clear();"
-        store_kwargs.update(condPars)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
         frame.dataController("""
@@ -547,23 +548,13 @@ class TableHandlerView(BaseComponent):
         store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
                             SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
         if virtualStore:
-            #if options.get('tableRecordCount',True):
-            #    frame.data('.store?totalrows',0)
-            #    countPars = dict(condPars)
-            #    countPars['_onStart'] = 1
-            #    frame.dataRpc('dummy','app.getRecordCount',table=table,condition=condition,
-            #                _onCalling="""if(_sections){
-            #                        th_sections_manager.onCalling(_sections,kwargs);
-            #                   }""",_sections='=.sections',_onResult='this.getRelativeData(".store").getParentNode().updAttributes({totalRowCount:result})',**countPars)
-#
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
                          excludeLogicalDeleted='=.excludeLogicalDeleted',
                          excludeDraft='=.excludeDraft',_if='%s && (_updateCount || _showCount) ' %(_if or 'true'),
                          _else='return 0;',
-                         **condPars)
-        
+                         **store_kwargs)
         frame.dataController("""
                                SET .grid.selectedId = null;
                                if(runOnStart){

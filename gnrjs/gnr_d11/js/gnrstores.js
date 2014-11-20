@@ -150,7 +150,6 @@ dojo.declare("gnr.GnrStoreBag", null, {
                         return null;
                     }
                     else {
-                        console.log('result 151 gnrstores',result)
                         //return (result != null);
                         return true;
                     }

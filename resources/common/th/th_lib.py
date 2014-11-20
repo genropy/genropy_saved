@@ -23,6 +23,7 @@ class TableHandlerCommon(BaseComponent):
     def _th_relationExpand(self,pane,relation=None,condition=None,
                         condition_kwargs=None,default_kwargs=None,relation_kwargs=None,original_kwargs=None):
         inheritedAttributes = pane.getInheritedAttributes()
+        relation_kwargs = relation_kwargs or dict()
         if inheritedAttributes.get('_lazyBuild'):
             condition_kwargs['_onBuilt']=True
         maintable=original_kwargs.get('maintable') or inheritedAttributes.get('table') or self.maintable
@@ -32,7 +33,7 @@ class TableHandlerCommon(BaseComponent):
         tblrel = self.db.table(maintable)
         condition_kwargs['fkey'] = '=#FORM.pkey'
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
-        condition_kwargs['if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'
+        condition_kwargs['_if'] = 'fkey && fkey!="*newrecord*" && fkey!="*norecord*"'
         relcondition,table = self._th_relationExpand_one(tblrel,relation,condition=condition,original_kwargs=original_kwargs,condition_kwargs=condition_kwargs,default_kwargs=default_kwargs)
         for suffix,altrelation in relation_kwargs.items():
             altcond,table = self._th_relationExpand_one(tblrel,altrelation,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)

@@ -11,10 +11,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import boolean,slugify
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdict import dictExtract
-from datetime import date
 import os
 
 class PublicBase(BaseComponent):
@@ -90,8 +88,6 @@ class PublicBase(BaseComponent):
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
         pane.slotBar('',_class='pbl_root_bottom')
-
-
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):

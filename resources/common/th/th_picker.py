@@ -143,6 +143,7 @@ class THPicker(BaseComponent):
         condition_kwargs = dictExtract(parameters,'condition_')
         unique = parameters.get('unique',False)
         cacheTime = parameters.get('cacheTime',-1)
+        loadWithDefault = parameters.get('loadWithDefault')
         one = False
         maintable = pane.getInheritedAttributes()['table']
         relation_tblobj = self.db.table(maintable).column(many).relatedTable().dbtable
@@ -158,12 +159,19 @@ class THPicker(BaseComponent):
             hiddenItemCb="""var excludelist = genro.wdgById('%s').getColumnValues('%s')
                               return (dojo.indexOf(excludelist,item.pkey)>=0)
                               """ %(grid.attributes.get('nodeId'),many)
-        pane.menudiv(storepath='.picker_menu',iconClass='add_row',tip='!!Add',
+
+        if(hasattr(relation_tblobj,'hierarchicalHandler')):
+            pane.dataRemote('.picker_menu',relation_tblobj.getHierarchicalData,
+                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,
+                        condition_kwargs=condition_kwargs)
+            menupath = '.picker_menu.root'
+        else:
+            pane.dataRemote('.picker_menu',self.th_addmenu_menucontent,dbtable=relation_tblobj.fullname,many=many,one=one,
+                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,condition_kwargs=condition_kwargs)
+            menupath = '.picker_menu'
+        pane.menudiv(storepath=menupath,iconClass='add_row',tip='!!Add',
                         action='FIRE .grid.addrowmenu_%s = $1.pkey' %many,
                         hiddenItemCb=hiddenItemCb,parentForm=True)
-
-        pane.dataRemote('.picker_menu',self.th_addmenu_menucontent,dbtable=relation_tblobj.fullname,many=many,one=one,
-                        formpkey='=#FORM.pkey',cacheTime=cacheTime,condition=condition,condition_kwargs=condition_kwargs)
         method = getattr(relation_tblobj,'insertMenu',self._th_insertPicker)
         grid.dataController("""
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
@@ -178,11 +186,18 @@ class THPicker(BaseComponent):
                         });
                         grid.gridEditor.addNewRows(rows);
                     }else if(mainpkey){
-                        genro.serverCall(rpcmethod,kw,function(){},null,'POST');
+                        if(loadWithDefault){
+                            var default_kw = {};
+                            default_kw[many] = fkey;
+                            grid.sourceNode.publish('editrow',{pkey:'*newrecord*',default_kw:default_kw});
+                        }else{
+                            genro.serverCall(rpcmethod,kw,function(){},null,'POST');
+                        }
                     }
                 """,fkey='^.addrowmenu_%s' %many ,mainpkey='=#FORM.pkey',
                         rpcmethod=method,tbl=maintable,
-                        one=one,many=many,grid=grid.js_widget)  
+                        one=one,many=many,grid=grid.js_widget,
+                        loadWithDefault=loadWithDefault or False)  
 
     @public_method
     def th_addmenu_menucontent(self,dbtable=None,condition=None,condition_kwargs=None,**kwargs):

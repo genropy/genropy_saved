@@ -5,158 +5,13 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 
-
-class TableHandlerTreeResolver(BagResolver):
-    classKwargs = {'cacheTime': 300,
-                   'table':None,
-                   'parent_id': None,
-                   'root_id':None,
-                   'caption_field':None,
-                   'condition':None,
-                   'condition_kwargs':None,
-                   '_condition_id':None,
-                   'dbstore':None,
-                   'columns':None,
-                   'related_kwargs':None,
-                   '_isleaf':None,
-                   '_page':None}
-    classArgs = ['table','parent_id']
-
-    @property
-    def relatedCaptionField(self):
-        db = self._page.db
-        related_tblobj = db.table(self.related_kwargs['table'])
-        return self.related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
-
-    @property
-    def db(self):
-        return self._page.db
-
-    def load(self):
-        result = Bag()
-        if self.related_kwargs:
-            for related_row in self.getRelatedChildren(self.parent_id):
-                r = dict(related_row)
-                pkey = r.pop('pkey',None)
-                result.setItem(pkey, None,
-                                 caption=r[self.relatedCaptionField],
-                                 pkey=pkey, treeIdentifier='%s_%s'%(self.parent_id, pkey),
-                                 node_class='tree_related',**r)
-        if not self._isleaf:
-            children = self.getChildren(self.parent_id)
-            if len(children):
-                self.setChildren(result,children)
-        return result
-
-    def getRelatedChildren(self,parent_id=None):
-        related_tblobj = self.db.table(self.related_kwargs['table'])
-        result = []
-        if parent_id:
-            related_kwargs = dict(self.related_kwargs)
-            caption_field = self.relatedCaptionField
-            columns = self.related_kwargs.get('columns') or '*,$%s' %caption_field
-            relation_path = self.related_kwargs['path']
-            condition = self.related_kwargs.get('condition')
-            condition_kwargs = dictExtract(related_kwargs,'condition_')
-            wherelist = [' (%s=:pkey) ' % relation_path]
-            if condition:
-                wherelist.append(condition)
-            result = related_tblobj.query(where=' AND '.join(wherelist),columns=columns, _storename=self.dbstore,
-                                            pkey=parent_id,**condition_kwargs).fetch()
-        return result
-
-    def getChildren(self,parent_id):
-        tblobj = self.db.table(self.table)
-        where = '$parent_id IS NULL'
-        if self.root_id:
-            where = '$id=:r_id'
-        elif parent_id:
-            where='$parent_id=:p_id'
-        caption_field = self.caption_field
-        if not caption_field:
-            if tblobj.attributes.get('hierarchical_caption_field'):
-                caption_field = tblobj.attributes['hierarchical_caption_field']
-            elif tblobj.attributes['hierarchical'] != 'pkey':
-                caption_field = tblobj.attributes['hierarchical'].split(',')[0]
-            else:
-                caption_field = tblobj.attributes.get('caption_field')
-            self.caption_field = caption_field
-        condition_kwargs = self.condition_kwargs or dict()
-        for k,v in condition_kwargs.items():
-            condition_kwargs.pop(k)
-            condition_kwargs[str(k)] = v
-        condition_pkeys = None
-        if self.condition:
-            condition_pkeys = self.getConditionPkeys()
-            where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
-        order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
-        columns = self.columns or '*'
-        q = tblobj.query(where=where,p_id=parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
-                         condition_pkeys=condition_pkeys,
-                         order_by=order_by,_storename=self.dbstore,**condition_kwargs)
-        return q.fetch()
-
-    def setChildren(self,result,children):
-        pkeyfield = self.db.table(self.table).pkey
-        for r in children:
-            record = dict(r)
-            caption = r[self.caption_field]
-            pkey = record[pkeyfield]
-            child_count=record['child_count']
-            value = None
-            if child_count:
-                value = TableHandlerTreeResolver(_page=self._page,table=self.table,parent_id=pkey,caption_field=self.caption_field,
-                                            dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
-                                            _condition_id=self._condition_id,columns=self.columns)
-            elif self.related_kwargs:
-                related_children = self.getRelatedChildren(pkey)
-                if related_children:
-                    value = TableHandlerTreeResolver(_page=self._page,table=self.table,parent_id=pkey,caption_field=self.caption_field,
-                                            dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
-                                            _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
-                    child_count = len(related_children)
-            result.setItem(pkey,value,
-                            caption=caption,
-                            child_count=child_count,pkey=pkey or '_all_',
-                            parent_id=self.parent_id,
-                            hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey,_record=record)
-        return result
-
-    def resolverSerialize(self):
-        attr = super(TableHandlerTreeResolver, self).resolverSerialize()
-        attr['kwargs'].pop('_page',None)
-        return attr
-
-    def getConditionPkeys(self):
-        if self._condition_id:
-            condition_pkeys = self._page.pageStore().getItem('hresolver.%s' %self._condition_id)
-        else:
-            self._condition_id = self._page.getUuid()
-            db = self._page.db
-            tblobj = db.table(self.table)
-            condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s )' %self.condition,columns='$hierarchical_pkey',
-                                 _storename=self.dbstore,addPkeyColumn=False,**condition_kwargs).fetch()
-            condition_pkeys = set()
-            for r in valid:
-                for pk in r['hierarchical_pkey'].split('/'):
-                    condition_pkeys.add(pk)
-            condition_pkeys = list(condition_pkeys)
-            with self._page.pageStore() as store:
-                store.setItem('hresolver.%s' %self._condition_id,condition_pkeys)
-        return condition_pkeys
-
-
-
 class HTableTree(BaseComponent):
     js_requires='th/th_tree'
-
     @extract_kwargs(tree=True)
     @struct_method
     def ht_hdbselect(self,pane,caption_field=None,treeMode=None,folderSelectable=False,cacheTime=None,connectedMenu=None,tree_kwargs=None,**kwargs):
@@ -166,8 +21,6 @@ class HTableTree(BaseComponent):
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
         if not folderSelectable:
             attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-
-
         attr['hasDownArrow'] = True
         attr['_hdbselect'] = True
         dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
@@ -184,12 +37,11 @@ class HTableTree(BaseComponent):
             currentHMenu[connectedMenu] = currentHMenu
         attr['connectedMenu'] = connectedMenu
 
-
     @struct_method
     def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
                     caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
 
-        pane.dataRemote(storepath,self.ht_remoteHtableViewStore,table=table,
+        pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
                         condition_kwargs=condition_kwargs,
                         cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
@@ -222,40 +74,21 @@ class HTableTree(BaseComponent):
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         if condition:
-            d = pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+            d = pane.dataRpc(storepath,tblobj.getHierarchicalData,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         **kwargs)
+            
             return d
-        v = TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,related_kwargs=related_kwargs,
-                                                root_id=root_id,columns=columns)
-        b.setItem('root',v,caption=tblobj.name_long,
-                                                child_count=1,pkey='',treeIdentifier='_root_')
-        if resolved:
-            def cb(self,*args,**kwargs):
-                pass
-            b.walk(cb)
+            
+        b = tblobj.getHierarchicalData(caption_field=caption_field,dbstore=dbstore,
+                                                    related_kwargs=related_kwargs,
+                                                    root_id=root_id,columns=columns,resolved=resolved)
         d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
-
         return d
-
-
-
-    @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
-                                    condition_kwargs=None,caption=None,dbstore=None,columns=None,related_kwargs=None,**kwargs):
-        b = Bag()
-        tblobj = self.db.table(table)
-        caption = caption or tblobj.name_plural
-        condition_kwargs = condition_kwargs or dict()
-        condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        v = TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
-                                                condition_kwargs=condition_kwargs)
-        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
-        return b
 
     @public_method    
     def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None,parent_id=None,into_parent_id=None,modifiers=None):
@@ -278,15 +111,6 @@ class HTableTree(BaseComponent):
                     tblobj.update(r,old_rec)
             self.db.commit()
 
-    @public_method
-    def ht_pathFromPkey(self,table=None,pkey=None,dbstore=None):
-        tblobj = self.db.table(table)
-        hierarchical_pkey =  tblobj.readColumns(columns='$hierarchical_pkey',pkey=pkey,_storename=dbstore)
-        path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
-        return path
-
-        
-    
     @extract_kwargs(condition=dict(slice_prefix=False),related=True)
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,

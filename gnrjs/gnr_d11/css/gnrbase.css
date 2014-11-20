@@ -143,6 +143,19 @@ cursorZoom_plus{
     background: #666;
 }
 
+.pickerCheckboxTree .dijitTreeContent{
+    min-height: 0;
+    padding-bottom: 2px;
+    padding-top: 0;
+    margin-left: 0px;
+    white-space: nowrap;
+    font-size: .9em;
+}
+.pickerCheckboxTree .dijitTreeLabel{
+    display: inline-block;
+    white-space: nowrap;
+    font-size: .9em;
+}
 /* @group FieldsTree */
 
 .fieldsTreeBox{
