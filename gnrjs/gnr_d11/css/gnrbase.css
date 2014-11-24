@@ -3830,6 +3830,17 @@ p {
     right:2px;
 }
 
+.multibutton_closer.deleteSelectedOnly{
+    position: absolute;
+    top:3px;
+    right:2px;
+    visibility: hidden;
+}
+
+.multibutton_selected .multibutton_closer.deleteSelectedOnly{
+    visibility: visible;
+}
+
 .multipage_add{
     background: url(icons/base10/smalladd.png) no-repeat center center;
     opacity: .5;

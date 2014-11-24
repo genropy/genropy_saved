@@ -250,7 +250,7 @@ class TableHandlerView(BaseComponent):
         parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
                                 genro.dom.toggleVisible(__mb,enabled)
                                 SET .%s.enabled = enabled;
-                                FIRE .#parent.#parent.sections_changed;
+                                FIRE .#parent.sections_changed;
                                 """ %sections,
                                 __mb=mb,ss=sections,datapath='.sections',
                                 depending_condition=depending_condition,_onBuilt=True,
