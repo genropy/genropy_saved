@@ -493,6 +493,8 @@ class MultiButtonForm(BaseComponent):
                         PUT .pkey = _triggerpars.kw.oldvalue;
                         genro.dlg.alert(pendingChangesMessage,pendingChangesTitle)
                         return;
+                    }else if(currentLoadedForm.parentFormPkey=='*newrecord*'){
+                        return;
                     }else{
                         currentLoadedForm.abort();
                     }
