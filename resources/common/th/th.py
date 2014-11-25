@@ -495,11 +495,13 @@ class MultiButtonForm(BaseComponent):
                         return;
                     }else if(currentLoadedForm.parentFormPkey=='*newrecord*'){
                         return;
-                    }else{
+                    }else if(!pkey){
                         currentLoadedForm.abort();
                     }
                 }
-                SET .loadFkey = pkey?pkey:'*norecord*';
+                if(pkey!='_newrecord_'){
+                    SET .loadFkey = pkey?pkey:'*norecord*';
+                }
                 """,
                 pkey='^.pkey',formIdlist=formIdlist,currentFormId='=.selectedForm',
                 pendingChangesTitle=pendingChangesTitle or '!!Operation forbidden',
@@ -570,8 +572,11 @@ class MultiButtonForm(BaseComponent):
                                                                         formResource=pars.pop('formResource','Form'),
                                                                         formId=formId,datapath=datapath,
                                                                         **form_kwargs) 
-        form.dataController("""mainstack.setRelativeData('.pkey',fkey);""",
-                            mainstack=sc,fkey='=#FORM.record.%s' %fkey,
+        form.dataController("""
+                            mainstack.setRelativeData('.pkey',fkey || '_newrecord_');
+                            mainstack.setRelativeData('.selectedForm',fid)""",
+                            mainstack=sc,fid=formId,
+                            fkey='=#FORM.record.%s' %fkey,
                             formsubscribe_onLoaded=True)
 
 
