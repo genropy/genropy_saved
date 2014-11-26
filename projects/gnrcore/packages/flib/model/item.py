@@ -20,7 +20,7 @@ class Table(object):
         tbl.column('versions', 'X', name_long='!!Versions')
 
         tbl.column('username', name_long='!!User name', indexed=True).relation('adm.user.username')
-        self.setTagColumn(tbl, group='zz')
+        #self.setTagColumn(tbl, group='zz')
 
     def zoomUrl(self):
         return 'flib/items' 
