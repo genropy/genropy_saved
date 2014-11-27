@@ -56,52 +56,27 @@ class AttachManagerView(AttachManagerViewBase):
                 """,width='22px')
 
 
-        #tbl.column('description' ,name_long='!!Description')
-        #tbl.column('mimetype' ,name_long='!!Mimetype')
-        #tbl.column('text_content',name_long='!!Content')
-        #tbl.column('info' ,'X',name_long='!!Additional info')
-    
-
-
-
-    def onUploading_attachmentComponent(self, file_url=None, file_path=None, file_ext=None, categories=None,
-                                  description=None, title=None, action_results=None, **kwargs):
-        pass
-       #item_table = self.db.table('flib.item')
-       #cat_table = self.db.table('flib.item_category')
-       #categories = categories.split(',')
-       #item_record = dict(path=file_path, url=file_url, description=description, title=title,
-       #                   username=self.user, ext=file_ext)
-       #versions = Bag()
-       #if action_results['thumb32']:
-       #    thumb_url = action_results['thumb32']['file_url']
-       #    thumb_path = action_results['thumb32']['file_path']
-       #    item_record['thumb_url'] = thumb_url
-       #    item_record['thumb_path'] = thumb_path
-       #    versions['thumb32_url'] = thumb_url
-       #    versions['thumb32_path'] = thumb_path
-       #item_record['versions'] = versions
-       #existing_record = item_table.query(where='path=:p', p=file_path, for_update=True, addPkeyColumn=False).fetch()
-       #if existing_record:
-       #    r = item_record
-       #    item_record = dict(existing_record[0])
-       #    item_record.update(r)
-       #    item_table.update(item_record)
-       #    cat_table.deleteSelection('item_id', item_record['id'])
-       #else:
-       #    item_table.insert(item_record)
-       #for category_id in categories:
-       #    if category_id:
-       #        cat_table.insert(dict(category_id=category_id, item_id=item_record['id']))
-       #self.db.commit()
-
-
 
 
 class Form(BaseComponent):
     def th_form(self, form):
-        form.center.contentPane(datapath='.record',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
-                                                                            width='100%',border='0px',documentClasses=True)
+        sc = form.center.stackContainer(datapath='.record')
+        sc.contentPane(overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+                                                width='100%',border='0px',documentClasses=True)
+        da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
+            text_align='center',border='3px dotted #999',rounded=8)
+
+        da.table(height='100%',width='100%').tr().td().div('!!Drop Area',width='100%',
+                                                            font_size='30px',color='#999')
+        da.div(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
+            dropTarget=True,dropTypes='Files',
+                onDrop="""var that = this;
+                            AttachManager.onDropFiles(this,files);""",
+                _uploader_fkey='=#FORM.record.maintable_id',
+                _uploader_onUploadingMethod=self.onUploadingAttachment
+            )
+
+        form.dataController("sc.switchPage(newrecord?1:0)",newrecord='^#FORM.controller.is_newrecord',sc=sc.js_widget)
 
     def th_options(self):
         return dict(showtoolbar=False,showfooter=False)
@@ -142,7 +117,8 @@ class AttachManager(BaseComponent):
         return th
 
     @struct_method
-    def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,datapath='.attachments',mode=None,viewResource=None,**kwargs):
+    def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,
+                        datapath='.attachments',mode=None,viewResource=None,**kwargs):
         frame = pane.framePane(frameCode='attachmentPane_#')
         bc = frame.center.borderContainer()
         mode = mode or 'sidebar'
@@ -159,12 +135,48 @@ class AttachManager(BaseComponent):
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
 
 
-        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',rounded=6,childname='atcviewer',overflow='hidden')
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid #efefef',rounded=6,childname='atcviewer',overflow='hidden')
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',action='gr.publish("delrow")',gr=th.view.grid)
         return frame
+
+    @struct_method
+    def at_attachmentMultiButtonFrame(self,pane,datapath='.attachments',**kwargs):
+        frame = pane.multiButtonForm(frameCode='attachmentPane_#',datapath=datapath,
+                            relation='@atc_attachments',
+                            caption='description',
+                            formResource='gnrcomponents/attachmanager/attachmanager:Form',
+                            multibutton_deleteAction="""
+                                var s = this._value.getNode('store').gnrwdg.store;
+                                s.deleteAsk([value]);
+
+                            """,
+                            multibutton_deleteSelectedOnly=True,
+                            store_order_by='$_row_count')
+        frame.multiButtonView.item(code='add_atc',caption='+',frm=frame.form.js_form,
+                                    action='frm.newrecord();',
+                parentForm=True,deleteAction=False,disabled='==!_store || _store.len()==0 || _flock',
+                _store='^.store',_flock='^#FORM.controller.locked')
+        table = frame.multiButtonView.itemsStore.attributes['table']
+        frame.dataController("""
+            frm.newrecord();
+            """,store='^.store',_delay=100,
+            _if='!store || store.len()==0',frm=frame.form.js_form)
+        frame.onDbChanges(action="""
+            var that = this;
+            dbChanges.forEach(function(c){
+                if(c._isExternal){
+                    return;
+                }
+                if(c.dbevent=='I'){
+                    frm.goToRecord(c.pkey);
+                }else if(c.dbevent=='D'){
+                    console.log('deleted',c.pkey);
+                }
+            })
+            """,table=table,frm=frame.form.js_form,store='=.store')
 
     @public_method
     def onUploadingAttachment(self,kwargs):

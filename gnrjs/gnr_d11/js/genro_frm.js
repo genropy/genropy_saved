@@ -39,11 +39,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.isRootForm){
             genro._rootForm = this;
         }
-        if(this.subforms){
-            this.subforms = this.subforms.split(',');
-        }
         this.formId = formId;
         this.changed = false;
+        this.childForms = {};
         this.gridEditors = {};
         this.opStatus = null;
         this.locked = this.locked || false;
@@ -108,6 +106,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var pref = tblname?tblname+' record':'Record'
         this.msg_saved = pref +' saved ';
         this.msg_deleted = pref +' deleted';
+        this.table_name = tblname;
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
@@ -438,15 +437,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.opStatus=='loading'){
             return;
         }
-        if(this.childForm && this.childForm.changed){
+        if(objectNotEmpty(this.childForms)){
             var that = this;
-            this.childForm.openPendingChangesDlg({destPkey:'*dismiss*',onAnswer:function(command){
-                if(command=='cancel'){
+            for(var k in this.childForms){
+                var childForm = this.childForms[k];
+                if(childForm.changed){
+                    childForm.openPendingChangesDlg({destPkey:'*dismiss*',
+                                                    onAnswer:function(command){
+                                                        if(command=='cancel'){return;}
+                                                        that.load(kw);}
+                                                    });
                     return;
                 }
-                that.load(kw);
-            }});
-            return
+            }
         }
         if(this.store && this.changed && this.saveOnChange && this.isValid()){
             var deferred = this.store.save();
@@ -615,7 +618,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     openPendingChangesDlg:function(kw){
-        var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'280px'});
+        var dlg = genro.dlg.quickDialog('Pending changes in '+this.table_name.toLowerCase(),{_showParent:true,width:'280px'});
         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
         var form = this;
         var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',

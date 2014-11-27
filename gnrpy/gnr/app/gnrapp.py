@@ -657,12 +657,11 @@ class GnrApp(object):
         if not self.instanceFolder:
             return Bag()
         def normalizePackages(config):
-            if not config['packages']:
-                return
-            packages = Bag()
-            for n in config['packages']:
-                packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
-            config['packages']  = packages
+            if config['packages']:
+                packages = Bag()
+                for n in config['packages']:
+                    packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
+                config['packages']  = packages
             return config
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
         base_instance_config = normalizePackages(Bag(instance_config_path))

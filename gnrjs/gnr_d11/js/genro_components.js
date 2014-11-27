@@ -2057,7 +2057,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         }
         items = items || '^#WORKSPACE.items';
         if(deleteAction){
-            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
+            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
             gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
         }
         sourceNode.attr.value = value;
