@@ -415,7 +415,7 @@ class SqlModelChecker(object):
         """Prepare the sql statement for altering the type of a given column and return it"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         usedColumn = col.table.dbtable.query(where='%s IS NOT NULL' %col.sqlname).count()>0
-        if usedColumn or col.dtype == 'T' and col.dtype ==new_dtype:
+        if usedColumn or (col.dtype in ('T','A','C')) and (new_dtype in ('T','A','C')):
             return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
         else:
             return '; '.join(['ALTER TABLE %s DROP COLUMN %s' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])

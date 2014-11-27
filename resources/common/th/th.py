@@ -468,7 +468,8 @@ class MultiButtonForm(BaseComponent):
         if darkToolbar:
             tbkw = dict(gradient_from='#999',gradient_to='#666')
         bar = frame.top.slotToolbar('5,mbslot,*',height='20px',**tbkw)
-        multibutton_kwargs.setdefault('caption',caption or self.db.table(table).attributes['caption_field'])
+        caption_field = caption or self.db.table(table).attributes['caption_field']
+        multibutton_kwargs.setdefault('caption',caption_field)
         self.subscribeTable(table,True)
         mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
         columnslist = ['*','$%(caption)s' %multibutton_kwargs]
@@ -480,7 +481,8 @@ class MultiButtonForm(BaseComponent):
             columnslist.append('$%s' %switch)
             switchdict = dict()
             for formId,pars in formhandler_kwargs.items():
-                self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,switchdict=switchdict,storetable=table)
+                self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,
+                                            switchdict=switchdict,storetable=table,caption_field=caption_field)
             formIdlist = formhandler_kwargs.keys()
             bar.dataController("""if(!storebag || storebag.len()==0){
                     SET .pkey = null;
@@ -556,7 +558,8 @@ class MultiButtonForm(BaseComponent):
         frame.multiButtonView = mb
         return frame
 
-    def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None):
+    def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None,
+                                caption_field=None):
         form_kwargs = dictExtract(pars,'form_',pop=True)
         default_kwargs = dictExtract(pars,'default_',pop=True)
         datapath = pars.pop('datapath','.forms.%s' %formId)
@@ -573,9 +576,25 @@ class MultiButtonForm(BaseComponent):
                                                                         formId=formId,datapath=datapath,
                                                                         **form_kwargs) 
         form.dataController("""
+                            if (!fkey){
+                                var store = mainstack.getRelativeData('.store');
+                                if(!store){
+                                    store = new gnr.GnrBag();
+                                    mainstack.setRelativeData('.store',store);
+                                }
+                                kw = {};
+                                kw[caption_field] = data.attr.caption;
+                                kw['_pkey'] = '_newrecord_';
+                                store.setItem('_newrecord_',null,kw)
+                            }
+                            if(pkey!='*dismiss*' || pkey!='*norecord*'){
+                                mainstack.form.childForm = this.form;
+                            }
                             mainstack.setRelativeData('.pkey',fkey || '_newrecord_');
-                            mainstack.setRelativeData('.selectedForm',fid)""",
-                            mainstack=sc,fid=formId,
+                            mainstack.setRelativeData('.selectedForm',fid);
+
+                            """,
+                            mainstack=sc,fid=formId,caption_field=caption_field,
                             fkey='=#FORM.record.%s' %fkey,
                             formsubscribe_onLoaded=True)
 

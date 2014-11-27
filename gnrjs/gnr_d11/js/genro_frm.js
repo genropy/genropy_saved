@@ -438,6 +438,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.opStatus=='loading'){
             return;
         }
+        if(this.childForm && this.childForm.changed){
+            var that = this;
+            this.childForm.openPendingChangesDlg({destPkey:'*dismiss*',onAnswer:function(command){
+                if(command=='cancel'){
+                    return;
+                }
+                that.load(kw);
+            }});
+            return
+        }
         if(this.store && this.changed && this.saveOnChange && this.isValid()){
             var deferred = this.store.save();
             var that = this;
@@ -563,13 +573,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     pendingChangesAnswer:function(kw){
         var command = objectPop(kw,'command');
+        var onAnswer = objectPop(kw,'onAnswer');
+        var res;
         if(this.store){
             var that = this;
             if(command=='save'){
-                this.save({destPkey:kw.destPkey});
+                res = this.save({destPkey:kw.destPkey});
             }
             else if(command=='discard'){
-                this.doload_store(kw);
+                res = this.doload_store(kw);
             }else{
                 var cancelCb = kw.cancelCb || this.cancelCb;
                 if(cancelCb){
@@ -578,8 +590,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 this.publish('onCancel',{formEvent:'loadRecord'});
             }
-            
-            
+            if(onAnswer && res instanceof dojo.Deferred){
+                res.addCallback(onAnswer);
+            }else{
+                onAnswer(command);
+            }
         }else{
             var that = this;
             if(command=='save'){
@@ -600,19 +615,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     openPendingChangesDlg:function(kw){
-         var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'280px'});
-         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
-         var form = this;
-         var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
-                                                action:function(){
-                                                    dlg.close_action();
-                                                    kw.command = this.attr.command;
-                                                    form.publish('pendingChangesAnswer',kw);
-                                                }});
-         slotbar._('button','discard',{label:'Discard changes',command:'discard'});
-         slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
-         slotbar._('button','save',{label:'Save',command:'save'});
-         dlg.show_action();
+        var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'280px'});
+        dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',_class:'alertBodyMessage'});
+        var form = this;
+        var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
+                                               action:function(){
+                                                   dlg.close_action();
+                                                   kw.command = this.attr.command;
+                                                   form.publish('pendingChangesAnswer',kw);
+                                               }});
+        slotbar._('button','discard',{label:'Discard changes',command:'discard'});
+        slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
+        slotbar._('button','save',{label:'Save',command:'save'});
+        dlg.show_action();
      },
      
     setOpStatus:function(opStatus){
@@ -701,7 +716,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     loaded: function(data) {
         var controllerData = this.getControllerData();
         var that = this;
-
         controllerData.setItem('temp',null);
         if(data){
             this.setFormData(data);
@@ -1644,7 +1658,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         else{
             loadkw.destPkey = this.store.navigationEvent(kw);
         }
-         this.load(loadkw);
+        this.load(loadkw);
         
     }  
 });
