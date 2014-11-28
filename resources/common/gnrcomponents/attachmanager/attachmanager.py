@@ -70,8 +70,12 @@ class Form(BaseComponent):
                                                             font_size='30px',color='#999')
         da.div(position='absolute',top=0,bottom=0,left=0,right=0,z_index=10,
             dropTarget=True,dropTypes='Files',
-                onDrop="""var that = this;
-                            AttachManager.onDropFiles(this,files);""",
+                onDrop="""
+                            var form = this.form;
+                            form.waitingStatus(true)
+                            AttachManager.onDropFiles(this,files,function(){
+                                    form.waitingStatus(false);
+                                });""",
                 _uploader_fkey='=#FORM.record.maintable_id',
                 _uploader_onUploadingMethod=self.onUploadingAttachment
             )
@@ -160,11 +164,10 @@ class AttachManager(BaseComponent):
                 _store='^.store',_flock='^#FORM.controller.locked')
         table = frame.multiButtonView.itemsStore.attributes['table']
         bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName')
-        fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord').tooltipPane(
+        fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord',tip='!!Change description').tooltipPane(
                 connect_onClose='FIRE .saveDescription;',
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
-        fb.textbox(value='^.form.record.description',lbl='Title')
-
+        fb.textbox(value='^.form.record.description',lbl='!!Description')
         frame.dataController("""
             frm.newrecord();
             """,store='^.store',_delay=100,
