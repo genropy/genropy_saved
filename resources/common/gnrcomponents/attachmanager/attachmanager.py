@@ -151,7 +151,6 @@ class AttachManager(BaseComponent):
                             multibutton_deleteAction="""
                                 var s = this._value.getNode('store').gnrwdg.store;
                                 s.deleteAsk([value]);
-
                             """,
                             multibutton_deleteSelectedOnly=True,
                             store_order_by='$_row_count')
@@ -160,10 +159,17 @@ class AttachManager(BaseComponent):
                 parentForm=True,deleteAction=False,disabled='==!_store || _store.len()==0 || _flock',
                 _store='^.store',_flock='^#FORM.controller.locked')
         table = frame.multiButtonView.itemsStore.attributes['table']
+        bar = frame.top.bar.replaceSlots('mbslot','mbslot,15,changeName')
+        fb = bar.changeName.div(_class='iconbox tag',hidden='^.form.controller.is_newrecord').tooltipPane(
+                connect_onClose='FIRE .saveDescription;',
+            ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
+        fb.textbox(value='^.form.record.description',lbl='Title')
+
         frame.dataController("""
             frm.newrecord();
             """,store='^.store',_delay=100,
             _if='!store || store.len()==0',frm=frame.form.js_form)
+        frame.dataController("frm.lazySave()",frm=frame.form.js_form,_fired='^.saveDescription')
         frame.onDbChanges(action="""
             var that = this;
             dbChanges.forEach(function(c){
@@ -176,7 +182,7 @@ class AttachManager(BaseComponent):
                     console.log('deleted',c.pkey);
                 }
             })
-            """,table=table,frm=frame.form.js_form,store='=.store')
+            """,table=table,frm=frame.form.js_form,_delay=1,store='=.store')
 
     @public_method
     def onUploadingAttachment(self,kwargs):
