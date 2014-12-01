@@ -292,19 +292,19 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_first(self,pane,**kwargs):
         pane.formButton('!!First',iconClass="iconbox first",
                     topic='navigationEvent',command='first',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_prev(self,pane,**kwargs):
         pane.formButton('!!Prev',iconClass="iconbox previous",
                     topic='navigationEvent',command='prev',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_next(self,pane,**kwargs):
         pane.formButton('!!Next',iconClass="iconbox next",
                     topic='navigationEvent',command='next',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method          
     def fh_slotbar_form_logicalDeleter(self,pane,**kwargs):
@@ -327,7 +327,7 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_last(self,pane,**kwargs):
         pane.formButton('!!Last',iconClass="iconbox last",
                     topic='navigationEvent',command='last',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method           
     def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):

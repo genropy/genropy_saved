@@ -327,38 +327,53 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
     loadFavorites:function(){
         var favorite_pages = genro.userPreference('adm.index.favorite_pages');
-        if(favorite_pages){
+        var external_menucode = genro.startArgs.menucode;
+        if(favorite_pages || external_menucode){
             var that = this;
             var v;
             var startPage;
             var kw,inattr;
             var pageName;
             var treenode;
-            favorite_pages.forEach(function(n){
-                v = n.getValue();
-                treenode = genro.getDataNode(v.getItem('pagepath'))
-                if(!treenode){
-                    return;
-                }
-                kw = treenode.attr;
+            if(favorite_pages){
+                favorite_pages.forEach(function(n){
+                    v = n.getValue();
+                    treenode = genro.getDataNode(v.getItem('pagepath'))
+                    if(!treenode){
+                        return;
+                    }
+                    kw = treenode.attr;
 
-                var labelClass= treenode.attr.labelClass;
-                if(labelClass.indexOf('menu_existing_page')<0){
-                    treenode.setAttribute('labelClass',labelClass+' menu_existing_page');
-                }                
-                inattr = treenode.getInheritedAttributes();    
-                kw = objectUpdate({name:treenode.label,pkg_menu:inattr.pkg_menu,"file":null,
-                                    table:null,formResource:null,viewResource:null,
-                                    fullpath:v.getItem('pagepath'),modifiers:null},
-                                    treenode.attr)
-                pageName = that.createIframeRootPage(kw);
-                if(v.getItem('start')){
-                    startPage = pageName;
-                }
-            },'static');
-            setTimeout(function(){
-                that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
-            },100);
+                    var labelClass= treenode.attr.labelClass;
+                    if(labelClass.indexOf('menu_existing_page')<0){
+                        treenode.setAttribute('labelClass',labelClass+' menu_existing_page');
+                    }                
+                    inattr = treenode.getInheritedAttributes();    
+                    kw = objectUpdate({name:treenode.label,pkg_menu:inattr.pkg_menu,"file":null,
+                                        table:null,formResource:null,viewResource:null,
+                                        fullpath:v.getItem('pagepath'),modifiers:null},
+                                        treenode.attr)
+                    pageName = that.createIframeRootPage(kw);
+                    if(v.getItem('start')){
+                        startPage = pageName;
+                    }
+                },'static');
+            }
+            if(external_menucode){
+                var menubag = genro.getData('gnr.appmenu.root');
+                var n = menubag.getNodeByAttr('menucode',external_menucode);
+                var inattr = n.getInheritedAttributes()
+                var kw = objectUpdate({name:n.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,formResource:null,
+                                      viewResource:null,fullpath:n.getFullpath(null,true),modifiers:null},n.attr);
+                kw.openKw = kw.openKw || {};
+                objectUpdate(kw.openKw,{topic:'frameindex_external'});
+                objectUpdate(kw.openKw,objectExtract(genro.startArgs,'start_*',true,true));
+                genro.publish('selectIframePage',kw);
+            }else{
+                setTimeout(function(){
+                    that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+                },100);
+            }
         }
     },
 

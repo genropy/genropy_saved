@@ -435,7 +435,7 @@ class GnrDomSrc(GnrStructData):
         return self.child('multibutton_item',code=code,caption=caption or code,**kwargs)
 
     def multibutton_store(self,table=None,**kwargs):
-        return self.child('multibutton_store',table=table,**kwargs)
+        return self.child('multibutton_store',childname='itemsStore',table=table,**kwargs)
 
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  

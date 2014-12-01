@@ -53,7 +53,7 @@ var THTree = {
         }else{
             var storeNode = store.getParentNode();
             var inattr = storeNode.getInheritedAttributes();
-            return genro.serverCall('_table.'+inattr['table']+'.pathFromPkey',{pkey:pkey,table:inattr['table'],dbstore:inattr['dbstore']});
+            return genro.serverCall('_table.'+inattr['table']+'.pathFromPkey',{pkey:pkey,dbstore:inattr['dbstore']});
         }
     },
 

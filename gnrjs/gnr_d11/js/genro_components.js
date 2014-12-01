@@ -2057,7 +2057,8 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         }
         items = items || '^#WORKSPACE.items';
         if(deleteAction){
-            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption');
+            gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
+            gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
         }
         sourceNode.attr.value = value;
         sourceNode.attr.values = values;
@@ -2223,7 +2224,8 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var btn = mb._('lightbutton',code,kw)
         btn._('div',content_kw);
         if(deleteAction){
-            btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(e){
+            btn._('div',{_class:'multibutton_closer icnTabClose '+(this.deleteSelectedOnly?'deleteSelectedOnly':''),
+                connect_onclick:function(e){
                 dojo.stopEvent(e);
                 deleteAction.call(this.sourceNode,code,caption);
             }});

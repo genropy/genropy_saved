@@ -452,46 +452,75 @@ class MultiButtonForm(BaseComponent):
                             multibutton_kwargs=None,formhandler_kwargs=None,form_kwargs=None,
                             frameCode=None,formId=None,formResource=None,
                             default_kwargs=None,modal=True,datapath=None,
-                            defaultPkey='*newrecord*',
+                            emptyPageMessage=None,darkToolbar=False,pendingChangesMessage=None,pendingChangesTitle=None,
                             **kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
         pane.attributes.update(overflow='hidden')
-        frame = pane.framePane(frameCode=frameCode or 'fhmb_%s' %table.replace('.','_'),
+        frameCode = frameCode or 'fhmb_%s' %table.replace('.','_')
+        frame = pane.framePane(frameCode=frameCode,
                                 datapath=datapath,**kwargs)
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
-        bar = frame.top.slotToolbar('2,mbslot,*',gradient_from='#999',gradient_to='#666',height='20px')
-        multibutton_kwargs.setdefault('caption',caption or self.db.table(table).attributes['caption_field'])
+        tbkw = dict()
+        if darkToolbar:
+            tbkw = dict(gradient_from='#999',gradient_to='#666')
+        bar = frame.top.slotToolbar('5,mbslot,*',height='20px',**tbkw)
+        caption_field = caption or self.db.table(table).attributes['caption_field']
+        multibutton_kwargs.setdefault('caption',caption_field)
         self.subscribeTable(table,True)
         mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
         columnslist = ['*','$%(caption)s' %multibutton_kwargs]
 
         if formhandler_kwargs:
             sc = frame.center.stackContainer(selectedPage='^.selectedForm')
-            sc.contentPane(pageName='emptypage').div('!!Add new')
+            emptyPageMessage = emptyPageMessage or '!!No Record Selected'
+            sc.contentPane(pageName='emptypage').div(emptyPageMessage,_class='hiderMessage',height='50px',position='absolute',top='25%',left=0,right=0,text_align='center')
             columnslist.append('$%s' %switch)
             switchdict = dict()
             for formId,pars in formhandler_kwargs.items():
-                self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,switchdict=switchdict,storetable=table)
+                self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,
+                                            switchdict=switchdict,storetable=table,
+                                            caption_field=caption_field,frameCode=frameCode)
             formIdlist = formhandler_kwargs.keys()
+            bar.dataController("""if(!storebag || storebag.len()==0){
+                    SET .pkey = null;
+                }
+                """,storebag='^%s' %storepath,_delay=1)
+            bar.dataController("""
+                if(currentFormId && currentFormId!='emptypage'){
+                    var currentLoadedForm = genro.formById(currentFormId);
+                    if(currentLoadedForm.changed){
+                        PUT .pkey = _triggerpars.kw.oldvalue;
+                        genro.dlg.alert(pendingChangesMessage,pendingChangesTitle)
+                        return;
+                    }else if(currentLoadedForm.parentFormPkey=='*newrecord*'){
+                        return;
+                    }else if(!pkey){
+                        currentLoadedForm.abort();
+                    }
+                }
+                if(pkey!='_newrecord_'){
+                    SET .loadFkey = pkey?pkey:'*norecord*';
+                }
+                """,
+                pkey='^.pkey',formIdlist=formIdlist,currentFormId='=.selectedForm',
+                pendingChangesTitle=pendingChangesTitle or '!!Operation forbidden',
+                pendingChangesMessage=pendingChangesMessage or '!!You cannot change record. The record is not saved')
             bar.dataController("""
                 var selectedNode = storebag.getNodeByAttr('_pkey',pkey);
+                if(!selectedNode){
+                    SET .row = new gnr.GnrBag();
+                    SET .selectedForm = "emptypage";
+                    return; 
+                }
                 var record = selectedNode.attr;
                 SET .row = new gnr.GnrBag(record);
-                """,pkey='^.pkey',storebag='^%s' %storepath,
-                _if='pkey && storebag && storebag.len()>0',
-                _else="""
-                SET .row = new gnr.GnrBag();
-                formIdlist.forEach(function(formId){
-                        genro.formById(formId).abort();
-                    });
-                SET .pkey = null;
-                SET .selectedForm = "emptypage";
-                """,_delay=1,formIdlist=formIdlist)
+                """,pkey='^.loadFkey',storebag='=%s' %storepath)
+            bar.data('.connected_forms',Bag(switchdict))
             bar.dataController("""
                 var switchValue = row.getItem(sw);
                 var pars = switchdict[switchValue];
@@ -501,7 +530,7 @@ class MultiButtonForm(BaseComponent):
                 var loadPkeyValue = row.getItem(pkeyColumn);
                 var relatedForm = genro.formById(formId);
                 if(loadPkeyValue){
-                    relatedForm.goToRecord(loadPkeyValue);
+                    relatedForm.load({destPkey:loadPkeyValue});
                 }else{
                     var default_kwargs = pars['default_kwargs'];
                     default_kwargs[pars['fkey']] = row.getItem('_pkey');
@@ -514,27 +543,44 @@ class MultiButtonForm(BaseComponent):
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
                                     default_kwargs=default_kwargs,formId=formId,**form_kwargs)
             frame.form = form
-            bar.dataController("""frm.form.goToRecord(pkey)""",
-                                pkey='^.pkey',
-                                frm=form,_if='pkey')
-            form.dataController("""if(pkey && pkey[0]!='*'){
-                    mb.setRelativeData('.pkey',pkey)
-                }else{
-                    mb.setRelativeData('.pkey',null)
+            bar.dataController("""
+                if(pkey=='*newrecord*' || pkey=='_newrecord_'){
+                    if(!store){
+                        store = new gnr.GnrBag();
+                        SET .store = store;
+                    }
+                    kw = {};
+                    kw[caption_field] = frm.form.getRecordCaption();
+                    kw['_pkey'] = '_newrecord_';
+                    store.setItem('_newrecord_',null,kw)
+                    pkey = '*newrecord*';
+                }else if(store && store.len()>0){
+                    store.popNode('_newrecord_');
                 }
-                """,formsubscribe_onLoaded=True,mb=mb)
+                frm.form.goToRecord(pkey)
+                """,
+                pkey='^.pkey',
+                frm=form,_if='pkey',caption_field=caption_field,store='=.store')
+            form.dataController("""
+                mb.form.childForms[this.form.formId] = this.form;
+                mb.setRelativeData('.pkey',pkey=='*newrecord*'?'_newrecord_':pkey);
+                """,pkey='^#FORM.controller.loaded',mb=mb)
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
         store_kwargs['_else'] = "this.store.clear();"
         store_kwargs.setdefault('order_by','$__ins_ts')
+        if store_kwargs['order_by']:
+            columnslist.append(store_kwargs['order_by'])
         store_kwargs['columns'] = ','.join(columnslist)
-        mb.store(table=table,condition=condition,**store_kwargs)
+        s = mb.store(table=table,condition=condition,**store_kwargs)
+        frame.dataController("SET .store = new gnr.GnrBag();",store=s,formsubscribe_onDismissed=True)
         frame.multiButtonView = mb
         return frame
 
-    def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None):
+    def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None,
+                                caption_field=None,frameCode=None):
         form_kwargs = dictExtract(pars,'form_',pop=True)
         default_kwargs = dictExtract(pars,'default_',pop=True)
-        datapath = pars.pop('datapath','.form_%s' %formId)
+        datapath = pars.pop('datapath','.forms.%s' %formId)
         pkeyColumn = pars.pop('pkeyColumn')
         columnslist.append('$%s' %pkeyColumn)
         switchValues = pars.pop('switchValues')
@@ -543,11 +589,30 @@ class MultiButtonForm(BaseComponent):
         fkey = joiner['many_relation'].split('.')[-1]
         for c in switchValues.split(','):
             switchdict[c] = dict(formId=formId,pkeyColumn=pkeyColumn,fkey=fkey,default_kwargs=default_kwargs)
-        sc.contentPane(pageName=formId,overflow='hidden').thFormHandler(table=table,
+        form = sc.contentPane(pageName=formId,overflow='hidden').thFormHandler(table=table,
                                                                         formResource=pars.pop('formResource','Form'),
                                                                         formId=formId,datapath=datapath,
                                                                         **form_kwargs) 
-
+        form.dataController("""
+                            if (!fkey && pkey=='*newrecord*'){
+                                var store = mainstack.getRelativeData('.store');
+                                if(!store){
+                                    store = new gnr.GnrBag();
+                                    mainstack.setRelativeData('.store',store);
+                                }
+                                kw = {};
+                                kw[caption_field] = data.attr.caption;
+                                kw['_pkey'] = '_newrecord_';
+                                store.setItem('_newrecord_',null,kw)
+                                fkey = '_newrecord_'
+                            }
+                            mainstack.form.childForms[code] = this.form;
+                            mainstack.setRelativeData('.pkey',fkey);
+                            mainstack.setRelativeData('.selectedForm',fid);
+                            """,
+                            mainstack=sc,fid=formId,caption_field=caption_field,
+                            fkey='=#FORM.record.%s' %fkey,code=frameCode,
+                            formsubscribe_onLoaded=True)        
 
 class ThLinker(BaseComponent):
     py_requires='gnrcomponents/tpleditor:ChunkEditor'

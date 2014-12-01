@@ -391,6 +391,23 @@ class TableHandlerMain(BaseComponent):
         kwargs.setdefault('form_form_isRootForm',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
+        root.dataController("""
+            if(_subscription_kwargs.start_pkey){
+                formNode.form.load({destPkey:start_pkey});
+                return
+            }
+            var sections = objectExtract(_subscription_kwargs,'start_section_*',true);
+            for (var k in sections){
+                viewNode.setRelativeData('.sections.'+k+'.current',sections[k]);
+            }
+            if(_subscription_kwargs.start_query){
+                if(_subscription_kwargs.start_query!='*'){
+                    viewNode.setRelativeData('.query.currentQuery',start_query);
+                }
+                viewNode.fireEvent('.runQuery',true);
+            }
+            """,subscribe_frameindex_external=True,
+                            formNode=getattr(th,'form',False),viewNode=th.view)
         if getattr(self,'public_partitioned',None):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')

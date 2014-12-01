@@ -2362,17 +2362,19 @@ dojo.declare("gnr.widgets.Tooltip", gnr.widgets.baseDojo, {
 });
 dojo.declare("gnr.widgets._ButtonLogic",null, {
     clickHandler:function(sourceNode,e) {
-        if(sourceNode.isDisabled()){
+        if(sourceNode.disabled){
             return;
         }
         var inattr = sourceNode.getInheritedAttributes();
         //var _delay = '_delay' in inattr? inattr._delay: 100;
         var _delay = inattr._delay;
         if(!_delay){
-            sourceNode.setDisabled(true);
+            sourceNode.setDisabled('*pendingclick*');
             sourceNode._clickTimeout = setTimeout(function(){
                 sourceNode._clickTimeout = null;
-                sourceNode.setDisabled(false);
+                if(sourceNode.disabled=='*pendingclick*'){
+                    sourceNode.setDisabled(false);
+                }
             },500);
             return this._clickHandlerDo(sourceNode,e,inattr);
         }
