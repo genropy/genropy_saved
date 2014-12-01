@@ -296,6 +296,14 @@ class DynamicForm(BaseComponent):
         self.RichTextEditor(center,value='^.tpl',toolbar='standard')
         
     @struct_method
+    def df_fieldsGridButton(self,pane,label='!!Dynamic fields',**kwargs):
+        dlg = pane.dialog(title=label,noModal=True,closable=True)
+        frame = dlg.framePane(height='600px',width='900px')
+        frame.contentPane(datapath='#FORM').fieldsGrid()
+        return pane.button(label,action='dlg.show();',dlg=dlg.js_widget,**kwargs)
+
+
+    @struct_method
     def df_fieldsGrid(self,pane,**kwargs):
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer()
@@ -315,7 +323,6 @@ class DynamicForm(BaseComponent):
         fb = bar.fbfields.formbuilder(cols=2, border_spacing='2px')
         fb.numberTextBox(value='^#FORM.record.df_fbcolumns',lbl='!!N. Col',width='3em',default_value=1)
         fb.textbox(value='^#FORM.record.df_colswith',lbl='!!Colswith',width='10em')
-
         return th
 
     def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
