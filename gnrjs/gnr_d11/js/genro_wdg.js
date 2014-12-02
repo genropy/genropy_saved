@@ -1303,7 +1303,7 @@ dojo.declare("gnr.GridEditor", null, {
         var cbKeys = function(e) {
             var keyCode = e.keyCode;
             var keys = genro.PATCHED_KEYS;
-            var widget = this.widget;
+            var widget = this.widget || this.externalWidget;
             if ((keyCode == keys.SHIFT) || (keyCode == keys.CTRL) || (keyCode == keys.ALT)) {
                 return;
             }
@@ -1326,7 +1326,11 @@ dojo.declare("gnr.GridEditor", null, {
                     widget.cellNext = 'RIGHT';
                 }
                 dojo.stopEvent(e);
-                widget.focusNode.blur();
+                if(widget.focusManager){
+                    widget.focusManager.blur();
+                }else{
+                    widget.focusNode.blur();
+                }
                 //widget._onBlur();
                 //setTimeout(dojo.hitch(this.focusNode, 'blur'), 1);
             }
@@ -1334,15 +1338,16 @@ dojo.declare("gnr.GridEditor", null, {
         var gridEditor = this;
 
         var cbBlur = function(e) {
-            var cellNext = this.widget.cellNext; //|| 'RIGHT'; dannoso
-            this.widget.cellNext = null;
+            var widget = this.widget || this.externalWidget;
+            var cellNext = widget.cellNext; //|| 'RIGHT'; dannoso
+            widget.cellNext = null;
             deltaDict = {'UP': {'r': -1, 'c': 0},
                 'DOWN': {'r': 1, 'c': 0},
                 'LEFT': {'r': 0, 'c': -1},
                 'RIGHT': {'r': 0, 'c': 1},
                 'STAY':{'r': 0, 'c': 0}
             };
-            gridEditor.endEdit(this.widget,deltaDict[cellNext],editingInfo);
+            gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
         };
         attr._parentDomNode = cellNode;
         attr._class = attr._class ? attr._class + ' widgetInCell' : 'widgetInCell';

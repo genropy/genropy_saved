@@ -34,3 +34,22 @@ class GnrCustomWebPage(object):
         bar.dataFormula('^testpath','p',_onStart=True,p='')
         bar.xxx.imgPickerPalette(folders='rsrc:common/html_pages/images:Image HTML,rsrc:common/icons:Icons',dockButton=True)
         frame.center.contentPane(overflow='hidden').ckEditor(value='^.testgallery')
+
+    def test_4_simpleTextAreaEditor(self,pane):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.quickEditor(value='^.test',connect_onBlur='console.log("blurring",evt,this)',
+                        height='30px',
+                        lbl='test')
+        fb.textbox(value='^.aaa',lbl='field 2')
+        fb.textbox(value='^.ooo',lbl='field 3')
+
+    def test_5_simpleTextAreaInGrid(self,pane):
+        grid = pane.contentPane(region='center').quickGrid(value='^.griddata',
+                        height='150px',width='700px' ,border='1px solid silver',
+                        default_description='<span style="color:red">ciao</span> come <i>va?</i>'
+                        #connect_onCellDblClick='console.log("sss")'
+                        )
+        grid.tools('addrow,delrow')
+        grid.column('location',name='Location',width='15em',edit=dict(tag='dbselect',dbtable='glbl.provincia'))
+        grid.column('description',name='Description',width='30em',edit=dict(tag='quickEditor'))
+        grid.column('spam',name='Spam',width='8em',edit=True)

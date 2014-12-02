@@ -519,7 +519,13 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         }
 
         var ckeditor =  sourceNode.externalWidget;
-        dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
+        dojo.connect(ckeditor.focusManager, 'blur', function(evt){
+            ckeditor.gnr_setInDatastore();
+            if(sourceNode.attr.connect_onBlur){
+                funcApply(sourceNode.attr.connect_onBlur,{evt:evt},sourceNode)
+            }
+        });
+
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_onPaste');
         ckeditor['on']('paste',function(e){
             var lastSelection = sourceNode.externalWidget.getSelection().getNative();
@@ -538,12 +544,16 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 this.gnr_setInDatastore();
             },1,this,'typing');
         })
-        ckeditor['on']('key',function(){
-            genro.callAfter(function(){
-                this.gnr_onTyped();
-                this.gnr_setInDatastore();
-            },1000,this,'typing');
-        });
+        if(!sourceNode.attr._inGridEditor){
+            ckeditor['on']('key',function(){
+                genro.callAfter(function(){
+                    this.gnr_onTyped();
+                    this.gnr_setInDatastore();
+                },1000,this,'typing');
+            });
+        }
+        return ckeditor;
+        
     },
 
     onSpeechEnd:function(sourceNode,v){
