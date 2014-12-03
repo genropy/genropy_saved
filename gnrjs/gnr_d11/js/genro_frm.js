@@ -595,7 +595,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             if(onAnswer && res instanceof dojo.Deferred){
                 res.addCallback(onAnswer);
-            }else{
+            }else if(onAnswer){
                 onAnswer(command);
             }
         }else{
