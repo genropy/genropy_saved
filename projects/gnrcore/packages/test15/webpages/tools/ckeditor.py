@@ -44,11 +44,11 @@ class GnrCustomWebPage(object):
 
     def test_4_simpleTextAreaEditor(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.quickEditor(value='^.test',
+        fb.quickEditor(value='^.test',nodeId='aaa',
                         height='100px',
                         width='300px',
                         lbl='test')
-
+        fb.button('focus',action='genro.nodeById("aaa").externalWidget.focus();')
         fb.textbox(value='^.aaa',lbl='field 2')
         fb.textbox(value='^.ooo',lbl='field 3')
 
@@ -60,7 +60,8 @@ class GnrCustomWebPage(object):
 
     def test_5_simpleTextAreaInGrid(self,pane):
         grid = pane.contentPane(region='center').quickGrid(value='^.griddata',
-                        height='150px',width='700px' ,border='1px solid silver',
+
+                        height='500px',width='700px' ,border='1px solid silver',
                         default_description='<span style="color:red">ciao</span> come <i>va?</i>'
                         #connect_onCellDblClick='console.log("sss")'
                         )

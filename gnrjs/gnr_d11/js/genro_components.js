@@ -1112,14 +1112,14 @@ dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
         kw['toolbar'] = kw['toolbar'] || false;
         var boxpars = objectExtract(kw,'height,width,z_index,position,top,left,right,bottom,_class');
         boxpars.height = boxpars.height;
-        boxpars.position = 'relative'
+        boxpars.position =  boxpars.position || 'relative'
         boxpars._class = (boxpars._class || '') +' quickEditorWrapper';
         var box = sourceNode._('div',boxpars);
         var editor = box._('div',{_class:'quickEditor'})._('div',{position:'absolute',top:'1px',bottom:'2px',left:'1px',right:'1px'})._('ckeditor',kw);
         box._('div',{_class:'quickEditorButton'})._('div',{_class:'magnifier',height:'18px',width:'18px',
                                                             cursor:'pointer',
                                                         connect_onclick:function(){
-                                                            genro.dlg.floatingEditor(editor.getParentNode(),{});
+                                                            genro.dlg.dialogEditor(editor.getParentNode(),{});
                                                         }})
         return editor;
     },

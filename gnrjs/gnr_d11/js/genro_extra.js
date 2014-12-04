@@ -479,7 +479,6 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 sourceNode._rsz=null;
                 try{
                     ckeditor.gnr_assignConstrain();
-                    console.log('parentDomNode',parentDomNode)
                     ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
                 }catch(e){
                     
@@ -501,7 +500,10 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 funcApply(sourceNode.attr.onStarted,{editor:editor},sourceNode);
             }
             cbResize();
-            
+            if(sourceNode.attr._inGridEditor){
+                var that = this;
+                setTimeout(function(){that.focus()},100);
+            }
         });
 
 
@@ -523,11 +525,27 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
         var ckeditor =  sourceNode.externalWidget;
         dojo.connect(ckeditor.focusManager, 'blur', function(evt){
-            ckeditor.gnr_setInDatastore();
+            ckeditor.gnr_setInDatastore();            
             if(sourceNode.attr.connect_onBlur){
-                funcApply(sourceNode.attr.connect_onBlur,{evt:evt},sourceNode)
+                if(ckeditor._blurTimeOut){
+                    clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                }
+                ckeditor._blurTimeOut = setTimeout(function(){
+                    funcApply(sourceNode.attr.connect_onBlur,{evt:evt},sourceNode);
+                    clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                },200)
+                
             }
         });
+        dojo.connect(ckeditor.focusManager, 'focus', function(evt){
+            if(ckeditor._blurTimeOut){
+                clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                }
+        });
+
 
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_onPaste');
         ckeditor['on']('paste',function(e){
