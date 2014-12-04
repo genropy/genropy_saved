@@ -1110,7 +1110,7 @@ dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         kw['constrain_margin'] = '1px';
         kw['toolbar'] = kw['toolbar'] || false;
-        var boxpars = objectExtract(kw,'height,width,z_index,position,_class');
+        var boxpars = objectExtract(kw,'height,width,z_index,position,top,left,right,bottom,_class');
         boxpars.height = boxpars.height;
         boxpars.position = 'relative'
         boxpars._class = (boxpars._class || '') +' quickEditorWrapper';
