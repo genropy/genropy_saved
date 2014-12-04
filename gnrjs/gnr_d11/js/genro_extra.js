@@ -475,6 +475,17 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             console.log('currentInstance',constrainAttr);
         });
         
+        var cbResize=function(){
+                sourceNode._rsz=null;
+                try{
+                    ckeditor.gnr_assignConstrain();
+                    console.log('parentDomNode',parentDomNode)
+                    ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
+                }catch(e){
+                    
+                }
+                
+        };
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
             editor.gnr_assignConstrain();
@@ -489,19 +500,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             if(sourceNode.attr.onStarted){
                 funcApply(sourceNode.attr.onStarted,{editor:editor},sourceNode);
             }
+            cbResize();
             
         });
 
-        var cbResize=function(){
-                sourceNode._rsz=null;
-                try{
-                    ckeditor.gnr_assignConstrain();
-                    ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
-                }catch(e){
-                    
-                }
-                
-        };
+
         dojo.connect(parentWidget,'resize',function(){
             if(sourceNode._rsz){
                 clearTimeout(sourceNode._rsz);

@@ -2634,7 +2634,29 @@ body *{
     right:2px;
     bottom:20px;
 }
-
+.quickEditorWrapper{
+    position: relative;
+}
+.quickEditor{
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left:1px;
+    right:18px;
+    border:1px solid silver;
+    border-radius: 2px;
+}
+.quickEditorButton{
+    width: 18px;
+    height: 18px;
+    border-top:1px solid silver;
+    border-right:1px solid silver;
+    border-bottom:1px solid silver;
+    position: absolute;
+    border-radius: 2px;
+    top:0;
+    right:0;
+}
 
 .textAreaWrapperInTable{
     width:100%;

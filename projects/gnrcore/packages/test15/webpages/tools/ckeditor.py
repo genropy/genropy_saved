@@ -13,6 +13,8 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center').ckeditor(value='^.text', nodeId='ckeditor',height='100%')
         bc.contentPane(region='bottom',height='100px',splitter=True).simpleTextArea(value='^.text',height='100%')
                 
+
+
     def test_1_constrain(self, pane):
         fb = pane.formbuilder(cols=2,border_spacing='3px')
         fb.textbox(value='^.height',lbl='Height')
@@ -28,6 +30,11 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.width',lbl='Width')
         pane.ckEditor(value='^.testdata',stylegroup='base',contentsCss='/_rsrc/common/public.css')
 
+    def test_6_resize(self, pane):
+        bc = pane.borderContainer(height='500px',width='600px')
+        bc.contentPane(region='left',width='100px',splitter=True,background='red')
+        bc.contentPane(region='center').ckEditor(value='^.testdata')
+
     def test_3_gallery_handler(self,pane):
         frame = pane.framePane(height='300px')
         bar = frame.top.slotToolbar('*,xxx,5')
@@ -37,11 +44,19 @@ class GnrCustomWebPage(object):
 
     def test_4_simpleTextAreaEditor(self,pane):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
-        fb.quickEditor(value='^.test',connect_onBlur='console.log("blurring",evt,this)',
-                        height='30px',
+        fb.quickEditor(value='^.test',
+                        height='100px',
+                        width='300px',
                         lbl='test')
+
         fb.textbox(value='^.aaa',lbl='field 2')
         fb.textbox(value='^.ooo',lbl='field 3')
+
+    def test_7_simpleTextAreaEditor(self,pane):
+        pane.div(_class='quickEditor',height='100px',width='400px').ckEditor(value='^.ccc',
+                    constrain_margin_top='1px',
+                    constrain_margin='2px',
+                    toolbar=False)
 
     def test_5_simpleTextAreaInGrid(self,pane):
         grid = pane.contentPane(region='center').quickGrid(value='^.griddata',

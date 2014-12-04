@@ -1108,21 +1108,20 @@ dojo.declare("gnr.widgets.IframeDiv", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        kw['constrain_margin'] = '0px';
-        kw['padding_left'] = '1px';
-        kw['padding_top'] = '2px';
+        kw['constrain_margin'] = '1px';
         kw['toolbar'] = kw['toolbar'] || false;
         var boxpars = objectExtract(kw,'height,width,z_index,position,_class');
-        boxpars.margin_left='1px';
-        boxpars.height = boxpars.height || '100px'
-        boxpars._class = boxpars._class || 'fakeTextBox';
-        boxpars.overflow = boxpars.overflow || 'hidden';
-        kw.editorHeight = parseInt(boxpars.height)-2;
-        kw['onCreated'] = 'console.log("uuuuu")'
-        if(boxpars.width){
-            kw.editorWidth = parseInt(boxpars.width);
-        }
-        return sourceNode._('div',boxpars)._('ckeditor',kw);
+        boxpars.height = boxpars.height;
+        boxpars.position = 'relative'
+        boxpars._class = (boxpars._class || '') +' quickEditorWrapper';
+        var box = sourceNode._('div',boxpars);
+        var editor = box._('div',{_class:'quickEditor'})._('div',{position:'absolute',top:'1px',bottom:'2px',left:'1px',right:'1px'})._('ckeditor',kw);
+        box._('div',{_class:'quickEditorButton'})._('div',{_class:'magnifier',height:'18px',width:'18px',
+                                                            cursor:'pointer',
+                                                        connect_onclick:function(){
+                                                            genro.dlg.floatingEditor(editor.getParentNode(),{});
+                                                        }})
+        return editor;
     },
     
     cell_onCreating:function(gridEditor,colname,colattr) {
