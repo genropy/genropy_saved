@@ -496,6 +496,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             } else if (editor.document.$.attachEvent) {
                 editor.document.$.attachEvent( 'ondrop', dropHandler, true ) ; 
             }
+            editor.document.$.addEventListener('keydown',function(evt){
+                console.log('lastKey in this',evt.keyCode,ckeditor)
+                ckeditor.lastKey = evt.keyCode;
+            });
+
             if(sourceNode.attr.onStarted){
                 funcApply(sourceNode.attr.onStarted,{editor:editor},sourceNode);
             }
@@ -532,6 +537,9 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                     ckeditor._blurTimeOut = null
                 }
                 ckeditor._blurTimeOut = setTimeout(function(){
+                    if(sourceNode.attr._inGridEditor && sourceNode.externalWidget.lastKey==9){
+                        sourceNode.externalWidget.cellNext = 'RIGHT';  
+                    }
                     funcApply(sourceNode.attr.connect_onBlur,{evt:evt},sourceNode);
                     clearTimeout(ckeditor._blurTimeOut)
                     ckeditor._blurTimeOut = null
@@ -565,14 +573,15 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 this.gnr_setInDatastore();
             },1,this,'typing');
         })
-        if(!sourceNode.attr._inGridEditor){
-            ckeditor['on']('key',function(){
+        ckeditor['on']('key',function(kw){
+            if(!sourceNode.attr._inGridEditor){
                 genro.callAfter(function(){
                     this.gnr_onTyped();
                     this.gnr_setInDatastore();
                 },1000,this,'typing');
-            });
-        }
+            }
+        });
+    
         return ckeditor;
         
     },

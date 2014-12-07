@@ -1116,7 +1116,7 @@ dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
         boxpars._class = (boxpars._class || '') +' quickEditorWrapper';
         var box = sourceNode._('div',boxpars);
         var editor = box._('div',{_class:'quickEditor'})._('div',{position:'absolute',top:'1px',bottom:'2px',left:'1px',right:'1px'})._('ckeditor',kw);
-        box._('div',{_class:'quickEditorButton'})._('div',{_class:'magnifier',height:'18px',width:'18px',
+        box._('div',{_class:'quickEditorButton fakeButton'})._('div',{_class:'dijitArrowButtonInner',height:'17px',width:'18px',
                                                             cursor:'pointer',
                                                         connect_onclick:function(){
                                                             genro.dlg.dialogEditor(editor.getParentNode(),{});
@@ -1127,7 +1127,8 @@ dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
     cell_onCreating:function(gridEditor,colname,colattr) {
         colattr['z_index']= 1;
         colattr['position'] = 'fixed';
-        colattr['height'] = colattr['height'] || '100px';
+        colattr['constrain_overflow'] = 'hidden'
+        colattr['height'] = colattr['height'] || '18px';
     }
 
 });

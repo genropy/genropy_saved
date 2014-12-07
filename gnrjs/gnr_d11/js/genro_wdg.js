@@ -1148,10 +1148,13 @@ dojo.declare("gnr.GridEditor", null, {
         rowNode.getValue().update(result,null,'remoteController');
         var editingWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         if(editingWidgetNode){
-            var widget = editingWidgetNode.widget;
+            var widget = editingWidgetNode.widget || editingWidgetNode.externalWidget;
             if(widget._focused){
                 widget.cellNext = 'RIGHT';
                 widget.focusNode.blur();
+            }else if(widget.focusManager.hasFocus){
+                widget.cellNext = 'RIGHT';
+                widget.focusManager.blur();
             }
         }
     },

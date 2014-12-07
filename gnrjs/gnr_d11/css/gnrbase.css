@@ -2637,6 +2637,9 @@ body *{
 .quickEditorWrapper{
     position: relative;
 }
+.widgetInCell.quickEditorWrapper{
+    margin-left: 2px;
+}
 .quickEditor{
     position: absolute;
     top:0;
@@ -2646,9 +2649,14 @@ body *{
     border:1px solid silver;
     border-radius: 2px;
 }
+.widgetInCell .quickEditor{
+    border-width: 0;
+    border-bottom: 1px solid #efefef;
+}
+
 .quickEditorButton{
     width: 18px;
-    height: 18px;
+    height: 17px;
     border-top:1px solid silver;
     border-right:1px solid silver;
     border-bottom:1px solid silver;
@@ -2656,6 +2664,11 @@ body *{
     border-radius: 2px;
     top:0;
     right:0;
+}
+.widgetInCell .quickEditorButton{
+    border-top:0px;
+    border-right:0px;
+    border-bottom:1px solid #efefef;
 }
 
 .textAreaWrapperInTable{

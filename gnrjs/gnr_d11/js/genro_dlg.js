@@ -507,6 +507,14 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
         var kwdimension = objectExtract(kw,'height,width,background,padding');
+        if(kw.closable){
+            kw.connect_hide = function(){
+                var that = this;
+                setTimeout(function(){
+                    that._destroy();
+                },500);
+            }
+        }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
         var box = dlg._('div',kwdimension)
         var center = box._('div', {_class:'pbl_dialog_center'});
@@ -514,7 +522,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             var bottom = box._('div', {_class:'dialog_bottom'});
             dlg.bottom = bottom;
         }
-        
         dlg.center = center;
         dlg.close_action = function() {
             dlg.getParentNode().widget.hide(); 
