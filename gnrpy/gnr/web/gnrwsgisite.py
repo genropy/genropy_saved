@@ -99,7 +99,9 @@ class UrlInfo(object):
                 self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             self.pkg = pkg_obj.id
         if self.request_kwargs.pop('_mobile',False):
-            self.basepath = os.path.join(self.basepath,'mobile')
+            mobilepath = os.path.join(self.basepath,'mobile')
+            if os.path.exists(mobilepath):
+                self.basepath = mobilepath
         currpath = []
         pathfile_cache = self.site.pathfile_cache
         path_list_copy = list(path_list)
