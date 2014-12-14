@@ -497,7 +497,6 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 editor.document.$.attachEvent( 'ondrop', dropHandler, true ) ; 
             }
             editor.document.$.addEventListener('keydown',function(evt){
-                console.log('lastKey in this',evt.keyCode,ckeditor)
                 ckeditor.lastKey = evt.keyCode;
             });
 

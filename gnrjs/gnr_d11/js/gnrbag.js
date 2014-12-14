@@ -817,6 +817,7 @@ dojo.declare("gnr.GnrBag", null, {
         var result = null;
         var currnode = null;
         var currvalue = null;
+        var getter;
         if (!label) {
             currnode = this._parentnode;
             currvalue = this;
@@ -825,11 +826,11 @@ dojo.declare("gnr.GnrBag", null, {
             currnode = this._parent.getNode();
         }
         else {
-            if (label.indexOf('?') >= 0) {
-                var flabel = label.split('?');
-                label = flabel[0];
-                var getter = flabel[1] || '#attr';
-            }
+            var m = label.match(/(.*?)([?|~])([^?|^=]*)(\??)(.*)/);
+
+            if(m){
+                label = m[1];
+            } 
             var i = this.index(label);
             if (i < 0) {
                 return dflt;
@@ -841,31 +842,30 @@ dojo.declare("gnr.GnrBag", null, {
         if (currnode) {
             currvalue = currnode.getValue();
         }
-        if (!getter) {
+        if (!m) {
             return currvalue;
         }
         var finalize = function(currvalue) {
-            if (getter.indexOf('=') == 0) {
-                genro.__evalAuxValue = currvalue;
-                var expr = getter.slice(1).replace(/#v/g, 'genro.__evalAuxValue');
-                currvalue = dojo.eval(expr);
+            if(m[2]=='?'){
+                var attrname = m[3] || '#attr';
+                if (attrname == '#attr') {return currnode.attr;}
+                if (attrname == '#keys') {return currvalue.keys();}
+                if (attrname == '#node') {return currnode;}
+                if (attrname.indexOf('#digest:')==0) {return currvalue.digest(attrname.split(':')[1]);}
+                currvalue = currnode.getAttr(m[3])
+            }else if(m[2]=='~'){
+                currvalue = (currnode._value instanceof gnr.GnrBag)? currnode._value.getItem(m[3]):currnode.getAttr(m[3]);
+            }
+            var expr = m[5];
+            if(!expr){
                 return currvalue;
             }
-            if (getter.indexOf('#') < 0) {
-                return currnode.getAttr(getter);
-            }
-            if (getter == '#attr') {
-                return currnode.attr;
-            }
-            if (getter == '#keys') {
-                return currvalue.keys();
-            }
-            if (getter == '#node') {
-                return currnode;
-            }
-            if (getter == '#digest:') {
-                return currvalue.digest(mode.split(':')[1]);
-            }
+            if (expr.indexOf('=') == 0) {
+                genro.__evalAuxValue = currvalue;
+                expr = expr.slice(1).replace(/#v/g, 'genro.__evalAuxValue');
+                currvalue = dojo.eval(expr);
+                return currvalue;
+            }        
         };
         if (currvalue instanceof dojo.Deferred) {
             //genro.debug('Deferred adding callback (bag.get) :'+label);
@@ -874,7 +874,6 @@ dojo.declare("gnr.GnrBag", null, {
         else {
             return finalize(currvalue);
         }
-
     },
 
     /**
@@ -892,14 +891,21 @@ dojo.declare("gnr.GnrBag", null, {
     htraverse: function(pathlist, autocreate) {
         var curr = this;
         if (typeof pathlist == "string") {
-            if (pathlist.indexOf('?') >= 0) {
-                var pl = pathlist.split('?');
-                pathlist = smartsplit(pl[0].replace(/\.\.\//g, '#parent.'), '.');
-                pathlist[pathlist.length - 1] = pathlist[pathlist.length - 1] + '?' + pl[1];
-            } else {
+            var m = pathlist.match(/(.*?)([?|~])(.*)/);
+            if(m){
+                pathlist = smartsplit(m[1].replace(/\.\.\//g, '#parent.'), '.');
+                pathlist[pathlist.length - 1] = pathlist[pathlist.length - 1]+m[2]+m[3]
+            }else{
                 pathlist = smartsplit(pathlist.replace(/\.\.\//g, '#parent.'), '.');
             }
-            ;
+            
+            //if (pathlist.indexOf('?') >= 0) {
+            //    var pl = pathlist.split('?');
+            //    pathlist = smartsplit(pl[0].replace(/\.\.\//g, '#parent.'), '.');
+            //    pathlist[pathlist.length - 1] = pathlist[pathlist.length - 1] + '?' + pl[1];
+            //} else {
+            //    pathlist = smartsplit(pathlist.replace(/\.\.\//g, '#parent.'), '.');
+            //}
 
             /*pathlist = [x for x in pathlist if x]*/
             if (!pathlist) {
