@@ -166,7 +166,6 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
 
-
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
         sum_column = kwargs['sum']
@@ -178,7 +177,7 @@ class TableHandlerView(BaseComponent):
         box.div(label or sum_column_attr.get('name_short') or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',
                     display='inline-block',padding_right='3px')
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
-                 font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
+                 font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
     def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
         rt = tblobj.column(sections).relatedTable() 

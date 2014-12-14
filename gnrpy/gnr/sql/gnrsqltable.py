@@ -473,6 +473,27 @@ class SqlTable(GnrObject):
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
+
+    def cachedRecord(self,pkey):
+        def recordFromCache(pkey,cache):
+            result = cache.get(pkey)
+            in_cache = bool(result)
+            if not in_cache:
+                result = self.record(pkey=pkey).output('dict')
+                cache[pkey] = result
+            return result,in_cache
+        key = '%s_cache' %self.fullname
+        currentPage = self.db.currentPage
+        if currentPage:
+            with currentPage.pageStore() as store:
+                tablecache = store.getItem(key) or dict()
+                record,in_cache = recordFromCache(pkey,tablecache)
+                if not in_cache:
+                    store.setItem(key,tablecache)
+        else:
+            tablecache = self.currentEnv.setdefault(key,dict())
+            record,in_cache = recordFromCache(pkey,tablecache)
+        return record
         
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,

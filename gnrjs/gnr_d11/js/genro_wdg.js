@@ -1122,6 +1122,7 @@ dojo.declare("gnr.GridEditor", null, {
             var rowEditor = that.rowEditors[n.label];
             rowEditor.data.update(n.getValue(),null,'remoteController');
         });
+        return result
     },
 
     callRemoteController:function(rowNode,field,oldvalue,batchmode){
@@ -1134,7 +1135,8 @@ dojo.declare("gnr.GridEditor", null, {
             this._pendingRemoteController.setItem(rowId,rowNode.getValue().deepCopy(),objectUpdate({},rowNode.attr));
             var rows = this._pendingRemoteController;
             this._pendingRemoteController = null;
-            this.callRemoteControllerBatch(rows,kw);
+            var result = this.callRemoteControllerBatch(rows,kw);
+            this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
             return;
         }
         if( ! this.rowEditors[rowId]){
@@ -1152,13 +1154,13 @@ dojo.declare("gnr.GridEditor", null, {
             if(widget._focused){
                 widget.cellNext = 'RIGHT';
                 widget.focusNode.blur();
-            }else if(widget.focusManager.hasFocus){
+            }else if(widget.focusManager && widget.focusManager.hasFocus){
                 widget.cellNext = 'RIGHT';
                 widget.focusManager.blur();
             }
         }
+        this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
     },
-
 
     updateRow:function(rowNode, updkw){
         var row = this.grid.rowFromBagNode(rowNode);
@@ -1363,28 +1365,28 @@ dojo.declare("gnr.GridEditor", null, {
             var dt = convertToText(cellDataNode.getValue())[0];
             wdgtag = {'L':'NumberTextBox','I':'NumberTextBox','D':'DateTextbox','R':'NumberTextBox','N':'NumberTextBox','H':'TimeTextBox'}[dt] || 'Textbox';
         }
-        if('disabled' in attr){
-            var disabled = objectPop(attr,'disabled');
-            if(typeof(disabled)=='string'){
-                if(disabled.indexOf('==')==0){
-                    //method
-                    disabled = funcApply('return '+disabled.slice(2),{rowLabel:rowLabel},this.widgetRootNode);
-                }else{
-                    var disabledpath = disabled.slice(1);
-                    if(disabledpath[0]=='.'){
-                        disabledpath = '.' + rowLabel + disabledpath;
-                    } 
-                    disabled = this.widgetRootNode.getRelativeData(disabledpath);
-                }
-            }
-            if(disabled){
-                var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
-                if (rc && dispatch!='dodblclick') {
-                    this.startEdit(rc.row, rc.col);
-                }
-                return;
-            }
-        }
+       //if('disabled' in attr){
+       //    var disabled = objectPop(attr,'disabled');
+       //    if(typeof(disabled)=='string'){
+       //        if(disabled.indexOf('==')==0){
+       //            //method
+       //            disabled = funcApply('return '+disabled.slice(2),{rowLabel:rowLabel},this.widgetRootNode);
+       //        }else{
+       //            var disabledpath = disabled.slice(1);
+       //            if(disabledpath[0]=='.'){
+       //                disabledpath = '.' + rowLabel + disabledpath;
+       //            } 
+       //            disabled = this.widgetRootNode.getRelativeData(disabledpath);
+       //        }
+       //    }
+       //    if(disabled){
+       //        var rc = this.findNextEditableCell({row:row, col:col}, {'r': 0, 'c': 1});
+       //        if (rc && dispatch!='dodblclick') {
+       //            this.startEdit(rc.row, rc.col);
+       //        }
+       //        return;
+       //    }
+       //}
         this.onEditCell(true,row);
         var editWidgetNode = this.widgetRootNode._(wdgtag,'cellWidget', attr).getParentNode();
         editWidgetNode.setCellValue = function(cellname,value,valueCaption){
@@ -1430,7 +1432,8 @@ dojo.declare("gnr.GridEditor", null, {
 
     },
     editableCell:function(col) {
-        return (this.grid.getCell(col).field in this.columns);
+        var cell = this.grid.getCell(col);
+        return (cell.field in this.columns && cell.customClasses.indexOf('cell_disabled')<0);
     },
     onExternalChange:function(pkey){
         if(pkey in this.rowEditors){

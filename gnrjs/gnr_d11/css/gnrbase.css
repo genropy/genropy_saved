@@ -2541,6 +2541,13 @@ div.cellContent{
     min-height: 15px;
 }
 
+.cell_editable .cellContent{
+    background: #FFE7DD;
+}
+.cell_editable.cell_disabled .cellContent{
+    background: silver;
+}
+
 .externalChangedCell .cellContent{
     background-color:#C7FFB4;
 }

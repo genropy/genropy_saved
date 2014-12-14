@@ -3563,6 +3563,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cellCustomClass){
                 this.customClasses.push(cellCustomClass);
             }
+            if(this.edit){
+                this.customClasses.push('cell_editable');
+               //if(this.edit.disabled){
+               //    this.customClasses.push('cell_disabled');
+               //}
+                //this.grid.rowSourceNode(inRowIndex).getRelativeData()
+            }
             opt['cellPars'] = {rowIndex:inRowIndex};
             //var zoomPage = opt['zoomPage'];
             if (typeof(v) == 'number' && v < 0) {
