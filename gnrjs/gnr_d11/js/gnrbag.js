@@ -694,7 +694,7 @@ dojo.declare("gnr.GnrBag", null, {
         return r.join(kw.joiner);
     },
     
-    getItem: function(path, dft, mode) {
+    getItem: function(path, dft, mode,optkwargs) {
         var dft = (dft == '') ? dft : dft || null;
         if (!path) {
             return this;
@@ -704,7 +704,7 @@ dojo.declare("gnr.GnrBag", null, {
             var obj = res.value;
             var label = res.label;
             if (isBag(obj)) {
-                return obj.get(label, dft, m);
+                return obj.get(label, dft, m, optkwargs);
             }
             else {
                 return dft;
@@ -813,7 +813,7 @@ dojo.declare("gnr.GnrBag", null, {
     /**
      * @id get
      */
-    get: function(label, dflt, mode) {
+    get: function(label, dflt, mode,optkwargs) {
         var result = null;
         var currnode = null;
         var currvalue = null;
@@ -840,7 +840,7 @@ dojo.declare("gnr.GnrBag", null, {
             }
         }
         if (currnode) {
-            currvalue = currnode.getValue();
+            currvalue = currnode.getValue(mode,optkwargs);
         }
         if (!m) {
             return currvalue;

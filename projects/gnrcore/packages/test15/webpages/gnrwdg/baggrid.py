@@ -77,6 +77,7 @@ class GnrCustomWebPage(object):
         frame = pane.bagGrid(frameCode='rrc',title='remoteRowController test',struct=self.gridstruct_2,height='300px',
                             table='glbl.localita',storepath='.gridstore',
                             grid_remoteRowController=self.test_remoteRowController,
+                            default_descrizione='riga acquisto',
                             grid_remoteRowController_defaults=dict(provincia='MI',qty=8))
         bar = frame.bottom.slotBar('loadbtn,testbtn')
         bar.loadbtn.button('Load',fire='.loadBag')
@@ -93,14 +94,11 @@ class GnrCustomWebPage(object):
         r = struct.view().rows()
         r.fieldcell('provincia',edit=dict(remoteRowController=True),
                     table='glbl.provincia',caption_field='provincia_nome',width='18em')
+        r.cell('colore',edit=True,name='Colore',width='10em')
         r.cell('qty',dtype='N',name='Qty',width='5em',edit=dict(remoteRowController=True))  
         r.cell('colli',dtype='L',name='Colli',width='5em',edit=dict(remoteRowController=True),
-                #edit_disabled='=#ROW.pippo?=#v==3',color='red',font_family='#ROW.font'
-                )  
-                    #
-        r.cell('descrizione',dtype='L',name='Colli',width='5em',edit=dict(remoteRowController=True,
-                    disabled=''))  
-
+                disabled='=#ROW.qty?=#v<2')  
+        r.cell('descrizione',name='Desc',width='10em',color='=#ROW.colore')  
         r.cell('totale',dtype='N',name='Tot',width='5em')  
         r.cell('cist',name='C. istat',width='7em')
 

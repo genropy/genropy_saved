@@ -40,3 +40,6 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer(height='400px')
         bc.contentPane(region='center').inlineTableHandler(table='glbl.regione',viewResource='TestDyinCheckboxNutsEdit',
                                                             pbl_classes=True,condition_onStart=True,saveButton=True)
+
+
+        
