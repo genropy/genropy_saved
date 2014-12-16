@@ -846,17 +846,19 @@ dojo.declare("gnr.GnrBag", null, {
             return currvalue;
         }
         var finalize = function(currvalue) {
+            var expr = m[5];
             if(m[2]=='?'){
-                var attrname = m[3] || '#attr';
-                if (attrname == '#attr') {return currnode.attr;}
-                if (attrname == '#keys') {return currvalue.keys();}
-                if (attrname == '#node') {return currnode;}
-                if (attrname.indexOf('#digest:')==0) {return currvalue.digest(attrname.split(':')[1]);}
-                currvalue = currnode.getAttr(m[3])
+                var attrname = m[3];
+                if(attrname){
+                    if (attrname == '#attr') {return currnode.attr;}
+                    if (attrname == '#keys') {return currvalue.keys();}
+                    if (attrname == '#node') {return currnode;}
+                    if (attrname.indexOf('#digest:')==0) {return currvalue.digest(attrname.split(':')[1]);}
+                    currvalue = currnode.getAttr(attrname)
+                }
             }else if(m[2]=='~'){
                 currvalue = (currnode._value instanceof gnr.GnrBag)? currnode._value.getItem(m[3]):currnode.getAttr(m[3]);
             }
-            var expr = m[5];
             if(!expr){
                 return currvalue;
             }
