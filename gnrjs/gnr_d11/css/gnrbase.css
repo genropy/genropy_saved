@@ -2541,13 +2541,15 @@ div.cellContent{
     min-height: 15px;
 }
 
-/*.cell_editable .cellContent{
-    background: #FFE7DD;
-}*/
+.cell_editable .cellContent:hover{
+    background: #F8FFD9;
+    cursor: text;
+}
 
-/* .cell_editable.cell_disabled .cellContent{
-    background: silver;
-}*/
+.cell_editable.cell_disabled .cellContent:hover{
+    background: #FFE7DD;
+    cursor: not-allowed;
+}
 
 .externalChangedCell .cellContent{
     background-color:#C7FFB4;

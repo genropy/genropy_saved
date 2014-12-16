@@ -104,7 +104,8 @@ class GnrCustomWebPage(object):
 
     @public_method
     def test_remoteRowController(self,row=None,field=None,provincia=None,qty=None):
-        print 'row',row
+        if row['qty']:
+            print row
 
 
 

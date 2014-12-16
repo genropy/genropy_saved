@@ -759,6 +759,15 @@
 }
 
 
+.tundra._common_d11 .editingGrid .dojoxGrid-row-odd.dojoxGrid-row-selected{
+    background-color: #F3F6FA;
+}
+
+.tundra._common_d11 .editingGrid .dojoxGrid-row-selected{
+    background-color:#fff; 
+}
+
+
 .tundra._common_d11 .dojoxGrid-row{
     background-color:#fff; 
 }
@@ -766,6 +775,7 @@
 .tundra._common_d11 .dojoxGrid-row-odd{
     background-color: #F3F6FA;
 }
+
 .tundra._common_d11 .dojoxGrid-row-selected{
     background-color: #AFCBEC;
 }
