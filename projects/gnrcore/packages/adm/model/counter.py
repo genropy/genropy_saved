@@ -195,6 +195,8 @@ class Table(object):
         return counter_record
 
     def assignCounter(self,tblobj=None,field=None,record=None):
+        if not 'unique' in tblobj.column(field).attributes:
+            print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s',(field,tblobj.fullname)
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         if not counter_pars or record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
@@ -247,6 +249,7 @@ class Table(object):
         counter = None
         holes = counter_record['holes']
         if holes and recycle:
+            holes.sort('#a.cnt_from')
             for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
                 if date >= date_from and date<=date_to:
                     counter = cnt_from
@@ -294,6 +297,7 @@ class Table(object):
                 counter_record['last_used'] = tblobj.readColumns(limit=1,where='$%s = :c' %field,c=previous,columns='$%s' %date_field)
             else:
                 holes = counter_record['holes'] or Bag()
+                holes.sort('#a.cnt_from')
                 counter_record['holes'] = holes
                 for hole_key,cnt_from,cnt_to in holes.digest('#k,#a.cnt_from,#a.cnt_to'):
                     if releasing_counter == cnt_from - 1:

@@ -782,8 +782,9 @@ class TableBase(object):
         for field in self.counterColumns():
             if record.get(field):
                 counter_pars = self.getCounterPars(field,record)
-                if not backToDraft or (counter_pars.get('recycled') and not counter_pars.get('assignIfDraft')):
-                    self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+                if not counter_pars.get('recycle') or (backToDraft and counter_pars.get('assignIfDraft')):
+                    continue
+                self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
     def trigger_assignCounters(self,record=None,old_record=None):
         "Inside dbo"
