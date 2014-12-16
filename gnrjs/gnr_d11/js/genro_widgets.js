@@ -3570,7 +3570,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(this.edit){
                 this.customClasses.push('cell_editable');
                 if(this.disabled){
-                    this.grid.sourceNode._currentRowIndex = inRowIndex;
                     if(this.grid.sourceNode.currentFromDatasource(this.disabled)){
                         this.customClasses.push('cell_disabled');
                     }
@@ -3641,7 +3640,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         for (k in rowBasedAttr){
             delete cell[k];
         }
-        cell = sourceNode.evaluateOnNode(cell);
+        //cell = sourceNode.evaluateOnNode(cell);
 
         cell.name = '<div '+ ((sourceNode.attr.draggable_column)?'draggable="true"' :'' )+ ' class="cellHeaderContent" >'+cell.name+'</div>';
         if (cell.field) {
@@ -3651,20 +3650,24 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell._subtable = f[0];
                 cell._subfield = f[1];
             }
-            if(typeof(cell.values)=='string' && cell.values.indexOf(':')>=0){
-                var valuesdict = objectFromString(cell.values);
-                cell._customGetter = function(rowdata,idx){
-                    var currvalue = rowdata[this.field_getter];
-                    if(currvalue){
-                        var valuetoset = [];
-                        currvalue = (currvalue+'').split(',');
-                        dojo.forEach(currvalue,function(n){
-                            valuetoset.push(valuesdict[n]);
-                        });
-                        return valuetoset.join(',');
-                    }
-                    return currvalue;  
-                };
+
+            if(typeof(cell.values)=='string'){
+                var values = sourceNode.currentFromDatasource(cell.values);
+                if(values.indexOf(':')>=0){
+                    var valuesdict = objectFromString(values);
+                    cell._customGetter = function(rowdata,idx){
+                        var currvalue = rowdata[this.field_getter];
+                        if(currvalue){
+                            var valuetoset = [];
+                            currvalue = (currvalue+'').split(',');
+                            dojo.forEach(currvalue,function(n){
+                                valuetoset.push(valuesdict[n]);
+                            });
+                            return valuetoset.join(',');
+                        }
+                        return currvalue;  
+                    };
+                }
             }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
@@ -3705,7 +3708,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 sourceNode.attr.counterField = cell.field;
                 dtype = 'L';
             }
-            if (cell.hidden) {
+            if ('hidden' in cell && sourceNode.currentFromDatasource(cell.hidden)) {
                 cell.classes = (cell.classes || '') + ' hiddenColumn';
             }
             if (dtype) {
@@ -3842,7 +3845,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     },
     mixin_moveRow:function(row, toPos) {
-        if (toPos != row) {
+        if (toPos!=null && toPos>=0 && toPos!= row) {
             var storebag = this.storebag();
             storebag.moveNode(row, toPos);
         }
