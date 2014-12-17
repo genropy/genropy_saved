@@ -805,7 +805,7 @@ dojo.declare("gnr.GridEditor", null, {
         var _this = this;
         dojo.connect(grid, editOn[0], function(e) {
             if (genro.wdg.filterEvent(e, modifier)) {
-                if (_this.enabled() && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
+                if (_this.enabled() && _this.editableCell(e.cellIndex,true) && !grid.gnrediting) {
                     _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
                 }
             }
@@ -1353,15 +1353,18 @@ dojo.declare("gnr.GridEditor", null, {
         var gridEditor = this;
         var cbBlur = function(e) {
             var widget = this.widget || this.externalWidget;
+            var deltaDict = {'UP': {'r': -1, 'c': 0},
+                    'DOWN': {'r': 1, 'c': 0},
+                    'LEFT': {'r': 0, 'c': -1},
+                    'RIGHT': {'r': 0, 'c': 1},
+                    'STAY':{'r': 0, 'c': 0}
+                };
             var cellNext = widget.cellNext; //|| 'RIGHT'; dannoso
             widget.cellNext = null;
-            deltaDict = {'UP': {'r': -1, 'c': 0},
-                'DOWN': {'r': 1, 'c': 0},
-                'LEFT': {'r': 0, 'c': -1},
-                'RIGHT': {'r': 0, 'c': 1},
-                'STAY':{'r': 0, 'c': 0}
-            };
-            gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
+            setTimeout(function(){
+                gridEditor.endEdit(widget,deltaDict[cellNext],editingInfo);
+            },1);
+           
         };
         attr._parentDomNode = cellNode;
         attr._class = attr._class ? attr._class + ' widgetInCell' : 'widgetInCell';
@@ -1418,10 +1421,14 @@ dojo.declare("gnr.GridEditor", null, {
         }
 
     },
-    editableCell:function(col) {
+    editableCell:function(col,clicked) {
         var cell = this.grid.getCell(col);
-        return (cell.field in this.columns && cell.customClasses.indexOf('cell_disabled')<0);
+        if (!(cell.field in this.columns)){return false;}
+        if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
+        if (!clicked && cell.customClasses.indexOf('cell_editLazy')>=0){return false}
+        return cell.customClasses.indexOf('cell_disabled')<0;
     },
+    
     onExternalChange:function(pkey){
         if(pkey in this.rowEditors){
             this.rowEditors[pkey].checkRowEditor();

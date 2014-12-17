@@ -2068,10 +2068,10 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }else{
-                    console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
+                    //console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
                 }
             }else{
-                console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
+                //console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
             }
         }
 
@@ -2790,8 +2790,6 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
-        console.log('onChanged',value)
-
         if (value) {
             this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'D'});
         }
@@ -3569,9 +3567,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             if(this.edit){
                 this.customClasses.push('cell_editable');
-                if(this.disabled){
-                    if(this.grid.sourceNode.currentFromDatasource(this.disabled)){
+                if(this.editDisabled){
+                    if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){
                         this.customClasses.push('cell_disabled');
+                    }
+                }
+                if(this.editLazy){
+                    if(this.grid.sourceNode.currentFromDatasource(this.editLazy)){
+                        this.customClasses.push('cell_editLazy');
                     }
                 }
                 //this.grid.rowSourceNode(inRowIndex).getRelativeData()

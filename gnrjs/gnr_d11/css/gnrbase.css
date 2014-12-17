@@ -2546,6 +2546,10 @@ div.cellContent{
     cursor: text;
 }
 
+.cell_editable.cell_editLazy .cellContent:hover{
+    background: #E6F9FF;
+}
+
 .cell_editable.cell_disabled .cellContent:hover{
     background: #FFE7DD;
     cursor: not-allowed;

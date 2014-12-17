@@ -483,7 +483,6 @@ class MultiButtonForm(BaseComponent):
                         var switchValue = objectPop(kw,'switchValue');
                         var destPkey = objectPop(kw,'destPkey') || '*newrecord*';
                         var formpars = that.getRelativeData('.connected_forms').getItem(switchValue);
-                        console.log('formpars',formpars,'switchValue',switchValue);
                         var formId = formpars.getItem('formId');
                         var form = genro.formById(formId)
                         form.load({destPkey:destPkey,default_kw:kw});
