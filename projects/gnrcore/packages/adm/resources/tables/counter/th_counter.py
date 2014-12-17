@@ -71,6 +71,13 @@ class Form(BaseComponent):
         bc.dataRpc('dummy',self.db.table('adm.counter').alignCounter,pkey='=#FORM.record.codekey',_fired='^#FORM.alignCounter',
                     _lockScreen=True,_onResult='this.form.reload();')
 
+
+    @public_method
+    def th_onLoading(self,record, newrecord, loadingParameters, recInfo):
+        record['errors.duplicates'] = self.db.table('adm.counter').getDuplicates(table='%(pkg)s.%(tbl)s' %record,
+            field=record['fld'],code=record['code'])
+
+
     def holesStruct(self,struct):
         r = struct.view().rows()
         r.cell('cnt_from', name='Counter from',dtype='L', width='10em')
@@ -80,6 +87,7 @@ class Form(BaseComponent):
 
     def duplicatesStruct(self,struct):
         r = struct.view().rows()
+        r.cell('fldval', name='Counter value',dtype='L', width='10em')
         r.cell('cnt', name='Counter',dtype='L', width='10em')
 
     def wrongOrderStruct(self,struct):
