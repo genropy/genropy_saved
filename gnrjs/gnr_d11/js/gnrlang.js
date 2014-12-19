@@ -1071,7 +1071,20 @@ var gnrformatter = {
         */
         var opt = {};
         var standard_format = 'decimal,scientific,percent,currency'; //decimal default;
+
         if(format){
+            if(format.indexOf(';')>=0){
+                var formats = format.split(';'); //format='#0,00;-;(#0,00)'
+                if(value===0){
+                    return formats[1];
+                }
+                if(value<0 && formats.length>2){
+                    format = formats[2];
+                    value = -value;
+                }else{
+                    format = formats[0];
+                }
+            }
             if(standard_format.indexOf(format)>=0){
                 opt.type = format;
             }else{

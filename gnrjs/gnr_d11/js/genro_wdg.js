@@ -643,7 +643,7 @@ dojo.declare("gnr.RowEditor", null, {
                     nkw['_validationError'] = cellmap[k].edit.validate_notnull_error || 'not null';
                 }
             }else{
-                nkw['_loadedValue'] = v;
+                //nkw['_loadedValue'] = v;
             }
             data.setItem(k,v,nkw);
         }
@@ -656,11 +656,9 @@ dojo.declare("gnr.RowEditor", null, {
 
     hasChanges:function(){
         var changed = false;
-        this.data.forEach(function(n){
-            if(n.attr._loadedValue!=n.getValue()){
-                changed = true;
-            }
-        });
+        if(this.data.getNodeByAttr('_loadedValue')){
+            changed = true;
+        }
         return changed;
     },
 
@@ -668,7 +666,7 @@ dojo.declare("gnr.RowEditor", null, {
         var result = new gnr.GnrBag();
         var changed = false;
         this.data.forEach(function(n){
-            if(n.attr._loadedValue!=n.getValue()){
+            if('_loadedValue' in n.attr){
                 result.setItem(n.label,n.getValue(),n.attr);
             }
             changed = true;
@@ -713,15 +711,8 @@ dojo.declare("gnr.RowEditor", null, {
         }
     },
     checkRowEditor:function(){
-        var toDelete = true;
         var rowIndex = this.grid.indexByRowAttr('_pkey',this.rowId);
-
-        this.data.forEach(function(n){
-            if(n.attr._loadedValue!=n.getValue()){
-                toDelete = false;
-            }
-        });
-        if(toDelete){
+        if(!this.grid.collectionStore().hasChanges()){
             this.deleteRowEditor();
         }else{
             this.grid.updateRow(rowIndex);
@@ -826,14 +817,11 @@ dojo.declare("gnr.GridEditor", null, {
     },
     updateStatus:function(){
         var status = this.deletedRows.len()>0?'changed':null;
-        for(var k in this.rowEditors){
-            if(this.rowEditors[k].getErrors()){
-                status = 'error';
-                break;
-            }
-            if(!status && this.rowEditors[k].hasChanges()){
-                status = 'changed';
-            }
+        var store = this.grid.collectionStore();
+        if(store.hasErrors()){
+            status = 'error';
+        }else if(store.hasChanges()){
+            status = 'changed';
         }
         this.status = status;
         var viewNode = genro.getFrameNode(this.grid.sourceNode.attr.frameCode);
@@ -1489,13 +1477,13 @@ dojo.declare("gnr.GridChangeManager", null, {
         this.sourceNode = grid.sourceNode;
         var that = this;
         this.sourceNode.subscribe('onNewDatastore',function(){
-                that.data = that.grid.storebag();
-                that.data.subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
-                                                   'ins':dojo.hitch(that, "triggerINS"),
-                                                   'del':dojo.hitch(that, "triggerDEL")});
-                that.resolveCalculatedColumns();
-                that.resolveTotalizeColumns();
-                });
+            that.data = that.grid.storebag();
+            that.data.subscribe('rowLogger',{'upd':dojo.hitch(that, "triggerUPD"),
+                                               'ins':dojo.hitch(that, "triggerINS"),
+                                               'del':dojo.hitch(that, "triggerDEL")});
+            that.resolveCalculatedColumns();
+            that.resolveTotalizeColumns();
+            });
     },
     resolveCalculatedColumns:function(){
         var cellmap = this.grid.cellmap;
@@ -1683,11 +1671,22 @@ dojo.declare("gnr.GridChangeManager", null, {
                 this.calculateFormula(k,rowNode);
             }
         }
-        if(kw.reason!='remoteController' && kw.updvalue && (kw.node.label in this.remoteControllerColumns)){
+        if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
-            genro.callAfter(function(){
-                gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
-            },1)
+            if(kw.value!=kw.oldvalue && (kw.node.label in gridEditor.columns)){
+                var attr = kw.node.attr;
+                if(!('_loadedValue' in attr)){
+                    attr['_loadedValue'] = kw.oldvalue;
+                }else if (attr._loadedValue == kw.value || ( isNullOrBlank(kw.value) && isNullOrBlank(attr._loadedValue) )) {//value = _loadedValue
+                    delete attr._loadedValue;
+                }
+            }
+            if(kw.reason!='remoteController' && kw.node.label in this.remoteControllerColumns){
+                genro.callAfter(function(){
+                    gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
+                },1)
+            }
+            
         }
 
     },

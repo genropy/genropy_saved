@@ -1447,10 +1447,13 @@ dojo.declare("gnr.GnrBag", null, {
     //-------------------- getNode --------------------------------        
     
     getNodeByAttr: function(attr,value,caseInsensitive) {
+        var existAttr = arguments.length==1;
         var value = caseInsensitive?value.toLowerCase():value;
         var f = function(n) {
-            if((attr in n.attr) && (caseInsensitive?(n.attr[attr].toLowerCase()==value):(n.attr[attr]==value))){
-                return n;
+            if(attr in n.attr){
+                if(existAttr || (caseInsensitive?(n.attr[attr].toLowerCase()==value):(n.attr[attr]==value))){
+                    return n;
+                }
             }
         };
         return this.walk(f, 'static');

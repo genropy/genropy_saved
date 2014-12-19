@@ -4655,7 +4655,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             n = null;
         }
         if (n == null) {
-            var n = this.storeRowCount();
+            var n = this.hideAllRows?0:this.storeRowCount();
         }
         var view = this.views.views[0];
         var scrollBox,scrollLeft;
@@ -5285,8 +5285,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                     getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
                 }
             }
-            if(cell.edit && cell.edit.remoteRowController){
-                getChangeManager().addRemoteControllerColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+            if(cell.edit){
+                var cm = getChangeManager()
+                if(cell.edit.remoteRowController){
+                    cm.addRemoteControllerColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+                }
             }
             if(cell.formula){
                 getChangeManager().addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
@@ -5966,6 +5969,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_resetFilter: function(value) {
         return this.collectionStore().resetFilter();
     },
+    
     mixin_currentData:function(nodes, rawData){
         var nodes = nodes || (this.getSelectedRowidx().length<1?'all':'selected');
         var result = new gnr.GnrBag();

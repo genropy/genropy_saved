@@ -3625,6 +3625,12 @@ dojo.declare("gnr.stores._Collection",null,{
         },'static');
         this._linkedGrids = result;
         return result;
+    },
+    hasErrors:function(){
+        //to implement
+    },
+    hasChanges:function(){
+        //to implement
     }
 });
 
@@ -3698,6 +3704,13 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
             }
         };
         return result;
+    },
+    hasChanges:function(){
+        return this.getData().getNodeByAttr('_loadedValue')!=null;
+    },
+
+    hasErrors:function(){
+        return this.getData().getNodeByAttr('_validationError')!=null;
     }
 });
 
