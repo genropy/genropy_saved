@@ -810,18 +810,23 @@ dojo.declare("gnr.GridEditor", null, {
             cell.customClasses.push('newRowCell');
         }
     },
+    
     resetEditor:function(){
         this.rowEditors = {};
         this.deletedRows = new gnr.GnrBag();
-        this.updateStatus();
+        this.updateStatus(true);
     },
-    updateStatus:function(){
-        var status = this.deletedRows.len()>0?'changed':null;
-        var store = this.grid.collectionStore();
-        if(store.hasErrors()){
-            status = 'error';
-        }else if(store.hasChanges()){
-            status = 'changed';
+
+    updateStatus:function(reset){
+        var status;
+        if(!reset){
+            status = this.deletedRows.len()>0?'changed':null;
+            var store = this.grid.collectionStore();
+            if(store.hasErrors()){
+                status = 'error';
+            }else if(store.hasChanges()){
+                status = 'changed';
+            }
         }
         this.status = status;
         var viewNode = genro.getFrameNode(this.grid.sourceNode.attr.frameCode);
