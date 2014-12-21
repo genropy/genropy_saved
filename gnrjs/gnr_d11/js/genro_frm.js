@@ -1167,9 +1167,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getFormChanges: function() {
         var data = this._getRecordCluster(this.getFormData(), true);
         for(var k in this.gridEditors){
-            var changeset = this.gridEditors[k].getChangeset();
-            if(this.gridEditors[k].table && changeset.len()>0){
-                data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
+            var ge = this.gridEditors[k];
+            if(!ge.storeInForm){
+                var changeset = this.gridEditors[k].getChangeset();
+                if(this.gridEditors[k].table && changeset.len()>0){
+                    data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
+                }
             }
         }
         return data;
@@ -1227,6 +1230,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 else if (value instanceof gnr.GnrBag) {
                     sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
+                    if(!sendBag && objectNotEmpty(this.gridEditors)){
+                        for(var k in this.gridEditors){
+                            var ge = this.gridEditors[k];
+                            if(node._id==ge.grid.storebag().getParentNode()._id){
+                                sendBag = (ge.status=='changed');
+                                break;
+                            }
+                        }
+                    }
                     if (sendBag) {
                         value = value.deepCopy();
                         value.walk(function(n){
@@ -1278,6 +1290,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
          if ( kw.reason=='selected_' && kw.pathlist[0][0]=='@'){// avoid to change related records from dbselect
          return;
          }*/
+        for (var k in this.gridEditors){
+            var ge = this.gridEditors[k];
+            if(ge.storeInForm){
+                var storebag = ge.grid.storebag();
+                if(kw.node.isChildOf(storebag)){
+                    return;
+                }
+            }
+        }
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
             var invalidFields = this.getInvalidFields();
             var invalidDojo = this.getInvalidDojo()

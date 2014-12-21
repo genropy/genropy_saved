@@ -1087,7 +1087,7 @@ class SqlTable(GnrObject):
         :param record: TODO
         :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
-        pkey = old_record[self.pkey] if old_record and old_record[self.pkey] != record[self.pkey] else None
+        pkey = old_record[self.pkey] if old_record and old_record.get(self.pkey) != record.get(self.pkey) else None
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):

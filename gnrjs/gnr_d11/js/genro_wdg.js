@@ -622,7 +622,9 @@ dojo.declare("gnr.RowEditor", null, {
         this.gridEditor.rowEditors[this.rowId] = this;
         var data = rowNode.getValue();
         if(data){
+            data.clearBackRef();
             this.inititializeData(data);
+            data.setBackRef(rowNode,rowNode._parentbag);
         }else{
             this.inititializeData();
             rowNode.setValue(this.data);
@@ -730,6 +732,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.autoSave = this.editorPars? this.editorPars.autoSave:false;
         this.remoteRowController = sourceNode.attr.remoteRowController;
         this.remoteRowController_default = sourceNode.attr.remoteRowController_default;
+
         if(this.autoSave===true){
             this.autoSave = 3000;
         }
@@ -764,6 +767,7 @@ dojo.declare("gnr.GridEditor", null, {
         if(this.editorPars){
             if (sourceNode.form && sourceNode.attr.parentForm!==false){
                 sourceNode.form.registerGridEditor(sourceNode.attr.nodeId,this);
+                this.storeInForm = sourceNode.absDatapath(sourceNode.attr.storepath).indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
             }
             sourceNode.subscribe('onNewDatastore',function(){
                 that.resetEditor();
