@@ -3706,6 +3706,10 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
         return result;
     },
     hasChanges:function(){
+        var data = this.getData()
+        if(data.getNodeByAttr('_newrecord')){
+            return true
+        }
         return this.getData().getNodeByAttr('_loadedValue')!=null;
     },
 

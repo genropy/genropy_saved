@@ -658,6 +658,9 @@ dojo.declare("gnr.RowEditor", null, {
 
     hasChanges:function(){
         var changed = false;
+        if(this.newrecord){
+            return true
+        }
         if(this.data.getNodeByAttr('_loadedValue')){
             changed = true;
         }
@@ -665,15 +668,9 @@ dojo.declare("gnr.RowEditor", null, {
     },
 
     getChangeset:function(){
-        var result = new gnr.GnrBag();
-        var changed = false;
-        this.data.forEach(function(n){
-            if('_loadedValue' in n.attr){
-                result.setItem(n.label,n.getValue(),n.attr);
-            }
-            changed = true;
-        });
-        return changed?result:null;
+        if(this.hasChanges()){
+            return this.data.deepCopy()
+        }
     },
 
     getErrors:function(){
