@@ -29,7 +29,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
         genro.src.onBuiltCall(function(){that.onStartForm();});
-        formAttr.blankIsNull = formAttr.blankIsNull===false?false:true;
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -54,8 +53,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.sourceNode.attr.blankIsNull = this.blankIsNull;
-
         this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
         
         this.frameCode = sourceNode.attr.frameCode;
@@ -2209,8 +2206,6 @@ dojo.declare("gnr.formstores.Base", null, {
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         this._load_prepareDefaults(currPkey,default_kw,kw);
-        
-        
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
         var virtual_columns = objectPop(kw,'virtual_columns');

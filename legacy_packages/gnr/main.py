@@ -16,7 +16,8 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(sqlschema='gnr', comment='Transaction Manager',name_short='Transaction Manager', reserved='y')   
+        return dict(sqlschema='gnr', comment='Transaction Manager',name_short='Transaction Manager', 
+                    reserved='y',_syspackage=True)   
 
 class Table(GnrDboTable):
     pass     

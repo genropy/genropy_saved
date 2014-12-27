@@ -326,7 +326,8 @@ class GnrWebPage(GnrBaseWebPage):
         if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
-                               user=self.user, userTags=self.userTags, pagename=self.pagename)
+                               user=self.user, userTags=self.userTags, pagename=self.pagename,
+                               package=self.package.name)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)

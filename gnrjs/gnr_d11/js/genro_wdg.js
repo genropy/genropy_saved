@@ -1144,10 +1144,11 @@ dojo.declare("gnr.GridEditor", null, {
         }
         var that = this;
         var row = rowNode.getValue().deepCopy();
-        objectUpdate(kw,{field:field,row:row});
+        objectUpdate(kw,{field:field,row:row,row_attr:objectUpdate({},rowNode.attr)});
         kw['_sourceNode'] = this.grid.sourceNode;
         var result = genro.serverCall(this.remoteRowController,kw);
         rowNode.getValue().update(result,null,'remoteController');
+        rowNode.attr = objectUpdate(rowNode.attr,result.asDict())
         var editingWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         if(editingWidgetNode){
             var widget = editingWidgetNode.widget || editingWidgetNode.externalWidget;

@@ -89,13 +89,13 @@ class GnrCustomWebPage(object):
     @public_method
     def packageMenu(self):
         result = Bag()
-        for pkg in self.application.packages:
-            attr = pkg.attr
+        for pkgId,pkg in self.application.packages.items():
+            attr = pkg.attributes
             if attr.get('_syspackage'):
                 continue
-            lookup_tables = self.getLookupTable(pkg.label)
+            lookup_tables = self.getLookupTable(pkgId)
             if lookup_tables:
-                result.setItem(pkg.label,Bag(code=pkg.label,description=pkg.value.attributes.get('name_long') or pkg))
+                result.setItem(pkgId,Bag(code=pkgId,description=attr.get('name_long') or pkgId))
         return result
 
     @public_method
