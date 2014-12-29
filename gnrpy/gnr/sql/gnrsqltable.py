@@ -1459,6 +1459,9 @@ class SqlTable(GnrObject):
         if not mask:
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
+
+    def newRecordCaption(self,record):
+        return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):
         """TODO
@@ -1469,7 +1472,7 @@ class SqlTable(GnrObject):
                            For more information, check the :ref:`rowcaption` section
         """
         if newrecord:
-            return self.newrecord_caption
+            return self.newRecordCaption(record)
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:

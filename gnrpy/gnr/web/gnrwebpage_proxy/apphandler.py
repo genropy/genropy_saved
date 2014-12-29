@@ -1204,7 +1204,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkey = record[tblobj.pkey] or '*newrecord*'
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
-                       caption=tblobj.recordCaption(record, newrecord),
                        _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename,
                        from_fld=from_fld)
         #if lock and not newrecord:
@@ -1250,6 +1249,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             applyresult = self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
             if applyresult:
                 recInfo.update(applyresult)
+        recInfo['caption'] = tblobj.recordCaption(record, newrecord),
         recInfo['servertime'] = int((time.time() - t) * 1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])

@@ -321,13 +321,20 @@ class GnrWebPage(GnrBaseWebPage):
     def dbCurrentEnv(self):
         return Bag(self.db.currentEnv)
 
+    @property
+    def mainpackage(self):
+        maintable = getattr(self,'maintable',None)
+        if not maintable:
+            return self.package.name
+        return maintable.split('.')[0]
+
     @property 
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename,
-                               package=self.package.name)
+                               mainpackage=self.mainpackage)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
