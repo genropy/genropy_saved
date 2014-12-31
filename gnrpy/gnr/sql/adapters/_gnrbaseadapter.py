@@ -310,6 +310,9 @@ class SqlDbAdapter(object):
                     v = v.toXml(onBuildTag=onBagColumns)
                     #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
+        sql_value_cols = [k for k,v in tblobj.columns.items() if 'sql_value' in v.attributes and not k in data_out]
+        for k in sql_value_cols:
+            data_out[k] = None
         return data_out
 
     def lockTable(self, dbtable, mode, nowait):

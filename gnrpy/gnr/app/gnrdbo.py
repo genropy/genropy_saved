@@ -796,7 +796,9 @@ class TableBase(object):
 
     def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():
-            pars = getattr(self,'counter_%s' %field)()
+            pars = getattr(self,'counter_%s' %field)(record=newrecord)
+            if not pars:
+                continue
             if self.isDraft(newrecord) and not pars.get('assignIfDraft'):
                 continue
             if pars.get('showOnLoad'):
