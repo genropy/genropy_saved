@@ -1254,7 +1254,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         }
                     }
                 }
-                else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
+                else if ((sendback == true) || isNewRecord || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
                     if(node.attr.promised){
                         attr_dict.promised = node.attr.promised;
