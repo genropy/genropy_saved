@@ -115,7 +115,7 @@ var th_sections_manager = {
                     for(var k in condpars){
                         var newcondkey = k+'_'+cn.attr.code;
                         kwargs[newcondkey] = condpars[k];
-                        cond = cond.replace(new RegExp(':'+k,'g'),':'+newcondkey);
+                        cond = cond.replace(new RegExp('\\b('+k+')\\b','g'),newcondkey);
                     }
                     orlist.push(' ('+cond+') ');
                 }

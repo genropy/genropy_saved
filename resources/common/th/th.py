@@ -119,6 +119,7 @@ class TableHandler(BaseComponent):
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
+                                count=count,
                                 grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
                                 preview_kwargs=preview_kwargs,
                                 parentForm=parentForm,liveUpdate=liveUpdate,

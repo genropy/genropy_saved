@@ -3395,13 +3395,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
         if (this.sourceNode.attr.selectedIndex) {
-            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
         }
         if (this.sourceNode.attr.selectedPkeys) {
-            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys(), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys());
         }
         if (this.sourceNode.attr.selectedRowidx) {
-            this.sourceNode.setAttributeInDatasource('Rowidx', this.getSelectedRowidx(), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedRowidx', this.getSelectedRowidx().join(','));
         }
         if (this.sourceNode.attr.selectedNodes) {
             var nodes = this.getSelectedNodes();
@@ -5662,6 +5662,18 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
+    },
+    mixin_getSelectedRowidx: function() {
+        var sel = this.selection.getSelected();
+        if(!this._virtual){
+            return sel.sort();
+        }
+        var result = [];
+        for (var i = 0; i < sel.length; i++) {
+            var row = this.rowByIndex(sel[i]);
+            result.push(row.rowidx);
+        }
+        return result.sort();
     },
 
     mixin_cellCurrentDatapath:function(path,inRowIndex){
