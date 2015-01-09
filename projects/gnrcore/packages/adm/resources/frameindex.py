@@ -629,6 +629,7 @@ class FramedIndexLogin(BaseComponent):
             rootenv['user'] = self.avatar.user
             rootenv['user_id'] = self.avatar.user_id
             rootenv['workdate'] = rootenv['workdate'] or self.workdate
+            rootenv['login_date'] = date.today()
             rootenv['language'] = rootenv['language'] or self.language
             self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
             return self.login_newWindow(rootenv=rootenv)
@@ -685,10 +686,7 @@ class FramedIndexLogin(BaseComponent):
 
     @public_method
     def login_newWindow(self, rootenv=None, **kwargs): 
-        td = date.today()
-        rootenv['workdate'] = rootenv['workdate'] or td
-        if rootenv['workdate'] != td:
-            rootenv['custom_workdate'] = True
+        rootenv['workdate'] = rootenv['workdate']
         self.pageStore().setItem('rootenv',rootenv)
         self.db.workdate = rootenv['workdate']
         self.setInClientData('gnr.rootenv', rootenv)

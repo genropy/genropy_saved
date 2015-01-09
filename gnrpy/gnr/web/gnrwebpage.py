@@ -1653,7 +1653,10 @@ class GnrWebPage(GnrBaseWebPage):
         #    return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
         if not self.root_page_id: #page not in framedindex or framedindex itself
             connectionStore = self.connectionStore()
-            return connectionStore.getItem('defaultRootenv')
+            defaultRootenv = Bag(connectionStore.getItem('defaultRootenv'))
+            if '_workdate' in self._call_kwargs:
+                defaultRootenv['workdate'] = self.catalog.fromText(self._call_kwargs['_workdate'],'D')
+            return defaultRootenv
         return self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
         
 
