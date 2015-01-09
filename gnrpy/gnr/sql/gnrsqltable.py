@@ -723,7 +723,8 @@ class SqlTable(GnrObject):
         """Return a TempEnv class"""
         return RecordUpdater(self, pkey=pkey,**kwargs)
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,pkey=None,_raw_update=None,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, 
+                    autocommit=False,_pkeys=None,pkey=None,_raw_update=None,_onUpdatedCb=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -764,6 +765,8 @@ class SqlTable(GnrObject):
                 self.update(new_row, row,pkey=record_pkey)
             else:
                 self.raw_update(new_row,old_record=row,pkey=record_pkey)
+            if _onUpdatedCb:
+                _onUpdatedCb(record=new_row,old_record=row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys

@@ -40,6 +40,7 @@ try:
 except:
     import simplejson as json
 
+from datetime import datetime
 from gnr.core.gnrbag import Bag, TraceBackResolver
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrlang import GnrObject
@@ -131,12 +132,17 @@ class GnrBaseWebPage(GnrObject):
         locale = locale or self.locale
         period = datestr
         valid = False
-        try:
-            returnDate = gnrdate.decodeDatePeriod(datestr, workdate=workdate, locale=locale, returnDate=True)
+        if not datestr and (workdate != datetime.today()) :
+            returnDate = (None,workdate)
             valid = True
-        except:
-            returnDate = (None, None)
-            period = None
+            period=';%s' %self.toText(workdate)
+        else:
+            try:
+                returnDate = gnrdate.decodeDatePeriod(datestr, workdate=workdate, locale=locale, returnDate=True)
+                valid = True
+            except:
+                returnDate = (None, None)
+                period = None
         result = Bag()
         result['from'] = returnDate[0]
         result['to'] = returnDate[1]

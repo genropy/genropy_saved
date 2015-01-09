@@ -781,8 +781,8 @@ class TableBase(object):
     def trigger_releaseCounters(self,record=None,backToDraft=None):
         for field in self.counterColumns():
             if record.get(field):
-                counter_pars = self.getCounterPars(field,record)
-                if not counter_pars.get('recycle') or (backToDraft and counter_pars.get('assignIfDraft')):
+                counter_pars = self.getCounterPars(field,record) 
+                if not counter_pars or not counter_pars.get('recycle') or (backToDraft and counter_pars.get('assignIfDraft')):
                     continue
                 self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
