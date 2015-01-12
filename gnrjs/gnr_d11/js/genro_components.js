@@ -1260,8 +1260,8 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var types={}
         var sizes={}
         var w,dtype,v
-        if(!rows){
-            return;
+        if(!rows || rows.len()==0){
+            return {types:null,sizes:null};
         }
         if(!fields || fields=='*'){
             fields = rows.getItem('#0').keys()

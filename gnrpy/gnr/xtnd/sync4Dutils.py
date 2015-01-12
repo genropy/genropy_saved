@@ -5,7 +5,11 @@
 import os.path
 from gnr.core.gnrbag import Bag
 
+
 class Utils4D(object):
+    def __init__(self,emptyAsNone=None):
+        self.emptyAsNone = emptyAsNone
+
     def bag4dTableToListDict(self, b):
         result = []
         if 'New' in b:
@@ -19,7 +23,7 @@ class Utils4D(object):
             for v in values:
                 if len(v) < n:
                     v.extend([None] * (n - len(v)))
-            result = [dict([(k.lower(), values[i][x]) for i, k in enumerate(keys)]) for x in range(n)]
+            result = [dict([(k.lower(), self.checkValue(values[i][x])) for i, k in enumerate(keys)]) for x in range(n)]
         return result
 
     def listDictTobag4dTable(self, listdict):
@@ -27,6 +31,13 @@ class Utils4D(object):
         for k in listdict[0].keys():
             result[k] = [d.get(k) for d in listdict]
         return result
+
+    def checkValue(self,v):
+        if isinstance(v,basestring):
+            v = v.strip()
+            if self.emptyAsNone and v == '':
+                v = None
+        return v
 
 class Pkg4D(object):
     def _structFix4D(self, struct, path):

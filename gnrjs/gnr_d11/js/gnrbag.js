@@ -616,8 +616,13 @@ dojo.declare("gnr.GnrBag", null, {
             h+='</thead>';
         }
         var rows =''
-        var r,b,v,vnode,format;
-        var cells = kw.cells.split(',');
+        var r,b,v,vnode,format,cells;
+        if(kw.cells===true){
+            cells = hheadcel.keys();
+        }else{
+            cells = kw.cells.split(',');
+        }
+        
         //var cellformats = objectExtract
 
         this.forEach(function(n){
