@@ -1269,7 +1269,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 tblobj._sequencesOnLoading(record,recInfo)
             except GnrSqlException, e:
                 recInfo['_onLoadingError'] = str(e)
-        recInfo['caption'] = tblobj.recordCaption(record, newrecord),
+        recInfo['caption'] = tblobj.recordCaption(record, newrecord)
         return (record, recInfo)
         
     def _handleEagerRelations(self,record,_eager_level,_eager_record_stack=None):
