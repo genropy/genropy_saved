@@ -1280,7 +1280,7 @@ dojo.declare("gnr.GridEditor", null, {
         var attr = objectUpdate({}, fldDict.attr);
         var lastRenderedRowIndex = grid.currRenderedRowIndex;
         grid.currRenderedRowIndex = row;
-        attr = grid.sourceNode.evaluateOnNode(attr);
+       // attr = grid.sourceNode.evaluateOnNode(attr);
         grid.currRenderedRowIndex = lastRenderedRowIndex;
         attr.datapath = '.' + rowLabel;
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
