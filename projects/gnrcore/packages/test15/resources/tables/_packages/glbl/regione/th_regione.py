@@ -37,11 +37,11 @@ class TestEditInlineCheckbox(BaseComponent):
 class TestDyinCheckboxForm(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
-        #fb.field('province_principali_sigla')
+        fb.field('nome')
         fb.checkBoxText(value='^.province_principali_sigla',#values='MI:Milano,CO:Como,SO:Sondrio')
                         table='glbl.provincia',
-                        condition='$regione=:reg',condition_reg='^.sigla' ,popup=True
-                        )
+                        condition='$regione=:reg',condition_reg='^.sigla' ,popup=True,
+                        lbl='AAA')
 
 
 class TestDyinCheckboxTree(BaseComponent):
