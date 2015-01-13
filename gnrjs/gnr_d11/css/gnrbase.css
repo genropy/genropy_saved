@@ -4264,6 +4264,13 @@ div[disabled='true'], div[disabled='disabled']{
     -webkit-box-shadow: 4px 4px 4px #403b3b;
 }
 
+._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none']{
+    padding-top: 0px;
+    margin-top: -1px;
+}
+._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none'] .dijitTooltipConnector{
+    display: none;
+}
 /* @end */
 
 /* @group Pure tooltip */

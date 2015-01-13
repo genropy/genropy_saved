@@ -98,29 +98,49 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
 
 dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw, children) {
-        var ddbId = sourceNode.getStringId();
+        var ddbId = kw.openerId || sourceNode.getStringId();
         var modifiers = objectPop(kw,'modifiers') || '*';
         var onOpening = objectPop(kw,'onOpening');
+        var modal = objectPop(kw,'modal');
         if (onOpening){
             onOpening = funcCreate(onOpening,'e,sourceNode,dialogNode',sourceNode);
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         var parentDomNode;
         var sn = sourceNode;
+        var placingId = objectPop(kw,'placingId'); 
+        var noConnector = objectPop(kw,'noConnector');
         while(!parentDomNode){
             sn = sn.getParentNode();
             parentDomNode = sn.getDomNode();
         }
-        
-        var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,
-                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
+        var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
+                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);",
+                                selfsubscribe_close:"this.widget._closeDropDown();",
+                                onOpeningPopup:function(openKw,evtDomNode){
+                                    var placingDomNode = genro.domById(placingId);
+                                    if(placingDomNode){
+                                        openKw.around = placingDomNode;
+                                        openKw.popup.domNode.setAttribute('connector',"none");
+                                        //dojo.removeClass(openKw.popup.domNode,'dijitTooltipBelow');
+                                    }
+                                }});
 
         kw['connect_onOpen'] = function(){
             var wdg = this.widget;
+            if(modal){
+                genro.nodeById('_gnrRoot').setHiderLayer(true,{z_index:1000,opacity:'0.4'});
+            }
             setTimeout(function(){
                 wdg.resize();
             },1)
         };
+        if(modal){
+            kw['connect_onClose'] = function(){
+                genro.nodeById('_gnrRoot').setHiderLayer(false);
+            };
+            kw.z_index = 1001;
+        }   
         kw.doLayout = true;
         var tdialog =  ddb._('TooltipDialog',kw);
         dojo.connect(parentDomNode,evt,function(e){
@@ -2496,9 +2516,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var rootNode = sourceNode;
         var table_kw = objectExtract(kw,'table_*');
         if(popup){
-            var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true};
+            var textBoxId = 'placingTextbox_'+genro.getCounter();
+            var tbkw = {'value':has_code?value+'?_displayedValue':value,position:'relative',readOnly:true,nodeId:textBoxId};
             tb = sourceNode._('textbox',objectUpdate(tbkw,kw));
-            rootNode = tb._('comboArrow')._('tooltipPane')._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
+            rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
         }

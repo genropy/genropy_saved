@@ -1028,7 +1028,6 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
 
 });
 
-
 dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._attachTo = 'mainWindow';
@@ -6852,6 +6851,9 @@ dojo.declare("gnr.widgets.DropDownButton", gnr.widgets.baseDojo, {
                 this._opened = false;
             }
         };
+        if(this.sourceNode.attr.onOpeningPopup){
+            this.sourceNode.attr.onOpeningPopup.call(this.sourceNode,openKw,evtDomNode);
+        }
         dijit.popup.open(openKw);
         if (this.domNode.offsetWidth > dropDown.domNode.offsetWidth) {
             var adjustNode = null;
@@ -6867,11 +6869,21 @@ dojo.declare("gnr.widgets.DropDownButton", gnr.widgets.baseDojo, {
         }
         this.popupStateNode.setAttribute("popupActive", "true");
         this._opened = true;
+        if(this.sourceNode.attr.onOpenedPopup){
+            this.sourceNode.attr.onOpenedPopup.call(this.sourceNode,openKw,evtDomNode);
+        }
         if (dropDown.focus) {
             dropDown.focus();
         }
         // TODO: set this.checked and call setStateClass(), to affect button look while drop down is shown
     },
+    patch__onBlur: function(){
+        if(this.sourceNode.attr.modal){
+            return;
+        }
+        this._onBlur_replaced();
+    },
+
     patch_startup: function() {
         // the child widget from srcNodeRef is the dropdown widget.  Insert it in the page DOM,
         // make it invisible, and store a reference to pass to the popup code.
