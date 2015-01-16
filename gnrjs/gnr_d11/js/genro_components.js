@@ -3543,12 +3543,12 @@ dojo.declare("gnr.stores._Collection",null,{
             return this.itemByIdx(idx);
         }
     },
-    rowByIndex:function(idx){
+    rowByIndex:function(idx,bagFields){
         var rowdata={};
         var node=this.itemByIdx(idx);
         if (node){
             this.setExternalChangeClasses(node);
-            return this.rowFromItem(node);
+            return this.rowFromItem(node,bagFields);
         }
         return rowdata;
     },

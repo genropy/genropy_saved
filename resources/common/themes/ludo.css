@@ -727,7 +727,7 @@
 
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+._common_d11 .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px !important;
     border-top: 0 !important;
     border-right: 1px solid #dee;
@@ -776,7 +776,7 @@
     background-color: #F3F6FA;
 }
 
-.tundra._common_d11 .dojoxGrid-row-selected{
+.tundra._common_d11 .dojoxGrid-row.dojoxGrid-row-selected{
     background-color: #AFCBEC;
 }
 .tundra._common_d11 .dojoxGrid-row-selected.dojoxGrid-row-odd{

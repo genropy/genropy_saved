@@ -4307,7 +4307,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_rowCached:function(inRowIndex) {
         if (this.currRenderedRowIndex !== inRowIndex) {
             this.currRenderedRowIndex = inRowIndex;
-            this.currRenderedRow = this.rowByIndex(inRowIndex);
+            this.currRenderedRow = this.rowByIndex(inRowIndex,true);
         }
         return this.currRenderedRow;
     },
@@ -4936,7 +4936,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var subPath = kw.node.getFullpath(null, storebag).split('.');
         var rowLabel = subPath[0];
         var fldName = subPath[1];
-        if (fldName) {
+        if (fldName && grid.datamode!='bag') {
             var chNode = storebag.getNode(rowLabel);
             var cellAttr, value, gridfield;
             var currAttr = objectUpdate({},chNode.attr);
@@ -5650,14 +5650,14 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
 });
 
 dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
-    mixin_rowByIndex:function(inRowIndex){
-        return this.collectionStore().rowByIndex(inRowIndex);
+    mixin_rowByIndex:function(inRowIndex,bagFields){
+        return this.collectionStore().rowByIndex(inRowIndex,bagFields);
     },
     mixin_absIndex:function(idx,reverse){
          return this.collectionStore().absIndex(idx,reverse);
     },
-    mixin_rowFromBagNode:function(node) {
-        return this.collectionStore().rowFromItem(node);
+    mixin_rowFromBagNode:function(node,bagFields) {
+        return this.collectionStore().rowFromItem(node,bagFields);
     },
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);

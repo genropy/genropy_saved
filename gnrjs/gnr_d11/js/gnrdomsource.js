@@ -724,13 +724,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return funcApply(func,this.evaluateOnNode(kw),this);
     },
     
-    evaluateOnNode: function(pardict) {
+    evaluateOnNode: function(pardict,filterCb) {
         // given an object representing dynamic parameters
         // get current values relative to this node
         // eg. values starting with ^. are datapath relative to the current node
         var result = {};
         for (var attr in pardict) {
-            result[attr] = this.currentFromDatasource(pardict[attr]);
+            var v = pardict[attr];
+            if(filterCb && typeof(v)=='string' && this.isPointerPath(v) && !filterCb(v)){
+                result[attr] = v;
+            }else{
+                result[attr] = this.currentFromDatasource(v);
+            }
+            
         }
         return result;
     },

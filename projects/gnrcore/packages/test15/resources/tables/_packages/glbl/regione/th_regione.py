@@ -27,7 +27,12 @@ class TestEditInlineCheckbox(BaseComponent):
         r.fieldcell('sigla',hidden=True)
         r.fieldcell('nome')
         r.fieldcell('province_principali_sigla',edit=dict(tag='checkBoxText',table='glbl.provincia',
-                                                          condition='$regione=:reg',condition_reg='^.sigla'))
+                                                          condition='$regione=:reg',condition_reg='^.sigla',
+                                                          onCreated="""function(widget,attributes){
+                                                                console.log('onCreated',widget,attributes,this)
+                                                          }"""
+
+                                                          ))
         #r.fieldcell('province_principali_nome',hidden=True)
 
     def th_options(self):

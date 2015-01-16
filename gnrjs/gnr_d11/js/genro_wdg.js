@@ -613,7 +613,7 @@ dojo.declare("gnr.RowEditor", null, {
         this.gridEditor = gridEditor;
         this.grid = this.gridEditor.grid;
         rowNode.attr._pkey = rowNode.attr._pkey || rowNode.label;
-        var row = this.grid.rowFromBagNode(rowNode);
+        var row = this.grid.rowFromBagNode(rowNode,true);
         this.rowId = this.grid.rowIdentity(row);
         this._pkey = rowNode.attr._pkey;
         this.original_values = objectUpdate({},row);
@@ -799,6 +799,7 @@ dojo.declare("gnr.GridEditor", null, {
             if (genro.wdg.filterEvent(e, modifier)) {
                 if (_this.enabled() && _this.editableCell(e.cellIndex,true) && !grid.gnrediting) {
                     _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
+
                 }
             }
         });
@@ -1148,7 +1149,7 @@ dojo.declare("gnr.GridEditor", null, {
         kw['_sourceNode'] = this.grid.sourceNode;
         var result = genro.serverCall(this.remoteRowController,kw);
         rowNode.getValue().update(result,null,'remoteController');
-        rowNode.attr = objectUpdate(rowNode.attr,result.asDict())
+        //rowNode.attr = objectUpdate(rowNode.attr,result.asDict());
         var editingWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         if(editingWidgetNode){
             var widget = editingWidgetNode.widget || editingWidgetNode.externalWidget;
@@ -1164,7 +1165,7 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     updateRow:function(rowNode, updkw){
-        var row = this.grid.rowFromBagNode(rowNode);
+        var row = this.grid.rowFromBagNode(rowNode,true);
         var rowEditor = this.rowEditors[this.grid.rowIdentity(row)];
         if (!rowEditor){
             rowEditor = this.newRowEditor(rowNode);
@@ -1186,7 +1187,7 @@ dojo.declare("gnr.GridEditor", null, {
     setCellValue:function(rowIdx,cellname,value,valueCaption){
         var grid = this.grid;
         var rowNode = grid.dataNodeByIndex(rowIdx);
-        var row = grid.rowFromBagNode(rowNode);
+        var row = grid.rowFromBagNode(rowNode,true);
         var rowEditor = this.rowEditors[grid.rowIdentity(row)];
         if (!rowEditor){
             rowEditor = this.newRowEditor(rowNode);
@@ -1280,7 +1281,10 @@ dojo.declare("gnr.GridEditor", null, {
         var attr = objectUpdate({}, fldDict.attr);
         var lastRenderedRowIndex = grid.currRenderedRowIndex;
         grid.currRenderedRowIndex = row;
-       // attr = grid.sourceNode.evaluateOnNode(attr);
+        attr = grid.sourceNode.evaluateOnNode(attr,function(path){return path.indexOf('#ROW')>=0});
+        if(attr.editOnOpening && funcApply(attr.editOnOpening,{rowIndex:row,field:attr.field,rowData:rowData},this)===false){
+            return;
+        }
         grid.currRenderedRowIndex = lastRenderedRowIndex;
         attr.datapath = '.' + rowLabel;
         attr.width = attr.width || (cellNode.clientWidth-10)+'px';
@@ -1508,7 +1512,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
     },
     updateTotalizer:function(k){
-        this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum('#a.'+k));
+        this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,this.data.sum(this.grid.datamode=='bag'?k:'#a.'+k));
     },
     recalculateOneFormula:function(key){
         var that = this;
@@ -1558,7 +1562,7 @@ dojo.declare("gnr.GridChangeManager", null, {
     calculateFormula:function(formulaKey,rowNode){
         var formula = this.formulaColumns[formulaKey];
         var result;
-        var pars = this.grid.rowFromBagNode(rowNode);
+        var pars = this.grid.rowFromBagNode(rowNode,true);
         var cellmap = this.grid.cellmap;
         for (var cl in cellmap){
             pars[cl] = pars[cl];
@@ -1639,11 +1643,16 @@ dojo.declare("gnr.GridChangeManager", null, {
         var k;
         var rowNode;
         var idx;
+
         if(kw.updvalue && kw.value instanceof gnr.GnrBag ){
-            if(objectNotEmpty(this.remoteControllerColumns)){
-                this.grid.gridEditor.callRemoteController(kw.node,null,null,true);
+            var storeNode = this.grid.storebag().getParentNode();
+            var parent_lv = kw.node.parentshipLevel(storeNode);
+            if(parent_lv<2){
+                if(objectNotEmpty(this.remoteControllerColumns)){
+                    this.grid.gridEditor.callRemoteController(kw.node,null,null,true);
+                }   
+                return
             }
-            return
         }
         if(kw.updvalue && this.grid.datamode =='bag'){
             var l = kw.node.label;
