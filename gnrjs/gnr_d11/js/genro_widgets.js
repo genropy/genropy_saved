@@ -3558,7 +3558,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.customStyles.push(objectAsStyle(objectUpdate(objectFromStyle(this.cellStyles),
                                                      sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))));
             if (cellClassFunc) {
-                cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
+                var cellClassFuncResult = cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
+                if(cellClassFuncResult){
+                    this.customClasses.push(cellClassFuncResult);
+                }
             }
             var cellCustomClass = renderedRow['_customClass_'+cell.field];
             if(cellCustomClass){
