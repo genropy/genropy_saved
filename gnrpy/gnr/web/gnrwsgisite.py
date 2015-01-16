@@ -1,8 +1,7 @@
 from gnr.core.gnrbag import Bag
-#from paste import httpexceptions
-#from paste import request as paste_request
 from weberror.evalexception import EvalException
-from paste.exceptions.errormiddleware import ErrorMiddleware
+#from paste.exceptions.errormiddleware import ErrorMiddleware
+from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
