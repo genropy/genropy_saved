@@ -4029,7 +4029,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                                             },'static');
                                             that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection,isExternalDict);
                                             return result;
-                                    },{store_chpkeys:chpkeys,condition:condition});
+                                    },{store_chpkeys:chpkeys,condition:condition,applymethod:null});
 
 
         }else if (delKeys.length>0) {
