@@ -114,17 +114,20 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
             sn = sn.getParentNode();
             parentDomNode = sn.getDomNode();
         }
-        var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
+        var ddkw = {hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,modal:modal,
                                 selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);",
-                                selfsubscribe_close:"this.widget._closeDropDown();",
-                                onOpeningPopup:function(openKw,evtDomNode){
+                                selfsubscribe_close:"this.widget._closeDropDown();"}
+        if(placingId){
+            ddkw.onOpeningPopup = function(openKw,evtDomNode){
                                     var placingDomNode = genro.domById(placingId);
                                     if(placingDomNode){
                                         openKw.around = placingDomNode;
                                         openKw.popup.domNode.setAttribute('connector',"none");
                                         //dojo.removeClass(openKw.popup.domNode,'dijitTooltipBelow');
                                     }
-                                }});
+                                };
+        }
+        var ddb = sourceNode._('dropDownButton',ddkw);
 
         kw['connect_onOpen'] = function(){
             var wdg = this.widget;
