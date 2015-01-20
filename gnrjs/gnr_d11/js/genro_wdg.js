@@ -625,6 +625,9 @@ dojo.declare("gnr.RowEditor", null, {
             data.clearBackRef();
             this.inititializeData(data);
             data.setBackRef(rowNode,rowNode._parentbag);
+            if(this.gridEditor.remoteRowController){
+                this.gridEditor.callRemoteController(rowNode,null,null,true);
+            }
         }else{
             this.inititializeData();
             rowNode.setValue(this.data);

@@ -431,6 +431,8 @@ class GnrWebPage(GnrBaseWebPage):
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
         except GnrException,e:
+            if self.site.debug and (self.isDeveloper() or self.site.force_debug):
+                raise
             self.rpc.error = 'gnrexception'
             result = str(e)
         except Exception,e:
