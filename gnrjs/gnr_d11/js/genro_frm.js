@@ -1183,7 +1183,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     setCurrentPkey:function(pkey){
         var currentPkey = this.getCurrentPkey()
         this.sourceNode.setRelativeData(this.pkeyPath,pkey);
-        if(pkey!=currentPkey && this.store){
+        if(pkey !=currentPkey && this.store){
             this.store.loadedIndex = -1;
         }
     },
