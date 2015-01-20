@@ -26,6 +26,7 @@
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
 
 from gnr.core.gnrbag import Bag
 
@@ -141,7 +142,9 @@ class RemoteBagServer(RemoteBagServerBase):
         port=port or PYRO_PORT
         host=host or PYRO_HOST
         hmac_key=hmac_key or PYRO_HMAC_KEY
-        Pyro4.config.HMAC_KEY = str(hmac_key)
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = str(hmac_key)
+
         if compression:
             Pyro4.config.COMPRESSION = True
         if multiplex:
@@ -151,6 +154,8 @@ class RemoteBagServer(RemoteBagServerBase):
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
         self.daemon = Pyro4.Daemon(host=host,port=int(port))
+        if not OLD_HMAC_MODE:
+            self.daemon._pyroHmacKey = PYRO_HMAC_KEY
         self.main_uri = self.daemon.register(self,'RemoteBagServer')
         print "uri=",self.main_uri
         self.daemon.requestLoop()
@@ -230,10 +235,13 @@ class RemoteBagClient(RemoteBagClientBase):
         host = host or PYRO_HOST
         port = port or PYRO_PORT
         hmac_key = str(hmac_key or PYRO_HMAC_KEY)
-        Pyro4.config.HMAC_KEY = hmac_key
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = hmac_key
         Pyro4.config.SERIALIZER = 'pickle'
         uri = uri or 'PYRO:RemoteBagServer@%s:%i' %(host,port)
         self.proxy=Pyro4.Proxy(uri)
+        if not OLD_HMAC_MODE:
+            self.proxy._pyroHmacKey = hmac_key
 
         
     def __call__(self,name):

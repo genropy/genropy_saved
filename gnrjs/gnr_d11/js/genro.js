@@ -1499,7 +1499,7 @@ dojo.declare('gnr.GenroClient', null, {
                 childpath = childpath.slice(1).join('/');
             }
             if(nodeId.indexOf('FORM')==0){
-                node=scope.attributeOwnerNode('formId,_fakeform') || scope.getParentNode();
+                node = scope.attributeOwnerNode('formId,_fakeform') || scope.getParentNode();
             }else if(nodeId.indexOf('ANCHOR')==0){
                 node=scope.attributeOwnerNode('_anchor') || scope.getParentNode();
             }

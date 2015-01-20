@@ -143,11 +143,10 @@ def getSiteHandler(site_name, gnr_config=None):
                             site_script = site_script)
 
 def getGnrConfig(config_path=None):
-    config = Bag()
     config_path = config_path or gnrConfigPath()
-    if os.path.isdir(config_path):
-        config = Bag(config_path)
-    return config
+    if not config_path:
+        raise Exception('Missing genro configuration')
+    return Bag(config_path)
 
 def gnrConfigPath():
     if os.environ.has_key('VIRTUAL_ENV'):
@@ -157,7 +156,11 @@ def gnrConfigPath():
     else:
         config_path = '~/.gnr'
     config_path  = expandpath(config_path)
-    return config_path
+    if os.path.isdir(config_path):
+        return config_path
+    config_path = expandpath('/etc/gnr')
+    if os.path.isdir(config_path):
+        return config_path
         
 
 

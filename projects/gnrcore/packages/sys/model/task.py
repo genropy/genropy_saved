@@ -100,6 +100,7 @@ class Table(object):
             else:
                 result=Bag(result=tmp_result)
         except Exception, e:
+            self.db.table('sys.error').writeException(description='Error in task %s %s :%s' %(task['table_name'],task['command'],str(e)))
             raise
             result = Bag(error=unicode(e))
             log_result = True

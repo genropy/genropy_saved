@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><auto><container _T="NN" table="docker.container" label="!!Container"></container>
+<server _T="NN" table="docker.server" label="!!Server"></server>
+<server_container _T="NN" table="docker.server_container" label="!!Server_container"></server_container></auto></GenRoBag>

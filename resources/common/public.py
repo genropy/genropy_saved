@@ -11,10 +11,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
-from gnr.core.gnrstring import boolean,slugify
+from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdict import dictExtract
-from datetime import date
 import os
 
 class PublicBase(BaseComponent):
@@ -90,8 +88,6 @@ class PublicBase(BaseComponent):
                             
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
         pane.slotBar('',_class='pbl_root_bottom')
-
-
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
@@ -191,7 +187,7 @@ class PublicSlots(BaseComponent):
                 }
                 dojo.addClass(dojo.body(),'gnroutofdate');
             }
-            """,_onStart=True,custom_workdate=self.rootenv['custom_workdate'] or False,lg='!!Logout',cn='!!Continue',
+            """,_onStart=True,custom_workdate=self.rootenv['login_date'] != self.workdate or False,lg='!!Logout',cn='!!Continue',
                 msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
         pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     
@@ -395,6 +391,23 @@ class TableHandlerMain(BaseComponent):
         kwargs.setdefault('form_form_isRootForm',True)
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,lockable=lockable,
                                                       extendedQuery=extendedQuery,**kwargs)
+        root.dataController("""
+            if(_subscription_kwargs.start_pkey){
+                formNode.form.load({destPkey:start_pkey});
+                return
+            }
+            var sections = objectExtract(_subscription_kwargs,'start_section_*',true);
+            for (var k in sections){
+                viewNode.setRelativeData('.sections.'+k+'.current',sections[k]);
+            }
+            if(_subscription_kwargs.start_query){
+                if(_subscription_kwargs.start_query!='*'){
+                    viewNode.setRelativeData('.query.currentQuery',start_query);
+                }
+                viewNode.fireEvent('.runQuery',true);
+            }
+            """,subscribe_frameindex_external=True,
+                            formNode=getattr(th,'form',False),viewNode=th.view)
         if getattr(self,'public_partitioned',None):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')

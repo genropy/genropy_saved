@@ -475,6 +475,16 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             console.log('currentInstance',constrainAttr);
         });
         
+        var cbResize=function(){
+                sourceNode._rsz=null;
+                try{
+                    ckeditor.gnr_assignConstrain();
+                    ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
+                }catch(e){
+                    
+                }
+                
+        };
         ckeditor.on('instanceReady', function(ev){
             var editor = ev.editor;
             editor.gnr_assignConstrain();
@@ -486,22 +496,21 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             } else if (editor.document.$.attachEvent) {
                 editor.document.$.attachEvent( 'ondrop', dropHandler, true ) ; 
             }
+            editor.document.$.addEventListener('keydown',function(evt){
+                ckeditor.lastKey = evt.keyCode;
+            });
+
             if(sourceNode.attr.onStarted){
                 funcApply(sourceNode.attr.onStarted,{editor:editor},sourceNode);
             }
-            
+            cbResize();
+            if(sourceNode.attr._inGridEditor){
+                var that = this;
+                setTimeout(function(){that.focus()},100);
+            }
         });
 
-        var cbResize=function(){
-                sourceNode._rsz=null;
-                try{
-                    ckeditor.gnr_assignConstrain();
-                    ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
-                }catch(e){
-                    
-                }
-                
-        };
+
         dojo.connect(parentWidget,'resize',function(){
             if(sourceNode._rsz){
                 clearTimeout(sourceNode._rsz);
@@ -519,7 +528,32 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         }
 
         var ckeditor =  sourceNode.externalWidget;
-        dojo.connect(ckeditor.focusManager, 'blur', ckeditor, 'gnr_setInDatastore');
+        dojo.connect(ckeditor.focusManager, 'blur', function(evt){
+            ckeditor.gnr_setInDatastore();            
+            if(sourceNode.attr.connect_onBlur){
+                if(ckeditor._blurTimeOut){
+                    clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                }
+                ckeditor._blurTimeOut = setTimeout(function(){
+                    if(sourceNode.attr._inGridEditor && sourceNode.externalWidget.lastKey==9){
+                        sourceNode.externalWidget.cellNext = 'RIGHT';  
+                    }
+                    funcApply(sourceNode.attr.connect_onBlur,{evt:evt},sourceNode);
+                    clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                },200)
+                
+            }
+        });
+        dojo.connect(ckeditor.focusManager, 'focus', function(evt){
+            if(ckeditor._blurTimeOut){
+                clearTimeout(ckeditor._blurTimeOut)
+                    ckeditor._blurTimeOut = null
+                }
+        });
+
+
         dojo.connect(ckeditor.editor, 'paste', ckeditor, 'gnr_onPaste');
         ckeditor['on']('paste',function(e){
             var lastSelection = sourceNode.externalWidget.getSelection().getNative();
@@ -538,12 +572,17 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
                 this.gnr_setInDatastore();
             },1,this,'typing');
         })
-        ckeditor['on']('key',function(){
-            genro.callAfter(function(){
-                this.gnr_onTyped();
-                this.gnr_setInDatastore();
-            },1000,this,'typing');
+        ckeditor['on']('key',function(kw){
+            if(!sourceNode.attr._inGridEditor){
+                genro.callAfter(function(){
+                    this.gnr_onTyped();
+                    this.gnr_setInDatastore();
+                },1000,this,'typing');
+            }
         });
+    
+        return ckeditor;
+        
     },
 
     onSpeechEnd:function(sourceNode,v){

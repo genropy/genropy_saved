@@ -246,7 +246,7 @@ class InstanceMaker(object):
         self.db_password = db_password
         self.use_dbstores = use_dbstores
         self.config = config
-        
+
     def do(self):
         """TODO"""
         self.instance_path = os.path.join(self.base_path, self.instance_name)
@@ -295,7 +295,7 @@ class PackageMaker(object):
     """
     def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=None,
                  name_short=None, name_long=None, name_full=None,
-                 login_url=None, comment=None):
+                 login_url=None, comment=None,helloworld=False):
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -305,6 +305,7 @@ class PackageMaker(object):
         self.sqlprefix = sqlprefix
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
+        self.helloworld = helloworld
         
     def do(self):
         """Creates the files of the ``packages`` folder"""
@@ -351,13 +352,20 @@ class Table(GnrDboTable):
             main_py.close()
 
         if not os.path.exists(self.framedindex_path):
-            indexpage = open(self.framedindex_path, 'w')
-            indexpage.write("""# -*- coding: UTF-8 -*-
+            with open(self.framedindex_path, 'w') as indexpage:
+                indexpage.write("""# -*- coding: UTF-8 -*-
             
 class GnrCustomWebPage(object):
-    py_requires = 'frameindex'
+    py_requires = 'plainindex'
     """)
-            indexpage.close()
+        if self.helloworld:
+            with open(os.path.join(self.webpages_path,'hello_world.py'), 'w') as helloworld:
+                helloworld.write("""# -*- coding: UTF-8 -*-
+            
+class GnrCustomWebPage(object):
+    def main(self,root,**kwargs):
+        root.h1('Hello world',text_align='center')
+    """)
             
 class ResourceMaker(object):
     """Handle the creation of the ``resources`` folder"""

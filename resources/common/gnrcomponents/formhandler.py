@@ -247,16 +247,25 @@ class FormHandler(BaseComponent):
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
     @struct_method          
-    def fh_slotbar_form_selectrecord(self,pane,table=None,**kwargs):
-        fb = pane.formbuilder(cols=1, border_spacing='1px')
+    def fh_slotbar_form_selectrecord(self,pane,table=None,pars=None,**kwargs):
         table = table or pane.getInheritedAttributes()['table']
-        tblobj = self.db.table(table)
-        fb.dbselect(value="^.pkey",dbtable=table,
-                    parentForm=False,condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
+        pane.lightbutton(_class='iconbox magnifier',action='SET #FORM.controller.temp.selectorVisible=true;',
+                        hidden='^#FORM.controller.temp.selectorVisible')
+        box = pane.div(margin_top='2px',hidden='^#FORM.controller.temp.selectorVisible?=!#v')
+        dbselect_pars = dict(width='12em',_class='th_linker',rounded=8)
+        pars = pars or dict()
+        dbselect_pars.update(pars)
+        box.dbselect(value="^#FORM.controller.temp.selector_pkey",dbtable=table,
+                    parentForm=False,
+                    #condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
                     #condition_pkeys='==this.form?this.form.store.parentStore? this.form.store.parentStore.currentPkeys():null:null;',
-                    #validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
-                    hasDownArrow=True,
-                    lbl=tblobj.name_long)
+                    validate_onAccept="""this.widget.focusNode.blur();
+                                        if(value && userChange){
+                                            var form = this.getParentNode().getFormHandler()
+                                            form.goToRecord(value);
+                                            SET #FORM.controller.temp.selector_pkey = null;
+                                            SET #FORM.controller.temp.selectorVisible = null;
+                                        }""",**dbselect_pars)
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,defaults=None,**kwargs):
@@ -283,19 +292,19 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_first(self,pane,**kwargs):
         pane.formButton('!!First',iconClass="iconbox first",
                     topic='navigationEvent',command='first',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_prev(self,pane,**kwargs):
         pane.formButton('!!Prev',iconClass="iconbox previous",
                     topic='navigationEvent',command='prev',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_next(self,pane,**kwargs):
         pane.formButton('!!Next',iconClass="iconbox next",
                     topic='navigationEvent',command='next',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method          
     def fh_slotbar_form_logicalDeleter(self,pane,**kwargs):
@@ -318,7 +327,7 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_last(self,pane,**kwargs):
         pane.formButton('!!Last',iconClass="iconbox last",
                     topic='navigationEvent',command='last',
-                    formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
+                    formsubscribe_navigationStatus="this.setDisabled($1.last || false);")
 
     @struct_method           
     def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):

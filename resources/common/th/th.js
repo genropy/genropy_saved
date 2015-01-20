@@ -70,14 +70,40 @@ var th_usersettings = function(th){
 
 
 var th_sections_manager = {
+    updateSectionsStatus:function(sections,viewNode){
+        var viewDomNode = viewNode.getDomNode();
+        dojo.forEach(viewDomNode.classList,function(cls){
+            if(cls.indexOf('section_')==0){
+                dojo.removeClass(viewDomNode,cls);
+            }
+        });
+        var structToSet,sectionsbag,current,sections_name;
+        sections.forEach(function(n){
+            sections_name = n.label;
+            sectionsbag = n.getValue();
+            if(!sectionsbag.getItem('enabled')){
+                return;
+            }
+            current = sectionsbag.getItem('current');
+            if(sectionsbag.getItem('variable_struct')){
+                structToSet = sectionsbag.getNode('data.'+current).attr.struct;
+            }
+            current.split(',').forEach(function(curr){
+                dojo.addClass(viewDomNode,'sections_' + sections_name+'_' + curr);
+            });
+        });
+        viewNode.setRelativeData('.grid.currViewPath',structToSet);
+    },
+
     onCalling:function(sections,kwargs){
         var currentSections = [];
-
         var original_condition = kwargs['condition'];
         var andlist = [];
-
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
+            if(!sectionsbag.getItem('enabled')){
+                return;
+            }
             var currents = sectionsbag.getItem('current').split(',');
             var orlist = [];
             var conditions = sectionsbag.getItem('data');
@@ -89,7 +115,7 @@ var th_sections_manager = {
                     for(var k in condpars){
                         var newcondkey = k+'_'+cn.attr.code;
                         kwargs[newcondkey] = condpars[k];
-                        cond = cond.replace(new RegExp(':'+k,'g'),':'+newcondkey);
+                        cond = cond.replace(new RegExp('\\b('+k+')\\b','g'),newcondkey);
                     }
                     orlist.push(' ('+cond+') ');
                 }
@@ -111,6 +137,9 @@ var th_sections_manager = {
         var captions = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
+            if(!sectionsbag.getItem('enabled')){
+                return;
+            }
             var current = sectionsbag.getItem('current');
             var currents = current ? current.split(','): [];
             var orlist = [];
@@ -203,9 +232,6 @@ dojo.declare("gnr.LinkerManager", null, {
     openLinker:function(focus){
         var sourceNode = this.sourceNode;
         var that =this;
-        if(sourceNode.form.locked){
-            return;
-        } 
         genro.dom.addClass(sourceNode,"th_enableLinker");
         if(this.embedded && focus!=false){
             setTimeout(function(){
@@ -271,6 +297,7 @@ dojo.declare("gnr.LinkerManager", null, {
             that.setCurrentPkey(kw.pkey);
         });
         this.linkerform.subscribe('onDismissed',function(kw){
+            genro.publish('changeInTable',{pkey:that.getCurrentPkey(),table:that.table})
             that.thdialog.hide();
         });
         

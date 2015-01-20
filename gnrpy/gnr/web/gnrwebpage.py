@@ -321,12 +321,20 @@ class GnrWebPage(GnrBaseWebPage):
     def dbCurrentEnv(self):
         return Bag(self.db.currentEnv)
 
+    @property
+    def mainpackage(self):
+        maintable = getattr(self,'maintable',None)
+        if not maintable:
+            return self.package.name
+        return maintable.split('.')[0]
+
     @property 
     def db(self):
         if not getattr(self, '_db',None):
             self._db = self.application.db
             self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
-                               user=self.user, userTags=self.userTags, pagename=self.pagename)
+                               user=self.user, userTags=self.userTags, pagename=self.pagename,
+                               mainpackage=self.mainpackage)
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(_excludeNoneValues=True,**self.avatar.extra_kwargs)
@@ -423,6 +431,8 @@ class GnrWebPage(GnrBaseWebPage):
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
         except GnrException,e:
+            if self.site.debug and (self.isDeveloper() or self.site.force_debug):
+                raise
             self.rpc.error = 'gnrexception'
             result = str(e)
         except Exception,e:
@@ -432,7 +442,8 @@ class GnrWebPage(GnrBaseWebPage):
                 exception_record = self.site.writeException(exception=e, traceback=tracebackBag())
                 if self.site.error_smtp_kwargs:
                     import sys
-                    from paste.exceptions.errormiddleware import handle_exception
+                    #from paste.exceptions.errormiddleware import handle_exception
+                    from weberror.errormiddleware import handle_exception
                     error_handler_kwargs = self.site.error_smtp_kwargs
                     error_handler_kwargs['debug_mode'] = True
                     error_handler_kwargs['simple_html_error'] = False
@@ -1503,7 +1514,6 @@ class GnrWebPage(GnrBaseWebPage):
             page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
             page.dataRemote('server.pageStore',self.getPageStoreData,cacheTime=1)
             page.dataRemote('server.dbEnv',self.dbCurrentEnv,cacheTime=1)
-
             page.dataController(""" var changelist = copyArray(_node._value);
                                     dojo.forEach(changelist,function(c){
                                         for (var k in c){
@@ -1646,7 +1656,10 @@ class GnrWebPage(GnrBaseWebPage):
         #    return Bag(urllib.unquote(cookie.value)).getItem('rootenv')
         if not self.root_page_id: #page not in framedindex or framedindex itself
             connectionStore = self.connectionStore()
-            return connectionStore.getItem('defaultRootenv')
+            defaultRootenv = Bag(connectionStore.getItem('defaultRootenv'))
+            if '_workdate' in self._call_kwargs:
+                defaultRootenv['workdate'] = self.catalog.fromText(self._call_kwargs['_workdate'],'D')
+            return defaultRootenv
         return self.pageStore(page_id=self.parent_page_id).getItem('rootenv')
         
 

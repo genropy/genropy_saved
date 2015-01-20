@@ -656,17 +656,24 @@ class GnrApp(object):
         """TODO"""
         if not self.instanceFolder:
             return Bag()
+        def normalizePackages(config):
+            if config['packages']:
+                packages = Bag()
+                for n in config['packages']:
+                    packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
+                config['packages']  = packages
+            return config
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
-        base_instance_config = Bag(instance_config_path)
-        instance_config = self.gnr_config['gnr.instanceconfig.default_xml'] or Bag()
+        base_instance_config = normalizePackages(Bag(instance_config_path))
+        instance_config = normalizePackages(self.gnr_config['gnr.instanceconfig.default_xml']) or Bag()
         template = base_instance_config['instance?template']
         if template:
-            instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % template] or Bag())
+            instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % template]) or Bag())
         if 'instances' in self.gnr_config['gnr.environment_xml']:
             for path, instance_template in self.gnr_config.digest(
                     'gnr.environment_xml.instances:#a.path,#a.instance_template') or []:
                 if path == os.path.dirname(self.instanceFolder):
-                    instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template] or Bag())
+                    instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template]) or Bag())
         instance_config.update(base_instance_config)
         return instance_config
         
@@ -707,8 +714,8 @@ class GnrApp(object):
         pkgMenus = self.config['menu?package'] or []
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
+
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
-            pkgid = attrs.get('pkgcode',None) or pkgid
             if ':' in pkgid:
                 project,pkgid=pkgid.split(':')
             else:

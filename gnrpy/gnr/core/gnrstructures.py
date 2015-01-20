@@ -96,8 +96,8 @@ class GnrStructData(Bag):
         :param childname: the :ref:`childname`
         """
         where = self
-        if childname and childname != '*_#':
-            kwargs['_childname'] = childname
+       #if childname and childname != '*_#':
+       #    kwargs['_childname'] = childname
         if childcontent is None:
             childcontent = content
         if _attributes:

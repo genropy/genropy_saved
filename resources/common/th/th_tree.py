@@ -5,158 +5,13 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 
-
-class TableHandlerTreeResolver(BagResolver):
-    classKwargs = {'cacheTime': 300,
-                   'table':None,
-                   'parent_id': None,
-                   'root_id':None,
-                   'caption_field':None,
-                   'condition':None,
-                   'condition_kwargs':None,
-                   '_condition_id':None,
-                   'dbstore':None,
-                   'columns':None,
-                   'related_kwargs':None,
-                   '_isleaf':None,
-                   '_page':None}
-    classArgs = ['table','parent_id']
-
-    @property
-    def relatedCaptionField(self):
-        db = self._page.db
-        related_tblobj = db.table(self.related_kwargs['table'])
-        return self.related_kwargs.get('caption_field') or related_tblobj.attributes.get('caption_field')
-
-    @property
-    def db(self):
-        return self._page.db
-
-    def load(self):
-        result = Bag()
-        if self.related_kwargs:
-            for related_row in self.getRelatedChildren(self.parent_id):
-                r = dict(related_row)
-                pkey = r.pop('pkey',None)
-                result.setItem(pkey, None,
-                                 caption=r[self.relatedCaptionField],
-                                 pkey=pkey, treeIdentifier='%s_%s'%(self.parent_id, pkey),
-                                 node_class='tree_related',**r)
-        if not self._isleaf:
-            children = self.getChildren(self.parent_id)
-            if len(children):
-                self.setChildren(result,children)
-        return result
-
-    def getRelatedChildren(self,parent_id=None):
-        related_tblobj = self.db.table(self.related_kwargs['table'])
-        result = []
-        if parent_id:
-            related_kwargs = dict(self.related_kwargs)
-            caption_field = self.relatedCaptionField
-            columns = self.related_kwargs.get('columns') or '*,$%s' %caption_field
-            relation_path = self.related_kwargs['path']
-            condition = self.related_kwargs.get('condition')
-            condition_kwargs = dictExtract(related_kwargs,'condition_')
-            wherelist = [' (%s=:pkey) ' % relation_path]
-            if condition:
-                wherelist.append(condition)
-            result = related_tblobj.query(where=' AND '.join(wherelist),columns=columns, _storename=self.dbstore,
-                                            pkey=parent_id,**condition_kwargs).fetch()
-        return result
-
-    def getChildren(self,parent_id):
-        tblobj = self.db.table(self.table)
-        where = '$parent_id IS NULL'
-        if self.root_id:
-            where = '$id=:r_id'
-        elif parent_id:
-            where='$parent_id=:p_id'
-        caption_field = self.caption_field
-        if not caption_field:
-            if tblobj.attributes.get('hierarchical_caption_field'):
-                caption_field = tblobj.attributes['hierarchical_caption_field']
-            elif tblobj.attributes['hierarchical'] != 'pkey':
-                caption_field = tblobj.attributes['hierarchical'].split(',')[0]
-            else:
-                caption_field = tblobj.attributes.get('caption_field')
-            self.caption_field = caption_field
-        condition_kwargs = self.condition_kwargs or dict()
-        for k,v in condition_kwargs.items():
-            condition_kwargs.pop(k)
-            condition_kwargs[str(k)] = v
-        condition_pkeys = None
-        if self.condition:
-            condition_pkeys = self.getConditionPkeys()
-            where = ' ( %s ) AND ( $id IN :condition_pkeys ) ' %where
-        order_by = tblobj.attributes.get('order_by') or '$%s' %caption_field
-        columns = self.columns or '*'
-        q = tblobj.query(where=where,p_id=parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
-                         condition_pkeys=condition_pkeys,
-                         order_by=order_by,_storename=self.dbstore,**condition_kwargs)
-        return q.fetch()
-
-    def setChildren(self,result,children):
-        pkeyfield = self.db.table(self.table).pkey
-        for r in children:
-            record = dict(r)
-            caption = r[self.caption_field]
-            pkey = record[pkeyfield]
-            child_count=record['child_count']
-            value = None
-            if child_count:
-                value = TableHandlerTreeResolver(_page=self._page,table=self.table,parent_id=pkey,caption_field=self.caption_field,
-                                            dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
-                                            _condition_id=self._condition_id,columns=self.columns)
-            elif self.related_kwargs:
-                related_children = self.getRelatedChildren(pkey)
-                if related_children:
-                    value = TableHandlerTreeResolver(_page=self._page,table=self.table,parent_id=pkey,caption_field=self.caption_field,
-                                            dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
-                                            _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
-                    child_count = len(related_children)
-            result.setItem(pkey,value,
-                            caption=caption,
-                            child_count=child_count,pkey=pkey or '_all_',
-                            parent_id=self.parent_id,
-                            hierarchical_pkey=record['hierarchical_pkey'],
-                            treeIdentifier=pkey,_record=record)
-        return result
-
-    def resolverSerialize(self):
-        attr = super(TableHandlerTreeResolver, self).resolverSerialize()
-        attr['kwargs'].pop('_page',None)
-        return attr
-
-    def getConditionPkeys(self):
-        if self._condition_id:
-            condition_pkeys = self._page.pageStore().getItem('hresolver.%s' %self._condition_id)
-        else:
-            self._condition_id = self._page.getUuid()
-            db = self._page.db
-            tblobj = db.table(self.table)
-            condition_kwargs = self.condition_kwargs or dict()
-            valid = tblobj.query(where='$child_count=0 AND ( %s )' %self.condition,columns='$hierarchical_pkey',
-                                 _storename=self.dbstore,addPkeyColumn=False,**condition_kwargs).fetch()
-            condition_pkeys = set()
-            for r in valid:
-                for pk in r['hierarchical_pkey'].split('/'):
-                    condition_pkeys.add(pk)
-            condition_pkeys = list(condition_pkeys)
-            with self._page.pageStore() as store:
-                store.setItem('hresolver.%s' %self._condition_id,condition_pkeys)
-        return condition_pkeys
-
-
-
 class HTableTree(BaseComponent):
     js_requires='th/th_tree'
-
     @extract_kwargs(tree=True)
     @struct_method
     def ht_hdbselect(self,pane,caption_field=None,treeMode=None,folderSelectable=False,cacheTime=None,connectedMenu=None,tree_kwargs=None,**kwargs):
@@ -166,8 +21,6 @@ class HTableTree(BaseComponent):
         dbselect_condition_kwargs = dictExtract(attr,'condition_')
         if not folderSelectable:
             attr['condition'] = '$child_count=0' if not dbselect_condition else ' ( %s ) AND $child_count=0' %dbselect_condition
-
-
         attr['hasDownArrow'] = True
         attr['_hdbselect'] = True
         dbselect_nodeId = attr.get('nodeId') or str(id(dbselect))
@@ -184,12 +37,11 @@ class HTableTree(BaseComponent):
             currentHMenu[connectedMenu] = currentHMenu
         attr['connectedMenu'] = connectedMenu
 
-
     @struct_method
     def ht_treemenu(self,pane,storepath=None,table=None,condition=None,condition_kwargs=None,cacheTime=None,
                     caption_field=None,dbstore=None,modifiers=None,max_height=None,min_width=None,menuId=None,**kwargs):
 
-        pane.dataRemote(storepath,self.ht_remoteHtableViewStore,table=table,
+        pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
                         condition_kwargs=condition_kwargs,
                         cacheTime=cacheTime or -1,caption_field=caption_field,dbstore=dbstore)
@@ -222,40 +74,21 @@ class HTableTree(BaseComponent):
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
         if condition:
-            d = pane.dataRpc(storepath,self.ht_remoteHtableViewStore,
+            d = pane.dataRpc(storepath,tblobj.getHierarchicalData,
                         table=table,
                         caption_field=caption_field,
                         condition=condition,
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         **kwargs)
+            
             return d
-        v = TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,dbstore=dbstore,related_kwargs=related_kwargs,
-                                                root_id=root_id,columns=columns)
-        b.setItem('root',v,caption=tblobj.name_long,
-                                                child_count=1,pkey='',treeIdentifier='_root_')
-        if resolved:
-            def cb(self,*args,**kwargs):
-                pass
-            b.walk(cb)
+            
+        b = tblobj.getHierarchicalData(caption_field=caption_field,dbstore=dbstore,
+                                                    related_kwargs=related_kwargs,
+                                                    root_id=root_id,columns=columns,resolved=resolved)
         d = pane.data(storepath,b,childname='store',caption=caption,table=table) 
-
         return d
-
-
-
-    @public_method
-    def ht_remoteHtableViewStore(self,table=None,caption_field=None,condition=None,
-                                    condition_kwargs=None,caption=None,dbstore=None,columns=None,related_kwargs=None,**kwargs):
-        b = Bag()
-        tblobj = self.db.table(table)
-        caption = caption or tblobj.name_plural
-        condition_kwargs = condition_kwargs or dict()
-        condition_kwargs.update(dictExtract(kwargs,'condition_'))
-        v = TableHandlerTreeResolver(_page=self,table=table,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
-                                                condition_kwargs=condition_kwargs)
-        b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_')
-        return b
 
     @public_method    
     def ht_moveHierarchical(self,table=None,pkey=None,into_pkey=None,parent_id=None,into_parent_id=None,modifiers=None):
@@ -278,15 +111,6 @@ class HTableTree(BaseComponent):
                     tblobj.update(r,old_rec)
             self.db.commit()
 
-    @public_method
-    def ht_pathFromPkey(self,table=None,pkey=None,dbstore=None):
-        tblobj = self.db.table(table)
-        hierarchical_pkey =  tblobj.readColumns(columns='$hierarchical_pkey',pkey=pkey,_storename=dbstore)
-        path = hierarchical_pkey.replace('/','.') if hierarchical_pkey else 'root'
-        return path
-
-        
-    
     @extract_kwargs(condition=dict(slice_prefix=False),related=True)
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
@@ -472,16 +296,20 @@ class TableHandlerHierarchicalView(BaseComponent):
                                hpkey = '=.form.record.hierarchical_pkey',
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
+    @extract_kwargs(relation=True)
     @struct_method
-    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True):
+    def ht_relatedTableHandler(self,tree,th,relation_table=None,dropOnRoot=True,
+                                inherited=None,relation_kwargs=None):
         vstore = th.view.store
         vstoreattr = vstore.attributes
         grid = th.view.grid
         gridattr = grid.attributes
         maintable = tree.getInheritedAttributes()['table']
         maintableobj = self.db.table(maintable)
-        bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
-        bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',parentForm=False,label_color='#666')
+        if inherited:
+            bar = th.view.top.bar.replaceSlots('searchOn','showInherited,10,searchOn')
+            bar.showInherited.checkbox(value='^.showInherited',label='!!Show Inherited',
+                                    parentForm=False,label_color='#666')
         if not relation_table:
             tblalias = maintableobj.pkg.tables['%s_alias' %maintable.split('.')[1]]
             relation_table = tblalias.fullname if tblalias else ''
@@ -489,17 +317,28 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragTable = th.attributes['table']
         fkey_name = vstoreattr.get('_fkey_name')
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
+        fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
-        condpars = dict(suffix='/%%',curr_fkey='=#FORM.pkey',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
+        for k in relation_kwargs.keys():
+            altrelname = k.split('_')[0] #altrelname must not contain '_'
+            if not altrelname in relation_kwargs:
+                relation_kwargs[altrelname] = dictExtract(relation_kwargs,altrelname+'_',pop=True)
+        for k,v in fkey_name_alt.items():
+            condlist.append(" $%s = :fkey " %v)
+            if k in relation_kwargs:
+                hiddencolumns.append("$%s" %v)
+                relation_kwargs[k]['fkey_name'] = v
+                assert relation_kwargs[k]['modifiers'],'Missing modifiers for handling alt relation %s' %k
         
-        hiddencolumns = gridattr.get('hiddencolumns') or []
         rel_fkey_name = False 
         if fkey_name:
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
-            condlist.append("""( CASE WHEN :curr_fkey IS NULL 
+            condlist.append("""( CASE WHEN :fkey IS NULL 
                                      THEN $%s IS NULL 
-                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:curr_fkey ) ) 
-                                 END )""" %(fkey_name,fkey_name,fkey_name)) 
+                                     ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:fkey ) ) 
+                                 END ) """ %(fkey_name,fkey_name,fkey_name))                     
             vstoreattr['_if'] = None #remove the default _if
             vstoreattr['_else'] = None
         if relation_table:
@@ -510,18 +349,15 @@ class TableHandlerHierarchicalView(BaseComponent):
             
             rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
             condlist.append("""
-            ( ( @%s.%s =:curr_fkey ) OR 
+            ( ( @%s.%s =:fkey ) OR 
                   ( :showInherited IS TRUE AND
                         ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
                   )
             )
             """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
             hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
-        
         vstoreattr['condition'] = ' OR '.join(condlist)
-
         vstoreattr.update(condpars)
-        
         dragCode = 'hrows_%s' %dragTable.replace('.','_')
         trashId = False
         if fkey_name and relation_table:
@@ -534,16 +370,17 @@ class TableHandlerHierarchicalView(BaseComponent):
             """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
                 genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
             """ %(relation_table,dragTable)})
-
         gridattr.update(onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
                                     var curr_hfkey = sourceNode._curr_hfkey;
+                                    var alt_relations = objectUpdate({},sourceNode.attr._th_alt_relations);
                                     var rows = dragValues.gridrow.rowset;
                                     var inherited_pkeys = [];
                                     var alias_pkeys = [];
                                     var pkeys = [];
+
                                     dojo.forEach(rows,function(r){
-                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey);
+                                        THTreeRelatedTableHandler.onRelatedRow(r,curr_hfkey,alt_relations);
                                         var pkey = r['_pkey'];
                                         if(r['_hieararchical_inherited']){
                                             inherited_pkeys.push(pkey);
@@ -551,16 +388,26 @@ class TableHandlerHierarchicalView(BaseComponent):
                                         if(r['_alias_row']){
                                             alias_pkeys.push(pkey);
                                         }
+                                        var d = objectExtract(r,'_altrelation_*',true)
+                                        if(objectNotEmpty(d)){
+                                            for(var k in d){
+                                                alt_relations[k]['pkeys'] = alt_relations[k]['pkeys'] || [];
+                                                alt_relations[k]['pkeys'].push(pkey)
+                                            }
+                                        }
                                         pkeys.push(pkey);
                                     });
                                     if(pkeys.length==alias_pkeys.length && inherited_pkeys.length==0 && !sourceNode.form.locked ){
                                         dojo.addClass(dojo.byId(sourceNode.attr.trashId),'treeShowTrash');
                                     }
-                                    dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys};""" %dragCode,
+                                    dragValues['%s'] = {pkeys:pkeys,inherited_pkeys:inherited_pkeys,alias_pkeys:alias_pkeys,
+                                                        alt_relations:alt_relations};""" %dragCode,
                                         rowCustomClassesCb="""function(row){
-                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey);
+                                                        return THTreeRelatedTableHandler.onRelatedRow(row,this.sourceNode._curr_hfkey,this.sourceNode.attr._th_alt_relations);
                                                       }""",                                        
-                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId)
+                                        hiddencolumns=','.join(hiddencolumns) if hiddencolumns else None,trashId=trashId,
+                                        _th_alt_relations=relation_kwargs or False
+                                        )
         tree.dataController("grid._curr_hfkey = curr_hfkey;",grid=grid,tree=tree,curr_hfkey='^#FORM.record.hierarchical_pkey')
         treeattr = tree.attributes
         treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
@@ -576,7 +423,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,
-                                                                                        relation_table:'%s',maintable:'%s'},null,null,'POST');
+                                                                                        relation_table:'%s',maintable:'%s',alt_relations:data.alt_relations},null,null,'POST');
                                                 }else{
                                                     return false;
                                                 }
@@ -585,14 +432,25 @@ class TableHandlerHierarchicalView(BaseComponent):
         
     @public_method
     def ht_updateRelatedRows(self,table=None,maintable=None,fkey_name=None, pkeys=None,
-                             relationValue=None,modifiers=None,relation_table=None):
+                             relationValue=None,modifiers=None,relation_table=None,alt_relations=None):
         tblobj = self.db.table(table)
+        alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in alt_relations.items()])
         reltblobj = None
+        if alt_relations:
+            for k,v in alt_relations.items():
+                alt_pkeys = v.get('pkeys')
+                if alt_pkeys:
+                    pkeys = filter(lambda r: r not in alt_pkeys, pkeys)
+                    tblobj.batchUpdate({alt_relations[k]['fkey_name']:relationValue},_pkeys=alt_pkeys)
         if relation_table:
             reltblobj = self.db.table(relation_table)
             rel_fkey_name = self.db.table(maintable).model.getJoiner(relation_table)['many_relation'].split('.')[-1]
             rkey_name = tblobj.model.getJoiner(relation_table)['many_relation'].split('.')[-1]
-        if modifiers == 'Shift' or not fkey_name:
+        if alt_relations and alt_relations_modifiers_dict.get(modifiers):
+            alt_fkey_name = alt_relations_modifiers_dict[modifiers]
+            tblobj.batchUpdate({alt_fkey_name:relationValue},_pkeys=pkeys)
+
+        elif modifiers == 'Shift' or not fkey_name:
             if reltblobj:
                 currRelatedRecords = reltblobj.query(where='$%s=:v AND $%s IS NOT NULL' %(rel_fkey_name,rkey_name),v=relationValue).fetchAsDict(rkey_name)
                 for pkey in pkeys:

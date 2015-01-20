@@ -16,4 +16,4 @@ class GnrCustomWebPage(object):
         bc = pane.borderContainer()
         bc.contentPane(region='left',background='red',width='30px')
         bc.contentPane(region='top',background='lime').div(height='30px')
-        bc.contentPane(region='center',background='white')
+        bc.contentPane(region='center',background='white',overflow='hidden').ckeditor(value='^xxx',height='100%')

@@ -98,9 +98,6 @@
     height: 22px;
     vertical-align: middle;
     color: white;
-    background:;
-    
-    
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
     background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
 }
@@ -599,12 +596,11 @@
 
 /* @group tablehandler */
 .st_editor_bar {
-    background-color:#49637c; !important;
+    background-color:#49637c !important;
 }
 
 .st_editor_body {
-    background-color: rgba(124,151,179,0.8);
-!important;
+    background-color: rgba(124,151,179,0.8) !important;
 }
 
 .listbottompane {
@@ -731,7 +727,7 @@
 
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+._common_d11 .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px !important;
     border-top: 0 !important;
     border-right: 1px solid #dee;
@@ -763,6 +759,15 @@
 }
 
 
+.tundra._common_d11 .editingGrid .dojoxGrid-row-odd.dojoxGrid-row-selected{
+    background-color: #F3F6FA;
+}
+
+.tundra._common_d11 .editingGrid .dojoxGrid-row-selected{
+    background-color:#fff; 
+}
+
+
 .tundra._common_d11 .dojoxGrid-row{
     background-color:#fff; 
 }
@@ -770,7 +775,8 @@
 .tundra._common_d11 .dojoxGrid-row-odd{
     background-color: #F3F6FA;
 }
-.tundra._common_d11 .dojoxGrid-row-selected{
+
+.tundra._common_d11 .dojoxGrid-row.dojoxGrid-row-selected{
     background-color: #AFCBEC;
 }
 .tundra._common_d11 .dojoxGrid-row-selected.dojoxGrid-row-odd{

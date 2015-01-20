@@ -49,6 +49,8 @@ def cellFromField(field,tableobj):
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
     kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
+    if fldattr.get('caption_field'):
+        kwargs['caption_field'] = fldattr['caption_field']
     relfldlst = tableobj.fullRelationPath(field).split('.')
     validations = dictExtract(fldobj.attributes,'validate_',slice_prefix=False)
     if validations and kwargs.get('edit'):
@@ -314,6 +316,8 @@ class GnrDomSrc(GnrStructData):
                 clientpath = clientpath.replace('^','').replace('=','')
                 value=kwargs.get('default_value')
                 self.data(clientpath,value,**sourceNodeValueAttr)
+        if childname and childname != '*_#':
+            kwargs['_childname'] = childname
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
@@ -430,6 +434,8 @@ class GnrDomSrc(GnrStructData):
     def multibutton_item(self,code,caption=None,**kwargs):
         return self.child('multibutton_item',code=code,caption=caption or code,**kwargs)
 
+    def multibutton_store(self,table=None,**kwargs):
+        return self.child('multibutton_store',childname='itemsStore',table=table,**kwargs)
 
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
@@ -849,8 +855,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
-             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
+             'FramePane', 'FrameForm','QuickEditor','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1977,6 +1983,8 @@ class GnrFormBuilder(object):
             f.update(field)
             field = f
             lbl = field.pop('lbl', '')
+            if 'hidden' in field and not 'lbl_hidden' in field:
+                field['lbl_hidden'] = field['hidden']
             if not '_valuelabel' in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
             if 'lbl_href' in field:
@@ -1999,7 +2007,7 @@ class GnrFormBuilder(object):
                     td_field_attr[attr_name] = field.pop(k)
                 elif k.startswith('tdl_'):
                     td_lbl_attr[attr_name] = field.pop(k)
-                    
+               
             if field.pop('html_label',None) and field.get('dtype') =='B':
                 field['label'] = lbl
                 lbl = None

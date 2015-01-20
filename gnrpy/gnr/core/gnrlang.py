@@ -33,7 +33,6 @@ import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
 thread_ws = dict()
 
-
 def tracebackBag(limit=None):
     import linecache
     from gnr.core.gnrstructures import GnrStructData

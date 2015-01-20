@@ -108,11 +108,11 @@ class GnrSqlDb(GnrObject):
         """
         
         self.implementation = implementation
-        self.dbname = dbname
-        self.host = host
-        self.port = port
-        self.user = user
-        self.password = password
+        self.dbname = self.dbpar(dbname)
+        self.host = self.dbpar(host)
+        self.port = self.dbpar(str(port) if port else None)
+        self.user = self.dbpar(user)
+        self.password = self.dbpar(password)
         self.read_only = read_only
         self.typeConverter = GnrClassCatalog()
         self.debugger = debugger
@@ -129,6 +129,11 @@ class GnrSqlDb(GnrObject):
         self.stores_handler = DbStoresHandler(self)
 
     #-----------------------Configure and Startup-----------------------------
+
+    def dbpar(self,parvalue):
+        if parvalue and parvalue.startswith("$"):
+            return os.environ.get(parvalue[1:])
+        return parvalue
 
     @property
     def debug(self):
@@ -557,24 +562,94 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,):
+    def tablesMasterIndex(self):
+        packages = self.packages.keys()
+        toImport = []
+        dependencies = dict()
+        for k,pkg in enumerate(packages):
+            pkgobj = self.package(pkg)
+            tables = pkgobj.tables.values()
+            toImport.extend(tables)
+            for tbl in tables:
+                dset = set()
+                for d,isdeferred in tbl.dependencies:
+                    if not isdeferred and packages.index(d.split('.')[0])<=k:
+                        dset.add(d)
+                dependencies[tbl.fullname] = dset
+        imported = set()
+        deferred = dict()
+        blocking = dict()
+        result = Bag()
+        self._tablesMasterIndex_step(toImport=toImport,imported=imported,dependencies=dependencies,result=result,deferred=deferred,blocking=blocking)
+        if len(deferred)==0:
+            return result
+        raise GnrSqlException(message='Blocked dependencies')
+
+
+    def _tablesMasterIndex_step(self,toImport=None,imported=None,dependencies=None,result=None,deferred=None,blocking=None):
+        while toImport:
+            tbl = toImport.pop(0)
+            tblname = tbl.fullname
+            depset = dependencies[tblname]
+            if depset.issubset(imported):  
+                imported.add(tblname)
+                result.setItem(tblname,None)
+                result.setItem('_index_.%s' %tblname.replace('.','/'),None,tbl=tblname)
+                blocked_tables = blocking.pop(tblname,None)
+                if blocked_tables:
+                    for k in blocked_tables:
+                        deferred[k].remove(tblname)
+                        if not deferred[k]:
+                            deferred.pop(k)
+                        m = self.table(k).model
+                        if not m in toImport:
+                            toImport.append(m)
+            else:
+                deltatbl = depset - imported
+                deferred[tblname] = deltatbl
+                for k in deltatbl:
+                    blocking.setdefault(k,set()).add(tblname)
+
+
+    def tablesMasterIndex_new(self):
         packages = self.packages.keys()
         toImport = []
         for pkg in packages:
             pkgobj = self.package(pkg)
             toImport.extend(pkgobj.tables.values())
         imported = set()
+        deferred = dict()
+        blocking = dict()
         result = Bag()
         while toImport:
             tbl = toImport.pop(0)
-            if set(tbl.dependencies).issubset(imported):  
-                imported.add(tbl.fullname)
-                result.setItem(tbl.fullname,None)
-                result.setItem('_index_.%s' %tbl.fullname.replace('.','/'),None,tbl=tbl.fullname)
+            tblname = tbl.fullname
+            print 'table',tblname
+            depset = set(tbl.dependencies)
+            if depset.issubset(imported):  
+                imported.add(tblname)
+                result.setItem(tblname,None)
+                result.setItem('_index_.%s' %tbl.fullname.replace('.','/'),None,tbl=tblname)
+                blocked_tables = blocking.pop(tblname,None)
+                if blocked_tables:
+                    for k in blocked_tables:
+                        deferred[k].remove(tblname)
+                        if not deferred[k]:
+                            deferred.pop(k)
+                            #toImport.append(self.table(k).model)
+                    
             else:
-                toImport.append(tbl)
-        return result
+                deltatbl = depset - imported
+                if (tblname in deferred) and (deltatbl == deferred[tblname]):
+                    print 'cycling',tblname
+                else:
+                    deferred[tblname] = deltatbl
+                    for k in deferred[tblname]:
+                        blocking.setdefault(k,set()).add(tblname)
+                    toImport.append(tbl)
 
+        print x
+        return result
 
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """TODO

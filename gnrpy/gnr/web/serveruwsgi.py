@@ -18,8 +18,12 @@ wsgi_options = dict(
         set_group=None,
         server_name='Genropy',
         debug=True,
+        restore=False,
         profile=False,
-        noclean=False
+        noclean=False,
+                source_instance=None,
+        remote_edit=None,
+        remotesshdb=None
         )
 
 class attrDict(dict):

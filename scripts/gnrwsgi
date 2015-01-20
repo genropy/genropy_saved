@@ -1,10 +1,23 @@
-#!/bin/sh
+#!/usr/bin/env python
+# encoding: utf-8
 
-echo "Please enter the package to run:"
-read site
-temp1=/usr/local/genro/data/sites/
-temp1=$temp1$site
-temp2="/pages/indexwsgi.py --reload"
-indexwsgipath=$temp1$temp2
-echo $indexwsgipath
-python $indexwsgipath
+import subprocess
+import os
+
+def main():
+    if os.environ.get('GNR_WSGI_MODE' ) == 'uwsgi':
+        hostpath = '/shared/sockets' 
+        if not os.path.exists(hostpath):
+            os.makedirs(hostpath)
+        os.chmod(hostpath,0777)
+        subprocess.call(['uwsgi','--socket', '%s/uwsgi.sock' %hostpath,
+                        '--chdir' ,'/home/genropy_projects/sandbox/sites/sandbox',
+                        '--wsgi-file', '/home/genropy_projects/sandbox/sites/sandbox/root.py',
+                         '--master', '--processes', '4' ,'--threads' ,'2','--chmod-socket=777'
+                        ])
+    else:
+        subprocess.call(['gnrwsgiserve'])
+
+
+if __name__ == '__main__':
+    main()

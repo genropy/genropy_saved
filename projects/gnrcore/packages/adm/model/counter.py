@@ -18,6 +18,7 @@ class Table(object):
         tbl.column('last_used', 'D', name_long='!!Last used')
         tbl.column('holes', 'X', name_long='!!Holes')
         tbl.column('errors','X', name_long='!!Errors')
+        
 
     def getFieldSequences(self,tblobj,field=None):
         pars = getattr(tblobj,'counter_%s' %field)()
@@ -195,6 +196,8 @@ class Table(object):
         return counter_record
 
     def assignCounter(self,tblobj=None,field=None,record=None):
+        if not 'unique' in tblobj.column(field).attributes:
+            print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s',(field,tblobj.fullname)
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         if not counter_pars or record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
@@ -247,6 +250,7 @@ class Table(object):
         counter = None
         holes = counter_record['holes']
         if holes and recycle:
+            holes.sort('#a.cnt_from')
             for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
                 if date >= date_from and date<=date_to:
                     counter = cnt_from
@@ -265,7 +269,8 @@ class Table(object):
                 msgTpl = counter_pars.get('message_dateError','!!Incompatible date assigning %(fieldname)s counter')
                 fieldname = tblobj.column(field).name_long or field
                 fieldname = fieldname.replace('!!','')
-                raise self.exception('business_logic',msg=msgTpl %dict(fieldname=fieldname,last_used=last_used))
+                if not counter_pars.get('date_tolerant'):
+                    raise self.exception('business_logic',msg=msgTpl %dict(fieldname=fieldname,last_used=last_used))
         if update:
             if counter_record['codekey']:
                 oldrec = dict(counter_record)
@@ -293,6 +298,7 @@ class Table(object):
                 counter_record['last_used'] = tblobj.readColumns(limit=1,where='$%s = :c' %field,c=previous,columns='$%s' %date_field)
             else:
                 holes = counter_record['holes'] or Bag()
+                holes.sort('#a.cnt_from')
                 counter_record['holes'] = holes
                 for hole_key,cnt_from,cnt_to in holes.digest('#k,#a.cnt_from,#a.cnt_to'):
                     if releasing_counter == cnt_from - 1:
@@ -321,6 +327,15 @@ class Table(object):
             return (str(date.year), str(date.month).zfill(2), str(date.day).zfill(2))
 
 
+    def getDuplicates(self,table=None,field=None,code=None):
+        result = Bag()
+        f = self.db.table(table).query(columns='$%s AS fldval, count($%s) AS cnt' %(field,field),
+                            where = "$%s LIKE :c AND $%s IS NOT NULL" %(field,field),
+                            c='%%%s%%' %code,group_by='$%s' %field,
+                          having="count($%s)>1" %field,addPkeyColumn=False,excludeDraft=False).fetch()
+        for fldval,cnt in f:
+            result[fldval.replace('.','_')] = Bag(dict(fldval=fldval,cnt=cnt))
+        return result
 
 
 

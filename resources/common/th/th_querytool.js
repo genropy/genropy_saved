@@ -418,7 +418,6 @@ dojo.declare("gnr.QueryManager", null, {
         var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
-            console.log('xxxx',node)
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
         }
     },

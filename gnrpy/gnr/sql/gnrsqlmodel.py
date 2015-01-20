@@ -66,10 +66,11 @@ class DbModel(object):
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
-            for pkg_id in self.db.application.packages.keys():
-                config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
-                if config_from_pkg:
-                    config_from_pkg(pkgsrc)
+            if self.db.application:
+                for pkg_id in self.db.application.packages.keys():
+                    config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
+                    if config_from_pkg:
+                        config_from_pkg(pkgsrc)
             if hasattr(objmix, 'config_db_custom'):
                 objmix.config_db_custom(pkgsrc)
                 
@@ -821,7 +822,7 @@ class DbTableObj(DbModelObj):
 
     @property  
     def dependencies(self):
-        return uniquify(['.'.join(x.split('.')[:-1]) for x in self.relations_one.values() if not x.startswith(self.fullname)])
+        return uniquify([('.'.join(x.split('.')[:-1]),deferred) for x,deferred in self.relations_one.digest('#v,#a.deferred') if not x.startswith(self.fullname)])
       
     @property  
     def virtual_columns(self):

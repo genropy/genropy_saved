@@ -1,8 +1,7 @@
 from gnr.core.gnrbag import Bag
-#from paste import httpexceptions
-#from paste import request as paste_request
 from weberror.evalexception import EvalException
-from paste.exceptions.errormiddleware import ErrorMiddleware
+#from paste.exceptions.errormiddleware import ErrorMiddleware
+from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
@@ -261,6 +260,10 @@ class GnrWsgiSite(object):
         if not self._register:
             self._register = SiteRegisterClient(self)
         return self._register
+
+    def getSubscribedTables(self,tables):
+        if self._register:
+            return self.register.filter_subscribed_tables(tables,register_name='page')
 
     @property
     def remote_edit(self):
@@ -677,7 +680,6 @@ class GnrWsgiSite(object):
         elif path_list and path_list[0].startswith('_'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
-                self.currentPage = self.dummyPage
                 return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
             except Exception, exc:
                 return self.not_found_exception(environ,start_response)

@@ -143,6 +143,19 @@ cursorZoom_plus{
     background: #666;
 }
 
+.pickerCheckboxTree .dijitTreeContent{
+    min-height: 0;
+    padding-bottom: 2px;
+    padding-top: 0;
+    margin-left: 0px;
+    white-space: nowrap;
+    font-size: .9em;
+}
+.pickerCheckboxTree .dijitTreeLabel{
+    display: inline-block;
+    white-space: nowrap;
+    font-size: .9em;
+}
 /* @group FieldsTree */
 
 .fieldsTreeBox{
@@ -838,7 +851,7 @@ label{
 }*/
 
 .gnrfieldlabel.gnrzoomlabel{
-    padding-left: 15px;
+    /*padding-left: 15px;*/
     cursor: pointer;
 }
 .gnrzoomicon{
@@ -2528,6 +2541,20 @@ div.cellContent{
     min-height: 15px;
 }
 
+.cell_editable .cellContent:hover{
+    background: #F8FFD9;
+    cursor: text;
+}
+
+.cell_editable.cell_editLazy .cellContent:hover{
+    background: #E6F9FF;
+}
+
+.cell_editable.cell_disabled .cellContent:hover{
+    background: #FFE7DD;
+    cursor: not-allowed;
+}
+
 .externalChangedCell .cellContent{
     background-color:#C7FFB4;
 }
@@ -2621,7 +2648,42 @@ body *{
     right:2px;
     bottom:20px;
 }
+.quickEditorWrapper{
+    position: relative;
+}
+.widgetInCell.quickEditorWrapper{
+    margin-left: 2px;
+}
+.quickEditor{
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left:1px;
+    right:18px;
+    border:1px solid silver;
+    border-radius: 2px;
+}
+.widgetInCell .quickEditor{
+    border-width: 0;
+    border-bottom: 1px solid #efefef;
+}
 
+.quickEditorButton{
+    width: 18px;
+    height: 17px;
+    border-top:1px solid silver;
+    border-right:1px solid silver;
+    border-bottom:1px solid silver;
+    position: absolute;
+    border-radius: 2px;
+    top:0;
+    right:0;
+}
+.widgetInCell .quickEditorButton{
+    border-top:0px;
+    border-right:0px;
+    border-bottom:1px solid #efefef;
+}
 
 .textAreaWrapperInTable{
     width:100%;
@@ -3218,7 +3280,12 @@ body *{
     color:#555;
     width: 100%;
     font-size: 90%;
-
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: text;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 .nestedBagTable td{
     padding: 3px;
@@ -3812,6 +3879,17 @@ p {
     right:2px;
 }
 
+.multibutton_closer.deleteSelectedOnly{
+    position: absolute;
+    top:3px;
+    right:2px;
+    visibility: hidden;
+}
+
+.multibutton_selected .multibutton_closer.deleteSelectedOnly{
+    visibility: visible;
+}
+
 .multipage_add{
     background: url(icons/base10/smalladd.png) no-repeat center center;
     opacity: .5;
@@ -4186,6 +4264,13 @@ div[disabled='true'], div[disabled='disabled']{
     -webkit-box-shadow: 4px 4px 4px #403b3b;
 }
 
+._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none']{
+    padding-top: 0px;
+    margin-top: -1px;
+}
+._common_d11 .dijitTooltipDialog.dijitTooltipBelow[connector='none'] .dijitTooltipConnector{
+    display: none;
+}
 /* @end */
 
 /* @group Pure tooltip */
@@ -4272,7 +4357,6 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11__ .dijitMenuItem {
     white-space: nowrap;
     font-size: .9em;
-    color:;
     padding: 0em 0em;
     border-bottom: 1px solid white;
 }

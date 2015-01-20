@@ -409,7 +409,7 @@ class SqlQueryCompiler(object):
         :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
                           ``*@relname.filter``."""
         subfield_name = None
-        if flt in self.tblobj.virtual_columns:
+        if flt and flt in self.tblobj.virtual_columns:
             subfield_name = flt
             vc = self.tblobj.virtual_columns[flt]
             flt = vc.sql_formula
@@ -1006,6 +1006,11 @@ class SqlQuery(object):
             if handler:
                 for d in data:
                     d[field] = handler(d,field=field)
+
+    def fetchPkeys(self):
+        fetch = self.fetch()
+        pkeyfield = self.dbtable.pkey
+        return [r[pkeyfield] for r in fetch]
 
         
     def fetchAsDict(self, key=None, ordered=False):

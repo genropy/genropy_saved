@@ -1204,7 +1204,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         pkey = record[tblobj.pkey] or '*newrecord*'
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
-                       caption=tblobj.recordCaption(record, newrecord),
                        _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename,
                        from_fld=from_fld)
         #if lock and not newrecord:
@@ -1250,6 +1249,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             applyresult = self.page.getPublicMethod('rpc', applymethod)(record, **applyPars)
             if applyresult:
                 recInfo.update(applyresult)
+        
         recInfo['servertime'] = int((time.time() - t) * 1000)
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
@@ -1269,6 +1269,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 tblobj._sequencesOnLoading(record,recInfo)
             except GnrSqlException, e:
                 recInfo['_onLoadingError'] = str(e)
+        recInfo['caption'] = tblobj.recordCaption(record, newrecord)
         return (record, recInfo)
         
     def _handleEagerRelations(self,record,_eager_level,_eager_record_stack=None):
@@ -1398,7 +1399,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 order_list.append('%s desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
             #order_by = order_by or tblobj.attributes.get('order_by') or tblobj.attributes.get('caption_field')
-            order_by = order_by or showcolumns[0]
+            order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
             order_by = ', '.join(order_list)
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
@@ -1534,6 +1535,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = getSelection(where, **whereargs)
 
         return result
+
+    @public_method
+    def getValuesString(self,table,**kwargs):
+        tblobj = self.db.table(table)
+        pkey = tblobj.pkey
+        caption_field = tblobj.attributes.get('caption_field')
+        f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
+        return ','.join(['%s:%s' %(r[pkey],r[caption_field]) for r in f])
 
     @public_method
     def getMultiFetch(self,queries=None):

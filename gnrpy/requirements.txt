@@ -12,6 +12,5 @@ pyro4
 argparse
 xlrd
 xlwt
-psutil
 docutils
-sh
+

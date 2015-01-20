@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 import datetime
+import warnings as warnings_module
 import os
 from gnr.core.gnrlang import boolean
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrstring import splitAndStrip,encode36,templateReplace,fromJson,slugify
+from gnr.core.gnrstring import splitAndStrip,templateReplace,fromJson,slugify
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class GnrDboPackage(object):
@@ -137,15 +138,14 @@ class GnrDboPackage(object):
 
 
     def _loadStartupData_do(self,basepath=None,btc=None):
-        shelvepath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
-        if not os.path.isfile('%s.db' %shelvepath):
+        bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
+        if not os.path.isfile('%s.pik' %bagpath):
             import gzip
-            with gzip.open('%s.gz' %shelvepath,'rb') as gzfile:
-                with open('%s.db' %shelvepath,'wb') as f:
+            with gzip.open('%s.gz' %bagpath,'rb') as gzfile:
+                with open('%s.pik' %bagpath,'wb') as f:
                     f.write(gzfile.read())
         db = self.db
-        import shelve 
-        s = shelve.open(shelvepath)
+        s = Bag('%s.pik' %bagpath)
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
@@ -163,9 +163,7 @@ class GnrDboPackage(object):
             if records:
                 tblobj.insertMany(records)
                 db.commit()
-        s.close()
-
-        os.remove('%s.db' %shelvepath)
+        os.remove('%s.pik' %bagpath)
 
 
     def startupData_tables(self):
@@ -185,9 +183,8 @@ class GnrDboPackage(object):
         tables = self.startupData_tables()
         if not tables:
             return
-        shelvepath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
-        import shelve
-        s = shelve.open(shelvepath)
+        bagpath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
+        s = Bag()
         s['tables'] = tables
         tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
         for tname in tables:
@@ -196,16 +193,17 @@ class GnrDboPackage(object):
             if handler:
                 f = handler()
             else:
-                f = tblobj.dbtable.query(addPkeyColumn=False).fetch()
+                f = tblobj.dbtable.query(addPkeyColumn=False,bagFields=True).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()[self.name]
-        s.close()
+        s.makePicklable()
+        s.pickle('%s.pik' %bagpath)
         import gzip
-        zipPath = '%s.gz' %shelvepath
-        with open('%s.db' %shelvepath,'rb') as sfile:
+        zipPath = '%s.gz' %bagpath
+        with open('%s.pik' %bagpath,'rb') as sfile:
             with gzip.open(zipPath, 'wb') as f_out:
                 f_out.writelines(sfile)
-        os.remove('%s.db' %shelvepath)
+        os.remove('%s.pik' %bagpath)
         
 class TableBase(object):
     """TODO"""
@@ -382,53 +380,32 @@ class TableBase(object):
             result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
         return result
 
-            
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
-        pkeyfield = self.pkey
-        parent_id=record.get('parent_id')
-        parent_record = None
-        if parent_id:
-            parent_record = self.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()
-            parent_record = parent_record[0] if parent_record else None
-        for fld in self.attributes.get('hierarchical').split(','):
-            parent_h_fld='_parent_h_%s'%fld
-            h_fld='hierarchical_%s'%fld
-            v=record.get(pkeyfield if fld=='pkey' else fld) 
-            record[parent_h_fld]= parent_record[h_fld] if parent_record else None
-            record[h_fld]= '%s/%s'%( parent_record[h_fld], v) if parent_record else v
-        if self.column('_row_count') is None:
-            return 
-        record['_parent_h_count'] = parent_record['_h_count'] if parent_record else None
-        if old_record is None and record.get('_row_count') is None:
-            #has counter and inserting a new record without '_row_count'
-            where = '$parent_id IS NULL' if not record.get('parent_id') else '$parent_id =:p_id' 
-            last_counter = self.readColumns(columns='$_row_count',where=where,
-                                        order_by='$_row_count desc',limit=1,p_id=parent_id)
-            record['_row_count'] = (last_counter or 0)+1
-        if old_record is None or (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count']):
-            record['_h_count'] = '%s%s' %(record.get('_parent_h_count') or '',encode36(record['_row_count'],2))
+        self.hierarchicalHandler.trigger_before(record,old_record=old_record)
 
     def trigger_hierarchical_after(self,record,fldname,old_record=None,**kwargs):
-        hfields=self.attributes.get('hierarchical').split(',')
-        changed_hfields=[fld for fld in hfields if record.get('hierarchical_%s'%fld) != old_record.get('hierarchical_%s'%fld)]
-        order_by = None
-        changed_counter = False
-        if '_row_count' in record:
-            order_by = '$_row_count'
-            changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
-        if changed_hfields or changed_counter:
-            fetch = self.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[self.pkey],order_by=order_by).fetch()
-            for k,row in enumerate(fetch):
-                new_row = dict(row)
-                for fld in changed_hfields:
-                    new_row['_parent_h_%s'%fld]=record['hierarchical_%s'%fld]
-                if changed_counter:
-                    if new_row.get('_row_count') is None:
-                        new_row['_row_count'] = k+1
-                    new_row['_parent_h_count'] = record['_h_count']
-                    new_row['_h_count'] = '%s%s' %(new_row['_parent_h_count'] or '',encode36(new_row['_row_count'],2))
-                self.update(new_row, row)
+        self.hierarchicalHandler.trigger_after(record,old_record=old_record)
 
+    @public_method
+    def getHierarchicalData(self,caption_field=None,condition=None,
+                            condition_kwargs=None,caption=None,
+                            dbstore=None,columns=None,related_kwargs=None,
+                            resolved=False,**kwargs):
+        condition_kwargs = condition_kwargs or dict()
+        related_kwargs = related_kwargs or dict()
+        return self.hierarchicalHandler.getHierarchicalData(caption_field=caption_field,condition=condition,
+                                                condition_kwargs=condition_kwargs,caption=caption,dbstore=dbstore,columns=columns,
+                                                related_kwargs=related_kwargs,resolved=resolved,**kwargs)
+
+    @public_method
+    def pathFromPkey(self,pkey=None,dbstore=None):
+        return self.hierarchicalHandler.pathFromPkey(pkey=pkey,dbstore=dbstore)
+
+    @public_method
+    def getHierarchicalPathsFromPkeys(self,pkeys=None,related_kwargs=None,parent_id=None,dbstore=None,**kwargs):
+        return self.hierarchicalHandler.getHierarchicalPathsFromPkeys(pkeys=pkeys,
+                                                               related_kwargs=related_kwargs,parent_id=parent_id,
+                                                              dbstore=dbstore)
 
     def trigger_setRowCounter(self,record,fldname,**kwargs):
         """field trigger used for manage rowCounter field"""
@@ -467,8 +444,6 @@ class TableBase(object):
     def getProtectionTag(self,record=None):
         #override
         pass
-
-
     
     def trigger_setCurrentUser(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
@@ -511,7 +486,6 @@ class TableBase(object):
     def multidb_readOnly(self):
         return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
-    
     def checkDiagnostic(self,record):
         if self.attributes.get('diagnostic'):
             errors = self.diagnostic_errors(record)
@@ -714,22 +688,7 @@ class TableBase(object):
         :param name_long: the :ref:`name_long`
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section"""
-        name_long = name_long or '!!Tag'
-        tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
-        tblname = tbl.parentNode.label
-        tbl.parentNode.attr['hasRecordTags'] = True
-        pkey = tbl.parentNode.getAttr('pkey')
-        pkeycolAttrs = tbl.column(pkey).getAttr()
-        rel = '%s.%s' % (tblname, pkey)
-        fkey = rel.replace('.', '_')
-        tagtbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
-                      size=pkeycolAttrs.get('size'), group='_').relation(rel, mode='foreignkey',
-                                                                         many_group='_', one_group='_')
-        relation_path = '@%s_recordtag_link_%s.@tag_id' % (tbl.getAttr()['pkg'], fkey)
-        tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
-                        name_long=name_long, dtype='TAG')
-        tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-
+        warnings_module.warn(""" setTagColumn has been removed """, DeprecationWarning, 2) 
 
     def trigger_syncRecordUpdated(self,record,old_record=None,**kwargs):
         self.pkg.table('sync_event').onTableTrigger(self,record,old_record=old_record,event='U')
@@ -770,7 +729,7 @@ class TableBase(object):
         if onSelectedSourceRows:
             onSelectedSourceRows(source_instance=source_instance,dest_instance=dest_instance,source_rows=source_rows)
         all_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,**kwargs).fetchAsDict(pkey)
-        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$id IN :pk',pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
+        existing_dest = dest_tbl.query(addPkeyColumn=False,for_update=True,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
         if source_rows:
             fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts')])
@@ -802,7 +761,7 @@ class TableBase(object):
     def isInStartupData(self):
         if self.attributes.get('inStartupData') is False:
             return False
-        for t in self.model.dependencies:
+        for t,isdeferred in self.model.dependencies:
             if not self.db.table(t).isInStartupData():
                 return False
         return True
@@ -822,9 +781,10 @@ class TableBase(object):
     def trigger_releaseCounters(self,record=None,backToDraft=None):
         for field in self.counterColumns():
             if record.get(field):
-                counter_pars = self.getCounterPars(field,record)
-                if not backToDraft or (counter_pars.get('recycled') and not counter_pars.get('assignIfDraft')):
-                    self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+                counter_pars = self.getCounterPars(field,record) 
+                if not counter_pars or not counter_pars.get('recycle') or (backToDraft and counter_pars.get('assignIfDraft')):
+                    continue
+                self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
     def trigger_assignCounters(self,record=None,old_record=None):
         "Inside dbo"
@@ -836,7 +796,9 @@ class TableBase(object):
 
     def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():
-            pars = getattr(self,'counter_%s' %field)()
+            pars = getattr(self,'counter_%s' %field)(record=newrecord)
+            if not pars:
+                continue
             if self.isDraft(newrecord) and not pars.get('assignIfDraft'):
                 continue
             if pars.get('showOnLoad'):
@@ -922,9 +884,6 @@ class HostedTable(GnrDboTable):
         if mode=='slave' and self.db.application.hostedBy:
             tbl.attributes['readOnly'] = True
 
-
-
-
 class AttachmentTable(GnrDboTable):
     """AttachmentTable"""
 
@@ -1004,217 +963,6 @@ class AttachmentTable(GnrDboTable):
                 os.remove(fpath)
         except Exception:
             return
-
-
-class DynamicFieldsTable(GnrDboTable):
-    """CustomFieldsTable"""
-    def config_db(self,pkg):
-        tblname = self._tblname
-        tbl = pkg.table(tblname,pkey='id')
-        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_df',''))
-        self.df_dynamicFormFields(tbl,mastertbl)
-
-    def df_dynamicFormFields(self,tbl,mastertbl):
-        pkgname,mastertblname = mastertbl.split('.')
-        tblname = '%s_df' %mastertblname
-        assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
-        model = self.db.model
-        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
-        mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
-        mastertbl_name_long = mastertbl.attributes.get('name_long')
-        mastertbl_multidb = mastertbl.attributes.get('multidb')
-        mastertbl.column('df_fbcolumns','L',group='_')
-        mastertbl.column('df_custom_templates','X',group='_')
-        tbl.attributes.setdefault('caption_field','description')
-        tbl.attributes.setdefault('rowcaption','$description')
-        tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)
-        tbl.attributes.setdefault('name_plural','%s dyn fields' %mastertbl_name_long)
-
-        self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id',multidb=mastertbl_multidb)
-        tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('code',name_long='!!Code')
-        tbl.column('default_value',name_long='!!Default value')
-        
-        tbl.column('description',name_long='!!Description')
-        tbl.column('data_type',name_long='!!Data Type')
-        tbl.column('calculated','B',name_long='!!Enterable')
-
-        tbl.column('wdg_tag',name_long='!!Wdg type')
-        tbl.column('wdg_colspan','L',name_long='!!Colspan')
-        tbl.column('wdg_kwargs','X',name_long='!!Wdg kwargs')
-
-        tbl.column('source_combobox',name_long='!!Suggested Values')
-        tbl.column('source_dbselect',name_long='!!Db Table')
-        tbl.column('source_filteringselect',name_long='!!Allowed Values')
-        tbl.column('source_checkboxtext',name_long='!!Checkbox Values')
-        tbl.column('checkboxtext_cols','L',name_long='!!Checkbox cols')
-
-        #tbl.column('source_multivalues',name_long='!!Multiple Values')
-        
-        tbl.column('field_style',name_long='!!Style')
-        tbl.column('field_visible',name_long='!!Visible if')
-        tbl.column('field_format',name_long='!!Format')
-        tbl.column('field_placeholder',name_long='!!Placeholder')
-
-        tbl.column('field_mask',name_long='!!Mask')
-        tbl.column('field_tip',name_long='!!Tip')
-    
-        tbl.column('validate_case',size='1',values='!!u:Uppercase,l:Lowercase,c:Capitalize',name_long='!!Case')
-        tbl.column('validate_range',name_long='!!Range')
-        
-        tbl.column('standard_range','N',name_long='!!Std range')
-        tbl.column('formula',name_long='!!Formula')
-        #tbl.column('do_summary','B',name_long='!!Do summary')
-        tbl.column('mandatory','B',name_long='!!Mandatory')
-
-        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
-                    mode='foreignkey', onDelete_sql='cascade', relation_name='dynamicfields',
-                    one_group='_',many_group='_')
-        if mastertbl.attributes.get('hierarchical'):
-            tbl.formulaColumn('hlevel',"""array_length(string_to_array(@maintable_id.hierarchical_pkey,'/'),1)""")
-
-    def onSiteInited(self):
-        if self.pkg.attributes.get('df_ok'):
-            return
-        mastertbl = self.fullname.replace('_df','')
-        tblobj = self.db.table(mastertbl)
-        if tblobj.column('df_fields') is not None:
-            print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
-            tblobj.df_importLegacyScript()
-            return True
-
-        
-              
-class GnrHTable(GnrDboTable):
-    """A hierarchical table. More information on the :ref:`classes_htable` section"""
-    def htableFields(self, tbl):
-        """:param tbl: the :ref:`table` object
-        
-        Create the necessary :ref:`columns` in order to use the :ref:`h_th` component.
-        
-        In particular it adds:
-        
-        * the "code" column: TODO
-        * the "description" column: TODO
-        * the "child_code" column: TODO
-        * the "parent_code" column: TODO
-        * the "level" column: TODO
-        
-        You can redefine the first three columns in your table; if you don't redefine them, they
-        are created with the following features::
-        
-            tbl.column('code', name_long='!!Code', base_view=True)
-            tbl.column('description', name_long='!!Description', base_view=True)
-            tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
-                        validate_notnull_error='!!Required', base_view=True,
-                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
-                        
-        columns = tbl['columns'] or []
-        broadcast = [] if 'broadcast' not in tbl.attributes else tbl.attributes['broadcast'].split(',')
-        broadcast.extend(['code','parent_code','child_code'])
-        tbl.attributes['broadcast'] = ','.join(list(set(broadcast)))
-        if not 'code' in columns:
-            tbl.column('code', name_long='!!Code', base_view=True,unique=True)
-        if not 'description' in columns:
-            tbl.column('description', name_long='!!Description', base_view=True)
-        if not 'child_code' in columns:
-            tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
-                        validate_notnull_error='!!Required', base_view=True,
-                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed'
-                        #,unmodifiable=True
-                        )
-        tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label,onDelete='cascade')
-        tbl.column('level', name_long='!!Level')
-        pkgname = tbl.getAttr()['pkg']
-        tblname = '%s.%s_%s' % (pkgname, pkgname, tbl.parentNode.label)
-        tbl.formulaColumn('child_count',
-                          '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' % tblname,
-                           dtype='L', always=True)
-        tbl.formulaColumn('hdescription',
-                           """
-                           CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
-                           ELSE ((SELECT description FROM %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
-                           END
-                           """ % tblname)
-        
-        tbl.formulaColumn('base_caption',"""CASE WHEN $description IS NULL OR $description='' THEN $child_code 
-                                             ELSE $child_code ||'-'||$description END""")
-        tbl.attributes.setdefault('caption_field','base_caption')
-        if not 'rec_type'  in columns:
-            tbl.column('rec_type', name_long='!!Type')
-            
-    
-    def htableAutoCode(self,record=None,old_record=None,evt='I'):
-        autocode = self.attributes.get('autocode')
-        if not autocode:
-            return
-        
-    def trigger_onInserting(self, record_data):
-        """TODO
-        
-        :param record_data: TODO"""
-        parent_code = record_data.get('parent_code')
-        self.htableAutoCode(record=record_data,evt='I')
-        self.assignCode(record_data)
-        if not parent_code:
-            return
-        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
-        if parent_children==0:
-            self.touchRecords(where='$code=:code',code=parent_code)
-        
-    def trigger_onDeleted(self,record,**kwargs):
-        parent_code = record.get('parent_code')
-        self.htableAutoCode(record=record,evt='I')
-        if not parent_code:
-            return
-        
-       # children = self.query(where='$parent_code=:p',p=record['code'],for_update=True).fetch()
-       # if children:
-       #     for c in children:
-       #         self.delete(c)
-        
-    def assignCode(self, record_data):
-        """TODO
-        
-        :param record_data: TODO"""
-        code_list = [k for k in (record_data.get('parent_code') or '').split('.') + [record_data['child_code']] if k]
-        record_data['level'] = len(code_list) - 1
-        record_data['code'] = '.'.join(code_list)
-    
-    @public_method
-    def reorderCodes(self,pkey=None,into_pkey=None):
-        record = self.record(pkey=pkey,for_update=True).output('record')
-        oldrecord = dict(record)
-        parent_code = self.record(pkey=into_pkey).output('record')['code'] if into_pkey else None
-        code_to_test = '%s.%s' %(parent_code,record['child_code']) if parent_code else record['child_code']
-        if not self.checkDuplicate(code=code_to_test):
-            record['parent_code'] = parent_code
-            self.update(record,oldrecord)
-            self.db.commit()
-            return True
-        return False
-
-    def trigger_onUpdating(self, record_data, old_record=None):
-        """TODO
-        :param record_data: TODO
-        :param old_record: TODO"""
-        if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
-            old_code = old_record['code']
-            self.assignCode(record_data)
-            parent_code = record_data['code']
-            self.batchUpdate(dict(parent_code=parent_code), where='$parent_code=:old_code', old_code=old_code)
-            #if parent_code:
-            #    parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
-            #    if parent_children==0:
-            #        self.touchRecords(where='$code=:code',code=parent_code)
-
-            
-    def df_getFieldsRows(self,pkey=None,code=None):
-        fieldstable = self.db.table(self.attributes.get('df_fieldstable'))
-        code = self.readColumns(pkey=pkey,columns='code')
-        return fieldstable.query(where="(:code=@maintable_id.code) OR (:code ILIKE @maintable_id.code || '.%%')",
-                                    code=code,order_by='@maintable_id.code,$_row_count',columns='*,$wdg_kwargs').fetch()
-
 
 class Table_sync_event(TableBase):
     def config_db(self, pkg):
@@ -1387,313 +1135,4 @@ class Table_counter(TableBase):
         else:
             return (str(date.year), str(date.month).zfill(2), str(date.day).zfill(2))
             
-class Table_userobject(TableBase):
-    """TODO"""
-    def use_dbstores(self,**kwargs):
-        """TODO"""
-        return False
-        
-    def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
-        
-        :param pkg: the :ref:`package <packages>` object"""
-        tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
-        self.sysFields(tbl, id=True, ins=True, upd=True)
-        tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
-        tbl.column('objtype', name_long='!!Object Type', indexed='y')
-        tbl.column('pkg', name_long='!!Package') # package code
-        tbl.column('tbl', name_long='!!Table') # full table name: package.table
-        tbl.column('userid', name_long='!!User ID', indexed='y')
-        tbl.column('description', 'T', name_long='!!Description', indexed='y')
-        tbl.column('notes', 'T', name_long='!!Notes')
-        tbl.column('data', 'X', name_long='!!Data')
-        tbl.column('authtags', 'T', name_long='!!Auth tags')
-        tbl.column('private', 'B', name_long='!!Private')
-        tbl.column('quicklist', 'B', name_long='!!Quicklist')
-        tbl.column('flags', 'T', name_long='!!Flags')
 
-        
-    def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None,
-                       description=None, authtags=None, private=None, inside_shortlist=None, **kwargs):
-        """TODO
-        
-        :param data: TODO
-        :param id: TODO
-        :param code: TODO
-        :param objtype: TODO
-        :param pkg: the :ref:`package <packages>` object
-        :param tbl: the :ref:`table` object
-        :param userid: TODO
-        :param description: TODO
-        :param authtags: TODO
-        :param private: TODO
-        :param inside_shortlist: TODO"""
-        if id:
-            record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
-        else:
-            record_pars = dict(code=code, objtype=objtype)
-            if tbl:
-                record_pars['tbl'] = tbl
-            if pkg:
-                record_pars['pkg'] = pkg
-            record = self.record(mode='record', for_update=True, ignoreMissing=True, **record_pars)
-        isNew = False
-        if not record:
-            record = Bag()
-            isNew = True
-            
-        loc = locals()
-        for k in ['code', 'objtype', 'pkg', 'tbl', 'userid', 'description', 'data', 'authtags', 'private']:
-            record[k] = loc[k]
-            
-        if isNew:
-            self.insert(record)
-        else:
-            self.update(record)
-        return record
-        
-    def loadUserObject(self, id=None, objtype=None, **kwargs):
-        """TODO
-        
-        :param id: TODO
-        :param objtype: TODO"""
-        if id:
-            record = self.record(id, mode='record', ignoreMissing=True)
-        else:
-            record = self.record(objtype=objtype, mode='record', ignoreMissing=True, **kwargs)
-        data = record.pop('data')
-        metadata = record.asDict(ascii=True)
-        return data, metadata
-        
-    def deleteUserObject(self, id, pkg=None):
-        """TODO
-        
-        :param id: TODO
-        :param pkg: the :ref:`package <packages>` object"""
-        self.delete({'id': id})
-        
-    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
-        """TODO
-        
-        :param objtype: TODO
-        :param pkg: the :ref:`package <packages>` object
-        :param tbl: the :ref:`table` object
-        :param userid: TODO
-        :param authtags: TODO
-        :param onlyQuicklist: TODO
-        :param flags: TODO"""
-        onlyQuicklist = onlyQuicklist or False
-        
-        def checkUserObj(r):
-            condition = (not r['private']) or (r['userid'] == userid)
-            if onlyQuicklist:
-                condition = condition and r['quicklist']
-            if self.db.application.checkResourcePermission(r['authtags'], authtags):
-                if condition:
-                    return True
-        where = []
-        if objtype:
-            where.append('$objtype = :val_objtype')
-        if tbl:
-            where.append('$tbl = :val_tbl')
-        if flags:
-            where.append(' position(:_flags IN $flags)>0 ')
-        where = ' AND '.join(where)
-        sel = self.query(columns='$id, $code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist, $flags',
-                         where=where, order_by='$code',
-                         val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
-                         
-        sel.filter(checkUserObj)
-        return sel
-        
-class Table_recordtag(TableBase):
-    def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
-        
-        :param pkg: the :ref:`package <packages>` object"""
-        tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
-        self.sysFields(tbl, id=True, ins=False, upd=False)
-        tbl.column('tablename', name_long='!!Table name')
-        tbl.column('tag', name_long='!!Tag', validate_notnull=True, validate_notnull_error='!!Required')
-        tbl.column('description', name_long='!!Description', validate_notnull=True, validate_notnull_error='!!Required')
-        tbl.column('values', name_long='!!Values')
-        tbl.column('maintag', name_long='!!Main tag')
-        tbl.column('subtag', name_long='!!Sub tag')
-        
-    def trigger_onInserting(self, record_data):
-        """TODO
-        
-        :param record_data: TODO"""
-        if record_data['values']:
-            self.setTagChildren(record_data)
-            
-    def setTagChildren(self, record_data, old_record_data=None):
-        """TODO
-        
-        :param record_data: TODO
-        :param old_record_data: TODO"""
-        tablename = record_data['tablename']
-        parentTag = record_data['tag']
-        parentDescription = record_data['description']
-        
-        oldChildren = {}
-        if old_record_data:
-            #updating
-            parentTag_old = old_record_data['tag']
-            parentDescription_old = old_record_data['description']
-            if parentTag_old != parentTag:
-                #updating if change parentTag
-                def cb_tag(row):
-                    row['tag'] = row['tag'].replace('%s_' % parentTag_old, '%s_' % parentTag)
-                    row['maintag'] = parentTag
-                    
-                self.batchUpdate(cb_tag, where='$maintag =:p_tag AND tablename=:t_name',
-                                 p_tag=parentTag_old, t_name=tablename)
-        if old_record_data and old_record_data['values']:
-            #updating if change change values
-            for item in splitAndStrip(old_record_data['values'], ','):
-                tag, description = splitAndStrip('%s:%s' % (item, item), ':', n=2, fixed=2)
-                oldChildren['%s_%s' % (parentTag, tag)] = description
-            
-        for item in splitAndStrip(record_data['values'], ','):
-            tag, description = splitAndStrip('%s:%s' % (item, item), ':', n=2, fixed=2)
-            fulltag = '%s_%s' % (parentTag, tag)
-            if fulltag in oldChildren:
-                if description != oldChildren[fulltag]:
-                    def cb_desc(row):
-                        row['description'] = description
-
-                    self.batchUpdate(cb_desc, where='$tag=:c_tag', c_tag=fulltag)
-                oldChildren.pop(fulltag)
-            else:
-                self.insert(Bag(
-                        dict(tablename=tablename, tag=fulltag, description=description, maintag=parentTag, subtag=tag)))
-        tagsToDelete = oldChildren.keys()
-        if tagsToDelete:
-            self.deleteSelection('tag', tagsToDelete, condition_op='IN')
-            
-    def trigger_onDeleting(self, record):
-        """TODO
-        
-        :param record: TODO"""
-        if record['values']:
-            self.deleteSelection('tag', '%s_%%' % record['tag'], condition_op='LIKE')
-            
-    def trigger_onUpdating(self, record_data, old_record):
-        """TODO
-        
-        :param record_data: TODO
-        :param old_record: TODO"""
-        if not record_data['maintag']:
-            self.setTagChildren(record_data, old_record)
-
-            
-class Table_recordtag_link(TableBase): 
-    def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
-        
-        :param pkg: the :ref:`package <packages>` object"""
-        tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
-        self.sysFields(tbl, id=True, ins=False, upd=False)
-        tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
-                                                                       mode='foreignkey')
-        tbl.aliasColumn('tag', relation_path='@tag_id.tag')
-        tbl.aliasColumn('description', relation_path='@tag_id.description')
-        
-    def getTagLinks(self, table, record_id):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
-                      (packageName is the name of the :ref:`package <packages>` to which the table
-                      belongs to)
-        :param record_id: the record id"""
-        where = '$%s=:record_id' % self.tagForeignKey(table)
-        return self.query(columns='@tag_id.tag,@tag_id.description',
-                          where=where, record_id=record_id).fetchAsDict(key='@tag_id.tag')
-                            
-    def getTagTable(self):
-        """TODO"""
-        return self.db.table('%s.recordtag' % self.pkg.name)
-        
-    def getTagDict(self, table):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
-                      (packageName is the name of the :ref:`package <packages>` to which the table
-                      belongs to)"""
-        currentEnv = self.db.currentEnv
-        cachename = '_tagDict_%s' % table.replace('.', '_')
-        tagDict = currentEnv.get(cachename)
-        if not tagDict:
-            tagDict = self.getTagTable().query(where='$tablename =:tbl', tbl=table).fetchAsDict(key='tag')
-            currentEnv[cachename] = tagDict
-        return tagDict
-        
-    def assignTagLink(self, table, record_id, tag, value):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
-                      (packageName is the name of the :ref:`package <packages>` to which the table
-                      belongs to)
-        :param record_id: the record id
-        :param tag: TODO
-        :param value: TODO"""
-        fkey = self.tagForeignKey(table)
-        tagDict = self.getTagDict(table)
-        tagRecord = tagDict[tag]
-        if tagRecord.get('values', None):
-            if value == 'false':
-                self.sql_deleteSelection(where='@tag_id.maintag=:mt AND $%s=:record_id' % fkey,
-                                         mt=tagRecord['tag'], record_id=record_id)
-                return
-            tagRecord = tagDict['%s_%s' % (tag, value)]
-        existing = self.query(where='$%s=:record_id AND $tag_id=:tag_id' % fkey, record_id=record_id,
-                              tag_id=tagRecord['id'], for_update=True, addPkeyColumn=False).fetch()
-        if existing:
-            if value == 'false':
-                self.delete(existing[0])
-            return
-        if value != 'false':
-            if tagRecord['maintag']:
-                self.sql_deleteSelection(where='@tag_id.maintag=:mt AND $%s=:record_id' % fkey,
-                                         mt=tagRecord['maintag'], record_id=record_id)
-            record = dict()
-            record[fkey] = record_id
-            record['tag_id'] = tagRecord['id']
-            self.insert(record)
-        return
-        
-    def getTagLinksBag(self, table, record_id):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
-                      (packageName is the name of the :ref:`package <packages>` to which the table
-                      belongs to)
-        :param record_id: the record id"""
-        result = Bag()
-        taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
-                              where='$%s=:record_id' % self.tagForeignKey(table), record_id=record_id).fetch()
-        for link in taglinks:
-            if link['maintag']:
-                tagLabel = '%s.%s' % (link['maintag'], link['subtag'])
-            else:
-                tagLabel = '%s.true' % link['tag']
-            result[tagLabel] = True
-        return result
-        
-    def getCountLinkDict(self, table, pkeys):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
-                      (packageName is the name of the :ref:`package <packages>` to which the table
-                      belongs to)
-        :param pkeys: TODO"""
-        return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
-                          where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
-                          
-    def tagForeignKey(self, table):
-        """TODO
-        
-        :param table: the :ref:`database table <table>` name"""
-        tblobj = self.db.table(table)
-        return '%s_%s' % (tblobj.name, tblobj.pkey)

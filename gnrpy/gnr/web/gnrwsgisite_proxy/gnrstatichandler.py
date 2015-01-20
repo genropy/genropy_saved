@@ -83,6 +83,7 @@ class StaticHandler(object):
         dflt_method = 'create_cached_document_%s' %ext if ext else 'create_cached_document'
         m = getattr(self.site.db.table(table),(method or dflt_method),None)
         if m:
+            self.site.currentPage = self.site.dummyPage
             result = m(pkey)
             return result is not False
 

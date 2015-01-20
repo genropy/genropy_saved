@@ -143,7 +143,7 @@ class Form(BaseComponent):
         basehtml = base.root.getItem('#0.#1').toXml(omitRoot=True,autocreate=True,forcedTagAttr='tag',docHeader=' ',
                                         addBagTypeAttr=False, typeattrs=False, 
                                         self_closed_tags=['meta', 'br', 'img'])
-        return basehtml
+        return basehtml.replace('letterhead_page','')
 
 
     def htmltemplate_basePageParams(self, pane):

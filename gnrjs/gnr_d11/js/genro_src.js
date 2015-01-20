@@ -37,6 +37,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this._subscribedNodes = {};
         this._started=false;
         this._index = {};
+        this._deletingNodeContent = 0;
         this.pendingBuild = [];
         this.afterBuildCalls = [];
         this.building = false;
@@ -127,6 +128,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
+        genro.assert(!kw.node._isComponentNode);
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
@@ -203,42 +205,62 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
     
     _trigger_del:function(kw) {//da rivedere
-        //console.log('trigger_del',kw);
         var deletingNode = kw.node;
-        deletingNode = deletingNode._isComponentNode?(deletingNode.getWidget()?deletingNode.getWidget().sourceNode:deletingNode):deletingNode;
         deletingNode._onDeleting();
-        this._onDeletingContent(deletingNode._value);
-        //var domNode = kw.node.getDomNode();
-        //if (!domNode) {
-        //    return;
-        //}
-
-        var widget = deletingNode.widget;
-        var domNode = deletingNode.domNode;
-        if (widget) {
-            var parentWdg = widget.getParent?widget.getParent():null;
-            if(parentWdg && parentWdg.onDestroyingChild){
-                parentWdg.onDestroyingChild(widget);
-            }
-            widget.destroyRecursive();
-        } else if(domNode) {
-            var widgets = dojo.query('[widgetId]', domNode);
-            widgets = widgets.map(dijit.byNode);     // Array
-            dojo.forEach(widgets, function(widget) {
+        if(deletingNode._isComponentNode){
+            this.deleteNodeContent(deletingNode);
+        }else{
+            this._onDeletingContent(deletingNode._value);
+            this.deleteChildrenExternalWidget(deletingNode)
+            var widget = deletingNode.widget;
+            var domNode = deletingNode.domNode;
+            var externalWidget = deletingNode.externalWidget;
+            if (widget) {
+                var parentWdg = widget.getParent?widget.getParent():null;
+                if(parentWdg && parentWdg.onDestroyingChild){
+                    parentWdg.onDestroyingChild(widget);
+                }
+                if(!widget.containerNode){
+                    if(deletingNode._value && deletingNode._value.len()>0){
+                        this.deleteDomNodeContent(widget.domNode);
+                    }
+                }
                 widget.destroyRecursive();
-            });
-            dojo._destroyElement(domNode);
+            } else if(domNode) {
+                this.deleteDomNodeContent(domNode);
+            }else if(deletingNode.externalWidget){
+                deletingNode.externalWidget.destroy();
+            }
         }
-        var parentNode = deletingNode.getParentNode();
-        var lastComponentLabel;
-        while(parentNode && parentNode._isComponentNode){
-            lastComponentLabel = parentNode.label;
-            parentNode = parentNode.getParentNode();
-         }
-         if (parentNode && lastComponentLabel){
-             parentNode.getValue().popNode(lastComponentLabel);
-         }
         this.refreshSourceIndexAndSubscribers();
+    },
+
+    deleteChildrenExternalWidget:function(deletingNode){
+        if(deletingNode._value && deletingNode._value.len()>0){
+            deletingNode._value.walk(function(n){
+                if(n.externalWidget && n.externalWidget.destroy){
+                    n.externalWidget.destroy();
+                }
+            },'static');
+        }
+    },
+
+    deleteDomNodeContent:function(domNode){
+        var widgets = dojo.query('[widgetId]', domNode);
+        widgets = widgets.map(dijit.byNode);     // Array
+        dojo.forEach(widgets, function(widget) {
+            widget.destroyRecursive();
+        });
+        dojo._destroyElement(domNode);
+    },
+
+    deleteNodeContent:function(sourceNode){
+        var children = sourceNode._value;
+        this._deletingNodeContent = this._deletingNodeContent + 1;
+        children.forEach(function(n){
+            children.popNode(n.label);
+        })
+        this._deletingNodeContent = this._deletingNodeContent - 1;
     },
     
     
@@ -357,6 +379,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         return 'finito'
     },
     refreshSourceIndexAndSubscribers:function() {
+        if(this._deletingNodeContent>0){
+            return;
+        }
         var oldSubscribedNodes = this._subscribedNodes;
         var oldIndex = this._index;
         this._index = {};

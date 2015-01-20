@@ -32,6 +32,7 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
+from gnr.sql.gnrsqltable_proxy.hierarchical import HierarchicalHandler
 from gnr.sql.gnrsql import GnrSqlException
 from datetime import datetime
 import logging
@@ -190,6 +191,8 @@ class SqlTable(GnrObject):
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
+        if tblobj.attributes.get('hierarchical'):
+            self.hierarchicalHandler = HierarchicalHandler(self)
         
     def use_dbstores(self,**kwargs):
         pass
@@ -470,6 +473,32 @@ class SqlTable(GnrObject):
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
         return newrecord
+
+    def cachedRecord(self,pkey,virtual_columns=None):
+        def recordFromCache(pkey,cache,virtual_columns_set):
+            result,cached_virtual_columns_set = cache.get(pkey,(None,None))
+            in_cache = bool(result)
+            if in_cache and not virtual_columns_set.issubset(cached_virtual_columns_set):
+                in_cache = False
+                virtual_columns_set = virtual_columns_set.union(cached_virtual_columns_set)
+            if not in_cache:
+                result = self.record(pkey=pkey,virtual_columns=','.join(virtual_columns_set)).output('dict')
+                cache[pkey] = (result,virtual_columns_set)
+            return result,in_cache
+        virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
+        key = '%s_cache' %self.fullname
+        currentPage = self.db.currentPage
+        if currentPage:
+            with currentPage.pageStore() as store:
+                tablecache = store.getItem(key) or dict()
+                record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+                if not in_cache:
+                    store.setItem(key,tablecache)
+        else:
+            tablecache = self.currentEnv.setdefault(key,dict())
+            record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
+        return record
+
         
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
@@ -694,7 +723,8 @@ class SqlTable(GnrObject):
         """Return a TempEnv class"""
         return RecordUpdater(self, pkey=pkey,**kwargs)
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,_pkeys=None,pkey=None,_raw_update=None,**kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, 
+                    autocommit=False,_pkeys=None,pkey=None,_raw_update=None,_onUpdatedCb=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -735,6 +765,8 @@ class SqlTable(GnrObject):
                 self.update(new_row, row,pkey=record_pkey)
             else:
                 self.raw_update(new_row,old_record=row,pkey=record_pkey)
+            if _onUpdatedCb:
+                _onUpdatedCb(record=new_row,old_record=row,pkey=record_pkey)
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -930,9 +962,9 @@ class SqlTable(GnrObject):
         if method != 'update':
             columns = columns or getattr(handler,'columns',None)
             for_update = getattr(handler,'for_update',False)
-            isUpdater = getattr(handler,'updater',False)
-            for_update = isUpdater or for_update
-            if isUpdater:
+            doUpdate = getattr(handler,'doUpdate',False)
+            for_update = doUpdate or for_update
+            if doUpdate:
                 onUpdating = handler
                 handler = self.update
         sel = self.query(addPkeyColumn=False, for_update=for_update,columns=columns or '*', **kwargs).fetch()
@@ -1063,6 +1095,7 @@ class SqlTable(GnrObject):
         :param record: TODO
         :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
+        pkey = old_record[self.pkey] if old_record and old_record.get(self.pkey) != record.get(self.pkey) else None
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
@@ -1429,6 +1462,9 @@ class SqlTable(GnrObject):
         if not mask:
             mask = ' - '.join(['%s' for k in fields])
         return fields, mask
+
+    def newRecordCaption(self,record):
+        return self.newrecord_caption
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):
         """TODO
@@ -1439,7 +1475,7 @@ class SqlTable(GnrObject):
                            For more information, check the :ref:`rowcaption` section
         """
         if newrecord:
-            return self.newrecord_caption
+            return self.newRecordCaption(record)
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:

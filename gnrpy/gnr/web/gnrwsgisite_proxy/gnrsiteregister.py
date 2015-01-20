@@ -23,6 +23,7 @@
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
+OLD_HMAC_MODE = hasattr(Pyro4.config,'HMAC_KEY')
 from datetime import datetime
 import time
 from gnr.core.gnrbag import Bag,BagResolver
@@ -88,34 +89,23 @@ class RemoteStoreBagHandler(BaseRemoteObject):
 
         return decore
 
-    def exp__getitem__(self,*args,**kwargs):
-        return self.__getitem__(*args,**kwargs)
-
-    def exp__setitem__(self,*args,**kwargs):
-        return self.__setitem__(*args,**kwargs)
-
-
-    def exp__len__(self,*args,**kwargs):
-        return self.__len__(*args,**kwargs)
-
-    def exp__contains__(self,*args,**kwargs):
-        return self.__contains__(*args,**kwargs)
-
-    def exp__eq__(self,*args,**kwargs):
-        return self.__eq__(*args,**kwargs)
-
 #------------------------------- REMOTEBAG CLIENT SIDE ---------------------------
 
 class RemoteStoreBag(object):
-    def __init__(self,uri=None,register_name=None,register_item_id=None,rootpath=None):
+    def __init__(self,uri=None,register_name=None,register_item_id=None,rootpath=None,hmac_key=None):
         self.register_name = register_name
         self.register_item_id = register_item_id
         self.rootpath = rootpath
         self.uri = uri
         self.proxy=Pyro4.Proxy(uri)
+        self.hmac_key = hmac_key
+        if not OLD_HMAC_MODE:
+            self.proxy._pyroHmacKey = hmac_key
 
     def chunk(self,path):
-        return RemoteStoreBag(uri=self.uri,register_name=self.register_name,register_item_id=self.register_item_id,rootpath=self.rootpath)
+        return RemoteStoreBag(uri=self.uri,register_name=self.register_name,
+                            register_item_id=self.register_item_id,rootpath=self.rootpath,
+                            hmac_key=self.hmac_key)
         
     @remotebag_wrapper
     def __str__(self,*args,**kwargs):
@@ -123,23 +113,23 @@ class RemoteStoreBag(object):
 
     @remotebag_wrapper 
     def __getitem__(self,*args,**kwargs):
-        return self.proxy.exp__getitem__(*args,**kwargs)
+        return self.proxy.__getitem__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __setitem__(self,*args,**kwargs):
-        return self.proxy.exp__setitem__(*args,**kwargs)
+        return self.proxy.__setitem__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __len__(self,*args,**kwargs):
-        return self.proxy.exp__len__(*args,**kwargs)
+        return self.proxy.__len__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __contains__(self,*args,**kwargs):
-        return self.proxy.exp__contains__(*args,**kwargs)
+        return self.proxy.__contains__(*args,**kwargs)
 
     @remotebag_wrapper 
     def __eq__(self,*args,**kwargs):
-        return self.proxy.exp__eq__(*args,**kwargs)
+        return self.proxy.__eq__(*args,**kwargs)
 
     def __getattr__(self,name):
         h = getattr(self.proxy,name) 
@@ -878,9 +868,14 @@ class SiteRegisterClient(object):
             daemon_uri = 'PYRO:GnrDaemon@./u:%(socket)s' %daemonconfig
         else:
             daemon_uri = 'PYRO:GnrDaemon@%(host)s:%(port)s' %daemonconfig
-        Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = str(daemonconfig['hmac_key'])
+
         Pyro4.config.SERIALIZER = 'pickle'
         self.gnrdaemon_proxy = Pyro4.Proxy(daemon_uri)
+        self.hmac_key =  str(daemonconfig['hmac_key'])
+        if not OLD_HMAC_MODE:
+            self.gnrdaemon_proxy._pyroHmacKey = self.hmac_key
         
         with self.gnrdaemon_proxy as daemonProxy:
             if not self.runningDaemon(daemonProxy):
@@ -890,6 +885,8 @@ class SiteRegisterClient(object):
                 pass
         print 'creating proxy',self.siteregister_uri,self.siteregisterserver_uri
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
+        if not OLD_HMAC_MODE:
+            self.siteregister._pyroHmacKey = self.hmac_key
         self.remotebag_uri =self.siteregister_uri.replace(':SiteRegister@',':RemoteData@')
         self.siteregister.setConfiguration(cleanup = self.site.custom_config.getAttr('cleanup'))
 
@@ -979,7 +976,8 @@ class SiteRegisterClient(object):
         return register_item
 
     def add_data_to_register_item(self,register_item):
-        register_item['data'] = RemoteStoreBag(self.remotebag_uri, register_item['register_name'],register_item['register_item_id'])
+        register_item['data'] = RemoteStoreBag(self.remotebag_uri, register_item['register_name'],
+                                                register_item['register_item_id'],hmac_key=self.hmac_key)
         return register_item
 
     def page(self,page_id,include_data=None):
@@ -1052,9 +1050,10 @@ class GnrSiteRegisterServer(object):
             if port != '*':
                 pyrokw['port'] = int(port or PYRO_PORT)
         Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
-        hmac_key=hmac_key or PYRO_HMAC_KEY
+        hmac_key=str(hmac_key or PYRO_HMAC_KEY)
         multiplex = multiplex or PYRO_MULTIPLEX
-        Pyro4.config.HMAC_KEY = str(hmac_key)
+        if OLD_HMAC_MODE:
+            Pyro4.config.HMAC_KEY = hmac_key
         if compression:
             Pyro4.config.COMPRESSION = True
         if multiplex:
@@ -1064,6 +1063,8 @@ class GnrSiteRegisterServer(object):
         if polltimeout:
             Pyro4.config.POLLTIMEOUT = timeout
         self.daemon = Pyro4.Daemon(**pyrokw)
+        if not OLD_HMAC_MODE:
+            self.daemon._pyroHmacKey = hmac_key
         self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
         autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
@@ -1072,6 +1073,8 @@ class GnrSiteRegisterServer(object):
         print "uri=",self.main_uri
         if self.gnr_daemon_uri:
             with Pyro4.Proxy(self.gnr_daemon_uri) as proxy:
+                if not OLD_HMAC_MODE:
+                    proxy._pyroHmacKey = hmac_key
                 proxy.onRegisterStart(self.sitename,str(self.main_uri),str(self.register_uri))
         self.run(autorestore=autorestore)
 
