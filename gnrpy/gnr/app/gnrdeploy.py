@@ -306,9 +306,6 @@ class PackageMaker(object):
         self.comment = comment or '%s package' % self.package_name
         self.login_url = login_url or '%s/login' % self.package_name
         self.helloworld = helloworld
-        
-    def do(self):
-        """Creates the files of the ``packages`` folder"""
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
         self.lib_path = os.path.join(self.package_path, 'lib')
@@ -317,6 +314,9 @@ class PackageMaker(object):
         self.framedindex_path = os.path.join(self.webpages_path,'index.py')
         self.main_py_path = os.path.join(self.package_path, 'main.py')
         self.menu_xml_path = os.path.join(self.package_path, 'menu.xml')
+        
+    def do(self):
+        """Creates the files of the ``packages`` folder"""
         for path in (self.package_path, self.model_path, self.lib_path, self.webpages_path, self.resources_path):
             if not os.path.isdir(path):
                 os.mkdir(path)
