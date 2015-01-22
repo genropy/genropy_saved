@@ -9,7 +9,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('denominazione')
-        r.fieldcell('sigla_provincia',width='3em',name='Pr.',caption_field='sigla')
+        r.fieldcell('sigla_provincia',width='3em',name='Pr.',caption_field='sigla_provincia')
         r.fieldcell('@sigla_provincia.regione',width='3em',name='Reg.')
         r.fieldcell('capoluogo')
         r.fieldcell('zona_altimetrica')
