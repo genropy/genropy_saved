@@ -196,11 +196,12 @@ class Table(object):
         return counter_record
 
     def assignCounter(self,tblobj=None,field=None,record=None):
-        if not 'unique' in tblobj.column(field).attributes:
-            print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s',(field,tblobj.fullname)
+        
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         if not counter_pars or record.get(field) or (tblobj.isDraft(record) and not counter_pars.get('assignIfDraft')):
             return
+        if not 'unique' in tblobj.column(field).attributes:
+            print 'MISSING UNIQUE ATTRIBUTE IN FIELD %s IN TABLE %s' %(field,tblobj.fullname)
         record[field] = self.getSequence(tblobj=tblobj,field=field,record=record,update=True)
 
     def guessNextSequence(self,tblobj=None,field=None,record=None):
