@@ -4969,16 +4969,25 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         var grid = this;
+        var ge = this.gridEditor;
         if (rc) {
-            if (delay) {
+            if(ge.remoteRowController){
+                var d = new Date();
+                this.sourceNode.watch('pendingRemoteController',
+                        function(){return !ge._pendingRemoteController},
+                        function(){
+                            ge.startEdit(rc.row, rc.col);
+                        },10);
+            }
+            else if (delay) {
                 if (this._delayedEditing) {
                     clearTimeout(this._delayedEditing);
                 }
                 this._delayedEditing = setTimeout(function() {
-                    grid.gridEditor.startEdit(rc.row, rc.col);
+                    ge.startEdit(rc.row, rc.col);
                 }, delay);
             } else {
-                this.gridEditor.startEdit(rc.row, rc.col);
+                ge.startEdit(rc.row, rc.col);
             }
 
         }
