@@ -625,9 +625,9 @@ dojo.declare("gnr.RowEditor", null, {
             data.clearBackRef();
             this.inititializeData(data);
             data.setBackRef(rowNode,rowNode._parentbag);
-            if(this.gridEditor.remoteRowController){
-                this.gridEditor.callRemoteController(rowNode,null,null,true);
-            }
+            //if(this.gridEditor.remoteRowController){
+            //    this.gridEditor.callRemoteController(rowNode,null,null,true);
+            //}
         }else{
             this.inititializeData();
             rowNode.setValue(this.data);
@@ -1024,7 +1024,6 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
     },
     getNewRowDefaults:function(externalDefaults){
-
         if(!this.editorPars){
             return externalDefaults;
         }
@@ -1098,7 +1097,11 @@ dojo.declare("gnr.GridEditor", null, {
         return rowId;
     },
     newRowEditor:function(rowNode){
-        return new gnr.RowEditor(this,rowNode);
+        var rowEditor = new gnr.RowEditor(this,rowNode);
+        if(this.remoteRowController){
+            this.callRemoteController(rowNode,null,null,true);
+        }
+        return rowEditor;
     },
     
     addNewRows:function(rows){
@@ -1114,6 +1117,16 @@ dojo.declare("gnr.GridEditor", null, {
         this.newRowEditor(newnode);
     },
 
+    updateRowFromRemote:function(rowId,remoteRowNode){
+        var v = remoteRowNode.getValue();
+        var rowEditor = this.rowEditors[rowId];
+        if(this.grid.datamode=='bag'){
+            rowEditor.data.getParentNode().setValue(v,'remoteController')
+        }else{
+            rowEditor.data.update(v,null,'remoteController');
+        }
+    },
+
     callRemoteControllerBatch:function(rows,kw){
         var that = this;
         kw = kw || {};
@@ -1121,37 +1134,43 @@ dojo.declare("gnr.GridEditor", null, {
                                     objectUpdate(kw,{handlerName:this.remoteRowController,
                                     rows:rows,_sourceNode:this.grid.sourceNode})
                                     );
-
         result.forEach(function(n){
-            var rowEditor = that.rowEditors[n.label];
-            rowEditor.data.update(n.getValue(),null,'remoteController');
-        });
+            that.updateRowFromRemote(n.label,n);            
+        },'static');
         return result
     },
 
     callRemoteController:function(rowNode,field,oldvalue,batchmode){
-        var rowId = this.grid.rowIdentity(this.grid.rowFromBagNode(rowNode));
+        var rowId = this.grid.rowIdentity(this.grid.rowFromBagNode(rowNode)) || rowNode.label;
         var field_kw = field? this.grid.cellmap[field]['edit']['remoteRowController']:{};
         var kw = objectUpdate({},this.remoteRowController_default);
         objectUpdate(kw,field_kw)
         if(batchmode){
-            this._pendingRemoteController = this._pendingRemoteController || new gnr.GnrBag();
-            this._pendingRemoteController.setItem(rowId,rowNode.getValue().deepCopy(),objectUpdate({},rowNode.attr));
-            var rows = this._pendingRemoteController;
-            this._pendingRemoteController = null;
-            var result = this.callRemoteControllerBatch(rows,kw);
-            this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
+            this._pendingRemoteController = this._pendingRemoteController || [];
+            this._pendingRemoteController.push(rowId);
+            genro.callAfter(function(){
+                var rows = new gnr.GnrBag();
+                var store = this.grid.storebag();
+                this._pendingRemoteController.forEach(function(l){
+                    var n = store.getNode(l);
+                    rows.setItem(n.label,n.getValue(),objectUpdate({},n.attr));
+                });
+                var result = this.callRemoteControllerBatch(rows,kw);
+                this._pendingRemoteController = null;
+                this.grid.sourceNode.publish('remoteRowControllerDone',{result:result});
+            },1,this,'callRemoteControllerBatch');
             return;
-        }
-        if( ! this.rowEditors[rowId]){
-            this.newRowEditor(rowNode);
         }
         var that = this;
         var row = rowNode.getValue().deepCopy();
         objectUpdate(kw,{field:field,row:row,row_attr:objectUpdate({},rowNode.attr)});
         kw['_sourceNode'] = this.grid.sourceNode;
         var result = genro.serverCall(this.remoteRowController,kw);
-        rowNode.getValue().update(result,null,'remoteController');
+        if(this.grid.datamode=='bag'){
+            rowNode.setValue(result);
+        }else{
+            rowNode.getValue().update(result,null,'remoteController');
+        }
         //rowNode.attr = objectUpdate(rowNode.attr,result.asDict());
         var editingWidgetNode = this.widgetRootNode._value.getNode('cellWidget');
         if(editingWidgetNode){
@@ -1646,15 +1665,11 @@ dojo.declare("gnr.GridChangeManager", null, {
         var k;
         var rowNode;
         var idx;
-
         if(kw.updvalue && kw.value instanceof gnr.GnrBag ){
             var storeNode = this.grid.storebag().getParentNode();
             var parent_lv = kw.node.parentshipLevel(storeNode);
             if(parent_lv<2){
-                if(objectNotEmpty(this.remoteControllerColumns)){
-                    this.grid.gridEditor.callRemoteController(kw.node,null,null,true);
-                }   
-                return
+                return;
             }
         }
         if(kw.updvalue && this.grid.datamode =='bag'){
@@ -1705,11 +1720,25 @@ dojo.declare("gnr.GridChangeManager", null, {
                     gridEditor.callRemoteController(kw.node.getParentNode(),kw.node.label,kw.oldvalue);
                 },1)
             }
-            
         }
-
     },
     triggerINS:function(kw){
+        if(kw.reason=='remoteController'){
+            return;
+        }
+
+        var storeNode = this.grid.storebag().getParentNode();
+        var parent_lv = kw.node.parentshipLevel(storeNode);
+        var gridEditor = this.grid.gridEditor;
+        if(gridEditor && parent_lv<2){
+            if(!(kw.node.label in gridEditor.rowEditors)){
+                gridEditor.newRowEditor(kw.node);
+            }
+            return
+        }else{
+        }
+
+  
         this.resolveTotalizeColumns();
         this.resolveCalculatedColumns();
     },
