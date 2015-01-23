@@ -1153,7 +1153,9 @@ dojo.declare("gnr.GridEditor", null, {
                 var store = this.grid.storebag();
                 this._pendingRemoteController.forEach(function(l){
                     var n = store.getNode(l);
-                    rows.setItem(n.label,n.getValue(),objectUpdate({},n.attr));
+                    if(n){
+                        rows.setItem(n.label,n.getValue(),objectUpdate({},n.attr));
+                    }
                 });
                 var result = this.callRemoteControllerBatch(rows,kw);
                 this._pendingRemoteController = null;
@@ -1726,7 +1728,6 @@ dojo.declare("gnr.GridChangeManager", null, {
         if(kw.reason=='remoteController'){
             return;
         }
-
         var storeNode = this.grid.storebag().getParentNode();
         var parent_lv = kw.node.parentshipLevel(storeNode);
         var gridEditor = this.grid.gridEditor;
@@ -1737,8 +1738,6 @@ dojo.declare("gnr.GridChangeManager", null, {
             return
         }else{
         }
-
-  
         this.resolveTotalizeColumns();
         this.resolveCalculatedColumns();
     },
