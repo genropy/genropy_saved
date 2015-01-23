@@ -49,7 +49,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
-                       unlinkdict=None,searchOn=True,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
+                       unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
                        store_kwargs=None,parentForm=None,liveUpdate=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
@@ -73,7 +73,7 @@ class TableHandlerView(BaseComponent):
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
-                base_slots = ['5','vtitle','count','*']
+                base_slots = ['5','vtitle','count','*'] if count is not False else ['5','vtitle','*']
                 if searchOn:
                     base_slots.append('searchOn')
 
@@ -166,7 +166,6 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',style='line-height:20px;color:#666;')
 
-
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
         sum_column = kwargs['sum']
@@ -178,7 +177,7 @@ class TableHandlerView(BaseComponent):
         box.div(label or sum_column_attr.get('name_short') or sum_column_attr['name_long'],_class='gnrfieldlabel',font_size='.9em',
                     display='inline-block',padding_right='3px')
         box.div('==_sumvalue|| 0;',_sumvalue='^.store?sum_%s' %sum_column,format=format,width=width or '5em',_class='fakeTextBox',
-                 font_size='.9em',fld_text_align='right',fld_padding_right='2px',display='inline-block')
+                 font_size='.9em',text_align='right',padding_right='2px',display='inline-block')
 
     def _th_section_from_type(self,tblobj,sections,condition=None,condition_kwargs=None,all_begin=None,all_end=None):
         rt = tblobj.column(sections).relatedTable() 

@@ -3,7 +3,7 @@
 import optparse
 import os
 import re
-from gnr.app.gnrdeploy import PackageMaker
+from gnr.app.gnrdeploy import PackageMaker, PathResolver
 from gnr.sql.gnrsql import GnrSqlDb
 
 CONN_STRING_RE=r"(?P<user>\w*)\:?(?P<password>\w*)\@(?P<host>(\w|\.)*)\:?(?P<port>\w*)\/(?P<database>(\w|\.)*)"
@@ -26,10 +26,11 @@ parser.add_option('-d', '--debug',
                 help="Debug mode")
 
 parser.add_option('-i', '--implementation',
-                dest='implementation',
+                dest='implementation', default='postgres',
                 help='Database implementation (postgres|mysql|sqlite|mssql')
 
 parser.add_option('-p', '--package', dest='package', help='Do only these packages (comma separated)')
+parser.add_option('-P', '--project', dest='project', help='Add packages to this project')
 
 def structToPy(tables, path):
     #shutil.rmtree(path,True)
@@ -79,8 +80,11 @@ if __name__=='__main__':
         parser.print_help()
         exit(0)
     debug = options.debug==True
-
     conn = parse_connection_string(args[0])
+    base_path = None
+    if options.project:
+        path_resolver = PathResolver()
+        base_path = os.path.join(path_resolver.project_name_to_path(options.project), 'packages')
     db = GnrSqlDb(implementation=options.implementation, dbname=conn['database'],
                   host=conn['host'], user=conn['user'], password=conn['password'], port=conn['port'],
                   main_schema=None)
@@ -93,6 +97,12 @@ if __name__=='__main__':
             continue
         if allowed_packages and package not in allowed_packages:
             continue
-        PackageMaker(package, sqlprefix='').do()
-        structToPy(struct['packages.%s.tables'%package], os.path.join(package,'model'))
+        package_maker = PackageMaker(package, sqlprefix='', base_path = base_path)
+        print dir(package_maker)
+        print 'Creating package %s in %s'% (package,package_maker.package_path)
+        package_maker.do()
+        print 'Package %s done'% package
+        print 'Creating model files %s'% package_maker.model_path
+        structToPy(struct['packages.%s.tables'%package], package_maker.model_path)
+        print 'Model files for package %s done' %(package)
 

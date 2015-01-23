@@ -29,6 +29,7 @@ var loginManager = {
 
 dojo.declare("gnr.FramedIndexManager", null, {
     constructor:function(stackSourceNode){
+        genro.ping_classes = true;
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
         var default_uri =  genro.getData('gnr.defaultUrl')||'/';

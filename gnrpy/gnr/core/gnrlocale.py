@@ -330,7 +330,7 @@ DATEKEYWORDS = {
            'last week': 'settimana scorsa',
            'this month': ('questo mese', 'mese'), 'next month': 'mese prossimo', 'last month': 'mese scorso',
            'today': 'oggi', 'yesterday': 'ieri', 'tomorrow': 'domani',
-           'from': ('da', 'dal', 'dalla'), 'to': ('a', 'al', 'alla', 'e'), 'no period': ('senza periodo', 'sempre')}
+           'from': ('da', 'dal', 'dalla'), 'to': ('a', 'al', 'alla', 'e'), 'no period': ('-','senza periodo', 'sempre')}
 }
 
 BOOLKEYWORDS = { 'en':{'tf':'True;False','tfu':'True;False;Undefined','yn':'Yes;No','ynu':'Yes;No;Unknown'},

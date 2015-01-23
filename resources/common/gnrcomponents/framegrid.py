@@ -123,7 +123,7 @@ class FrameGrid(BaseComponent):
     def fgr_bagGrid(self,pane,storepath=None,title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
                     addrow=True,delrow=True,slots=None,
-                    autoToolbar=True,
+                    autoToolbar=True,semaphore=None,
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
@@ -147,6 +147,8 @@ class FrameGrid(BaseComponent):
                 bar = frame.top.slotToolbar(slots,vtitle=title)
             if title:
                 bar.vtitle.div(title)
+            if semaphore:
+                bar.replaceSlots('#','#,gridsemaphore')
         store = frame.grid.bagStore(storepath=storepath,parentForm=parentForm)
         frame.store = store
         return frame

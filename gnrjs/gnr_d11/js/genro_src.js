@@ -211,8 +211,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             this.deleteNodeContent(deletingNode);
         }else{
             this._onDeletingContent(deletingNode._value);
+            this.deleteChildrenExternalWidget(deletingNode)
             var widget = deletingNode.widget;
             var domNode = deletingNode.domNode;
+            var externalWidget = deletingNode.externalWidget;
             if (widget) {
                 var parentWdg = widget.getParent?widget.getParent():null;
                 if(parentWdg && parentWdg.onDestroyingChild){
@@ -226,9 +228,21 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 widget.destroyRecursive();
             } else if(domNode) {
                 this.deleteDomNodeContent(domNode);
+            }else if(deletingNode.externalWidget){
+                deletingNode.externalWidget.destroy();
             }
         }
         this.refreshSourceIndexAndSubscribers();
+    },
+
+    deleteChildrenExternalWidget:function(deletingNode){
+        if(deletingNode._value && deletingNode._value.len()>0){
+            deletingNode._value.walk(function(n){
+                if(n.externalWidget && n.externalWidget.destroy){
+                    n.externalWidget.destroy();
+                }
+            },'static');
+        }
     },
 
     deleteDomNodeContent:function(domNode){

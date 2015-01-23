@@ -919,7 +919,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         var path = sourceNode.attrDatapath('value');
         var datanode = genro._data.getNode(path, null, true); //7/06/2006
         var inattr = sourceNode.getInheritedAttributes();
-        if(inattr.blankIsNull){
+        if(inattr.blankIsNull!==false){
             value = value===''?null:value; // set blank value as null
         }
         if (datanode.getValue() === value) {
@@ -1027,7 +1027,6 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     // }
 
 });
-
 
 dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     constructor: function(application) {
@@ -2068,10 +2067,10 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }else{
-                    console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
+                    //console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
                 }
             }else{
-                console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
+                //console.warn('the menu at storepath:'+savedAttrs.storepath+' is empty');
             }
         }
 
@@ -2790,8 +2789,6 @@ dojo.declare("gnr.widgets.DateTextBox", gnr.widgets._BaseTextBox, {
     onChanged:function(widget, value) {
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
-        console.log('onChanged',value)
-
         if (value) {
             this._doChangeInData(widget.domNode, widget.sourceNode, value, {dtype:'D'});
         }
@@ -3117,7 +3114,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     creating_structure: function(attributes, sourceNode) {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
-            if (genro.grid_configurator) {
+            if (genro.grid_configurator && 'configurable' in sourceNode.attr) {
                  sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
             }
         
@@ -3397,13 +3394,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
         if (this.sourceNode.attr.selectedIndex) {
-            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
         }
         if (this.sourceNode.attr.selectedPkeys) {
-            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys(), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedPkeys', this.getSelectedPkeys());
         }
         if (this.sourceNode.attr.selectedRowidx) {
-            this.sourceNode.setAttributeInDatasource('Rowidx', this.getSelectedRowidx(), null, null, true);
+            this.sourceNode.setAttributeInDatasource('selectedRowidx', this.getSelectedRowidx().join(','));
         }
         if (this.sourceNode.attr.selectedNodes) {
             var nodes = this.getSelectedNodes();
@@ -3532,7 +3529,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         
     },
-
+    mixin_cellCurrentDatapath:function(path){
+        console.error('not implemented')
+    },
     mixin_getSelectedRow: function() {
         return  this.rowByIndex(this.selection.selectedIndex);
     },
@@ -3556,13 +3555,33 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         return function(v, inRowIndex) {
             var renderedRow = this.grid.currRenderedRow;
+            this.customStyles.push(objectAsStyle(objectUpdate(objectFromStyle(this.cellStyles),
+                                                     sourceNode.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},this), [ 'width'])))));
             if (cellClassFunc) {
-                cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
+                var cellClassFuncResult = cellClassFunc(this, v, inRowIndex,renderedRow[cell.field]);
+                if(cellClassFuncResult){
+                    this.customClasses.push(cellClassFuncResult);
+                }
             }
             var cellCustomClass = renderedRow['_customClass_'+cell.field];
             if(cellCustomClass){
                 this.customClasses.push(cellCustomClass);
             }
+            if(this.edit){
+                this.customClasses.push('cell_editable');
+                if(this.editDisabled){
+                    if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){
+                        this.customClasses.push('cell_disabled');
+                    }
+                }
+                if(this.editLazy){
+                    if(this.grid.sourceNode.currentFromDatasource(this.editLazy)){
+                        this.customClasses.push('cell_editLazy');
+                    }
+                }
+                //this.grid.rowSourceNode(inRowIndex).getRelativeData()
+            }
+
             opt['cellPars'] = {rowIndex:inRowIndex};
             //var zoomPage = opt['zoomPage'];
             if (typeof(v) == 'number' && v < 0) {
@@ -3617,12 +3636,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             cell = this.getNewSetKw(sourceNode,cell);
             dtype ='B';
         }
-
-        cell = sourceNode.evaluateOnNode(cell);
-
-        if(sourceNode.attr.draggable_column){
-            
+        var rowBasedAttr = {};
+        for (var k in cell){
+            if(typeof(cell[k])=='string' && cell[k].indexOf('#ROW')>=0){
+                rowBasedAttr[k] = cell[k];
+            }
         }
+        for (k in rowBasedAttr){
+            delete cell[k];
+        }
+        //cell = sourceNode.evaluateOnNode(cell);
+
         cell.name = '<div '+ ((sourceNode.attr.draggable_column)?'draggable="true"' :'' )+ ' class="cellHeaderContent" >'+cell.name+'</div>';
         if (cell.field) {
             if(cell.field.indexOf(':')>=0 && !cell._customGetter){
@@ -3631,20 +3655,24 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 cell._subtable = f[0];
                 cell._subfield = f[1];
             }
-            if(typeof(cell.values)=='string' && cell.values.indexOf(':')>=0){
-                var valuesdict = objectFromString(cell.values);
-                cell._customGetter = function(rowdata,idx){
-                    var currvalue = rowdata[this.field_getter];
-                    if(currvalue){
-                        var valuetoset = [];
-                        currvalue = (currvalue+'').split(',');
-                        dojo.forEach(currvalue,function(n){
-                            valuetoset.push(valuesdict[n]);
-                        });
-                        return valuetoset.join(',');
-                    }
-                    return currvalue;  
-                };
+
+            if(typeof(cell.values)=='string'){
+                var values = sourceNode.currentFromDatasource(cell.values);
+                if(values.indexOf(':')>=0){
+                    var valuesdict = objectFromString(values);
+                    cell._customGetter = function(rowdata,idx){
+                        var currvalue = rowdata[this.field_getter];
+                        if(currvalue){
+                            var valuetoset = [];
+                            currvalue = (currvalue+'').split(',');
+                            dojo.forEach(currvalue,function(n){
+                                valuetoset.push(valuesdict[n]);
+                            });
+                            return valuetoset.join(',');
+                        }
+                        return currvalue;  
+                    };
+                }
             }
             cell.field = cell.field.replace(/\W/g, '_');
             cell.field_getter = cell.caption_field? cell.caption_field.replace(/\W/g, '_'):cell.field ;
@@ -3685,7 +3713,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 sourceNode.attr.counterField = cell.field;
                 dtype = 'L';
             }
-            if (cell.hidden) {
+            if ('hidden' in cell && sourceNode.currentFromDatasource(cell.hidden)) {
                 cell.classes = (cell.classes || '') + ' hiddenColumn';
             }
             if (dtype) {
@@ -3712,6 +3740,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
             delete cell.tag;
+            objectUpdate(cell,rowBasedAttr);
             return cell;
         }
     },
@@ -3821,7 +3850,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     },
     mixin_moveRow:function(row, toPos) {
-        if (toPos != row) {
+        if (toPos!=null && toPos>=0 && toPos!= row) {
             var storebag = this.storebag();
             storebag.moveNode(row, toPos);
         }
@@ -4281,7 +4310,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_rowCached:function(inRowIndex) {
         if (this.currRenderedRowIndex !== inRowIndex) {
             this.currRenderedRowIndex = inRowIndex;
-            this.currRenderedRow = this.rowByIndex(inRowIndex);
+            this.currRenderedRow = this.rowByIndex(inRowIndex,true);
         }
         return this.currRenderedRow;
     },
@@ -4628,7 +4657,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             n = null;
         }
         if (n == null) {
-            var n = this.storeRowCount();
+            var n = this.hideAllRows?0:this.storeRowCount();
         }
         var view = this.views.views[0];
         var scrollBox,scrollLeft;
@@ -4910,7 +4939,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var subPath = kw.node.getFullpath(null, storebag).split('.');
         var rowLabel = subPath[0];
         var fldName = subPath[1];
-        if (fldName) {
+        if (fldName && grid.datamode!='bag') {
             var chNode = storebag.getNode(rowLabel);
             var cellAttr, value, gridfield;
             var currAttr = objectUpdate({},chNode.attr);
@@ -4940,16 +4969,25 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         var rc = this.gridEditor.findNextEditableCell({row: r, col: -1}, {r:0, c:1});
         var grid = this;
+        var ge = this.gridEditor;
         if (rc) {
-            if (delay) {
+            if(ge.remoteRowController){
+                var d = new Date();
+                this.sourceNode.watch('pendingRemoteController',
+                        function(){return !ge._pendingRemoteController},
+                        function(){
+                            ge.startEdit(rc.row, rc.col);
+                        },10);
+            }
+            else if (delay) {
                 if (this._delayedEditing) {
                     clearTimeout(this._delayedEditing);
                 }
                 this._delayedEditing = setTimeout(function() {
-                    grid.gridEditor.startEdit(rc.row, rc.col);
+                    ge.startEdit(rc.row, rc.col);
                 }, delay);
             } else {
-                this.gridEditor.startEdit(rc.row, rc.col);
+                ge.startEdit(rc.row, rc.col);
             }
 
         }
@@ -5258,8 +5296,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                     getChangeManager().addDynamicCellPar(cell,p,bagcellattr[p].slice(1));
                 }
             }
-            if(cell.edit && cell.edit.remoteRowController){
-                getChangeManager().addRemoteControllerColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+            if(cell.edit){
+                var cm = getChangeManager()
+                if(cell.edit.remoteRowController){
+                    cm.addRemoteControllerColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
+                }
             }
             if(cell.formula){
                 getChangeManager().addFormulaColumn(cellmap[k].field,objectUpdate({},cellmap[k]));
@@ -5621,19 +5662,37 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
 });
 
 dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
-    mixin_rowByIndex:function(inRowIndex){
-        return this.collectionStore().rowByIndex(inRowIndex);
+    mixin_rowByIndex:function(inRowIndex,bagFields){
+        return this.collectionStore().rowByIndex(inRowIndex,bagFields);
     },
     mixin_absIndex:function(idx,reverse){
          return this.collectionStore().absIndex(idx,reverse);
     },
-    mixin_rowFromBagNode:function(node) {
-        return this.collectionStore().rowFromItem(node);
+    mixin_rowFromBagNode:function(node,bagFields) {
+        return this.collectionStore().rowFromItem(node,bagFields);
     },
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
     },
+    mixin_getSelectedRowidx: function() {
+        var sel = this.selection.getSelected();
+        if(!this._virtual){
+            return sel.sort();
+        }
+        var result = [];
+        for (var i = 0; i < sel.length; i++) {
+            var row = this.rowByIndex(sel[i]);
+            result.push(row.rowidx);
+        }
+        return result.sort();
+    },
 
+    mixin_cellCurrentDatapath:function(path,inRowIndex){
+        inRowIndex = inRowIndex==null?this.currRenderedRowIndex:inRowIndex; 
+        var node = this.collectionStore().itemByIdx(inRowIndex);
+        genro.assert(node,'missing storenode');
+        return path.replace('#ROW.',node.getFullpath(null,genro._data)+'~')
+    },
 
     mixin_rowIdByIndex:function(inRowIndex){
         if(inRowIndex!==null){
@@ -5933,6 +5992,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_resetFilter: function(value) {
         return this.collectionStore().resetFilter();
     },
+    
     mixin_currentData:function(nodes, rawData){
         var nodes = nodes || (this.getSelectedRowidx().length<1?'all':'selected');
         var result = new gnr.GnrBag();
@@ -6400,7 +6460,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
             attributes['tabindex'] = -1;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,preferred');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,excludeDraft,preferred,distinct');
         if('_storename' in sourceNode.attr){
             resolverAttrs._storename = sourceNode.attr._storename;
         }
@@ -6803,6 +6863,9 @@ dojo.declare("gnr.widgets.DropDownButton", gnr.widgets.baseDojo, {
                 this._opened = false;
             }
         };
+        if(this.sourceNode.attr.onOpeningPopup){
+            this.sourceNode.attr.onOpeningPopup.call(this.sourceNode,openKw,evtDomNode);
+        }
         dijit.popup.open(openKw);
         if (this.domNode.offsetWidth > dropDown.domNode.offsetWidth) {
             var adjustNode = null;
@@ -6818,11 +6881,21 @@ dojo.declare("gnr.widgets.DropDownButton", gnr.widgets.baseDojo, {
         }
         this.popupStateNode.setAttribute("popupActive", "true");
         this._opened = true;
+        if(this.sourceNode.attr.onOpenedPopup){
+            this.sourceNode.attr.onOpenedPopup.call(this.sourceNode,openKw,evtDomNode);
+        }
         if (dropDown.focus) {
             dropDown.focus();
         }
         // TODO: set this.checked and call setStateClass(), to affect button look while drop down is shown
     },
+    patch__onBlur: function(){
+        if(this.sourceNode.attr.modal){
+            return;
+        }
+        this._onBlur_replaced();
+    },
+
     patch_startup: function() {
         // the child widget from srcNodeRef is the dropdown widget.  Insert it in the page DOM,
         // make it invisible, and store a reference to pass to the popup code.

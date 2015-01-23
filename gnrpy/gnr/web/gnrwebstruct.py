@@ -856,7 +856,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1983,6 +1983,8 @@ class GnrFormBuilder(object):
             f.update(field)
             field = f
             lbl = field.pop('lbl', '')
+            if 'hidden' in field and not 'lbl_hidden' in field:
+                field['lbl_hidden'] = field['hidden']
             if not '_valuelabel' in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
             if 'lbl_href' in field:
@@ -2005,7 +2007,7 @@ class GnrFormBuilder(object):
                     td_field_attr[attr_name] = field.pop(k)
                 elif k.startswith('tdl_'):
                     td_lbl_attr[attr_name] = field.pop(k)
-                    
+               
             if field.pop('html_label',None) and field.get('dtype') =='B':
                 field['label'] = lbl
                 lbl = None

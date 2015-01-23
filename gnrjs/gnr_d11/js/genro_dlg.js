@@ -507,12 +507,22 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
         var kwdimension = objectExtract(kw,'height,width,background,padding');
+        if(kw.closable){
+            kw.connect_hide = function(){
+                var that = this;
+                setTimeout(function(){
+                    that._destroy();
+                },500);
+            }
+        }
         var dlg = node._('dialog', objectUpdate({title:title},kw));
         var box = dlg._('div',kwdimension)
         var center = box._('div', {_class:'pbl_dialog_center'});
-        var bottom = box._('div', {_class:'dialog_bottom'});
+        if(kw.dialog_bottom!==false){
+            var bottom = box._('div', {_class:'dialog_bottom'});
+            dlg.bottom = bottom;
+        }
         dlg.center = center;
-        dlg.bottom = bottom;
         dlg.close_action = function() {
             dlg.getParentNode().widget.hide(); 
             setTimeout(function(){
@@ -641,6 +651,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         valuepath = '^'+sourceNode.absDatapath(valuepath);
         palette._('ckeditor',objectUpdate(kw,{value:valuepath}));
         node.unfreeze(); 
+    },
+
+
+    dialogEditor:function(sourceNode,kw){
+        var kw = kw || {};
+        var dlg_kw = {closable:true,width:'800px',autoSize:true,dialog_bottom:false};
+        var dlg = genro.dlg.quickDialog('Editor',objectUpdate(dlg_kw,kw));
+        var valuepath = kw.valuepath || sourceNode.attr.innerHTML || sourceNode.attr.value;
+        valuepath = '^'+sourceNode.absDatapath(valuepath);
+        dlg.center._('ckeditor',objectUpdate(kw,{value:valuepath}));
+        dlg.show_action()
     },
 
     thIframePalette:function(kw,openKw){

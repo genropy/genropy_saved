@@ -27,7 +27,12 @@ class TestEditInlineCheckbox(BaseComponent):
         r.fieldcell('sigla',hidden=True)
         r.fieldcell('nome')
         r.fieldcell('province_principali_sigla',edit=dict(tag='checkBoxText',table='glbl.provincia',
-                                                          condition='$regione=:reg',condition_reg='^.sigla'))
+                                                          condition='$regione=:reg',condition_reg='^.sigla',
+                                                          onCreated="""function(widget,attributes){
+                                                                console.log('onCreated',widget,attributes,this)
+                                                          }"""
+
+                                                          ))
         #r.fieldcell('province_principali_nome',hidden=True)
 
     def th_options(self):
@@ -37,11 +42,11 @@ class TestEditInlineCheckbox(BaseComponent):
 class TestDyinCheckboxForm(BaseComponent):
     def th_form(self,form):
         fb = form.record.formbuilder(cols=1,border_spacing='3px')
-        #fb.field('province_principali_sigla')
+        fb.field('nome')
         fb.checkBoxText(value='^.province_principali_sigla',#values='MI:Milano,CO:Como,SO:Sondrio')
                         table='glbl.provincia',
-                        condition='$regione=:reg',condition_reg='^.sigla' ,popup=True
-                        )
+                        condition='$regione=:reg',condition_reg='^.sigla' ,popup=True,
+                        lbl='AAA')
 
 
 class TestDyinCheckboxTree(BaseComponent):

@@ -29,7 +29,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
         genro.src.onBuiltCall(function(){that.onStartForm();});
-        formAttr.blankIsNull = formAttr.blankIsNull===false?false:true;
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -54,8 +53,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.sourceNode.attr.blankIsNull = this.blankIsNull;
-
         this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
         
         this.frameCode = sourceNode.attr.frameCode;
@@ -1167,9 +1164,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getFormChanges: function() {
         var data = this._getRecordCluster(this.getFormData(), true);
         for(var k in this.gridEditors){
-            var changeset = this.gridEditors[k].getChangeset();
-            if(this.gridEditors[k].table && changeset.len()>0){
-                data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
+            var ge = this.gridEditors[k];
+            if(!ge.storeInForm){
+                var changeset = this.gridEditors[k].getChangeset();
+                if(this.gridEditors[k].table && changeset.len()>0){
+                    data.setItem('grids.'+k,changeset,{table:this.gridEditors[k].table});
+                }
             }
         }
         return data;
@@ -1183,7 +1183,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     setCurrentPkey:function(pkey){
         var currentPkey = this.getCurrentPkey()
         this.sourceNode.setRelativeData(this.pkeyPath,pkey);
-        if(pkey!=currentPkey && this.store){
+        if(pkey !=currentPkey && this.store){
             this.store.loadedIndex = -1;
         }
     },
@@ -1227,6 +1227,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
                 else if (value instanceof gnr.GnrBag) {
                     sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
+                    if(!sendBag && objectNotEmpty(this.gridEditors)){
+                        for(var k in this.gridEditors){
+                            var ge = this.gridEditors[k];
+                            if(node._id==ge.grid.storebag().getParentNode()._id){
+                                sendBag = (ge.status=='changed');
+                                break;
+                            }
+                        }
+                    }
                     if (sendBag) {
                         value = value.deepCopy();
                         value.walk(function(n){
@@ -1245,7 +1254,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         }
                     }
                 }
-                else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
+                else if ((sendback == true) || isNewRecord || ('_loadedValue' in node.attr)) {
                     var attr_dict = {'dtype':node.attr.dtype};
                     if(node.attr.promised){
                         attr_dict.promised = node.attr.promised;
@@ -1278,6 +1287,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
          if ( kw.reason=='selected_' && kw.pathlist[0][0]=='@'){// avoid to change related records from dbselect
          return;
          }*/
+        for (var k in this.gridEditors){
+            var ge = this.gridEditors[k];
+            if(ge.storeInForm){
+                var storebag = ge.grid.storebag();
+                if(kw.node.isChildOf(storebag)){
+                    return;
+                }
+            }
+        }
         if (kw.reason == 'resolver' || kw.node.getFullpath().indexOf('$') > 0) {
             var invalidFields = this.getInvalidFields();
             var invalidDojo = this.getInvalidDojo()
@@ -2188,8 +2206,6 @@ dojo.declare("gnr.formstores.Base", null, {
         var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         this._load_prepareDefaults(currPkey,default_kw,kw);
-        
-        
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
         var virtual_columns = objectPop(kw,'virtual_columns');

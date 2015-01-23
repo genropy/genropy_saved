@@ -1,8 +1,7 @@
 from gnr.core.gnrbag import Bag
-#from paste import httpexceptions
-#from paste import request as paste_request
 from weberror.evalexception import EvalException
-from paste.exceptions.errormiddleware import ErrorMiddleware
+#from paste.exceptions.errormiddleware import ErrorMiddleware
+from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError
 from gnr.web.gnrwebapp import GnrWsgiWebApp
@@ -99,7 +98,9 @@ class UrlInfo(object):
                 self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             self.pkg = pkg_obj.id
         if self.request_kwargs.pop('_mobile',False):
-            self.basepath = os.path.join(self.basepath,'mobile')
+            mobilepath = os.path.join(self.basepath,'mobile')
+            if os.path.exists(mobilepath):
+                self.basepath = mobilepath
         currpath = []
         pathfile_cache = self.site.pathfile_cache
         path_list_copy = list(path_list)

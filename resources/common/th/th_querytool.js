@@ -424,6 +424,7 @@ dojo.declare("gnr.QueryManager", null, {
 
     checkQueryLineValue:function(sourceNode, value) {
         var relpath = sourceNode.attr.relpath;
+        value = value || '';
         if (value.indexOf('set:')==0){
             return;
         }

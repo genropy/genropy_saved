@@ -781,9 +781,10 @@ class TableBase(object):
     def trigger_releaseCounters(self,record=None,backToDraft=None):
         for field in self.counterColumns():
             if record.get(field):
-                counter_pars = self.getCounterPars(field,record)
-                if not backToDraft or (counter_pars.get('recycled') and not counter_pars.get('assignIfDraft')):
-                    self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
+                counter_pars = self.getCounterPars(field,record) 
+                if not counter_pars or not counter_pars.get('recycle') or (backToDraft and counter_pars.get('assignIfDraft')):
+                    continue
+                self.db.table('adm.counter').releaseCounter(tblobj=self,field=field,record=record)
 
     def trigger_assignCounters(self,record=None,old_record=None):
         "Inside dbo"
@@ -795,7 +796,9 @@ class TableBase(object):
 
     def _sequencesOnLoading(self,newrecord,recInfo=None):
         for field in self.counterColumns():
-            pars = getattr(self,'counter_%s' %field)()
+            pars = getattr(self,'counter_%s' %field)(record=newrecord)
+            if not pars:
+                continue
             if self.isDraft(newrecord) and not pars.get('assignIfDraft'):
                 continue
             if pars.get('showOnLoad'):

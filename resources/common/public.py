@@ -187,7 +187,7 @@ class PublicSlots(BaseComponent):
                 }
                 dojo.addClass(dojo.body(),'gnroutofdate');
             }
-            """,_onStart=True,custom_workdate=self.rootenv['custom_workdate'] or False,lg='!!Logout',cn='!!Continue',
+            """,_onStart=True,custom_workdate=self.rootenv['login_date'] != self.workdate or False,lg='!!Logout',cn='!!Continue',
                 msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
         pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
     

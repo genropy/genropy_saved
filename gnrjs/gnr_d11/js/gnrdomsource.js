@@ -434,20 +434,22 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (path != null) {
             if (autocreate) {
                 var node = genro._data.getNode(path, false, autocreate, dflt);
-                if (path.indexOf('?') >= 0) {
-                    value = genro._data.getItem(path);
-                } else if (node) {
-                    value = node.getValue(null, {'_sourceNode':this});
-                }
+                value = genro._data.getItem(path,null,null,{'_sourceNode':this});
+               //if (path.indexOf('?') >= 0) {
+               //    value = genro._data.getItem(path);
+               //} else if (node) {
+               //    value = node.getValue(null, {'_sourceNode':this});
+               //}
             } else {
-                if (path.indexOf('?') >= 0) {
-                    value = genro._data.getItem(path);
-                } else {
-                    var node = genro._data.getNode(path);
-                    if (node) {
-                        value = node.getValue(null, {'_sourceNode':this});
-                    }
-                }
+                value = genro._data.getItem(path,null,null,{'_sourceNode':this});
+               //if (path.indexOf('?') >= 0) {
+               //    value = genro._data.getItem(path);
+               //} else {
+               //    var node = genro._data.getNode(path);
+               //    if (node) {
+               //        value = node.getValue(null, {'_sourceNode':this});
+               //    }
+               //}
 
             }
         }
@@ -555,6 +557,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
         var relpath = pathlist.slice(1).join('.');
+        if(nodeId=='ROW'){
+            return this.widget.cellCurrentDatapath(path)
+        }
         if(nodeId=='WORKSPACE'){
             node=this.attributeOwnerNode('_workspace');
             genro.assert(node,'with WORKSPACE path you need an ancestor node with attribute _workspace');
@@ -574,7 +579,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         path = currNode.absDatapath(relpath ? '.' + relpath : '');
         return path;
     },
-    absDatapath: function(path) {
+    absDatapath: function(path) { 
         var path = path || '';
         if (this.isPointerPath(path)) {
             path = path.slice(1);
@@ -719,13 +724,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return funcApply(func,this.evaluateOnNode(kw),this);
     },
     
-    evaluateOnNode: function(pardict) {
+    evaluateOnNode: function(pardict,filterCb) {
         // given an object representing dynamic parameters
         // get current values relative to this node
         // eg. values starting with ^. are datapath relative to the current node
         var result = {};
         for (var attr in pardict) {
-            result[attr] = this.currentFromDatasource(pardict[attr]);
+            var v = pardict[attr];
+            if(filterCb && typeof(v)=='string' && this.isPointerPath(v) && !filterCb(v)){
+                result[attr] = v;
+            }else{
+                result[attr] = this.currentFromDatasource(v);
+            }
+            
         }
         return result;
     },

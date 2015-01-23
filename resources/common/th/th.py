@@ -119,6 +119,7 @@ class TableHandler(BaseComponent):
                                 lockable=lockable,
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,
+                                count=count,
                                 grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
                                 preview_kwargs=preview_kwargs,
                                 parentForm=parentForm,liveUpdate=liveUpdate,
@@ -461,6 +462,7 @@ class MultiButtonForm(BaseComponent):
         pane.attributes.update(overflow='hidden')
         frameCode = frameCode or 'fhmb_%s' %table.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,
+
                                 datapath=datapath,**kwargs)
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
@@ -476,6 +478,17 @@ class MultiButtonForm(BaseComponent):
         columnslist = ['*','$%(caption)s' %multibutton_kwargs]
 
         if formhandler_kwargs:
+            frame.attributes.update(onCreated="""
+                    var that = this;
+                    this.loadForm = function(kw){
+                        var switchValue = objectPop(kw,'switchValue');
+                        var destPkey = objectPop(kw,'destPkey') || '*newrecord*';
+                        var formpars = that.getRelativeData('.connected_forms').getItem(switchValue);
+                        var formId = formpars.getItem('formId');
+                        var form = genro.formById(formId)
+                        form.load({destPkey:destPkey,default_kw:kw});
+                    }
+                """)
             sc = frame.center.stackContainer(selectedPage='^.selectedForm')
             emptyPageMessage = emptyPageMessage or '!!No Record Selected'
             sc.contentPane(pageName='emptypage').div(emptyPageMessage,_class='hiderMessage',height='50px',position='absolute',top='25%',left=0,right=0,text_align='center')
