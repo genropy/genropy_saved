@@ -594,12 +594,15 @@ class MultiButtonForm(BaseComponent):
         form_kwargs = dictExtract(pars,'form_',pop=True)
         default_kwargs = dictExtract(pars,'default_',pop=True)
         datapath = pars.pop('datapath','.forms.%s' %formId)
-        pkeyColumn = pars.pop('pkeyColumn')
-        columnslist.append('$%s' %pkeyColumn)
         switchValues = pars.pop('switchValues')
-        table = pars.pop('table')
-        joiner = self.db.table(table).model.getJoiner(storetable)
-        fkey = joiner['many_relation'].split('.')[-1]
+        table = pars.pop('table',None) or storetable
+        pkeyColumn = pars.pop('pkeyColumn',None) or self.db.table(table).pkey
+        columnslist.append('$%s' %pkeyColumn)
+        if table!=storetable:
+            joiner = self.db.table(table).model.getJoiner(storetable)
+            fkey = joiner['many_relation'].split('.')[-1]
+        else:
+            fkey = pkeyColumn
         for c in switchValues.split(','):
             switchdict[c] = dict(formId=formId,pkeyColumn=pkeyColumn,fkey=fkey,default_kwargs=default_kwargs)
         form = sc.contentPane(pageName=formId,overflow='hidden').thFormHandler(table=table,
