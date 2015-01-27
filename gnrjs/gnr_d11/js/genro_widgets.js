@@ -3570,7 +3570,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(this.edit){
                 this.customClasses.push('cell_editable');
                 if(this.editDisabled){
-                    if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){
+                    if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){ 
                         this.customClasses.push('cell_disabled');
                     }
                 }
@@ -5607,24 +5607,19 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.sourceNode.publish('onDeletedRows');
     },
     mixin_addRows:function(counter,evt,duplicate){
+        var addrow_kwargs = this.sourceNode.evaluateOnNode(objectExtract(this.sourceNode.attr,'addrow_*',true));
         var counter = counter || 1;
-        var lenrows = this.storebag().len();
-        var r = this.selection.selectedIndex;
-        if(r>=0 && lenrows>0){
-            r = r+1;
-        }else{
-            r = lenrows;
-        }
+        var firstRow;
         var source = [];
         var that = this;
         if(duplicate){
             var sel = this.selection.getSelected();
-            var r;
+            var row;
             var identifier = this.rowIdentifier();
             sel.forEach(function(n){
-                r = that.rowByIndex(n);
-                objectPop(r,identifier);
-                source.push(r);
+                row = that.rowByIndex(n);
+                objectPop(row,identifier);
+                source.push(row);
             });
         }
         for(var i=0;i<counter;i++){
@@ -5633,13 +5628,13 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                     that.addBagRow('#id', null, that.newBagRow(dflt),evt);
                 })
             }else{
-                this.addBagRow('#id', '*', this.newBagRow(),evt);
+                firstRow = firstRow || this.addBagRow('#id', addrow_kwargs.position || '*', this.newBagRow(),evt);
             }
             
         }
         this.sourceNode.publish('onAddedRows');
         if(!duplicate){
-            this.editBagRow(r);
+            this.editBagRow(this.storebag().index(firstRow.label));
         }
 
     },
