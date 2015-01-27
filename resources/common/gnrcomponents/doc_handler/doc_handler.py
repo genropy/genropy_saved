@@ -74,13 +74,14 @@ class DocHandler(BaseComponent):
             bar.docsemaphore.div(_class='fh_semaphore',hidden='^#FORM.selectedPage?=#v!="editor"')
         sc = form.center.stackContainer(overflow='hidden',selectedPage='^#FORM.selectedPage')
         viewer = sc.contentPane(pageName='viewer',title='!!View',iconTitle='icnBottomViewer',overflow='hidden',datapath='.record')
-        viewer.dataController("""var attr = pages.getNode(current).attr;
+        viewer.dataController("""
+                            var attr = pages.getNode(current).attr;
                             var filepath = attr.filepath;
                             var imagespath = attr.imagespath;
-                            this.form.load({destPkey:filepath});
+                            this.form.goToRecord(filepath);
                             SET #FORM.imgFolders = imagespath;
                             """,
-                            current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_delay=1)
+                            current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_if='current',_delay=1)
         iframepars = dict(border=0,height='100%',width='100%')
         iframepars.update(kwargs)
         iframe = viewer.htmliframe(

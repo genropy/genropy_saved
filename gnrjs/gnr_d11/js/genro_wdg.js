@@ -800,7 +800,7 @@ dojo.declare("gnr.GridEditor", null, {
         var _this = this;
         dojo.connect(grid, editOn[0], function(e) {
             if (genro.wdg.filterEvent(e, modifier)) {
-                if (_this.enabled() && _this.editableCell(e.cellIndex,true) && !grid.gnrediting) {
+                if (_this.enabled() && _this.editableCell(e.cellIndex,e.rowIndex,true) && !grid.gnrediting) {
                     _this.startEdit(e.rowIndex, e.cellIndex,e.dispatch);
 
                 }
@@ -1444,12 +1444,15 @@ dojo.declare("gnr.GridEditor", null, {
         }
 
     },
-    editableCell:function(col,clicked) {
+    editableCell:function(col,row,clicked) {
         var cell = this.grid.getCell(col);
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
-        if (!clicked && cell.customClasses.indexOf('cell_editLazy')>=0){return false}
-        return cell.customClasses.indexOf('cell_disabled')<0;
+        this.grid.currRenderedRowIndex = row;
+        if(!clicked && this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
+            return false;
+        }
+        return !this.grid.sourceNode.currentFromDatasource(cell.editDisabled)
     },
     
     onExternalChange:function(pkey){
@@ -1493,7 +1496,7 @@ dojo.declare("gnr.GridEditor", null, {
             if ((row >= grid.rowCount) || (row < 0)) {
                 return;
             }
-        } while (!this.editableCell(col));
+        } while (!this.editableCell(col,row));
         rc.col = col;
         rc.row = row;
         return rc;
