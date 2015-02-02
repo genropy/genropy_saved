@@ -1245,8 +1245,9 @@ dojo.declare("gnr.GridEditor", null, {
                 p = p[p.length-1];
                 this.setCellValue(rowIdx,p,kw[selected]);
             }
+        }if(valueCaption!=undefined) {
+            newAttr[cell.field_getter] = valueCaption 
         }
-        newAttr[cell.field_getter] = valueCaption || value;
         this.grid.collectionStore().updateRow(rowIdx,newAttr);
     },
 
