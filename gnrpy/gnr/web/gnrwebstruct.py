@@ -29,8 +29,6 @@ from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs,deprecated
-
-from time import time
 from copy import copy
 
 
@@ -40,6 +38,9 @@ def cellFromField(field,tableobj):
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
     if 'values' in fldattr:
+        values = fldattr['values']
+        values = getattr(fldobj.table.dbtable, values ,lambda: values)()
+        fldattr['values'] = values
         kwargs['values'] = fldattr['values']
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
@@ -1737,6 +1738,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #    result['tag']='bagfilteringtable'
         elif dtype in ('A', 'T') and fldattr.get('values', False):
             values = fldattr['values']
+            values = getattr(fieldobj.table.dbtable, values ,lambda: values)()
+            fldattr['values'] = values
             result['tag'] = 'filteringselect' if ':' in values else 'combobox'
             result['values'] = values
         elif dtype == 'A':
