@@ -59,7 +59,9 @@ class RecordUpdater(object):
         self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,**self.kwargs).output(self.mode)
+        
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,
+                                                    **self.kwargs).output(self.mode)
         self.insertMode = self.record.get(self.tblobj.pkey) is None
         self.oldrecord = None if self.insertMode else dict(self.record)
         return self.record
@@ -70,11 +72,15 @@ class RecordUpdater(object):
             if self.raw:
                 if self.insertMode:
                     self.tblobj.raw_insert(self.record)
+                elif self.record[self.tblobj.pkey] is False:
+                    self.tblobj.raw_delete(self.record)
                 else:
                     self.tblobj.raw_update(self.record,self.oldrecord)
             else:
                 if self.insertMode:
                     self.tblobj.insert(self.record)
+                elif self.record[self.tblobj.pkey] is False:
+                    self.tblobj.delete(self.record)
                 else:
                     self.tblobj.update(self.record,self.oldrecord)
         
