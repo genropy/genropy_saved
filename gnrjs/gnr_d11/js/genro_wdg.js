@@ -1739,8 +1739,6 @@ dojo.declare("gnr.GridChangeManager", null, {
             if(!(kw.node.label in gridEditor.rowEditors)){
                 gridEditor.newRowEditor(kw.node);
             }
-            return
-        }else{
         }
         this.resolveTotalizeColumns();
         this.resolveCalculatedColumns();
