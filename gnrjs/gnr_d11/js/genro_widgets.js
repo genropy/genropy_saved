@@ -1549,16 +1549,6 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     created: function(widget, savedAttrs, sourceNode) {
         widget._saved_size = {};
         dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
-        dojo.connect(widget.domNode,'onclick',function(e){
-            if(dojo.hasClass(e.target,"drawerHandle")){
-                var region = dojo.filter(e.target.parentNode.classList,function(cls){return cls.indexOf('drawer_region_')==0})[0]
-                if(region){
-                    region = region.replace('drawer_region_','');
-                    widget.showHideRegion(region,'toggle');
-                }
-            }
-
-        })
         if (dojo_version == '1.1') {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
             dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
@@ -1707,13 +1697,18 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         splitter.appendChild(drawerDom);
         var drawerClass = objectPop(kw,'drawer_class');
         var drawerStyle = objectPop(kw,'drawer_style');
-
-        var styledict_kw = genro.dom.getStyleDict(objectExtract(kw,'drawer_*'));
+        var drawer_kw = objectExtract(kw,'drawer_*');
+        var drawerLabel = objectPop(drawer_kw,'label');
+        var styledict_kw = genro.dom.getStyleDict(drawer_kw);
         drawerDom.setAttribute('style',objectAsStyle(objectUpdate(objectFromStyle(drawerStyle),styledict_kw)));
         genro.dom.addClass(drawerDom,'drawerHandle');
         if(drawerClass){
             genro.dom.addClass(drawerDom,drawerClass);
         }
+        if(drawerLabel){
+            drawerDom.innerHTML = drawerLabel;
+        }
+        
         var drawer = pane.getAttributeFromDatasource('drawer');
         genro.dom.addClass(splitter,'drawerSplitter '+'drawer_region_'+side);
         if (!pane.getAttributeFromDatasource('splitter')){
@@ -1723,6 +1718,9 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         if(drawer=='close'){
             dojo.connect(bc,'startup',function(){bc.showHideRegion(side,false);});
         }
+        dojo.connect(drawerDom,'onclick',function(e){
+            bc.showHideRegion(side,'toggle');
+        })
     }
 });
 
@@ -4424,17 +4422,18 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(this.excludeCol){
             this.filterToRebuild(true);
         }
-        if (this.sortedBy) {
-            var storebag = this.storebag();
-            var sortedBy = this.sortedBy;
-            if(this.datamode!='bag'){
-                sortedBy = sortedBy.split(',');
-                var l = [];
-                dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
-                sortedBy = l.join(',');
-            }
-            storebag.sort(sortedBy);
-        }
+        // WE ASSUME THAT START SORT FOR A NEW DATASTORE IS RIGHT
+        //if (this.sortedBy) { 
+        //    var storebag = this.storebag();
+        //    var sortedBy = this.sortedBy;
+        //    if(this.datamode!='bag'){
+        //        sortedBy = sortedBy.split(',');
+        //        var l = [];
+        //        dojo.forEach(sortedBy,function(n){l.push('#a.'+n);});
+        //        sortedBy = l.join(',');
+        //    }
+        //    storebag.sort(sortedBy);
+        //}
         this.sourceNode.publish('onNewDatastore');
         this.updateRowCount('*');
         this.restoreSelectedRows();
