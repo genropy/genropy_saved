@@ -860,6 +860,8 @@ dojo.declare("gnr.GnrBag", null, {
                     if (attrname == '#node') {return currnode;}
                     if (attrname.indexOf('#digest:')==0) {return currvalue.digest(attrname.split(':')[1]);}
                     currvalue = currnode.getAttr(attrname)
+                }else if(!expr){
+                    return currnode.attr;
                 }
             }else if(m[2]=='~'){
                 currvalue = (currnode._value instanceof gnr.GnrBag)? currnode._value.getItem(m[3]):currnode.getAttr(m[3]);
