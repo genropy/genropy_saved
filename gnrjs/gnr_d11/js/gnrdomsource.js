@@ -1302,7 +1302,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     if (this.attr.unmodifiable) {
                         var parentAttr = this.getRelativeData('.?');
                         if ('_newrecord' in parentAttr) {
-                            this.widget.setAttribute('readOnly', !parentAttr['_newrecord']);
+                            this.setDisabled(!parentAttr['_newrecord']);
                         }
                     }
                     if (this.attr['protected']) {
