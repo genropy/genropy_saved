@@ -726,7 +726,7 @@ dojo.declare("gnr.GnrBag", null, {
     },
     sort: function(pars) {
         //pars None: label ascending
-        var cmp = function(a, b, reverse, caseInsensitive) {
+        var innerCmp = function(a, b, reverse, caseInsensitive) {
             if (caseInsensitive) {
                 if (typeof(a) == 'string') {
                     var a = a.toLowerCase();
@@ -754,6 +754,19 @@ dojo.declare("gnr.GnrBag", null, {
                 }
             }
         };
+        var cmp = function(a, b, reverse, caseInsensitive){
+            if (a==null){
+                return b==null?0:-1;
+            }
+            if(b==null){
+                return 1;
+            }
+            if((a instanceof Date) && (b instanceof Date)){
+                a = a.valueOf();
+                b = b.valueOf();          
+            }
+            return innerCmp(a, b, reverse, caseInsensitive);
+        }
         var pars = pars || '#k:a';
         var level,what,mode,reverse,caseInsensitive;
         var levels = pars.split(',');
