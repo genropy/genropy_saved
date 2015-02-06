@@ -1299,12 +1299,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         this.widget._lastValueReported = value; // see dijit.form._formWidget setValue
                     }                                           // force _lastValueReported to get onChange event
                     kw = false;
-                    if (this.attr.unmodifiable) {
-                        var parentAttr = this.getRelativeData('.?');
-                        if ('_newrecord' in parentAttr) {
-                            this.setDisabled(!parentAttr['_newrecord']);
-                        }
-                    }
                     if (this.attr['protected']) {
                         var parentAttr = this.getRelativeData('.?');
                         if ('_newrecord' in parentAttr) {

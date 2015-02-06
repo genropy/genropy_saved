@@ -259,14 +259,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     applyDisabledStatus:function(){
-        var disabled = this.isDisabled();
-        this.publish('onDisabledChange',{disabled:disabled})
-        genro.dom.setClass(this.sourceNode,'lockedContainer',disabled)
-        var node,localdisabled;
+        var form_disabled = this.isDisabled();
+        this.publish('onDisabledChange',{disabled:form_disabled})
+        genro.dom.setClass(this.sourceNode,'lockedContainer',form_disabled)
+        var node,disabled;
         for (var k in this._register){
             node = this._register[k];
-            localdisabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
-            node.setDisabled(disabled || localdisabled);
+            disabled=form_disabled 
+            if(disabled==false){
+                disabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
+                if(disabled==false && 'unmodifiable' in node.attr){
+                    disabled = !this.isNewRecord();
+                }
+            }
+            node.setDisabled(disabled)
         }
     },
 
