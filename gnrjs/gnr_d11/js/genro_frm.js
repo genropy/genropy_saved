@@ -1232,7 +1232,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this._getRecordCluster(value, changesOnly, data, false, currpath);
                 }
                 else if (value instanceof gnr.GnrBag) {
-                    sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
+                    sendBag = (sendback == true) || isNewRecord || value.getNodeByAttr('_loadedValue')!=null;
                     if(!sendBag && objectNotEmpty(this.gridEditors)){
                         for(var k in this.gridEditors){
                             var ge = this.gridEditors[k];
