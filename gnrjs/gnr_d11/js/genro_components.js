@@ -4084,7 +4084,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var rt = this.reload_treshold || 0.3;
         var sum_columns = this.storeNode.getAttributeFromDatasource('sum_columns');
         var fullReloadOnChange = this.storeNode.getAttributeFromDatasource('fullReloadOnChange');
-        if(changeCount>0 && (changeCount>this.len()*rt) || sum_columns || fullReloadOnChange){
+        if(changeCount>0 && ((changeCount>this.len()*rt) || sum_columns || fullReloadOnChange)){
             this.loadData();
             return
         }

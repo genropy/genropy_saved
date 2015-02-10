@@ -18,7 +18,7 @@ class Utils4D(object):
             b = b['new']
         if b:
             keys = b.keys()
-            values = b.values()
+            values = [k or [] for k in b.values()]
             n = len(values[0])
             for v in values:
                 if len(v) < n:
