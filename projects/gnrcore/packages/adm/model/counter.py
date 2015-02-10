@@ -289,7 +289,9 @@ class Table(object):
         date = record[date_field] if date_field else None
         if date_field and not date:
             raise self.exception('business_logic',msg='!!Missing %s. Mandatory for counter %s' %(date_field,field))
-        with self.recordToUpdate(codekey,mode='record') as counter_record:
+        with self.recordToUpdate(codekey,mode='record',ignoreMissing=True) as counter_record:
+            if not counter_record:
+                return
             sequence = record[field]
             record[field] = None
             releasing_counter = int(sequence[N_start:N_end])

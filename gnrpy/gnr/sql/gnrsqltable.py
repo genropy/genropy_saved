@@ -49,26 +49,36 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
         self.mode = mode or 'dict'
         self.kwargs = kwargs
         self.raw = raw
         self.insertMissing = insertMissing
+        self.ignoreMissing = ignoreMissing
         self.insertMode = False
 
     def __enter__(self):
         
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing or self.ignoreMissing,
                                                     **self.kwargs).output(self.mode)
-        self.insertMode = self.record.get(self.tblobj.pkey) is None
-        self.oldrecord = None if self.insertMode else dict(self.record)
+        if self.record.get(self.tblobj.pkey) is None:
+            oldrecord = None
+            if self.insertMissing:
+                self.insertMode = True
+            else:
+                self.record = None
+        else:
+            oldrecord = dict(self.record)
+        self.oldrecord = oldrecord
         return self.record
         
         
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
+            if not self.record:
+                return
             if self.raw:
                 if self.insertMode:
                     self.tblobj.raw_insert(self.record)
