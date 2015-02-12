@@ -3878,6 +3878,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         this.pendingChanges = [];
         this.lastLiveUpdate = new Date()
         this._editingForm = false;
+        this.liveUpdateDelay = this.storeNode.getAttributeFromDatasource('liveUpdateDelay');
+        this.liveUpdateUnattended = this.storeNode.getAttributeFromDatasource('liveUpdateUnattended');
         var cb = function(){
             that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
             function(kw){
@@ -3900,11 +3902,15 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     c._isExternal = isExternal;
                     that.pendingChanges.push(c);
                 });
+
                 that.storeNode.watch('externalChangesDisabled',function(){
-                    var liveUpdateDelay = that.storeNode.getAttributeFromDatasource('liveUpdateDelay');
-                    var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
                     if(that._editingForm){
-                        return doUpdate;
+                        return genro.dom.isWindowVisible();
+                    }
+                    var liveUpdateDelay = that.liveUpdateDelay;
+                    var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
+                    if(doUpdate && !that.liveUpdateUnattended){
+                        doUpdate = (genro._lastUserEventTs > that.lastLiveUpdate) || ((new Date()-that.lastLiveUpdate)/1000)>60;
                     }
                     return that.hasVisibleClients() && doUpdate;
                 },function(){

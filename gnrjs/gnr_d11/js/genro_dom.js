@@ -1396,7 +1396,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return hider;
     },
 
-
+    isWindowVisible:function(){
+        if(genro.parentIframeSourceNode){
+            return window.parent.genro.dom.isVisible(genro.parentIframeSourceNode);
+        }
+        return true;
+    },
+    
     isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
@@ -1407,10 +1413,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             if(what.clientHeight ==0 || what.clientWidth == 0){
                 return false;
             }
-            return true;
+            return this.isWindowVisible();
         }
         return false;
     },
+
     autoSize:function(widget){
         var box;
         var maxHeight=0;
