@@ -382,13 +382,19 @@ dojo.declare('gnr.GenroClient', null, {
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
         }
-        if (window.frameElement && window.parent.genro){
-            this.mainGenroWindow = window.parent.genro.mainGenroWindow;
+        var parentGenro;
+        try{
+            parentGenro = window.frameElement && window.parent.genro;
+            this.mainGenroWindow = parentGenro.mainGenroWindow;
             this.root_page_id = this.mainGenroWindow.genro.page_id;
-            this.parent_page_id = this.parent_page_id || window.parent.genro.page_id;
+            this.parent_page_id = this.parent_page_id || parentGenro.page_id;
             this.startArgs['_root_page_id'] = this.root_page_id;
             this.startArgs['_parent_page_id'] = this.parent_page_id;
+            this.parentIframeSourceNode = window.frameElement.sourceNode;
+        }catch(e){
+            parentGenro = false;
         }
+        
         var mainBagPage = genro.src.getMainSource();
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
@@ -397,7 +403,6 @@ dojo.declare('gnr.GenroClient', null, {
                 pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
             }
             var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
-            console.log('not logged',mainBagPage.attr.redirect, {'fromPage':pageUrl},url)
            // genro.currentUrl=mainBagPage.attr.redirect
             //var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
             //this.dostart(mainBagPage)
@@ -508,10 +513,6 @@ dojo.declare('gnr.GenroClient', null, {
             genro._pageStarted = true;
         }, 100);
     },
-    
-    parentFrameNode:function(){
-        return window.frameElement?window.frameElement.sourceNode:null;
-    },
 
     setFastPolling:function(fast){
         this.fast_polling = fast;
@@ -558,6 +559,10 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }, false);
         window._windowMessageReady = true;
+    },
+
+    parentFrameNode:function(){
+        return this.parentIframeSourceNode;
     },
 
     setDefaultShortcut:function(){
