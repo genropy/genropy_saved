@@ -1,0 +1,30 @@
+.treecell{
+    padding-left: 2px;
+    padding-right: 2px;
+    display: inline-block;
+    position: absolute;
+}
+
+.testhviewer .dijitTreeContent{
+    position: relative;
+    height: 16px;
+    left:20px;
+}
+
+.testhviewer .dijitTreeLabel{
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top:0;
+    bottom:0;
+    left: 0;
+}
+.treerow{
+    position: absolute;
+    top:0px;
+    right:2px;
+    left:1px;
+    bottom: -1px;
+    border: 1px solid #efefef;
+}
+
