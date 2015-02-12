@@ -623,17 +623,18 @@ class FramedIndexLogin(BaseComponent):
         return dlg
 
     @public_method
-    def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs): 
+    def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
-        if self.avatar:
-            rootenv['user'] = self.avatar.user
-            rootenv['user_id'] = self.avatar.user_id
-            rootenv['workdate'] = rootenv['workdate'] or self.workdate
-            rootenv['login_date'] = date.today()
-            rootenv['language'] = rootenv['language'] or self.language
-            self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
-            return self.login_newWindow(rootenv=rootenv)
-        return dict(error=login['error']) if login['error'] else False
+        if not self.avatar or rootenv['login_error_msg']:
+            error = rootenv['login_error_msg'] or login['error']
+            return dict(error=error) if error else False
+        rootenv['user'] = self.avatar.user
+        rootenv['user_id'] = self.avatar.user_id
+        rootenv['workdate'] = rootenv['workdate'] or self.workdate
+        rootenv['login_date'] = date.today()
+        rootenv['language'] = rootenv['language'] or self.language
+        self.connectionStore().setItem('defaultRootenv',rootenv) #no need to be locked because it's just one set
+        return self.login_newWindow(rootenv=rootenv)
 
     @public_method
     def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
@@ -653,6 +654,7 @@ class FramedIndexLogin(BaseComponent):
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
+        result['login_error_msg'] = data['login_error_msg']
         default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
         data.setItem('workdate',default_workdate, hidden= not canBeChanged)
         return result
