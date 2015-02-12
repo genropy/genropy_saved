@@ -328,7 +328,7 @@ class GnrCustomWebPage(object):
         for k, v in sites:
             v = dict(v)
             v['_pkey'] = v['sitename']
-            with Pyro4.Proxy(v['register_uri']) as proxy:
+            with self.site.register.pyroProxy(v['register_uri']) as proxy:
                 v['active'] = not proxy.isInMaintenance()
                 v['allowed_users'] = proxy.allowedUsers()
             result.setItem(k,None,**v)
