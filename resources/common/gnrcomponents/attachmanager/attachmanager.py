@@ -175,10 +175,10 @@ class AttachManager(BaseComponent):
         frame.dataController("frm.lazySave()",frm=frame.form.js_form,_fired='^.saveDescription')
         frame.onDbChanges(action="""
             var that = this;
+            if(_node.attr.from_page_id!=genro.page_id){
+                return;
+            }   
             dbChanges.forEach(function(c){
-                if(c._isExternal){
-                    return;
-                }
                 if(c.dbevent=='I'){
                     frm.goToRecord(c.pkey);
                 }else if(c.dbevent=='D'){
