@@ -17,6 +17,6 @@ class GnrCustomWebPage(object):
         frame.dataController("genro.dlg.alert(pippo,pippo);",subscribe_dialog_open=True)
         bar = frame.bottom.slotBar('*,button_a,button_b,4')
 
-        bar.button_a.slotButton('Azzera',action='genro.parentFrameNode().publish("azzera",{xxx:33})')
+        bar.button_a.slotButton('Azzera',action='genro.parentFrameNode.publish("azzera",{xxx:33})')
 
-        bar.button_b.button('Duplica',action='genro.parentFrameNode().publish("duplica",{bar:"xxxx",foo:42});')
+        bar.button_b.button('Duplica',action='genro.parentFrameNode.publish("duplica",{bar:"xxxx",foo:42});')

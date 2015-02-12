@@ -47,9 +47,8 @@ class PublicBase(BaseComponent):
                     
     def rootWidget(self, root, **kwargs):
         root.dataController("""
-                if(window.frameElement){
-                    var parentIframeSourceNode = window.frameElement.sourceNode;
-                    var multipage_childpath = parentIframeSourceNode.attr.multipage_childpath;
+                if(genro.parentIframeSourceNode){
+                    var multipage_childpath = genro.parentIframeSourceNode.attr.multipage_childpath;
                     if(multipage_childpath){
                         genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
                     }
