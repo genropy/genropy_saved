@@ -201,21 +201,29 @@ class GnrDaemon(object):
         else:
             print 'ALREADY EXISTING ',sitename
 
+    def pyroProxy(self,url):
+        proxy = Pyro4.Proxy(url)
+        print 'PROXING',OLD_HMAC_MODE,self.hmac_key
+        if not OLD_HMAC_MODE:
+            proxy._pyroHmacKey = self.hmac_key
+        return proxy
+
+
     def siteRegisters(self,**kwargs):
         return self.siteregisters.items()
 
     def siteRegisterProxy(self,sitename):
-        return Pyro4.Proxy(self.siteregisters[sitename]['register_uri'])
-        
+        return self.pyroProxy(self.siteregisters[sitename]['register_uri'])
+
     def siteregister_dump(self,sitename=None,**kwargs):
         uri = self.siteregisters[sitename]['register_uri']
-        with Pyro4.Proxy(uri) as proxy:
+        with self.pyroProxy(uri) as proxy:
             return proxy.dump()
 
 
     def setSiteInMaintenance(self,sitename,status=None,allowed_users=None):
         uri = self.siteregisters[sitename]['register_uri']
-        with Pyro4.Proxy(uri) as proxy:
+        with self.pyroProxy(uri) as proxy:
             return proxy.setMaintenance(status,allowed_users=allowed_users)
 
     def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
@@ -225,11 +233,8 @@ class GnrDaemon(object):
                 self.siteregister_stop(k,saveStatus=saveStatus)
             return
         uri = self.siteregisters[sitename]['server_uri']
-        print 'before proxing',uri
-        with Pyro4.Proxy(uri) as proxy:
-            print 'before stop',saveStatus
+        with self.pyroProxy(uri) as proxy:
             result = proxy.stop(saveStatus=saveStatus)
-            print 'stopped',proxy
         self.onRegisterStop(sitename)
         return result
 
