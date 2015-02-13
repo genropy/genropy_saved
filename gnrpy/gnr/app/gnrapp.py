@@ -959,6 +959,14 @@ class GnrApp(object):
         return txt
     
 
+    def setPreference(self, path, data, pkg):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
+
+    def getPreference(self, path, pkg, dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
+    
     def getResource(self, path, pkg=None, locale=None):
         """TODO
 
@@ -968,7 +976,7 @@ class GnrApp(object):
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')
         return self.packages[pkg].getResource(path, locale=locale)
-        
+   
     def guestLogin(self):
         """TODO"""
         return self.config.getAttr('authentication', 'guestName')

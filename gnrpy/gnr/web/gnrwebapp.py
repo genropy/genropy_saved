@@ -156,13 +156,3 @@ class GnrWsgiWebApp(GnrApp):
                 attr['file'] = node.label
             menubag.setItem(pathlist, None, attr)
         return menubag
-
-
-    def setPreference(self, path, data, pkg):
-        if self.db.package('adm'):
-            self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
-
-    def getPreference(self, path, pkg, dflt=''):
-        if self.db.package('adm'):
-            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
-    

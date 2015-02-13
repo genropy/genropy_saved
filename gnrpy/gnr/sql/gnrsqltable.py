@@ -510,7 +510,7 @@ class SqlTable(GnrObject):
                 if not in_cache:
                     store.setItem(key,tablecache)
         else:
-            tablecache = self.currentEnv.setdefault(key,dict())
+            tablecache = self.db.currentEnv.setdefault(key,dict())
             record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
         return record
 
