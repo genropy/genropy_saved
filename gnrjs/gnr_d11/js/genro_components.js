@@ -1164,6 +1164,124 @@ dojo.declare("gnr.widgets.QuickTree", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
+    subtags : {column:true},
+
+    createContent:function(sourceNode, kw,children,subTagItems) {
+        sourceNode.attr._workspace = true;
+        var gnrwdg = sourceNode.gnrwdg;
+        var that = this;
+        var columns = objectPop(kw,'columns');
+        var boxpars = objectExtract(kw,'box_*');
+        gnrwdg.width = 0;
+        gnrwdg.labelAttribute = objectPop(kw,'labelAttribute');
+        if(!columns){ 
+            columns = '^#WORKSPACE.columns';
+            sourceNode.registerDynAttr('columns');
+        }
+        gnrwdg.columns_bag = this._getColumnsBag(sourceNode,columns,subTagItems['column']);
+        var defaultKw = {
+            autoCollapse:true,
+            hideValues:true,
+            background:'white',
+            _class:'treegrid branchtree noIcon',
+            labelCb:function(){return gnrwdg.labelCb(this)}
+        };
+        var box = sourceNode._('div',objectUpdate({_class:'treeGridLayout',
+            onCreated:function(){
+            var that = this;
+            this.watch('setWidth',function(){
+                var currentWidth = that.domNode.clientWidth;
+                if(!that._isBuilding && currentWidth!=gnrwdg.width){
+                    gnrwdg.width = currentWidth;
+                    gnrwdg.treeNode.widget.updateLabels();
+                    gnrwdg.setHeader();
+                }
+            },function(){});
+        }},boxpars));
+        gnrwdg.layoutNode = box.getParentNode();
+        gnrwdg.headerNode = box._('div',{_class:'treeGridHeader'}).getParentNode();
+        var center = box._('div',{_class:'treeGridCenter'});
+        gnrwdg.centerNode = center.getParentNode();
+        var tree = center._('tree',objectUpdate(defaultKw,kw));
+        gnrwdg.treeNode = tree.getParentNode();
+        gnrwdg.absStorepath = gnrwdg.treeNode.absDatapath(kw.storepath);
+        return tree
+    },
+
+    gnrwdg_setHeader:function(){
+        if(!this.width){
+            return;
+        }
+        var maxwidth = this.width-15;
+        var k = 10;
+        var l = [];
+        var currx = 0;
+        var cell;
+        var right = [];
+        var nodes = this.columns_bag.getNodes();
+        nodes.slice(1).forEach(function(n){
+            cell = n.attr;
+            right.push('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+(cell.name || cell.field) +'</div>');
+            currx += cell.size+1 || 0;
+        })
+        right.reverse();
+        var storeNode = genro.getDataNode(this.absStorepath);
+        var mainCell = nodes[0].attr;
+        l.push('<div class="treeHeaderCell "'+(mainCell.headerClass || '')+' style="left:0;width:'+(maxwidth-currx)+'px">'+(mainCell.name || '&nbsp;')+'</div>');
+        l = l.concat(right);
+        this.headerNode.domNode.innerHTML = "<div class='treeHeaderRow' style='width:"+maxwidth+"px;'>"+l.join('')+"</div>";
+
+    },
+
+    htmlCellContent:function(item,cell){
+        var rowData = item.attr;
+        var content = cell.contentCb? funcApply(cell.contentCb,null,item):rowData[cell['field']];
+        content = content || cell.emptyValue;
+        var format = cell['format'];
+        var dtype = cell['dtype'] || 'T';
+        content = _F(content,format,dtype) || '&nbsp;';
+        return '<div class="treeCellContent">'+content+'</div>'
+    },
+
+    gnrwdg_labelCb:function(item){
+        if(!this.width){
+            return;
+        }
+        var maxwidth = this.width-35;
+        var k = 10;
+        var l = [];
+        var mainLabel = item.label;
+        var currx = 0;
+        var cell;
+        var right = [];
+        var htmlCellContent = this.gnr.htmlCellContent;
+        var nodes = this.columns_bag.getNodes();
+        nodes.slice(1).forEach(function(n){
+            cell = n.attr;
+            right.push('<div class="treecell cell_'+(cell.dtype || 'T')+' '+(cell.cellClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+htmlCellContent(item,cell)+'</div>');
+            currx += cell.size+1 || 0;
+        })
+        right.reverse();
+        var storeNode = genro.getDataNode(this.absStorepath);
+        rowwidth = maxwidth-(item.parentshipLevel(storeNode)-1)*k;
+        var mainCell = nodes[0].attr;
+        l.push('<div class="treecell cell_"'+(mainCell.dtype || 'T')+' '+(mainCell.cellClass || '')+' style="left:0;width:'+(rowwidth-currx)+'px">'+htmlCellContent(item,mainCell)+'</div>');
+        l = l.concat(right);
+        return "innerHTML:<div class='treerow' style='width:"+rowwidth+"px;'>"+l.join('')+"</div>";
+    },
+
+    _getColumnsBag:function(sourceNode,columns,childrenColumns){
+        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();;
+        childrenColumns.forEach(function(n){
+            var attr = n.attr;
+            attr.field = attr.field || n.label;
+            columns_bag.setItem(attr.field,null,attr);
+        })
+        return columns_bag;
+    }
+
+});
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
                selectionstore:true,

@@ -3438,10 +3438,10 @@ table.draggedItem {
 
 /* @group Table */
 
-.dojoxGrid td.cell_R .cellContent,
-.dojoxGrid td.cell_I .cellContent,
-.dojoxGrid td.cell_N .cellContent,
-.dojoxGrid td.cell_L .cellContent{
+.dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
+.dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,
+.dojoxGrid td.cell_N .cellContent, .treecell.cell_N .treeCellContent,
+.dojoxGrid td.cell_L .cellContent, .treecell.cell_L .treeCellContent{
     text-align: right;
 }
 
@@ -4201,6 +4201,85 @@ div[disabled='true'], div[disabled='disabled']{
     background: url(icons/made_with_genropy_small.png) no-repeat center center;
 }
 
+
+/*treegrid*/
+.treeGridLayout{
+    position:absolute;
+    top:0;
+    bottom:0;
+    right:0;
+    left:0;
+}
+.treeGridHeader{
+    height:20px;
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+}
+.treeGridCenter{
+    position:absolute;
+    top:21px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+}
+
+.treeHeaderCell{
+    position: absolute;
+    text-align: center;
+    line-height: 20px;
+    border-left: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+}
+.treeHeaderCell:last-child{
+    border-right:1px solid #efefef;
+}
+.treegrid .treecell{
+    position: absolute;
+    border-bottom: 1px solid #efefef;
+    border-left: 1px solid #efefef;
+}
+
+.treegrid .treecell:last-child{
+    border-right:1px solid #efefef;
+}
+
+.treeCellContent{
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.treegrid .dijitTreeContent{
+    position: relative;
+    height: 16px;
+    left:20px;
+}
+
+.treegrid .dijitTreeLabel{
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top:0;
+    bottom:0;
+    left: 0;
+}
+.treeHeaderRow{
+    position: absolute;
+    top:0px;
+    right:2px;
+    left:1px;
+}
+
+.treegrid .treerow{
+    position: absolute;
+    top:0px;
+    right:2px;
+    left:1px;
+    bottom: -1px;
+}
+/*treegrid*/
 
 .branchtree_selected{
     background-color: #739CDC;

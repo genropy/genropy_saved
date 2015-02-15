@@ -6,6 +6,8 @@ class GnrCustomWebPage(object):
     js_requires = 'test_hviewer'
     css_requires = 'test_hviewer'
 
+    def isDeveloper(self):
+        return True
     #dojo_source=True
     def main(self,root,**kwargs):
         tblnuts = self.db.table('glbl.nuts')
@@ -24,6 +26,14 @@ class GnrCustomWebPage(object):
                     c['level'] = r['level']+1
                     v.setItem(c['codice_comune'],None,**dict(c))
 
-        root.data('albero_comuni',b)   
-        root.div(margin='20px').tree(storepath='albero_comuni',labelCb='return treeCompanion.labelCb(this,400);',
-                    hideValues=True,_class="testhviewer branchtree noIcon",autoCollapse=True)
+        root.data('albero_comuni_z',b)   
+        root.dataFormula('albero_comuni','albero_comuni.deepCopy()',albero_comuni='=albero_comuni_z',_onStart=1000)
+        bc = root.borderContainer()
+        left = bc.contentPane(region='left',width='600px',splitter=True)
+        bc.contentPane(region='center',background='red')
+        tree = left.treeGrid(storepath='albero_comuni')
+        tree.column('descrizione',name='Descrizione',
+                    contentCb="""return this.attr.description || (this.attr.codice_comune +'-'+ this.attr.denominazione)""")
+        tree.column('superficie',dtype='L',size=60,emptyValue=0,name='Sup.')
+        tree.column('popolazione_residente',dtype='L',size=60,emptyValue=0,name='Pop.')
+        bc.contentPane(region='bottom',height='150px',splitter=True,background='green')
