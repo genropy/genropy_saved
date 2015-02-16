@@ -634,6 +634,12 @@ dojo.declare("gnr.RowEditor", null, {
         }
     },
 
+    replaceData:function(newdata,reason){
+        var rowNode = this.data.getParentNode();
+        rowNode.setValue(newdata,reason);
+        this.data = newdata;
+    },
+
 
     inititializeData:function(data){
         var data = data || new gnr.GnrBag();
@@ -1131,7 +1137,7 @@ dojo.declare("gnr.GridEditor", null, {
     updateRowFromRemote:function(rowId,value){
         var rowEditor = this.rowEditors[rowId];
         if(this.grid.datamode=='bag'){
-            rowEditor.data.getParentNode().setValue(value,'remoteController')
+            rowEditor.replaceData(value,'remoteController');
         }else{
             rowEditor.data.update(value,null,'remoteController');
         }
@@ -1723,7 +1729,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
-            if(kw.value!=kw.oldvalue && (kw.node.label in gridEditor.columns)){
+            if(kw.value!=kw.oldvalue && gridEditor && (kw.node.label in gridEditor.columns)){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
                     attr['_loadedValue'] = kw.oldvalue;
