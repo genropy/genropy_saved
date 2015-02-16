@@ -1194,8 +1194,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
                 var currentWidth = that.domNode.clientWidth;
                 if(!that._isBuilding && currentWidth!=gnrwdg.width){
                     gnrwdg.width = currentWidth;
-                    gnrwdg.treeNode.widget.updateLabels();
-                    gnrwdg.setHeader();
+                    gnrwdg.refresh();
                 }
             },function(){});
         }},boxpars));
@@ -1206,7 +1205,13 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var tree = center._('tree',objectUpdate(defaultKw,kw));
         gnrwdg.treeNode = tree.getParentNode();
         gnrwdg.absStorepath = gnrwdg.treeNode.absDatapath(kw.storepath);
+        gnrwdg.treeNode.componentHandler = gnrwdg;
         return tree
+    },
+
+    gnrwdg_refresh:function(){
+        this.treeNode.widget.updateLabels();
+        this.setHeader();
     },
 
     gnrwdg_setHeader:function(){
@@ -1220,10 +1225,13 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var cell;
         var right = [];
         var nodes = this.columns_bag.getNodes();
+        var sn = this.sourceNode;
         nodes.slice(1).forEach(function(n){
-            cell = n.attr;
-            right.push('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+(cell.name || cell.field) +'</div>');
-            currx += cell.size+1 || 0;
+            cell = sn.evaluateOnNode(n.attr);
+            if(!cell.hidden){
+                right.push('<div class="treeHeaderCell '+(cell.headerClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+(cell.name || cell.field) +'</div>');
+                currx += cell.size+1 || 0;
+            }
         })
         right.reverse();
         var storeNode = genro.getDataNode(this.absStorepath);
@@ -1257,10 +1265,13 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var right = [];
         var htmlCellContent = this.gnr.htmlCellContent;
         var nodes = this.columns_bag.getNodes();
+        var sn = this.sourceNode;
         nodes.slice(1).forEach(function(n){
-            cell = n.attr;
-            right.push('<div class="treecell cell_'+(cell.dtype || 'T')+' '+(cell.cellClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+htmlCellContent(item,cell)+'</div>');
-            currx += cell.size+1 || 0;
+            cell = sn.evaluateOnNode(n.attr);
+            if(!cell.hidden){
+                right.push('<div class="treecell cell_'+(cell.dtype || 'T')+' '+(cell.cellClass || '')+'" style="right:'+currx+'px;width:'+cell.size+'px;">'+htmlCellContent(item,cell)+'</div>');
+                currx += cell.size+1 || 0;
+            }
         })
         right.reverse();
         var storeNode = genro.getDataNode(this.absStorepath);
