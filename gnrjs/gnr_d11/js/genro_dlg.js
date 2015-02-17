@@ -666,7 +666,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     thIframePalette:function(kw,openKw){
         if(objectPop(kw,'rootPalette')){
-            genro.mainGenroWindow.genro.dlg.thIframePalette(kw);
+            kw.th_from_package = genro.getData("gnr.package")
+            kw.url_forced_parent_page_id = genro.page_id;
+            genro.mainGenroWindow.genro.dlg.thIframePalette(kw,openKw);
             return;
         }
         var table = kw.table;
@@ -752,8 +754,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
-        urlKw['th_from_package'] = genro.getData("gnr.package");
-        urlKw['_parent_page_id'] = genro.page_id;
+        urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        urlKw['_parent_page_id'] = objectPop(urlKw,'forced_parent_page_id') || genro.page_id;
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
