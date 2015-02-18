@@ -74,6 +74,17 @@ class GnrWsgiWebApp(GnrApp):
         if authpkg and hasattr(authpkg, 'modifyUserUrl'):
             return authpkg.modifyUserUrl()
 
+
+    def checkAllowedIp(self,allowed_ip):
+        "override"
+        currentPage = self.site.currentPage
+        iplist = currentPage.connection.ip.split('.')
+        for ip in allowed_ip.split(','):
+            ipcheck = ip.split('.') 
+            if iplist[0:len(ipcheck)] == ipcheck:
+                return True
+        return False
+
     def loginUrl(self):
         authpkg = self.authPackage()
         loginUrl = ''

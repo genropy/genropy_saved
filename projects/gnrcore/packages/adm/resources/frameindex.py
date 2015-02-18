@@ -10,6 +10,7 @@ from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 from datetime import date
 from gnr.core.gnrbag import Bag
+from gnr.app.gnrapp import GnrRestrictedAccessException
 
 #foundation/menu:MenuIframes,
 class FrameIndex(BaseComponent):
@@ -527,7 +528,14 @@ class FramedIndexLogin(BaseComponent):
                         _if='user&&password&&!_avatar_user',_else='SET gnr.avatar = null;',
                         _avatar_user='=gnr.avatar.user',
                         _onResult="""var avatar = result.getItem('avatar');
+                                     var error_message = result.getItem('login_error_msg');
+                                    if(error_message){
+                                        genro.publish('failed_login_msg',{'message':error_message});
+                                        SET gnr.avatar = error_message;
+                                        return;
+                                    }
                                     if (!avatar){
+                                        SET gnr.avatar = null;
                                         return;
                                     }
                                     if(avatar.getItem('status')!='conf'){
@@ -598,6 +606,10 @@ class FramedIndexLogin(BaseComponent):
 
 
         footer.dataController("""
+        if(!avatar || typeof(avatar)=='string'){
+            genro.publish('failed_login_msg',{'message':avatar || error_msg});
+            return;
+        }
         dlg.hide();
         genro.lockScreen(true,'login');
         genro.serverCall(rpcmethod,{'rootenv':rootenv,login:login},function(result){
@@ -616,8 +628,8 @@ class FramedIndexLogin(BaseComponent):
                 genro.publish('logged');
             }
         },null,'POST');
-        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',_if='avatar',
-            avatar='=gnr.avatar',_else="genro.publish('failed_login_msg',{'message':error_msg});",
+        """,rootenv='=gnr.rootenv',_fired='^do_login',rpcmethod=rpcmethod,login='=_login',
+            avatar='=gnr.avatar',
             rootpage='=gnr.rootenv.rootpage',loginOnBuilt=loginOnBuilt,
             error_msg=self.login_error_msg,dlg=dlg.js_widget,_delay=1)  
         return dlg
@@ -625,9 +637,6 @@ class FramedIndexLogin(BaseComponent):
     @public_method
     def login_doLogin(self, rootenv=None,login=None,guestName=None, **kwargs):
         self.doLogin(login=login,guestName=guestName,rootenv=rootenv,**kwargs)
-        if not self.avatar or rootenv['login_error_msg']:
-            error = rootenv['login_error_msg'] or login['error']
-            return dict(error=error) if error else False
         rootenv['user'] = self.avatar.user
         rootenv['user_id'] = self.avatar.user_id
         rootenv['workdate'] = rootenv['workdate'] or self.workdate
@@ -639,9 +648,12 @@ class FramedIndexLogin(BaseComponent):
     @public_method
     def login_checkAvatar(self,password=None,user=None,serverTimeDelta=None,**kwargs):
         result = Bag()
-        avatar = self.application.getAvatar(user, password=password,authenticate=True)
-        if not avatar:
-            return result
+        try:
+            avatar = self.application.getAvatar(user, password=password,authenticate=True)
+            if not avatar:
+                return result
+        except GnrRestrictedAccessException, e:
+            return Bag(login_error_msg=e.description)
         status = getattr(avatar,'status',None)
         if not status:
             avatar.extra_kwargs['status'] = 'conf'
@@ -649,12 +661,10 @@ class FramedIndexLogin(BaseComponent):
         if avatar.status != 'conf':
             return result
         data = Bag()
-
         data['serverTimeDelta'] = serverTimeDelta
         self.onUserSelected(avatar,data)
         canBeChanged = self.application.checkResourcePermission(self.pageAuthTags(method='workdate'),avatar.user_tags)
         result['rootenv'] = data
-        result['login_error_msg'] = data['login_error_msg']
         default_workdate = self.clientDatetime(serverTimeDelta=serverTimeDelta).date()
         data.setItem('workdate',default_workdate, hidden= not canBeChanged)
         return result

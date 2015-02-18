@@ -48,6 +48,12 @@ from gnr.sql.gnrsql import GnrSqlDb
 
 log = logging.getLogger(__name__)
 
+class GnrRestrictedAccessException(GnrException):
+    """GnrRestrictedAccessException"""
+    code = 'GNRAPP-001'
+    description = '!!User not allowed'
+
+
 class NullLoader(object):
     """TODO"""
     def load_module(self,fullname):
@@ -1113,9 +1119,13 @@ class GnrApp(object):
                                    login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
         except:
             return None
+
+    def checkAllowedIp(self,allowed_ip):
+        "override"
+        return False
             
     def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None,
-                   authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
+                   authenticate=False, defaultTags=None, pwd=None, tags='',allowed_ip=None, **kwargs):
         """TODO
         
         :param user: TODO
@@ -1130,6 +1140,8 @@ class GnrApp(object):
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
             valid = self.validatePassword(login_pwd, pwd)
+            if valid and allowed_ip and not self.checkAllowedIp(allowed_ip):
+                raise GnrRestrictedAccessException('Not allowed access')
         else:
             valid = True
         if valid:

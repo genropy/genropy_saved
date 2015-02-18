@@ -33,9 +33,8 @@ class Table(object):
         tbl.column('avatar_rootpage', name_long='!!Root Page')
         tbl.column('sms_login' ,dtype='B',name_long='!!Sms login')
         tbl.column('sms_number',name_long='!!Sms Number')
-
+        tbl.column('group_code',name_long='!!Group').relation('group.code',relation_name='users',mode='foreignkey')
         tbl.formulaColumn('fullname', "$firstname||' '||$lastname", name_long=u'!!Name')
-
 
     def partitionioning_pkeys(self):
         return None
