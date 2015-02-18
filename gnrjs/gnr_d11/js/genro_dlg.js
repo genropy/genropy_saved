@@ -759,13 +759,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
-    zoomPalette:function(kw){
+    zoomPalette:function(kw,openKw){
         var evt = objectPop(kw,'evt');
         if(evt){
             kw['palette_top'] = _px(evt.clientY);
             kw['palette_left'] = _px(evt.clientX);
         }
-        this.thIframePalette(kw);
+        this.thIframePalette(kw,openKw);
     },
 
     quickPalette:function(paletteCode,kw,content){

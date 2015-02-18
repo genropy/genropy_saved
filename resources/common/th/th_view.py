@@ -236,9 +236,13 @@ class TableHandlerView(BaseComponent):
             return
         sectionsBag = Bag()
         for i,kw in enumerate(sectionslist):
-            sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
+            code = kw.get('code') or 'r_%i' %i
+            if kw.get('isDefault'):
+                dflt = dflt or code
+            sectionsBag.setItem(code,None,**kw)
         pane.data('.data',sectionsBag)
         if not dflt:
+
             dflt = sectionsBag.getNode('#0').label
         pane.data('.current',dflt)
         pane.data('.variable_struct',variable_struct)
