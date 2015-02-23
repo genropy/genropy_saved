@@ -1847,7 +1847,11 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
                     templateHandler.dataInfo.respath = respath;
                 }else{
                     var tplpath = sourceNode.attr._tplpars.template;
-                    var currdata = sourceNode.getRelativeData(tplpath,data);
+                    var currdata = sourceNode.getRelativeData(tplpath,data) 
+                    if(!currdata){
+                        currdata = new gnr.GnrBag();
+                        sourceNode.setRelativeData(tplpath,currdata)
+                    }
                     currdata.clear();
                     data.forEach(function(n){currdata.setItem(n.label,n._value,n.attr)});
                 }
