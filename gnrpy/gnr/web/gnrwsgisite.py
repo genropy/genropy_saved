@@ -14,6 +14,7 @@ import subprocess
 import urllib
 import urllib2
 import httplib2
+import locale
 
 
 from time import time
@@ -229,7 +230,7 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.gnrapp = self.build_gnrapp()
-        self.server_locale = self.gnrapp.config('default?server_locale') or 'en'
+        self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0]
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
