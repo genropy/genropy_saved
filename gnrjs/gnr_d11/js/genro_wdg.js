@@ -977,10 +977,13 @@ dojo.declare("gnr.GridEditor", null, {
 
         for(var k in this.rowEditors){
             var rowEditor = this.rowEditors[k];
-            if(rowEditor.hasChanges() && !rowEditor.getErrors() && !rowEditor.currentCol){
-                var prefix = rowEditor.newrecord?'inserted.':'updated.';
-                changeset.setItem(prefix+rowEditor.rowId,rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
-                rowEditor.sendingStatus = sendingStatus;
+            if(rowEditor.hasChanges()){
+                var cannotSave = this.autoSave && (rowEditor.getErrors() || rowEditor.currentCol);
+                if (!cannotSave){
+                        var prefix = rowEditor.newrecord?'inserted.':'updated.';
+                        changeset.setItem(prefix+rowEditor.rowId,rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
+                        rowEditor.sendingStatus = sendingStatus;
+                }
             }
         }
         var deletedRows = new gnr.GnrBag();
