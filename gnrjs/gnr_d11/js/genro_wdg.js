@@ -980,7 +980,7 @@ dojo.declare("gnr.GridEditor", null, {
             //if(rowEditor.hasChanges() && !rowEditor.getErrors() && !rowEditor.currentCol){
             if(rowEditor.hasChanges()){
                 var hasErrors = rowEditor.getErrors();
-                var currentCol = rowEditor.currentCol();
+                var currentCol = rowEditor.currentCol;
                 console.log('autosave ', this.autosave);
                 console.log('errors', hasErrors, 'currentcol', currentCol)
                 if (!hasErrors){
