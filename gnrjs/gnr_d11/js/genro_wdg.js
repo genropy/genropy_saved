@@ -977,20 +977,12 @@ dojo.declare("gnr.GridEditor", null, {
 
         for(var k in this.rowEditors){
             var rowEditor = this.rowEditors[k];
-            //if(rowEditor.hasChanges() && !rowEditor.getErrors() && !rowEditor.currentCol){
             if(rowEditor.hasChanges()){
-                var hasErrors = rowEditor.getErrors();
-                var currentCol = rowEditor.currentCol;
-                console.log('autosave ', this.autosave);
-                console.log('errors', hasErrors, 'currentcol', currentCol)
-                if (!hasErrors){
-                    console.log('not hasErrors')
-                    if (!currentCol){
-                        console.log('not currentCol')
+                var cannotSave = this.autoSave && (rowEditor.getErrors() || rowEditor.currentCol);
+                if (!cannotSave){
                         var prefix = rowEditor.newrecord?'inserted.':'updated.';
                         changeset.setItem(prefix+rowEditor.rowId,rowEditor.getChangeset(),{_pkey:rowEditor.newrecord?null:rowEditor._pkey});
                         rowEditor.sendingStatus = sendingStatus;
-                    }
                 }
             }
         }
