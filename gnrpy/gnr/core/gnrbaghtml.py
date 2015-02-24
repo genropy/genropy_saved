@@ -294,15 +294,19 @@ class BagToHtml(object):
         
         def getPage(currPage=0):
             t = (currPage + 1 + self.starting_page_number,
-                             self.copies[self.copy]['currPage'] + 1 + self.starting_page_number)
+                             self.current_page_number + 1 + self.starting_page_number)
             if len(mask)-len(mask.replace(r'%s',''))>2:
                 result = mask % t
             else:
                 result = mask % t[0]
             return result
             
-        return BagCbResolver(getPage, currPage=self.copies[self.copy]['currPage'])
-        
+        return BagCbResolver(getPage, currPage=self.current_page_number)
+
+    @property
+    def current_page_number(self):
+        return self.copies[self.copy]['currPage']
+
     def copyHeight(self):
         """TODO"""
         return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
