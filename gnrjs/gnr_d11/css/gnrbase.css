@@ -4215,6 +4215,7 @@ div[disabled='true'], div[disabled='disabled']{
     bottom:0;
     right:0;
     left:0;
+    color:#444;
 }
 .treeGridHeader{
     height:20px;
@@ -4246,6 +4247,8 @@ div[disabled='true'], div[disabled='disabled']{
     position: absolute;
     border-bottom: 1px solid #efefef;
     border-left: 1px solid #efefef;
+    top: 0;
+    bottom:1;
 }
 
 .treegrid .treecell:last-child{
