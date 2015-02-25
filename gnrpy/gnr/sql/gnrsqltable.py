@@ -79,14 +79,14 @@ class RecordUpdater(object):
             if not self.record:
                 return
             if self.raw:
-                if self.record[self.tblobj.pkey] is False:
+                if self.record.get(self.tblobj.pkey) is False:
                     self.tblobj.raw_delete(self.oldrecord)
                 elif self.insertMode:
                     self.tblobj.raw_insert(self.record)
                 else:
                     self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                if self.record[self.tblobj.pkey] is False:
+                if self.record.get(self.tblobj.pkey) is False:
                     self.tblobj.delete(self.oldrecord)
                 elif self.insertMode:
                     self.tblobj.insert(self.record)
