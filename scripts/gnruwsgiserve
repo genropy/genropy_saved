@@ -119,6 +119,11 @@ class UwsgiRunner(object):
     parser.add_option('--counter',
                       dest='counter',
                       help="Startup counter")
+    parser.add_option('-g','--gzip',
+                      dest='gzip',
+                      action='store_true',
+                      help="Enable gzip compressions")
+
 
     _scheme_re = re.compile(r'^[a-z][a-z]+:', re.I)
 
@@ -214,9 +219,9 @@ class UwsgiRunner(object):
         return site_config
 
     def run(self):
-    	self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging'])
-    	atexit.register(self.term_uwsgi)
-    	self.uwsgi_master.wait()
+        self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging'])
+        atexit.register(self.term_uwsgi)
+        self.uwsgi_master.wait()
 
     def term_uwsgi(self):
         self.uwsgi_master.send_signal(signal.SIGINT)

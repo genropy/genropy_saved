@@ -47,7 +47,8 @@ wsgi_options = dict(
         restore=False,
         source_instance=None,
         remote_edit=None,
-        remotesshdb=None
+        remotesshdb=None,
+        gzip=None
         )
 
 DNS_SD_PID = None
@@ -312,6 +313,11 @@ class Server(object):
                       dest='remote_edit',
                       action='store_true',
                       help="Enable remote edit")
+    parser.add_option('-g','--gzip',
+                      dest='gzip',
+                      action='store_true',
+                      help="Enable gzip compressions")
+
 
    #parser.add_option('--remotesshdb',
    #                  dest='remotesshdb',

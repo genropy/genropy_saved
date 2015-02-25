@@ -219,8 +219,8 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.setDebugAttribute(options)
-        self.option_restore = options.restore if options else None
-        self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
+        #self.option_restore = options.restore if options else None
+        #self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
         self.compressedJsPath = None
@@ -229,9 +229,10 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
-        self.gnrapp = self.build_gnrapp()
+        self.gnrapp = self.build_gnrapp(options=options)
         self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0]
-        self.wsgiapp = self.build_wsgiapp()
+        self.wsgiapp = self.build_wsgiapp(options=options)
+
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
@@ -893,11 +894,13 @@ class GnrWsgiSite(object):
                                              % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
         return exc
         
-    def build_wsgiapp(self):
+    def build_wsgiapp(self, options=None):
         """Build the wsgiapp callable wrapping self.dispatcher with WSGI middlewares"""
         wsgiapp = self.dispatcher
         self.error_smtp_kwargs = None
-        if self.profile:
+        profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
+        gzip = boolean(options.gzip) if options else boolean(self.config['wsgi?gzip'])
+        if profile:
             from repoze.profile.profiler import AccumulatingProfileMiddleware
             wsgiapp = AccumulatingProfileMiddleware(
                wsgiapp,
@@ -927,9 +930,12 @@ class GnrWsgiSite(object):
                 self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
                 err_kwargs.update(error_smtp_kwargs)
             wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
+        if gzip:
+            from paste.gzipper import middleware as gzipper_middleware
+            wsgiapp = gzipper_middleware(wsgiapp)
         return wsgiapp
         
-    def build_gnrapp(self):
+    def build_gnrapp(self, options=None):
         """Builds the GnrApp associated with this site"""
         instance_path = os.path.join(self.site_path, 'instance')
         if not os.path.isdir(instance_path):
@@ -937,7 +943,8 @@ class GnrWsgiSite(object):
         if not os.path.isdir(instance_path):
             instance_path = self.config['instance?path'] or self.config['instances.#0?path']
         self.instance_path = instance_path
-        restorepath = self.option_restore
+        #restorepath = self.option_restore
+        restorepath = options.restore if options else None
         restorefiles=[]
         if restorepath:
             if restorepath == 'auto':
