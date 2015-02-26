@@ -226,7 +226,7 @@ class FrameIndex(BaseComponent):
         applogo = sb.applogo.div()
         if hasattr(self,'application_logo'):
             applogo.img(src=self.application_logo,height='20px')
-        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy.png',height='20px')
+        sb.genrologo.img(src='/_rsrc/common/images/made_with_genropy_small.png',height='20px')
         sb.dataController("""SET gnr.appInfo = dataTemplate(tpl,{msg:msg,dbremote:dbremote}); """,
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
