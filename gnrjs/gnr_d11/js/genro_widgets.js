@@ -945,7 +945,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             }
             if (validateresult['warnings'].length) {
                 if(validateresult.warnings && formHandler){
-                    formHandler.publish('message',{message:fldname+': '+validateresult.warnings.join(','),sound:'$onwarning',color:'orange',font_size:'1.1em',font_weight:'bold'});
+                    formHandler.publish('message',{message:fldname+': '+validateresult.warnings.join(','),sound:'$onwarning',messageType:'warning',font_size:'1.1em',font_weight:'bold'});
                 }
                 valueAttr._validationWarnings = validateresult['warnings'];
             }
