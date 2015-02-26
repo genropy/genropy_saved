@@ -4014,6 +4014,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         this.pendingChanges = [];
         this.lastLiveUpdate = new Date()
         this._editingForm = false;
+        this.loadInvisible = this.storeNode.getAttributeFromDatasource('loadInvisible');
+
         this.liveUpdateDelay = this.storeNode.getAttributeFromDatasource('liveUpdateDelay');
         this.liveUpdateUnattended = this.storeNode.getAttributeFromDatasource('liveUpdateUnattended');
         var cb = function(){
@@ -4040,7 +4042,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                 });
 
                 that.storeNode.watch('externalChangesDisabled',function(){
-                    if(that._editingForm){
+                    if(that._editingForm || that.loadInvisible){
                         return genro.dom.isWindowVisible();
                     }
                     var liveUpdateDelay = that.liveUpdateDelay;
@@ -4063,7 +4065,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
 
     loadData:function(){
         var that = this;
-        if(!this.hasVisibleClients()){
+        if(!(this.hasVisibleClients() || this.loadInvisible)){
             this.storeNode.watch('hasVisibleClients',function(){
                 return that.hasVisibleClients();
             },function(){

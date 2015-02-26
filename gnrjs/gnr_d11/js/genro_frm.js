@@ -1825,7 +1825,7 @@ dojo.declare("gnr.GnrValidator", null, {
         if (dojo.isIE > 0) {
             return;
         }
-        var validate_notnull = sourceNode.attr.validate_notnull;
+        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         var result;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {

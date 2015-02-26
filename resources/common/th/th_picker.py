@@ -152,7 +152,8 @@ class THPicker(BaseComponent):
         if formNode:
             formtblobj = self.db.table(formNode.attr.get('table'))
             oneJoiner = formtblobj.model.getJoiner(maintable)
-            one = oneJoiner.get('many_relation').split('.')[-1] 
+            if oneJoiner:
+                one = oneJoiner.get('many_relation').split('.')[-1] 
 
         hiddenItemCb = None
         if unique:
