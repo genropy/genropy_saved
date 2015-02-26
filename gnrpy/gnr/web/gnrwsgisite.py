@@ -901,15 +901,19 @@ class GnrWsgiSite(object):
         profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         gzip = boolean(options.gzip) if options else boolean(self.config['wsgi?gzip'])
         if profile:
-            from repoze.profile.profiler import AccumulatingProfileMiddleware
-            wsgiapp = AccumulatingProfileMiddleware(
-               wsgiapp,
-               log_filename=os.path.join(self.site_path, 'site_profiler.log'),
-               cachegrind_filename=os.path.join(self.site_path, 'cachegrind_profiler.out'),
-               discard_first_request=True,
-               flush_at_shutdown=True,
-               path='/__profile__'
-              )
+            try:
+                from repoze.profile.profiler import AccumulatingProfileMiddleware
+            except ImportError:
+                AccumulatingProfileMiddleware = None
+            if AccumulatingProfileMiddleware:
+                wsgiapp = AccumulatingProfileMiddleware(
+                   wsgiapp,
+                   log_filename=os.path.join(self.site_path, 'site_profiler.log'),
+                   cachegrind_filename=os.path.join(self.site_path, 'cachegrind_profiler.out'),
+                   discard_first_request=True,
+                   flush_at_shutdown=True,
+                   path='/__profile__'
+                  )
 
         if self.debug:
             wsgiapp = SafeEvalException(wsgiapp, debug=True)
