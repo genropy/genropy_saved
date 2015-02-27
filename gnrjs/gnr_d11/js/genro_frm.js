@@ -1830,13 +1830,16 @@ dojo.declare("gnr.GnrValidator", null, {
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();
-                result = validate_notnull?{'errorcode':'missing'}:{'iswarning':'Not existing','errorcode':'missing'};
+                result = validate_notnull?{'errorcode':'missing'}:null;
                 if(!validate_notnull){
                     genro.callAfter(function(){
                         sourceNode.widget.setDisplayedValue('');
                     },1);
+                    if(sourceNode._wrongSearch){
+                        result = {'iswarning':'Not existing','errorcode':'missing'}
+                    }
                 }
-
+                delete sourceNode._wrongSearch;
             }
             sourceNode.widget._lastValueReported = null;
             return result;

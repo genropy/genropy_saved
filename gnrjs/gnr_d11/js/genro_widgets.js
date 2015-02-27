@@ -6715,6 +6715,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
                 }else{
                     if ( isNullOrBlank(value)){
                         this.setValue(null, true);
+                        this.sourceNode._wrongSearch = displayedValue;
                         if(!this.sourceNode.attr.firstMatchDisabled){
                             this.setDisplayedValue(displayedValue,true);
                         }
