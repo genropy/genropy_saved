@@ -912,6 +912,7 @@ dojo.declare("gnr.GridEditor", null, {
         var grid = this.grid;
         grid.gnrediting = start;
         genro.dom.setClass(grid.sourceNode,'editingGrid',start);
+        grid.updateRowStyles(rowIdx)
         grid.currentEditedRow =  start?rowIdx:null;
         dojo.setSelectable(grid.domNode, grid.gnrediting);
     },

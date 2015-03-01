@@ -139,6 +139,14 @@ cursorZoom_plus{
     display: inline-block;
     white-space: nowrap;
 }
+
+.cell_editable .gnrcheckbox_wrapper{
+    left: 25%;
+    position: relative;
+    margin-left: -10px;
+    margin-top: 3px;
+    padding-right: 0;
+}
 .keeper_on .fieldkeeper div{
     background: #666;
 }
@@ -1802,6 +1810,11 @@ div.dojoxDock {
 
 .disabled_row {
     opacity: .6;
+}
+.tickOn {
+    background: url(icons/base10/tick.gif) no-repeat center center;
+    width: 15px;
+    height: 15px;
 }
 
 .checkboxOn {
@@ -4501,6 +4514,7 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11 .cell_B .widgetInCell {
     width: 16px;
     margin: auto;
+    box-shadow: 2px 2px 3px #777 inset;
 }
 
 ._common_d11 .widgetInCell {
