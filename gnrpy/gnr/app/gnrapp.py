@@ -39,7 +39,6 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrlang import getUuid
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -177,23 +176,8 @@ class GnrSqlAppDb(GnrSqlDb):
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
-        if isinstance(recordOrPkey,list):
-            records = recordOrPkey
-        elif not recordOrPkey and kwargs:
-            records = tblobj.query(**kwargs).fetch()
-        else:
-            broadcast = tblobj.attributes.get('broadcast')
-            if broadcast is False:
-                return
-            if isinstance(recordOrPkey,basestring):
-                if isinstance(broadcast,basestring):
-                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
-                else:
-                    records = [{tblobj.pkey:recordOrPkey}]
-            else:
-                records = [recordOrPkey]
-        for record in records:
-            self.application.notifyDbEvent(tblobj, record, 'U')
+        pass
+    
         
     def delete(self, tblobj, record, **kwargs):
         """Delete a record in the database
@@ -1321,37 +1305,10 @@ class GnrApp(object):
         for s in _storesToCommit:
             with self.db.tempEnv(storename=s,_systemDbEvent=True):
                 self.db.commit()
-        
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """TODO
-        
-        :param tblobj: the :ref:`database table <table>` object
-        :param record: TODO
-        :param event: TODO
-        :param old_record: TODO. """
-        currentEnv = self.db.currentEnv
-        if currentEnv.get('hidden_transaction'):
-            return
-        if not currentEnv.get('env_transaction_id'):
-            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
-        broadcast = tblobj.attributes.get('broadcast')
-        if broadcast is not False and broadcast != '*old*':
-            dbevents=currentEnv['dbevents']
-            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
-            if broadcast and broadcast is not True:
-                for field in broadcast.split(','):
-                    newvalue = record.get(field)
-                    r[field] = self.catalog.asTypedText(newvalue) #2011/01/01::D
-                    if old_record:
-                        oldvalue = old_record.get(field)
-                        if newvalue!=oldvalue:
-                            r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
-            dbevents.setdefault(tblobj.fullname,[]).append(r)
-        audit_mode = tblobj.attributes.get('audit')
-        if audit_mode:
-            self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
-                
+        pass
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         
