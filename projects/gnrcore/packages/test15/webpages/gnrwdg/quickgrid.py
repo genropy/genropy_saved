@@ -25,7 +25,9 @@ class GnrCustomWebPage(object):
         box = pane.div(datapath='.%s' %pos)
         b = Bag()
         pane.data('.griddata',b)
-        box.formbuilder().textBox('^.def_location',lbl='Default location')
+        fb = box.formbuilder()
+        fb.textBox('^.def_location',lbl='Default location')
+        fb.checkbox('^.pippo',label='pippo')
         grid = box.quickGrid(value='^.griddata',
                         columns='^.columns',
                         default_location='=.def_location',
@@ -34,7 +36,8 @@ class GnrCustomWebPage(object):
         grid.tools('addrow,delrow,duprow,export',position=pos)
         grid.column('location',name='Location',width='15em',edit=dict(tag='dbselect',dbtable='glbl.provincia'))
         grid.column('name',name='Name',width='15em',edit=True)
-                  
+        grid.column('is_ok',name='Ok',dtype='B',edit=True)
+          
 
 
     def test_2_syntax(self,pane):
@@ -56,7 +59,9 @@ class GnrCustomWebPage(object):
         f = self.db.table('glbl.comune').query(where='$sigla_provincia=:pr',pr=provincia).fetch()
         result = Bag()
         for r in f:
-            result[r['id']] = Bag(dict(r))
+            r = dict(r)
+            r['is_ok'] = None
+            result[r['id']] = Bag(r)
         return result
 
     
