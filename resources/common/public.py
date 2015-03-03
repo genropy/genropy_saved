@@ -60,13 +60,9 @@ class PublicBase(BaseComponent):
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
-        frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',
-                                subscribe_pbl_bottomMsg="console.warn('pbl_bottomMsg deprecated use floating_message');genro.publish('floating_message',$1);",
-                                **kwargs)
+        frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',**kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
-        if bottom:
-            self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
         self.root_publicframe = frame
         return frame
         
@@ -84,9 +80,6 @@ class PublicBase(BaseComponent):
             kwargs['captionslot_title'] = title
         return pane.slotBar(slots=slots,childname='bar',
                             **kwargs)
-                            
-    def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        pane.slotBar('',_class='pbl_root_bottom')
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
@@ -430,10 +423,6 @@ class TableHandlerMain(BaseComponent):
         if publicCollapse:
             th.view.attributes.update(_class='pbl_root')
             viewbar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_root_top',height='22px')
-            if not hasattr(th.view.bottom,'bar'):
-                self.public_frameBottomBar(th.view.bottom,slots='*,messageBox,*')
-            else:
-                th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
             viewbar.replaceSlots('#','#,avatarslot,10')
             viewbar.replaceSlots('5,searchOn','10,captionslot,searchOn')
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')

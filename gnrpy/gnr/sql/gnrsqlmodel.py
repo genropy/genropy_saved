@@ -688,7 +688,7 @@ class DbTableObj(DbModelObj):
             indexesobj.children[indexname] = objclassdict['index'](parent=self.indexes, attrs=indexargs)
             
         if not self.relations:
-            self.children['relations'] = self.newRelationResolver()
+            self.children['relations'] = self.newRelationResolver(cacheTime=-1)
             
     def newRelationResolver(self, **kwargs):
         """TODO"""
