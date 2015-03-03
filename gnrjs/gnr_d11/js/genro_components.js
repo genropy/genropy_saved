@@ -643,12 +643,13 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
             var contentNode = children.getNode('center.#0');
             genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
         }
-        contentNode.attr['_class'] =  contentNode.attr['_class'] + ' fh_content';
+        contentNode.attr['_class'] =  (contentNode.attr['_class'] || '') + ' fh_content';
         var store = this.createStore(storeNode);
         var frameCode = kw.frameCode;
         formId = formId || frameCode+'_form';
         var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
-                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        var storeId = kw.store+'_store';
+                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));        
+        var storeId = kw.store+'_store';
         return frame;
     },
     createStore:function(storeNode){
