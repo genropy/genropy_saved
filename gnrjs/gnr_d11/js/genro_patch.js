@@ -489,9 +489,8 @@ genropatches.borderContainer = function() {
                 }
 
                 //FIXME: redundant?
+                this["_" + region + "Widget"] = child; //fix safari swapped lines 492/493
                 this["_" + region] = child.domNode;
-                this["_" + region + "Widget"] = child;
-
                 if (child.splitter && !this._splitters[region]) {
                     var _Splitter = dojo.getObject(this._splitterClass);
                     var flip = {left:'right', right:'left', top:'bottom', bottom:'top', leading:'trailing', trailing:'leading'};
