@@ -2252,8 +2252,11 @@ class SqlRecord(object):
         
     def out_dict(self):
         """TODO"""
-        return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
-    
+        pyColumnsDict = dict([(k,h) for k,h in self.compiled.pyColumns])
+        result = dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
+        for k,v in result.items():
+            result[k] =  pyColumnsDict[k](result,field=k) if k in pyColumnsDict else result[k]
+        return result 
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)

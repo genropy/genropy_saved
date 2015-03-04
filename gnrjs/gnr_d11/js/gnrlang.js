@@ -1147,7 +1147,7 @@ var gnrformatter = {
         //}
     },
     format_AR:function(value,format,formatKw){
-        value = dojo.map(value,this.asText);
+        value = dojo.map(value,function(n){return _F(n)});
         return value.join(format || ',');
     },
     format_NN:function(value,format,formatKw){
