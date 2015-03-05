@@ -797,7 +797,14 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
-                
+
+    def freezedPkeys(self,fpath):
+        filename = '%s_pkeys.pik' % fpath
+        if not os.path.exists(filename):
+            return []
+        with open(filename) as f:
+            return cPickle.load(f)
+
     def unfreezeSelection(self, fpath):
         """Get a pickled selection and return it
         

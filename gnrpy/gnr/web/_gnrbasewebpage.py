@@ -221,6 +221,12 @@ class GnrBaseWebPage(GnrObject):
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
     
+    def freezedPkeys(self,dbtable=None,name=None,page_id=None):
+        assert name, 'name is mandatory'
+        if isinstance(dbtable, basestring):
+            dbtable = self.db.table(dbtable)
+        return self.db.freezedPkeys(self.pageLocalDocument(name,page_id=page_id))
+
     @public_method
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
                          sortBy=None,condition=None, table=None, condition_args=None):

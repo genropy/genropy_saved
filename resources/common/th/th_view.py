@@ -505,7 +505,9 @@ class TableHandlerView(BaseComponent):
 
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
-                               where='=.query.where', sortedBy='=.grid.sorted',
+                               where='=.query.where',
+                               queryMode='=.query.queryMode', 
+                               sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
                                _onError="""return error;""", #genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"}); to check later
@@ -642,17 +644,24 @@ class TableHandlerView(BaseComponent):
                    qm.createMenues();
                    dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
                    dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
+                   
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_b')));
+
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)        
-        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='600px',overflow='hidden',
+        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='700px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
-        fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                 nodeId='%s_fastQueryColumn' %th_root,
-                  dropTarget=True,row_hidden='^.#parent.queryAttributes.extended',
-                 lbl='!!Search:',tdl_width='4em',
-                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
+        box = fb.div(row_hidden='^.#parent.queryAttributes.extended')
+        box.data('.#parent.queryMode','S',caption='!!Search')
+        box.div('^.#parent.queryMode?caption',min_width='5em',_class='gnrfieldlabel th_searchlabel',
+                nodeId='%s_searchMenu_a' %th_root)
+        box.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
+                 nodeId='%s_fastQueryColumn' %th_root,
+                  dropTarget=True,
+                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
+        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em',margin_top='1px')
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
                 border_right='1px solid silver')
@@ -661,7 +670,7 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
-        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',
+        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',margin_top='1px',
                                        _autoselect=True,relpath='.c_0',
                                        row_class='^.c_0?css_class', position='relative',
                                        validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
@@ -674,8 +683,11 @@ class TableHandlerView(BaseComponent):
                                        speech=True)
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
-                    row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
+        box = fb.div(row_hidden='^.#parent.queryAttributes.extended?=!#v',colspan=3,width='100%',position='relative')
+        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
+                nodeId='%s_searchMenu_b' %th_root)
+        box.div('^.#parent.queryAttributes.caption', _class='fakeTextBox buttonIcon',
+                    position='absolute',right='15px',left='65px')
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
@@ -804,8 +816,10 @@ class THViewUtils(BaseComponent):
                            number=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'isnull', 'in'],
                            boolean=['istrue', 'isfalse', 'isnull'],
                            others=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'in'])
-
+        queryModes = (('S','Search'),('U','Union'),('I','Intersect'),('D','Difference'))
         wt = self.db.whereTranslator
+        for op,caption in queryModes:
+            result.setItem('queryModes.%s' % op, None, caption='!!%s' % caption)
         for op in listop:
             result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
         for optype, values in optype_dict.items():
