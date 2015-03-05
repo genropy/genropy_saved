@@ -655,7 +655,7 @@ class TableHandlerView(BaseComponent):
 
         box = fb.div(row_hidden='^.#parent.queryAttributes.extended')
         box.data('.#parent.queryMode','S',caption='!!Search')
-        box.div('^.#parent.queryMode?caption',min_width='5em',_class='gnrfieldlabel th_searchlabel',
+        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
                 nodeId='%s_searchMenu_a' %th_root)
         box.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
                  nodeId='%s_fastQueryColumn' %th_root,
