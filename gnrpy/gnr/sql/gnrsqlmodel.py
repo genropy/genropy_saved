@@ -165,7 +165,10 @@ class DbModel(object):
             #     one_name = link_many_name
             case_insensitive = (mode == 'insensitive')
             foreignkey = (mode == 'foreignkey')
-            self.relations.setItem('%s.%s.@%s' % (many_pkg, many_table, link_many_name), None, mode='O',
+            many_relkey = '%s.%s.@%s' % (many_pkg, many_table, link_many_name)
+            if many_relkey in self.relations:
+                raise GnrSqlRelationError('Cannot add many relation %s because exist another relation to the table %s with relation_name=%s' % (many_relkey,many_table,relation_name))
+            self.relations.setItem(many_relkey, None, mode='O',
                                    many_relation=many_relation, many_rel_name=many_name, foreignkey=foreignkey,
                                    many_order_by=many_order_by,relation_name=relation_name,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
@@ -174,7 +177,11 @@ class DbModel(object):
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
                                    one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename,
                                    resolver_kwargs=resolver_kwargs)
-            self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
+            one_relkey = '%s.%s.@%s' % (one_pkg, one_table, relation_name)
+            if one_relkey in self.relations:
+                old_relattr = dict(self.relations.getAttr(one_relkey))
+                raise GnrSqlRelationError('\nSame relation_name\n%s \n%s \n%s' %(old_relattr['many_relation'],many_relation,relation_name))
+            self.relations.setItem(one_relkey, None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
