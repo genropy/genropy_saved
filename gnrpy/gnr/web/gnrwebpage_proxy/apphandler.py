@@ -679,7 +679,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
-                         recordResolver=True, selectionName='', structure=False, numberedRows=True,
+                         recordResolver=True, selectionName='',queryMode=None, structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
@@ -740,7 +740,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
-
         if selectionName.startswith('*'):
             if selectionName == '*':
                 selectionName = self.page.page_id
@@ -769,7 +768,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
             selection = selecthandler(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
-                                      condition=condition,
+                                      condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
@@ -887,7 +886,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
-                               pkeys=None, 
+                               pkeys=None, queryMode=None,
                               sortedBy=None, sqlContextName=None,
                               excludeLogicalDeleted=True,excludeDraft=True,**kwargs):
         sqlContextBag = None
@@ -909,6 +908,16 @@ class GnrWebAppHandler(GnrBaseProxy):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
+        if queryMode in ('U','I','D'):
+            _qmpkeys = self.page.freezedPkeys(tblobj,selectionName)
+            queryModeCondition = '( $%s IN :_qmpkeys )' %tblobj.pkey
+            kwargs['_qmpkeys'] = _qmpkeys
+            if queryMode == 'U':
+                where =' ( %s ) OR ( %s ) ' % (where, queryModeCondition)
+            elif queryMode == 'I':
+                where =' ( %s ) AND ( %s ) ' % (where, queryModeCondition)
+            elif queryMode == 'D':
+                where =' ( %s ) AND NOT ( %s ) ' % (queryModeCondition,where)   
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,

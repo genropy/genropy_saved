@@ -546,6 +546,7 @@ cursorZoom_plus{
     padding-left: 4px;
     padding-top: 1px;
     min-height: 13px;
+    display: inline-block;
 }
 
 .fakeNumberTextBox ,.gnrfield.tag_div>div.fakeNumberTextBox{
@@ -834,6 +835,7 @@ label.ghostlabel span {
     margin-top:2px;
     white-space: nowrap;
     padding-left:4px;
+    display: inline-block;
 }
 label{
     vertical-align:middle;
@@ -1525,6 +1527,7 @@ div.dojoxDock {
 
 .floatingPopup {
     padding-right: 15px;
+    cursor: pointer;
 }
 .menuButtonDiv{
     padding-right: 10px;

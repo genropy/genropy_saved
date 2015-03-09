@@ -1390,7 +1390,17 @@ class SqlSelection(object):
         else:
             with open(pik_path) as f:
                 self._data = cPickle.load(f)
-        f.close()
+
+    def _freeze_pkeys(self, readwrite):
+        pik_path = '%s_pkeys.pik' % self.freezepath
+        if readwrite == 'w':
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
+            with os.fdopen(dumpfile_handle, "w") as f:
+                cPickle.dump(self.output('pkeylist'), f)
+            shutil.move(dumpfile_path, pik_path)
+        else:
+            with open(pik_path) as f:
+                return cPickle.load(f)
         
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
@@ -1423,7 +1433,8 @@ class SqlSelection(object):
         self._freezeme()
         self._freeze_data('w')
         self._freeze_filtered('w')
-        
+        self._freeze_pkeys('w')
+
     def freezeUpdate(self):
         """TODO"""
         if self.isChangedData:
