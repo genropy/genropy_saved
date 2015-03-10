@@ -2239,6 +2239,8 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         gnrwdg.mandatory = mandatory;
         gnrwdg.identifier = identifier;
         gnrwdg.caption = caption;
+        gnrwdg.caption_format = objectPop(kw,'caption_format');
+        gnrwdg.caption_dtype = objectPop(kw,'caption_dtype');
         if(values){
             items_bag = gnrwdg.itemsFromValues(values);
         }
@@ -2406,7 +2408,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         }
         kw.multibutton_code = code;
         kw._class = (kw._class || '') +' '+btn_class
-        content_kw.innerHTML = caption;
+        content_kw.innerHTML = _F(caption,this.caption_format,this.caption_dtype);
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
         var btn = mb._('lightbutton',code,kw)
         btn._('div',content_kw);

@@ -3228,7 +3228,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid;
                 dojo.connect(filteringGrid,'updateRowCount',function(){
-                    var s = widget.collectionStore();
                     widget.filterToRebuild(true);
                     widget.updateRowCount('*');
                 });

@@ -422,8 +422,8 @@ class TableHandlerView(BaseComponent):
             default_sort_col = '__ins_ts'
         if sortedBy :
             sortedBy = sortedBy.strip().replace('$','').replace('@','_').replace('.','_')
-            if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
-                sortedBy = sortedBy +',%s' %default_sort_col 
+            #if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
+            #    sortedBy = sortedBy +',%s' %default_sort_col 
         elif tblobj.column('_row_count') is not None:
             sortedBy = '_row_count' or default_sort_col
         frame.data('.grid.sorted',sortedBy)

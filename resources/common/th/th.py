@@ -314,8 +314,6 @@ class TableHandler(BaseComponent):
             hider=True
             delrow = True if delrow is None else delrow
             addrow = False if addrow is None else addrow
-        if rowStatusColumn is None:
-            rowStatusColumn = delrow is True
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
                                         viewResource=viewResource,hider=hider,rowStatusColumn=rowStatusColumn,
                                         picker=picker,addrow=addrow,delrow=delrow,**kwargs)

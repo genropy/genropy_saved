@@ -1131,6 +1131,8 @@ dojo.declare("gnr.GridEditor", null, {
             that.addNewRows_one(n);
         });
         this.updateStatus();
+        this.grid.collectionStore().sort();
+        this.grid.updateRowCount();
     },
     addNewRows_one:function(row){
         var grid = this.grid;
