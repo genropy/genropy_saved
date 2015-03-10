@@ -3981,8 +3981,8 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
             grid.sourceNode.publish('loadingData',{loading:true});
         });
         var cb = function(result){
-            that.onLoaded(result);
             that.resetFilter();
+            that.onLoaded(result);
             that.loadingData = false;
             that.gridBroadcast(function(grid){
                 grid.sourceNode.publish('loadingData',{loading:false});
@@ -4085,8 +4085,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             grid.sourceNode.publish('loadingData',{loading:true});
         });
         var cb = function(result){
-            that.onLoaded(result);
             that.resetFilter();
+            that.onLoaded(result);
             that.loadingData = false;
             that.gridBroadcast(function(grid){
                 grid.sourceNode.publish('loadingData',{loading:false});
@@ -4229,8 +4229,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         var changeCount = objectSize(willBeInSelection) + objectSize(insOrUpdKeys_wasInSelection) + objectSize(delKeys_wasInSelection);
         var rt = this.reload_treshold || 0.3;
         var sum_columns = this.storeNode.getAttributeFromDatasource('sum_columns');
+        var applymethod = this.storeNode.getAttributeFromDatasource('applymethod');
         var fullReloadOnChange = this.storeNode.getAttributeFromDatasource('fullReloadOnChange');
-        if(changeCount>0 && ((changeCount>this.len()*rt) || sum_columns || fullReloadOnChange)){
+        if(changeCount>0 && ((changeCount>this.len()*rt) || sum_columns || fullReloadOnChange || applymethod)){
             this.loadData();
             return
         }

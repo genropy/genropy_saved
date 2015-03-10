@@ -3228,7 +3228,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid;
                 dojo.connect(filteringGrid,'updateRowCount',function(){
-                    widget.filterToRebuild(true);widget.updateRowCount('*');
+                    var s = widget.collectionStore();
+                    widget.filterToRebuild(true);
+                    widget.updateRowCount('*');
                 });
                 widget.excludeListCb=function(){
                     return filteringGrid.getColumnValues(filteredColumn);;
@@ -7967,6 +7969,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                 if(centerMarker){
                     that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);
                 }
+
             });
         }
         
@@ -7986,10 +7989,20 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                 kw.position=position;
                 kw.title=kw.title || marker_name;
                 kw.map=sourceNode.map;
-                sourceNode.markers[marker_name]=new google.maps.Marker(kw);
+                sourceNode.markers[marker_name] = new google.maps.Marker(kw);
             }
         });
+        if(sourceNode.attr.autoFit){
+            sourceNode.delayedCall(function(){
+                var bounds = new google.maps.LatLngBounds();
+                for(var k in sourceNode.markers){
+                    bounds.extend(sourceNode.markers[k].position);
+                }
+                sourceNode.map.fitBounds(bounds);
+            },10,'fitBounds'); 
+        }
     },
+
     setMap_center:function(domnode,v){
         var sourceNode=domnode.sourceNode;
         if(!sourceNode.map){
