@@ -7943,6 +7943,7 @@ dojo.declare("gnr.widgets.StaticMap", gnr.widgets.baseHtml, {
 dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
+        this.markers_types = {};
     },
     creating: function(attributes, sourceNode) {
         savedAttrs = objectExtract(attributes, 'map_*');
@@ -7952,7 +7953,8 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         sourceNode.markers={};
         var that=this;
         genro.google().setGeocoder(sourceNode,function(){
-              that.makeMap(sourceNode,savedAttrs);
+                that.markers_types['default'] = google.maps.Marker;
+                that.makeMap(sourceNode,savedAttrs);
         });
         sourceNode.gnr=this;
     },
@@ -7960,7 +7962,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
         var that = this;
-        if(kw.center){
+        if(kw.center || sourceNode.attr.autoFit){
             this.onPositionCall(sourceNode,kw.center,function(center){
                 kw.center=center;
                 sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
@@ -7973,7 +7975,12 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         }
         
     },
-
+    clearMarkers:function(sourceNode){
+        for (var k in sourceNode.markers){
+            sourceNode.markers[k].setMap(null);
+            delete sourceNode.markers[k];
+        }
+    },
     setMarker:function(sourceNode,marker_name,marker,kw){
         var kw = kw || {};
         if (marker_name in sourceNode.markers){
@@ -7983,12 +7990,17 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         if (!marker){
             return;
         }
+        var gnr = this;
+        var marker_type = objectPop(kw,'marker_type') || 'default';
         this.onPositionCall(sourceNode,marker,function(position){
             if (position){
                 kw.position=position;
                 kw.title=kw.title || marker_name;
                 kw.map=sourceNode.map;
-                sourceNode.markers[marker_name] = new google.maps.Marker(kw);
+                if(kw.color){
+                    objectUpdate(kw,gnr._markerColorKwargs(kw.color))
+                }
+                sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);                
             }
         });
         if(sourceNode.attr.autoFit){
@@ -8000,6 +8012,28 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                 sourceNode.map.fitBounds(bounds);
             },10,'fitBounds'); 
         }
+    },
+
+
+    addMarkerType:function(code,cls){
+        this.markers_types[code] = cls
+    },
+
+    _markerColorKwargs:function(color,shadow){
+        var result = {};
+        if(color){
+            result.icon = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color,
+                new google.maps.Size(21, 34),
+                new google.maps.Point(0,0),
+                new google.maps.Point(10, 34));
+        }
+        if(shadow){
+            result.shadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow",
+            new google.maps.Size(40, 37),
+            new google.maps.Point(0, 0),
+            new google.maps.Point(12, 35));
+        }
+        return result;
     },
 
     setMap_center:function(domnode,v){
@@ -8020,6 +8054,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
             }
         });
     },
+
     setMap_zoom:function(domnode,v){
         var sourceNode=domnode.sourceNode;
         sourceNode.map.setZoom(v);
