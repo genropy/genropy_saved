@@ -713,8 +713,16 @@ class TableBase(object):
         if not tpl:
             tpl = self.db.currentPage.loadTemplate(tplpath)
             currEnv[tplkey] = tpl
+        kwargs = dict()
+        if isinstance(tpl,Bag):
+            kwargs['locale'] = self.db.currentPage.locale #tpl.getItem('main?locale')
+            kwargs['masks'] = tpl.getItem('main?masks')
+            kwargs['formats'] = tpl.getItem('main?formats')
+            kwargs['df_templates'] = tpl.getItem('main?df_templates')
+            kwargs['dtypes'] = tpl.getItem('main?dtypes')
+            #virtual_columns = tpl.getItem('main?virtual_columns')
         r = Bag(dict(record))
-        return templateReplace(tpl,r)
+        return templateReplace(tpl,r,**kwargs)
 
 
     def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,onSelectedSourceRows=None,**kwargs):
