@@ -771,7 +771,9 @@ class SqlTable(GnrObject):
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
-                updater(new_row)
+                doUpdate = updater(new_row)
+                if doUpdate is False:
+                    continue
             elif isinstance(updater, dict):
                 new_row.update(updater)
             record_pkey = row[pkeycol]
