@@ -606,6 +606,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         zoomAttr['paletteCode']  = zoomAttr['pkey']+(zoomAttr['formResource'] || '');
+        zoomAttr = grid.sourceNode.evaluateOnNode(zoomAttr);
         var mode = objectPop(zoomAttr,'mode') || 'palette';
 
         if(mode=='palette'){
@@ -689,7 +690,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
             var node = genro.src.getNode(paletteCode).clearValue();
             node.freeze();
-            var dockTo = kw.dockTo || 'dummyDock:open';
+            var dockTo = kw.dockTo==false?false: (kw.dockTo || 'dummyDock:open');
             var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+table,
                                                         overflow:'hidden',
                                                           dockTo: dockTo,

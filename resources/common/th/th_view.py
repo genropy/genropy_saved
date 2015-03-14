@@ -205,9 +205,10 @@ class TableHandlerView(BaseComponent):
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
 
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
-    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
+    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
+                            all_begin=None,all_end=None,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
         inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = parent.div(datapath='.sections.%s' %sections)
@@ -230,6 +231,9 @@ class TableHandlerView(BaseComponent):
             isMain = getattr(m,'isMain',False)
             variable_struct = getattr(m,'variable_struct',False)
             mandatory=getattr(m,'mandatory',True)
+            multiButton = getattr(m,'multiButton',multiButton)
+            lbl = lbl or getattr(m,'lbl',None)
+            lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
             depending_condition = getattr(m,'_if',False)
             depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         if not sectionslist:
@@ -248,8 +252,25 @@ class TableHandlerView(BaseComponent):
         pane.data('.variable_struct',variable_struct)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+        multiButton = multiButton is True or multiButton is None or multiButton and len(sectionsBag)<=multiButton
+        if multiButton:
+            mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
                                 disabled='^.#parent.#parent.grid.loadingData',**kwargs)
+    
+        else:
+            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            lbl = lbl or sections.capitalize()
+            if multivalue:
+                mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
+                                labelAttribute='caption',parentForm=False,
+                                disabled='^.#parent.#parent.grid.loadingData',
+                                        popup=True,cols=1)
+            else:
+                mb.filteringSelect(storepath='.data',value='^.current',lbl=lbl,
+                                disabled='^.#parent.#parent.grid.loadingData',
+                                storeid='#k',parentForm=False,
+                                validate_notnull=mandatory,
+                                popup=True,cols=1)
         parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
                                 genro.dom.toggleVisible(__mb,enabled)
                                 SET .%s.enabled = enabled;
@@ -267,8 +288,9 @@ class TableHandlerView(BaseComponent):
             } 
             FIRE .#parent.#parent.sections_changed;
             """ %sections
-            ,isMain=isMain,mb=mb,_onBuilt=True,
+            ,isMain=isMain,_onBuilt=True,
             currentSection='^.current',sectionbag='=.data',
+            _delay=1,
             th_root=th_root)
  
 

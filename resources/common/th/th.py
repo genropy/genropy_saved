@@ -504,6 +504,9 @@ class MultiButtonForm(BaseComponent):
             bar.dataController("""
                 if(currentFormId && currentFormId!='emptypage'){
                     var currentLoadedForm = genro.formById(currentFormId);
+                    if(currentLoadedForm.opStatus){
+                        return;
+                    }
                     if(currentLoadedForm.changed){
                         PUT .pkey = _triggerpars.kw.oldvalue;
                         genro.dlg.alert(pendingChangesMessage,pendingChangesTitle)
