@@ -2616,11 +2616,19 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         var codeSeparator = objectPop(kw,'codeSeparator');
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
+        var has_code;
+        gnrwdg.identifier = objectPop(kw,'identifier')
+        gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
-        var has_code = (codeSeparator && values)?values.indexOf(codeSeparator)>=0:false;
+
+        if(values instanceof gnr.GnrBag){
+            has_code = true;
+        }else{
+            has_code = (codeSeparator && values)?values.indexOf(codeSeparator)>=0:false;
+        }
         if(!values){
             var table = objectPop(originalKwargs,'table');
             if(table){
@@ -2713,6 +2721,23 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             }
         }
         else{
+            if(values instanceof gnr.GnrBag){
+                var l = [];
+                var identifier = this.identifier;
+                var labelAttribute = this.labelAttribute;
+                values.forEach(function(n){
+                    var k = n.label;
+                    var caption = n.label;
+                    if(identifier){
+                        k = n._value? n._value.getItem(identifier):n.attr[identifier];
+                    }
+                    if(labelAttribute){
+                        caption = n._value? n._value.getItem(labelAttribute):n.attr[labelAttribute];
+                    }
+                    l.push(k+':'+caption);
+                },'static');
+                values = l.join(',');
+            }
             this.values = values;
             this.createCheckers();
             cb = function(){
