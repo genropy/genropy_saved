@@ -104,7 +104,7 @@ class THPicker(BaseComponent):
                         if(defaults){
                             var drow = {};
                             kw.dragDefaults = {}
-                            defaults.split(',').forEach(function(d){cbdef(drow,data,d);});
+                            defaults.split(',').forEach(function(d){cbdef(drow,data['_record'],d);});
                             kw.dragDefaults[data['pkey']] = drow;
                         }
                     }else{
