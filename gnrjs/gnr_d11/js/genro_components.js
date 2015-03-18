@@ -2403,11 +2403,14 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             customDelete = funcCreate(kw.deleteAction,'value,caption')
         }
         var deleteAction = customDelete===false?false:(customDelete || this.deleteAction);
-        if(deleteAction){
+        if(kw._is_readonly_row){
+            btn_class =btn_class + ' _is_readonly_row';
+        }
+        else if(deleteAction){
             btn_class = btn_class +' multibutton_closable';
         }
         kw.multibutton_code = code;
-        kw._class = (kw._class || '') +' '+btn_class
+        kw._class = (kw._class || '') +' '+btn_class;
         content_kw.innerHTML = _F(caption,this.caption_format,this.caption_dtype);
         content_kw._class = (content_kw._class || '') + ' '+'multibutton_caption';
         var btn = mb._('lightbutton',code,kw)
@@ -3944,6 +3947,9 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
 
     sort:function(sortedBy){
         this.sortedBy = sortedBy || this.sortedBy;
+        if(!sortedBy){
+            return;
+        }
         var data = this.getData();
         var sl = [];
         dojo.forEach(this.sortedBy.split(','),function(n){
