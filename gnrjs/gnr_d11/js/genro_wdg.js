@@ -1226,6 +1226,17 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
     },
 
+    copyFromCellAbove:function(sourceNode){
+        if(sourceNode.editedRowIndex>0){
+            sourceNode.widget.setValue(this.getCellValue(sourceNode.editedRowIndex-1,sourceNode.attr.field),true);
+        }
+    },
+    
+    getCellValue:function(rowIdx,cellname){
+        return this.grid.rowByIndex(rowIdx)[cellname];
+    },
+
+
     setCellValue:function(rowIdx,cellname,value,valueCaption){
         var grid = this.grid;
         var rowNode = grid.dataNodeByIndex(rowIdx);

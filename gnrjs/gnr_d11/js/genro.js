@@ -448,7 +448,14 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.dev.shortcut("Shift+space", function(e) {
-            var sn = dijit.getEnclosingWidget(e.target).sourceNode;
+            var wdg =dijit.getEnclosingWidget(e.target)
+            if(!wdg){
+                return;
+            }
+            var sn = wdg.sourceNode;
+            if(sn.grid){
+                sn.grid.gridEditor.copyFromCellAbove(sn);
+            }
             if('_lastSavedValue' in sn){
                 if(sn.form && sn.form.isNewRecord() && isNullOrBlank(sn.widget.getValue())){
                     sn.widget.setValue(sn._lastSavedValue,false);
