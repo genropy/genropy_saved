@@ -507,7 +507,7 @@ class GnrWsgiSite(object):
     def writeException(self, exception=None, traceback=None):
         try:
             page = self.currentPage
-            user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
+            user, user_ip, user_agent = (page.user, page.user_ip, page.user_agent) if page else (None, None, None)
             return self.db.table('sys.error').writeException(description=str(exception),
                                                       traceback=traceback,
                                                       user=user,
@@ -520,7 +520,7 @@ class GnrWsgiSite(object):
     def writeError(self, description=None,error_type=None, **kwargs):
         try:
             page = self.currentPage
-            user, user_ip, user_agent = page.user, page.user_ip, page.user_agent if page else (None, None, None)
+            user, user_ip, user_agent = (page.user, page.user_ip, page.user_agent) if page else (None, None, None)
             self.db.table('sys.error').writeError(description=description,error_type=error_type,user=user,user_ip=user_ip,user_agent=user_agent,**kwargs)
         except Exception,e:
             print str(e)
