@@ -493,11 +493,14 @@ class GnrSqlDb(GnrObject):
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
-        while deferreds:
-            node =  deferreds.popNode('#0')
-            cb,args,kwargs = node.value
-            cb(*args,**kwargs)
-            deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
+        with self.tempEnv(onCommittingStep=True):
+            while deferreds:
+                node =  deferreds.popNode('#0')
+                cb,args,kwargs = node.value
+                cb(*args,**kwargs)
+                allowRecursion = getattr(cb,'deferredCommitRecursion',False)
+                if not allowRecursion:
+                    deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
 
     def deferToCommit(self,cb,*args,**kwargs):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
