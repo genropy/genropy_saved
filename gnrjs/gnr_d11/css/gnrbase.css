@@ -3880,9 +3880,6 @@ p {
     font-size: 9pt;
     font-variant:small-caps;*/
 }
-._is_readonly_row.multibutton{
-    background: rgba(202, 0, 0, 0.3);
-}
 
 .multibutton.multibutton_closable{
     padding-right: 18px;

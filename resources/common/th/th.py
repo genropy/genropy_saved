@@ -465,6 +465,7 @@ class MultiButtonForm(BaseComponent):
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
+        columns = store_kwargs.pop('columns','*')
         tbkw = dict()
         if darkToolbar:
             tbkw = dict(gradient_from='#999',gradient_to='#666')
@@ -473,7 +474,7 @@ class MultiButtonForm(BaseComponent):
         multibutton_kwargs.setdefault('caption',caption_field)
         self.subscribeTable(table,True)
         mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
-        columnslist = ['*','$%(caption)s' %multibutton_kwargs]
+        columnslist = [columns,'$%(caption)s' %multibutton_kwargs]
 
         if formhandler_kwargs:
             frame.attributes.update(onCreated="""
@@ -502,9 +503,11 @@ class MultiButtonForm(BaseComponent):
                 }
                 """,storebag='^%s' %storepath,_delay=1)
             bar.dataController("""
+                console.log('pkey',pkey)
                 if(currentFormId && currentFormId!='emptypage'){
                     var currentLoadedForm = genro.formById(currentFormId);
-                    if(currentLoadedForm.opStatus){
+                    if(currentLoadedForm.opStatus=='loading'){
+                        //during the dbevent adjustment in newrecord wait when record is loaded
                         return;
                     }
                     if(currentLoadedForm.changed){
@@ -598,8 +601,8 @@ class MultiButtonForm(BaseComponent):
         switchValues = pars.pop('switchValues')
         table = pars.pop('table',None) or storetable
         pkeyColumn = pars.pop('pkeyColumn',None) or self.db.table(table).pkey
-        columnslist.append('$%s' %pkeyColumn)
         if table!=storetable:
+            columnslist.append('$%s' %pkeyColumn)
             joiner = self.db.table(table).model.getJoiner(storetable)
             fkey = joiner['many_relation'].split('.')[-1]
         else:
