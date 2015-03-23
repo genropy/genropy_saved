@@ -193,7 +193,7 @@ class TableHandlerView(BaseComponent):
             f = []
             for s in tblobj.column(sections).attributes['values'].split(','):
                 s = s.split(':')
-                f.append(dict(code=s[0],description=s[1]))
+                f.append(dict(code=s[0],description=s[1] if len(s)==2 else s[0]))
         s = []
         if all_begin is None and all_end is None:
             all_begin = True
