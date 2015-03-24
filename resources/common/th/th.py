@@ -714,7 +714,7 @@ class ThLinker(BaseComponent):
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,
                     formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,
-                    margin=None,editEnabled=True,clientTemplate=False,**kwargs):
+                    margin=None,editEnabled=True,clientTemplate=False,center_class=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
@@ -722,18 +722,19 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
+        center_class = center_class or 'linkerCenter'
         if clientTemplate:
-            template = frame.templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
         else:
-            template = frame.templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
         if editEnabled and formResource or formUrl:
-            footer = frame.bottom.slotBar('*,linker_edit')
+            footer = frame.bottom.slotBar('*,linker_edit',height='20px')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
                                             visible=currpkey,parentForm=True)

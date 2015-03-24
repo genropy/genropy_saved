@@ -115,6 +115,13 @@
     background-color: #ffffff;
 }
 
+.linkerCenter{
+    background: white;
+    margin: 2px;
+    border:1px solid #ddd ;
+    border-radius: 6px;
+}
+
 /* @group Logo */
 
 /*.pbl_logo_icon{
