@@ -47,6 +47,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.parentLock = this.parentLock ==null? 'auto':this.parentLock;
         this.current_field = null;
         this.controllerPath = controllerPath;
+        this.formErrors = new gnr.GnrBag();
         if(!this.store){
             this.controllerPath = this.controllerPath || 'gnr.forms.' + this.formId;
         }
@@ -387,7 +388,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     r.setItem('fieldname','<div style="font-weight: bold;">'+n.attr._valuelabel+'</div>',{_valuelabel:'Field'});
                     r.setItem('error','Invalid data',{_valuelabel:'Error'});
                     content.setItem('r_'+i,r)
+                    i++;
                 });
+            }
+            var formErrorsMessages = this.getFormErrors();
+            if(formErrorsMessages.length){
+                formErrorsMessages.forEach(function(message){
+                    content.setItem('r_'+i+'.error',message);
+                    i++;
+                })
             }
             content = content.asHtmlTable({cells:'fieldname,error',headers:true});
             return '<div class="form_errorslogger">Wrong fields</div><div class="form_contentlogger">'+content+'</div>';
@@ -618,6 +627,25 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     waitingStatus:function(waiting){
         this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
+    },
+
+    setFormError:function(errorcode,message){
+        if(message==false){
+            this.formErrors.popNode(errorcode);
+        }else{
+            this.formErrors.setItem(errorcode,message)
+        }
+    },
+
+    getFormErrors:function(){
+        var result = [];
+        this.formErrors.walk(function(n){
+            var v = n.getValue();
+            if(typeof(v)=='string'){
+                result.push(v);
+            }
+        })
+        return result;
     },
     
     openPendingChangesDlg:function(kw){
@@ -1515,7 +1543,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     isValid:function(){
-        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
+        return ((this.formErrors.len()) == 0 && (this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
 
     registeredGridsStatus:function(){
@@ -1650,6 +1678,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resetInvalidFields:function(){
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
         this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
+        this.formErrors = new gnr.GnrBag();
         this.updateStatus();
     },
     getChangesLogger: function() {

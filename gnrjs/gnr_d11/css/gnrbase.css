@@ -547,6 +547,12 @@ cursorZoom_plus{
     padding-top: 1px;
     min-height: 13px;
     display: inline-block;
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 .fakeNumberTextBox ,.gnrfield.tag_div>div.fakeNumberTextBox{
@@ -560,6 +566,12 @@ cursorZoom_plus{
     padding-top: 1px;
     min-height: 13px;
     text-align: right;
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 
