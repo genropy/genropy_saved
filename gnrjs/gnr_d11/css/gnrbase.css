@@ -847,7 +847,6 @@ label.ghostlabel span {
     margin-top:2px;
     white-space: nowrap;
     padding-left:4px;
-    display: inline-block;
 }
 label{
     vertical-align:middle;
