@@ -939,6 +939,15 @@ class DbTableObj(DbModelObj):
             reltbl = self.dbroot.package(relpkg).table(reltbl)
             
         return reltbl.column('.'.join(relpath))
+
+    def virtualColumnAttributes(self,name):
+        column = self.virtual_columns[name]
+        if not column.attributes.get('relation_path'):
+            return column.attributes
+        attributes = dict(self.column(name).attributes)
+        attributes.update(column.attributes)
+        return attributes
+
         
     def fullRelationPath(self, name):
         """Return the full relation path to the given column

@@ -701,7 +701,7 @@ class SqlQueryCompiler(object):
             extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, '%s0' %self.aliasPrefix)
         return 'DynItemOneOne' if isOneOne else 'DynItemMany'
 
-    
+
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
@@ -710,18 +710,16 @@ class SqlQueryCompiler(object):
             if col_name.startswith('$'):
                 col_name = col_name[1:]
             column = tbl_virtual_columns[col_name]
-            original_column = self.tblobj.column(col_name)
             if column is None:
                 # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
+            column_attributes = self.tblobj.virtualColumnAttributes(col_name)
             self._currColKey = col_name
             field = self.getFieldAlias(column.name)
-            xattrs = dict(original_column.attributes)
-            xattrs.update(column.attributes)
-            #xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
-            for attr_name in ['tag', 'comment', 'table', 'pkg']:
-                xattrs.pop(attr_name, None)
-            if column.attributes['tag'] == 'virtual_column':
+
+            xattrs = dict([(k, v) for k, v in column_attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+            
+            if column_attributes['tag'] == 'virtual_column':
                 as_name = '%s_%s' % (self.aliasCode(0), column.name)
                 path_name = column.name
             else:
