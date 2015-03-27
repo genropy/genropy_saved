@@ -82,7 +82,6 @@ dojo.declare('gnr.GenroClient', null, {
         this._lastChildUserEventTs = start_ts;
         this._lastGlobalUserEventTs = start_ts;
         this._lastRpc = start_ts;
-
         for (var i = 0; i < this.profile_count; i++) {
             this.timeProfilers.push({nc:0,st:0,sqlt:0,sqlc:0});  
         };
@@ -1712,7 +1711,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     openWindow:function(url, name, params) {
-        params = params || {height:'700',width:'800'};
+        params = params || {height:'600',width:'900'};
         if (params) {
             if (typeof(params) != 'string') {
                 parlist = [];
@@ -1726,6 +1725,8 @@ dojo.declare('gnr.GenroClient', null, {
         if (window.focus) {
             newwindow.focus();
         }
+        return newwindow
+
     },
     openBrowserTab:function(url){
         window.open(url)

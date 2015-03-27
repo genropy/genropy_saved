@@ -294,6 +294,8 @@ class FrameIndex(BaseComponent):
                 indexpane.htmliframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px',shield=True)         
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)
+        page.dataController("""genro.framedIndexManager.newBrowserWindowPage(newBrowserWindowPage[0]);""",
+                               subscribe_newBrowserWindowPage=True)
                        
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='210px',datapath='left',
@@ -341,10 +343,10 @@ class FrameIndex(BaseComponent):
         pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
     def windowTitle(self):
-        return self.package.attributes.get('name_long')
+        return self.getPreference('instance_data.owner_name',pkg='adm') or self.package.attributes.get('name_long')
         
     def windowTitleTemplate(self):
-        return "%s $workdate" %self.package.attributes.get('name_long')
+        return "%s $workdate" %self.windowTitle()
         
 class FramedIndexLogin(BaseComponent):
     """docstring for FramedIndexLogin"""

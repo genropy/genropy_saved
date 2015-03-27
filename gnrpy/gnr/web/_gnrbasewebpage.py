@@ -707,11 +707,7 @@ class GnrBaseWebPage(GnrObject):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-        
-    def windowTitle(self):
-        """Return the window title"""
-        return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
-        
+
     def _errorPage(self, err, method=None, kwargs=None):
         page = self.domSrcFactory.makeRoot(self)
         sc = page.stackContainer(height='80ex', width='50em', selected='^_dev.traceback.page')

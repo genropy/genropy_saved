@@ -1767,6 +1767,10 @@ class GnrWebPage(GnrBaseWebPage):
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
 
+    def windowTitle(self):
+        """Return the window title"""
+        return getattr(self,'window_title',None) or os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
+
     @public_method
     def subfieldExplorer(self,table=None,field=None, fieldvalue=None,prevRelation='', prevCaption='',
                              omit='', recordpath=None,**kwargs):
@@ -2127,12 +2131,6 @@ class LazyBagResolver(BagResolver):
         """TODO"""
         filepath = self._page.site.getStaticPath(self.location, self.resolverName)
         self.sourceBag = Bag('%s.pik' % filepath)
-
-## 
-
-    def windowTitle(self):
-        """Return the window title"""
-        return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
 
 class GnrMakoPage(GnrWebPage):
     """TODO"""

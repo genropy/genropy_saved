@@ -56,7 +56,7 @@ class MenuIframes(BaseComponent):
                   hideValues=True,
                   _class='menutree',
                   persist='site',
-                  inspect='shift',
+                  inspect='AltShift',
                   identifier='#p',
                   getIconClass="""function(item,opened){
                         if(!item.attr.isDir){
@@ -67,13 +67,20 @@ class MenuIframes(BaseComponent):
                   getLabelClass="return node.attr.labelClass;",
                   openOnClick=True,
                   connect_onClick="""var labelClass= $1.attr.labelClass;
-                                    if(labelClass.indexOf('menu_existing_page')<0){
-                                        $1.setAttribute('labelClass',labelClass+' menu_existing_page');
-                                    }                
-                                    var inattr = $1.getInheritedAttributes();                        
-                                    this.publish("selected",
-                                              objectUpdate({name:$1.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),modifiers:$2.__eventmodifier},
-                                              $1.attr));
+                                                 
+                                    var inattr = $1.getInheritedAttributes();    
+                                    var selectingPageKw = objectUpdate({name:$1.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
+                                                                        formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),
+                                                                        modifiers:$2.__eventmodifier},$1.attr);
+                                    if (selectingPageKw.modifiers == 'Shift'){
+                                        genro.publish("newBrowserWindowPage",selectingPageKw);
+                                    }else{
+                                        if(labelClass.indexOf('menu_existing_page')<0){
+                                            $1.setAttribute('labelClass',labelClass+' menu_existing_page');
+                                        }   
+                                        this.publish("selected",selectingPageKw);
+                                    }      
+                                    
                                         """,
                   autoCollapse=True,
                   nodeId='_menutree_')

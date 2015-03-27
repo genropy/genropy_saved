@@ -159,7 +159,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
     },
-    
+    newBrowserWindowPage:function(kw){
+        this.makePageUrl(kw)
+        genro.openWindow(kw.url,kw.label,{location:'no',menubar:'no',height:this.stackSourceNode.widget.domNode.clientHeight,
+                                          width:this.stackSourceNode.widget.domNode.clientWidth,left:this.stackSourceNode.widget.domNode.offsetLeft,
+                                            top:this.stackSourceNode.widget.domNode.offsetTop});
+    },
     
     makePageUrl:function(kw){
         var url = kw.file;
@@ -259,7 +264,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     reloadSelectedIframe:function(rootPageName,modifiers){
         var iframe = this.getCurrentIframe(rootPageName);
         if(iframe){
-            var dodebug = modifiers=='Shift';
+            var dodebug = modifiers=='ShiftAlt';
             iframe.sourceNode._genro.pageReload({debug_sql:dodebug,pageReloading:true,dojo_source:true});
         }
     },

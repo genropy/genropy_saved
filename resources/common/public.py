@@ -62,6 +62,7 @@ class PublicBase(BaseComponent):
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
         frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',**kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
+        frame.dataController("SET gnr.windowTitle=gnr_public_title[0];",subscribe_gnr_public_title=True)
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         self.root_publicframe = frame
         return frame
@@ -447,6 +448,8 @@ class TableHandlerMain(BaseComponent):
 
         unifyTag = self.tblobj.attributes.get('unifyRecordsTag')
         allowUnify = self.application.checkResourcePermission(unifyTag,self.userTags) if unifyTag else False
+        gridattr['dropTarget_grid'] = 'dbrecords' if not gridattr.get('dropTarget_grid') else 'dbrecords,%(dropTarget_grid)s' %gridattr
+        gridattr['onDrop_dbrecords'] = "genro.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,dragSourceInfo:dropInfo.dragSourceInfo});"
         if selfDragRowsOpt or allowUnify:
             selfDragRowsOpt['allowUnifyCb']=allowUnify and selfDragRowsOpt.get('allowUnifyCb',allowUnify)
             if selfDragRowsOpt['allowUnifyCb'] in (True,False):
