@@ -52,7 +52,7 @@ class RecordUpdater(object):
     def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
-        self.mode = mode or 'dict'
+        self.mode = mode or 'record'
         self.kwargs = kwargs
         self.raw = raw
         self.insertMissing = insertMissing
@@ -1657,7 +1657,7 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1675,7 +1675,8 @@ class SqlTable(GnrObject):
                 targettbl = self.db.table('%s.%s' % (relpkg, reltbl))
                 return BagCbResolver(targettbl.relationExplorer, omit=omit,
                                      prevRelation=attributes['fieldpath'], dosort=dosort,
-                                     pyresolver=pyresolver, **kwargs)
+                                     pyresolver=pyresolver,relationStack=relationStack, 
+                                     **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
             gr = attributes.get('group') or ' '
@@ -1689,7 +1690,7 @@ class SqlTable(GnrObject):
             if grin not in omit:
                 result.setItem(label, xvalue(attributes), attributes)
                 
-        def convertAttributes(result, relnode, prevRelation, omit):
+        def convertAttributes(result, relnode, prevRelation, omit,relationStack):
             attributes = dict(relnode.getAttr())
             attributes['fieldpath'] = gnrstring.concat(prevRelation, relnode.label)
             if 'joiner' in attributes:
@@ -1699,17 +1700,27 @@ class SqlTable(GnrObject):
                 if attributes['mode'] == 'M':
                     attributes['group'] = attributes.get('many_group') or 'zz'
                     attributes['dtype'] = 'RM'
+                    relkey = '%(one_relation)s/%(many_relation)s' %attributes
+
                 else:
                     attributes['group'] = attributes.get('one_group')
                     attributes['dtype'] = 'RO'
+                    relkey = '%(many_relation)s/%(one_relation)s' %attributes
+                relkey = str(hash(relkey) & 0xffffffff)
+                if relkey in relationStack.split('|'):
+                    return 
+                attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
-            resultAppend(result, relnode.label, attributes, omit)
+            return attributes
+            
             
         tblmodel = self.model
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
-            convertAttributes(result, relnode, prevRelation, omit)
+            attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
+            if attributes:
+                resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)

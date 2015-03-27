@@ -1805,7 +1805,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method    
     def relationExplorer(self, table=None, currRecordPath=None,prevRelation='', prevCaption='',
-                             omit='', **kwargs):
+                             omit='',relationStack='', **kwargs):
         """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -1816,26 +1816,29 @@ class GnrWebPage(GnrBaseWebPage):
         :param omit: TODO"""
         if not table:
             return Bag()
-            
-        def buildLinkResolver(node, prevRelation, prevCaption):
+        def buildLinkResolver(node, prevRelation, prevCaption,relationStack):
             nodeattr = node.getAttr()
             if not 'name_long' in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
             nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
+
             if nodeattr.get('one_relation'):
                 innerCurrRecordPath = '%s.%s' %(node.label,currRecordPath) if currRecordPath else ''
                 nodeattr['_T'] = 'JS'
                 if nodeattr['mode'] == 'O':
                     relpkg, reltbl, relfld = nodeattr['one_relation'].split('.')
+                    relkey =  '%(many_relation)s/%(one_relation)s' %node.attr
                 else:
                     relpkg, reltbl, relfld = nodeattr['many_relation'].split('.')
-                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s})"
+                    relkey =  '%(one_relation)s/%(many_relation)s' %node.attr
+                relkey = str(hash(relkey) & 0xffffffff)
+                jsresolver = "genro.rpc.remoteResolver('relationExplorer',{table:%s, prevRelation:%s, prevCaption:%s, omit:%s,currRecordPath:%s,relationStack:%s})"
                 node.setValue(jsresolver % (
                 jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)),
                 jsquote(nodeattr['fullcaption']), jsquote(omit),
-                jsquote(innerCurrRecordPath)
+                jsquote(innerCurrRecordPath),jsquote(concat(relationStack,relkey,'|'))
                 ))
             elif 'subfields' in nodeattr and currRecordPath:
                 nodeattr['_T'] = 'JS'
@@ -1849,9 +1852,10 @@ class GnrWebPage(GnrBaseWebPage):
                 
         result = self.db.relationExplorer(table=table,
                                           prevRelation=prevRelation,
+                                          relationStack=relationStack,
                                           omit=omit,
                                           **kwargs)
-        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
+        result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption,relationStack=relationStack)
         return result
             
     def getAuxInstance(self, name):
