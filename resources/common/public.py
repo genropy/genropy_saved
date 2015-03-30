@@ -449,7 +449,7 @@ class TableHandlerMain(BaseComponent):
         unifyTag = self.tblobj.attributes.get('unifyRecordsTag')
         allowUnify = self.application.checkResourcePermission(unifyTag,self.userTags) if unifyTag else False
         gridattr['dropTarget_grid'] = 'dbrecords' if not gridattr.get('dropTarget_grid') else 'dbrecords,%(dropTarget_grid)s' %gridattr
-        gridattr['onDrop_dbrecords'] = "genro.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,dragSourceInfo:dropInfo.dragSourceInfo});"
+        #gridattr['onDrop_dbrecords'] = "genro.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,dragSourceInfo:dropInfo.dragSourceInfo});"
         if selfDragRowsOpt or allowUnify:
             selfDragRowsOpt['allowUnifyCb']=allowUnify and selfDragRowsOpt.get('allowUnifyCb',allowUnify)
             if selfDragRowsOpt['allowUnifyCb'] in (True,False):
