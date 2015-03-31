@@ -3993,6 +3993,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var dropModes = dropInfo.sourceNode.dropModes;
         var dropmode;
         for (var k in dropModes) {
+            if(k=='grid' && dragSourceInfo._id == dropInfo.sourceNode._id){
+                continue;
+            }
             if (dojo.filter(dropModes[k].split(','),
                            function (value) {
                                return arrayMatch(draggedTypes, value).length > 0;
