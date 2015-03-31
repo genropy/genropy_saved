@@ -157,6 +157,7 @@ class DbModel(object):
                 many_relation, one_relation))
                 return
             link_many_name = many_field
+            private_relation = relation_name is None and one_one != '*'
             default_relation_name = many_table if one_one=='*' else '_'.join(many_relation_tuple)
             relation_name = relation_name or default_relation_name
             #if not  many_name:
@@ -171,10 +172,11 @@ class DbModel(object):
             self.relations.setItem(many_relkey, None, mode='O',
                                    many_relation=many_relation, many_rel_name=many_name, foreignkey=foreignkey,
                                    many_order_by=many_order_by,relation_name=relation_name,
-                                   one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
+                                   one_relation=one_relation, one_rel_name=one_name or  self.column('.'.join(many_relation_tuple)).attributes.get('name_long'), one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
+                                   private_relation=private_relation,
                                    one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename,
                                    resolver_kwargs=resolver_kwargs)
             one_relkey = '%s.%s.@%s' % (one_pkg, one_table, relation_name)
@@ -185,6 +187,7 @@ class DbModel(object):
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
+                                   private_relation=private_relation,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
                                    one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename)
@@ -1067,6 +1070,57 @@ class DbTableObj(DbModelObj):
             if joiner:
                 if joiner.get('one_relation')==relating_field:
                     return joiner
+
+
+    def getTableJoinerPath(self,table,deepLimit=5,eager=False):
+        targetField='%s.%s' %(table,self.db.table(table).pkey)
+        currtable = self.fullname
+        for maxdeep in range(1,deepLimit):
+            result = self._getTableJoinerPath_step(currtable,deep=1,maxdeep=maxdeep,
+                                                    targetTable=table,targetField=targetField,omitPrivate=True)
+            if not result:
+                result = self._getTableJoinerPath_step(currtable,deep=1,maxdeep=maxdeep,
+                                                    targetTable=table,targetField=targetField,omitPrivate=False)
+            if result:
+                return result
+        return []
+
+    def _getTableJoinerPath_step(self,currtable,deep=None,maxdeep=None,targetTable=None,targetField=None,omitPrivate=None):
+        relations = self.db.model.relations(currtable)
+        result = []
+        failed = []
+        for rel in relations:
+            attr = dict(rel.attr)
+            if omitPrivate and attr.get('private_relation'):
+                continue
+            attr['relpath'] = rel.label
+            mode = attr['mode']
+            one_pkg,one_tbl,one_field = attr['one_relation'].split('.')
+            many_pkg,many_tbl,many_field = attr['many_relation'].split('.')
+            if mode=='O':
+                attr['table'] = '%s.%s' %(one_pkg,one_tbl)
+                if attr['one_relation'] == targetField:
+                    attr['relpath'] = many_field
+                    result.append([attr])
+                else:
+                    failed.append(attr)
+            else:
+                attr['table'] = '%s.%s' %(many_pkg,many_tbl)
+                if targetTable == attr['table']:
+                    attr['relpath'] = '%s.%s' %(rel.label,self.db.table(attr['table']).pkey)
+                    result.append([attr])
+                else:
+                    failed.append(attr)
+        if result:
+            return result
+        if deep<maxdeep:
+            for attr in failed:
+                step_result = self._getTableJoinerPath_step(attr['table'],deep=deep+1,maxdeep=maxdeep,
+                                                            targetTable=targetTable,targetField=targetField,omitPrivate=omitPrivate)
+                for s in step_result:
+                    result.append([attr]+s)
+        return result
+
                 
                 
     def manyRelationsList(self,cascadeOnly=False):
