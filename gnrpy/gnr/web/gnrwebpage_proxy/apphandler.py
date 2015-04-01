@@ -826,14 +826,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
-
-        slaveSelections = self.page.pageStore().getItem('slaveSelections.%s' %selectionName)
-        if slaveSelections:
-            for page_id,grids in slaveSelections.items():
-                for nodeId in grids.keys():
-                    self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
+        with self.page.pageStore() as store:
+            slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
+            if slaveSelections:
+                for page_id,grids in slaveSelections.items():
+                    if self.page.site.register.exists(page_id,register_name='page'):
+                        for nodeId in grids.keys():
+                            self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
+                    else:
+                        slaveSelections.popNode(page_id)
         return (result, resultAttributes)
-
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
         external_queries = {}
@@ -889,6 +891,48 @@ class GnrWebAppHandler(GnrBaseProxy):
                             r.update(resdict[r[extfkeyname]])
                     
     
+
+    def _handleLinkedSelection(self,selectionName=None):
+        with self.page.pageStore() as slaveStore:
+            lsKey = 'linkedSelectionPars.%s' %selectionName
+            linkedSelectionPars = slaveStore.getItem(lsKey)
+            if not linkedSelectionPars:
+                return
+            linkedPkeys = linkedSelectionPars['pkeys']
+            command = linkedSelectionPars['command']
+            if command:
+                linkedSelectionPars['command'] = None
+                linkedSelectionPars['pkeys'] = None
+                gridNodeId = linkedSelectionPars['gridNodeId']
+                if linkedSelectionPars['linkedPageId']:
+                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as masterStore:
+                        slavekey = 'slaveSelections.%(linkedSelectionName)s' %linkedSelectionPars
+                        slaveSelections = masterStore.getItem(slavekey) or Bag()
+                        grids = slaveSelections[self.page.page_id] or Bag()
+                        if command=='subscribe':
+                            grids[gridNodeId] = True
+                        else:
+                            grids.popNode(gridNodeId)
+                        if grids:
+                            slaveSelections[self.page.page_id] = grids
+                        else:
+                            slaveSelections.popNode(self.page.page_id)
+                        if slaveSelections:
+                            masterStore.setItem(slavekey, slaveSelections)
+                        else:
+                            masterStore.popNode(slavekey)
+                if command == 'unsubscribe':
+                    for k in linkedSelectionPars.keys():
+                        linkedSelectionPars[k] = None
+                slaveStore.setItem(lsKey,linkedSelectionPars)
+        if linkedSelectionPars['masterTable']:
+            if not linkedPkeys:
+                linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
+                                                            page_id=linkedSelectionPars['linkedPageId'])
+            return dict(where='%(relationpath)s IN :_masterPkeys' %linkedSelectionPars,linkedPkeys=linkedPkeys.split(',') if isinstance(linkedPkeys,basestring) else linkedPkeys)
+
+
+
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
@@ -898,8 +942,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
-        linkedSelectionPars = self.page.pageStore().getItem('linkedSelectionPars.%s' %selectionName)
-        if pkeys:
+        linkedSelectionKw = self._handleLinkedSelection(selectionName=selectionName)
+        if linkedSelectionKw:
+            where = linkedSelectionKw['where']
+            kwargs['_masterPkeys'] = linkedSelectionKw['linkedPkeys']
+        elif pkeys:
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.strip(',').split(',')
             if len(pkeys)==0:
@@ -910,25 +957,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 where = 't0.%s in :pkeys' % tblobj.pkey
                 kwargs['pkeys'] = pkeys
-        elif linkedSelectionPars:
-            linkedPkeys = linkedSelectionPars['pkeys']
-            if linkedSelectionPars['linkedSelectionName']:
-                if linkedPkeys!='*':
-                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as linkedPageStore:
-                        slavekey = 'slaveSelections.%(linkedSelectionName)s' %linkedSelectionPars
-                        slaveSelections = linkedPageStore.getItem(slavekey) or Bag()
-                        slaveSelections.setItem('%s.%s' %(self.page.page_id,linkedSelectionPars['gridNodeId']),True)
-                        linkedPageStore.setItem(slavekey,slaveSelections)
-                    linkedPkeys = linkedSelectionPars['pkeys'].split(',')
-                    with self.page.pageStore() as mystore:
-                        mystore.setItem('linkedSelectionPars.%s.pkeys' %selectionName,'*')
-                else:
-                    linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
-                                                            page_id=linkedSelectionPars['linkedPageId'])
-            else:
-                linkedPkeys = linkedPkeys.split(',')
-            where = '%(relationpath)s IN :_masterPkeys' %linkedSelectionPars
-            kwargs['_masterPkeys'] = linkedPkeys
         elif isinstance(where, Bag):
             kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)

@@ -492,6 +492,10 @@ class TableHandlerView(BaseComponent):
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
+                            var currLinkedSelection = GET .#parent.linkedSelectionPars;
+                            if(currLinkedSelection && currLinkedSelection.getItem('masterTable')){
+                                SET .#parent.linkedSelectionPars.command = 'unsubscribe';
+                            }
                             if($1.modifiers=='Shift'){
                                 FIRE .#parent.showQueryCountDlg;
                             }else{
@@ -577,8 +581,35 @@ class TableHandlerView(BaseComponent):
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **store_kwargs)
-        store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
-                            SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
+        store.addCallback("""FIRE .queryEnd=true; 
+                            return result;
+                            """) 
+        frame.dataController("""
+            var reason,caption;
+            if(pkeys){
+                reason = 'selectedOnly';
+                caption = selectedOnlyCaption;
+            } else if(linkedSelectionPars && linkedSelectionPars.getItem('masterTable')){
+                var masterTableCaption = linkedSelectionPars.getItem('masterTableCaption');
+                if(!linkedSelectionPars.getItem('linkedSelectionName')){
+                    reason = 'linkedSelectionPkeys';
+                    caption = linkedSelectionCaption+masterTableCaption;
+                }else{
+                    reason = 'syncSelection';
+                    caption = syncSelectionCaption+masterTableCaption;
+                }
+            }
+            SET .query.pkeys = null;
+            SET .internalQuery.caption = caption || '';
+            SET .internalQuery.reason = reason;
+            """,pkeys='=.query.pkeys',
+                selectedOnlyCaption='!!Selected only',linkedSelectionCaption='!!Depending from ',
+                syncSelectionCaption='!!In sync with ',
+                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1)       
+        frame.dataController("""
+            genro.dom.setClass(fn,'filteredGrid',internalQueryReason);
+            SET .query.queryAttributes.extended = internalQueryReason!=null;
+            """,fn=frame,internalQueryReason='^.internalQuery.reason')
         if virtualStore:
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
@@ -713,7 +744,7 @@ class TableHandlerView(BaseComponent):
         box = fb.div(row_hidden='^.#parent.queryAttributes.extended?=!#v',colspan=3,width='100%',position='relative')
         box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
                 nodeId='%s_searchMenu_b' %th_root)
-        box.div('^.#parent.queryAttributes.caption', _class='fakeTextBox buttonIcon',
+        box.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',_internalQueryCaption='^.#parent.#parent.internalQuery.caption', _class='fakeTextBox buttonIcon',
                     position='absolute',right='15px',left='65px')
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
@@ -890,8 +921,10 @@ class THViewUtils(BaseComponent):
             var gridNodeId = this.attr.nodeId;
             var masterTable = $1.data.table;
             var slaveTable = this.attr.table;
-            var cb = function(selectedPath){
-                var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,masterTable:masterTable};
+            var cb = function(selectedPath,masterTableCaption){
+                var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,
+                            masterTable:masterTable,masterTableCaption:masterTableCaption,
+                            command:'subscribe'};
                 if(persistent){
                     kw.linkedSelectionName = linkedSelectionName;
                     kw.linkedPageId = linkedPageId;
@@ -905,19 +938,17 @@ class THViewUtils(BaseComponent):
                     table:masterTable,
                     destTable:slaveTable},
                     function(result){
-                        if(result.length>1){
+                        var v = result.getValue();
+                        var masterTableCaption = result.attr.masterTableCaption;
+                        if(v.length>1){
                             alert('selta del path da implementare')
                         }else{
-                            cb(result[0]);
+                            cb(v[0],masterTableCaption);
                         }
                     });
             genro.lockScreen(false,'searchingRelation');
         """ 
         frame.data('.linkedSelectionPars',None,serverpath='linkedSelectionPars.%s' %frame.store.attributes['selectionName'].replace('*',''))
-        frame.store.addCallback("""if(linkedSelectionPars && !linkedSelectionPars.getItem('linkedSelectionName')){
-                                        SET .linkedSelectionPars = new gnr.GnrBag();
-                                    }
-                                    return result;""",linkedSelectionPars='=.linkedSelectionPars',)
         gridattr['selfsubscribe_refreshLinkedSelection'] = "FIRE .#parent.runQueryDo;"
 
     @public_method
@@ -926,7 +957,7 @@ class THViewUtils(BaseComponent):
         result = []
         for j in joiners:
             result.append('.'.join([r['relpath'] for r in j]))
-        return result
+        return result,dict(masterTableCaption=self.db.table(table).name_long)
 
 
 
