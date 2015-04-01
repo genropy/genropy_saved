@@ -3992,8 +3992,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var draggedTypes = genro.dom.dataTransferTypes(event.dataTransfer);
         var dropModes = dropInfo.sourceNode.dropModes;
         var dropmode;
+        var selfdrop = (genro.page_id==dragSourceInfo.page_id) && (dragSourceInfo._id == dropInfo.sourceNode._id);
         for (var k in dropModes) {
-            if(k=='grid' && dragSourceInfo._id == dropInfo.sourceNode._id){
+            if(k=='grid' && selfdrop){
                 continue;
             }
             if (dojo.filter(dropModes[k].split(','),
