@@ -57,6 +57,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
+            virtualStore = True
             if 'adm' in self.db.packages:
                 templateManager = 'templateManager'
             else:
@@ -94,6 +95,7 @@ class TableHandlerView(BaseComponent):
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
+        
         self._th_menu_sources(frame)
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -102,6 +104,10 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        if virtualStore:    
+            self._extTableRecords(frame)
+
+
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -525,14 +531,14 @@ class TableHandlerView(BaseComponent):
             _if = 'sectionbag.len()',
             _delay = 100)
 
-        store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
+        store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
-                               _onError="""return error;""", #genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"}); to check later
+                               _onError="""return error;""", 
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0',
@@ -548,7 +554,6 @@ class TableHandlerView(BaseComponent):
                                _sections='=.sections',
                                hardQueryLimit='=.hardQueryLimit',
                                sum_columns='=.sum_columns',
-                              # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
@@ -862,3 +867,67 @@ class THViewUtils(BaseComponent):
         result.setItem('not.yes', None, caption='&nbsp;')
         result.setItem('not.not', None, caption='!!NOT')
         return result
+
+
+    def _extTableRecords(self,frame):
+        gridattr = frame.grid.attributes
+        gridattr['onDrag_ext_table_records'] = """var kw = objectUpdate({}, dragValues['dbrecords']);
+                                                kw.selectionName = dragInfo.widget.collectionStore().selectionName;
+                                                dragValues['ext_table_records'] = kw;
+                                                """
+        gridattr['dropTarget_grid'] = 'ext_table_records' if not gridattr.get('dropTarget_grid') else 'ext_table_records,%(dropTarget_grid)s' %gridattr
+        gridattr['onDrop_ext_table_records'] = """this.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,
+                                                                dragSourceInfo:dropInfo.dragSourceInfo});
+                                                """
+
+        gridattr['selfsubscribe_queryFromLinkedGrid'] = """
+            genro.lockScreen(true,'searchingRelation');
+            var pkeys = $1.data.pkeys.join(',');
+            var that = this;
+            var persistent = $1.modifiers == 'Shift';
+            var linkedSelectionName = $1.data.selectionName;
+            var linkedPageId = $1.dragSourceInfo.page_id;
+            var gridNodeId = this.attr.nodeId;
+            var masterTable = $1.data.table;
+            var slaveTable = this.attr.table;
+            var cb = function(selectedPath){
+                var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,masterTable:masterTable};
+                if(persistent){
+                    kw.linkedSelectionName = linkedSelectionName;
+                    kw.linkedPageId = linkedPageId;
+                    kw.gridNodeId = gridNodeId;
+                }
+                that.setRelativeData('.#parent.linkedSelectionPars',new gnr.GnrBag(kw));
+                that.fireEvent('.#parent.runQueryDo',true);
+            }
+
+            genro.serverCall('th_searchRelationPath',{
+                    table:masterTable,
+                    destTable:slaveTable},
+                    function(result){
+                        if(result.length>1){
+                            alert('selta del path da implementare')
+                        }else{
+                            cb(result[0]);
+                        }
+                    });
+            genro.lockScreen(false,'searchingRelation');
+        """ 
+        frame.data('.linkedSelectionPars',None,serverpath='linkedSelectionPars.%s' %frame.store.attributes['selectionName'].replace('*',''))
+        frame.store.addCallback("""if(linkedSelectionPars && !linkedSelectionPars.getItem('linkedSelectionName')){
+                                        SET .linkedSelectionPars = new gnr.GnrBag();
+                                    }
+                                    return result;""",linkedSelectionPars='=.linkedSelectionPars',)
+        gridattr['selfsubscribe_refreshLinkedSelection'] = "FIRE .#parent.runQueryDo;"
+
+    @public_method
+    def th_searchRelationPath(self,table=None,destTable=None,**kwargs):
+        joiners = self.db.table(destTable).model.getTableJoinerPath(table)
+        result = []
+        for j in joiners:
+            result.append('.'.join([r['relpath'] for r in j]))
+        return result
+
+
+
+

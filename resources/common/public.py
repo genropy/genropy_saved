@@ -306,7 +306,6 @@ class TableHandlerMain(BaseComponent):
         pane.dataController(""" var filter;
                                 if (activeFilter==true){
                                     filter = query.deepCopy();
-                                    console.log(filter);
                                 }else if(activeFilter==false){
                                     filter = null;
                                 }
@@ -448,8 +447,6 @@ class TableHandlerMain(BaseComponent):
 
         unifyTag = self.tblobj.attributes.get('unifyRecordsTag')
         allowUnify = self.application.checkResourcePermission(unifyTag,self.userTags) if unifyTag else False
-        gridattr['dropTarget_grid'] = 'dbrecords' if not gridattr.get('dropTarget_grid') else 'dbrecords,%(dropTarget_grid)s' %gridattr
-        #gridattr['onDrop_dbrecords'] = "genro.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,dragSourceInfo:dropInfo.dragSourceInfo});"
         if selfDragRowsOpt or allowUnify:
             selfDragRowsOpt['allowUnifyCb']=allowUnify and selfDragRowsOpt.get('allowUnifyCb',allowUnify)
             if selfDragRowsOpt['allowUnifyCb'] in (True,False):
@@ -466,7 +463,6 @@ class TableHandlerMain(BaseComponent):
                 var targetRowData = dropInfo.targetRowData;
                 var dragRowData = dragInfo.rowdata;
                 if(!targetRowData){
-                    console.log('no targetRowData')
                     return true
                 }
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
@@ -488,6 +484,7 @@ class TableHandlerMain(BaseComponent):
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
         return th
+
 
     @public_method
     def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):

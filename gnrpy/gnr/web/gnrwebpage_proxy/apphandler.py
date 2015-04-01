@@ -826,6 +826,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
+
+        slaveSelections = self.page.pageStore().getItem('slaveSelections.%s' %selectionName)
+        if slaveSelections:
+            for page_id,grids in slaveSelections.items():
+                for nodeId in grids.keys():
+                    self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
         return (result, resultAttributes)
 
 
@@ -892,6 +898,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
+        linkedSelectionPars = self.page.pageStore().getItem('linkedSelectionPars.%s' %selectionName)
         if pkeys:
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.strip(',').split(',')
@@ -903,6 +910,25 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 where = 't0.%s in :pkeys' % tblobj.pkey
                 kwargs['pkeys'] = pkeys
+        elif linkedSelectionPars:
+            linkedPkeys = linkedSelectionPars['pkeys']
+            if linkedSelectionPars['linkedSelectionName']:
+                if linkedPkeys!='*':
+                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as linkedPageStore:
+                        slavekey = 'slaveSelections.%(linkedSelectionName)s' %linkedSelectionPars
+                        slaveSelections = linkedPageStore.getItem(slavekey) or Bag()
+                        slaveSelections.setItem('%s.%s' %(self.page.page_id,linkedSelectionPars['gridNodeId']),True)
+                        linkedPageStore.setItem(slavekey,slaveSelections)
+                    linkedPkeys = linkedSelectionPars['pkeys'].split(',')
+                    with self.page.pageStore() as mystore:
+                        mystore.setItem('linkedSelectionPars.%s.pkeys' %selectionName,'*')
+                else:
+                    linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
+                                                            page_id=linkedSelectionPars['linkedPageId'])
+            else:
+                linkedPkeys = linkedPkeys.split(',')
+            where = '%(relationpath)s IN :_masterPkeys' %linkedSelectionPars
+            kwargs['_masterPkeys'] = linkedPkeys
         elif isinstance(where, Bag):
             kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
