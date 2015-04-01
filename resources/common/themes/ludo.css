@@ -98,9 +98,6 @@
     height: 22px;
     vertical-align: middle;
     color: white;
-    background:;
-    
-    
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#5B6F8D), to(#224272));
     background-image: -moz-linear-gradient(-90deg, #5B6F8D, #224272);
 }
@@ -118,12 +115,19 @@
     background-color: #ffffff;
 }
 
+.linkerCenter{
+    background: white;
+    margin: 2px;
+    border:1px solid #ddd ;
+    border-radius: 6px;
+}
+
 /* @group Logo */
 
 /*.pbl_logo_icon{
-	background: url(icons/genropy.gif) no-repeat  center center;
-	width: 30px;
-	height: 24px;
+    background: url(icons/genropy.gif) no-repeat  center center;
+    width: 30px;
+    height: 24px;
 }*/
 
 .pbl_logo_caption {
@@ -232,7 +236,7 @@
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#C8D1DC), to(#B4BECB));
     background-image: -moz-linear-gradient(-90deg, #C8D1DC, #B4BECB);
     color: #555;
-	text-indent: 2px;
+    text-indent: 2px;
 }
 .pbl_roundedGroupVertical { 
     background-image: -webkit-gradient(linear, 0% 0%, 0% 0, from(#C8D1DC), to(#B4BECB));
@@ -599,12 +603,11 @@
 
 /* @group tablehandler */
 .st_editor_bar {
-    background-color:#49637c; !important;
+    background-color:#49637c !important;
 }
 
 .st_editor_body {
-    background-color: rgba(124,151,179,0.8);
-!important;
+    background-color: rgba(124,151,179,0.8) !important;
 }
 
 .listbottompane {
@@ -731,15 +734,13 @@
 
 ._common_d11 .dojoxGrid-row .dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-odd .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .dojoxGrid-cell{
+._common_d11 .dojoxGrid-row.dojoxGrid-row-selected .dojoxGrid-cell{
     border-left: 0px !important;
     border-top: 0 !important;
     border-right: 1px solid #dee;
     border-bottom: 0px !important;
     /*height: 21px;*/
     height:0px;
-    padding-top:2px;
-    padding-bottom:2px;
     background:none;
     vertical-align:top;
 }
@@ -759,37 +760,35 @@
     vertical-align:top;
 }
 
-._common_d11 .widgetInCell {
-    color: #444;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-right: 5px;
-    width: 100%;
-    border:0px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    box-shadow: 1px 1px 1px #777 inset;
-}
-._common_d11 .cell_B .widgetInCell {
-    width: 16px;
-    margin: auto;
+
+.tundra._common_d11 .dojoxGrid-content>div{
+    border-bottom: 1px solid #DDEEEE;
 }
 
+.tundra._common_d11 .editingGrid .dojoxGrid-row-odd.dojoxGrid-row-selected{
+    background-color: #F3F6FA;
+}
+
+.tundra._common_d11 .editingGrid .dojoxGrid-row-selected{
+    background-color:#fff; 
+}
+
+
 .tundra._common_d11 .dojoxGrid-row{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FFFFFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FFFFFF, #f6f6f6);
+    background-color:#fff; 
 }
 
 .tundra._common_d11 .dojoxGrid-row-odd{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#FAFCFF), to(#f6f6f6));
-    background-image: -moz-linear-gradient(-90deg, #FAFCFF, #f6f6f6);
+    background-color: #F3F6FA;
 }
-.tundra._common_d11 .dojoxGrid-row-selected{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#c2d3e7));
-    background-image: -moz-linear-gradient(-90deg, white, #c2d3e7);
-    border-bottom: 0px solid !important;
-    border-right: 1px solid #dee;
+
+.tundra._common_d11 .dojoxGrid-row.dojoxGrid-row-selected{
+    background-color: #AFCBEC;
 }
+.tundra._common_d11 .dojoxGrid-row-selected.dojoxGrid-row-odd{
+    background-color: #AFCBEC;
+}
+
 
 
 ._common_d11 .canBeDropped.dojoxGrid-row,
@@ -893,7 +892,7 @@
 .buttons_grid .dojoxGrid-row-selected .cellContent{
     background:#888;
     color: #fff;
-	-moz-box-shadow: inset 1px 1px 2px #222;
+    -moz-box-shadow: inset 1px 1px 2px #222;
     -webkit-box-shadow:inset 1px 1px 2px #222;
 }
 
