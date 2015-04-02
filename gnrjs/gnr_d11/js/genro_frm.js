@@ -1862,7 +1862,9 @@ dojo.declare("gnr.GnrValidator", null, {
                 result = validate_notnull?{'errorcode':'missing'}:null;
                 if(!validate_notnull){
                     genro.callAfter(function(){
-                        sourceNode.widget.setDisplayedValue('');
+                        if(isNullOrBlank(sourceNode.widget.getValue())){
+                            sourceNode.widget.setDisplayedValue('');
+                        }
                     },1);
                     if(sourceNode._wrongSearch){
                         result = {'iswarning':'Not existing','errorcode':'missing'}
