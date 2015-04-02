@@ -249,7 +249,8 @@ class SqlQueryCompiler(object):
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return sql_formula
             elif fldalias.py_method:
-                self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                #self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                self.cpl.pyColumns.append((fld,getattr(fldalias.table.dbtable,fldalias.py_method,None)))
                 return 'NULL'
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
@@ -1010,7 +1011,9 @@ class SqlQuery(object):
         for field,handler in self.compiled.pyColumns:
             if handler:
                 for d in data:
-                    d[field] = handler(d,field=field)
+                    #d[field] = handler(d,field=field)
+                    result = handler(d,field=field)
+                    d[field] = result
 
     def fetchPkeys(self):
         fetch = self.fetch()
