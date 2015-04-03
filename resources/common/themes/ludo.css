@@ -84,14 +84,8 @@
 }
 
 .pbl_slotbar_label {
-    border-radius: 4px;
-    border-radius: 4px;
-    background-color:#ACACAC;
-    font-weight: bold;
-    padding-left: 4px;
-    padding-right: 4px;
-    margin-top:2px !important;
-    color:#3E454C !important;
+    background-color: transparent;
+    color:white !important;
 }
 
 .pbl_root_top {
@@ -107,7 +101,7 @@
 
 .pbl_title_caption {
     font-size: 11pt;
-    margin-top: 1px;
+    margin-top: 2px;
     text-align: center;
 }
 

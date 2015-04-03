@@ -159,10 +159,6 @@ class FrameIndex(BaseComponent):
         if self.custom_plugin_list:
             for btn in self.custom_plugin_list.split(','):
                 getattr(self,'btn_%s' %btn)(leftbar)
-                
-        rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
-        for btn in ['newWindow']:
-            getattr(self,'btn_%s' %btn)(rightbar)
         
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
@@ -343,8 +339,9 @@ class FrameIndex(BaseComponent):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame;')
     
-    def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='windowaddIcon windowcommandButton',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+    @struct_method
+    def fi_slotbar_newWindow(self,pane,**kwargs):
+        pane.div(_class='windowaddIcon iconbox',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
 
 
     def windowTitle(self):

@@ -119,6 +119,7 @@ dojo.declare('gnr.GenroClient', null, {
                              '!%' : function(a, b) {return (a.indexOf(b) < 0);}
                              };
         window.onbeforeunload = function(e) {
+            genro._windowClosing = true;
             var exit;
             if (genro.checkBeforeUnload) {
                 exit = genro.checkBeforeUnload();
@@ -579,6 +580,16 @@ dojo.declare('gnr.GenroClient', null, {
         return this.parentIframeSourceNode;
     },
 
+    getParentGenro:function(){
+        if(this.parentIframeSourceNode){
+            return window.parent.genro;
+        }
+        if(this.page_id != this.root_page_id){
+            //external window
+            return this.mainGenroWindow.genro;
+        }
+    },
+
     setDefaultShortcut:function(){
         genro.dev.shortcut('f1', function(e) {
             if(genro.activeForm){
@@ -600,7 +611,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     _connectToParentIframe:function(parentIframe){
-        var parentGenroData = window.parent.genro._data;
+        var parentGenroData = genro.getParentGenro()._data;
         genro._data.setCallBackItem('_frames._parent',
             function(){
                 return parentGenroData;
@@ -668,6 +679,15 @@ dojo.declare('gnr.GenroClient', null, {
                 //console.log('external iframe detected: error ',e);
             }
         });
+        if(this.externalWindowsObjects){
+            objectValues(this.externalWindowsObjects).forEach(function(f){
+            try{
+                cb(f,result);
+            }catch(e){
+                //console.log('external iframe detected: error ',e);
+            }
+        });
+        }
         return objectUpdate({},result);
     },
     
@@ -712,6 +732,10 @@ dojo.declare('gnr.GenroClient', null, {
 
 
     checkBeforeUnload:function(){
+        var parentGenro = this.getParentGenro();
+        if (parentGenro && parentGenro._windowClosing){
+            return
+        }
         if(genro.activeForm){
             if(genro.activeForm.changed){
                 return _T('You have an active form with pending changes')
@@ -1385,12 +1409,12 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }     
         }
-        
-        if(parent && (window.parent!=window) && window.parent.genro ){
+        var parentGenro = this.getParentGenro();
+        if(parent && parentGenro){
             var t=objectUpdate({},topic);
             objectPop(t,'iframe');
             objectPop(t,'parent');
-            window.parent.genro.publish(t,kw);
+            parentGenro.publish(t,kw);
         }
     },
 

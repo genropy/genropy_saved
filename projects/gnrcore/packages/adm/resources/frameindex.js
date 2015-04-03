@@ -37,14 +37,13 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var lookup_url = 'sys/lookuptables';
         this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
         this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
-        this.externalWindowsObjects = {};
+        genro.externalWindowsObjects = {};
         var that = this;
         genro.checkBeforeUnload = function(){
             return genro.getData('gnr.windowTitle');
         }
         genro.onWindowUnload_replaced = genro.onWindowUnload;
         genro.onWindowUnload = function(){
-            that.mainWindowClosing = true;
             that.closeAllExternalWindows();
             genro.onWindowUnload_replaced();
         }
@@ -192,9 +191,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                                 left:window.screenLeft+dn.offsetLeft+20,top:window.screenTop+dn.offsetTop+(window.outerHeight-window.innerHeight)+20};
         objectUpdate(externalWindowKw,objectExtract(kw,'externalWindow_*'));
         var w = genro.openWindow(kw.url,kw.label,{location:externalWindowKw.location || 'no',menubar:externalWindowKw.menubar || 'no'});
-        console.log('moveTo',externalWindowKw.left,externalWindowKw.top);
         w.moveTo(externalWindowKw.left,externalWindowKw.top);
-        console.log('resizeTo',externalWindowKw.width,externalWindowKw.height);
         w.resizeTo(externalWindowKw.width,externalWindowKw.height);
         var that = this;
         var url = kw.url;
@@ -207,12 +204,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
 
 
     selectWindow:function(menuitem,ctxSourceNode,event){
-        this.externalWindowsObjects[menuitem.windowKey].focus()
+        genro.externalWindowsObjects[menuitem.windowKey].focus()
     },
 
 
     subscribeExternalWindow:function(w,windowKey){
-        this.externalWindowsObjects[windowKey] = w;
+        genro.externalWindowsObjects[windowKey] = w;
         var parentGenro = genro;
         var parentWindow = window;
         w.addEventListener('load',function(){
@@ -227,19 +224,20 @@ dojo.declare("gnr.FramedIndexManager", null, {
     },
 
     closeAllExternalWindows:function(){
-        for(var k in this.externalWindowsObjects){
-            this.externalWindowsObjects[k].close();
+        for(var k in genro.externalWindowsObjects){
+            var closingWindow = genro.externalWindowsObjects[k];
+            closingWindow.close();
         }
-        if(!this.mainWindowClosing){
+        if(!genro._windowClosing){
             this.stackSourceNode.fireEvent('refreshTablist',true);
         }
     },
 
     onExternalWindowClosed:function(windowKey){
-        if(this.mainWindowClosing){
+        if(genro._windowClosing){
             return;
         }
-        delete this.externalWindowsObjects[windowKey];
+        delete genro.externalWindowsObjects[windowKey];
         this.externalWindowsBag().popNode(windowKey);
         this.stackSourceNode.fireEvent('refreshTablist',true);
     },
@@ -284,11 +282,29 @@ dojo.declare("gnr.FramedIndexManager", null, {
         kw.rootPageName = kw.pageName || kw.url.replace(/\W/g,'_');
     },
     
+    closeRootFramPage:function(frameName,title,evt){
+        var that = this;
+        var finalizeCb = function(){
+            that.deleteFramePage(frameName);
+        }
+        if(evt.shiftKey){
+            finalizeCb();
+        }
+        var iframes = dojo.query('iframe',this.stackSourceNode.getValue().getNode(frameName).getWidget().domNode);
+        if(iframes.some(function(n){return n.contentWindow.genro.checkBeforeUnload();})){
+            genro.dlg.ask(_T('Closing ')+title,_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                            {confirm:function(){ finalizeCb();}})
+        }else{
+            finalizeCb();
+        }
+    },
+
     createTablist:function(sourceNode,data,onCreatingTablist){
         var root = genro.src.newRoot();
         var selectedFrame = this.selectedFrame();
         var button,kw,pageName;
         var deleteSelectedOnly = false;
+        var that = this;
         var cb = function(n){
             pageName = n.attr.pageName;
             kw = {'_class':'iframetab',pageName:pageName};
@@ -307,7 +323,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
             button._('div',{_class:'framecloser framecloserIcon',
                                     connect_onclick:function(e){
                                        dojo.stopEvent(e);
-                                       alert('Chiudo '+n.attr.fullname);}
+                                       that.closeRootFramPage(n.label,n.attr.fullname,e);
+                                    }
                             })
 
 

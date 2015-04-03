@@ -2567,7 +2567,6 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                         stackbag.popNode(childSourceNode.label);
                     },1);
                 };
-
                 btn._('div',{_class:'multibutton_closer framecloserIcon',connect_onclick:function(evt){
                     dojo.stopEvent(evt);
                     if(onClosingCb){
@@ -2580,6 +2579,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                                             {confirm:function(){
                                                 closeFinalize();
                                             }, cancel:function(){}});
+                        }else{
+                            closeFinalize();
                         }
                     }else{
                         closeFinalize();
