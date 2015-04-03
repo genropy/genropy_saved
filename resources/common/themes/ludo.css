@@ -791,27 +791,6 @@
     background-color:rgba(255, 255, 255, 0.5)
 }
 
-._common_d11 .canBeDropped.dojoxGrid-row,
-._common_d11 .canBeDropped.dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-row,
-._common_d11 .canBeDropped .dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-cell,
-._common_d11 .canBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.canBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .canBeDropped.dojoxGrid-cell{
-    /*background-color: rgba(81, 189, 105, 0.1);*/
-}
-
-._common_d11 .cannotBeDropped.dojoxGrid-row,
-._common_d11 .cannotBeDropped.dojoxGrid-row-selected,
-._common_d11 .cannotBeDropped .dojoxGrid-cell,
-._common_d11 .cannotBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.cannotBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .cannotBeDropped.dojoxGrid-cell{
-    /*background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#ffa997));
-    background-image: -moz-linear-gradient(-90deg, white, #ffa997);*/
-}
-
 .common_d11 .draggedItem .dojoxGrid-cell,.common_d11 .draggedItem.dojoxGrid-cell{
     border: 0px solid yellow !important;
     opacity:.8;

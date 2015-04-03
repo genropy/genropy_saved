@@ -774,6 +774,14 @@
     background-color: #F3F6FA;
 }
 
+.tundra._common_d11 .dojoxGrid-row{
+    background-color:#fff; 
+}
+
+.tundra._common_d11 .dojoxGrid-row-odd{
+    background-color: #F3F6FA;
+}
+
 .tundra._common_d11 .dojoxGrid-row.dojoxGrid-row-selected{
     background-color: #AFCBEC;
 }
@@ -781,27 +789,12 @@
     background-color: #AFCBEC;
 }
 
-
-
-._common_d11 .canBeDropped.dojoxGrid-row,
-._common_d11 .canBeDropped.dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-row,
-._common_d11 .canBeDropped .dojoxGrid-row-selected,
-._common_d11 .canBeDropped .dojoxGrid-cell,
-._common_d11 .canBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.canBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .canBeDropped.dojoxGrid-cell{
-    background-color:rgba(81, 189, 105, 0.46);
+._common_d11 .canBeDropped .dojoxGrid-row.dojoxGrid-row-odd{
+    background-color:rgba(243, 246, 250, 0.5)
 }
 
-._common_d11 .cannotBeDropped.dojoxGrid-row,
-._common_d11 .cannotBeDropped.dojoxGrid-row-selected,
-._common_d11 .cannotBeDropped .dojoxGrid-cell,
-._common_d11 .cannotBeDropped.dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected.cannotBeDropped .dojoxGrid-cell,
-._common_d11 .dojoxGrid-row-selected .cannotBeDropped.dojoxGrid-cell{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#ffa997));
-    background-image: -moz-linear-gradient(-90deg, white, #ffa997);
+._common_d11 .canBeDropped .dojoxGrid-row{
+    background-color:rgba(255, 255, 255, 0.5)
 }
 
 .common_d11 .draggedItem .dojoxGrid-cell,.common_d11 .draggedItem.dojoxGrid-cell{
