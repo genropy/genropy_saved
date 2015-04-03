@@ -239,7 +239,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dev.addError(msg,'js',true);
     },
 
+
     onWindowUnload:function(e) {
+        if(genro.external_window_key){
+            genro.mainGenroWindow.genro.publish('closeExternalWindow',{windowKey:genro.external_window_key});
+        }
         this.rpc.remoteCall('onClosePage', {sync:true});
         genro.publish('onClosePage');
         if (genro._data) {
@@ -376,24 +380,28 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         //genro.timeIt('** getting main **');
-        this.mainGenroWindow = window;
+
         this.root_page_id = null;
         if(this.startArgs['_parent_page_id']){
             this.parent_page_id = this.startArgs['_parent_page_id'];
         }
-        var parentGenro;
-        try{
-            parentGenro = window.frameElement && window.parent.genro;
-            this.mainGenroWindow = parentGenro.mainGenroWindow;
-            this.root_page_id = this.mainGenroWindow.genro.page_id;
-            this.parent_page_id = this.parent_page_id || parentGenro.page_id;
-            this.startArgs['_root_page_id'] = this.root_page_id;
-            this.startArgs['_parent_page_id'] = this.parent_page_id;
-            this.parentIframeSourceNode = window.frameElement.sourceNode;
-        }catch(e){
-            parentGenro = false;
+        if(this.externalParentWindow){
+            this.mainGenroWindow = this.externalParentWindow;
+        }else{
+            this.mainGenroWindow = window;
+            var parentGenro;
+            try{
+                parentGenro = window.frameElement && window.parent.genro;
+                this.mainGenroWindow = parentGenro.mainGenroWindow;
+                this.root_page_id = this.mainGenroWindow.genro.page_id;
+                this.parent_page_id = this.parent_page_id || parentGenro.page_id;
+                this.startArgs['_root_page_id'] = this.root_page_id;
+                this.startArgs['_parent_page_id'] = this.parent_page_id;
+                this.parentIframeSourceNode = window.frameElement.sourceNode;
+            }catch(e){
+                parentGenro = false;
+            }
         }
-        
         var mainBagPage = genro.src.getMainSource();
         if (mainBagPage  &&  mainBagPage.attr && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
@@ -700,6 +708,16 @@ dojo.declare('gnr.GenroClient', null, {
                 destform.onFocusForm();
             }
         }
+    },
+
+
+    checkBeforeUnload:function(){
+        if(genro.activeForm){
+            if(genro.activeForm.changed){
+                return _T('You have an active form with pending changes')
+            }
+        }
+
     },
 
     standardEventConnection:function(pane){
@@ -1354,6 +1372,9 @@ dojo.declare('gnr.GenroClient', null, {
 
                     }
                 });
+            }else if(typeof(iframe)!='string' && !iframe.frameElement){
+                //window element
+                genro.dom.windowMessage(iframe,kw);
             }else{
                 var iframeNode=genro.domById(iframe);
                 if(iframeNode){

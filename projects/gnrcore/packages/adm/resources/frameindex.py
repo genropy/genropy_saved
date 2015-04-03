@@ -161,7 +161,7 @@ class FrameIndex(BaseComponent):
                 getattr(self,'btn_%s' %btn)(leftbar)
                 
         rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
-        for btn in ['refresh','delete','newWindow']:
+        for btn in ['newWindow']:
             getattr(self,'btn_%s' %btn)(rightbar)
         
         self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
@@ -170,6 +170,10 @@ class FrameIndex(BaseComponent):
 
         menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
                                 action="genro.framedIndexManager.menuAction($1,$2,$3);")
+        menu = pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
+                                action="genro.framedIndexManager.selectWindow($1,$2,$3);",
+                                storepath='externalWindows')
+
         menu.menuline('!!Add to favorites',code='fav')
         menu.menuline('!!Set as start page',code='start')
         menu.menuline('!!Detach',code='detach') 
@@ -189,7 +193,7 @@ class FrameIndex(BaseComponent):
 
                                             """,margin_left='20px',
                                             nodeId='frameindex_tab_button_root',white_space='nowrap')
-        pane.dataController("""if(!data){
+        pane.dataController("""if(!data && !externalWindows){
                                     if(indexTab){
                                         genro.callAfter(function(){
                                             var data = new gnr.GnrBag();
@@ -201,7 +205,7 @@ class FrameIndex(BaseComponent):
                                     genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
                                 """,
-                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
+                            data="=iframes",externalWindows='=externalWindows',_refreshTablist='^refreshTablist',tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("genro.framedIndexManager.loadFavorites();",_onStart=100)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
@@ -340,7 +344,8 @@ class FrameIndex(BaseComponent):
                                                       connect_onclick='PUBLISH closeFrame;')
     
     def btn_newWindow(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='plus',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+        pane.div(_class='windowaddIcon windowcommandButton',tip='!!New Window',connect_onclick='genro.openBrowserTab(genro.addParamsToUrl(window.location.href,{new_window:true}));')
+
 
     def windowTitle(self):
         return self.getPreference('instance_data.owner_name',pkg='adm') or self.package.attributes.get('name_long')

@@ -72,7 +72,8 @@ class MenuIframes(BaseComponent):
                                     var selectingPageKw = objectUpdate({name:$1.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
                                                                         formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),
                                                                         modifiers:$2.__eventmodifier},$1.attr);
-                                    if (selectingPageKw.modifiers == 'Shift'){
+
+                                    if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
                                         genro.publish("newBrowserWindowPage",selectingPageKw);
                                     }else{
                                         if(labelClass.indexOf('menu_existing_page')<0){

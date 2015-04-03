@@ -2416,7 +2416,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var btn = mb._('lightbutton',code,kw)
         btn._('div',content_kw);
         if(deleteAction){
-            btn._('div',{_class:'multibutton_closer icnTabClose '+(this.deleteSelectedOnly?'deleteSelectedOnly':''),
+            btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?'deleteSelectedOnly':''),
                 connect_onclick:function(e){
                 dojo.stopEvent(e);
                 deleteAction.call(this.sourceNode,code,caption);
@@ -2556,8 +2556,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             btn._('div',multibutton_kw);
             if(childSourceNode.attr.closable){
                 var stack = stackNode.widget;
-                btn._('div',{_class:'multibutton_closer icnTabClose',connect_onclick:function(evt){
-                    dojo.stopEvent(evt);
+                var onClosingCb = childSourceNode.attr.onClosingCb;
+                var closeFinalize = function(){
                     genro.callAfter(function(){
                         if(stackbag.len()>1){
                             var idx = stack.getSelectedIndex()-1;
@@ -2566,7 +2566,24 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                         }
                         stackbag.popNode(childSourceNode.label);
                     },1);
-                    
+                };
+
+                btn._('div',{_class:'multibutton_closer framecloserIcon',connect_onclick:function(evt){
+                    dojo.stopEvent(evt);
+                    if(onClosingCb){
+                        var r = funcApply(onClosingCb,{evt:evt},childSourceNode);
+                        if(r===false){
+                            return
+                        }else if(typeof(r)=='string'){
+                            genro.dlg.ask(_T('Closing page ')+childSourceNode.getRelativeData(title),r,
+                                            {confirm:_T('Close anyway'),cancel:_T('Cancel')},
+                                            {confirm:function(){
+                                                closeFinalize();
+                                            }, cancel:function(){}});
+                        }
+                    }else{
+                        closeFinalize();
+                    }
                 }});
             }
         }

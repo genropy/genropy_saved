@@ -37,6 +37,10 @@
 	text-decoration: underline;
 }
 
+.windowmenu.iframetab:hover{
+    text-decoration: none;
+}
+
 .iframetab:last-child{
 	border-right: 0px;
 	-moz-border-radius-topright: 6px;
@@ -50,6 +54,16 @@
     -moz-border-radius-bottomleft: 6px;
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
+}
+
+.framecloser{
+    position: absolute;
+    top: 6px;
+    right: 3px;
+    border-radius: 3px;
+}
+.framecloser:hover{
+    background-color: rgba(245, 245, 245, 1);
 }
 
 
@@ -75,11 +89,20 @@
     color:whitesmoke;
 }
 
+.windowmenu.iframetab{
+    text-decoration: none;
+    padding-left:9px;
+    padding-right:9px;
+
+}
+.windowmenuIcon{
+    height: 100%;
+}
 .iframetab{
     position:relative;
     display:inline-block;
-    padding-left:12px;
-    padding-right:12px;
+    padding-left:9px;
+    padding-right:17px;
     cursor:pointer;
     color:#333;
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
@@ -120,6 +143,8 @@
 .iframeroot_bar .multibutton{
 }
 
+
+
 .iframeroot_bar .multibutton_container{
     padding-top:0;
     padding-bottom:0;
@@ -131,8 +156,14 @@
 }
 .iframeroot_bar .multibutton_closer{
     position: absolute;
-    top:1px;
+    top:2px;
     right:2px;
+}
+
+.windowcommandButton{
+    width: 25px;
+    display: inline-block;
+    cursor: pointer;
 }
 
 .iframeroot_bar .multibutton:last-child{

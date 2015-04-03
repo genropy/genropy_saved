@@ -3903,8 +3903,13 @@ p {
 
 .multibutton_closer{
     position: absolute;
-    top:3px;
+    top:4px;
     right:2px;
+    border-radius: 3px;
+
+}
+.multibutton_closer:hover{
+    background-color: rgba(245, 245, 245, 1);
 }
 
 ._is_readonly_row .multibutton_closer, .multibutton_selected._is_readonly_row .multibutton_closer.deleteSelectedOnly{
@@ -3913,7 +3918,7 @@ p {
 
 .multibutton_closer.deleteSelectedOnly{
     position: absolute;
-    top:3px;
+    top:4px;
     right:2px;
     visibility: hidden;
 }
@@ -3935,6 +3940,11 @@ p {
 }
 /* @end */
 
+.framecloserIcon{
+    height: 10px;
+    width: 10px;
+    background: url(icons/base10/frametabclose.png) no-repeat center center;
+}
 
 
 /* @end */
@@ -4131,6 +4141,18 @@ div[disabled='true'], div[disabled='disabled']{
 }
 .slqnested{
 	margin-left: 25px;
+}
+
+.windowmenuIcon{
+    background: url(icons/base16/windowmenu.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+}
+
+.windowaddIcon{
+    background: url(icons/base16/windowadd.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
 }
 
 /* @end */
