@@ -420,6 +420,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         else if(action=='clearfav'){
             this.removeFromFavorite(true);
+        }else if(action=='reload'){
+            this.reloadSelectedIframe(pageattr.pageName);
         }
         else{
             if(fullpath){

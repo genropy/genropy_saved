@@ -902,7 +902,8 @@ class THViewUtils(BaseComponent):
 
     def _extTableRecords(self,frame):
         gridattr = frame.grid.attributes
-        gridattr['onDrag_ext_table_records'] = """var kw = objectUpdate({}, dragValues['dbrecords']);
+        gridattr['onDrag_ext_table_records'] = """if(!('dbrecords' in dragValues)){return;}
+                                                var kw = objectUpdate({}, dragValues['dbrecords']);
                                                 kw.selectionName = dragInfo.widget.collectionStore().selectionName;
                                                 dragValues['ext_table_records'] = kw;
                                                 """
@@ -949,7 +950,8 @@ class THViewUtils(BaseComponent):
             genro.lockScreen(false,'searchingRelation');
         """ 
         frame.data('.linkedSelectionPars',None,serverpath='linkedSelectionPars.%s' %frame.store.attributes['selectionName'].replace('*',''))
-        gridattr['selfsubscribe_refreshLinkedSelection'] = "FIRE .#parent.runQueryDo;"
+        gridattr['selfsubscribe_refreshLinkedSelection'] = """SET .#parent.linkedSelectionPars.pkeys = null;
+                                                               FIRE .#parent.runQueryDo;"""
 
     @public_method
     def th_searchRelationPath(self,table=None,destTable=None,**kwargs):

@@ -902,7 +902,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             command = linkedSelectionPars['command']
             if command:
                 linkedSelectionPars['command'] = None
-                linkedSelectionPars['pkeys'] = None
                 gridNodeId = linkedSelectionPars['gridNodeId']
                 if linkedSelectionPars['linkedPageId']:
                     with self.page.pageStore(linkedSelectionPars['linkedPageId']) as masterStore:

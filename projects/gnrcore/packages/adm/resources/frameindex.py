@@ -166,15 +166,17 @@ class FrameIndex(BaseComponent):
 
         menu = pane.div().menu(modifiers='Shift',_class='smallMenu',id='_menu_tab_opt_',
                                 action="genro.framedIndexManager.menuAction($1,$2,$3);")
-        menu = pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
+        pane.div().menu(modifiers='*',_class='_menu_open_windows_',id='_menu_open_windows_',
                                 action="genro.framedIndexManager.selectWindow($1,$2,$3);",
                                 storepath='externalWindows')
 
         menu.menuline('!!Add to favorites',code='fav')
         menu.menuline('!!Set as start page',code='start')
-        menu.menuline('!!Detach',code='detach') 
         menu.menuline('!!Remove from favorites',code='remove')
         menu.menuline('!!Clear favorites',code='clearfav')
+        menu.menuline('-')
+        menu.menuline('!!Reload',code='reload')
+
         box = pane.div(zoomToFit='x',overflow='hidden')
         tabroot = box.div(connect_onclick="""
                                             if(genro.dom.getEventModifiers($1)=='Shift'){

@@ -791,8 +791,7 @@
 ._common_d11 .canBeDropped.dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-selected.canBeDropped .dojoxGrid-cell,
 ._common_d11 .dojoxGrid-row-selected .canBeDropped.dojoxGrid-cell{
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#8fff9d));
-    background-image: -moz-linear-gradient(-90deg, white, #8fff9d);
+    background-color:rgba(81, 189, 105, 0.46);
 }
 
 ._common_d11 .cannotBeDropped.dojoxGrid-row,

@@ -2523,7 +2523,6 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group DojoxGrid*/
 .tundra .filteredGrid .dojoxGrid-cell{
-    text-decoration:underline;
 }
 
 .tundra ._gnrReadOnlyRow ._statusIcon{
@@ -3369,11 +3368,11 @@ body *{
 /* @group drag drop */
 
 .canBeDropped {
-    background-color: #8fff9d !important;
+    background-color: rgba(0, 255, 0, 0.15) !important;
 }
 
 .cannotBeDropped {
-    background-color: #ffa997 !important;
+    background-color: rgba(255, 60, 0, 0.15) !important;
 }
 
 img.canBeDropped {
@@ -4581,10 +4580,6 @@ div[disabled='true'], div[disabled='disabled']{
 
 ._common_d11 .dojoxGrid-row {
     background-color: transparent;
-}
-
-._common_d11 .canBeDropped .dojoxGrid-cell {
-    background-color: #8fff9d !important;
 }
 
 /*._common_d11 .cannotBeDropped .dojoxGrid-cell {
