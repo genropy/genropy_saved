@@ -262,6 +262,14 @@ cursorZoom_plus{
 .gnrdebugger {
     z-index: 1000 !important;
 }
+.pbl_title_caption {
+    font-size: 11pt;
+    padding-top: 1px;
+    text-align: center;
+}
+.pbl_avatar{
+    padding-top: 3px;
+}
 .gnroutofdate .pbl_avatar,.gnroutofdate .pbl_slotbar_label{
     color:red !important;
 }
