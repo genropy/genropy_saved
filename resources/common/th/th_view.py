@@ -939,10 +939,15 @@ class THViewUtils(BaseComponent):
                     table:masterTable,
                     destTable:slaveTable},
                     function(result){
-                        var v = result.getValue();
-                        var masterTableCaption = result.attr.masterTableCaption;
+                        var v = result.relpathlist;
+                        var masterTableCaption = result.masterTableCaption;
                         if(v.length>1){
-                            alert('selta del path da implementare')
+                            genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+masterTableCaption,
+                                                            widget:'checkBoxText',
+                                                            wdg_values:result.cbvalues,
+                                                            wdg_cols:1,
+                                                            action:function(r){if(!r){return}cb(r,masterTableCaption)}
+                                                            });
                         }else{
                             cb(v[0],masterTableCaption);
                         }
@@ -957,10 +962,19 @@ class THViewUtils(BaseComponent):
     def th_searchRelationPath(self,table=None,destTable=None,**kwargs):
         joiners = self.db.table(destTable).model.getTableJoinerPath(table)
         result = []
+        values = []
         for j in joiners:
-            result.append('.'.join([r['relpath'] for r in j]))
-        return result,dict(masterTableCaption=self.db.table(table).name_long)
+            caption_path = []
+            relpath_list = []
+            for r in j:
+                relpath_list.append(r['relpath'])
+                tblobj = self.db.table(r['table'])
+                caption_path.append(self._(tblobj.name_plural if r['mode'] == 'M' else tblobj.name_long))
+            relpath = '.'.join(relpath_list)
+            result.append(relpath)
+            values.append('%s:%s' %(relpath,'/'.join(caption_path)))
 
+        return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
 
 
 

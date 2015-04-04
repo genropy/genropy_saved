@@ -928,7 +928,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             if not linkedPkeys:
                 linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
                                                             page_id=linkedSelectionPars['linkedPageId'])
-            return dict(where='%(relationpath)s IN :_masterPkeys' %linkedSelectionPars,linkedPkeys=linkedPkeys.split(',') if isinstance(linkedPkeys,basestring) else linkedPkeys)
+            where = ' OR '.join([" (%s IN :_masterPkeys) " %r for r in linkedSelectionPars['relationpath'].split(',')])
+            return dict(where=' ( %s ) ' %where,linkedPkeys=linkedPkeys.split(',') if isinstance(linkedPkeys,basestring) else linkedPkeys)
 
 
 
