@@ -17,7 +17,7 @@ import os
 
 class PublicBase(BaseComponent):
     #css_requires = 'public'
-    py_requires = """public:PublicSlots"""
+    py_requires = """public:PublicSlots,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
                      
     def userRecord(self, path=None):
         if not hasattr(self, '_userRecord'):
@@ -150,7 +150,6 @@ class PublicBase(BaseComponent):
 class Public(PublicBase):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
     css_requires = 'public'
-    plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
     py_requires = """public:PublicSlots,foundation/macrowidgets"""
 
@@ -288,15 +287,12 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,gnrcomponents/bottomplugins:BottomPlugins,th/th:TableHandler"""
-    plugin_list=''
+    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
     formResource = None
     viewResource = None
     formInIframe = False
     th_readOnly = False
     maintable = None
-    documentation = True
-    tickets = True
 
     #DA RIVEDERE
     @struct_method

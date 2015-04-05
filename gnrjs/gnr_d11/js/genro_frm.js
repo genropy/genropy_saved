@@ -2124,7 +2124,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var saver = this.handlers.save;
         var that = this;
         var path = this.form.getCurrentPkey();
-        var rpc_kw = {};
+        var rpc_kw = this.form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         rpc_kw.path = path;
         if(path=='*newrecord*' && this.getNewPath){
             path = funcApply(this.getNewPath,{record:formData},form);

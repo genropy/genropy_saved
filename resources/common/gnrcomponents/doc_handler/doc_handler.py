@@ -25,6 +25,14 @@ PAGEHTML = """
 
 class DocHandler(BaseComponent):   
     py_requires='gnrcomponents/filepicker:FilePicker'
+    def onMain_docHandler(self):
+        self.pageSource().script("""genro.docHandler = {
+                getDocumentationPages:function(){
+                    return genro.getData('gnr.doc.main.pages').deepCopy();
+                }
+            }""")
+
+
     @struct_method
     def de_docFrame(self,pane,code=None,storeKey=None,title=None,**kwargs):
         frameCode = code
@@ -51,7 +59,7 @@ class DocHandler(BaseComponent):
         slots = '5,docSelector,*'
         if self.de_isDocWriter():
             slots= '%s,imgPick,10,labelTooltip,revertbtn,savebtn,docsemaphore,5,stackButtons,5' %slots
-        bar = form.top.slotToolbar(slots)
+        bar = form.top.slotToolbar(slots,height='20px')
         pagedocpars = self.documentation
         if pagedocpars == 'auto':
             pagedocpars = dict(title='Main')
@@ -59,7 +67,7 @@ class DocHandler(BaseComponent):
             bar.addToDocumentation(key='__page__',**pagedocpars)
         bar.docSelector.multiButton(value='^.current',items='^.pages',showAlways=True)
         if self.de_isDocWriter():
-            fb = bar.labelTooltip.div(_class='dijitButtonNode',hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
+            fb = bar.labelTooltip.div(hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
             fb.textbox(value='^.record.title',lbl='Title')
             fb.dataController("""
                 pages.setItem(current+'.?caption',newtitle);
@@ -78,10 +86,11 @@ class DocHandler(BaseComponent):
                             var attr = pages.getNode(current).attr;
                             var filepath = attr.filepath;
                             var imagespath = attr.imagespath;
+                            console.log('filepath',filepath)
                             this.form.goToRecord(filepath);
                             SET #FORM.imgFolders = imagespath;
                             """,
-                            current='^#FORM.current',pages='=#FORM.pages',_onBuilt=True,_if='current',_delay=1)
+                            current='^#FORM.current',pages='=#FORM.pages',_if='current')
         iframepars = dict(border=0,height='100%',width='100%')
         iframepars.update(kwargs)
         iframe = viewer.htmliframe(

@@ -180,12 +180,19 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }else{
             cb();
         }
-        
         //setTimeout(function(){iframe.getParentNode().domNode.src = url;},1); non serve
+    },
+
+    onSelectedFrame:function(rootPageName){
+        genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
     },
 
     newBrowserWindowPage:function(kw){
         this.makePageUrl(kw)
+        if(kw.rootPageName in genro.externalWindowsObjects){
+            genro.externalWindowsObjects[kw.rootPageName].focus();
+            return;
+        }
         var dn = this.stackSourceNode.widget.domNode;
         var externalWindowKw = {height:dn.clientHeight,width:dn.clientWidth,
                                 left:window.screenLeft+dn.offsetLeft+20,top:window.screenTop+dn.offsetTop+(window.outerHeight-window.innerHeight)+20};
@@ -389,13 +396,27 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
     },
 
-    reportBugInCurrentIframe:function(rootPageName){
-        var iframe = this.getCurrentIframe(rootPageName);
-        if(iframe){
-            iframe.sourceNode._genro.publish('genro_report_bug');
-        }
+    openDocForCurrentIframe:function(){
+        this.newBrowserWindowPage({
+            pageName:'DOCUMENTATION',
+            file:'/sys/docpage',
+            label: _T("Documentation")
+        })
     },
 
+    getCurrentDocumentation:function(){
+        var rootPageName = this.stackSourceNode.getRelativeData('selectedFrame');
+        var selectedIframe =  rootPageName && rootPageName!='indexpage'?this.getCurrentIframe(rootPageName):null; //documentazione della index da vedere poi
+        if(!selectedIframe){
+            //da verificare
+            return;
+        }
+        var result = {};
+        var cw = selectedIframe.contentWindow;
+        result.documentation = cw.genro.docHandler.getDocumentationPages();
+        result.tickets = cw.genro.ticketHandler.getTicketFolders();
+        return result;
+    },
 
     getCurrentIframe:function(rootPageName){
         var iframesbag= genro.getData('iframes');

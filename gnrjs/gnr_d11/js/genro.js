@@ -1354,6 +1354,27 @@ dojo.declare('gnr.GenroClient', null, {
         var objId = object.widgetId;
         dojo.subscribe(objId + '/' + eventname, obj, func);
     },
+
+    _publish_new:function(topic,kw) {
+        var args = [];  
+        if(typeof(topic)=='string'){
+            //console.log('publishing:'+topic,args);
+            //console.log(args)
+            for (var i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            dojo.publish(topic, args);
+            return ;
+        }
+        var target = objectPop(topic,'target');
+        /*
+            target = 'target1,target2,target3...'
+            target_x = 'self,parent,iframe:framename,extwin:extwinname' framename e extwin possono valere *
+            the publish is then called on genro, if no nodeId or form else on sourceNode or form
+        */
+
+    },
+
     publish:function(topic,kw) {
         var args = [];  
         if(typeof(topic)=='string'){
@@ -1365,8 +1386,15 @@ dojo.declare('gnr.GenroClient', null, {
             dojo.publish(topic, args);
             return ;
         }
+        /*new publish switch to implement
+        if('target' in topic){ 
+            genro._publish_new(topic,kw);
+            return;
+        }
+        */
         var parent=topic['parent'];
         var iframe=topic['iframe'];
+        var extWin = topic['extWin'];
         var kw=topic['kw'] || kw;
         if('nodeId' in topic){
             var node= genro.nodeById(topic['nodeId']);
@@ -1378,11 +1406,18 @@ dojo.declare('gnr.GenroClient', null, {
             if (form){
                 form.publish(topic['topic'],kw);
             }
-        }
-        else{
+        }else{
             genro.publish(topic['topic'], kw);
         }
-
+        if(extWin){
+            var extWindow = genro.externalWindowsObjects[extWin];
+            if(extWindow){
+                kw = kw || {};
+                kw.topic = topic.topic;
+                genro.dom.windowMessage(extWindow,kw);
+            }
+            return;
+        }
         if (iframe){
             var t=objectUpdate({},topic);
             objectPop(t,'parent');
@@ -1396,9 +1431,6 @@ dojo.declare('gnr.GenroClient', null, {
 
                     }
                 });
-            }else if(typeof(iframe)!='string' && !iframe.frameElement){
-                //window element
-                genro.dom.windowMessage(iframe,kw);
             }else{
                 var iframeNode=genro.domById(iframe);
                 if(iframeNode){
@@ -1409,8 +1441,8 @@ dojo.declare('gnr.GenroClient', null, {
                 }
             }     
         }
-        var parentGenro = this.getParentGenro();
-        if(parent && parentGenro){
+        if(parent){
+            var parentGenro = this.getParentGenro();
             var t=objectUpdate({},topic);
             objectPop(t,'iframe');
             objectPop(t,'parent');

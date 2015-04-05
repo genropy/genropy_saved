@@ -1,7 +1,6 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
-from gnr.core.gnrstring import slugify
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 import os
@@ -12,20 +11,30 @@ import shutil
 class TicketHandler(BaseComponent):
     py_requires ='gnrcomponents/framegrid:FrameGrid,gnrcomponents/formhandler:FormHandler,gnrcomponents/filepicker:FilePicker'
     ticket_path = ''
+
+
+    def onMain_ticket_handler(self):
+        pane = self.pageSource()
+        pane.data('gnr.tickets.allFolders',self.tk_ticketFolder(allFolders=True))
+        pane.script("""genro.ticketHandler = {
+                getTicketFolders:function(){
+                    return genro.getData('gnr.tickets.allFolders');
+                }
+            }""")
+
     @struct_method
-    def tk_ticketFrame(self,pane,code=None,**kwargs):
+    def tk_ticketFrame(self,pane,code=None,folders=None,**kwargs):
         view = pane.frameGrid(frameCode='V_ticketframe_%s' %code,struct=self.tk_struct_ticket,
                                     gridEditor=False,
                                     autoToolbar=False,
                                     datapath='.view',grid_rowStatusColumn=True,**kwargs)
-        view.top.slotToolbar('*,delrow,addrow,viewlocker,5',gradient_from='#030F1F',gradient_to='#3B4D64')
-        folders = self.tk_ticketFolder(allFolders=True)
+        view.top.slotToolbar('*,delrow,addrow,viewlocker,5')
         fstore = view.grid.fsStore(childname='store',
                                     folders=folders,
                                     include='ticket.xml',
                                     applymethod=self.tk_checkFilePermission,
                                     deletemethod=self.tk_deleteTicketRows)
-        view.dataController("fstore.store.loadData();fstore.store.setLocked(true)",fstore=fstore,_onBuilt=True)
+        view.dataController("fstore.store.loadData();fstore.store.setLocked(true)",fstore=fstore,folders=folders)
         form = view.grid.linkedForm(frameCode='F_ticketframe_%s' %code,
                                  datapath='.form',loadEvent='onRowDblClick',
                                  dialog_height='450px',dialog_width='620px',
@@ -37,7 +46,7 @@ class TicketHandler(BaseComponent):
         return view
 
     def tk_ticket_form(self,form,folders=None):
-        form.store.handler('save',rpcmethod=self.tk_saveTicket)
+        form.store.handler('save',rpcmethod=self.tk_saveTicket,folderpath=folders.replace('^','='))
         form.store.handler('load',default_ticket_type='B',default_status='N',rpcmethod='tk_loadTicket')
         form.top.slotToolbar('2,navigation,*,delete,add,save,semaphore,locker,2')
         bc = form.center.borderContainer()
@@ -50,23 +59,32 @@ class TicketHandler(BaseComponent):
         fb.filteringSelect(value='^.status',lbl='status',validate_notnull=True,
                         values='N:New,P:In progress,S:Solved')
         fb.textbox(value='^.assigned_to',lbl='Assigned to')
-        tbllist = self.maintable.split('.')
-        pkg = self.package.name
-        tblpkg = tbllist[0]
-        if pkg!=tblpkg and self.isDeveloper():
+        #tbllist = self.maintable.split('.')
+       #pkg = self.package.name
+       #tblpkg = tbllist[0]
+       #if pkg!=tblpkg and self.isDeveloper():
+       #    
+        if self.isDeveloper():
             fb.checkbox('^.mainfolder',label='In original package')
-        center = bc.roundedGroupFrame(title='Description',region='center')
+        center = bc.framePane(frameCode='ticketDesc',region='center')
+        bar =center.top.slotToolbar('2,ctitle,imgPick',ctitle='!!Description')
         center.simpleTextArea(value='^.record.description',editor=True)
-        bar = center.top.bar.replaceSlots('#','#,imgPick')
-        customfolder,mainfolder = None,None
-        if ',' in folders:
-            customfolder,mainfolder = folders.split(',')
-        else:
-            mainfolder = folders
+       #customfolder,mainfolder = None,None
+       #if ',' in folders:
+       #    customfolder,mainfolder = folders.split(',')
+       #else:
+       #    mainfolder = folders
         bar.dataController("""
+            var fldlist = folders.split(',');
+            var customfolder,mainfolder;
+            if(fldlist.length>1){
+                customfolder = fldlist[0];
+                mainfolder = fldlist[1];
+            }else{
+                mainfolder = folders;
+            }
             SET #FORM.imgFolders = (useMainFolder || !customfolder)? mainfolder+'/'+ticket_id+'/images':customfolder+'/'+ticket_id+'/images';
-            """,useMainFolder='^.record.mainfolder',ticket_id='^.record.__ticket_id',
-            customfolder=customfolder or False,mainfolder=mainfolder)
+            """,useMainFolder='^.record.mainfolder',ticket_id='^.record.__ticket_id',folders=folders.replace('^','='))
         palette = bar.imgPick.imgPickerPalette(code='_ticket_img_picker',folders='^#FORM.imgFolders',
                                                 dockButton_iconClass='iconbox note')
         form.dataController("""var dlg = this.getParentWidget('dialog');
@@ -135,13 +153,19 @@ class TicketHandler(BaseComponent):
                 return ','.join([custompath,mainpath])
             return custompath
 
-    def tk_getTicketPath(self,ticket_id,useMainFolder):
-        return os.path.join(self.tk_ticketFolder(useMainFolder=useMainFolder),ticket_id)
+    #def tk_getTicketPath(self,ticket_id,useMainFolder):
+    #    return os.path.join(self.tk_ticketFolder(useMainFolder=useMainFolder),ticket_id)
 
     @public_method
-    def tk_saveTicket(self,path=None,data=None,**kwargs):
+    def tk_saveTicket(self,path=None,data=None,folderpath=None,**kwargs):
         removing_path = None
-        newpath = self.site.getStaticPath(self.tk_getTicketPath(data['__ticket_id'],data['mainfolder']))
+        mainfolder = None
+        if ',' in folderpath:
+            folderpath,mainfolder = folderpath.split(',')
+        if data['mainfolder'] and mainfolder:
+            folderpath = mainfolder
+        ticket_path = os.path.join(folderpath,data['__ticket_id'])  # self.tk_getTicketPath(data['__ticket_id'],data['mainfolder'])
+        newpath = self.site.getStaticPath(ticket_path)
         if path=='*newrecord*':
             data['__mod_ts'] = data['__ins_ts']
             path = newpath
