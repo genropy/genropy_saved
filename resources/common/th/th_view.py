@@ -585,12 +585,13 @@ class TableHandlerView(BaseComponent):
                             return result;
                             """) 
         frame.dataController("""
-            var reason,caption;
+            var reason,caption,tooltip;
             if(pkeys){
                 reason = 'selectedOnly';
                 caption = selectedOnlyCaption;
             } else if(linkedSelectionPars && linkedSelectionPars.getItem('masterTable')){
                 var masterTableCaption = linkedSelectionPars.getItem('masterTableCaption');
+                tooltip = linkedSelectionPars.getItem('pathDescription');
                 if(!linkedSelectionPars.getItem('linkedSelectionName')){
                     reason = 'linkedSelectionPkeys';
                     caption = linkedSelectionCaption+masterTableCaption;
@@ -600,6 +601,7 @@ class TableHandlerView(BaseComponent):
                 }
             }
             SET .query.pkeys = null;
+            SET .internalQuery.tooltip = tooltip;
             SET .internalQuery.caption = caption || '';
             SET .internalQuery.reason = reason;
             """,pkeys='=.query.pkeys',
@@ -745,7 +747,8 @@ class TableHandlerView(BaseComponent):
         box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
                 nodeId='%s_searchMenu_b' %th_root)
         box.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',_internalQueryCaption='^.#parent.#parent.internalQuery.caption', _class='fakeTextBox buttonIcon',
-                    position='absolute',right='15px',left='65px')
+                    position='absolute',right='15px',left='65px',tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
+                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip')
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
@@ -922,10 +925,10 @@ class THViewUtils(BaseComponent):
             var gridNodeId = this.attr.nodeId;
             var masterTable = $1.data.table;
             var slaveTable = this.attr.table;
-            var cb = function(selectedPath,masterTableCaption){
+            var cb = function(selectedPath,masterTableCaption,pathDescription){
                 var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,
                             masterTable:masterTable,masterTableCaption:masterTableCaption,
-                            command:'subscribe'};
+                            command:'subscribe',pathDescription:pathDescription};
                 if(persistent){
                     kw.linkedSelectionName = linkedSelectionName;
                     kw.linkedPageId = linkedPageId;
@@ -941,15 +944,20 @@ class THViewUtils(BaseComponent):
                     function(result){
                         var v = result.relpathlist;
                         var masterTableCaption = result.masterTableCaption;
+                        var cbdict = objectFromString(result.cbvalues);
                         if(v.length>1){
                             genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+masterTableCaption,
                                                             widget:'checkBoxText',
                                                             wdg_values:result.cbvalues,
                                                             wdg_cols:1,
-                                                            action:function(r){if(!r){return}cb(r,masterTableCaption)}
+                                                            action:function(r){
+                                                                    if(!r){return;}
+                                                                    var captionPath = r.split(',').map(function(k){return cbdict[k]}).join('<br/>OR ');
+                                                                    cb(r,masterTableCaption,captionPath)
+                                                                }
                                                             });
                         }else{
-                            cb(v[0],masterTableCaption);
+                            cb(v[0],masterTableCaption,cbdict[v[0]]);
                         }
                     });
             genro.lockScreen(false,'searchingRelation');
@@ -963,6 +971,7 @@ class THViewUtils(BaseComponent):
         joiners = self.db.table(destTable).model.getTableJoinerPath(table)
         result = []
         values = []
+        cbdict = dict()
         for j in joiners:
             caption_path = []
             relpath_list = []
@@ -978,6 +987,7 @@ class THViewUtils(BaseComponent):
                     relpath = '$%s' %relpath
             result.append(relpath)
             values.append('%s:%s' %(relpath,'/'.join(caption_path)))
+            cbdict[relpath] = caption_path
 
         return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
 
