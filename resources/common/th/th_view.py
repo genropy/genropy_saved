@@ -970,7 +970,7 @@ class THViewUtils(BaseComponent):
                 relpath_list.append(r['relpath'])
                 tblobj = self.db.table(r['table'])
                 caption_path.append(self._(tblobj.name_plural if r['mode'] == 'M' else tblobj.name_long))
-            relpath = '.'.join(relpath_list)
+            relpath = '.'.join(relpath_list) if len(relpath_list)>1 else '$%s' %relpath_list[0]
             result.append(relpath)
             values.append('%s:%s' %(relpath,'/'.join(caption_path)))
 
