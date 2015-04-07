@@ -169,9 +169,14 @@ class AttachManager(BaseComponent):
             ).div(padding='10px').formbuilder(cols=1,border_spacing='3px')
         fb.textbox(value='^.form.record.description',lbl='!!Description')
         frame.dataController("""
-            frm.newrecord();
+            if(frm.getParentForm().isNewRecord()){
+                frame.setHiderLayer(true);
+            }else{
+                frame.setHiderLayer(false);
+                frm.newrecord();
+            }
             """,store='^.store',_delay=100,
-            _if='!store || store.len()==0',frm=frame.form.js_form)
+            _if='!store || store.len()==0',frm=frame.form.js_form,frame=frame)
         frame.dataController("frm.lazySave()",frm=frame.form.js_form,_fired='^.saveDescription')
         frame.onDbChanges(action="""
             var that = this;

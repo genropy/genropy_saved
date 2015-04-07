@@ -2416,7 +2416,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var btn = mb._('lightbutton',code,kw)
         btn._('div',content_kw);
         if(deleteAction){
-            btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?'deleteSelectedOnly':''),
+            btn._('div',{_class:'multibutton_closer framecloserIcon'+(this.deleteSelectedOnly?' deleteSelectedOnly':''),
                 connect_onclick:function(e){
                 dojo.stopEvent(e);
                 deleteAction.call(this.sourceNode,code,caption);
