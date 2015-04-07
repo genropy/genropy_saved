@@ -382,6 +382,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.stackSourceNode.fireEvent('refreshTablist',true);
         var tablist = genro.nodeById('frameindex_tab_button_root');
         var curlen = tablist.getValue().len();
+        curlen = this.externalWindowsBag().len()>0?curlen-1:curlen;
         selected = selected>=curlen? curlen-1:selected;
         selected = selected<0? 0:selected;
         var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
