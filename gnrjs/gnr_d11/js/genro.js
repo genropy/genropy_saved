@@ -628,22 +628,31 @@ dojo.declare('gnr.GenroClient', null, {
         parentIframeSourceNode.publish('pageStarted');
     },
     
-    getChildFramePage:function(page_id){
+    getChildWindow:function(page_id){
         var result;
         var cb = function(f,r){
             if (f.genro){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
-                return f.genro.getChildFramePage(page_id);
+                return f.genro.getChildWindow(page_id);
             }
         };
         for (var i=0;i<window.frames.length; i++){
             result = cb(window.frames[i]);
             if(result){
-                break;
+                return result;
             }
         }
+        if(this.externalWindowsObjects){
+            for (var k in this.externalWindowsObjects){
+                result = cb(this.externalWindowsObjects[k]);
+                if(result){
+                    return result;
+                }
+            }
+        }
+
         return result;
     },
     getValueFromFrame: function(object_name, attribute_name, dtype){
