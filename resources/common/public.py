@@ -93,6 +93,8 @@ class PublicBase(BaseComponent):
     @struct_method
     def public_roundedGroupFrame(self, container, title=None,frameCode=None,**kwargs):
         kwargs['overflow'] = 'hidden'
+        if container.attributes['tag'].lower() in ('tabcontainer','stackcontainer'):
+            kwargs['title'] = title
         pane = container.contentPane(**kwargs)
         frame = pane.framePane(frameCode=frameCode,margin='2px',_class='pbl_roundedGroup')
         if title:
