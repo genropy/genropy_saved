@@ -504,7 +504,6 @@ class MultiButtonForm(BaseComponent):
                 }
                 """,storebag='^%s' %storepath,_delay=1)
             bar.dataController("""
-                console.log('multiButtonValue',multiButtonValue)
                 if(currentFormId && currentFormId!='emptypage'){
                     var currentLoadedForm = genro.formById(currentFormId);
                     if(currentLoadedForm.changed){

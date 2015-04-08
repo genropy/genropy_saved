@@ -19,23 +19,25 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         root.attributes.update(overflow='hidden')
-        tc = root.tabContainer(datapath='main',selectedPage='^.selectedPage',margin='2px')
+        frame = root.framePane(datapath='main',selectedPage='^.selectedPage',margin='2px')
+        frame.top.slotToolbar('*,stackButtons,*',gradient_from='#999',gradient_to='#666',height='20px')
+        tc = frame.center.stackContainer()
 
+        root.dataController("""var fm = genro.getParentGenro().framedIndexManager;
+                                /*
+                                    var result = genro.getParentGenro().framedIndexManager.getCurrentDocumentation();
+                                    SET gnr.doc.main.pages = result.documentation;
+                                    SET tickets.folders = result.tickets;
+                                */
 
-        root.dataController("""var result = genro.getParentGenro().framedIndexManager.getCurrentDocumentation();
-                                SET gnr.doc.main.pages = result.documentation;
-                                SET tickets.folders = result.tickets;
+                                SET gnr.doc.main.pages = fm.callOnCurrentIframe('docHandler','getDocumentationPages');
+                                SET tickets.folders = fm.callOnCurrentIframe('ticketHandler','getTicketFolders');
 
                             """,
                             subscribe_onSelectedFrame=True,
                             _onStart=True)
-        docpane = tc.contentPane(title='!!Documentation',iconTitle='icnBottomDocumentation',overflow='hidden',pageName='docs')
+        docpane = tc.contentPane(title='!!Documentation',xiconTitle='icnBottomDocumentation',
+                            overflow='hidden',pageName='docs')
         docpane.docFrameMulti()
-    
-        ticketpane = tc.contentPane(title='!!Tickets',iconTitle='icnBottomTicket',overflow='hidden',pageName='tickets',datapath='tickets')
+        ticketpane = tc.contentPane(title='!!Tickets',xiconTitle='icnBottomTicket',overflow='hidden',pageName='tickets',datapath='tickets')
         ticketpane.ticketFrame(code='main',folders='^tickets.folders')
-
-
-    @struct_method
-    def bp_adaptToolbar(self,frame):
-        frame.top.bar.replaceSlots('#','5,parentStackButtons,#',height='20px')

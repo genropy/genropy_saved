@@ -184,7 +184,18 @@ dojo.declare("gnr.FramedIndexManager", null, {
     },
 
     onSelectedFrame:function(rootPageName){
-        genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
+        if(rootPageName=='indexpage'){
+            return
+        }
+        var that = this;
+        this.stackSourceNode.watch('pageReady',function(){
+            var iframe = that.getCurrentIframe(rootPageName);
+            if(iframe && iframe.contentWindow && iframe.contentWindow.genro && iframe.contentWindow.genro._pageStarted){
+                return true
+            }
+        },function(){
+             genro.publish({extWin:'DOCUMENTATION',topic:'onSelectedFrame'});
+        })
     },
 
     newBrowserWindowPage:function(kw){
@@ -405,7 +416,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         })
     },
 
-    getCurrentDocumentation:function(){
+    callOnCurrentIframe:function(objpath,method,args){
         var rootPageName = this.stackSourceNode.getRelativeData('selectedFrame');
         var selectedIframe =  rootPageName && rootPageName!='indexpage'?this.getCurrentIframe(rootPageName):null; //documentazione della index da vedere poi
         if(!selectedIframe){
@@ -414,9 +425,14 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         var result = {};
         var cw = selectedIframe.contentWindow;
-        result.documentation = cw.genro.docHandler.getDocumentationPages();
-        result.tickets = cw.genro.ticketHandler.getTicketFolders();
-        return result;
+        var scope = cw.genro;
+        var l = objpath.split('.');
+        l.forEach(function(chunk){
+            scope = scope[chunk];
+        });
+        if(scope){
+            return scope[method].apply(scope,args);
+        }
     },
 
     getCurrentIframe:function(rootPageName){

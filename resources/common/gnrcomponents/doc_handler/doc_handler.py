@@ -68,10 +68,13 @@ class DocHandler(BaseComponent):
         bar.docSelector.multiButton(value='^.current',items='^.pages',showAlways=True)
         if self.de_isDocWriter():
             fb = bar.labelTooltip.div(hidden='^#FORM.selectedPage?=#v!="editor"').div(_class='iconbox tag').tooltipPane().formbuilder(cols=1,border_spacing='3px')
-            fb.textbox(value='^.record.title',lbl='Title')
-            fb.dataController("""
-                pages.setItem(current+'.?caption',newtitle);
-                """,current='=.current',pages='=.pages',newtitle='^.record.title')
+            fb.textbox(value='^.record.title',lbl='Title',validate_onAccept="""
+                if(userChange){
+                    var pages = GET .pages;
+                    var current = GET .current;
+                    pages.getNode(current).updAttributes({caption:value});
+                }
+                """)
             bar.revertbtn.slotButton('!!Revert',action="""this.form.reload();""",
                             hidden='^#FORM.selectedPage?=#v!="editor"',
                             iconClass='iconbox revert')
@@ -86,8 +89,7 @@ class DocHandler(BaseComponent):
                             var attr = pages.getNode(current).attr;
                             var filepath = attr.filepath;
                             var imagespath = attr.imagespath;
-                            console.log('filepath',filepath)
-                            this.form.goToRecord(filepath);
+                            this.form.load({destPkey:filepath,modifiers:'Shift'});
                             SET #FORM.imgFolders = imagespath;
                             """,
                             current='^#FORM.current',pages='=#FORM.pages',_if='current')
@@ -107,7 +109,7 @@ class DocHandler(BaseComponent):
         iframe.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.body',iframe=iframe)
         editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
-        palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock')
+        palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock',externalSnapshot=True)
         palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker');
         editorpane.ckeditor(value='^.body',config_contentsCss=cssurl,toolbar='standard') 
         return form

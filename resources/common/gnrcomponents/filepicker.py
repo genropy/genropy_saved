@@ -13,7 +13,7 @@ import os
 class FilePicker(BaseComponent):
     py_requires = "gnrcomponents/framegrid:FrameGrid"
     @struct_method
-    def fp_imgPickerPalette(self,parent,folders=None,drop_folder=None,code=None,title=None,include=None,width=None,**kwargs):
+    def fp_imgPickerPalette(self,parent,folders=None,drop_folder=None,code=None,title=None,include=None,width=None,externalSnapshot=False,**kwargs):
         code = code or self.getUuid()
         drop_folder = drop_folder or folders
         pane = parent.palettePane(paletteCode='imgPalette_%s' %code,title=title or 'Images',
@@ -83,12 +83,21 @@ class FilePicker(BaseComponent):
         view.dataController("""
                         var that = this;
                         this.getParentWidget('floatingPane').hide();
-                        genro.dev.takePicture(uploadPath,function(){
-                                that.getParentWidget('floatingPane').show()
-                                that.fireEvent('.reloadStore',true);
-                        });
+                        if(externalSnapshot){
+                            var fm = genro.getParentGenro().framedIndexManager;
+                            fm.callOnCurrentIframe('dev','takePicture',[uploadPath,function(){
+                                    that.getParentWidget('floatingPane').show()
+                                    that.fireEvent('.reloadStore',true);
+                            }]);
+                        }else{
+                            genro.dev.takePicture(uploadPath,function(){
+                                    that.getParentWidget('floatingPane').show()
+                                    that.fireEvent('.reloadStore',true);
+                            });
+                        }
+                        
 
-            """,uploadPath='=.currentFolder',_fired='^.takeSnapshot')
+            """,uploadPath='=.currentFolder',_fired='^.takeSnapshot',externalSnapshot=externalSnapshot)
         bar.multiFolder.multiButton(value='^.currentFolder',values='^.folderValues')
         view.data('.grid.sorted','created_ts:d')
 
@@ -100,7 +109,6 @@ class FilePicker(BaseComponent):
                     var grid = dijit.getEnclosingWidget(n).grid;
                     var row = grid.rowByIndex(r.gridRowIndex);
                     var tpl = "<img src='$fileurl' style='max-height:300px'></img>";
-                    console.log('row',row)
                     var result = dataTemplate(tpl,row);
                     console.log('result',result)
                     return result;

@@ -67,7 +67,7 @@ class TicketHandler(BaseComponent):
         if self.isDeveloper():
             fb.checkbox('^.mainfolder',label='In original package')
         center = bc.framePane(frameCode='ticketDesc',region='center')
-        bar =center.top.slotToolbar('2,ctitle,imgPick',ctitle='!!Description')
+        bar =center.top.slotToolbar('2,ctitle,*,imgPick,2',ctitle='!!Description')
         center.simpleTextArea(value='^.record.description',editor=True)
        #customfolder,mainfolder = None,None
        #if ',' in folders:
@@ -86,7 +86,7 @@ class TicketHandler(BaseComponent):
             SET #FORM.imgFolders = (useMainFolder || !customfolder)? mainfolder+'/'+ticket_id+'/images':customfolder+'/'+ticket_id+'/images';
             """,useMainFolder='^.record.mainfolder',ticket_id='^.record.__ticket_id',folders=folders.replace('^','='))
         palette = bar.imgPick.imgPickerPalette(code='_ticket_img_picker',folders='^#FORM.imgFolders',
-                                                dockButton_iconClass='iconbox note')
+                                                dockButton_iconClass='iconbox note',externalSnapshot=True)
         form.dataController("""var dlg = this.getParentWidget('dialog');
                                 if(dlg.open){
                                     if(setting){
