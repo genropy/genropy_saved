@@ -42,7 +42,7 @@ class Main(BaseResourceAction):
     def prepare_example_file(self,record,path):
         if record['child_count']>1:
             self._prepare_dir(path)
-            path = os.path.join(path,'overview_%(name)s' %record)
+            path = os.path.join(path,'_overview_%(name)s' %record)
         path = '%s.py' %path
         if not os.path.isfile(path) or self.do_rebuild:
             with open(path,'w') as f:
