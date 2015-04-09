@@ -3,6 +3,7 @@
 from gnr.web.batch.btcaction import BaseResourceAction
 from gnr.core.gnrbag import Bag
 import os
+import shutil
 
 caption = 'Make example pages'
 tags = 'superadmin,_DEV_'
@@ -25,14 +26,17 @@ DOCTPL ="""<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
 
 class Main(BaseResourceAction):
     def do(self):
-        self.do_rebuild = False
+        self.do_rebuild = self.batch_parameters.get('do_rebuild',False)
+
         self.option_indent = 4
         f = self.tblobj.query(columns='*,$child_count').fetch()
         site = self.page.site
         widgetpedia_folder = site.getStaticPath('pkg:dev','webpages','widgetpedia')
         doc_it_folder = site.getStaticPath('pkg:dev','doc','IT','html','webpages','widgetpedia')
         #doc_en_folder = site.getStaticPath('pkg:dev','doc','EN','html','webpages','widgetpedia')
-
+        if self.do_rebuild:
+            shutil.rmtree(widgetpedia_folder)
+            shutil.rmtree(doc_it_folder)
         for r in f:
             w_path = os.path.join(widgetpedia_folder,*r['hierarchical_name'].split('/'))
             d_path = os.path.join(doc_it_folder,*r['hierarchical_name'].split('/'))
@@ -49,8 +53,7 @@ class Main(BaseResourceAction):
                 self.write(f,'#!/usr/bin/python')
                 self.write(f)
                 self.write(f,'class GnrCustomWebPage(object):')
-                self.write(f,'py_requires="gnrcomponents/doc_handler/doc_handler:DocHandler"',indent=1)
-                self.write(f,'documentation=True',indent=1)
+                self.write(f,'py_requires="gnrcomponents/source_viewer/source_viewer:SourceViewer"',indent=1)
                 self.write(f,'def main(self,root,**kwargs):',indent=1)
                 self.write(f,'root.div("%(name)s")' %record,indent=2)
 
@@ -82,3 +85,7 @@ class Main(BaseResourceAction):
     def _prepare_dir(self,path):
         if not os.path.isdir(path):
             os.makedirs(path)
+
+    def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
+        fb = pane.formbuilder(cols=1,border_spacing='3px')
+        fb.checkbox(value='^.do_rebuild',label='Rebuild')

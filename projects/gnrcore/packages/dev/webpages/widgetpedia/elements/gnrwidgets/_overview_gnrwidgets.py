@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/doc_handler/doc_handler:DocHandler"
-    documentation=True
+    py_requires="gnrcomponents/source_viewer/source_viewer:SourceViewer"
     def main(self,root,**kwargs):
         root.div("gnrwidgets")
