@@ -24,12 +24,6 @@ class GnrCustomWebPage(object):
         tc = frame.center.stackContainer()
 
         root.dataController("""var fm = genro.getParentGenro().framedIndexManager;
-                                /*
-                                    var result = genro.getParentGenro().framedIndexManager.getCurrentDocumentation();
-                                    SET gnr.doc.main.pages = result.documentation;
-                                    SET tickets.folders = result.tickets;
-                                */
-
                                 SET gnr.doc.main.pages = fm.callOnCurrentIframe('docHandler','getDocumentationPages');
                                 SET tickets.folders = fm.callOnCurrentIframe('ticketHandler','getTicketFolders');
 

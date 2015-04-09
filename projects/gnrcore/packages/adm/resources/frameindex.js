@@ -426,7 +426,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var result = {};
         var cw = selectedIframe.contentWindow;
         var scope = cw.genro;
-        var l = objpath.split('.');
+        var l = objpath?objpath.split('.'):[];
         l.forEach(function(chunk){
             scope = scope[chunk];
         });

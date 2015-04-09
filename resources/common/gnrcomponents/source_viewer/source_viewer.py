@@ -12,8 +12,8 @@ import os
 
 class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
+    py_requires = 'gnrcomponents/doc_handler/doc_handler:DocHandler'
     js_requires = 'source_viewer'
-
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
@@ -28,6 +28,7 @@ class SourceViewer(BaseComponent):
                        width='550px',overflow='hidden',splitter=True,border_left='1px solid #efefef',
                        background='white')
         sourceViewer.contentPane(_class='source_viewer').remote(self.source_viewer_content)
+        sourceViewer.addToDocumentation()
         page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',

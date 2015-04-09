@@ -4,7 +4,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('provincia', pkey='sigla', name_long='Provincia',
-                         rowcaption='$nome,$sigla:%s (%s)',caption_field='nome',lookup=True)
+                         rowcaption='$nome,$sigla:%s (%s)',caption_field='sigla',lookup=True)
         tbl.column('sigla', size='2', readOnly=True, name_long='!!Sigla', indexed=True,validate_notnull=True,
                     validate_len='2',validate_case='u')
         tbl.column('regione', size='3', name_long='!!Regione',validate_notnull=True).relation('glbl.regione.sigla',
