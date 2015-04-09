@@ -156,7 +156,7 @@ class DynamicFormBagManager(BaseComponent):
         fb.textbox(value='^.code',validate_notnull=True,validate_notnull_error='!!Required',width='8em', 
                 validate_regex='![^A-Za-z0-9_]', 
                 validate_regex_error='!!Invalid code: "." char is not allowed',#validate_case='l',
-                validate_case='l',lbl='!!Code',
+                lbl='!!Code',
                 ghost='!!Field code')
         fb.textbox(value='^.description',validate_notnull=True,validate_notnull_error='!!Required',width='100%',colspan=2,
                     ghost='!!Field description',lbl='!!Description')

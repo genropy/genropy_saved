@@ -4,14 +4,11 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 
 class Package(GnrDboPackage):
     def config_attributes(self):
-        return dict(comment='gnrdevel package', sqlschema='gnrdevel',
-                    name_short='Gnrdevel', name_long='Gnrdevel', name_full='Gnrdevel')
-
+        return dict(comment='dev package',sqlschema='dev',
+                    name_short='Dev', name_long='Dev', name_full='Dev')
+                    
     def config_db(self, pkg):
         pass
-
-    def loginUrl(self):
-        return 'gnrdevel/login'
-
+        
 class Table(GnrDboTable):
     pass

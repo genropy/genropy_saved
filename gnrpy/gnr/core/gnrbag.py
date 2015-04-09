@@ -2741,11 +2741,12 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-                m=re.match(r'(\d+)_(.*)',fname)
-                caption = '!!%s_%s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
+                fname = fname.replace('_',' ').strip()
+                m=re.match(r'(\d+) (.*)',fname)
+                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
                                abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
-                               caption=caption.replace('_',' '))
+                               caption=caption)
                 if self.callback:
                     self.callback(nodeattr=nodeattr)
                 result.setItem(label, handler(fullpath),**nodeattr)

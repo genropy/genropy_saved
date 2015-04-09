@@ -23,15 +23,20 @@ PAGEHTML = """
 </html>
 """
 
-class DocHandler(BaseComponent):   
+class DocHandler(BaseComponent):
+    documentation = False
     py_requires='gnrcomponents/filepicker:FilePicker'
     def onMain_docHandler(self):
-        self.pageSource().script("""genro.docHandler = {
+        page = self.pageSource()
+        page.script("""genro.docHandler = {
                 getDocumentationPages:function(){
                     var b = genro.getData('gnr.doc.main.pages');
                     return b?b.deepCopy():new gnr.GnrBag();
                 }
             }""")
+        if self.documentation:
+            page.addToDocumentation()
+
 
 
     @struct_method

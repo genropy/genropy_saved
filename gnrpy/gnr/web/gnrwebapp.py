@@ -172,7 +172,7 @@ class GnrWsgiWebApp(GnrApp):
                     url_info = self.site.getUrlInfo([attributes['pkg'], attributes['dir']])
                     dirpath=os.path.join(url_info.basepath,*url_info.request_args)  
                     value=DirectoryResolver(dirpath,cacheTime=10,
-                                                include='*.py', exclude='_*,.*',dropext=True,readOnly=False)
+                                                include='*.py', exclude='__*,.*',dropext=True,readOnly=False)
                     currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
                     value = self.packages[attributes['pkg']].pkgMenu['#0']
