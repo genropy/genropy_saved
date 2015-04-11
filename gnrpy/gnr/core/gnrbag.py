@@ -2577,26 +2577,6 @@ class BagResolver(object):
     def __str__(self):
         return self.resolverDescription()
         
-class GeoCoderBag(Bag):
-    def setGeocode(self, key, address):
-        """TODO
-
-        :param key: TODO
-        :param address: TODO"""
-        url = "http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address, output='xml'))
-        result = Bag()
-
-        def setData(n):
-            v = n.getValue()
-            if isinstance(v, basestring):
-                result[n.label] = v
-
-
-        answer = Bag(url)['#0.#0.Placemark']
-        if answer:
-            answer.walk(setData)
-        self[key] = result
-
 
 class VObjectBag(Bag):
     def fillFrom(self,source):
@@ -2639,7 +2619,7 @@ class VObjectBag(Bag):
                 counters[vtag]=counters[vtag]+1       
                 
                 
-class GeoCoderBagNew(Bag):
+class GeoCoderBag(Bag):
     def setGeocode(self, key, address, language='it'):
         """TODO
 
@@ -2668,7 +2648,9 @@ class GeoCoderBagNew(Bag):
         attr[node['type']]=node['long_name']
         self._result['details.%s'%node['type']]=node['short_name']
         self._result.setAttr('formatted_address',**attr)
-        
+
+GeoCoderBagNew = GeoCoderBag #compatibility
+
 class BagCbResolver(BagResolver):
     """A standard resolver. Call a callback method, passing its kwargs parameters"""
     classArgs = ['method']

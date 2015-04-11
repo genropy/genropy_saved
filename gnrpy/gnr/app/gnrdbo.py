@@ -354,7 +354,7 @@ class TableBase(object):
         tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')""",dtype='B')
         
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_')
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
         tbl.column('df_colswith',group='_')

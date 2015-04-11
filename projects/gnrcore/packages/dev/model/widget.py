@@ -8,3 +8,4 @@ class Table(object):
         tbl.column('name',name_long='!!Name')
         tbl.column('summary',name_long='!!Summary')
         tbl.column('server',dtype='B',name_long='!!Server')
+        tbl.column('docrows',dtype='X',name_long='!!Parameters doc',_sendback=True)

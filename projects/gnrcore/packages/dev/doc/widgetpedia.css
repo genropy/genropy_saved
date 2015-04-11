@@ -7,6 +7,8 @@
     color:#666;
 }
 .documentationTable th{
-    background: rgba(28, 72, 255, 0.24);
+    background: rgba(0, 155, 255, 0.32);
     color:#666;
+    border: 1px solid rgba(0, 155, 255, 1);
+
 }

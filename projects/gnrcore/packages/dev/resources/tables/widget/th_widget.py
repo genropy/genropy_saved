@@ -3,6 +3,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
 
 class View(BaseComponent):
 
@@ -27,9 +28,35 @@ class Form(BaseComponent):
         fb = bc.contentPane(region='top',datapath='.record').div(margin_right='10px').formbuilder(cols=3, border_spacing='4px',fld_width='100%',width='100%',colswidth='auto')
         fb.field('name',colspan=2)
         fb.field('server',html_label=True)
-        fb.field('summary',tag='simpleTextArea',colspan=3,height='100px')
 
-        bc.contentPane(region='center').fieldsGrid(margin='2px',rounded=6,border='1px solid silver') #ok
+        tc = bc.tabContainer(region='center',margin='2px')
+        tc.contentPane(title='!!Parameters').fieldsGrid(margin='2px',rounded=6,border='1px solid silver') #ok
+        bc = tc.borderContainer(title='!!Documentation')
+        bc.roundedGroupFrame(title='!!Summary',region='top',height='50%',splitter=True).simpleTextArea('^#FORM.record.summary',colspan=3,height='100px',editor=True)
+        bc.contentPane(region='center').bagGrid(storepath='#FORM.record.docrows',title='!!Parameters doc',
+                                                                struct=self.documentation_struct,
+                                                                addrow=False,delrow=False,pbl_classes=True,
+                                                                margin='2px')
+
+        tc.dataController("""
+                var new_docrows = new gnr.GnrBag();
+                var old_docrows = old_docrows || new gnr.GnrBag();
+                fieldsdata.forEach(function(n){
+                        var v = n.getValue();
+                        var old_v = old_docrows.getItem(n.label) || new gnr.GnrBag();
+                        var docv = new gnr.GnrBag({code:v.getItem('code'),documentation:old_v.getItem('documentation'),datatype:old_v.getItem('datatype')});
+                        new_docrows.setItem(n.label,docv);
+                    });
+
+                SET #FORM.record.docrows = new_docrows;
+            """,fieldsdata='^#FORM.record.df_fields',old_docrows='=#FORM.record.docrows',_delay=500)
+
+
+    def documentation_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('code',width='10em',name='!!Code')
+        r.cell('documentation',name='!!Documentation',width='40em',edit=dict(tag='quickEditor'))
+        r.cell('datatype',name='Type',width='8em',edit=dict(tag='ComboBox',values='Text,Bool,Int,Decimal,Date,Bag,list,callable,json,Other'))
 
 
     def th_options(self):

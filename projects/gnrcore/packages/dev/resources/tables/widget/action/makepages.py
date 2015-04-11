@@ -16,9 +16,12 @@ DOCTPL ="""<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>%(name)s</title>
 <meta name="author" content="GenroPy">
+<style type="text/css">
+    @import url("%(widgetpedia_css)s");  
+</style>
 </head>
 <body>
-    <h1>About %(name)s</h1>
+    %(summary)s
     %(dfAsTable)s
 </body>
 </html>
@@ -33,6 +36,7 @@ class Main(BaseResourceAction):
         site = self.page.site
         widgetpedia_folder = site.getStaticPath('pkg:dev','webpages','widgetpedia')
         doc_it_folder = site.getStaticPath('pkg:dev','doc','IT','html','webpages','widgetpedia')
+        self.widgetpedia_css = site.getStaticUrl('pkg:dev','doc','widgetpedia.css')
         #doc_en_folder = site.getStaticPath('pkg:dev','doc','EN','html','webpages','widgetpedia')
         if self.do_rebuild:
             shutil.rmtree(widgetpedia_folder)
@@ -48,6 +52,7 @@ class Main(BaseResourceAction):
             self._prepare_dir(path)
             path = os.path.join(path,'_overview_%(name)s' %record)
         path = '%s.py' %path
+        path = path.lower()
         if not os.path.isfile(path) or self.do_rebuild:
             with open(path,'w') as f:
                 self.write(f,'#!/usr/bin/python')
@@ -66,21 +71,45 @@ class Main(BaseResourceAction):
     def prepare_doc_file(self,record,path):
         if record['child_count']>1:
             self._prepare_dir(path)
-            path = os.path.join(path,'overview_%(name)s' %record)
+            path = os.path.join(path,'_overview_%(name)s' %record)
         path = '%s.html' %path
+        path = path.lower()
+        record['summary'] = record['summary'] or '<h1>%s</h1>' %record['name']
         if not os.path.isfile(path) or self.do_rebuild:
-            print 'doing',path
+            record['widgetpedia_css'] = self.widgetpedia_css
             record['dfAsTable'] = self.dfAsTable(record)
             with open(path,'w') as f:
                 self.write(f,DOCTPL %record)
 
     def dfAsTable(self,record):
-        fields = self.tblobj.df_getFieldsRows(pkey=record['id'])
+        fields = self.getInheritedDocRows(pkey=record['id'])
         rows = []
         for v in fields:
-            rows.append('<tr><td>%(code)s</td><td>(%(data_type)s)</td></tr>' %v)
-        return "<table id='PARSTABLE'>\n<tbody>%s</tbody>\n</table>" %'\n '.join(rows)
-          
+            v['documentation'] = v['documentation'] or '*missing*'
+            rows.append('<tr><td>%(code)s</td><td>%(datatype)s</td><td>%(documentation)s</td></tr>' %v)
+        return """
+<table id='PARSTABLE' class="documentationTable">
+    <thead>
+        <tr><th>Parameter</th><th>Type</th><th>Documentation</th></tr>
+    </thead>
+    <tbody>%s</tbody>
+</table>""" %'\n '.join(rows)
+
+    def getInheritedDocRows(self,pkey=None,**kwargs):
+        where="$%s=:p" %self.tblobj.pkey
+        p = pkey
+        columns='*,$docrows'
+        hpkey = self.tblobj.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
+        p = hpkey
+        where =  " ( :p = $hierarchical_pkey ) OR ( :p ILIKE $hierarchical_pkey || :suffix) "
+        order_by='$hlevel'
+        result = []
+        f = self.tblobj.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
+        result = Bag()
+        for r in f:
+            for v in Bag(r['docrows']).values():
+                result.setItem(v['code'],v)
+        return [v.asDict(ascii=True) for v in result.values()]          
 
     def _prepare_dir(self,path):
         if not os.path.isdir(path):
