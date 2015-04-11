@@ -39,7 +39,6 @@ from gnr.app.gnrdeploy import PathResolver
 from gnr.app.gnrconfig import MenuStruct
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrlang import getUuid
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -47,6 +46,12 @@ from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 
 log = logging.getLogger(__name__)
+
+class GnrRestrictedAccessException(GnrException):
+    """GnrRestrictedAccessException"""
+    code = 'GNRAPP-001'
+    description = '!!User not allowed'
+
 
 class NullLoader(object):
     """TODO"""
@@ -171,23 +176,8 @@ class GnrSqlAppDb(GnrSqlDb):
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
-        if isinstance(recordOrPkey,list):
-            records = recordOrPkey
-        elif not recordOrPkey and kwargs:
-            records = tblobj.query(**kwargs).fetch()
-        else:
-            broadcast = tblobj.attributes.get('broadcast')
-            if broadcast is False:
-                return
-            if isinstance(recordOrPkey,basestring):
-                if isinstance(broadcast,basestring):
-                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
-                else:
-                    records = [{tblobj.pkey:recordOrPkey}]
-            else:
-                records = [recordOrPkey]
-        for record in records:
-            self.application.notifyDbEvent(tblobj, record, 'U')
+        pass
+    
         
     def delete(self, tblobj, record, **kwargs):
         """Delete a record in the database
@@ -959,6 +949,14 @@ class GnrApp(object):
         return txt
     
 
+    def setPreference(self, path, data, pkg):
+        if self.db.package('adm'):
+            self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
+
+    def getPreference(self, path, pkg, dflt=''):
+        if self.db.package('adm'):
+            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
+    
     def getResource(self, path, pkg=None, locale=None):
         """TODO
 
@@ -968,7 +966,7 @@ class GnrApp(object):
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')
         return self.packages[pkg].getResource(path, locale=locale)
-        
+   
     def guestLogin(self):
         """TODO"""
         return self.config.getAttr('authentication', 'guestName')
@@ -1105,9 +1103,13 @@ class GnrApp(object):
                                    login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
         except:
             return None
+
+    def checkAllowedIp(self,allowed_ip):
+        "override"
+        return False
             
     def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None,
-                   authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
+                   authenticate=False, defaultTags=None, pwd=None, tags='',allowed_ip=None, **kwargs):
         """TODO
         
         :param user: TODO
@@ -1122,6 +1124,8 @@ class GnrApp(object):
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
             valid = self.validatePassword(login_pwd, pwd)
+            if valid and allowed_ip and not self.checkAllowedIp(allowed_ip):
+                raise GnrRestrictedAccessException('Not allowed access')
         else:
             valid = True
         if valid:
@@ -1301,37 +1305,10 @@ class GnrApp(object):
         for s in _storesToCommit:
             with self.db.tempEnv(storename=s,_systemDbEvent=True):
                 self.db.commit()
-        
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """TODO
-        
-        :param tblobj: the :ref:`database table <table>` object
-        :param record: TODO
-        :param event: TODO
-        :param old_record: TODO. """
-        currentEnv = self.db.currentEnv
-        if currentEnv.get('hidden_transaction'):
-            return
-        if not currentEnv.get('env_transaction_id'):
-            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
-        broadcast = tblobj.attributes.get('broadcast')
-        if broadcast is not False and broadcast != '*old*':
-            dbevents=currentEnv['dbevents']
-            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
-            if broadcast and broadcast is not True:
-                for field in broadcast.split(','):
-                    newvalue = record.get(field)
-                    r[field] = self.catalog.asTypedText(newvalue) #2011/01/01::D
-                    if old_record:
-                        oldvalue = old_record.get(field)
-                        if newvalue!=oldvalue:
-                            r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
-            dbevents.setdefault(tblobj.fullname,[]).append(r)
-        audit_mode = tblobj.attributes.get('audit')
-        if audit_mode:
-            self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
-                
+        pass
+
     def getAuxInstance(self, name=None,check=False):
         """TODO
         

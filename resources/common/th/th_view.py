@@ -57,6 +57,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
+            virtualStore = True
             if 'adm' in self.db.packages:
                 templateManager = 'templateManager'
             else:
@@ -94,6 +95,7 @@ class TableHandlerView(BaseComponent):
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,**kwargs)  
+        
         self._th_menu_sources(frame)
         if configurable:
             frame.right.viewConfigurator(table,frameCode,configurable=configurable)   
@@ -102,6 +104,10 @@ class TableHandlerView(BaseComponent):
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,liveUpdate=liveUpdate,store_kwargs=store_kwargs)
+        if virtualStore:    
+            self._extTableRecords(frame)
+
+
         frame.dataController("""if(!firedkw.res_type){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
@@ -193,7 +199,7 @@ class TableHandlerView(BaseComponent):
             f = []
             for s in tblobj.column(sections).attributes['values'].split(','):
                 s = s.split(':')
-                f.append(dict(code=s[0],description=s[1]))
+                f.append(dict(code=s[0],description=s[1] if len(s)==2 else s[0]))
         s = []
         if all_begin is None and all_end is None:
             all_begin = True
@@ -205,14 +211,28 @@ class TableHandlerView(BaseComponent):
             s.append(dict(code='c_all_end',caption='!!All' if all_end is True else all_end))
         return s
 
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
-    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,all_begin=None,all_end=None,**kwargs):
+    def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
+                            all_begin=None,all_end=None,multiButton=None,lbl=None,lbl_kwargs=None,**kwargs):
         inattr = parent.getInheritedAttributes()    
         th_root = inattr['th_root']
         pane = parent.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
-        if sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or \
+        m = self._th_hook('sections_%s' %sections,mangler=th_root,defaultCb=False)
+        if m:
+            sectionslist = m()
+            dflt = getattr(m,'default',None)
+            multivalue=getattr(m,'multivalue',False)
+            isMain = getattr(m,'isMain',False)
+            variable_struct = getattr(m,'variable_struct',False)
+            mandatory=getattr(m,'mandatory',True)
+            multiButton = getattr(m,'multiButton',multiButton)
+            lbl = lbl or getattr(m,'lbl',None)
+            lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
+            depending_condition = getattr(m,'_if',False)
+            depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
+        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or \
                                                 tblobj.column(sections).attributes.get('values')):
             sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,all_begin=all_begin,all_end=all_end)
             dflt = None
@@ -222,30 +242,41 @@ class TableHandlerView(BaseComponent):
             mandatory = None
             depending_condition = False
             depending_condition_kwargs = dict()
-        else:
-            m = self._th_hook('sections_%s' %sections,mangler=th_root)
-            sectionslist = m()
-            dflt = getattr(m,'default',None)
-            multivalue=getattr(m,'multivalue',False)
-            isMain = getattr(m,'isMain',False)
-            variable_struct = getattr(m,'variable_struct',False)
-            mandatory=getattr(m,'mandatory',True)
-            depending_condition = getattr(m,'_if',False)
-            depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
         if not sectionslist:
             return
         sectionsBag = Bag()
         for i,kw in enumerate(sectionslist):
-            sectionsBag.setItem(kw.get('code') or 'r_%i' %i,None,**kw)
+            code = kw.get('code') or 'r_%i' %i
+            if kw.get('isDefault'):
+                dflt = dflt or code
+            sectionsBag.setItem(code,None,**kw)
         pane.data('.data',sectionsBag)
         if not dflt:
+
             dflt = sectionsBag.getNode('#0').label
         pane.data('.current',dflt)
         pane.data('.variable_struct',variable_struct)
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
-        mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+        multiButton = multiButton is True or multiButton is None or multiButton and len(sectionsBag)<=multiButton
+        if multiButton:
+            mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
                                 disabled='^.#parent.#parent.grid.loadingData',**kwargs)
+    
+        else:
+            mb = pane.formbuilder(cols=1,border_spacing='3px',**lbl_kwargs)
+            lbl = lbl or sections.capitalize()
+            if multivalue:
+                mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
+                                labelAttribute='caption',parentForm=False,
+                                disabled='^.#parent.#parent.grid.loadingData',
+                                        popup=True,cols=1)
+            else:
+                mb.filteringSelect(storepath='.data',value='^.current',lbl=lbl,
+                                disabled='^.#parent.#parent.grid.loadingData',
+                                storeid='#k',parentForm=False,
+                                validate_notnull=mandatory,
+                                popup=True,cols=1)
         parent.dataController("""var enabled = depending_condition?funcApply('return '+depending_condition,_kwargs):true;
                                 genro.dom.toggleVisible(__mb,enabled)
                                 SET .%s.enabled = enabled;
@@ -263,8 +294,9 @@ class TableHandlerView(BaseComponent):
             } 
             FIRE .#parent.#parent.sections_changed;
             """ %sections
-            ,isMain=isMain,mb=mb,_onBuilt=True,
+            ,isMain=isMain,_onBuilt=True,
             currentSection='^.current',sectionbag='=.data',
+            _delay=1,
             th_root=th_root)
  
 
@@ -418,8 +450,8 @@ class TableHandlerView(BaseComponent):
             default_sort_col = '__ins_ts'
         if sortedBy :
             sortedBy = sortedBy.strip().replace('$','').replace('@','_').replace('.','_')
-            if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
-                sortedBy = sortedBy +',%s' %default_sort_col 
+            #if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
+            #    sortedBy = sortedBy +',%s' %default_sort_col 
         elif tblobj.column('_row_count') is not None:
             sortedBy = '_row_count' or default_sort_col
         frame.data('.grid.sorted',sortedBy)
@@ -460,6 +492,10 @@ class TableHandlerView(BaseComponent):
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
+                            var currLinkedSelection = GET .#parent.linkedSelectionPars;
+                            if(currLinkedSelection && currLinkedSelection.getItem('masterTable')){
+                                SET .#parent.linkedSelectionPars.command = 'unsubscribe';
+                            }
                             if($1.modifiers=='Shift'){
                                 FIRE .#parent.showQueryCountDlg;
                             }else{
@@ -499,12 +535,14 @@ class TableHandlerView(BaseComponent):
             _if = 'sectionbag.len()',
             _delay = 100)
 
-        store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
+        store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
-                               where='=.query.where', sortedBy='=.grid.sorted',
+                               where='=.query.where',
+                               queryMode='=.query.queryMode', 
+                               sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _runQueryDo='^.runQueryDo',
                                _cleared='^.clearStore',
-                               _onError="""return error;""", #genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"}); to check later
+                               _onError="""return error;""", 
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0',
@@ -520,7 +558,6 @@ class TableHandlerView(BaseComponent):
                                _sections='=.sections',
                                hardQueryLimit='=.hardQueryLimit',
                                sum_columns='=.sum_columns',
-                              # _currentSection='=.currentSection',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
@@ -544,8 +581,37 @@ class TableHandlerView(BaseComponent):
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **store_kwargs)
-        store.addCallback("""genro.dom.setClass(frameNode,'filteredGrid',pkeys);
-                            SET .query.pkeys =null; FIRE .queryEnd=true; return result;""",frameNode=frame)        
+        store.addCallback("""FIRE .queryEnd=true; 
+                            return result;
+                            """) 
+        frame.dataController("""
+            var reason,caption,tooltip;
+            if(pkeys){
+                reason = 'selectedOnly';
+                caption = selectedOnlyCaption;
+            } else if(linkedSelectionPars && linkedSelectionPars.getItem('masterTable')){
+                var masterTableCaption = linkedSelectionPars.getItem('masterTableCaption');
+                tooltip = linkedSelectionPars.getItem('pathDescription');
+                if(!linkedSelectionPars.getItem('linkedSelectionName')){
+                    reason = 'linkedSelectionPkeys';
+                    caption = linkedSelectionCaption+masterTableCaption;
+                }else{
+                    reason = 'syncSelection';
+                    caption = syncSelectionCaption+masterTableCaption;
+                }
+            }
+            SET .query.pkeys = null;
+            SET .internalQuery.tooltip = tooltip;
+            SET .internalQuery.caption = caption || '';
+            SET .internalQuery.reason = reason;
+            """,pkeys='=.query.pkeys',
+                selectedOnlyCaption='!!Selected only',linkedSelectionCaption='!!Depending from ',
+                syncSelectionCaption='!!In sync with ',
+                linkedSelectionPars='=.linkedSelectionPars',_fired='^.queryEnd',_delay=1)       
+        frame.dataController("""
+            genro.dom.setClass(fn,'filteredGrid',internalQueryReason);
+            SET .query.queryAttributes.extended = internalQueryReason!=null;
+            """,fn=frame,internalQueryReason='^.internalQuery.reason')
         if virtualStore:
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
@@ -638,17 +704,24 @@ class TableHandlerView(BaseComponent):
                    qm.createMenues();
                    dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
                    dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
+                   
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_a')));
+                   dijit.byId(qm.relativeId('qb_queryModes_menu')).bindDomNode(genro.domById(qm.relativeId('searchMenu_b')));
+
                    qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)        
-        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='600px',overflow='hidden',
+        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='700px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
-        fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                 nodeId='%s_fastQueryColumn' %th_root,
-                  dropTarget=True,row_hidden='^.#parent.queryAttributes.extended',
-                 lbl='!!Search:',tdl_width='4em',
-                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
-        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
+        box = fb.div(row_hidden='^.#parent.queryAttributes.extended')
+        box.data('.#parent.queryMode','S',caption='!!Search')
+        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
+                nodeId='%s_searchMenu_a' %th_root)
+        box.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
+                 nodeId='%s_fastQueryColumn' %th_root,
+                  dropTarget=True,
+                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
+        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em',margin_top='1px')
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
                 border_right='1px solid silver')
@@ -657,7 +730,7 @@ class TableHandlerView(BaseComponent):
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
-        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',
+        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',margin_top='1px',
                                        _autoselect=True,relpath='.c_0',
                                        row_class='^.c_0?css_class', position='relative',
                                        validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
@@ -670,8 +743,12 @@ class TableHandlerView(BaseComponent):
                                        speech=True)
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
-                    row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
+        box = fb.div(row_hidden='^.#parent.queryAttributes.extended?=!#v',colspan=3,width='100%',position='relative')
+        box.div('^.#parent.queryMode?caption',width='5em',_class='gnrfieldlabel th_searchlabel',
+                nodeId='%s_searchMenu_b' %th_root)
+        box.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',_internalQueryCaption='^.#parent.#parent.internalQuery.caption', _class='fakeTextBox buttonIcon',
+                    position='absolute',right='15px',left='65px',tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
+                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip')
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
         table = table or self.maintable
@@ -800,8 +877,10 @@ class THViewUtils(BaseComponent):
                            number=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'isnull', 'in'],
                            boolean=['istrue', 'isfalse', 'isnull'],
                            others=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'in'])
-
+        queryModes = (('S','Search'),('U','Union'),('I','Intersect'),('D','Difference'))
         wt = self.db.whereTranslator
+        for op,caption in queryModes:
+            result.setItem('queryModes.%s' % op, None, caption='!!%s' % caption)
         for op in listop:
             result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
         for optype, values in optype_dict.items():
@@ -822,3 +901,95 @@ class THViewUtils(BaseComponent):
         result.setItem('not.yes', None, caption='&nbsp;')
         result.setItem('not.not', None, caption='!!NOT')
         return result
+
+
+    def _extTableRecords(self,frame):
+        gridattr = frame.grid.attributes
+        gridattr['onDrag_ext_table_records'] = """if(!('dbrecords' in dragValues)){return;}
+                                                var kw = objectUpdate({}, dragValues['dbrecords']);
+                                                kw.selectionName = dragInfo.widget.collectionStore().selectionName;
+                                                dragValues['ext_table_records'] = kw;
+                                                """
+        gridattr['dropTarget_grid'] = 'ext_table_records' if not gridattr.get('dropTarget_grid') else 'ext_table_records,%(dropTarget_grid)s' %gridattr
+        gridattr['onDrop_ext_table_records'] = """this.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,
+                                                                dragSourceInfo:dropInfo.dragSourceInfo});
+                                                """
+
+        gridattr['selfsubscribe_queryFromLinkedGrid'] = """
+            genro.lockScreen(true,'searchingRelation');
+            var pkeys = $1.data.pkeys.join(',');
+            var that = this;
+            var persistent = $1.modifiers == 'Shift';
+            var linkedSelectionName = $1.data.selectionName;
+            var linkedPageId = $1.dragSourceInfo.page_id;
+            var gridNodeId = this.attr.nodeId;
+            var masterTable = $1.data.table;
+            var slaveTable = this.attr.table;
+            var cb = function(selectedPath,masterTableCaption,pathDescription){
+                var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,
+                            masterTable:masterTable,masterTableCaption:masterTableCaption,
+                            command:'subscribe',pathDescription:pathDescription};
+                if(persistent){
+                    kw.linkedSelectionName = linkedSelectionName;
+                    kw.linkedPageId = linkedPageId;
+                    kw.gridNodeId = gridNodeId;
+                }
+                that.setRelativeData('.#parent.linkedSelectionPars',new gnr.GnrBag(kw));
+                that.fireEvent('.#parent.runQueryDo',true);
+            }
+
+            genro.serverCall('th_searchRelationPath',{
+                    table:masterTable,
+                    destTable:slaveTable},
+                    function(result){
+                        var v = result.relpathlist;
+                        var masterTableCaption = result.masterTableCaption;
+                        var cbdict = objectFromString(result.cbvalues);
+                        if(v.length>1){
+                            genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+masterTableCaption,
+                                                            widget:'checkBoxText',
+                                                            wdg_values:result.cbvalues,
+                                                            wdg_cols:1,
+                                                            action:function(r){
+                                                                    if(!r){return;}
+                                                                    var captionPath = r.split(',').map(function(k){return cbdict[k]}).join('<br/>OR ');
+                                                                    cb(r,masterTableCaption,captionPath)
+                                                                }
+                                                            });
+                        }else{
+                            cb(v[0],masterTableCaption,cbdict[v[0]]);
+                        }
+                    });
+            genro.lockScreen(false,'searchingRelation');
+        """ 
+        frame.data('.linkedSelectionPars',None,serverpath='linkedSelectionPars.%s' %frame.store.attributes['selectionName'].replace('*',''))
+        gridattr['selfsubscribe_refreshLinkedSelection'] = """SET .#parent.linkedSelectionPars.pkeys = null;
+                                                               FIRE .#parent.runQueryDo;"""
+
+    @public_method
+    def th_searchRelationPath(self,table=None,destTable=None,**kwargs):
+        joiners = self.db.table(destTable).model.getTableJoinerPath(table)
+        result = []
+        values = []
+        cbdict = dict()
+        for j in joiners:
+            caption_path = []
+            relpath_list = []
+            for r in j:
+                relpath_list.append(r['relpath'])
+                tblobj = self.db.table(r['table'])
+                caption_path.append(self._(tblobj.name_plural if r['mode'] == 'M' else tblobj.name_long))
+            if len(relpath_list)>1:
+                relpath = '.'.join(relpath_list)
+            else:
+                relpath = relpath_list[0]
+                if not relpath.startswith('@'):
+                    relpath = '$%s' %relpath
+            result.append(relpath)
+            values.append('%s:%s' %(relpath,'/'.join(caption_path)))
+            cbdict[relpath] = caption_path
+
+        return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
+
+
+

@@ -262,13 +262,13 @@ class TableBase(object):
             tbl.column('parent_id',size='22',name_long='!!Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
-                                             onInserting='hierarchical_before',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
+                                             onInserting='hierarchical_before',group='*',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
                                                                                         one_name='!!Parent',many_name='!!Children',
                                                                                         deferred=True,
                                                                                         one_group=group,many_group=group)
-            tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname))
-            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""")
+            tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
+            tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
 
             hfields = hierarchical.split(',')
             for fld in hfields:
@@ -278,7 +278,7 @@ class TableBase(object):
                 else:
                     hcol = tbl.column(fld)
                     fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')                   
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,_sysfield=True)
+                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True)
                     tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
             tbl.attributes['hierarchical'] = hierarchical  
             if not counter:
@@ -297,7 +297,7 @@ class TableBase(object):
                 tbl.column('_parent_h_count',group=group,_sysfield=True) 
                 tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
                 default_order_by = '$_h_count' if hierarchical == 'pkey' else " COALESCE($_h_count,$%s) " %hierarchical.split(',')[0]
-                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True)
+                tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True, group=group)
                 tbl.attributes.setdefault('order_by','$_h_sortcol')
             else:
                 self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
@@ -354,7 +354,7 @@ class TableBase(object):
         tbl.formulaColumn('__is_protected_row',""" $__protection_tag IS NOT NULL AND NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')""",dtype='B')
         
     def sysFields_df(self,tbl):
-        tbl.column('df_fields',dtype='X',group='_')
+        tbl.column('df_fields',dtype='X',group='_',_sendback=True)
         tbl.column('df_fbcolumns','L',group='_')
         tbl.column('df_custom_templates','X',group='_')
         tbl.column('df_colswith',group='_')
@@ -424,7 +424,7 @@ class TableBase(object):
         last_counter_fetch = self.query(columns='$%s' %fldname,where=where,
                                     order_by='$%s desc' %fldname,limit=1,
                                     **wherekw).fetch()
-        last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 1
+        last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 0
         record[fldname] = last_counter +1
         
     def trigger_setTSNow(self, record, fldname,**kwargs):
@@ -713,8 +713,16 @@ class TableBase(object):
         if not tpl:
             tpl = self.db.currentPage.loadTemplate(tplpath)
             currEnv[tplkey] = tpl
+        kwargs = dict()
+        if isinstance(tpl,Bag):
+            kwargs['locale'] = self.db.currentPage.locale #tpl.getItem('main?locale')
+            kwargs['masks'] = tpl.getItem('main?masks')
+            kwargs['formats'] = tpl.getItem('main?formats')
+            kwargs['df_templates'] = tpl.getItem('main?df_templates')
+            kwargs['dtypes'] = tpl.getItem('main?dtypes')
+            #virtual_columns = tpl.getItem('main?virtual_columns')
         r = Bag(dict(record))
-        return templateReplace(tpl,r)
+        return templateReplace(tpl,r,**kwargs)
 
 
     def hosting_copyToInstance(self,source_instance=None,dest_instance=None,_commit=False,logger=None,onSelectedSourceRows=None,**kwargs):

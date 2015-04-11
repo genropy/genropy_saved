@@ -1147,7 +1147,7 @@ var gnrformatter = {
         //}
     },
     format_AR:function(value,format,formatKw){
-        value = dojo.map(value,this.asText);
+        value = dojo.map(value,function(n){return _F(n)});
         return value.join(format || ',');
     },
     format_NN:function(value,format,formatKw){
@@ -1869,6 +1869,14 @@ function localeParser(/*String*/value, /*Object?*/options) {
 }
 ;
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
 function flattenString(str,forbidden){
     var forbidden = forbidden || ['.'];

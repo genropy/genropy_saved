@@ -606,6 +606,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         zoomAttr['title'] = grid.currRenderedRow[(cellattr['caption_field'] || cellattr['field']).replace(/\W/g, '_')]
         zoomAttr['url_th_linker'] =zoomAttr.linker || true;
         zoomAttr['paletteCode']  = zoomAttr['pkey']+(zoomAttr['formResource'] || '');
+        zoomAttr = grid.sourceNode.evaluateOnNode(zoomAttr);
         var mode = objectPop(zoomAttr,'mode') || 'palette';
 
         if(mode=='palette'){
@@ -666,7 +667,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     thIframePalette:function(kw,openKw){
         if(objectPop(kw,'rootPalette')){
-            genro.mainGenroWindow.genro.dlg.thIframePalette(kw);
+            kw.th_from_package = genro.getData("gnr.package")
+            kw.url_forced_parent_page_id = genro.page_id;
+            genro.mainGenroWindow.genro.dlg.thIframePalette(kw,openKw);
             return;
         }
         var table = kw.table;
@@ -687,7 +690,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
             var node = genro.src.getNode(paletteCode).clearValue();
             node.freeze();
-            var dockTo = kw.dockTo || 'dummyDock:open';
+            var dockTo = kw.dockTo==false?false: (kw.dockTo || 'dummyDock:open');
             var paletteAttr = {'paletteCode':paletteCode,title:kw.title || 'Palette:'+table,
                                                         overflow:'hidden',
                                                           dockTo: dockTo,
@@ -752,18 +755,18 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
-        urlKw['th_from_package'] = genro.getData("gnr.package");
-        urlKw['_parent_page_id'] = genro.page_id;
+        urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        urlKw['_parent_page_id'] = objectPop(urlKw,'forced_parent_page_id') || genro.page_id;
         return genro.addParamsToUrl(zoomUrl,urlKw); 
     },
 
-    zoomPalette:function(kw){
+    zoomPalette:function(kw,openKw){
         var evt = objectPop(kw,'evt');
         if(evt){
             kw['palette_top'] = _px(evt.clientY);
             kw['palette_left'] = _px(evt.clientX);
         }
-        this.thIframePalette(kw);
+        this.thIframePalette(kw,openKw);
     },
 
     quickPalette:function(paletteCode,kw,content){

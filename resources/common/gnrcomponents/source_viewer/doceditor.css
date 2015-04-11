@@ -1,4 +1,12 @@
-.speciale{
-    color:red;
-    text-decoration: underline;
+.documentationTable{
+    border-collapse: collapse;
+}
+
+.documentationTable td{
+    border: 1px solid silver;
+    color:#666;
+}
+.documentationTable th{
+    background: rgba(28, 72, 255, 0.24);
+    color:#666;
 }

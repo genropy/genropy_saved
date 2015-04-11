@@ -47,6 +47,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.parentLock = this.parentLock ==null? 'auto':this.parentLock;
         this.current_field = null;
         this.controllerPath = controllerPath;
+        this.formErrors = new gnr.GnrBag();
         if(!this.store){
             this.controllerPath = this.controllerPath || 'gnr.forms.' + this.formId;
         }
@@ -259,14 +260,20 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     applyDisabledStatus:function(){
-        var disabled = this.isDisabled();
-        this.publish('onDisabledChange',{disabled:disabled})
-        genro.dom.setClass(this.sourceNode,'lockedContainer',disabled)
-        var node,localdisabled;
+        var form_disabled = this.isDisabled();
+        this.publish('onDisabledChange',{disabled:form_disabled})
+        genro.dom.setClass(this.sourceNode,'lockedContainer',form_disabled)
+        var node,disabled;
         for (var k in this._register){
             node = this._register[k];
-            localdisabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
-            node.setDisabled(disabled || localdisabled);
+            disabled=form_disabled 
+            if(disabled==false){
+                disabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
+                if(disabled==false && 'unmodifiable' in node.attr){
+                    disabled = !this.isNewRecord();
+                }
+            }
+            node.setDisabled(disabled)
         }
     },
 
@@ -381,7 +388,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     r.setItem('fieldname','<div style="font-weight: bold;">'+n.attr._valuelabel+'</div>',{_valuelabel:'Field'});
                     r.setItem('error','Invalid data',{_valuelabel:'Error'});
                     content.setItem('r_'+i,r)
+                    i++;
                 });
+            }
+            var formErrorsMessages = this.getFormErrors();
+            if(formErrorsMessages.length){
+                formErrorsMessages.forEach(function(message){
+                    content.setItem('r_'+i+'.error',message);
+                    i++;
+                })
             }
             content = content.asHtmlTable({cells:'fieldname,error',headers:true});
             return '<div class="form_errorslogger">Wrong fields</div><div class="form_contentlogger">'+content+'</div>';
@@ -612,6 +627,25 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     waitingStatus:function(waiting){
         this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
+    },
+
+    setFormError:function(errorcode,message){
+        if(message==false){
+            this.formErrors.popNode(errorcode);
+        }else{
+            this.formErrors.setItem(errorcode,message)
+        }
+    },
+
+    getFormErrors:function(){
+        var result = [];
+        this.formErrors.walk(function(n){
+            var v = n.getValue();
+            if(typeof(v)=='string'){
+                result.push(v);
+            }
+        })
+        return result;
     },
     
     openPendingChangesDlg:function(kw){
@@ -1226,7 +1260,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this._getRecordCluster(value, changesOnly, data, false, currpath);
                 }
                 else if (value instanceof gnr.GnrBag) {
-                    sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
+                    sendBag = (sendback == true) || isNewRecord || value.getNodeByAttr('_loadedValue')!=null;
                     if(!sendBag && objectNotEmpty(this.gridEditors)){
                         for(var k in this.gridEditors){
                             var ge = this.gridEditors[k];
@@ -1509,7 +1543,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     isValid:function(){
-        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
+        return ((this.formErrors.len()) == 0 && (this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0)) && this.registeredGridsStatus()!='error';
     },
 
     registeredGridsStatus:function(){
@@ -1644,6 +1678,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     resetInvalidFields:function(){
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
         this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
+        this.formErrors = new gnr.GnrBag();
         this.updateStatus();
     },
     getChangesLogger: function() {
@@ -1819,17 +1854,29 @@ dojo.declare("gnr.GnrValidator", null, {
         if (dojo.isIE > 0) {
             return;
         }
-        var validate_notnull = sourceNode.attr.validate_notnull;
+        var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         var result;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
                 sourceNode.widget._updateSelect();
-                result = validate_notnull?{'errorcode':'missing'}:{};
+                result = validate_notnull?{'errorcode':'missing'}:null;
+                if(!validate_notnull){
+                    genro.callAfter(function(){
+                        if(isNullOrBlank(sourceNode.widget.getValue())){
+                            sourceNode.widget.setDisplayedValue('');
+                        }
+                    },1);
+                    if(sourceNode._wrongSearch){
+                        result = {'iswarning':'Not existing','errorcode':'missing'}
+                    }
+                }
+                delete sourceNode._wrongSearch;
             }
             sourceNode.widget._lastValueReported = null;
             return result;
         }
     },
+
     validate_empty: function(param, value) {
         if (value == null || value === '') {
             return {'value':param};
@@ -2077,7 +2124,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var saver = this.handlers.save;
         var that = this;
         var path = this.form.getCurrentPkey();
-        var rpc_kw = {};
+        var rpc_kw = this.form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         rpc_kw.path = path;
         if(path=='*newrecord*' && this.getNewPath){
             path = funcApply(this.getNewPath,{record:formData},form);

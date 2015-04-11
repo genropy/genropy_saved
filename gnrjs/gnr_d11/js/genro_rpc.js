@@ -453,7 +453,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var childDataChanges = envelope.getItem('childDataChanges');
         if(childDataChanges){
             childDataChanges.forEach(function(n){
-                var w = genro.getChildFramePage(n.label);
+                var w = genro.getChildWindow(n.label);
                 w.genro.rpc.setDatachangesInData(n._value);
             },'static');
         }

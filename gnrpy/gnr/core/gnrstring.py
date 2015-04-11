@@ -167,7 +167,7 @@ try:
     class JsonEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, datetime.date):
-                return obj.strftime('%m/%d/%Y')
+                return '%04i/%02i/%02i'%(obj.year,obj.month,obj.day)
             if isinstance(obj, Decimal):
                 return str(obj)
             try:

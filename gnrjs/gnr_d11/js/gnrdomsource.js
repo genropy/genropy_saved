@@ -1078,24 +1078,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var parent = this.getParentNode();
         if (parent) {
             return parent.getFormHandler();
-        }else if (window.frameElement){
-            var parentIframe = window.frameElement.sourceNode;
-            if(parentIframe){
-                return parentIframe.getFormHandler();
-            }
+        }else if (genro.parentIframeSourceNode){
+            return genro.parentIframeSourceNode.getFormHandler();
         }
     },
-    
-   /* getParentForm:function(){
-        var parentForm = this.sourceNode.getParentNode().form;
-        if(!parentForm && window.frameElement){
-            var parentIframe = window.frameElement.sourceNode;
-            if(parentIframe){
-                return parentIframe.form;
-            }
-        }
-        return parentForm;
-    },*/
     
     inheritedAttribute:function(attr){
         var node = this.attributeOwnerNode(attr);
@@ -1299,12 +1285,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         this.widget._lastValueReported = value; // see dijit.form._formWidget setValue
                     }                                           // force _lastValueReported to get onChange event
                     kw = false;
-                    if (this.attr.unmodifiable) {
-                        var parentAttr = this.getRelativeData('.?');
-                        if ('_newrecord' in parentAttr) {
-                            this.widget.setAttribute('readOnly', !parentAttr['_newrecord']);
-                        }
-                    }
                     if (this.attr['protected']) {
                         var parentAttr = this.getRelativeData('.?');
                         if ('_newrecord' in parentAttr) {

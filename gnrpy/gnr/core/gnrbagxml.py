@@ -143,12 +143,15 @@ class _SaxImporter(sax.handler.ContentHandler):
         self.currType = None
         self.currArray = None
 
-    def getValue(self):
+    def getValue(self, dtype=None):
         if self.valueList:
             if self.valueList[0] == '\n': self.valueList[:] = self.valueList[1:]
             if self.valueList:
                 if(self.valueList[-1] == '\n'): self.valueList.pop()
-        return saxutils.unescape(''.join(self.valueList))
+        value = ''.join(self.valueList)
+        if dtype!='BAG':
+            value = saxutils.unescape(value)
+        return value
 
     def startElement(self, tagLabel, attributes):
         attributes = dict([(str(k), self.catalog.fromTypedText(saxutils.unescape(v))) for k, v in attributes.items()])
@@ -187,7 +190,7 @@ class _SaxImporter(sax.handler.ContentHandler):
         if s != '': self.valueList.append(s)
 
     def endElement(self, tagLabel):
-        value = self.getValue()
+        value = self.getValue(dtype = self.currType)
         self.valueList = []
         dest = self.bags[-1][0]
         if (self.format == 'GenRoBag'):

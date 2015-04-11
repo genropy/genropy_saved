@@ -21,9 +21,10 @@ wsgi_options = dict(
         restore=False,
         profile=False,
         noclean=False,
-                source_instance=None,
+        source_instance=None,
         remote_edit=None,
-        remotesshdb=None
+        remotesshdb=None,
+        gzip=None
         )
 
 class attrDict(dict):

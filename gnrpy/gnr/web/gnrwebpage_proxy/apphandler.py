@@ -679,7 +679,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
-                         recordResolver=True, selectionName='', structure=False, numberedRows=True,
+                         recordResolver=True, selectionName='',queryMode=None, structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
@@ -740,7 +740,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         for k in kwargs.keys():
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
-
         if selectionName.startswith('*'):
             if selectionName == '*':
                 selectionName = self.page.page_id
@@ -769,7 +768,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
             selection = selecthandler(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
-                                      condition=condition,
+                                      condition=condition,queryMode=queryMode,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
@@ -827,8 +826,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
+        with self.page.pageStore() as store:
+            slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
+            if slaveSelections:
+                for page_id,grids in slaveSelections.items():
+                    if self.page.site.register.exists(page_id,register_name='page'):
+                        for nodeId in grids.keys():
+                            self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
+                    else:
+                        slaveSelections.popNode(page_id)
         return (result, resultAttributes)
-
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
         external_queries = {}
@@ -884,16 +891,62 @@ class GnrWebAppHandler(GnrBaseProxy):
                             r.update(resdict[r[extfkeyname]])
                     
     
+
+    def _handleLinkedSelection(self,selectionName=None):
+        with self.page.pageStore() as slaveStore:
+            lsKey = 'linkedSelectionPars.%s' %selectionName
+            linkedSelectionPars = slaveStore.getItem(lsKey)
+            if not linkedSelectionPars:
+                return
+            linkedPkeys = linkedSelectionPars['pkeys']
+            command = linkedSelectionPars['command']
+            if command:
+                linkedSelectionPars['command'] = None
+                gridNodeId = linkedSelectionPars['gridNodeId']
+                if linkedSelectionPars['linkedPageId']:
+                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as masterStore:
+                        slavekey = 'slaveSelections.%(linkedSelectionName)s' %linkedSelectionPars
+                        slaveSelections = masterStore.getItem(slavekey) or Bag()
+                        grids = slaveSelections[self.page.page_id] or Bag()
+                        if command=='subscribe':
+                            grids[gridNodeId] = True
+                        else:
+                            grids.popNode(gridNodeId)
+                        if grids:
+                            slaveSelections[self.page.page_id] = grids
+                        else:
+                            slaveSelections.popNode(self.page.page_id)
+                        if slaveSelections:
+                            masterStore.setItem(slavekey, slaveSelections)
+                        else:
+                            masterStore.popNode(slavekey)
+                if command == 'unsubscribe':
+                    for k in linkedSelectionPars.keys():
+                        linkedSelectionPars[k] = None
+                slaveStore.setItem(lsKey,linkedSelectionPars)
+        if linkedSelectionPars['masterTable']:
+            if not linkedPkeys:
+                linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
+                                                            page_id=linkedSelectionPars['linkedPageId'])
+            where = ' OR '.join([" (%s IN :_masterPkeys) " %r for r in linkedSelectionPars['relationpath'].split(',')])
+            return dict(where=' ( %s ) ' %where,linkedPkeys=linkedPkeys.split(',') if isinstance(linkedPkeys,basestring) else linkedPkeys)
+
+
+
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
-                               pkeys=None, 
+                               pkeys=None, queryMode=None,
                               sortedBy=None, sqlContextName=None,
                               excludeLogicalDeleted=True,excludeDraft=True,**kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
-        if pkeys:
+        linkedSelectionKw = self._handleLinkedSelection(selectionName=selectionName)
+        if linkedSelectionKw:
+            where = linkedSelectionKw['where']
+            kwargs['_masterPkeys'] = linkedSelectionKw['linkedPkeys']
+        elif pkeys:
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.strip(',').split(',')
             if len(pkeys)==0:
@@ -909,6 +962,16 @@ class GnrWebAppHandler(GnrBaseProxy):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
+        if queryMode in ('U','I','D'):
+            _qmpkeys = self.page.freezedPkeys(tblobj,selectionName)
+            queryModeCondition = '( $%s IN :_qmpkeys )' %tblobj.pkey
+            kwargs['_qmpkeys'] = _qmpkeys
+            if queryMode == 'U':
+                where =' ( %s ) OR ( %s ) ' % (where, queryModeCondition)
+            elif queryMode == 'I':
+                where =' ( %s ) AND ( %s ) ' % (where, queryModeCondition)
+            elif queryMode == 'D':
+                where =' ( %s ) AND NOT ( %s ) ' % (queryModeCondition,where)   
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,

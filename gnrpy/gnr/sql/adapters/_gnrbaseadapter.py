@@ -344,6 +344,10 @@ class SqlDbAdapter(object):
 
     def insertMany(self, dbtable, records,**kwargs):
         tblobj = dbtable.model
+        pkeyColumn = tblobj.pkey
+        for record in records:
+            if not record.get(pkeyColumn):
+                record[pkeyColumn] = dbtable.newPkeyValue(record)
         sql_flds = []
         columns = []
         sqlnamemapper_items = filter(lambda x:x[0] in records[0].keys(), tblobj.sqlnamemapper.items())

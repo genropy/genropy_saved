@@ -3,6 +3,7 @@ import os
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 #from gnr.core.gnrlang import gnrImport
+from gnr.core.gnrlang import getUuid
 
 class GnrWsgiWebApp(GnrApp):
     def __init__(self, *args, **kwargs):
@@ -14,9 +15,55 @@ class GnrWsgiWebApp(GnrApp):
         self._siteMenuDict = dict()
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
 
-    def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        super(GnrWsgiWebApp, self).notifyDbEvent(tblobj, record, event, old_record=old_record)
+    def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
+        if isinstance(recordOrPkey,list):
+            records = recordOrPkey
+        elif not recordOrPkey and kwargs:
+            records = tblobj.query(**kwargs).fetch()
+        else:
+            broadcast = tblobj.attributes.get('broadcast')
+            if broadcast is False:
+                return
+            if isinstance(recordOrPkey,basestring):
+                if isinstance(broadcast,basestring):
+                    records = [tblobj.record(pkey=recordOrPkey).output('dict')]
+                else:
+                    records = [{tblobj.pkey:recordOrPkey}]
+            else:
+                records = [recordOrPkey]
+        for record in records:
+            self.application.notifyDbEvent(tblobj, record, 'U')
 
+    def notifyDbEvent(self, tblobj, record, event, old_record=None):
+        """TODO
+        
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: TODO
+        :param event: TODO
+        :param old_record: TODO. """
+        currentEnv = self.db.currentEnv
+        if currentEnv.get('hidden_transaction'):
+            return
+        if not currentEnv.get('env_transaction_id'):
+            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
+        broadcast = tblobj.attributes.get('broadcast')
+        if broadcast is not False and broadcast != '*old*':
+            dbevents=currentEnv['dbevents']
+            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
+            if broadcast and broadcast is not True:
+                for field in broadcast.split(','):
+                    newvalue = record.get(field)
+                    r[field] = self.catalog.asTypedText(newvalue) #2011/01/01::D
+                    if old_record:
+                        oldvalue = old_record.get(field)
+                        if newvalue!=oldvalue:
+                            r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
+            dbevents.setdefault(tblobj.fullname,[]).append(r)
+        audit_mode = tblobj.attributes.get('audit')
+        if audit_mode:
+            self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
+                
+   
     def onDbCommitted(self):
         super(GnrWsgiWebApp, self).onDbCommitted()
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
@@ -74,6 +121,17 @@ class GnrWsgiWebApp(GnrApp):
         if authpkg and hasattr(authpkg, 'modifyUserUrl'):
             return authpkg.modifyUserUrl()
 
+
+    def checkAllowedIp(self,allowed_ip):
+        "override"
+        currentPage = self.site.currentPage
+        iplist = currentPage.connection.ip.split('.')
+        for ip in allowed_ip.split(','):
+            ipcheck = ip.split('.') 
+            if iplist[0:len(ipcheck)] == ipcheck:
+                return True
+        return False
+
     def loginUrl(self):
         authpkg = self.authPackage()
         loginUrl = ''
@@ -114,7 +172,7 @@ class GnrWsgiWebApp(GnrApp):
                     url_info = self.site.getUrlInfo([attributes['pkg'], attributes['dir']])
                     dirpath=os.path.join(url_info.basepath,*url_info.request_args)  
                     value=DirectoryResolver(dirpath,cacheTime=10,
-                                                include='*.py', exclude='_*,.*',dropext=True,readOnly=False)
+                                                include='*.py', exclude='__*,.*',dropext=True,readOnly=False)
                     currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
                     value = self.packages[attributes['pkg']].pkgMenu['#0']
@@ -156,13 +214,3 @@ class GnrWsgiWebApp(GnrApp):
                 attr['file'] = node.label
             menubag.setItem(pathlist, None, attr)
         return menubag
-
-
-    def setPreference(self, path, data, pkg):
-        if self.db.package('adm'):
-            self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
-
-    def getPreference(self, path, pkg, dflt=''):
-        if self.db.package('adm'):
-            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
-    

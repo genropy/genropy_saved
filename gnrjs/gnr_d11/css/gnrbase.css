@@ -139,6 +139,14 @@ cursorZoom_plus{
     display: inline-block;
     white-space: nowrap;
 }
+
+.cell_editable .gnrcheckbox_wrapper{
+    left: 25%;
+    position: relative;
+    margin-left: -10px;
+    margin-top: 3px;
+    padding-right: 0;
+}
 .keeper_on .fieldkeeper div{
     background: #666;
 }
@@ -253,6 +261,14 @@ cursorZoom_plus{
 
 .gnrdebugger {
     z-index: 1000 !important;
+}
+.pbl_title_caption {
+    font-size: 11pt;
+    padding-top: 1px;
+    text-align: center;
+}
+.pbl_avatar{
+    padding-top: 3px;
 }
 .gnroutofdate .pbl_avatar,.gnroutofdate .pbl_slotbar_label{
     color:red !important;
@@ -538,6 +554,13 @@ cursorZoom_plus{
     padding-left: 4px;
     padding-top: 1px;
     min-height: 13px;
+    display: inline-block;
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 .fakeNumberTextBox ,.gnrfield.tag_div>div.fakeNumberTextBox{
@@ -551,6 +574,12 @@ cursorZoom_plus{
     padding-top: 1px;
     min-height: 13px;
     text-align: right;
+    -webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 
@@ -1517,6 +1546,7 @@ div.dojoxDock {
 
 .floatingPopup {
     padding-right: 15px;
+    cursor: pointer;
 }
 .menuButtonDiv{
     padding-right: 10px;
@@ -1802,6 +1832,11 @@ div.dojoxDock {
 
 .disabled_row {
     opacity: .6;
+}
+.tickOn {
+    background: url(icons/base10/tick.gif) no-repeat center center;
+    width: 15px;
+    height: 15px;
 }
 
 .checkboxOn {
@@ -2496,7 +2531,6 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group DojoxGrid*/
 .tundra .filteredGrid .dojoxGrid-cell{
-    text-decoration:underline;
 }
 
 .tundra ._gnrReadOnlyRow ._statusIcon{
@@ -3342,11 +3376,11 @@ body *{
 /* @group drag drop */
 
 .canBeDropped {
-    background-color: #8fff9d !important;
+    background-color: rgba(0, 255, 0, 0.15) !important;
 }
 
 .cannotBeDropped {
-    background-color: #ffa997 !important;
+    background-color: rgba(255, 60, 0, 0.15) !important;
 }
 
 img.canBeDropped {
@@ -3438,10 +3472,10 @@ table.draggedItem {
 
 /* @group Table */
 
-.dojoxGrid td.cell_R .cellContent,
-.dojoxGrid td.cell_I .cellContent,
-.dojoxGrid td.cell_N .cellContent,
-.dojoxGrid td.cell_L .cellContent{
+.dojoxGrid td.cell_R .cellContent, .treecell.cell_R .treeCellContent,
+.dojoxGrid td.cell_I .cellContent, .treecell.cell_I .treeCellContent,
+.dojoxGrid td.cell_N .cellContent, .treecell.cell_N .treeCellContent,
+.dojoxGrid td.cell_L .cellContent, .treecell.cell_L .treeCellContent{
     text-align: right;
 }
 
@@ -3864,6 +3898,7 @@ p {
     font-size: 9pt;
     font-variant:small-caps;*/
 }
+
 .multibutton.multibutton_closable{
     padding-right: 18px;
 }
@@ -3875,13 +3910,22 @@ p {
 
 .multibutton_closer{
     position: absolute;
-    top:3px;
+    top:4px;
     right:2px;
+    border-radius: 3px;
+
+}
+.multibutton_closer:hover{
+    background-color: rgba(245, 245, 245, 1);
+}
+
+._is_readonly_row .multibutton_closer, .multibutton_selected._is_readonly_row .multibutton_closer.deleteSelectedOnly{
+    visibility: hidden;
 }
 
 .multibutton_closer.deleteSelectedOnly{
     position: absolute;
-    top:3px;
+    top:4px;
     right:2px;
     visibility: hidden;
 }
@@ -3903,6 +3947,11 @@ p {
 }
 /* @end */
 
+.framecloserIcon{
+    height: 10px;
+    width: 10px;
+    background: url(icons/base10/frametabclose.png) no-repeat center center;
+}
 
 
 /* @end */
@@ -3927,6 +3976,12 @@ p {
     text-align:center;
     box-shadow:2px 2px 6px #555;
     color:#666;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .chunkeditor_varplaceholder{
     background:#555;
@@ -4095,6 +4150,18 @@ div[disabled='true'], div[disabled='disabled']{
 	margin-left: 25px;
 }
 
+.windowmenuIcon{
+    background: url(icons/base16/windowmenu.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+}
+
+.windowaddIcon{
+    background: url(icons/base16/windowadd.png) no-repeat center center;
+    height: 16px;
+    width: 16px;
+}
+
 /* @end */
 .tinyCloseBranch{
     background: url(icons/base10/tinyCloseBranch.png) no-repeat right center;
@@ -4201,6 +4268,88 @@ div[disabled='true'], div[disabled='disabled']{
     background: url(icons/made_with_genropy_small.png) no-repeat center center;
 }
 
+
+/*treegrid*/
+.treeGridLayout{
+    position:absolute;
+    top:0;
+    bottom:0;
+    right:0;
+    left:0;
+    color:#444;
+}
+.treeGridHeader{
+    height:20px;
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+}
+.treeGridCenter{
+    position:absolute;
+    top:21px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+}
+
+.treeHeaderCell{
+    position: absolute;
+    text-align: center;
+    line-height: 20px;
+    border-left: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+}
+.treeHeaderCell:last-child{
+    border-right:1px solid #efefef;
+}
+.treegrid .treecell{
+    position: absolute;
+    border-bottom: 1px solid #efefef;
+    border-left: 1px solid #efefef;
+    top: 0;
+    bottom:1;
+}
+
+.treegrid .treecell:last-child{
+    border-right:1px solid #efefef;
+}
+
+.treeCellContent{
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.treegrid .dijitTreeContent{
+    position: relative;
+    height: 16px;
+    left:20px;
+}
+
+.treegrid .dijitTreeLabel{
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top:0;
+    bottom:0;
+    left: 0;
+}
+.treeHeaderRow{
+    position: absolute;
+    top:0px;
+    right:2px;
+    left:1px;
+}
+
+.treegrid .treerow{
+    position: absolute;
+    top:0px;
+    right:2px;
+    left:1px;
+    bottom: -1px;
+}
+/*treegrid*/
 
 .branchtree_selected{
     background-color: #739CDC;
@@ -4413,6 +4562,7 @@ div[disabled='true'], div[disabled='disabled']{
 ._common_d11 .cell_B .widgetInCell {
     width: 16px;
     margin: auto;
+    box-shadow: 2px 2px 3px #777 inset;
 }
 
 ._common_d11 .widgetInCell {
@@ -4438,10 +4588,6 @@ div[disabled='true'], div[disabled='disabled']{
 
 ._common_d11 .dojoxGrid-row {
     background-color: transparent;
-}
-
-._common_d11 .canBeDropped .dojoxGrid-cell {
-    background-color: #8fff9d !important;
 }
 
 /*._common_d11 .cannotBeDropped .dojoxGrid-cell {

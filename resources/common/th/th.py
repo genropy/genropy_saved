@@ -314,8 +314,6 @@ class TableHandler(BaseComponent):
             hider=True
             delrow = True if delrow is None else delrow
             addrow = False if addrow is None else addrow
-        if rowStatusColumn is None:
-            rowStatusColumn = delrow is True
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,handlerType='plain',
                                         viewResource=viewResource,hider=hider,rowStatusColumn=rowStatusColumn,
                                         picker=picker,addrow=addrow,delrow=delrow,**kwargs)
@@ -467,6 +465,7 @@ class MultiButtonForm(BaseComponent):
         storepath  = storepath or '.store' 
         store_kwargs['storepath'] = storepath
         store_kwargs.update(condition_kwargs)
+        columns = store_kwargs.pop('columns','*')
         tbkw = dict()
         if darkToolbar:
             tbkw = dict(gradient_from='#999',gradient_to='#666')
@@ -474,8 +473,8 @@ class MultiButtonForm(BaseComponent):
         caption_field = caption or self.db.table(table).attributes['caption_field']
         multibutton_kwargs.setdefault('caption',caption_field)
         self.subscribeTable(table,True)
-        mb = bar.mbslot.multibutton(value='^.pkey',**multibutton_kwargs)
-        columnslist = ['*','$%(caption)s' %multibutton_kwargs]
+        mb = bar.mbslot.multibutton(value='^.value',**multibutton_kwargs)
+        columnslist = [columns,'$%(caption)s' %multibutton_kwargs]
 
         if formhandler_kwargs:
             frame.attributes.update(onCreated="""
@@ -497,7 +496,8 @@ class MultiButtonForm(BaseComponent):
             for formId,pars in formhandler_kwargs.items():
                 self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,
                                             switchdict=switchdict,storetable=table,
-                                            caption_field=caption_field,frameCode=frameCode)
+                                            caption_field=caption_field,frameCode=frameCode,
+                                            switch=switch)
             formIdlist = formhandler_kwargs.keys()
             bar.dataController("""if(!storebag || storebag.len()==0){
                     SET .pkey = null;
@@ -507,32 +507,36 @@ class MultiButtonForm(BaseComponent):
                 if(currentFormId && currentFormId!='emptypage'){
                     var currentLoadedForm = genro.formById(currentFormId);
                     if(currentLoadedForm.changed){
-                        PUT .pkey = _triggerpars.kw.oldvalue;
+                        PUT .value = _triggerpars.kw.oldvalue;
                         genro.dlg.alert(pendingChangesMessage,pendingChangesTitle)
                         return;
                     }else if(currentLoadedForm.parentFormPkey=='*newrecord*'){
+                        if(!multiButtonValue){
+                            SET .formPkey = '*norecord*';
+                        }
                         return;
-                    }else if(!pkey){
+                    }else if(!multiButtonValue){
                         currentLoadedForm.abort();
                     }
+                }else if(!multiButtonValue){
+                    SET .formPkey = null;
                 }
-                if(pkey!='_newrecord_'){
-                    SET .loadFkey = pkey?pkey:'*norecord*';
+                if(multiButtonValue!='_newrecord_'){
+                    SET .formPkey = multiButtonValue?multiButtonValue:'*norecord*';
                 }
                 """,
-                pkey='^.pkey',formIdlist=formIdlist,currentFormId='=.selectedForm',
+                multiButtonValue='^.value',formIdlist=formIdlist,currentFormId='=.selectedForm',
                 pendingChangesTitle=pendingChangesTitle or '!!Operation forbidden',
                 pendingChangesMessage=pendingChangesMessage or '!!You cannot change record. The record is not saved')
             bar.dataController("""
                 var selectedNode = storebag.getNodeByAttr('_pkey',pkey);
                 if(!selectedNode){
                     SET .row = new gnr.GnrBag();
-                    SET .selectedForm = "emptypage";
                     return; 
                 }
                 var record = selectedNode.attr;
                 SET .row = new gnr.GnrBag(record);
-                """,pkey='^.loadFkey',storebag='=%s' %storepath)
+                """,pkey='^.formPkey',storebag='=%s' %storepath)
             bar.data('.connected_forms',Bag(switchdict))
             bar.dataController("""
                 var switchValue = row.getItem(sw);
@@ -542,14 +546,7 @@ class MultiButtonForm(BaseComponent):
                 SET .selectedForm = formId;
                 var loadPkeyValue = row.getItem(pkeyColumn);
                 var relatedForm = genro.formById(formId);
-                if(loadPkeyValue){
-                    relatedForm.load({destPkey:loadPkeyValue});
-                }else{
-                    var default_kwargs = pars['default_kwargs'];
-                    default_kwargs[pars['fkey']] = row.getItem('_pkey');
-                    default_kwargs = this.evaluateOnNode(default_kwargs);
-                    relatedForm.newrecord(default_kwargs);
-                }
+                relatedForm.goToRecord(loadPkeyValue);
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
         else:
@@ -572,11 +569,11 @@ class MultiButtonForm(BaseComponent):
                 }
                 frm.form.goToRecord(pkey)
                 """,
-                pkey='^.pkey',
+                pkey='^.value',
                 frm=form,_if='pkey',caption_field=caption_field,store='=.store')
             form.dataController("""
                 mb.form.childForms[this.form.formId] = this.form;
-                mb.setRelativeData('.pkey',pkey=='*newrecord*'?'_newrecord_':pkey);
+                mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,pkey='^#FORM.controller.loaded',mb=mb)
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
         store_kwargs['_else'] = "this.store.clear();"
@@ -584,22 +581,25 @@ class MultiButtonForm(BaseComponent):
         if store_kwargs['order_by']:
             columnslist.append(store_kwargs['order_by'])
         store_kwargs['columns'] = ','.join(columnslist)
-        s = mb.store(table=table,condition=condition,**store_kwargs)
-        frame.dataController("SET .store = new gnr.GnrBag();",store=s,formsubscribe_onDismissed=True)
+        mb.store(table=table,condition=condition,**store_kwargs)
+        frame.dataController("SET .store = new gnr.GnrBag();",formsubscribe_onLoading=True)
         frame.multiButtonView = mb
         return frame
 
     def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None,
-                                caption_field=None,frameCode=None):
+                                caption_field=None,frameCode=None,switch=None):
         form_kwargs = dictExtract(pars,'form_',pop=True)
         default_kwargs = dictExtract(pars,'default_',pop=True)
         datapath = pars.pop('datapath','.forms.%s' %formId)
-        pkeyColumn = pars.pop('pkeyColumn')
-        columnslist.append('$%s' %pkeyColumn)
         switchValues = pars.pop('switchValues')
-        table = pars.pop('table')
-        joiner = self.db.table(table).model.getJoiner(storetable)
-        fkey = joiner['many_relation'].split('.')[-1]
+        table = pars.pop('table',None) or storetable
+        pkeyColumn = pars.pop('pkeyColumn',None) or self.db.table(table).pkey
+        if table!=storetable:
+            columnslist.append('$%s' %pkeyColumn)
+            joiner = self.db.table(table).model.getJoiner(storetable)
+            fkey = joiner['many_relation'].split('.')[-1]
+        else:
+            fkey = pkeyColumn
         for c in switchValues.split(','):
             switchdict[c] = dict(formId=formId,pkeyColumn=pkeyColumn,fkey=fkey,default_kwargs=default_kwargs)
         form = sc.contentPane(pageName=formId,overflow='hidden').thFormHandler(table=table,
@@ -607,7 +607,7 @@ class MultiButtonForm(BaseComponent):
                                                                         formId=formId,datapath=datapath,
                                                                         **form_kwargs) 
         form.dataController("""
-                            if (!fkey && pkey=='*newrecord*'){
+                            if (pkey=='*newrecord*'){
                                 var store = mainstack.getRelativeData('.store');
                                 if(!store){
                                     store = new gnr.GnrBag();
@@ -615,16 +615,17 @@ class MultiButtonForm(BaseComponent):
                                 }
                                 kw = {};
                                 kw[caption_field] = data.attr.caption;
-                                kw['_pkey'] = '_newrecord_';
-                                store.setItem('_newrecord_',null,kw)
-                                fkey = '_newrecord_'
+                                fkey = fkey || '_newrecord_';
+                                kw['_pkey'] = fkey;
+                                kw[switch_field] = data.getValue().getItem(switch_field);
+                                store.setItem(fkey,null,kw)
                             }
                             mainstack.form.childForms[code] = this.form;
-                            mainstack.setRelativeData('.pkey',fkey);
+                            mainstack.setRelativeData('.value',fkey);
                             mainstack.setRelativeData('.selectedForm',fid);
                             """,
                             mainstack=sc,fid=formId,caption_field=caption_field,
-                            fkey='=#FORM.record.%s' %fkey,code=frameCode,
+                            fkey='=#FORM.record.%s' %fkey,code=frameCode,switch_field=switch,
                             formsubscribe_onLoaded=True)        
 
 class ThLinker(BaseComponent):
@@ -707,7 +708,7 @@ class ThLinker(BaseComponent):
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,
                     formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,
-                    margin=None,editEnabled=True,clientTemplate=False,**kwargs):
+                    margin=None,editEnabled=True,clientTemplate=False,center_class=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
@@ -715,18 +716,19 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
+        center_class = center_class or 'linkerCenter'
         if clientTemplate:
-            template = frame.templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
         else:
-            template = frame.templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
         if editEnabled and formResource or formUrl:
-            footer = frame.bottom.slotBar('*,linker_edit')
+            footer = frame.bottom.slotBar('*,linker_edit',height='20px')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
                                             visible=currpkey,parentForm=True)

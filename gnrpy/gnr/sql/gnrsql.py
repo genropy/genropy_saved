@@ -493,11 +493,14 @@ class GnrSqlDb(GnrObject):
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag()) 
-        while deferreds:
-            node =  deferreds.popNode('#0')
-            cb,args,kwargs = node.value
-            cb(*args,**kwargs)
-            deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
+        with self.tempEnv(onCommittingStep=True):
+            while deferreds:
+                node =  deferreds.popNode('#0')
+                cb,args,kwargs = node.value
+                cb(*args,**kwargs)
+                allowRecursion = getattr(cb,'deferredCommitRecursion',False)
+                if not allowRecursion:
+                    deferreds.popNode(node.label) #pop again because during triggers it could adding the same key to deferreds bag
 
     def deferToCommit(self,cb,*args,**kwargs):
         deferreds = self.currentEnv.setdefault('deferredCalls',Bag())
@@ -797,7 +800,14 @@ class GnrSqlDb(GnrObject):
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
-                
+
+    def freezedPkeys(self,fpath):
+        filename = '%s_pkeys.pik' % fpath
+        if not os.path.exists(filename):
+            return []
+        with open(filename) as f:
+            return cPickle.load(f)
+
     def unfreezeSelection(self, fpath):
         """Get a pickled selection and return it
         

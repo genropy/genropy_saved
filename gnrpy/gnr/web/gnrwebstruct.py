@@ -29,8 +29,6 @@ from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs,deprecated
-
-from time import time
 from copy import copy
 
 
@@ -40,6 +38,9 @@ def cellFromField(field,tableobj):
     fldobj = tableobj.column(field)
     fldattr = dict(fldobj.attributes or dict())
     if 'values' in fldattr:
+        values = fldattr['values']
+        values = getattr(fldobj.table.dbtable, values ,lambda: values)()
+        fldattr['values'] = values
         kwargs['values'] = fldattr['values']
     kwargs.update(dictExtract(fldattr,'cell_'))
     kwargs.setdefault('format_pattern',fldattr.get('format'))
@@ -436,6 +437,9 @@ class GnrDomSrc(GnrStructData):
 
     def multibutton_store(self,table=None,**kwargs):
         return self.child('multibutton_store',childname='itemsStore',table=table,**kwargs)
+
+    def treegrid_column(self,field,**kwargs):
+        return self.child('treegrid_column',field=field,**kwargs)  
 
     def quickgrid_column(self,field,**kwargs):
         return self.child('quickgrid_column',field=field,**kwargs)  
@@ -856,7 +860,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','MultiButton','PaletteGroup','DocumentFrame','bagEditor','PagedHtml','DocItem', 'PalettePane','PaletteMap','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','QuickEditor','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','QuickEditor','TreeGrid','QuickGrid','QuickTree','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1737,6 +1741,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #    result['tag']='bagfilteringtable'
         elif dtype in ('A', 'T') and fldattr.get('values', False):
             values = fldattr['values']
+            values = getattr(fieldobj.table.dbtable, values ,lambda: values)()
+            fldattr['values'] = values
             result['tag'] = 'filteringselect' if ':' in values else 'combobox'
             result['values'] = values
         elif dtype == 'A':

@@ -12,8 +12,8 @@ import os
 
 class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
+    py_requires = 'gnrcomponents/doc_handler/doc_handler:DocHandler'
     js_requires = 'source_viewer'
-
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
@@ -28,6 +28,7 @@ class SourceViewer(BaseComponent):
                        width='550px',overflow='hidden',splitter=True,border_left='1px solid #efefef',
                        background='white')
         sourceViewer.contentPane(_class='source_viewer').remote(self.source_viewer_content)
+        sourceViewer.addToDocumentation()
         page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
                         sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
                         _source_changed='=gnr.source_viewer.changed_editor',
@@ -113,8 +114,6 @@ class SourceViewer(BaseComponent):
     @public_method
     def source_viewer_content(self,pane,**kwargs):
         bc = pane.borderContainer(height='100%',_class='selectable')
-        top = bc.framePane(region='top',splitter=True,height='300px',
-                        _class='viewer_box')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
         source = self.__readsource('py')
         if self.source_viewer_edit_allowed():
@@ -122,12 +121,10 @@ class SourceViewer(BaseComponent):
         else:
             self.source_viewer_html(center,source=source)
         docslots = '5,vtitle,*,editbtn,5' if self.source_viewer_edit_allowed() else '5,vtitle,*'
-        bar = top.top.slotToolbar(docslots,vtitle='Documentation',font_size='11px',font_weight='bold',height='20px')
+        bar = center.top.slotToolbar(docslots,vtitle='Documentation',font_size='11px',font_weight='bold',height='20px')
         if self.source_viewer_edit_allowed():
             bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',
                                 action='PUBLISH editSourceDoc;')
-        iframe = top.center.contentPane(overflow='hidden').htmliframe(height='100%',width='100%',border=0)
-        self.source_viewer_docController(iframe)
 
 
     def source_viewer_editor(self,frame,source=None):

@@ -17,7 +17,7 @@ import os
 
 class PublicBase(BaseComponent):
     #css_requires = 'public'
-    py_requires = """public:PublicSlots"""
+    py_requires = """public:PublicSlots,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
                      
     def userRecord(self, path=None):
         if not hasattr(self, '_userRecord'):
@@ -47,9 +47,8 @@ class PublicBase(BaseComponent):
                     
     def rootWidget(self, root, **kwargs):
         root.dataController("""
-                if(window.frameElement){
-                    var parentIframeSourceNode = window.frameElement.sourceNode;
-                    var multipage_childpath = parentIframeSourceNode.attr.multipage_childpath;
+                if(genro.parentIframeSourceNode){
+                    var multipage_childpath = genro.parentIframeSourceNode.attr.multipage_childpath;
                     if(multipage_childpath){
                         genro.mainGenroWindow.genro.setData(multipage_childpath+'.title',title,{titleFullDesc:titleFullDesc});
                     }
@@ -61,13 +60,10 @@ class PublicBase(BaseComponent):
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
-        frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',
-                                subscribe_pbl_bottomMsg="console.warn('pbl_bottomMsg deprecated use floating_message');genro.publish('floating_message',$1);",
-                                **kwargs)
+        frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class=center_class or 'pbl_root_center',**kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
+        frame.dataController("SET gnr.windowTitle=gnr_public_title[0];",subscribe_gnr_public_title=True)
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
-        if bottom:
-            self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
         self.root_publicframe = frame
         return frame
         
@@ -85,9 +81,6 @@ class PublicBase(BaseComponent):
             kwargs['captionslot_title'] = title
         return pane.slotBar(slots=slots,childname='bar',
                             **kwargs)
-                            
-    def public_frameBottomBar(self,pane,slots=None,**kwargs):
-        pane.slotBar('',_class='pbl_root_bottom')
 
     @struct_method
     def public_roundedGroup(self, container, title=None,frame=False,top=None,bottom=None,left=None,right=None,**kwargs):
@@ -100,6 +93,8 @@ class PublicBase(BaseComponent):
     @struct_method
     def public_roundedGroupFrame(self, container, title=None,frameCode=None,**kwargs):
         kwargs['overflow'] = 'hidden'
+        if container.attributes['tag'].lower() in ('tabcontainer','stackcontainer'):
+            kwargs['title'] = title
         pane = container.contentPane(**kwargs)
         frame = pane.framePane(frameCode=frameCode,margin='2px',_class='pbl_roundedGroup')
         if title:
@@ -157,7 +152,6 @@ class PublicBase(BaseComponent):
 class Public(PublicBase):
     """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
     css_requires = 'public'
-    plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
     py_requires = """public:PublicSlots,foundation/macrowidgets"""
 
@@ -189,10 +183,10 @@ class PublicSlots(BaseComponent):
             }
             """,_onStart=True,custom_workdate=self.rootenv['login_date'] != self.workdate or False,lg='!!Logout',cn='!!Continue',
                 msg='!!The date is changed since you logged in. Logout to use the right workdate',title="!!Wrong date")
-        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar',**kwargs)
+        pane.div(datasource='^gnr.rootenv',template=self.pbl_avatarTemplate(),_class='pbl_avatar ',**kwargs)
     
     def pbl_avatarTemplate(self):
-        return '<div class="pbl_slotbar_label buttonIcon">$workdate<div>'
+        return '<div >$workdate<div>'
 
 
     @struct_method
@@ -295,15 +289,12 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,gnrcomponents/bottomplugins:BottomPlugins,th/th:TableHandler"""
-    plugin_list=''
+    py_requires = """public:Public,th/th:TableHandler,gnrcomponents/doc_handler/doc_handler:DocHandler,gnrcomponents/ticket_handler/ticket_handler:TicketHandler"""
     formResource = None
     viewResource = None
     formInIframe = False
     th_readOnly = False
     maintable = None
-    documentation = True
-    tickets = True
 
     #DA RIVEDERE
     @struct_method
@@ -313,7 +304,6 @@ class TableHandlerMain(BaseComponent):
         pane.dataController(""" var filter;
                                 if (activeFilter==true){
                                     filter = query.deepCopy();
-                                    console.log(filter);
                                 }else if(activeFilter==false){
                                     filter = null;
                                 }
@@ -431,10 +421,6 @@ class TableHandlerMain(BaseComponent):
         if publicCollapse:
             th.view.attributes.update(_class='pbl_root')
             viewbar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_root_top',height='22px')
-            if not hasattr(th.view.bottom,'bar'):
-                self.public_frameBottomBar(th.view.bottom,slots='*,messageBox,*')
-            else:
-                th.view.bottom.bar.attributes.update(_class='slotbar_toolbar pbl_root_bottom')
             viewbar.replaceSlots('#','#,avatarslot,10')
             viewbar.replaceSlots('5,searchOn','10,captionslot,searchOn')
             viewbar.avatarslot.publicRoot_avatar(margin_top='-2px')
@@ -475,7 +461,6 @@ class TableHandlerMain(BaseComponent):
                 var targetRowData = dropInfo.targetRowData;
                 var dragRowData = dragInfo.rowdata;
                 if(!targetRowData){
-                    console.log('no targetRowData')
                     return true
                 }
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
@@ -497,6 +482,7 @@ class TableHandlerMain(BaseComponent):
         if hasattr(th,'form'):
             self._th_parentFrameMessageSubscription(th.form)
         return th
+
 
     @public_method
     def th_getUnifierWarningBag(self,table=None,sourcePkey=None,destPkey=None):

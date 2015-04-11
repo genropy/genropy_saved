@@ -1022,13 +1022,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
     },
     
-    _datatransfer:function(){
-        var _transferObj = genro.mainGenroWindow.genro._transferObj;
-        if (!_transferObj){
-            _transferObj = {};
-            genro.mainGenroWindow.genro._transferObj = _transferObj;
+    _datatransfer:function(dt){
+        if(dt){
+            genro.setInStorage('local','_transferObj',dt);
+            return;
         }
-        return _transferObj;
+        return  genro.getFromStorage('local','_transferObj') || {};
     },
     
     onDragStart:function(event) {
@@ -1077,7 +1076,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
         var domnode = dragInfo.target;
         var widget = dragInfo.widget;
-        objectPopAll(genro.dom._datatransfer());        
+        genro.dom._datatransfer({});        
         var dataTransfer = event.dataTransfer;
         if (!dragInfo.dragImageNode) {
             var dragClass = inherited['dragClass'] || 'draggedItem';
@@ -1104,7 +1103,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var v = convertToText(v);
         v = ((k.indexOf('text/') == 0) || (v[0] == '') || (v[0] == 'T')) ? v[1] : v[1] + '::' + v[0];
         dataTransfer.setData(k, v);
-        genro.dom._datatransfer()[k] = v;
+        var dt = genro.dom._datatransfer();
+        dt[k] = v;
+        genro.dom._datatransfer(dt);
     },
 
     setDragSourceInfo:function(dragInfo, dragValues, dragTags) {
@@ -1396,7 +1397,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return hider;
     },
 
-
+    isWindowVisible:function(){
+        if(genro.parentIframeSourceNode){
+            return window.parent.genro.dom.isVisible(genro.parentIframeSourceNode);
+        }
+        return true;
+    },
+    
     isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
@@ -1407,10 +1414,11 @@ dojo.declare("gnr.GnrDomHandler", null, {
             if(what.clientHeight ==0 || what.clientWidth == 0){
                 return false;
             }
-            return true;
+            return this.isWindowVisible();
         }
         return false;
     },
+
     autoSize:function(widget){
         var box;
         var maxHeight=0;

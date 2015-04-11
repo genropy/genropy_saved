@@ -49,31 +49,46 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
-        self.mode = mode or 'dict'
+        self.mode = mode or 'record'
         self.kwargs = kwargs
         self.raw = raw
         self.insertMissing = insertMissing
+        self.ignoreMissing = ignoreMissing
         self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing,**self.kwargs).output(self.mode)
-        self.insertMode = self.record.get(self.tblobj.pkey) is None
-        self.oldrecord = None if self.insertMode else dict(self.record)
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing or self.ignoreMissing,
+                                                    **self.kwargs).output(self.mode)
+        if self.record.get(self.tblobj.pkey) is None:
+            oldrecord = None
+            if self.insertMissing:
+                self.insertMode = True
+            else:
+                self.record = None
+        else:
+            oldrecord = dict(self.record)
+        self.oldrecord = oldrecord
         return self.record
         
         
     def __exit__(self, exception_type, value, traceback):
         if not exception_type:
+            if not self.record:
+                return
             if self.raw:
-                if self.insertMode:
+                if self.record.get(self.tblobj.pkey) is False:
+                    self.tblobj.raw_delete(self.oldrecord)
+                elif self.insertMode:
                     self.tblobj.raw_insert(self.record)
                 else:
                     self.tblobj.raw_update(self.record,self.oldrecord)
             else:
-                if self.insertMode:
+                if self.record.get(self.tblobj.pkey) is False:
+                    self.tblobj.delete(self.oldrecord)
+                elif self.insertMode:
                     self.tblobj.insert(self.record)
                 else:
                     self.tblobj.update(self.record,self.oldrecord)
@@ -495,7 +510,7 @@ class SqlTable(GnrObject):
                 if not in_cache:
                     store.setItem(key,tablecache)
         else:
-            tablecache = self.currentEnv.setdefault(key,dict())
+            tablecache = self.db.currentEnv.setdefault(key,dict())
             record,in_cache = recordFromCache(pkey,tablecache,virtual_columns_set)
         return record
 
@@ -756,7 +771,9 @@ class SqlTable(GnrObject):
         for row in fetch:
             new_row = dict(row)
             if callable(updater):
-                updater(new_row)
+                doUpdate = updater(new_row)
+                if doUpdate is False:
+                    continue
             elif isinstance(updater, dict):
                 new_row.update(updater)
             record_pkey = row[pkeycol]
@@ -1640,7 +1657,7 @@ class SqlTable(GnrObject):
                       raw_insert=raw_insert,
                       source_tbl_name=source_tbl_name,_converters=converters,**querykwargs)
                       
-    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
+    def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, relationStack='',**kwargs):
         """TODO
         
         :param omit: TODO
@@ -1658,7 +1675,8 @@ class SqlTable(GnrObject):
                 targettbl = self.db.table('%s.%s' % (relpkg, reltbl))
                 return BagCbResolver(targettbl.relationExplorer, omit=omit,
                                      prevRelation=attributes['fieldpath'], dosort=dosort,
-                                     pyresolver=pyresolver, **kwargs)
+                                     pyresolver=pyresolver,relationStack=relationStack, 
+                                     **kwargs)
                                      
         def resultAppend(result, label, attributes, omit):
             gr = attributes.get('group') or ' '
@@ -1672,7 +1690,7 @@ class SqlTable(GnrObject):
             if grin not in omit:
                 result.setItem(label, xvalue(attributes), attributes)
                 
-        def convertAttributes(result, relnode, prevRelation, omit):
+        def convertAttributes(result, relnode, prevRelation, omit,relationStack):
             attributes = dict(relnode.getAttr())
             attributes['fieldpath'] = gnrstring.concat(prevRelation, relnode.label)
             if 'joiner' in attributes:
@@ -1682,17 +1700,27 @@ class SqlTable(GnrObject):
                 if attributes['mode'] == 'M':
                     attributes['group'] = attributes.get('many_group') or 'zz'
                     attributes['dtype'] = 'RM'
+                    relkey = '%(one_relation)s/%(many_relation)s' %attributes
+
                 else:
                     attributes['group'] = attributes.get('one_group')
                     attributes['dtype'] = 'RO'
+                    relkey = '%(many_relation)s/%(one_relation)s' %attributes
+                relkey = str(hash(relkey) & 0xffffffff)
+                if relkey in relationStack.split('|'):
+                    return 
+                attributes['relationStack'] = gnrstring.concat(relationStack, relkey,'|')
             else:
                 attributes['name_long'] = attributes.get('name_long') or relnode.label
-            resultAppend(result, relnode.label, attributes, omit)
+            return attributes
+            
             
         tblmodel = self.model
         result = Bag()
         for relnode in tblmodel.relations: # add columns relations
-            convertAttributes(result, relnode, prevRelation, omit)
+            attributes = convertAttributes(result, relnode, prevRelation, omit,relationStack)
+            if attributes:
+                resultAppend(result, relnode.label, attributes, omit)
             
         for vcolname, vcol in tblmodel.virtual_columns.items():
             targetcol = self.column(vcolname)

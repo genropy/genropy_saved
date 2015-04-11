@@ -36,6 +36,18 @@
     background-color:lightyellow;
 }
 
+.slotbar_toolbar .gnrfieldlabel.th_searchlabel{
+    cursor: pointer;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding-right: 2px;
+    text-align: right;
+    display: inline-block;
+}
+
+.th_searchlabel:hover{
+    background-color: #feffb4;
+}
 /* @end */
 
 .topmsgcontainer {

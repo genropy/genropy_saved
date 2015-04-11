@@ -114,7 +114,10 @@ class SqlQueryCompiler(object):
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
-        self.relations = tblobj.newRelationResolver(cacheTime=-1)
+        if tblobj.db.application.config['db?reuse_relation_tree']:
+            self.relations = tblobj.relations
+        else:
+            self.relations = tblobj.newRelationResolver(cacheTime=-1)
         self.sqlparams = sqlparams
         self.joinConditions = joinConditions
         self.sqlContextName = sqlContextName
@@ -246,7 +249,8 @@ class SqlQueryCompiler(object):
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return sql_formula
             elif fldalias.py_method:
-                self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                #self.cpl.pyColumns.append((fld,getattr(self.tblobj.dbtable,fldalias.py_method,None)))
+                self.cpl.pyColumns.append((fld,getattr(fldalias.table.dbtable,fldalias.py_method,None)))
                 return 'NULL'
             else:
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
@@ -698,7 +702,7 @@ class SqlQueryCompiler(object):
             extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, '%s0' %self.aliasPrefix)
         return 'DynItemOneOne' if isOneOne else 'DynItemMany'
 
-    
+
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
@@ -710,11 +714,13 @@ class SqlQueryCompiler(object):
             if column is None:
                 # print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
+            column_attributes = self.tblobj.virtualColumnAttributes(col_name)
             self._currColKey = col_name
             field = self.getFieldAlias(column.name)
-            xattrs = dict([(k, v) for k, v in column.attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+
+            xattrs = dict([(k, v) for k, v in column_attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             
-            if column.attributes['tag'] == 'virtual_column':
+            if column_attributes['tag'] == 'virtual_column':
                 as_name = '%s_%s' % (self.aliasCode(0), column.name)
                 path_name = column.name
             else:
@@ -1005,7 +1011,9 @@ class SqlQuery(object):
         for field,handler in self.compiled.pyColumns:
             if handler:
                 for d in data:
-                    d[field] = handler(d,field=field)
+                    #d[field] = handler(d,field=field)
+                    result = handler(d,field=field)
+                    d[field] = result
 
     def fetchPkeys(self):
         fetch = self.fetch()
@@ -1387,7 +1395,17 @@ class SqlSelection(object):
         else:
             with open(pik_path) as f:
                 self._data = cPickle.load(f)
-        f.close()
+
+    def _freeze_pkeys(self, readwrite):
+        pik_path = '%s_pkeys.pik' % self.freezepath
+        if readwrite == 'w':
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
+            with os.fdopen(dumpfile_handle, "w") as f:
+                cPickle.dump(self.output('pkeylist'), f)
+            shutil.move(dumpfile_path, pik_path)
+        else:
+            with open(pik_path) as f:
+                return cPickle.load(f)
         
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
@@ -1420,7 +1438,8 @@ class SqlSelection(object):
         self._freezeme()
         self._freeze_data('w')
         self._freeze_filtered('w')
-        
+        self._freeze_pkeys('w')
+
     def freezeUpdate(self):
         """TODO"""
         if self.isChangedData:
@@ -2249,8 +2268,11 @@ class SqlRecord(object):
         
     def out_dict(self):
         """TODO"""
-        return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
-    
+        pyColumnsDict = dict([(k,h) for k,h in self.compiled.pyColumns])
+        result = dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
+        for k,v in result.items():
+            result[k] =  pyColumnsDict[k](result,field=k) if k in pyColumnsDict else result[k]
+        return result 
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)

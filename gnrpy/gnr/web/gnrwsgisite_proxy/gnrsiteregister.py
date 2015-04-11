@@ -912,6 +912,12 @@ class SiteRegisterClient(object):
                 pass
         return False
 
+    def pyroProxy(self,url):
+        proxy = Pyro4.Proxy(url)
+        if not OLD_HMAC_MODE:
+            proxy._pyroHmacKey = self.hmac_key
+        return proxy
+
 
     def new_page(self, page_id, page, data=None):
         register_item = self.siteregister.new_page( page_id, pagename = page.pagename,connection_id=page.connection_id,user=page.user,
