@@ -116,15 +116,7 @@ class SourceViewer(BaseComponent):
         bc = pane.borderContainer(height='100%',_class='selectable')
         center = bc.framePane('sourcePane',region='center',_class='viewer_box')
         source = self.__readsource('py')
-        if self.source_viewer_edit_allowed():
-            self.source_viewer_editor(center,source=source)
-        else:
-            self.source_viewer_html(center,source=source)
-        docslots = '5,vtitle,*,editbtn,5' if self.source_viewer_edit_allowed() else '5,vtitle,*'
-        bar = center.top.slotToolbar(docslots,vtitle='Documentation',font_size='11px',font_weight='bold',height='20px')
-        if self.source_viewer_edit_allowed():
-            bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',
-                                action='PUBLISH editSourceDoc;')
+        self.source_viewer_editor(center,source=source)
 
 
     def source_viewer_editor(self,frame,source=None):
