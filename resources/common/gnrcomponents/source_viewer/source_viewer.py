@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
@@ -14,6 +17,7 @@ class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
     py_requires = 'gnrcomponents/doc_handler/doc_handler:DocHandler'
     js_requires = 'source_viewer'
+    source_viewer_rebuild = True
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
@@ -38,7 +42,8 @@ class SourceViewer(BaseComponent):
                                         }else{
                                             genro.publish('showCodeError',result);
                                         }""")
-        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
+        if self.source_viewer_rebuild:
+            page.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
         page.dataController("""
             var node = genro.nodeById('sourceEditor');

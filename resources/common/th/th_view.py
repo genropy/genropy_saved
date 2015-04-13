@@ -911,7 +911,10 @@ class THViewUtils(BaseComponent):
                                                 dragValues['ext_table_records'] = kw;
                                                 """
         gridattr['dropTarget_grid'] = 'ext_table_records' if not gridattr.get('dropTarget_grid') else 'ext_table_records,%(dropTarget_grid)s' %gridattr
-        gridattr['onDrop_ext_table_records'] = """this.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,
+        gridattr['onDrop_ext_table_records'] = """if(dropInfo.selfdrop){
+            return;
+        }
+        this.publish('queryFromLinkedGrid',{data:data,modifiers:dropInfo.modifiers,
                                                                 dragSourceInfo:dropInfo.dragSourceInfo});
                                                 """
 

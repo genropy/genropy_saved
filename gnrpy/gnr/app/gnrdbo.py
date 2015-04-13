@@ -324,7 +324,7 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
-        if multidb:
+        if multidb and self.db.model.src['packages.multidb']:
             self.setMultidbSubscription(tbl,allRecords=(multidb=='*'),forcedStore=(multidb=='**'),group=group)
         if invalidFields or invalidRelations:
             if invalidFields:
@@ -664,7 +664,7 @@ class TableBase(object):
                               size=pkeycolAttrs.get('size'), group=group).relation(rel, relation_name='subscriptions',
                                                                                  many_group=group, one_group=group)
     def hasMultidbSubscription(self):
-        return self.attributes.get('multidb')==True
+        return self.attributes.get('multidb')==True and self.db.model.src['packages.multidb']
 
     def _onUnifying(self,destRecord=None,sourceRecord=None,moved_relations=None,relations=None):
         if self.hasMultidbSubscription():
