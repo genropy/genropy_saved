@@ -1,3 +1,10 @@
+.source_viewer_drawerlabel{
+    font-weight: bold;
+    color:white;
+    font-family: courier;
+    text-align: center;
+    margin-top: 5px;
+}
 .sandbox{
     background: white;
 }

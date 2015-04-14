@@ -206,7 +206,7 @@ class DocumentationPage(DocHandler):
         root.attributes.update(overflow='hidden')
         root.addToDocumentation()
         cssurl = self.site.getStaticUrl('rsrc:common','gnrcomponents','source_viewer','doceditor.css')
-        iframepars = dict(border=0,height='50%',width='100%')
+        iframepars = dict(border=0,height='100%',width='100%')
         url = self.de_documentPath(asUrl=True)
         root.data('main.src',url)
         root.dataController('SET main.src = currurl+"?nocache="+genro.getCounter();',

@@ -50,12 +50,19 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         return genro.rpc.remoteCall('main',objectUpdate({timeout:6000},genro.startArgs), 'bag');
     },
 
+
     updatePageSource:function(nodeId){
         var nodeId = nodeId || '_pageRoot';
-        var newpage = this.getMainSource();
-        var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
+        var tempcontent = this.newRoot();
+        tempcontent._('div',{_class:'waiting'});
         var node = genro.nodeById(nodeId);
-        node.setValue(newcontent);
+        node.setValue(tempcontent);
+        var newpage = this.getMainSource();
+        genro.callAfter(function(){
+            var newcontent = newpage._value.getNodeByAttr('nodeId',nodeId)._value;
+            node.setValue(newcontent);
+        },20,this,'reloading');
+       
     },
 
     highlightNode:function(sourceNode) {
@@ -545,7 +552,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
             if(onBuilt){
                 this.onBuiltCall(function(){
-                    node.setDataNodeValue();
+                    if(typeof(onBuilt)=='number'){
+                        setTimeout(function(){node.setDataNodeValue();},onBuilt);
+                    }else{
+                        node.setDataNodeValue();
+                    }
                 })
             }
         }

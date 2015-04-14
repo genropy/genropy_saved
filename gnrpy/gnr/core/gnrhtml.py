@@ -228,7 +228,8 @@ class GnrHtmlBuilder(object):
     styleAttrNames = ['height', 'width', 'top', 'left', 'right', 'bottom',
                       'visibility', 'overflow', 'float', 'clear', 'display',
                       'z_index', 'border', 'position', 'padding', 'margin',
-                      'color', 'white_space', 'vertical_align', 'background', 'text'];
+                      'color', 'white_space', 'vertical_align', 'background', 'text',
+                      'font'];
                       
     def __init__(self, page_height=None, page_width=None, page_margin_top=None,
                  page_margin_left=None, page_margin_right=None, page_margin_bottom=None,
@@ -487,6 +488,7 @@ class GnrHtmlBuilder(object):
         """TODO
         
         :param src: TODO"""
+        self.styleMaker(src.attributes)
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
@@ -530,10 +532,11 @@ class GnrHtmlBuilder(object):
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
-        layout.height = sum([row.height for row in layout.values()]) + layout.border_width * (len(layout) - 1)
+
         if layout.values():
+            layout.height = sum([row.height for row in layout.values()]) + layout.border_width * (len(layout) - 1)
             layout.values()[-1].row_border = False
-                    
+
         attr['top'] = layout.top
         attr['left'] = layout.left
         attr['bottom'] = layout.bottom

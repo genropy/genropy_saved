@@ -3,8 +3,9 @@
 """Menu"""
 
 import datetime
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrsys import expandpath
 
 class GnrCustomWebPage(object):
     dojo_version = '11'
@@ -62,6 +63,16 @@ class GnrCustomWebPage(object):
         ddm2 = pane.div(height='50px', width='50px', background='red', connectedMenu='test3menu')
         pane.dataRemote('.menudata', 'menudata', cacheTime=5)
         
+    def test_7_dir_resolver(self,pane):
+        #d = DirectoryResolver(,cacheTime=10,include='*.py', exclude='__*,.*',dropext=True,readOnly=False)()
+        pane.data('.store',DirectoryResolver(expandpath('~/sviluppo'),cacheTime=10,
+                            include='*.py', exclude='_*,.*',dropext=True,readOnly=False)()
+                            )
+
+        ddm = pane.div(height='50px', width='50px', background='lime')
+        ddm.menu(action='console.log($1)', modifiers='*', storepath='.store', _class='smallmenu',
+                        id='test99menu')
+
     def test_5_resolver(self, pane):
         """From resolver user"""
         ddm = pane.div(height='50px', width='50px', background='lime')
