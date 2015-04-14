@@ -34,10 +34,9 @@ class SourceViewer(BaseComponent):
                        splitter=True,border_left='1px solid #efefef',
                        background='white')
         frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',margin='2px',datapath='gnr.source_viewer',)
-        bar = frame.top.slotToolbar('2,sb,*,refresh,5,readOnlyEditor,dataInspector,2',height='20px')
+        bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
         sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
         self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
-        bar.refresh.slotButton('Refresh',action='genro.publish("rebuildPage");')
         bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
                                     label='ReadOnly',default_value=True,
                                     disabled='^.changed_editor')
@@ -81,8 +80,8 @@ class SourceViewer(BaseComponent):
             raise Exception('Not Allowed to write source code')
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
+            sys.modules.pop(os.path.splitext(docname)[0].replace(os.path.sep, '_').replace('.', '_'),None)
             self.__writesource(sourceCode,docname)
-            sys.modules.pop(self.__module__,None)
             return 'OK'
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
@@ -122,20 +121,20 @@ class SourceViewer(BaseComponent):
 
 
     def source_viewer_editor(self,frame,source=None):
-        bar = frame.bottom.slotToolbar('5,vtitle,*,savebtn,revertbtn,5')
-        bar.vtitle.div('^.docname',font_size='9px')
-        bar.savebtn.slotButton('Save',iconClass='iconbox save',
+        bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
+        bar.fpath.div('^.docname',font_size='9px')
+        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+        commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',action='PUBLISH sourceCodeUpdate')
-        bar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
+        commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
                                 action='SET .source = _oldval',
                                 _oldval='=.source_oldvalue')
-
         frame.data('.source',source)
         frame.data('.source_oldvalue',source)
         frame.dataController("""SET .changed_editor = currval!=oldval;
                                 genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
                             currval='^.source',
-                            oldval='^.source_oldvalue',bar=bar)
+                            oldval='^.source_oldvalue',bar=commandbar)
         cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
