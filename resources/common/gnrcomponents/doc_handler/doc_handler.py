@@ -109,7 +109,7 @@ class DocHandler(BaseComponent):
         iframe = viewer.htmliframe(
                             shield=True,
                             onCreated="""
-                            var cssurl = '%s';
+                            var cssurl = '%s?nocache='+new Date();
                             var e = document.createElement("link");
                             e.href = cssurl;
                             e.type = "text/css";
@@ -119,6 +119,8 @@ class DocHandler(BaseComponent):
                             """ %cssurl,**iframepars)
         iframe.dataController('iframe.domNode.contentWindow.document.body.innerHTML = previewHTML',
                                 previewHTML='^.body',iframe=iframe)
+        iframe.dataController('iframe.domNode.contentWindow.document.head.innerHTML = head',
+                                head='^.head',iframe=iframe)
         editorpane = sc.contentPane(pageName='editor',datapath='.record',title='!!Edit',iconTitle='icnBottomEditor',overflow='hidden')
         palette = editorpane.imgPickerPalette(code=code,folders='^#FORM.imgFolders',dockTo='dummyDock',externalSnapshot=True)
         palette.dataController("this.getParentWidget('floatingPane').show()",_fired='^#FORM.showImagesPicker');
@@ -129,6 +131,7 @@ class DocHandler(BaseComponent):
     def de_loadStoreFromFile(self,path,default_title=None,**kwargs):
         html= ''
         title=''
+        head = ''
         path = self.site.getStaticPath(path)
         if os.path.exists(path):
             with open(path,'r') as f:
@@ -137,9 +140,13 @@ class DocHandler(BaseComponent):
                 if m:
                     html = m.group(1)
                 m = re.search("<title>(.*)</title>", result, re.I | re.S)
+
                 if m:
                     title = m.group(1)
-        return Bag(content=Bag(body=html,title=title or default_title))
+                m = re.search("<head>(.*)</head>", result, re.I | re.S)
+                if m:
+                    head = m.group(1)
+        return Bag(content=Bag(body=html,title=title or default_title,head=head))
             
 
     @public_method
@@ -220,7 +227,8 @@ class DocumentationPage(DocHandler):
                             e.rel = "stylesheet";
                             e.media = "screen";
                             window.document.head.appendChild(e);
-                            """ %cssurl,**iframepars)
+                            """ %cssurl,
+                            **iframepars)
 
     
     def source_viewer_open(self):
