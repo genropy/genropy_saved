@@ -20,9 +20,6 @@ class SourceViewer(BaseComponent):
     js_requires = 'source_viewer'
     source_viewer_rebuild = True
 
-    def rootWidget(self,root,**kwargs):
-        return root.contentPane(overflow='hidden',**kwargs)
-
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
