@@ -645,6 +645,11 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if(savedAttrs.documentClasses){
             genro.dom.addClass(newobj,'emptyIframe');
         }
+        sourceNode.reloadIframe = function(delay){
+            genro.callAfter(function(){
+                this.domNode.gnr.setSrc(this.domNode)
+            },delay || 200,sourceNode,'reloadingIframe');                                            
+        };
         this.setSrc(newobj, savedAttrs.src);
         dojo.connect(sourceNode,'_onDeleting',function(){
             newobj.src = null;

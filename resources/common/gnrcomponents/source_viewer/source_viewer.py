@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrbag import Bag,DirectoryResolver
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -14,6 +18,8 @@ class SourceViewer(BaseComponent):
     css_requires = 'gnrcomponents/source_viewer/source_viewer,gnrcomponents/source_viewer/pygmentcss/friendly'
     py_requires = 'gnrcomponents/doc_handler/doc_handler:DocHandler'
     js_requires = 'source_viewer'
+    source_viewer_rebuild = True
+
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
@@ -22,89 +28,74 @@ class SourceViewer(BaseComponent):
         if drawer is False:
             return
         sourceViewer = _gnrRoot.value.contentPane(region='right',drawer=drawer,
-                        drawer_background='red',
-                       drawer_width='14px',drawer_left='-14px',drawer_height='80px',drawer_margin_top='-40px',
+                        drawer_background='red',drawer_top='21px',drawer_label='<div class="source_viewer_drawerlabel">Code</div>',
+                       drawer_width='43px',drawer_left='-40px',drawer_height='21px',
                        drawer_border='0px',
-                       width='550px',overflow='hidden',splitter=True,border_left='1px solid #efefef',
+                       width='550px',overflow='hidden',
+                       splitter=True,border_left='1px solid #efefef',
                        background='white')
-        sourceViewer.contentPane(_class='source_viewer').remote(self.source_viewer_content)
+        frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',margin='2px',datapath='gnr.source_viewer',)
+        bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
+        sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
+        self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
+        bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
+                                    label='ReadOnly',default_value=True,
+                                    disabled='^.changed_editor')
+        sc = frame.center.stackContainer(nodeId='source_viewer_stack')
+        bar.dataController("""
+            var label = docname.replace(/\./g, '_').replace(/\//g, '_');
+            if(sc._value.getNode(label)){
+                return;
+            }
+            var l = docname.split('/');
+            var title = l[l.length-1];
+            sc._('ContentPane',label,{title:title,datapath:'.page_'+sc._value.len(),
+                                        remote:remotemethod,remote_docname:docname,overflow:'hidden',
+                                        closable:true})
+            """,docname='^.new_source_viewer_page',sc=sc,remotemethod=self.source_viewer_content)
+        pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden')
+        docname = '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
+        pane.remote(self.source_viewer_content,docname=docname)
         sourceViewer.addToDocumentation()
-        page.dataRpc('dummy',self.save_source_code,subscribe_sourceCodeUpdate=True,
-                        sourceCode='=gnr.source_viewer.source',_if='sourceCode && _source_changed',
-                        _source_changed='=gnr.source_viewer.changed_editor',
-                        _onResult="""if(result=='OK'){
-                                            SET gnr.source_viewer.source_oldvalue = kwargs.sourceCode;
-                                            genro.publish('rebuildPage');
-                                        }else{
-                                            genro.publish('showCodeError',result);
-                                        }""")
-        page.dataController("""genro.src.updatePageSource('_pageRoot')""",
+        if self.source_viewer_rebuild:
+            page.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_rebuildPage=True,_delay=100)
-        page.dataController("""
-            var node = genro.nodeById('sourceEditor');
-            var cm = node.externalWidget;
-            lineno = lineno-1;
-            offset = offset-1;
-            var ch_start = offset>1?offset-1:offset;
-            var ch_end = offset;
-            cm.scrollIntoView({line:lineno,ch:ch_start});
-            var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
-                            {clearOnEnter:true,className:'source_viewer_error'});
-            genro.dlg.floatingMessage(node.getParentNode(),{messageType:'error',
-                        message:msg,onClosedCb:function(){
-                    tm.clear();
-                }})
-
-            """,subscribe_showCodeError=True)
-        self.source_viewer_sourceDocPalette(page)
-
-    def source_viewer_docController(self,iframe,_onStart=None):
-        rstsource = self.__readsource('rst') or '**Documentation**'
-        page = self.pageSource()
-        page.dataController('iframe.domNode.contentWindow.document.body.innerHTML = rendering',
-                rendering='^gnr.source_viewer.doc.html',iframe=iframe,_onStart=_onStart)
-        page.data('gnr.source_viewer.doc.rst',rstsource)
-        page.data('gnr.source_viewer.doc.html',self.source_viewer_rst2html(rstsource))
-        page.dataController("alert(page);",subscribe_showPagePalette=True)
-        page.dataController("""genro.wdgById('_docSource_floating').show();""",
-                            subscribe_editSourceDoc=True)
-        page.dataRpc('gnr.source_viewer.doc.html',self.source_viewer_rst2html,
-                    rstdoc='^gnr.source_viewer.doc.rst',
-                    _delay=500)
-        page.dataRpc('dummy',self.save_source_documentation,subscribe_sourceDocUpdate=True,
-                        rstdoc='=gnr.source_viewer.doc.rst')
-
-    @public_method
-    def save_source_documentation(self,rstdoc=None,**kwargs):
-        self.__writesource(rstdoc,'rst')
 
     def source_viewer_edit_allowed(self):
-        return self.site.remote_edit and self.isDeveloper()
+        return self.site.remote_edit
+
+    def source_viewer_addFileMenu(self,pane):
+        b = Bag()
+        for k,pkgobj in self.application.packages.items():
+            b.setItem(k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
+                            include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
+
+        
+        pane.data('.directories',b)
+        pane.menu(action='FIRE .new_source_viewer_page = $1.abs_path;', modifiers='*', storepath='.directories', _class='smallmenu')
 
     @public_method
-    def save_source_code(self,sourceCode=None):
+    def save_source_code(self,sourceCode=None,docname=None):
         sourceCode=str(sourceCode)
         if not self.source_viewer_edit_allowed():
             raise Exception('Not Allowed to write source code')
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
-            self.__writesource(sourceCode,'py')
-            sys.modules.pop(self.__module__)
+            sys.modules.pop(os.path.splitext(docname)[0].replace(os.path.sep, '_').replace('.', '_'),None)
+            self.__writesource(sourceCode,docname)
             return 'OK'
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
-    def __readsource(self,ext):
-        fname = self.source_viewer_docName(ext)
-        if not os.path.exists(fname):
+    def __readsource(self,docname):
+        if not os.path.exists(docname):
             return
-        with open(fname,'r') as f:
+        with open(docname,'r') as f:
             return f.read()
 
-    def __writesource(self,sourceCode,ext):
+    def __writesource(self,sourceCode,docname):
         if self.source_viewer_edit_allowed():
-            fname = self.source_viewer_docName(ext)
-            with open(fname,'w') as f:
+            with open(docname,'w') as f:
                 f.write(sourceCode)
 
     @public_method
@@ -112,43 +103,59 @@ class SourceViewer(BaseComponent):
         return self.site.getService('rst2html')(rstdoc,**kwargs)
 
     @public_method
-    def source_viewer_content(self,pane,**kwargs):
-        bc = pane.borderContainer(height='100%',_class='selectable')
-        center = bc.framePane('sourcePane',region='center',_class='viewer_box')
-        source = self.__readsource('py')
-        if self.source_viewer_edit_allowed():
-            self.source_viewer_editor(center,source=source)
-        else:
-            self.source_viewer_html(center,source=source)
-        docslots = '5,vtitle,*,editbtn,5' if self.source_viewer_edit_allowed() else '5,vtitle,*'
-        bar = center.top.slotToolbar(docslots,vtitle='Documentation',font_size='11px',font_weight='bold',height='20px')
-        if self.source_viewer_edit_allowed():
-            bar.editbtn.slotButton('Edit',iconClass='iconbox pencil',
-                                action='PUBLISH editSourceDoc;')
+    def source_viewer_content(self,pane,docname=None,**kwargs):
+        center = pane.framePane('sourcePane_%s' %docname.replace('/','_').replace('.','_'),region='center',_class='viewer_box selectable')
+        source = self.__readsource(docname)
+        self.source_viewer_editor(center,source=source)
+        pane.data('.docname',docname)
+        pane.dataRpc('dummy',self.save_source_code,docname='=.docname',
+                        subscribe_sourceCodeUpdate=True,
+                        sourceCode='=.source',_if='sourceCode && _source_changed',
+                        _source_changed='=.changed_editor',
+                        _onResult="""if(result=='OK'){
+                                            SET .source_oldvalue = kwargs.sourceCode;
+                                            genro.publish('rebuildPage');
+                                        }else{
+                                            FIRE .error = result;
+                                        }""")
+
 
 
     def source_viewer_editor(self,frame,source=None):
-        bar = frame.top.slotToolbar('5,vtitle,*,savebtn,revertbtn,5,dataInspector,5,readOnlyEditor,5',vtitle='Source',font_size='11px',font_weight='bold')
-        bar.savebtn.slotButton('Save',iconClass='iconbox save',
+        bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
+        bar.fpath.div('^.docname',font_size='9px')
+        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+        commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
                                 _class='source_viewer_button',action='PUBLISH sourceCodeUpdate')
-        bar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
-                                action='SET gnr.source_viewer.source = _oldval',
-                                _oldval='=gnr.source_viewer.source_oldvalue')
-
-        bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^gnr.source_viewer.readOnly',
-                                    label='ReadOnly',default_value=True,
-                                    disabled='^gnr.source_viewer.changed_editor')
-        frame.data('gnr.source_viewer.source',source)
-        frame.data('gnr.source_viewer.source_oldvalue',source)
-        frame.dataController("""SET gnr.source_viewer.changed_editor = currval!=oldval;
+        commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
+                                action='SET .source = _oldval',
+                                _oldval='=.source_oldvalue')
+        frame.data('.source',source)
+        frame.data('.source_oldvalue',source)
+        frame.dataController("""SET .changed_editor = currval!=oldval;
                                 genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
-                            currval='^gnr.source_viewer.source',
-                            oldval='^gnr.source_viewer.source_oldvalue',bar=bar)
-        frame.center.contentPane(overflow='hidden').codemirror(value='^gnr.source_viewer.source',
+                            currval='^.source',
+                            oldval='^.source_oldvalue',bar=commandbar)
+        cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
                                 height='100%',
-                                readOnly='^gnr.source_viewer.readOnly',nodeId='sourceEditor')
+                                readOnly='^gnr.source_viewer.readOnly')
+        frame.dataController("""
+            var cm = cmNode.externalWidget;
+            var lineno = error.lineno-1;
+            var offset = error.offset-1;
+            var ch_start = error.offset>1?error.offset-1:error.offset;
+            var ch_end = error.offset;
+            cm.scrollIntoView({line:lineno,ch:ch_start});
+            var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
+                            {clearOnEnter:true,className:'source_viewer_error'});
+            genro.dlg.floatingMessage(cmNode.getParentNode(),{messageType:'error',
+                        message:error.msg,onClosedCb:function(){
+                    tm.clear();
+                }})
+
+            """,error='^.error',cmNode=cm)
 
     def source_viewer_html(self,frame,source=None):
         frame.top.slotToolbar('5,vtitle,*,dataInspector,5',vtitle='Source',font_size='11px',font_weight='bold',height='20px')
@@ -195,23 +202,6 @@ class SourceViewer(BaseComponent):
         m = sys.modules[self.__module__]
         return '%s.%s' %(os.path.splitext(m.__file__)[0],ext)
 
-
-    def source_viewer_sourceDocPalette(self,pane):
-        palette = pane.palettePane(paletteCode='_docSource',dockTo='dummyDock',
-                                    height='500px',width='600px',
-                                    title='!!Source Documentation')
-        frame = palette.framePane(frameCode='_docEditorFrame',_lazyBuild=True)
-        frame.center.contentPane(overflow='hidden',_class='source_viewer').codemirror(value='^gnr.source_viewer.doc.rst',
-                                height='100%',config_lineNumbers=True,
-                                config_mode='rst',config_keyMap='softTab')
-        slots = '*,saveDoc,5,saveAndClose,5'
-        bar = frame.bottom.slotBar(slots,_class='slotbar_dialog_footer',height='20px')
-        bar.saveDoc.slotButton('!!Save',action='PUBLISH sourceDocUpdate;')
-        bar.saveAndClose.slotButton('!!Save and close',action="""
-            this.getParentWidget('floatingPane').hide()
-            PUBLISH sourceDocUpdate;""")
-
-        return frame
 
         
 

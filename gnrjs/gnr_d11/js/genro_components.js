@@ -1151,7 +1151,7 @@ dojo.declare("gnr.widgets.QuickEditor", gnr.widgets.gnrwdg, {
     
     cell_onCreating:function(gridEditor,colname,colattr) {
         colattr['z_index']= 1;
-        colattr['position'] = 'fixed';
+        //colattr['position'] = 'fixed';
         colattr['constrain_overflow'] = 'hidden'
         colattr['height'] = colattr['height'] || '18px';
     }

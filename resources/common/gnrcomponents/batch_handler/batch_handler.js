@@ -182,10 +182,13 @@ batch_monitor.btc_result = function(node, sourceNode) {
         if (url || url_print){
             var rlink = tbl._('tr');
             if (url) {
-                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url,display:'inline-block',_class:'bm_resultlink'})._('div')._('div', {_class:'iconbox inbox'});
+                var urlist = url.split('/');
+
+                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url,display:'inline-block',_class:'bm_resultlink',download:urlist[urlist.length-1]})._('div')._('div', {_class:'iconbox inbox'});
             }
             if(url_print){
-                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url_print,display:'inline-block',_class:'bm_resultlink'})._('div')._('div', {_class:'iconbox print'});
+                var url_print_list = url_print.split('/');
+                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url_print,display:'inline-block',_class:'bm_resultlink',download:url_print_list[url_print_list.length-1]})._('div')._('div', {_class:'iconbox print'});
             }
         }
         if (resultAttr.autoDestroy){

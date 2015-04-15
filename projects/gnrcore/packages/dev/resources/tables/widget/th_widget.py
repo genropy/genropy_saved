@@ -44,7 +44,7 @@ class Form(BaseComponent):
                 fieldsdata.forEach(function(n){
                         var v = n.getValue();
                         var old_v = old_docrows.getItem(n.label) || new gnr.GnrBag();
-                        var docv = new gnr.GnrBag({code:v.getItem('code'),documentation:old_v.getItem('documentation'),datatype:old_v.getItem('datatype')});
+                        var docv = new gnr.GnrBag({code:v.getItem('code'),documentation:old_v.getItem('documentation'),datatype:old_v.getItem('datatype') || v.getItem('data_type')});
                         new_docrows.setItem(n.label,docv);
                     });
 
@@ -55,8 +55,8 @@ class Form(BaseComponent):
     def documentation_struct(self,struct):
         r = struct.view().rows()
         r.cell('code',width='10em',name='!!Code')
-        r.cell('documentation',name='!!Documentation',width='40em',edit=dict(tag='quickEditor'))
         r.cell('datatype',name='Type',width='8em',edit=dict(tag='ComboBox',values='Text,Bool,Int,Decimal,Date,Bag,list,callable,json,Other'))
+        r.cell('documentation',name='!!Documentation',width='40em',edit=dict(tag='quickEditor'))
 
 
     def th_options(self):

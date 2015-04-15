@@ -16,11 +16,11 @@ DOCTPL ="""<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>%(name)s</title>
 <meta name="author" content="GenroPy">
-<style type="text/css">
-    @import url("%(widgetpedia_css)s");  
-</style>
+<link rel="stylesheet" type="text/css" href="%(widgetpedia_css)s">
+<link rel="stylesheet" type="text/css" href="%(widgetpedia_static_css)s">
 </head>
 <body>
+    
     %(summary)s
     %(dfAsTable)s
 </body>
@@ -36,24 +36,24 @@ class Main(BaseResourceAction):
         site = self.page.site
         widgetpedia_folder = site.getStaticPath('pkg:dev','webpages','widgetpedia')
         doc_it_folder = site.getStaticPath('pkg:dev','doc','IT','html','webpages','widgetpedia')
-        self.widgetpedia_css = site.getStaticUrl('pkg:dev','doc','widgetpedia.css')
+        self.widgetpedia_css = site.getStaticPath('pkg:dev','doc','widgetpedia.css')
+        self.widgetpedia_static_css = site.getStaticUrl('pkg:dev','doc','widgetpedia.css')
         #doc_en_folder = site.getStaticPath('pkg:dev','doc','EN','html','webpages','widgetpedia')
         if self.do_rebuild:
-            shutil.rmtree(widgetpedia_folder)
             shutil.rmtree(doc_it_folder)
         for r in f:
-            w_path = os.path.join(widgetpedia_folder,*r['hierarchical_name'].split('/'))
-            d_path = os.path.join(doc_it_folder,*r['hierarchical_name'].split('/'))
+            w_path = os.path.join(widgetpedia_folder,*r['hierarchical_name'].lower().split('/'))
+            d_path = os.path.join(doc_it_folder,*r['hierarchical_name'].lower().split('/'))
             self.prepare_example_file(r,w_path)
             self.prepare_doc_file(r,d_path)
 
     def prepare_example_file(self,record,path):
+        lowername = record['name'].lower()
         if record['child_count']>1:
             self._prepare_dir(path)
-            path = os.path.join(path,'_overview_%(name)s' %record)
+            path = os.path.join(path,'_overview_%s' %lowername)
         path = '%s.py' %path
-        path = path.lower()
-        if not os.path.isfile(path) or self.do_rebuild:
+        if not os.path.isfile(path):
             with open(path,'w') as f:
                 self.write(f,'#!/usr/bin/python')
                 self.write(f)
@@ -69,14 +69,15 @@ class Main(BaseResourceAction):
 
 
     def prepare_doc_file(self,record,path):
+        lowername = record['name'].lower()
         if record['child_count']>1:
             self._prepare_dir(path)
-            path = os.path.join(path,'_overview_%(name)s' %record)
+            path = os.path.join(path,'_overview_%s' %lowername)
         path = '%s.html' %path
-        path = path.lower()
         record['summary'] = record['summary'] or '<h1>%s</h1>' %record['name']
-        if not os.path.isfile(path) or self.do_rebuild:
-            record['widgetpedia_css'] = self.widgetpedia_css
+        if not os.path.isfile(path):
+            record['widgetpedia_css'] = os.path.relpath(self.widgetpedia_css,os.path.dirname(path))
+            record['widgetpedia_static_css'] = self.widgetpedia_static_css
             record['dfAsTable'] = self.dfAsTable(record)
             with open(path,'w') as f:
                 self.write(f,DOCTPL %record)

@@ -7,8 +7,8 @@ class Package(GnrDboPackage):
         return dict(sqlschema='glbl',
                     comment='glbl package',
                     name_short='glbl',
-                    name_long='glbl',
-                    name_full='glbl')
+                    name_long='Geo Italia',
+                    name_full='Geo Italia')
                     
     def config_db(self, pkg):
         pass

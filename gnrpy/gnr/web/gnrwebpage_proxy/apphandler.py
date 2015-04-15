@@ -942,7 +942,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
-        linkedSelectionKw = self._handleLinkedSelection(selectionName=selectionName)
+
+        linkedSelectionKw = self._handleLinkedSelection(selectionName=selectionName) if selectionName else None
         if linkedSelectionKw:
             where = linkedSelectionKw['where']
             kwargs['_masterPkeys'] = linkedSelectionKw['linkedPkeys']

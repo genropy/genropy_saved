@@ -396,6 +396,10 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if('translate_x' in valuedict){result+='translatex('+(valuedict['translate_x']||'0')+'px) ';}
         if('translate_y' in valuedict){result+='translatey('+(valuedict['translate_y']||'0')+'px) ';}
         if('scale' in valuedict){result+='scale('+(valuedict['scale']||0)+') ';}
+        if('origin' in valuedict){
+            styledict['transform-origin'] = valuedict['origin'];
+        }
+
         if('scale_x' in valuedict){result+='scalex('+(valuedict['scale_x']||1)+') ';}
         if('scale_y' in valuedict){result+='scaley('+(valuedict['scale_y']||1)+') ';}
         if('skew' in valuedict){result+='skew('+valuedict['skew']+') ';}
