@@ -669,8 +669,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         if(objectPop(kw,'rootPalette')){
             kw.th_from_package = genro.getData("gnr.package")
             kw.url_forced_parent_page_id = genro.page_id;
-            genro.mainGenroWindow.genro.dlg.thIframePalette(kw,openKw);
-            return;
+            return genro.mainGenroWindow.genro.dlg.thIframePalette(kw,openKw);
         }
         var table = kw.table;
         var evt = kw.evt;
@@ -732,6 +731,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             openKw.topic = openKw.topic || 'main_form_open';
             paletteNode._iframeNode.domNode.gnr.postMessage(paletteNode._iframeNode,openKw);
         }
+        return paletteNode;
     },
 
     _prepareThIframeUrl:function(kw){
@@ -766,7 +766,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             kw['palette_top'] = _px(evt.clientY);
             kw['palette_left'] = _px(evt.clientX);
         }
-        this.thIframePalette(kw,openKw);
+        return this.thIframePalette(kw,openKw);
     },
 
     quickPalette:function(paletteCode,kw,content){
