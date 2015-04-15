@@ -159,8 +159,15 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         }
     },
 
-    mixin_gnr_value:function(value,kw, trigger_reason){
+    mixin_gnr_value:function(value,kw, trigger_reason){        
         this.setValue(value)
+        var that = this;
+        var sourceNode = this.sourceNode;
+        sourceNode.watch('isVisible',function(){
+            return genro.dom.isVisible(sourceNode);
+        },function(){
+            that.refresh()
+        })
     },
     mixin_gnr_readOnly:function(value,kw,trigger_reason){
         this.options.readOnly = value?'nocursor':false;
