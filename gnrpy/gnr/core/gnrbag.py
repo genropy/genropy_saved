@@ -1835,7 +1835,7 @@ class Bag(GnrObject):
             
         elif hasattr(source, 'items'):
             for key, value in source.items():
-                if hasattr(value, 'items'):
+                if not isinstance(value,Bag) and hasattr(value, 'items'):
                     value = Bag(value)
                 self.setItem(key, value)
         
