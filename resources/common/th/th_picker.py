@@ -18,6 +18,7 @@ class THPicker(BaseComponent):
         
         one = False
         picker_kwargs = picker_kwargs or dict()
+        picker_kwargs.setdefault('uniqueRow',True)
         condition=picker_kwargs.pop('condition',None)
         condition_kwargs = dictExtract(picker_kwargs,'condition_',pop=True,slice_prefix=True)
         
@@ -66,7 +67,7 @@ class THPicker(BaseComponent):
                 paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
             if not condition_kwargs:
                 paletteth.view.store.attributes.update(_onStart=True)
-            if grid:
+            if grid and picker_kwargs.get('uniqueRow'):
                 paletteth.view.grid.attributes.update(filteringGrid=grid.js_sourceNode(),filteringColumn='_pkey:%s' %many)
         elif tblobj.attributes.get('caption_field'):
             def struct(struct):
@@ -77,7 +78,7 @@ class THPicker(BaseComponent):
                             grid_multiSelect=multiSelect,
                             title=title,searchOn=searchOn,
                             width=width,height=height)
-            if grid:
+            if grid and picker_kwargs.get('uniqueRow'):
                 paletteGridKwargs['grid_filteringGrid']=grid
                 paletteGridKwargs['grid_filteringColumn'] = '_pkey:%s' %many
             condition_kwargs.setdefault('_onStart',True)
