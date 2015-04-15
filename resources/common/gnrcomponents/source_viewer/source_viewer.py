@@ -19,6 +19,10 @@ class SourceViewer(BaseComponent):
     py_requires = 'gnrcomponents/doc_handler/doc_handler:DocHandler'
     js_requires = 'source_viewer'
     source_viewer_rebuild = True
+
+    def rootWidget(self,root,**kwargs):
+        return root.contentPane(overflow='hidden',**kwargs)
+
     def onMain_sourceView(self):
         page = self.pageSource()
         _gnrRoot = self.pageSource('_gnrRoot')
