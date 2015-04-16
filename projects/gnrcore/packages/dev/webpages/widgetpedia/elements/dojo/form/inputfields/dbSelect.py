@@ -9,3 +9,6 @@ class GnrCustomWebPage(object):
         fb.dbSelect(value='^.provincia',dbtable='glbl.provincia',condition='$regione=:regione',
                     condition_regione='^.regione',  hasDownArrow='^.hasDownArrow',      
                     lbl='Provincia')
+        fb.dbSelect(value='^.comune',dbtable='glbl.comune', auxColumns='$sigla_provincia,$altitudine,$popolazione_residente',
+                    lbl='Comune', selected_altitudine='.altitudine')
+        fb.textbox(value='^.altitudine', lbl='Altitudine')

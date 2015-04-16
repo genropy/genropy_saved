@@ -919,6 +919,11 @@ class THViewUtils(BaseComponent):
                                                 """
 
         gridattr['selfsubscribe_queryFromLinkedGrid'] = """
+            var masterTable = $1.data.table;
+            var slaveTable = this.attr.table;
+            if (masterTable==slaveTable){
+                return
+            }
             genro.lockScreen(true,'searchingRelation');
             var pkeys = $1.data.pkeys.join(',');
             var that = this;
@@ -926,8 +931,6 @@ class THViewUtils(BaseComponent):
             var linkedSelectionName = $1.data.selectionName;
             var linkedPageId = $1.dragSourceInfo.page_id;
             var gridNodeId = this.attr.nodeId;
-            var masterTable = $1.data.table;
-            var slaveTable = this.attr.table;
             var cb = function(selectedPath,masterTableCaption,pathDescription){
                 var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,
                             masterTable:masterTable,masterTableCaption:masterTableCaption,
@@ -940,7 +943,6 @@ class THViewUtils(BaseComponent):
                 that.setRelativeData('.#parent.linkedSelectionPars',new gnr.GnrBag(kw));
                 that.fireEvent('.#parent.runQueryDo',true);
             }
-
             genro.serverCall('th_searchRelationPath',{
                     table:masterTable,
                     destTable:slaveTable},
