@@ -108,7 +108,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                       pageName:iframePageName,closable:true,
                       stackbutton_tooltip:'^'+multipageIframePagePath+'.title?titleFullDesc'}
             genro.setData(multipageIframePagePath+'.title',label+'...');
-            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,
+            objectUpdate(iframeattr,{'id':'iframe_'+rootPageName+'_'+iframePageName,treeMenuPath:kw.fullpath,
                             frameName:rootPageName+'_'+iframePageName,multipage_childpath:multipageIframePagePath})
         }
         pane_kw.onClosingCb = function(evt){

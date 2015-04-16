@@ -38,9 +38,12 @@ class SourceViewer(BaseComponent):
         bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
         sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
         self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
-        bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
+        if self.source_viewer_edit_allowed():
+            bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
                                     label='ReadOnly',default_value=True,
                                     disabled='^.changed_editor')
+        else:
+            bar.readOnlyEditor.div()
         sc = frame.center.stackContainer(nodeId='source_viewer_stack')
         bar.dataController("""
             var label = docname.replace(/\./g, '_').replace(/\//g, '_');
@@ -75,15 +78,24 @@ class SourceViewer(BaseComponent):
         pane.menu(action='FIRE .new_source_viewer_page = $1.abs_path;', modifiers='*', storepath='.directories', _class='smallmenu')
 
     @public_method
-    def save_source_code(self,sourceCode=None,docname=None):
+    def save_source_code(self,sourceCode=None,docname=None,save_as=None):
         sourceCode=str(sourceCode)
         if not self.source_viewer_edit_allowed():
             raise Exception('Not Allowed to write source code')
         try:
             compile('%s\n'%sourceCode, 'dummy', 'exec')
-            sys.modules.pop(os.path.splitext(docname)[0].replace(os.path.sep, '_').replace('.', '_'),None)
-            self.__writesource(sourceCode,docname)
-            return 'OK'
+            if not save_as:
+                sys.modules.pop(os.path.splitext(docname)[0].replace(os.path.sep, '_').replace('.', '_'),None)
+                self.__writesource(sourceCode,docname)
+                return 'OK'
+            else:
+                save_as = save_as.strip().replace(' ','_')
+                if not save_as.endswith('.py'):
+                    save_as = '%s.py' %save_as
+                filepath = os.path.join(os.path.dirname(docname),save_as)
+                self.__writesource(sourceCode,filepath)
+                return dict(newpath=filepath)
+
         except SyntaxError,e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
@@ -115,7 +127,20 @@ class SourceViewer(BaseComponent):
                         _onResult="""if(result=='OK'){
                                             SET .source_oldvalue = kwargs.sourceCode;
                                             genro.publish('rebuildPage');
-                                        }else{
+                                        }else if(result.newpath){
+                                            if(genro.mainGenroWindow){
+                                                var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
+                                                if(treeMenuPath){
+                                                    treeMenuPath = treeMenuPath.split('.');
+                                                    var l = result.newpath.split('/');
+                                                    treeMenuPath.pop();
+                                                    treeMenuPath.push(l[l.length-1].replace('.py',''));
+                                                    fullpath = treeMenuPath.join('.');
+                                                }
+                                                genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
+                                            }
+                                        }
+                                        else{
                                             FIRE .error = result;
                                         }""")
 
@@ -126,7 +151,12 @@ class SourceViewer(BaseComponent):
         bar.fpath.div('^.docname',font_size='9px')
         commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
         commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
-                                _class='source_viewer_button',action='PUBLISH sourceCodeUpdate')
+                                _class='source_viewer_button',
+                                action='PUBLISH sourceCodeUpdate={save_as:filename || false}',
+                                filename='',
+                                ask=dict(title='Save as',askOn='Shift',
+                                        fields=[dict(name='filename',lbl='Name',validate_case='l')]))
+
         commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
                                 action='SET .source = _oldval',
                                 _oldval='=.source_oldvalue')
@@ -140,7 +170,7 @@ class SourceViewer(BaseComponent):
                                 config_mode='python',config_lineNumbers=True,
                                 config_indentUnit=4,config_keyMap='softTab',
                                 height='100%',
-                                readOnly='^gnr.source_viewer.readOnly')
+                                readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly')
         frame.dataController("""
             var cm = cmNode.externalWidget;
             var lineno = error.lineno-1;

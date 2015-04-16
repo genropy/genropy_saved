@@ -26,6 +26,7 @@ Component for menu handling:
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrdecorator import public_method
 
 class MenuIframes(BaseComponent):
     css_requires='frameplugin_menu/frameplugin_menu'
@@ -51,7 +52,7 @@ class MenuIframes(BaseComponent):
             #b.getIndex()
         pane.data('gnr.appmenu', b)
         #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
-        pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
+        menutree = pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
                   labelAttribute='label',
                   hideValues=True,
                   _class='menutree',
@@ -66,25 +67,45 @@ class MenuIframes(BaseComponent):
                     }""",
                   getLabelClass="return node.attr.labelClass;",
                   openOnClick=True,
-                  connect_onClick="""var labelClass= $1.attr.labelClass;
-                                                 
-                                    var inattr = $1.getInheritedAttributes();    
-                                    var selectingPageKw = objectUpdate({name:$1.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
-                                                                        formResource:null,viewResource:null,fullpath:$1.getFullpath(null,true),
-                                                                        modifiers:$2.__eventmodifier},$1.attr);
-
-                                    if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
-                                        genro.publish("newBrowserWindowPage",selectingPageKw);
-                                    }else{
-                                        if(labelClass.indexOf('menu_existing_page')<0){
-                                            $1.setAttribute('labelClass',labelClass+' menu_existing_page');
-                                        }   
-                                        this.publish("selected",selectingPageKw);
-                                    }      
-                                    
-                                        """,
+                  connect_onClick="""this.publish('selectMenuItem',{fullpath:$1.getFullpath(null,true),
+                                                                    relpath:$1.getFullpath(null,genro.getData(this.attr.storepath)),
+                                                                  modifiers:$2.__eventmodifier});""",
                   autoCollapse=True,
+                  selfsubscribe_selectMenuItem="""
+                        var node = genro.getDataNode($1.fullpath);
+                        var labelClass= node.attr.labelClass;
+                        var inattr = node.getInheritedAttributes();    
+                        var selectingPageKw = objectUpdate({name:node.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
+                                                            formResource:null,viewResource:null,fullpath:$1.fullpath,
+                                                            modifiers:$1.modifiers},node.attr);
+
+                        if (selectingPageKw.externalWindow==true || selectingPageKw.modifiers == 'Shift'){
+                            genro.publish("newBrowserWindowPage",selectingPageKw);
+                        }else{
+                            if(labelClass.indexOf('menu_existing_page')<0){
+                                node.setAttribute('labelClass',labelClass+' menu_existing_page');
+                            }   
+                            this.publish("selected",selectingPageKw);
+                        }    
+                        if($1.doSelect){
+                            this.widget.setSelectedPath(null,{value:node.getFullpath(null,genro.getData(this.attr.storepath))});
+                        }
+                  """,
                   nodeId='_menutree_')
+   
+        pane.dataRpc('dummy',self.menu_refreshAppMenu,
+                    _onResult="""
+                        genro.getDataNode('gnr.appmenu.root').refresh(true);
+                        if(kwargs.selectPath){
+                            kwargs._menutree.publish('selectMenuItem',{fullpath:kwargs.selectPath,doSelect:true}); 
+                        }
+                    """,subscribe_refreshApplicationMenu=True,_menutree=menutree)
+
+    @public_method
+    def menu_refreshAppMenu(self,**kwargs):
+        self.application.clearSiteMenu()
+
+
 
 
 class MenuResolver(BagResolver):
