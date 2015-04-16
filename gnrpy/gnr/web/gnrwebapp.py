@@ -142,6 +142,9 @@ class GnrWsgiWebApp(GnrApp):
     def debugger(self, debugtype, **kwargs):
         self.site.debugger(debugtype, **kwargs)
 
+    def clearSiteMenu(self):
+        self._siteMenuDict = dict()
+
     def _get_siteMenu(self):
         dbstore = self.site.currentPage.dbstore
         siteMenu = self._siteMenuDict.get(dbstore)

@@ -206,19 +206,27 @@ class FrameIndex(BaseComponent):
                             data="=iframes",externalWindows='=externalWindows',_refreshTablist='^refreshTablist',tabroot=tabroot,indexTab=self.indexTab,
                             onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("genro.framedIndexManager.loadFavorites();",_onStart=100)
-        pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
-                                    if(iframetab){
-                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
-                                        var node = genro._data.getNode('iframes.'+page);
-                                        var treeItem = genro.getDataNode(node.attr.fullpath);
-                                        if(!treeItem){
-                                            return;
-                                        }
-                                        var labelClass = treeItem.attr.labelClass;
-                                        labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
-                                        treeItem.setAttribute('labelClass',labelClass);
-                                    }
-                                    """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
+        pane.dataController(""" var cb = function(){
+                                                var iframetab = tabroot.getValue().getNode(page);
+                                                if(iframetab){
+                                                    genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
+                                                    var node = genro._data.getNode('iframes.'+page);
+                                                    var treeItem = genro.getDataNode(node.attr.fullpath);
+                                                    if(!treeItem){
+                                                        return;
+                                                    }
+                                                    var labelClass = treeItem.attr.labelClass;
+                                                    labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
+                                                    treeItem.setAttribute('labelClass',labelClass);
+                                                }
+                                            }
+                                if(selected){
+                                    setTimeout(cb,1);
+                                }else{
+                                    cb();
+                                }
+                                    
+        """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver'))
