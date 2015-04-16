@@ -464,7 +464,7 @@ class TableHandlerView(BaseComponent):
         options = self._th_hook('options',mangler=th_root)() or dict()
         pageOptions = self.pageOptions or dict()
         #liveUpdate: 'NO','LOCAL','PAGE'
-        liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or 'LOCAL'
+        liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or self.site.config['options?liveUpdate'] or 'LOCAL'
         store_kwargs.setdefault('liveUpdate',liveUpdate)
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
