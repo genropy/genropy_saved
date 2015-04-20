@@ -50,11 +50,14 @@ class ViewFromCompany(BaseComponent):
 class Form(BaseComponent):
 
     def th_form(self, form):
-        pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        bc = form.center.borderContainer()
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
         fb.field('description')
         fb.field('company_code')
+        tc = bc.tabContainer(region='center')
+        tc.contentPane(title='!!Packages').dialogTableHandler(relation='@packages',viewResource='ViewFromProject',formResource='FormFromProject')
+        tc.contentPane(title='!!Tickets').dialogTableHandler(relation='@tickets') #viewResource='ViewFromProject',formResource='FormFromProject
 
 
     def th_options(self):
