@@ -62,7 +62,7 @@ class THPicker(BaseComponent):
                                                     grid_onDrag='dragValues["%s"]=dragValues.gridrow.rowset;' %paletteCode,
                                                     grid_multiSelect=multiSelect,
                                                     title=title,searchOn=searchOn,configurable=False,
-                                                  childname='picker_tablehandler')
+                                                  childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
             if condition:
                 paletteth.view.store.attributes.update(where=condition,**condition_kwargs)
             if not condition_kwargs:
