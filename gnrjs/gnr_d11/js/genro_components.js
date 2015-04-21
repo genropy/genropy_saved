@@ -2335,6 +2335,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
 
     gnrwdg_setItems:function(items,kw,trigger_reason){
         var sn = this.sourceNode;
+        //var currentSelectedNode = genro.getDataNode(sn.absDatapath(sn.attr.value))
         var currentSelected = sn.getRelativeData(sn.attr.value);
         if(currentSelected && !this.getItemNode(currentSelected)){
             sn.setRelativeData(sn.attr.value,null);
@@ -2371,9 +2372,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             var btn,content_kw,btn_class,code,caption,kw;
             var firstItem = items.getNode('#0');
             var currentSelected = sourceNode.getRelativeData(sourceNode.attr.value);
-            if(!currentSelected && this.mandatory && firstItem){
-                currentSelected = firstItem.attr[gnrwdg.identifier] || firstItem.label;
-            }
+            //if(!currentSelected && this.mandatory && firstItem){
+            //    currentSelected = firstItem.attr[gnrwdg.identifier] || firstItem.label;
+            //}
             var that = this;
             this.childItemsPrev.forEach(function(n){
                 that.oneButton(n,currentSelected,'code','caption');
@@ -2384,6 +2385,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             this.childItemsPost.forEach(function(n){
                 that.oneButton(n,currentSelected,'code','caption');
             },'static');
+            if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
+                var currentSelectedNode = this.multibuttonSource.getNode('#0');
+                currentSelectedNode.attr['_class'] +=' multibutton_selected';
+                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+            }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
         }
@@ -2621,8 +2627,7 @@ dojo.declare("gnr.widgets.ComboMenu", gnr.widgets.gnrwdg, {
 });
 
 
-dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
-    checker : 'checkbox',
+dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbox',
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
     },
