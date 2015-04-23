@@ -49,7 +49,11 @@ genropatches.getDocumentWindow = function(){
                 
             }
         }
-        fix(window.top);
+        try{
+            fix(window.top);
+        }catch(e){
+            
+        }
     }
 
     //In some IE versions (at least 6.0), document.parentWindow does not return a
