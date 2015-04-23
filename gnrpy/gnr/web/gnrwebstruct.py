@@ -1065,6 +1065,28 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                             folders=folders,include=include,columns=columns,
                             **kwargs)
 
+    def rpcStore(self,rpcmethod=None,storepath=None,storeCode=None,include='*.xml',columns=None,**kwargs):
+        """RpcBase Store
+        """
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        parent = self
+        if parentTag:
+            parentTag = parentTag.lower()
+        if parentTag =='includedview' or  parentTag =='newincludedview':
+            storepath = storepath or attr.get('storepath') or '.store'
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+            attr['tag'] = 'newincludedview'
+            parent = self.parent
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
+            attr['store'] = storeCode
+            storepath = storepath or attr.get('storepath') or '.store'
+        nodeId = '%s_store' %storeCode
+        return parent.child('SelectionStore',storepath=storepath,storeType='RpcBase',
+                            nodeId=nodeId,method=rpcmethod,**kwargs)
+
     def onDbChanges(self, action=None, table=None, **kwargs):
         """TODO
         

@@ -3437,7 +3437,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
                }
            }
         }
-        kw['_POST'] = true;
+        if(!'_POST' in kw){
+            kw['_POST'] = true;
+        }
         var selectionStore = sourceNode._('dataRpc',kw);
         //var cb = "this.store.onLoaded(result,_isFiredNode);";
         //selectionStore._('callBack',{content:cb});
@@ -4010,7 +4012,7 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
     
 });
 
-dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
+dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
     loadData:function(){
         var that = this;
         if(!this.hasVisibleClients()){
@@ -4045,6 +4047,20 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
     onDeletedRows:function(pkeys){
         return this.loadData()
     },
+
+    deleteRows:function(files,protectPkeys){
+        var that = this;
+        var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        var rpcdelete = this.deletemethod;
+        genro.assert(rpcdelete,'missing delete rpc')
+        genro.serverCall(rpcdelete,{files:files},function(result){
+            that.onDeletedRows(files);
+        },null,'POST');
+    }
+});
+
+
+dojo.declare("gnr.stores.FileSystem",gnr.stores.RpcBase,{
     deleteRows:function(files,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
@@ -4052,8 +4068,7 @@ dojo.declare("gnr.stores.FileSystem",gnr.stores.AttributesBagRows,{
         genro.serverCall(rpcdelete,{files:files},function(result){
             that.onDeletedRows(files);
         },null,'POST');
-    },
-
+    }
 });
 
 

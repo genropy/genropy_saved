@@ -27,8 +27,8 @@ class Form(BaseComponent):
         fb.field('code')
         fb.field('description')
         tc = bc.tabContainer(region='center')
-        tc.contentPane(title='Projects').dialogTableHandler(relation='@projects',viewResource='ViewFromCompany',formResource='FormFromCompany')
-        tc.contentPane(title='People').dialogTableHandler(relation='@people',viewResource='ViewFromCompany',formResource='FormFromCompany')
+        #tc.contentPane(title='Projects').dialogTableHandler(relation='@projects',viewResource='ViewFromCompany',formResource='FormFromCompany')
+        #tc.contentPane(title='People').dialogTableHandler(relation='@people',viewResource='ViewFromCompany',formResource='FormFromCompany')
 
 
 
