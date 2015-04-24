@@ -69,6 +69,37 @@ class Form(BaseComponent):
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px')
 
+class FormExternal(Form):
+    py_requires = """gnrcomponents/attachmanager/attachmanager:AttachManager""" 
+
+    def th_form(self, form):
+        bc = form.center.borderContainer()
+        self.ticket_head(bc.contentPane(region='top',datapath='.record'))
+        tc = bc.tabContainer(region='center')
+        self.ticket_description(tc.contentPane(title='!!Description'))
+        self.ticket_people(tc.contentPane(title='!!People'))
+        self.ticket_attachments(tc.contentPane(title='!!Attachments'))
+
+    def ticket_description(self,pane):
+        pane.simpleTextArea(value='^.description',editor=True)
+
+    def ticket_people(self,pane):
+        pane.inlineTableHandler(relation='@ticket_person',picker='person_id',pbl_classes=True,margin='2px',
+                                viewResource='ViewFromTicket')
+
+    def ticket_attachments(self,pane):
+        pane.attachmentGrid()
+
+    def ticket_head(self,pane):
+        fb = pane.div(margin_right='30px').formbuilder(cols=2, border_spacing='4px',colswidth='auto',fld_width='100%')
+        fb.field('subject',colspan=2)
+        fb.field('ticket_type_code',colspan=2)
+        fb.field('summary',colspan=2,tag='simpleTextArea')
+
+    def th_options(self):
+        return dict(dialog_height='400px', dialog_width='600px')
+
+
 class FormFromPkgTable(Form):
 
     def ticket_head(self,pane):

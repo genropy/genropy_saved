@@ -1038,12 +1038,22 @@ class GnrWsgiSite(object):
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             username = username or self.currentPage.user
-            self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username)
+            self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username) 
+
+    @property
+    def ukeInstanceId(self):
+        if not getattr(self,'_ukeInstanceId',None):
+            r = self.db.table('uke.instance').getInstanceRecord()
+            self._ukeInstanceId = r['id']
+            ukeInstance = self.db.application.getAuxInstance('uke')
+            if ukeInstance:
+                if not ukeInstance.db.table('uke.instance').existsRecord(r['id']):
+                    ukeInstance.db.table('uke.instance').insert(r)
+                    ukeInstance.db.commit()
+        return self._ukeInstanceId
             
     def dropConnectionFolder(self, connection_id=None):
-        """TODO
-        
-        :param connection_id: TODO"""
+        """:param connection_id: TODO"""
         pathlist = ['data', '_connections']
         if connection_id:
             pathlist.append(connection_id)

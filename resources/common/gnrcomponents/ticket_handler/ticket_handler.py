@@ -7,11 +7,74 @@ import os
 import shutil
 
 
-
 class TicketHandler(BaseComponent):
+    py_requires ='th/th:TableHandler'
+
+    @struct_method
+    def tk_ticketFrame(self,pane,project_code=None,package_identifier=None,table_identifier=None,pagename=None,**kwargs):
+        print 'project_code',project_code,'package_identifier',package_identifier,'table_identifier',table_identifier
+        pane.dialogTableHandler(table='uke.ticket',dbstore='@uke',formResource='FormExternal',
+                                condition="""$instance_id=:instance_id AND 
+                                             $pagename=:pagename AND
+                                             $table_identifier=:table_identifier AND 
+                                             $package_identifier=:package_identifier AND
+                                             $project_code=:project_code""",
+                                view_store__ticketrun='^tickets.run',
+                                condition_instance_id=self.site.ukeInstanceId,
+                                condition_pagename=pagename,
+                                condition_package_identifier=package_identifier,
+                                condition_table_identifier=table_identifier,
+                                condition_project_code=project_code,
+                                default_username=self.user,
+                                default_instance_id=self.site.ukeInstanceId,
+                                default_pagename=pagename,
+                                default_project_code=project_code,
+                                default_package_identifier=package_identifier,
+                                default_table_identifier=table_identifier)
+        pane.dataRpc('dummy',self.tk_checkTicketInfo,project_code=project_code,table_identifier=table_identifier,pagename=pagename,
+                                package_identifier=package_identifier,_fired='^tickets.run')
+
+    @public_method
+    def tk_checkTicketInfo(self,project_code=None,package_identifier=None,table_identifier=None,pagename=None):
+        ukeinstance = self.application.getAuxInstance('uke')
+        def insertIfNotExist(table,pkey,**kwargs):
+            tblobj = ukeinstance.db.table(table)
+            if not tblobj.existsRecord(pkey):
+                record = {tblobj.pkey:pkey}
+                record.update(kwargs)
+                tblobj.insert(record)
+                print 'inserted record',record,table
+        insertIfNotExist('uke.project',project_code)
+        if package_identifier:
+            insertIfNotExist('uke.package',package_identifier,project_code=project_code)
+        if table_identifier:
+            insertIfNotExist('uke.pkgtable',table_identifier,project_code=project_code,
+                                            package_identifier=package_identifier,
+                                            name=table_identifier.split('/')[-1])
+        ukeinstance.db.commit()
+
+
+    def onMain_ticket_handler(self):
+        pane = self.pageSource()
+        pane.data('gnr.table',self.maintable)
+        pane.data('gnr.project_code',self.db.application.packages[self.package.name].project)
+        pane.script("""genro.ticketHandler = {
+                getTicketInfo:function(){
+                    var project_code = genro.getData('gnr.project_code');
+                    var package_identifier = project_code+'/'+genro.getData('gnr.package');
+                    var result = {
+                        project_code:project_code,
+                        package_identifier:package_identifier,
+                        table_identifier:package_identifier+'/'+genro.getData('gnr.table'),
+                        pagename:genro.getData('gnr.pagename')
+                    };
+                    return result;
+                }
+            }""")
+
+class TicketHandlerFile(BaseComponent):
     py_requires ='gnrcomponents/framegrid:FrameGrid,gnrcomponents/formhandler:FormHandler,gnrcomponents/filepicker:FilePicker'
     ticket_path = ''
-
 
     def onMain_ticket_handler(self):
         pane = self.pageSource()

@@ -4401,7 +4401,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     deleteRows:function(pkeys,protectPkeys){
         var that = this;
         var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
-        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield,protectPkeys:protectPkeys},function(result){
+        genro.serverCall('app.deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,
+                                             unlinkfield:unlinkfield,protectPkeys:protectPkeys,
+                                            _sourceNode:this.storeNode},function(result){
             that.onDeletedRows(result);
         },null,'POST');
     },
