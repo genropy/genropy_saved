@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-    <db remote_db='ukemain'/>
+    <instance template='ukepars'/>
     <packages>
         <gnrcore_sys pkgcode="gnrcore:sys"/>
         <gnrcore_adm pkgcode="gnrcore:adm"/>
