@@ -9,4 +9,4 @@ def config(root,application=None):
     root.thpage(u"!!People", table="uke.person")
     root.thpage(u"!!Project", table="uke.project")
     root.thpage(u"!!Ticket", table="uke.ticket")
-    root.thpage(u"!!Sync_event", table="uke.sync_event")
+    root.thpage(u"!!Ticket type", table="uke.ticket_type")
