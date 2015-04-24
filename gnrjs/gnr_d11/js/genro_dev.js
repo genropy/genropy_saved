@@ -765,7 +765,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     },
 
 
-    takePicture:function(uploadPath,onResult){
+    takePicture:function(sendPars,onResult){
         genro.publish('onPageSnapshot',{setting:true});
         const divOffset = 1;
         var overlay = document.createElement('div');
@@ -774,6 +774,11 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var sel = document.createElement('div');
         dojo.style(sel,{position:'absolute',top:'0',width:'0',height:'0',display:'none',border:'2px solid black'});
         overlay.appendChild(sel);
+
+        sendPars = sendPars || {uploadPath:'site:screenshots/'+genro.getData('gnr.pagename')};
+        if(typeof(sendPars)=='string'){
+             sendPars = {uploadPath:sendPars}
+        }
         var pos = [0, 0];
         var x1,x2,y1,y2, xDif, yDif = 0;
         var isSelection, 
@@ -826,9 +831,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 }
                 genro.publish('onPageSnapshot',{setting:false});
            }
-           genro.dom.htmlToCanvas(dojo.body(),{uploadPath:uploadPath || 'site:screenshots/'+genro.getData('gnr.pagename'),
-                                               onResult:onResultSnapshot,
-                                               crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}})
+           var kw = {sendPars:sendPars,onResult:onResultSnapshot,crop:{x:x1,y:y1,deltaX:xDif,deltaY:yDif}};
+           genro.dom.htmlToCanvas(dojo.body(),kw)
         });
 
         dojo.connect(overlay,'mousemove',function(event){

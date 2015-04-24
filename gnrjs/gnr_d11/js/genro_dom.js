@@ -1517,7 +1517,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var domNode = this.getDomNode(where);
         var onrendered = kw.cb;
         var uploadPath = kw.uploadPath;
-        if(uploadPath){
+        var sendPars = objectPop(kw,'sendPars');
+        var uploaderId;
+        if(sendPars){
+            uploaderId = objectPop(sendPars,'uploaderId');
+        }
+        if(uploadPath || sendPars){
             onrendered = function(canvas){
                 var data;
                 if(kw.crop){
@@ -1530,13 +1535,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     canvas = tempcanvas;
                 }
                 data = canvas.toDataURL("image/png");
-
                 genro.dlg.prompt('Upload screenshot',{
                     cancelCb:kw.onResult,
                     widget:function(center){
-                        var preview = center._('div',{margin:'2px',max_height:'150px',border:'1px solid silver', 
+                        var preview = center._('div',{margin:'2px',height:'150px',border:'1px solid silver', overflow:'auto',
                                                         onCreated:function(domnode){
-                                                            dojo.style(canvas,{height:'100%'})
+                                                            dojo.style(canvas,{zoom:'.5'})
                                                             domnode.appendChild(canvas)
                                                         }})
                         
@@ -1546,15 +1550,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     action:function(result){
                         var filename = result.getItem('filename');
                         filename = (filename || 'img_'+genro.getCounter()) +'.png';
-                        genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:uploadPath,
-                              filename:filename,
+                        sendKw = {uploadPath:uploadPath,uploaderId:uploaderId,
                               onResult:function(result){
                                   var url = this.responseText;
                                   if(kw.onResult){
                                      kw.onResult(result);
                                   }
-                                  //sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
-                               }});
+                               }}
+                        sendKw.filename = filename;
+                        genro.rpc.uploadMultipart_oneFile(data,sendPars,sendKw);
                 }})
             }
         }
