@@ -730,11 +730,15 @@ dojo.declare("gnr.GnrRpcHandler", null, {
 
             //TODO: move that feature to BagNode.setResolver
             var valNode = parentbag.getNode(resolver.relation_fld);
-            var reloader = function(n,val,oldval) {
+            var reloader = function(n,val,oldval,doTrigger) {
                 if( val==oldval || ( isNullOrBlank(val) && isNullOrBlank(oldval) ) ){
                     return;
                 }
-                this.getParentNode().getValue('reload');
+                var optkw = {}
+                if(doTrigger instanceof gnr.GnrDomSourceNode){
+                    optkw._sourceNode = doTrigger;
+                }
+                this.getParentNode().getValue('reload',optkw);
             };
             valNode._onChangedValue = dojo.hitch(resolver, reloader);
 

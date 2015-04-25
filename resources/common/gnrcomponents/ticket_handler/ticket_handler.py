@@ -46,7 +46,7 @@ class TicketHandler(BaseComponent):
                 print 'inserted record',record,table
         insertIfNotExist('uke.project',project_code)
         if package_identifier:
-            insertIfNotExist('uke.package',package_identifier,project_code=project_code)
+            insertIfNotExist('uke.package',package_identifier,code=package_identifier.split('/')[-1],project_code=project_code)
         if table_identifier:
             insertIfNotExist('uke.pkgtable',table_identifier,project_code=project_code,
                                             package_identifier=package_identifier,

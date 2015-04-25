@@ -274,7 +274,7 @@ dojo.declare("gnr.GnrBagNode", null, {
             this.setAttr(_attributes, /*trigger*/false, _updattr);
         }
         if (this._onChangedValue) {
-            this._onChangedValue(this, value, oldvalue);
+            this._onChangedValue(this, value, oldvalue,doTrigger);
         }
         if (this._parentbag && this._parentbag._backref) {
             if (oldvalue!==value){
