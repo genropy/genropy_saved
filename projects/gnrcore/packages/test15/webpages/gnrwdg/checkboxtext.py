@@ -65,5 +65,11 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.values',lbl='Values')   
 
 
+    def test_10_mode_table(self,pane):
+        """First test description"""
+        pane.checkBoxText(value='^.pluto',table='adm.user',popup=True)
+        pane.textbox(value='^.pluto')
+    
+
 
         
