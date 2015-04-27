@@ -93,8 +93,7 @@ class GnrReloaderMonitor(object):
             if not filename in self.module_mtimes:
                 self.module_mtimes[filename] = mtime
             elif self.module_mtimes[filename] < mtime:
-                print >> sys.stderr, (
-                    "-- [%i-%i-%i %i:%i:%i] -- %s changed; reloading..." % (time.localtime()[:6]+(filename,)))
+                print "-- [%i-%i-%i %i:%i:%i] -- %s changed; reloading..." % (time.localtime()[:6]+(filename,))
                 return True
         return False
 
