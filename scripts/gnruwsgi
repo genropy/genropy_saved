@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+"""
+create a new genroproject
+usage: gnrmkproject projectname
+
+"""
+
+from gnr.core.gnrbag import Bag
+from optparse import OptionParser
+from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
+import subprocess
+import atexit
+import signal
+import os
+from gnr.core.gnrstring import boolean
+
+class UwsgiRunner(object):
+    default_port = 8080
+    default_processes = 1
+    default_threads = 8
+    vassal_template = """[uwsgi]
+http = :%(port)i
+wsgi-file = %(wsgi_file)s
+processes = %(processes)i
+threads = %(threads)i
+stats = 127.0.0.1:%(stats_port)i
+;python-auto-reload = 1
+offload-threads = %(offload_threads)i
+%(websockets)s
+"""
+
+    def __init__(self, site_name):
+        self.site_name = site_name
+        self.site_handler = getSiteHandler(site_name)
+        self.site_path = self.site_handler['site_path']
+        self.site_template = self.site_handler['site_template']
+        self.site_script = self.site_handler['site_script']
+        self.site_config = self.get_config()
+        self.gnr_path = gnrConfigPath()
+        self.socket_path = os.path.join(self.gnr_path, 'sockets')
+        self.vassals_path = os.path.join(self.gnr_path, 'uwsgi', 'vassals')
+        self.vassal_ini_path = os.path.join(self.vassals_path, '%s.ini' % site_name)
+        self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' % site_name)
+        self.create_dirs()
+
+    def create_dirs(self):
+        for dir_path in (self.socket_path, self.vassals_path):
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+
+    def get_config(self):
+        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
+        base_site_config = Bag(site_config_path)
+        site_config = getGnrConfig()['gnr.siteconfig.default_xml'] or Bag()
+        template = self.site_template
+        if template:
+            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
+        site_config.update(base_site_config)
+        return site_config
+
+    def write_ini(self):
+        pars = dict()
+        sc = self.site_config
+        pars['port'] = int(sc['wsgi?port'] or self.default_port)
+        pars['wsgi_file'] = self.site_script
+        pars['processes'] = int(sc['wsgi?processes'] or self.default_processes)
+        pars['threads'] = int(sc['wsgi?threads'] or self.default_threads)
+        pars['stats_port'] = int(sc['wsgi?stats_port'] or pars['port']+1000)
+        pars['offload_threads'] = int(sc['wsgi?offload_threads'] or pars['processes'])
+        if boolean(sc['wsgi?websockets']):
+            pars['websockets'] = """http-websockets = true
+route = ^/websocket httpdumb:%s
+attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
+        else:
+            pars['websockets'] = ''
+        ini_content = self.vassal_template%pars
+        with open(self.vassal_ini_path,'w') as ini_file:
+            ini_file.write(ini_content)
+
+    def run(self):
+        self.write_ini()
+        self.uwsgi_master = subprocess.Popen(['uwsgi', self.vassal_ini_path])
+        atexit.register(self.stop)
+        self.uwsgi_master.wait()
+
+    def stop(self):
+        self.uwsgi_master.send_signal(signal.SIGINT)
+
+if __name__ == '__main__':
+    usage = """
+    gnruwsgi <site_name> will run a genro site named <site_name> using uwsgi.
+    """
+    parser = OptionParser(usage)
+    (options, args) = parser.parse_args()
+    if len(args) < 1:
+        parser.print_help()
+    else:
+        uwsgi_runner = UwsgiRunner(args[0])
+        uwsgi_runner.run()

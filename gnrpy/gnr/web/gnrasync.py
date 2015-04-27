@@ -24,11 +24,15 @@ import tornado.web
 from tornado import gen
 import tornado.websocket as websocket
 import tornado.ioloop
+from tornado.netutil import bind_unix_socket
+from tornado.httpserver import HTTPServer
 from gnr.core.gnrbag import Bag,BagException
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrstring import fromJson
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
 from threading import Lock
+import os
+from gnr.app.gnrconfig import gnrConfigPath
 
 def threadpool(func):
     func._executor='threadpool'
@@ -157,6 +161,7 @@ class GnrBaseAsyncServer(object):
         self.handlers=[]
         self.executors=dict()
         self.channels=dict()
+        self.instance_name = instance
         self.gnrapp=GnrApp(instance)
 
     def addHandler(self,path,factory):
@@ -168,7 +173,13 @@ class GnrBaseAsyncServer(object):
     def start(self):
         self.tornadoApp=tornado.web.Application(self.handlers)
         self.tornadoApp.server=self
-        self.tornadoApp.listen(self.port)
+        if self.port:
+            self.tornadoApp.listen(int(self.port))
+        else:
+            socket_path = os.path.join(gnrConfigPath(), 'sockets', '%s.tornado'%self.instance_name)
+            socket = bind_unix_socket(socket_path)
+            server = HTTPServer(self.tornadoApp)
+            server.add_socket(socket)
         tornado.ioloop.IOLoop.instance().start()
        
 
