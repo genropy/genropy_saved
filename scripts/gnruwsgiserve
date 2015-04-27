@@ -219,7 +219,7 @@ class UwsgiRunner(object):
         return site_config
 
     def run(self):
-        self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging', '--processes', '2', '--threads', '8'])
+        self.uwsgi_master = subprocess.Popen(['uwsgi', '--http', ':%s'%self.options.port,'--module','gnr.web.serveruwsgi', '--pyargv', self.site_name ,'--master','--disable-logging', '--processes', '1', '--threads', '8'])
         atexit.register(self.term_uwsgi)
         self.uwsgi_master.wait()
 
