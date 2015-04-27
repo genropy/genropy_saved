@@ -7,6 +7,8 @@ import glob
 import uwsgi
 from uwsgidecorators import timer
 from gnr.core.gnrsys import expandpath, listdirs
+from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
+
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
 
@@ -110,15 +112,18 @@ class Server(object):
     
     def __init__(self, site_name=None):
         self.options = attrDict()
-        self.load_gnr_config()
+        self.gnr_config = getGnrConfig()
+        self.config_path = gnrConfigPath()
         self.set_environment()
         self.site_name = site_name
         if self.site_name:
             if not self.gnr_config:
                 raise ServerException(
                         'Error: no ~/.gnr/ or /etc/gnr/ found')
-            self.site_path, self.site_template = self.site_name_to_path(self.site_name)
-            self.site_script = os.path.join(self.site_path, 'root.py')
+            self.site_handler = getSiteHandler(site_name)
+            self.site_path = self.site_handler['site_path']
+            self.site_template = self.site_handler['site_template']
+            self.site_script = self.site_handler['site_script']
             if not os.path.isfile(self.site_script):
                 raise ServerException(
                         'Error: no root.py in the site provided (%s)' % self.site_name)
@@ -147,40 +152,6 @@ class Server(object):
                         self._code_monitor.watch_file(file_path)
                 self._code_monitor.add_reloader_callback(self.gnr_site.on_reloader_restart)
         return self._code_monitor
-
-    def site_name_to_path(self, site_name):
-        path_list = []
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            path_list.extend([(expandpath(path), site_template) for path, site_template in
-                              self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.site_template') if
-                              os.path.isdir(expandpath(path))])
-        if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path), site_template) for path, site_template in
-                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
-                        os.path.isdir(expandpath(path))]
-            for project_path, site_template in projects:
-                sites = glob.glob(os.path.join(project_path, '*/sites'))
-                path_list.extend([(site_path, site_template) for site_path in sites])
-        for path, site_template in path_list:
-            site_path = os.path.join(path, site_name)
-            if os.path.isdir(site_path):
-                return site_path, site_template
-        raise ServerException(
-                'Error: no site named %s found' % site_name)
-
-    def load_gnr_config(self):
-        if self.options.get('config_path'):
-            config_path = self.options['config_path']
-        else:
-            if sys.platform == 'win32':
-                config_path = '~\gnr'
-            else:
-                config_path = '~/.gnr'
-        config_path = self.config_path = expandpath(config_path)
-        if os.path.isdir(config_path):
-            self.gnr_config = Bag(config_path)
-        else:
-            self.gnr_config = Bag()
 
     def set_environment(self):
         for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):

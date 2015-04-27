@@ -16,7 +16,6 @@ import urllib2
 import httplib2
 import locale
 
-
 from time import time
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method

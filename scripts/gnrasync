@@ -20,7 +20,6 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option('-p', '--port',
                   dest='port',
-                  action='store_true',
                   help="Check only, don't apply changes")    
     (options, args) = parser.parse_args()
     if  len(args)<1:
