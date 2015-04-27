@@ -3809,7 +3809,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var filtered=[];
         var excludeList = null;
         if (grid.excludeListCb) {
-            excludeList = grid.excludeListCb.call(this.sourceNode);
+            excludeList = grid.excludeListCb.call(this.storeNode);
         }
         var that = this;
         dojo.forEach(this.getItems(), 
