@@ -177,7 +177,7 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         super(GnrAsyncServer, self).__init__(*args, **kwargs)
         self.addExecutor('threadpool',ThreadPoolExecutor(max_workers=20))
         self.addExecutor('dummy',DummyExecutor())
-        self.addHandler(r"/", GnrWebSocketHandler)
+        self.addHandler(r"/websocket", GnrWebSocketHandler)
         
     
 if __name__ == '__main__':
