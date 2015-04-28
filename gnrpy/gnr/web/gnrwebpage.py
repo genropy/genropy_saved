@@ -880,6 +880,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['pageMode'] = 'wsgi_10'
         arg_dict['baseUrl'] = self.site.home_uri
         kwargs['servertime'] = datetime.datetime.now()
+        kwargs['websockets_url'] = '/websocket' if self.site.websockets else None
         favicon = self.site.config['favicon?name']
         google_fonts = getattr(self,'google_fonts',None)
         if google_fonts:
