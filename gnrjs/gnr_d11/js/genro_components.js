@@ -2822,10 +2822,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
             }
             return;
         }
-        
-        if(this.has_code && this.isValidValue(value)){
-            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(value),null,null,'cbgroup')
-        }
         this.alignCheckedValues();
     },
 
@@ -2889,6 +2885,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
                 n.widget.setAttribute('checked',dojo.some(values,function(v){return compareCb(n,v)}));
             }
         });
+        if(this.has_code){
+            this.sourceNode.setRelativeData(this.sourceNode.attr.value+'?_displayedValue',this.getLabelsFromValue(textvalue),null,null,'cbgroup')
+        }
     },
 
     gnrwdg_createCheckers:function(){
@@ -2973,7 +2972,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
                 labels.push(cbNode.attr.label)
             }
         });
-        sourceNode.setRelativeData(sourceNode.attr.value,null,null,null,'cbgroup');
+        //sourceNode.setRelativeData(sourceNode.attr.value,null,null,null,'cbgroup');
         var fkw = {};
         if(this._valuelabel){
             fkw._valuelabel = this._valuelabel;
