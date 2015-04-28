@@ -104,9 +104,6 @@ class GnrReloaderMonitor(object):
 class ServerException(Exception):
     pass
 
-class DaemonizeException(Exception):
-    pass
-
 class Server(object):
     
     def __init__(self, site_name=None):

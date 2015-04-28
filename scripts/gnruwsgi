@@ -40,6 +40,7 @@ offload-threads = %(offload_threads)i
         self.site_path = self.site_handler['site_path']
         self.site_template = self.site_handler['site_template']
         self.site_script = self.site_handler['site_script']
+        self.gnr_config = getGnrConfig()
         self.site_config = self.get_config()
         self.gnr_path = gnrConfigPath()
         self.socket_path = os.path.join(self.gnr_path, 'sockets')
@@ -57,7 +58,7 @@ offload-threads = %(offload_threads)i
     def get_config(self):
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
         base_site_config = Bag(site_config_path)
-        site_config = getGnrConfig()['gnr.siteconfig.default_xml'] or Bag()
+        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
         template = self.site_template
         if template:
             site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
