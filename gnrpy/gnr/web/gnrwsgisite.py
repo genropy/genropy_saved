@@ -16,7 +16,6 @@ import urllib2
 import httplib2
 import locale
 
-
 from time import time
 from gnr.core.gnrlang import deprecated,GnrException,tracebackBag
 from gnr.core.gnrdecorator import public_method
@@ -208,6 +207,7 @@ class GnrWsgiSite(object):
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.default_page = self.config['wsgi?default_page']
+        self.websockets= boolean(self.config['wsgi?websockets'])
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
         

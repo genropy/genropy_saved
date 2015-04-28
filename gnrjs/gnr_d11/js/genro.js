@@ -57,6 +57,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
         this.debug_py = kwargs.startArgs.debug_py;
+        this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
         this.serverTime =objectPop(kwargs.startArgs,'servertime');
@@ -147,6 +148,8 @@ dojo.declare('gnr.GenroClient', null, {
 
         this.dom = new gnr.GnrDomHandler(this);
         this.vld = new gnr.GnrValidator(this);
+        this.wsk = new gnr.GnrWebSocketHandler(this,this.websockets_url,{debug:false});
+        
        //var onerrorcb = function(errorMsg,url,linenumber){
        //    genro.onError(errorMsg,url,linenumber);
        //};
@@ -369,6 +372,8 @@ dojo.declare('gnr.GenroClient', null, {
          It calls the remoteCall to receive the page contained in the bag called 'main'.
          */
         //genro.timeIt('** dostart **');
+        this.wsk.create()
+        
         this._dataroot = new gnr.GnrBag();
         this._dataroot.setBackRef();
         this._data = new gnr.GnrBag();
@@ -525,6 +530,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.windowMessageListener();
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
+            
             genro._pageStarted = true;
         }, 100);
     },
