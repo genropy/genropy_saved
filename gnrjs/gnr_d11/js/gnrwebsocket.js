@@ -26,16 +26,17 @@
 //######################## genro  #########################
 
 dojo.declare("gnr.GnrWebSocketHandler", null, {
-    constructor: function(application, url, options) {
+    constructor: function(application, wsroot, options) {
         this.application = application;
-        this.url='ws://'+window.location.host+url
+        this.wsroot=wsroot;
+        this.url='ws://'+window.location.host+wsroot
         this.options=objectUpdate({ debug: true, reconnectInterval: 4000 },
                                   options)
 
         
     },
     create:function(){
-        if (this.url){
+        if (this.wsroot){
             this.socket=new ReconnectingWebSocket(this.url, null,this.options);
             var that=this;
             this.socket.onopen=function(){
