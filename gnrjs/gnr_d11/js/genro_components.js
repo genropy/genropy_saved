@@ -2642,7 +2642,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
         var codeSeparator = objectPop(kw,'codeSeparator');
         var tb;
         var gnrwdg = sourceNode.gnrwdg;
-        var has_code;
+        var has_code = objectUpdate(kw,'has_code');
         gnrwdg.identifier = objectPop(kw,'identifier')
         gnrwdg.labelAttribute = objectPop(kw,'labelAttribute')
         gnrwdg._valuelabel = kw._valuelabel;
@@ -2653,7 +2653,10 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
         if(values instanceof gnr.GnrBag){
             has_code = true;
         }else{
-            has_code = (codeSeparator && values)?values.indexOf(codeSeparator)>=0:false;
+            has_code = has_code || (codeSeparator && values)?values.indexOf(codeSeparator)>=0:false;
+            if(has_code && !codeSeparator){
+                codeSeparator = ':';
+            }
         }
         if(!values){
             var table = objectPop(originalKwargs,'table');
