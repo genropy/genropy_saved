@@ -750,6 +750,51 @@ class GnrApp(object):
                 self.loadTestingData(forTesting)
         self.onInited()
             
+    def updateLocalizationFiles(self,optkw=None):
+        from gnr.core.gnrbag import DirectoryResolver
+        locregexp = re.compile(r"""("{3}|'|")!!({\w*})?(.*)\1""")
+        flattener = re.compile('\W+')
+        
+        def cb(n,locbag=None,locToDrop=None,prevlocbag=None):
+            if n.attr.get('file_ext') == 'directory':
+                return
+            print 'filepath',n.attr['abs_path']
+            def addToLocalizationBag(m):
+                lockey = m.group(2)
+                loctext = m.group(3)
+                lockey = lockey or flattener.sub('_',loctext.lower())
+                if not lockey in locbag:
+                    locdict = dict(base=loctext)
+                    if prevlocbag:
+                        prevlocNode = prevlocbag.getNodeByAttr('_key',loctext)
+                        if prevlocNode:
+                            prevloc = prevlocNode.attr
+                            prevloc.pop('_key',None)
+                            prevloc.pop('_T',None)
+                            locdict.update(prevloc)
+                    locbag.setItem(lockey,None,_attributes=locdict)
+                else:
+                    locToDrop.pop(lockey,None)
+            with open(n.attr['abs_path'],'r') as f:
+                filecontent = f.read() 
+                locregexp.sub(addToLocalizationBag,filecontent)
+        for p in self.packages.values():
+            locpath = os.path.join(p.packageFolder,'localization.xml')
+            print 'locpath',locpath
+            locbag = Bag(locpath) if os.path.exists(locpath) else Bag()
+            prevlocbag = None
+            if locbag.filter(lambda n: n.attr.get('_key')):
+                prevlocbag = locbag
+                locbag = Bag()
+            locToDrop = dict([(k,True) for k in locbag.keys()])
+            d = DirectoryResolver(p.packageFolder,include='*.py,*.js')()
+            d.walk(cb,locbag=locbag,locToDrop=locToDrop,prevlocbag=prevlocbag,_mode='deep')
+            for k in locToDrop.keys():
+                locbag.pop(k)
+            locbag.toXml(locpath)
+
+
+
 
     def importFromSourceInstance(self,source_instance=None):
         to_import = ''

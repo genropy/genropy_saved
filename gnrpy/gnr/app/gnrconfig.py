@@ -114,7 +114,7 @@ def config(root,application=None):"""
                 filehandle.write('    %s.webpage(%s)' %(rootname,', '.join(attrlist)))
             filehandle.write('\n')
 
-
+########################################
 def getSiteHandler(site_name, gnr_config=None):
     gnr_config = gnr_config or getGnrConfig()
     path_list = []

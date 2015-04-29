@@ -1,2 +1,56 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><geo _T="NN" _key="geo"/></GenRoBag>
+<GenRoBag><geo_italia_tags_admin _T="NN" base='Geo Italia", tags="admin'></geo_italia_tags_admin>
+<nazione_table_glbl_nazione _T="NN" base='Nazione", table="glbl.nazione'></nazione_table_glbl_nazione>
+<regione_table_glbl_regione _T="NN" base='Regione", table="glbl.regione'></regione_table_glbl_regione>
+<provincia_table_glbl_provincia _T="NN" base='Provincia", table="glbl.provincia'></provincia_table_glbl_provincia>
+<comune_table_glbl_comune _T="NN" base='Comune", table="glbl.comune'></comune_table_glbl_comune>
+<nuts_table_glbl_nuts _T="NN" base='Nuts", table="glbl.nuts'></nuts_table_glbl_nuts>
+<comuni_caption_field_denominazione_rowcaption_denominazione _T="NN" base="Comuni',caption_field='denominazione',rowcaption='denominazione"></comuni_caption_field_denominazione_rowcaption_denominazione>
+<codice_regione _T="NN" base="Codice Regione"></codice_regione>
+<codice_provincia _T="NN" base="Codice Provincia"></codice_provincia>
+<sigla_provincia_relation_glbl_provincia_sigla_relation_name_comuni_mode_foreignkey _T="NN" base="Sigla Provincia').relation('glbl.provincia.sigla',relation_name='comuni',mode='foreignkey"></sigla_provincia_relation_glbl_provincia_sigla_relation_name_comuni_mode_foreignkey>
+<codice_comune _T="NN" base="Codice Comune"></codice_comune>
+<denominazione _T="NN" base="Denominazione"></denominazione>
+<denominazione_tedesca _T="NN" base="Denominazione tedesca"></denominazione_tedesca>
+<capoluogo _T="NN" base="Capoluogo"></capoluogo>
+<zona_altimetrica _T="NN" base="Zona altimetrica"></zona_altimetrica>
+<altitudine_m_ _T="NN" base="Altitudine (m)"></altitudine_m_>
+<comune_litoraneo_name_short_litoraneo _T="NN" base="Comune litoraneo',name_short='Litoraneo"></comune_litoraneo_name_short_litoraneo>
+<comune_montano _T="NN" base="Comune montano"></comune_montano>
+<codice_sistema_lavoro_2001_ _T="NN" base="Codice sistema lavoro (2001)"></codice_sistema_lavoro_2001_>
+<superficie_kmq_ _T="NN" base="Superficie (kmq)"></superficie_kmq_>
+<popolazione_residente_2010_ _T="NN" base="Popolazione residente (2010)"></popolazione_residente_2010_>
+<id _T="NN" base="Id"></id>
+<comune_relation_glbl_comune_id_mode_foreignkey_relation_name_localita _T="NN" base="Comune').relation('glbl.comune.id', mode='foreignkey',relation_name='localita"></comune_relation_glbl_comune_id_mode_foreignkey_relation_name_localita>
+<code _T="NN" base="Code"></code>
+<name _T="NN" base="Name"></name>
+<code3 _T="NN" base="Code3"></code3>
+<num_code _T="NN" base="Num.Code"></num_code>
+<num_unico _T="NN" base="Num.Unico"></num_unico>
+<nomeclatura_statistica _T="NN" base="Nomeclatura statistica"></nomeclatura_statistica>
+<nomenclatura_statistica _T="NN" base="Nomenclatura statistica"></nomenclatura_statistica>
+<description_name_short_label _T="NN" base="Description',name_short='Label"></description_name_short_label>
+<level _T="NN" base="Level"></level>
+<country _T="NN" base="Country"></country>
+<country_relation_glbl_nazione_code_relation_name_nuts_mode_foreignkey_ondelete_raise _T="NN" base="Country').relation('glbl.nazione.code',relation_name='nuts',mode='foreignkey',onDelete='raise"></country_relation_glbl_nazione_code_relation_name_nuts_mode_foreignkey_ondelete_raise>
+<sigla _T="NN" base="Sigla"></sigla>
+<regione_validate_notnull_true_relation_glbl_regione_sigla _T="NN" base="Regione',validate_notnull=True).relation('glbl.regione.sigla"></regione_validate_notnull_true_relation_glbl_regione_sigla>
+<nome _T="NN" base="Nome"></nome>
+<nome_locale _T="NN" base="Nome Locale"></nome_locale>
+<codice_dtype_i _T="NN" base="codice', dtype='I"></codice_dtype_i>
+<codice_istat _T="NN" base="Codice Istat"></codice_istat>
+<ordine_gnr _T="NN" base="Ordine Gnr"></ordine_gnr>
+<ordine_tot_gnr _T="NN" base="Ordine tot Gnr"></ordine_tot_gnr>
+<cap_valido _T="NN" base="CAP Valido"></cap_valido>
+<nuts3_relation_glbl_nuts_code_relation_name_province_ondelete_raise _T="NN" base="NUTS3').relation('glbl.nuts.code',relation_name='province',onDelete='raise"></nuts3_relation_glbl_nuts_code_relation_name_province_ondelete_raise>
+<regione_rowcaption_sigla_nome_caption_field_nome _T="NN" base="Regione', rowcaption='sigla,nome',caption_field='nome"></regione_rowcaption_sigla_nome_caption_field_nome>
+<codice _T="NN" base="Codice"></codice>
+<zona _T="NN" base="Zona"></zona>
+<zona_n_ _T="NN" base="Zona n."></zona_n_>
+<nuts2_relation_glbl_nuts_code_relation_name_regioni_ondelete_raise _T="NN" base="NUTS2').relation('glbl.nuts.code',relation_name='regioni',onDelete='raise"></nuts2_relation_glbl_nuts_code_relation_name_regioni_ondelete_raise>
+<localit_class_pbl_roundedgrouplabel _tag="localit__class_pbl_roundedgrouplabel" _T="NN" base="Località',_class='pbl_roundedGroupLabel"></localit_class_pbl_roundedgrouplabel>
+<nord_est_condition_regione_zona_zona_condition_zona_nord_est _T="NN" base="Nord Est',condition='@regione.zona=:zona',condition_zona='Nord-est"></nord_est_condition_regione_zona_zona_condition_zona_nord_est>
+<nord_ovest_condition_regione_zona_zona_condition_zona_nord_ovest _T="NN" base="Nord Ovest',condition='@regione.zona=:zona',condition_zona='Nord-ovest"></nord_ovest_condition_regione_zona_zona_condition_zona_nord_ovest>
+<centro_condition_regione_zona_zona_condition_zona_centro _T="NN" base="Centro',condition='@regione.zona=:zona',condition_zona='Centro"></centro_condition_regione_zona_zona_condition_zona_centro>
+<sud_condition_regione_zona_zona_condition_zona_sud _T="NN" base="Sud',condition='@regione.zona=:zona',condition_zona='Sud"></sud_condition_regione_zona_zona_condition_zona_sud>
+<isole_condition_regione_zona_zona_condition_zona_isole _T="NN" base="Isole',condition='@regione.zona=:zona',condition_zona='Isole"></isole_condition_regione_zona_zona_condition_zona_isole></GenRoBag>
