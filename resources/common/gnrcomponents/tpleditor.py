@@ -471,7 +471,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 var savepath = this.absDatapath('.userobject_meta');
                 var kw = {'tplmode':'userobject','table':table,
                         'data':data,metadata:'='+savepath}                
-                genro.dev.userObjectDialog(_T('Save Template'),savepath,
+                genro.dev.userObjectDialog(_T('!!Save Template'),savepath,
                 function(dialog) {
                     genro.serverCall('te_saveTemplate',kw,
                         function(result) {

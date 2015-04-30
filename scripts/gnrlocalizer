@@ -18,7 +18,7 @@ if __name__ == '__main__':
     """
     parser = optparse.OptionParser(usage)
     parser.add_option('-a', '--all',
-                dest='scanall',
+                dest='scan_all',
                 action='store_true',
                 help="Scan also genro source")
                       
@@ -27,6 +27,6 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         app = GnrApp(args[0])
-        app.updateLocalizationFiles(options)
+        app.updateLocalizationFiles(scan_all=getattr(options,'scan_all',None))
 
         
