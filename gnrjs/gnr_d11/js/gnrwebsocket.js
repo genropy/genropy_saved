@@ -84,8 +84,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     do_set:function(data){
         var path=data.getItem('path')
-        var datanode=data.getNode('data')
-        genro.setData(path,datanode)
+        var value=data.getItem('data')
+        genro.setData(path,value)
     },
     do_publish:function(data){
         var topic=data.getItem('topic')

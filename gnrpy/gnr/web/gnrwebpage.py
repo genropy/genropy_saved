@@ -98,7 +98,7 @@ class GnrWebPage(GnrBaseWebPage):
     :param basename: TODO
     :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
-                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
+                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None):
         self._inited = False
         self._start_time = time()
         self.workspace = dict()
@@ -182,6 +182,11 @@ class GnrWebPage(GnrBaseWebPage):
             raise self.site.client_exception('The request must reference a page_id', self._environ)
         else:
             self.page_item = self._register_new_page(kwargs=request_kwargs)
+            if class_info:
+                self.page_item['data']['class_info'] = class_info
+                self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
+                          filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
+        
         self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
@@ -407,6 +412,10 @@ class GnrWebPage(GnrBaseWebPage):
         args = self._call_args
         kwargs = self._call_kwargs
         result = self._call_handler(*args, **kwargs) 
+        with self.pageStore() as store:
+            if hasattr(self,'mixin_set'):
+                store_mixin_set = store.get('mixin_set') or set()
+                store.setItem('mixin_set', store_mixin_set.union(self.mixin_set))
         self._onEnd()
         if getattr(self,'_closed',False):
             self.site.register.drop_page(self.page_id, cascade=False)

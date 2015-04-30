@@ -1137,7 +1137,7 @@ class GnrWsgiSite(object):
 
     def _get_currentRequest(self):
         """property currentRequest it returns the request currently used in this thread"""
-        return self._currentRequests[thread.get_ident()]
+        return self._currentRequests.get(thread.get_ident())
         
     def _set_currentRequest(self, request):
         """set currentRequest for this thread"""
@@ -1149,8 +1149,9 @@ class GnrWsgiSite(object):
     def heartbeat_options(self):
         heartbeat = boolean(self.config['wsgi?heartbeat'])
         if heartbeat:
-            site_url = self.config['wsgi?external_host'] or self.currentRequest.host_url
-            return dict(interval=60,site_url=site_url)
+            site_url = self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
+            if site_url:
+                return dict(interval=60,site_url=site_url)
         
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
