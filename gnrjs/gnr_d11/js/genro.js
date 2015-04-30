@@ -753,7 +753,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         if(genro.activeForm){
             if(genro.activeForm.changed){
-                return _T('You have an active form with pending changes')
+                return _T('!!You have an active form with pending changes')
             }
         }
 

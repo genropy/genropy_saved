@@ -277,12 +277,12 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     helper_in:function(rowNode){
-        var dlg = genro.dlg.quickDialog(_T('Helper in'),{width:'280px',autoSize:true});
+        var dlg = genro.dlg.quickDialog(_T('!!Helper in'),{width:'280px',autoSize:true});
         var center = dlg.center;
         var relpath = rowNode.attr.relpath;
         var val = rowNode.getRelativeData(relpath);
         var caption = rowNode.getRelativeData(relpath+'?value_caption') ||'';
-        var currentSetCaption =_T('New Set');
+        var currentSetCaption =_T('!!New Set');
         if(caption.indexOf('set:')==0){
             currentSetCaption = caption.replace('set:','');
         }
@@ -294,7 +294,7 @@ dojo.declare("gnr.QueryManager", null, {
         var toolbar = center._('slotBar',{slots:'menuset,*,saveset,delset',toolbar:true,datapath:datapath});
         var setTitle = toolbar._('div','menuset',{innerHTML:'^.currentsetAttr.caption',cursor:'pointer'});
         var resetSet = function(){
-            helperBag.setItem('currentsetAttr',new gnr.GnrBag({caption:_T('New Set')}));
+            helperBag.setItem('currentsetAttr',new gnr.GnrBag({caption:_T('!!New Set')}));
             helperBag.setItem('items','')
             rowNode.setRelativeData(relpath+'?value_caption','');
         }
@@ -317,7 +317,7 @@ dojo.declare("gnr.QueryManager", null, {
             var kw = {'objtype':'list_in','table':that.maintable,
                      'data':helperBag.getItem('items'),
                      metadata:genro.getData(savepath)}
-            genro.dev.userObjectDialog(_T('Save set'),savepath,function(dialog) {
+            genro.dev.userObjectDialog(_T('!!Save set'),savepath,function(dialog) {
                 genro.serverCall('_table.adm.userobject.saveUserObject',kw,function(result) {
                     helperBag.setItem('currentsetAttr',new gnr.GnrBag(result.attr));
                     dialog.close_action();
@@ -331,11 +331,11 @@ dojo.declare("gnr.QueryManager", null, {
                     }});
         var box = center._('div', {datapath:datapath,padding:'5px'});
         var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
-        fb.addField('simpleTextArea', {lbl:_T("IN"),value:'^.items',
+        fb.addField('simpleTextArea', {lbl:_T("!!IN"),value:'^.items',
                                         width:'20em',height:'15ex',colspan:2,lbl_vertical_align:'top'});
         var footer = dlg.bottom._('slotBar',{slots:'*,cancel,confirm'});
-        footer._('button','cancel',{label:_T('Cancel'),'action':dlg.close_action});
-        footer._('button','confirm',{label:_T('Confirm'),action:function(){
+        footer._('button','cancel',{label:_T('!!Cancel'),'action':dlg.close_action});
+        footer._('button','confirm',{label:_T('!!Confirm'),action:function(){
             var items = helperBag.getItem('items');
             var splitPattern=/\s*[\n\,]+\s*/g;
             var cleanPattern=/(^\s*[\n\,]*\s*|\s*[\n\,]*\s*$)/g;
@@ -570,7 +570,7 @@ dojo.declare("gnr.THDatasetManager", null, {
     datasetsMenu:function(){
         var result = new gnr.GnrBag();
         var that = this;
-        result.setItem('r_0',null,{caption:_T('New set column'),
+        result.setItem('r_0',null,{caption:_T('!!New set column'),
                                    action:function(){that.newSetColumn();}}
                                    );
         var grid = this.grid;
@@ -590,13 +590,13 @@ dojo.declare("gnr.THDatasetManager", null, {
             
             if(objectKeys(currentsets).length>1 && false){
                 result.setItem('r_2',null,{caption:'-'});
-                result.setItem('union',null,{caption:_T('Union'),action:function(){that.unionDataSet()}});
-                result.setItem('intersect',null,{caption:_T('Intersect'),action:function(){that.intersectDataSet()}});
+                result.setItem('union',null,{caption:_T('!!Union'),action:function(){that.unionDataSet()}});
+                result.setItem('intersect',null,{caption:_T('!!Intersect'),action:function(){that.intersectDataSet()}});
             }
 //
         }
         //result.setItem('r_2',null,{caption:'-'});
-        //result.setItem('r_3',null,{caption:_T('Clear clipboard')});
+        //result.setItem('r_3',null,{caption:_T('!!Clear clipboard')});
 
         return result;
     },
@@ -610,7 +610,7 @@ dojo.declare("gnr.THDatasetManager", null, {
             wdg_values += ':'+ kw['name'];
 
         }
-        //genro.dlg.prompt(_T('New dataset'), {msg:_T('Union between dataset'),
+        //genro.dlg.prompt(_T('!!New dataset'), {msg:_T('!!Union between dataset'),
         //                                wdg:'checkBoxText'
         //                                action:
         //                                    function(name){
@@ -620,7 +620,7 @@ dojo.declare("gnr.THDatasetManager", null, {
     },
     newSetColumn:function(){
         var grid = this.grid;
-        genro.dlg.prompt(_T('New dataset'), {msg:_T('Add a new dataset column'),
+        genro.dlg.prompt(_T('!!New dataset'), {msg:_T('!!Add a new dataset column'),
                                         lbl:'Name',
                                         action:
                                             function(name){
