@@ -26,10 +26,13 @@ import zipfile
 import StringIO
 import logging
 import datetime
+
 from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 CONDITIONAL_PATTERN = re.compile("\\${([^}]*)}",flags=re.S)
+FLATTENER = re.compile('\W+')
+
 try:
     from string import Template
     
@@ -421,6 +424,9 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
 
+
+def flatten(myString,repchar='_'):
+    return FLATTENER.sub(repchar,myString.lower())
 
 
 def conditionalTemplate(myString,symbolDict=None):
@@ -947,6 +953,7 @@ def jsquote(str_or_unicode):
         return repr(str_or_unicode)
     elif isinstance(str_or_unicode, unicode):
         return repr(str_or_unicode.encode('utf-8'))
+
         
 if __name__ == '__main__':
     incl = '%.py,%.css'
