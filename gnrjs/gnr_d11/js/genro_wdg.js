@@ -1743,8 +1743,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         if(kw.updvalue){
             var gridEditor = this.grid.gridEditor;
-            var cell = this.grid.cellmap[kw.node.label]
-            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || cell.counter)){
+            var cell = this.grid.cellmap[kw.node.label];
+            if(kw.value!=kw.oldvalue && gridEditor && ((kw.node.label in gridEditor.columns) || (cell && cell.counter))){
                 var attr = kw.node.attr;
                 if(!('_loadedValue' in attr)){
                     attr['_loadedValue'] = kw.oldvalue;
