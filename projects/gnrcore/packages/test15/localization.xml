@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<model_packages_glbl_regione_py _tag="model__packages_glbl_regione_py">
+		<prov_principali base="Prov principali"/>
+		<prov_principali_nuts_ base="Prov principali (nuts)"/>
+	</model_packages_glbl_regione_py>
+
+	<model_animal_py>
+		<animal base="Animal"/>
+		<animals base="Animals"/>
+		<name base="Name" de="" en="" fr=""/>
+		<age base="Age"/>
+		<abilities base="Abilities"/>
+	</model_animal_py>
+
+	<model_nodetbl_py>
+		<node_tbl base="Node tbl"/>
+		<partenza base="Partenza"/>
+		<arrivo base="Arrivo"/>
+	</model_nodetbl_py>
+
+	<model_recursive_py>
+		<description base="Description" de="" en="" fr=""/>
+	</model_recursive_py>
+
+	<model_species_py>
+		<species base="Species"/>
+		<abilities base="Abilities"/>
+	</model_species_py>
+
+	<resources_tables_packages_glbl_provincia_th_provincia_py _tag="resources_tables__packages_glbl_provincia_th_provincia_py">
+		<nord base="Nord"/>
+		<centro base="Centro"/>
+		<sud base="Sud"/>
+		<isole base="Isole"/>
+	</resources_tables_packages_glbl_provincia_th_provincia_py>
+
+	<webpages_components_advanced_form_py>
+		<terapia base="Terapia"/>
+	</webpages_components_advanced_form_py>
+
+	<webpages_components_drop_uploader_py>
+		<description base="Description" de="" en="" fr=""/>
+		<loaded_content base="loaded content"/>
+		<xls_rows base="Xls Rows"/>
+	</webpages_components_drop_uploader_py>
+
+	<webpages_components_includedview_py>
+		<products base="Products"/>
+	</webpages_components_includedview_py>
+
+	<webpages_dd_dd_grid_py>
+		<required base="Required" de="" en="" fr=""/>
+		<too_long base="Too long"/>
+		<too_short base="Too short"/>
+	</webpages_dd_dd_grid_py>
+
+	<webpages_dojo_form_displayed_value_py>
+		<too_long base="Too long"/>
+		<too_short base="Too short"/>
+	</webpages_dojo_form_displayed_value_py>
+
+	<webpages_gnrwdg_formclientstore_py>
+		<required base="Required" de="" en="" fr=""/>
+	</webpages_gnrwdg_formclientstore_py>
+
+	<webpages_gnrwdg_formdocumentstore_py>
+		<name base="Name" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<date base="Date" de="" en="" fr=""/>
+	</webpages_gnrwdg_formdocumentstore_py>
+
+	<webpages_gnrwdg_formhandler_baggrid_py>
+		<required base="Required" de="" en="" fr=""/>
+	</webpages_gnrwdg_formhandler_baggrid_py>
+
+	<webpages_gnrwdg_formhandler_selection_py>
+		<regione base="Regione"/>
+	</webpages_gnrwdg_formhandler_selection_py>
+
+	<webpages_gnrwdg_framepane_py>
+		<save base="Save" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+	</webpages_gnrwdg_framepane_py>
+
+	<webpages_tools_newregisterexplorer_py>
+		<message base="Message"/>
+		<the_system_is_going_to_be_restarted_finish_your_pending_tasks base="The system is going to be restarted. Finish your pending tasks"/>
+		<you_are_going_to_stop_every_user_activity base="You are going to stop every user activity"/>
+		<exclude_guest base="Exclude guest"/>
+		<rpc_details base="Rpc details"/>
+		<maintenance base="Maintenance"/>
+	</webpages_tools_newregisterexplorer_py>
+
+	<webpages_tools_serverpath_py>
+		<specialit_ base="Specialità" de="" en="" fr=""/>
+	</webpages_tools_serverpath_py>
+</GenRoBag>

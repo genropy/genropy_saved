@@ -1,0 +1,911 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<app_gnrapp_py>
+		<user_not_allowed base="User not allowed"/>
+	</app_gnrapp_py>
+
+	<app_gnrbatch_new_py>
+		<pre_processing base="Pre processing"/>
+		<executing base="Executing"/>
+		<post_processing base="Post processing"/>
+		<collecting_results base="Collecting results"/>
+	</app_gnrbatch_new_py>
+
+	<app_gnrdbo_py>
+		<system base="System" de="" en="" fr=""/>
+		<id base="Id"/>
+		<insert_date base="Insert date" de="" en="" fr=""/>
+		<logical_delete_date base="Logical delete date" de="" en="" fr=""/>
+		<update_date base="Update date" it="Data aggiornamento"/>
+		<parent_id base="Parent id"/>
+		<parent base="Parent"/>
+		<children base="Children"/>
+		<hierarchical_s base="Hierarchical %s"/>
+		<parent_hierarchical_s base="Parent Hierarchical %s"/>
+		<counter base="Counter"/>
+		<counter_s base="Counter %s"/>
+		<warnings base="Warnings"/>
+		<errors base="Errors"/>
+		<user_insert base="User Insert"/>
+		<user_modify base="User Modify"/>
+		<is_draft base="Is Draft"/>
+		<invalids base="Invalids"/>
+		<protection_tag base="Protection tag"/>
+		<fake_field_always_null base="Fake field always NULL"/>
+		<subscribed_by_default base="Subscribed by default"/>
+		<subscribed base="Subscribed"/>
+		<_fieldname_s_promised_value_recycled_ base="%(fieldname)s promised value (recycled)"/>
+		<filepath base="Filepath"/>
+		<description base="Description" de="" en="" fr=""/>
+		<mimetype base="Mimetype"/>
+		<content base="Content"/>
+		<additional_info base="Additional info"/>
+		<sync_event base="Sync event"/>
+		<table base="Table"/>
+		<event base="Event"/>
+		<pkey base="Pkey"/>
+		<data base="Data"/>
+		<event_check_ts base="Event check ts"/>
+		<status base="Status" it="Stato"/>
+		<topic base="Topic"/>
+		<author base="Author"/>
+		<server_timestamp base="Server timestamp"/>
+		<codekey base="Codekey"/>
+		<code base="Code" de="" en="" fr=""/>
+		<package base="Package"/>
+		<name base="Name" de="" en="" fr=""/>
+		<holes base="Holes"/>
+	</app_gnrdbo_py>
+
+	<app_gnrdbo_legacy_py>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<child_code base="Child code"/>
+		<required base="Required" de="" en="" fr=""/>
+		<invalid_code_char_is_not_allowed base="Invalid code: &quot;.&quot; char is not allowed"/>
+		<parent_code base="Parent code"/>
+		<level base="Level"/>
+		<type base="Type"/>
+		<default_value base="Default value"/>
+		<data_type base="Data Type"/>
+		<enterable base="Enterable"/>
+		<wdg_type base="Wdg type"/>
+		<colspan base="Colspan"/>
+		<wdg_kwargs base="Wdg kwargs"/>
+		<suggested_values base="Suggested Values"/>
+		<db_table base="Db Table"/>
+		<allowed_values base="Allowed Values"/>
+		<checkbox_values base="Checkbox Values"/>
+		<checkbox_cols base="Checkbox cols"/>
+		<multiple_values base="Multiple Values"/>
+		<style base="Style"/>
+		<visible_if base="Visible if"/>
+		<format base="Format"/>
+		<placeholder base="Placeholder"/>
+		<mask base="Mask"/>
+		<tip base="Tip"/>
+		<u_uppercase_l_lowercase_c_capitalize base="u:Uppercase,l:Lowercase,c:Capitalize"/>
+		<case base="Case"/>
+		<range base="Range"/>
+		<std_range base="Std range"/>
+		<formula base="Formula"/>
+		<do_summary base="Do summary"/>
+		<mandatory base="Mandatory"/>
+	</app_gnrdbo_legacy_py>
+
+	<core_gnrbag_py>
+		<_s_s base="%s %s"/>
+	</core_gnrbag_py>
+
+	<core_gnrlang_py>
+		<genro_base_exception base="Genro base exception"/>
+		<error_code_code_s_description_s_ base="Error code %(code)s : %(description)s."/>
+	</core_gnrlang_py>
+
+	<core_gnrprinthandler_py>
+		<a4 base="A4"/>
+		<legal base="Legal"/>
+		<a4_with_margins base="A4 with margins"/>
+		<com10 base="COM10"/>
+		<dl base="DL"/>
+		<letter base="Letter"/>
+		<multipurpose base="MultiPurpose"/>
+		<transparency base="Transparency"/>
+		<upper base="Upper"/>
+		<lower base="Lower"/>
+		<largecapacity base="LargeCapacity"/>
+	</core_gnrprinthandler_py>
+
+	<sql_gnrsql_py>
+		<genro_sql_base_exception base="Genro SQL base exception"/>
+		<genro_sql_execution_exception base="Genro SQL execution exception"/>
+	</sql_gnrsql_py>
+
+	<sql_gnrsqltable_py>
+		<genro_sql_save_exception base="Genro SQL Save Exception"/>
+		<the_record_rowcaption_s_in_table_tablename_s_cannot_be_saved_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s"/>
+		<genro_sql_delete_exception base="Genro SQL Delete Exception"/>
+		<the_record_rowcaption_s_in_table_tablename_s_cannot_be_deleted_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s"/>
+		<genro_sql_protect_update_exception base="Genro SQL Protect Update Exception"/>
+		<the_record_rowcaption_s_in_table_tablename_s_is_not_updatable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s"/>
+		<genro_sql_protect_delete_exception base="Genro SQL Protect Delete Exception"/>
+		<the_record_rowcaption_s_in_table_tablename_s_is_not_deletable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s"/>
+		<genro_sql_protect_validate_exception base="Genro SQL Protect Validate Exception"/>
+		<the_record_rowcaption_s_in_table_tablename_s_contains_invalid_data_msg_s base="The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"/>
+		<genro_sql_business_logic_exception base="Genro SQL Business Logic Exception"/>
+		<the_requested_operation_violates_the_internal_business_logic_msg_s base="The requested operation violates the internal business logic: %(msg)s"/>
+		<_description_s base="%(description)s"/>
+		<_msg_s base="%(msg)s"/>
+		<genro_sql_not_existing_column_exception base="Genro SQL Not Existing Column Exception"/>
+		<column_column_s_not_existing_in_table_tablename_s_ base="Column %(column)s not existing in table %(tablename)s "/>
+		<record_referenced_in_table_reltable_s base="Record referenced in table %(reltable)s"/>
+	</sql_gnrsqltable_py>
+
+	<sql_gnrsqlxml2py_py>
+		<_s base="%s"/>
+	</sql_gnrsqlxml2py_py>
+
+	<web_gnrbasewebpage_py _tag="web__gnrbasewebpage_py">
+		<saving_error base="Saving error" de="" en="" fr=""/>
+		<_fieldname_s_sequence_s_instead_of_promised_sequence_s base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s"/>
+	</web_gnrbasewebpage_py>
+
+	<web_batch_btcbase_py>
+		<cancel base="Cancel" it="Annulla"/>
+		<confirm base="Confirm" it="Ok"/>
+	</web_batch_btcbase_py>
+
+	<web_batch_btcmail_py>
+		<cc base="CC"/>
+		<subject base="Subject"/>
+		<previous base="Previous" de="" en="" fr=""/>
+		<next base="Next" de="" en="" fr=""/>
+	</web_batch_btcmail_py>
+
+	<web_batch_btcprint_py>
+		<print_options base="Print Options"/>
+		<letterhead base="Letterhead"/>
+		<notes base="Notes"/>
+		<server_print base="Server Print"/>
+		<pdf base="Pdf" de="" en="" fr=""/>
+		<file_name base="File Name"/>
+		<zip_folder base="Zip folder"/>
+		<pdf_by_email base="Pdf by email"/>
+		<to base="To"/>
+		<cc base="CC"/>
+		<subject base="Subject"/>
+		<body base="Body"/>
+		<deliver_mail base="Deliver mail"/>
+		<cancel base="Cancel" it="Annulla"/>
+		<print base="Print" de="" en="" fr=""/>
+		<download base="Download"/>
+		<confirm base="Confirm" it="Ok"/>
+	</web_batch_btcprint_py>
+
+	<web_gnrwebpage_py>
+		<genro_not_allowed_public_call base="Genro Not Allowed Public call"/>
+		<user_user_s_is_not_allowed_to_call_method_method_s base="User %(user)s is not allowed to call method %(method)s"/>
+		<print base="Print" de="" en="" fr=""/>
+	</web_gnrwebpage_py>
+
+	<web_gnrwebpage_proxy_apphandler_py>
+		<execution_completed base="Execution completed"/>
+		<execution_stopped base="Execution stopped"/>
+		<sample_data base="Sample data"/>
+	</web_gnrwebpage_proxy_apphandler_py>
+
+	<web_gnrwebpage_proxy_rpc_py>
+		<user_connection_lost_ base="User connection lost."/>
+	</web_gnrwebpage_proxy_rpc_py>
+
+	<web_gnrwsgisite_py>
+		<genro_site_exception base="Genro Site exception"/>
+		<_site_error_message_s base=" Site Error : %(message)s"/>
+	</web_gnrwsgisite_py>
+
+	<_unused_standardrecordviews_py>
+		<unlock base="Unlock" de="" en="" fr=""/>
+		<lock base="Lock" de="" en="" fr=""/>
+		<save base="Save" de="" en="" fr=""/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<you_cannot_unlock_this_table base="You cannot unlock this table" de="" en="" fr=""/>
+		<unsaved_changes base="Unsaved changes" de="" en="" fr=""/>
+		<there_are_unsaved_changes base="There are unsaved changes" de="" en="" fr="" it="Modifiche non salvate"/>
+		<save_changes base="Save changes" de="" en="" fr=""/>
+		<forget_changes base="Forget changes" de="" en="" fr=""/>
+		<record_saved base="Record saved" de="" en="" fr=""/>
+	</_unused_standardrecordviews_py>
+
+	<foundation_dialogs_py>
+		<confirm base="Confirm" it="Ok"/>
+		<cancel base="Cancel" it="Annulla"/>
+		<are_you_sure_ base="Are you sure?"/>
+	</foundation_dialogs_py>
+
+	<foundation_htmltoframe_py>
+		<pdf base="PDF" de="" en="" fr=""/>
+		<print base="Print" de="" en="" fr=""/>
+	</foundation_htmltoframe_py>
+
+	<foundation_includedview_py>
+		<edit base="Edit"/>
+		<delete base="Delete" de="" en="" fr=""/>
+		<add base="Add" de="" en="" fr=""/>
+		<first base="First" de="" en="" fr=""/>
+		<previous base="Previous" de="" en="" fr=""/>
+		<next base="Next" de="" en="" fr=""/>
+		<last base="Last" de="" en="" fr=""/>
+		<close base="Close"/>
+		<add_and_close base="Add and Close"/>
+	</foundation_includedview_py>
+
+	<foundation_macrowidgets_py>
+		<prev base="Prev"/>
+		<next base="Next" de="" en="" fr=""/>
+		<period base="Period"/>
+		<first base="First" de="" en="" fr=""/>
+		<previous base="Previous" de="" en="" fr=""/>
+		<last base="Last" de="" en="" fr=""/>
+	</foundation_macrowidgets_py>
+
+	<foundation_menu_py>
+		<menu base="Menu"/>
+	</foundation_menu_py>
+
+	<foundation_recorddialog_py>
+		<not_valid_data_please_check_the_form base="Not valid data. Please check the form" de="" en="" fr=""/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<save base="Save" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+	</foundation_recorddialog_py>
+
+	<foundation_thermo_py>
+		<stop_the_batch_execution_ base="Stop the batch execution?"/>
+	</foundation_thermo_py>
+
+	<foundation_userobject_py>
+		<you_cannot_undo_this_operation_are_you_sure_ base="You cannot undo this operation. Are you sure?" de="" en="" fr=""/>
+		<quicklist base="Quicklist" de="" en="" fr=""/>
+		<available_in_shortcuts base="Available in shortcuts" de="" en="" fr=""/>
+		<private base="Private" de="" en="" fr=""/>
+		<only_for_me_ base="Only for me." de="" en="" fr=""/>
+		<dotted_path_and_name base="Dotted path and name" de="" en="" fr=""/>
+		<permissions base="Permissions" de="" en="" fr=""/>
+		<comma_separated_list_of_auth_tags_ base="Comma separated list of auth tags." de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<save_s base="Save %s"/>
+		<close base="Close"/>
+		<save base="Save" de="" en="" fr=""/>
+		<code base="Code" de="" en="" fr=""/>
+		<shortlist base="Shortlist"/>
+		<load_s base="Load %s"/>
+		<load base="Load" de="" en="" fr=""/>
+		<confirm_deletion base="Confirm deletion"/>
+		<yes base="Yes"/>
+		<no base="No"/>
+		<the_selected_object_will_be_permanently_deleted_ base="The selected object will be permanently deleted:"/>
+	</foundation_userobject_py>
+
+	<gnrcomponents_attachmanager_attachmanager_py>
+		<filepath base="Filepath"/>
+		<imp_ base="Imp."/>
+		<drop_area base="Drop Area"/>
+		<attachment base="Attachment"/>
+		<attachments base="Attachments"/>
+		<delete_attachment base="Delete attachment"/>
+		<change_description base="Change description"/>
+		<description base="Description" de="" en="" fr=""/>
+	</gnrcomponents_attachmanager_attachmanager_py>
+
+	<gnrcomponents_batch_handler_batch_handler_py>
+		<batch base="Batch"/>
+		<batch_monitor base="Batch monitor"/>
+		<_s_i_ base="%s (%i)"/>
+	</gnrcomponents_batch_handler_batch_handler_py>
+
+	<gnrcomponents_bottomplugins_py>
+		<documentation base="Documentation"/>
+		<tickets base="Tickets"/>
+	</gnrcomponents_bottomplugins_py>
+
+	<gnrcomponents_chat_component_chat_component_py>
+		<chat base="Chat"/>
+		<connected_users base="Connected users"/>
+		<chat_plug_in base="Chat plug-in"/>
+		<start_chat base="Start chat"/>
+		<users base="Users"/>
+	</gnrcomponents_chat_component_chat_component_py>
+
+	<gnrcomponents_datamover_py>
+		<save_mover base="Save Mover"/>
+		<name base="Name" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+		<save base="Save" de="" en="" fr=""/>
+		<type base="Type"/>
+		<table base="Table"/>
+		<n base="N"/>
+		<db base="Db"/>
+		<mover base="Mover"/>
+		<mover_plug_in base="Mover plug-in"/>
+		<data_mover base="Data Mover"/>
+		<download base="Download"/>
+	</gnrcomponents_datamover_py>
+
+	<gnrcomponents_doc_handler_doc_handler_py>
+		<revert base="Revert" de="" en="" fr=""/>
+		<save base="Save" de="" en="" fr=""/>
+		<view base="View"/>
+		<edit base="Edit"/>
+	</gnrcomponents_doc_handler_doc_handler_py>
+
+	<gnrcomponents_drop_uploader_py>
+		<upload base="Upload"/>
+		<uploader base="Uploader"/>
+		<file_name base="File name"/>
+		<size base="Size"/>
+		<type base="Type"/>
+		<preview base="Preview"/>
+		<no_preview_available base="No preview available"/>
+		<thumb base="Thumb"/>
+		<uploaded_elements base="Uploaded elements"/>
+	</gnrcomponents_drop_uploader_py>
+
+	<gnrcomponents_dynamicform_dynamicform_py>
+		<required base="Required" de="" en="" fr=""/>
+		<invalid_code_char_is_not_allowed base="Invalid code: &quot;.&quot; char is not allowed"/>
+		<already_existing_code base="Already existing code"/>
+		<field_code base="Field code"/>
+		<field_description base="Field description"/>
+		<t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image base="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image"/>
+		<calculated base="Calculated"/>
+		<colspan base="Colspan"/>
+		<width base="Width"/>
+		<height base="Height"/>
+		<keepable_value base="Keepable value"/>
+		<vocal_input base="Vocal input"/>
+		<full_text_editor base="Full text editor"/>
+		<c1_description1_n_c2_description2 base="c1:description1\n c2:description2"/>
+		<description1_n_description2 base="description1\n description2"/>
+		<pkg_table base="pkg.table"/>
+		<crop_h base="Crop H"/>
+		<crop_w base="Crop W"/>
+		<mandatory base="Mandatory"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<type base="Type"/>
+		<widget base="Widget"/>
+		<page base="Page"/>
+		<querable base="Querable"/>
+		<new_field base="New Field"/>
+		<t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image_gr_graph base="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image,GR:Graph"/>
+		<source base="Source"/>
+		<case base="Case"/>
+		<range base="Range"/>
+		<std_range base="Std.Range"/>
+		<graph base="Graph"/>
+		<formula base="Formula"/>
+		<access base="Access"/>
+		<visible_if base="Visible if"/>
+		<tip base="Tip"/>
+		<placeholder base="Placeholder"/>
+		<format_and_mask base="Format and Mask"/>
+		<format base="Format"/>
+		<mask base="Mask"/>
+		<styles base="Styles"/>
+		<data_getter base="Data getter"/>
+		<add_custom_template base="Add custom template"/>
+		<new_template base="New template"/>
+		<name base="Name" de="" en="" fr=""/>
+		<delete_selected_template base="Delete selected template"/>
+		<fields base="Fields"/>
+		<dynamic_fields base="Dynamic fields"/>
+		<preview base="Preview"/>
+		<summary_templates base="Summary Templates"/>
+		<n_col base="N. Col"/>
+		<colswith base="Colswith"/>
+		<under_min_value_s base="Under min value %s"/>
+		<over_max_value_s base="Over max value %s"/>
+	</gnrcomponents_dynamicform_dynamicform_py>
+
+	<gnrcomponents_explorer_manager_py>
+		<explorers base="Explorers"/>
+	</gnrcomponents_explorer_manager_py>
+
+	<gnrcomponents_filepicker_py>
+		<image base="Image"/>
+		<title base="Title"/>
+		<created base="Created"/>
+		<size base="Size"/>
+	</gnrcomponents_filepicker_py>
+
+	<gnrcomponents_formhandler_py>
+		<navigation base="Navigation"/>
+		<form_commands base="Form Commands"/>
+		<dismiss base="Dismiss"/>
+		<save base="Save" de="" en="" fr=""/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<this_record_cannot_be_deleted base="This record cannot be deleted"/>
+		<delete_current_record base="Delete current record"/>
+		<add base="Add" de="" en="" fr=""/>
+		<duplicate base="Duplicate"/>
+		<first base="First" de="" en="" fr=""/>
+		<prev base="Prev"/>
+		<next base="Next" de="" en="" fr=""/>
+		<hidden base="Hidden" de="" en="" fr=""/>
+		<last base="Last" de="" en="" fr=""/>
+		<locker base="Locker"/>
+	</gnrcomponents_formhandler_py>
+
+	<gnrcomponents_framegrid_py>
+		<export base="Export" de="" en="" fr=""/>
+		<add base="Add" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+		<locker base="Locker"/>
+		<update base="Update"/>
+		<reload base="Reload"/>
+		<save base="Save" de="" en="" fr=""/>
+	</gnrcomponents_framegrid_py>
+
+	<gnrcomponents_htablehandler_py>
+		<hierarchical base="Hierarchical"/>
+		<plain base="Plain"/>
+		<close base="Close"/>
+		<lock base="Lock" de="" en="" fr=""/>
+		<unlock base="Unlock" de="" en="" fr=""/>
+		<deleting_record base="Deleting record"/>
+		<you_cannot_undo_this_operation_do_you_want_to_proceed_ base="You cannot undo this operation. Do you want to proceed?"/>
+		<add base="Add" de="" en="" fr=""/>
+		<add_sibling base="Add Sibling"/>
+		<save base="Save" de="" en="" fr=""/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+		<tree base="Tree"/>
+		<picker base="Picker"/>
+		<how_many_copies_do_you_want_to_insert_ base="How many copies do you want to insert?"/>
+		<confirm base="Confirm" it="Ok"/>
+	</gnrcomponents_htablehandler_py>
+
+	<gnrcomponents_htmlchunkeditor_py>
+		<chunk_editor base="Chunk editor"/>
+	</gnrcomponents_htmlchunkeditor_py>
+
+	<gnrcomponents_maintenance_py>
+		<maintenance base="Maintenance"/>
+		<users_connections base="Users &amp; Connections"/>
+		<backups base="Backups"/>
+		<message base="Message"/>
+		<the_system_is_going_to_be_restarted_finish_your_pending_tasks base="The system is going to be restarted. Finish your pending tasks"/>
+		<exclude_guest base="Exclude guest"/>
+		<rpc_details base="Rpc details"/>
+	</gnrcomponents_maintenance_py>
+
+	<gnrcomponents_multiselect_py>
+		<select_all base="Select All"/>
+		<unselect_all base="Unselect All"/>
+	</gnrcomponents_multiselect_py>
+
+	<gnrcomponents_printer_option_dialog_py>
+		<printer base="Printer"/>
+		<no_printer base="No printer"/>
+		<paper base="Paper"/>
+		<tray base="Tray"/>
+		<server_printer_options base="Server Printer options"/>
+	</gnrcomponents_printer_option_dialog_py>
+
+	<gnrcomponents_recordlinker_py>
+		<add base="Add" de="" en="" fr=""/>
+		<edit base="Edit"/>
+	</gnrcomponents_recordlinker_py>
+
+	<gnrcomponents_selectionhandler_py>
+		<unsaved_changes base="Unsaved changes" de="" en="" fr=""/>
+		<the_main_record_has_some_changes_do_you_want_to_save_them_ base="The main record has some changes. Do you want to save them?"/>
+		<the_main_record_contains_some_invalid_field_please_check_before_adding_new_sub_records base="The main record contains some invalid field. Please check before adding new sub-records"/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<you_have_to_save_the_main_record_before_do_you_want_to_save_ base="You have to save the main record before. Do you want to save?"/>
+		<lock base="Lock" de="" en="" fr=""/>
+		<unlock base="Unlock" de="" en="" fr=""/>
+		<you_cannot_undo_this_operation_do_you_want_to_proceed_ base="You cannot undo this operation. Do you want to proceed?"/>
+		<there_are_unsaved_changes base="There are unsaved changes" de="" en="" fr="" it="Modifiche non salvate"/>
+		<save base="Save" de="" en="" fr=""/>
+		<do_not_save base="Do not save"/>
+		<cancel base="Cancel" it="Annulla"/>
+		<first base="First" de="" en="" fr=""/>
+		<previous base="Previous" de="" en="" fr=""/>
+		<next base="Next" de="" en="" fr=""/>
+		<last base="Last" de="" en="" fr=""/>
+		<save_changes base="Save changes" de="" en="" fr=""/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<add base="Add" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+	</gnrcomponents_selectionhandler_py>
+
+	<gnrcomponents_ticket_handler_ticket_handler_py>
+		<description base="Description" de="" en="" fr=""/>
+		<title base="Title"/>
+		<type base="Type"/>
+		<date base="Date" de="" en="" fr=""/>
+		<status base="Status" it="Stato"/>
+	</gnrcomponents_ticket_handler_ticket_handler_py>
+
+	<gnrcomponents_timetable_py>
+		<configuration base="Configuration"/>
+	</gnrcomponents_timetable_py>
+
+	<gnrcomponents_tpleditor_py>
+		<metadata base="Metadata"/>
+		<edit base="Edit"/>
+		<preview base="Preview"/>
+		<help base="Help"/>
+		<edit_pars base="Edit pars"/>
+		<author base="Author"/>
+		<version base="Version"/>
+		<date base="Date" de="" en="" fr=""/>
+		<print base="Print" de="" en="" fr=""/>
+		<mail base="Mail" de="" en="" fr=""/>
+		<row base="Row"/>
+		<letterhead base="Letterhead"/>
+		<summary base="Summary"/>
+		<flags base="Flags"/>
+		<variables base="Variables"/>
+		<parameters base="Parameters"/>
+		<fields base="Fields"/>
+		<files base="Files"/>
+		<email_metadata base="Email metadata"/>
+		<subject base="Subject"/>
+		<to base="To"/>
+		<from base="From"/>
+		<cc base="CC"/>
+		<bcc base="BCC"/>
+		<attachments base="Attachments"/>
+		<record base="Record"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<fieldtype base="Fieldtype"/>
+		<t_text_l_integer_d_date_n_decimal_b_boolean_tl_long_text base="T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text"/>
+		<format base="Format"/>
+		<mask base="Mask"/>
+		<values base="Values"/>
+		<delete_current base="Delete current"/>
+		<edit_ base="Edit "/>
+		<save_template base="Save template"/>
+		<new_template base="New template"/>
+		<copy_from base="Copy From"/>
+		<custom base="Custom"/>
+		<save base="Save" de="" en="" fr=""/>
+	</gnrcomponents_tpleditor_py>
+
+	<print_utils_py>
+		<no_printer_selected base="No printer selected"/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<print_options base="Print options"/>
+		<close base="Close"/>
+		<pdf base="Pdf" de="" en="" fr=""/>
+		<print base="Print" de="" en="" fr=""/>
+		<select_printer base="Select printer"/>
+		<printer base="Printer"/>
+		<paper_ base="Paper:"/>
+		<tray_ base="Tray:"/>
+		<zip_folder base="Zip folder"/>
+		<forked_process base="Forked process"/>
+		<general base="General"/>
+		<cancel base="Cancel" it="Annulla"/>
+	</print_utils_py>
+
+	<print_utils_new_py>
+		<no_printer_selected base="No printer selected"/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<print_options base="Print options"/>
+		<close base="Close"/>
+		<pdf base="Pdf" de="" en="" fr=""/>
+		<print base="Print" de="" en="" fr=""/>
+		<forked_process base="Forked process"/>
+		<note base="Note"/>
+		<select_printer base="Select printer"/>
+		<printer base="Printer"/>
+		<paper_ base="Paper:"/>
+		<tray_ base="Tray:"/>
+		<zip_folder base="Zip folder"/>
+	</print_utils_new_py>
+
+	<public_py>
+		<logout base="Logout" de="" en="" fr=""/>
+		<continue base="Continue"/>
+		<the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate base="The date is changed since you logged in. Logout to use the right workdate"/>
+		<wrong_date base="Wrong date"/>
+		<errors_ base="Errors:"/>
+		<back base="Back" de="" en="" fr=""/>
+		<english base="English"/>
+		<italian base="Italian"/>
+		<set_filter base="Set Filter" de="" en="" fr=""/>
+		<main_view base="Main View"/>
+		<statistical_view base="Statistical View"/>
+	</public_py>
+
+	<standard_tables_tablehandler_py>
+		<there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ base="There are unsaved changes, do you want to close the page without saving?" de="" en="" fr=""/>
+		<errors_in_batch_execution base="Errors in batch execution" de="" en="" fr=""/>
+		<caption base="Caption" de="" en="" fr=""/>
+		<error base="Error" de="" en="" fr=""/>
+	</standard_tables_tablehandler_py>
+
+	<standard_tables_tablehandler_core_py>
+		<show_hidden_records base="Show hidden records" de="" en="" fr=""/>
+		<show_total_count base="Show total count" de="" en="" fr=""/>
+		<queries base="Queries" de="" en="" fr=""/>
+		<views base="Views" de="" en="" fr=""/>
+		<actions base="Actions" de="" en="" fr=""/>
+		<mails base="Mails" de="" en="" fr=""/>
+		<prints base="Prints" de="" en="" fr=""/>
+		<new_s base="New %s"/>
+		<save_s base="Save %s"/>
+		<delete_s base="Delete %s"/>
+		<_s base="%s"/>
+		<please_select_the_column base="Please select the column" de="" en="" fr=""/>
+		<and base="AND" de="" en="" fr=""/>
+		<or base="OR" de="" en="" fr=""/>
+		<not base="NOT" de="" en="" fr=""/>
+		<custom_query base="Custom query" de="" en="" fr=""/>
+	</standard_tables_tablehandler_core_py>
+
+	<standard_tables_tablehandler_extra_py>
+		<enter_a_list_of_values_ base="Enter a list of values:" de="" en="" fr=""/>
+		<save base="Save" de="" en="" fr=""/>
+		<save_as base="Save as" de="" en="" fr=""/>
+		<delete_ base="Delete " de="" en="" fr=""/>
+		<load base="Load" de="" en="" fr=""/>
+		<command base="Command" de="" en="" fr=""/>
+		<save_list base="Save list" de="" en="" fr=""/>
+		<delete_list_of_values base="Delete list of values" de="" en="" fr=""/>
+		<helper_tag base="Helper TAG" de="" en="" fr=""/>
+		<set_filter base="Set Filter" de="" en="" fr=""/>
+		<add_to_current_filter base="Add to current filter"/>
+		<remove_filter base="Remove filter" de="" en="" fr=""/>
+		<custom_filter base="Custom filter"/>
+		<tags base="Tags"/>
+		<tag_in base="Tag in" de="" en="" fr=""/>
+		<close base="Close"/>
+		<edit_tags base="Edit tags"/>
+		<record_tag base="Record Tag"/>
+		<edit_tag base="Edit tag"/>
+		<link_tag base="Link tag"/>
+		<yes base="Yes"/>
+		<no base="No"/>
+		<mode base="Mode"/>
+		<loading base="Loading"/>
+		<analyze_grid base="Analyze Grid"/>
+		<auto_update base="Auto update"/>
+		<add_child base="Add child"/>
+		<add_sibling base="Add sibling"/>
+		<saving_ base="Saving..." de="" en="" fr="" it="Salvataggio in corso..."/>
+		<revert base="Revert" de="" en="" fr=""/>
+	</standard_tables_tablehandler_extra_py>
+
+	<standard_tables_tablehandler_form_py>
+		<_hidden base=" Hidden"/>
+		<lock base="Lock" de="" en="" fr=""/>
+		<unlock base="Unlock" de="" en="" fr=""/>
+		<saving_ base="Saving..." de="" en="" fr="" it="Salvataggio in corso..."/>
+		<no_change_to_save_ base="No change to save." de="" en="" fr=""/>
+		<invalid_data_please_check_the_form_ base="Invalid data, please check the form." de="" en="" fr=""/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<unsaved_changes base="Unsaved changes" de="" en="" fr=""/>
+		<there_are_unsaved_changes base="There are unsaved changes" de="" en="" fr="" it="Modifiche non salvate"/>
+		<save_changes base="Save changes" de="" en="" fr=""/>
+		<forget_changes base="Forget changes" de="" en="" fr=""/>
+		<review_changes base="Review changes" de="" en="" fr=""/>
+		<record_saved base="Record saved" de="" en="" fr=""/>
+		<record_deleted base="Record deleted" de="" en="" fr=""/>
+		<confirm_record_deletion base="Confirm record deletion" de="" en="" fr=""/>
+		<are_you_sure_to_delete_ base="Are you sure to delete?" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+		<first base="First" de="" en="" fr=""/>
+		<previous base="Previous" de="" en="" fr=""/>
+		<next base="Next" de="" en="" fr=""/>
+		<last base="Last" de="" en="" fr=""/>
+		<tags base="Tags"/>
+		<list_view base="List view" de="" en="" fr=""/>
+		<save base="Save" de="" en="" fr=""/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<add base="Add" de="" en="" fr=""/>
+	</standard_tables_tablehandler_form_py>
+
+	<standard_tables_tablehandler_list_py>
+		<custom_view base="Custom view" de="" en="" fr=""/>
+		<edit_view base="Edit view" de="" en="" fr=""/>
+		<save_view base="Save view" de="" en="" fr=""/>
+		<you_cannot_unlock_this_table base="You cannot unlock this table" de="" en="" fr=""/>
+		<commands base="Commands" de="" en="" fr=""/>
+		<export_or_print_the_selection base="Export or Print the selection" de="" en="" fr=""/>
+		<export base="Export" de="" en="" fr=""/>
+		<print base="Print" de="" en="" fr=""/>
+		<pdf base="Pdf" de="" en="" fr=""/>
+		<actions base="Actions" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+		<choose_the_action_to_execute_ base="Choose the action to execute: " de="" en="" fr=""/>
+		<confirm base="Confirm" it="Ok"/>
+		<_s base="%s"/>
+		<search base="Search" de="" en="" fr=""/>
+		<op_ base="Op." de="" en="" fr=""/>
+		<value base="Value" de="" en="" fr=""/>
+		<run_query base="Run query" de="" en="" fr=""/>
+		<select_view base="Select view" de="" en="" fr=""/>
+		<tag base="Tag"/>
+		<current_query_will_return_rec_items _tag="current_query_will_return__rec__items" base="Current query will return _rec_ items" de="" en="" fr=""/>
+		<working_ base="Working....." de="" en="" fr=""/>
+		<current_query_record_count base="Current query record count" de="" en="" fr=""/>
+		<add base="Add" de="" en="" fr=""/>
+		<standard_view base="Standard view"/>
+		<statistical_view base="Statistical view"/>
+		<hierarchical_view base="Hierarchical view"/>
+		<hierarchical_edit base="Hierarchical edit"/>
+		<not base="not" de="" en="" fr=""/>
+	</standard_tables_tablehandler_list_py>
+
+	<tables_default_action_common_doc_py _tag="tables__default_action__common__doc_py">
+		<common base="Common"/>
+		<common_actions base="Common Actions"/>
+	</tables_default_action_common_doc_py>
+
+	<tables_default_action_common_align_counter_py _tag="tables__default_action__common_align_counter_py">
+		<align_counter base="Align counter"/>
+		<this_table_has_no_counter_field base="This table has no counter field"/>
+		<align_counter_for_all_records base="Align counter for all records"/>
+	</tables_default_action_common_align_counter_py>
+
+	<tables_default_action_common_btcsmsmobyt_py _tag="tables__default_action__common_btcsmsmobyt_py">
+		<receiver base="Receiver"/>
+	</tables_default_action_common_btcsmsmobyt_py>
+
+	<tables_default_action_common_export_py _tag="tables__default_action__common_export_py">
+		<export base="Export" de="" en="" fr=""/>
+		<export_to_xls_cvs_html base="Export to xls,cvs,html"/>
+		<mode base="Mode"/>
+		<save_as base="Save as" de="" en="" fr=""/>
+	</tables_default_action_common_export_py>
+
+	<tables_default_action_common_send_communication_py _tag="tables__default_action__common_send_communication_py">
+		<missing_communication_fields base="Missing Communication fields"/>
+		<_s base="%s"/>
+	</tables_default_action_common_send_communication_py>
+
+	<tables_default_action_common_touch_selection_py _tag="tables__default_action__common_touch_selection_py">
+		<touch_selection base="Touch Selection"/>
+	</tables_default_action_common_touch_selection_py>
+
+	<tables_default_mail_mail_template_py _tag="tables__default_mail_mail_template_py">
+		<_s_i_ base="%s (%i)"/>
+		<letterhead base="Letterhead"/>
+		<send_as_pdf base="Send as pdf"/>
+	</tables_default_mail_mail_template_py>
+
+	<tables_default_print_common_doc_py _tag="tables__default_print__common__doc_py">
+		<common base="Common"/>
+		<common_prints base="Common Prints"/>
+	</tables_default_print_common_doc_py>
+
+	<tables_default_print_common_print_rowtemplate_py _tag="tables__default_print__common_print_rowtemplate_py">
+		<print_grid base="Print grid"/>
+		<print_grid_with_template_ base="Print grid with template..."/>
+		<row_template base="Row template"/>
+		<letterhead base="Letterhead"/>
+	</tables_default_print_common_print_rowtemplate_py>
+
+	<tables_default_print_print_template_py _tag="tables__default_print_print_template_py">
+		<_s_i_ base="%s (%i)"/>
+		<letterhead base="Letterhead"/>
+	</tables_default_print_print_template_py>
+
+	<th_th_py>
+		<save base="Save" de="" en="" fr=""/>
+		<f_height base="F. height"/>
+		<f_width base="F. width"/>
+		<no_record_selected base="No Record Selected"/>
+		<operation_forbidden base="Operation forbidden"/>
+		<you_cannot_change_record_the_record_is_not_saved base="You cannot change record. The record is not saved"/>
+		<link_current_table1_record_to_an_existing_record_of_table2 base="Link current $table1 record to an existing record of $table2"/>
+		<add_a_new_table2 base="Add a new $table2"/>
+	</th_th_py>
+
+	<th_th_dynamic_py>
+		<select_a_table_from_the_popup_menu base="Select a table from the popup menu"/>
+	</th_th_dynamic_py>
+
+	<th_th_extra_py>
+		<statistical_view base="Statistical View"/>
+		<main_view base="Main view"/>
+		<mode base="Mode"/>
+		<loading base="Loading"/>
+		<analyze_grid base="Analyze Grid"/>
+		<details_grid base="Details Grid"/>
+		<hierarchical_view base="Hierarchical View"/>
+		<locker base="Locker"/>
+	</th_th_extra_py>
+
+	<th_th_form_py>
+		<save_failed base="Save failed"/>
+		<you_cannot_save base="You cannot save"/>
+		<invalid_record base="Invalid record"/>
+		<no_change_to_save base="No change to save"/>
+		<revert base="Revert" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+		<save base="Save" de="" en="" fr=""/>
+		<copy_and_paste base="Copy and paste"/>
+	</th_th_form_py>
+
+	<th_th_picker_py>
+		<add base="Add" de="" en="" fr=""/>
+	</th_th_picker_py>
+
+	<th_th_querytool_js>
+		<save base="Save" de="" en="" fr=""/>
+		<delete base="Delete" de="" en="" fr=""/>
+		<default_query base="Default Query"/>
+		<run_query base="Run Query" de="" en="" fr=""/>
+		<new_query base="New Query" de="" en="" fr=""/>
+		<helper_in base="Helper in"/>
+		<new_set base="New Set"/>
+		<save_set base="Save set"/>
+		<in base="IN" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+		<confirm base="Confirm" it="Ok"/>
+		<new_set_column base="New set column"/>
+		<union base="Union"/>
+		<intersect base="Intersect"/>
+		<clear_clipboard base="Clear clipboard"/>
+		<new_dataset base="New dataset"/>
+		<union_between_dataset base="Union between dataset"/>
+		<add_a_new_dataset_column base="Add a new dataset column"/>
+	</th_th_querytool_js>
+
+	<th_th_tree_py>
+		<add base="Add" de="" en="" fr=""/>
+		<show_inherited base="Show Inherited"/>
+	</th_th_tree_py>
+
+	<th_th_view_py>
+		<favorite_view base="Favorite View"/>
+		<save_view base="Save View" de="" en="" fr=""/>
+		<delete_view base="Delete View" de="" en="" fr=""/>
+		<limit base="Limit"/>
+		<totals_count base="Totals count"/>
+		<show_logical_deleted base="Show logical deleted"/>
+		<configure_table base="Configure Table"/>
+		<configure_view base="Configure View"/>
+		<all base="All"/>
+		<custom_columns base="Custom columns"/>
+		<export base="Export" de="" en="" fr=""/>
+		<selected_only base="Selected only"/>
+		<depending_from_ base="Depending from "/>
+		<in_sync_with_ base="In sync with "/>
+		<run_query base="Run query" de="" en="" fr=""/>
+		<only_highlighted base="Only highlighted"/>
+		<user_sets base="User sets"/>
+		<current_query_will_return_rec_items _tag="current_query_will_return__rec__items" base="Current query will return _rec_ items" de="" en="" fr=""/>
+		<working_ base="Working....." de="" en="" fr=""/>
+		<current_query_record_count base="Current query record count" de="" en="" fr=""/>
+		<search base="Search" de="" en="" fr=""/>
+		<op_ base="Op." de="" en="" fr=""/>
+		<value base="Value" de="" en="" fr=""/>
+		<not base="not" de="" en="" fr=""/>
+		<_s base="%s"/>
+		<new_set base="New Set"/>
+		<plain_query base="Plain Query"/>
+		<query_editor base="Query editor"/>
+		<new_query base="New query" de="" en="" fr=""/>
+		<please_select_the_column base="Please select the column" de="" en="" fr=""/>
+		<and base="AND" de="" en="" fr=""/>
+		<or base="OR" de="" en="" fr=""/>
+		<warning base="Warning" de="" en="" fr=""/>
+		<multiple_relation_to_table_ base="Multiple relation to table "/>
+	</th_th_view_py>
+
+	<thermo_utils_py>
+		<execution_completed base="Execution completed"/>
+		<execution_stopped base="Execution stopped"/>
+		<cancel base="Cancel" it="Annulla"/>
+		<confirm base="Confirm" it="Ok"/>
+		<stop_the_batch_execution_ base="Stop the batch execution?"/>
+	</thermo_utils_py>
+</GenRoBag>

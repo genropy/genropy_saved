@@ -1,269 +1,500 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><administration_tool _T="NN" en="Administration Tool" it="Amministrazione sistema"></administration_tool>
-<administration _T="NN" _key="Administration" it="Amministrazione"></administration>
-<user _T="NN" _key="User" it="Utente"></user>
-<isert_date _T="NN" _key="Isert date" it="Data Inserimento"></isert_date>
-<update_date _T="NN" _key="Update date" it="Data aggiornamento"></update_date>
-<username _T="NN" _key="Username" it="Nome utente"></username>
-<name_first _T="NN" _key="First name" it="Nome"></name_first>
-<name_last _T="NN" _key="Last name" it="Cognome"></name_last>
-<registration_date _T="NN" _key="Registration Date" it="Data di registrazione"></registration_date>
-<authorization_tags _T="NN" _key="Authorization Tags" it="Codici di autorizzazione"></authorization_tags>
-<waiting _T="NN" _key="Waiting" it="In attesa"></waiting>
-<confirmed _T="NN" _key="Confirmed" it="Confermato"></confirmed>
-<status _T="NN" _key="Status" it="Stato"></status>
-<adm _T="NN" _key="Adm" it="Amministrazione"></adm>
-<pages _T="NN" _key="Pages" it="Pagine"></pages>
-<change_password _T="NN" _key="Change password" it="Cambia Password"></change_password>
-<login _T="NN" _key="Login" it="Entra"></login>
-<cancel _T="NN" _key="Cancel" it="Annulla"></cancel>
-<confirm _T="NN" _key="Confirm" it="Ok"></confirm>
-<user_unknown_or_wrong_password _T="NN" _key="User unknown or wrong password" it="Utente o password errati"></user_unknown_or_wrong_password>
-<password_lost_q _T="NN" _key="Password lost?" it="Password dimenticata?"></password_lost_q>
-<password_lost _T="NN" _key="Password lost" it="Password dimenticata"></password_lost>
-<new_user _T="NN" _key="New user" it="Registrazione nuovo utente"></new_user>
-<registration_page _T="NN" _key="Register" it="Registrati"></registration_page>
-<registration_expired _T="NN" _key="Your registration expired, please register again." it="La tua registrazione è scaduta, per favore registrati nuovamente."></registration_expired>
-<registration_complete _T="NN" _key="Your registration is complete, thank you!" it="Grazie per esserti registrato, ora puoi accedere al sito!"></registration_complete>
-<registration_thanks _T="NN" _key="Thank you for registering ^.fullname" it="Grazie per la registrazione ^.fullname"></registration_thanks>
-<registration_mail_sent _T="NN" _key="An email was sent to you" it="Ti è stata spedita una mail di conferma"></registration_mail_sent>
-<registration_mail_sent_2 _T="NN" _key="Please check your email to complete the registration." it="Controlla nella posta (anche nello spam) e non appena avrai completato la registrazione potrai accedere al sito."></registration_mail_sent_2>
-<sending_password _T="NN" _key="We are sending you a new password..." it="Invio nuova password in corso..."></sending_password>
-<confirmation_email _T="NN" _key="A confirmation email was sent to:" it="Ti è stata spedita una mail di conferma all'indirizzo:"></confirmation_email>
-<confirmation_email_2 _T="NN" _key="Read instruction in the email to receive a new password" it="Segui le istruzioni nella mail per ricevere i tuoi dati di accesso"></confirmation_email_2>
-<modify_user _T="NN" _key="Modify user" it="Modifica utente"></modify_user>
-<saving _T="NN" _key="Saving..." it="Salvataggio in corso..."></saving>
-<user_profile_saved _T="NN" _key="User profile saved" it="Profilo utente salvato"></user_profile_saved>
-<new_password _T="NN" _key="New password" it="Nuova password"></new_password>
-<Confirm_password _T="NN" _key="Confirm password" it="Conferma password"></Confirm_password>
-<Confirm_password_error _T="NN" _key="The passwords doesn't match" it="La password di conferma digitata è differente dalla nuova."></Confirm_password_error>
-<AND _T="NN" _key="AND" fr="" en="" de=""></AND>
-<Actions _T="NN" _key="Actions" fr="" en="" de=""></Actions>
-<Add _T="NN" _key="Add" fr="" en="" de=""></Add>
-<Ambulatori _T="NN" _key="Ambulatori" fr="" en="" de=""></Ambulatori>
-<Appuntamenti _T="NN" _key="Appuntamenti" fr="" en="" de=""></Appuntamenti>
-<Archivi _T="NN" _key="Archivi" fr="" en="" de=""></Archivi>
-<Are_you_sure_to_delete_ _T="NN" _key="Are you sure to delete ?" fr="" en="" de=""></Are_you_sure_to_delete_>
-<Back _T="NN" _key="Back" fr="" en="" de=""></Back>
-<Between _T="NN" _key="Between" fr="" en="" de=""></Between>
-<Calendario _T="NN" _key="Calendario" fr="" en="" de=""></Calendario>
-<Choose_the_action_to_execute_ _T="NN" _key="Choose the action to execute: " fr="" en="" de=""></Choose_the_action_to_execute_>
-<Code _T="NN" _key="Code" fr="" en="" de=""></Code>
-<Commands _T="NN" _key="Commands" fr="" en="" de=""></Commands>
-<Confirm_record_deletion _T="NN" _key="Confirm record deletion" fr="" en="" de=""></Confirm_record_deletion>
-<Contains _T="NN" _key="Contains" fr="" en="" de=""></Contains>
-<Convenzioni _T="NN" _key="Convenzioni" fr="" en="" de=""></Convenzioni>
-<Default_Language _T="NN" _key="Default Language" fr="" en="" de=""></Default_Language>
-<Delete _T="NN" _key="Delete" fr="" en="" de=""></Delete>
-<Delete_query _T="NN" _key="Delete query" fr="" en="" de=""></Delete_query>
-<Delete_view _T="NN" _key="Delete view" fr="" en="" de=""></Delete_view>
-<Description _T="NN" _key="Description" fr="" en="" de=""></Description>
-<Do_you_really_want_to_delete_the_query_ _T="NN" _key="Do you really want to delete the query: " fr="" en="" de=""></Do_you_really_want_to_delete_the_query_>
-<Doesn_t_contain _T="NN" _key="Doesn't contain" fr="" en="" de=""></Doesn_t_contain>
-<Email _T="NN" _key="Email" fr="" en="" de=""></Email>
-<Equal_to _T="NN" _key="Equal to" fr="" en="" de=""></Equal_to>
-<Export _T="NN" _key="Export" fr="" en="" de=""></Export>
-<Export_or_Print_the_selection _T="NN" _key="Export or Print the selection" fr="" en="" de=""></Export_or_Print_the_selection>
-<Fatture _T="NN" _key="Fatture" fr="" en="" de=""></Fatture>
-<First _T="NN" _key="First" fr="" en="" de=""></First>
-<Firstname _T="NN" _key="Firstname" fr="" en="" de=""></Firstname>
-<Forget_changes _T="NN" _key="Forget changes" fr="" en="" de=""></Forget_changes>
-<Gestione_utenti _T="NN" _key="Gestione utenti" fr="" en="" de=""></Gestione_utenti>
-<Greater_or_equal_to _T="NN" _key="Greater or equal to" fr="" en="" de=""></Greater_or_equal_to>
-<Greater_than _T="NN" _key="Greater than" fr="" en="" de=""></Greater_than>
-<Hidden _T="NN" _key="Hidden" fr="" en="" de=""></Hidden>
-<In _T="NN" _key="In" fr="" en="" de=""></In>
-<Insert_date _T="NN" _key="Insert date" fr="" en="" de=""></Insert_date>
-<Invalid_data_please_check_the_form_ _T="NN" _key="Invalid data, please check the form." fr="" en="" de=""></Invalid_data_please_check_the_form_>
-<Is_not_null _T="NN" _key="Is not null" fr="" en="" de=""></Is_not_null>
-<Is_null _T="NN" _key="Is null" fr="" en="" de=""></Is_null>
-<Last _T="NN" _key="Last" fr="" en="" de=""></Last>
-<Lastname _T="NN" _key="Lastname" fr="" en="" de=""></Lastname>
-<Less_or_equal_to _T="NN" _key="Less or equal to" fr="" en="" de=""></Less_or_equal_to>
-<Less_than _T="NN" _key="Less than" fr="" en="" de=""></Less_than>
-<List_view _T="NN" _key="List view" fr="" en="" de=""></List_view>
-<Lock _T="NN" _key="Lock" fr="" en="" de=""></Lock>
-<Logical_delete_date _T="NN" _key="Logical delete date" fr="" en="" de=""></Logical_delete_date>
-<Logout _T="NN" _key="Logout" fr="" en="" de=""></Logout>
-<Mail _T="NN" _key="Mail" fr="" en="" de=""></Mail>
-<Manage_user _T="NN" _key="Manage user" fr="" en="" de=""></Manage_user>
-<Manage_users _T="NN" _key="Manage users" fr="" en="" de=""></Manage_users>
-<Mandatory_field _T="NN" _key="Mandatory field" fr="" en="" de=""></Mandatory_field>
-<Medici _T="NN" _key="Medici" fr="" en="" de=""></Medici>
-<NOT _T="NN" _key="NOT" fr="" en="" de=""></NOT>
-<New_query _T="NN" _key="New query" fr="" en="" de=""></New_query>
-<New_view _T="NN" _key="New view" fr="" en="" de=""></New_view>
-<Next _T="NN" _key="Next" fr="" en="" de=""></Next>
-<No_change_to_save_ _T="NN" _key="No change to save." fr="" en="" de=""></No_change_to_save_>
-<Not_in _T="NN" _key="Not in" fr="" en="" de=""></Not_in>
-<OR _T="NN" _key="OR" fr="" en="" de=""></OR>
-<Op_ _T="NN" _key="Op." fr="" en="" de=""></Op_>
-<PasswordMD5 _T="NN" _key="PasswordMD5" fr="" en="" de=""></PasswordMD5>
-<Pazienti _T="NN" _key="Pazienti" fr="" en="" de=""></Pazienti>
-<Pdf _T="NN" _key="Pdf" fr="" en="" de=""></Pdf>
-<Permissions _T="NN" _key="Permissions" fr="" en="" de=""></Permissions>
-<Preferences _T="NN" _key="Preferences" fr="" en="" de=""></Preferences>
-<Prestazioni _T="NN" _key="Prestazioni" fr="" en="" de=""></Prestazioni>
-<Previous _T="NN" _key="Previous" fr="" en="" de=""></Previous>
-<Print _T="NN" _key="Print" fr="" en="" de=""></Print>
-<Private _T="NN" _key="Private" fr="" en="" de=""></Private>
-<Queries _T="NN" _key="Queries" fr="" en="" de=""></Queries>
-<Query _T="NN" _key="Query" fr="" en="" de=""></Query>
-<Record_deleted _T="NN" _key="Record deleted" fr="" en="" de=""></Record_deleted>
-<Record_saved _T="NN" _key="Record saved" fr="" en="" de=""></Record_saved>
-<Regular_expression _T="NN" _key="Regular expression" fr="" en="" de=""></Regular_expression>
-<Revert _T="NN" _key="Revert" fr="" en="" de=""></Revert>
-<Run_query _T="NN" _key="Run query" fr="" en="" de=""></Run_query>
-<Save _T="NN" _key="Save" fr="" en="" de=""></Save>
-<Save_changes _T="NN" _key="Save changes" fr="" en="" de=""></Save_changes>
-<Save_query _T="NN" _key="Save query" fr="" en="" de=""></Save_query>
-<Save_view _T="NN" _key="Save view" fr="" en="" de=""></Save_view>
-<Show_hidden_records _T="NN" _key="Show hidden records" fr="" en="" de=""></Show_hidden_records>
-<Specialit_ _T="NN" _key="Specialità" fr="" en="" de=""></Specialit_>
-<Starts_with _T="NN" _key="Starts with" fr="" en="" de=""></Starts_with>
-<Tabelle _T="NN" _key="Tabelle" fr="" en="" de=""></Tabelle>
-<Tagname _T="NN" _key="Tagname" fr="" en="" de="" it="Codice di autorizzazione"></Tagname>
-<Tariffe _T="NN" _key="Tariffe" fr="" en="" de=""></Tariffe>
-<There_are_unsaved_changes _T="NN" _key="There are unsaved changes" fr="" en="" de="" it="Modifiche non salvate"></There_are_unsaved_changes>
-<There_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ _T="NN" _key="There are unsaved changes, do you want to close the page without saving?" fr="" en="" de=""></There_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_>
-<Torna_alla_pagina_precedente _T="NN" _key="Torna alla pagina precedente" fr="" en="" de=""></Torna_alla_pagina_precedente>
-<Unlock _T="NN" _key="Unlock" fr="" en="" de=""></Unlock>
-<Unsaved_changes _T="NN" _key="Unsaved changes" fr="" en="" de=""></Unsaved_changes>
-<Value _T="NN" _key="Value" fr="" en="" de=""></Value>
-<Views _T="NN" _key="Views" fr="" en="" de=""></Views>
-<Warning _T="NN" _key="Warning" fr="" en="" de=""></Warning>
-<Word_start _T="NN" _key="Word start" fr="" en="" de=""></Word_start>
-<You_cannot_unlock_this_table _T="NN" _key="You cannot unlock this table" fr="" en="" de=""></You_cannot_unlock_this_table>
-<first_name _T="NN" _key="first name" fr="" en="" de="" it="Nome"></first_name>
-<last_name _T="NN" _key="last name" fr="" en="" de="" it="Cognome"></last_name>
-<saving_ _tag="saving__" _T="NN" _key="saving..." fr="" en="" de="" it="Salvataggio in corso..."></saving_>
-<Authorizations _T="NN" _key="Authorizations" fr="" en="" de=""></Authorizations>
-<Available_in_shortcuts _T="NN" _key="Available in shortcuts" fr="" en="" de=""></Available_in_shortcuts>
-<Caption _T="NN" _key="Caption" fr="" en="" de=""></Caption>
-<Comma_separated_list_of_auth_tags_ _T="NN" _key="Comma separated list of auth tags." fr="" en="" de=""></Comma_separated_list_of_auth_tags_>
-<Command _T="NN" _key="Command" fr="" en="" de=""></Command>
-<Connections _T="NN" _key="Connections" fr="" en="" de=""></Connections>
-<Crea_file_excel _T="NN" _key="Crea file excel" fr="" en="" de=""></Crea_file_excel>
-<Current_query_record_count _T="NN" _key="Current query record count" fr="" en="" de=""></Current_query_record_count>
-<Current_query_will_return_rec_items _T="NN" _key="Current query will return _rec_ items" fr="" en="" de=""></Current_query_will_return_rec_items>
-<Custom_query _T="NN" _key="Custom query" fr="" en="" de=""></Custom_query>
-<Custom_view _T="NN" _key="Custom view" fr="" en="" de=""></Custom_view>
-<Date _T="NN" _key="Date" fr="" en="" de=""></Date>
-<Delete_ _T="NN" _key="Delete " fr="" en="" de=""></Delete_>
-<Delete_list_of_values _T="NN" _key="Delete list of values" fr="" en="" de=""></Delete_list_of_values>
-<Dotted_path_and_name _T="NN" _key="Dotted path and name" fr="" en="" de=""></Dotted_path_and_name>
-<Edit_view _T="NN" _key="Edit view" fr="" en="" de=""></Edit_view>
-<Enter_a_list_of_values_ _T="NN" _key="Enter a list of values:" fr="" en="" de=""></Enter_a_list_of_values_>
-<Error _T="NN" _key="Error" fr="" en="" de=""></Error>
-<Errors_in_batch_execution _T="NN" _key="Errors in batch execution" fr="" en="" de=""></Errors_in_batch_execution>
-<Helper_TAG _T="NN" _key="Helper TAG" fr="" en="" de=""></Helper_TAG>
-<Is_false _T="NN" _key="Is false" fr="" en="" de=""></Is_false>
-<Is_null_or_empty _T="NN" _key="Is null or empty" fr="" en="" de=""></Is_null_or_empty>
-<Is_true _T="NN" _key="Is true" fr="" en="" de=""></Is_true>
-<Load _T="NN" _key="Load" fr="" en="" de=""></Load>
-<Mails _T="NN" _key="Mails" fr="" en="" de=""></Mails>
-<Messages _T="NN" _key="Messages" fr="" en="" de=""></Messages>
-<Name _T="NN" _key="Name" fr="" en="" de=""></Name>
-<Not_valid_data_Please_check_the_form _T="NN" _key="Not valid data. Please check the form" fr="" en="" de=""></Not_valid_data_Please_check_the_form>
-<Only_for_me_ _T="NN" _key="Only for me." fr="" en="" de=""></Only_for_me_>
-<Please_select_the_column _T="NN" _key="Please select the column" fr="" en="" de=""></Please_select_the_column>
-<Prints _T="NN" _key="Prints" fr="" en="" de=""></Prints>
-<Quicklist _T="NN" _key="Quicklist" fr="" en="" de=""></Quicklist>
-<Remove_filter _T="NN" _key="Remove filter" fr="" en="" de=""></Remove_filter>
-<Required _T="NN" _key="Required" fr="" en="" de=""></Required>
-<Review_changes _T="NN" _key="Review changes" fr="" en="" de=""></Review_changes>
-<Root_Page _T="NN" _key="Root Page" fr="" en="" de=""></Root_Page>
-<Save_as _T="NN" _key="Save as" fr="" en="" de=""></Save_as>
-<Save_list _T="NN" _key="Save list" fr="" en="" de=""></Save_list>
-<Saving_error _T="NN" _key="Saving error" fr="" en="" de=""></Saving_error>
-<Search _T="NN" _key="Search" fr="" en="" de=""></Search>
-<Select_view _T="NN" _key="Select view" fr="" en="" de=""></Select_view>
-<Set_Filter _T="NN" _key="Set Filter" fr="" en="" de=""></Set_Filter>
-<Set_filter _T="NN" _key="Set filter" fr="" en="" de=""></Set_filter>
-<Set_workdate _T="NN" _key="Set workdate" fr="" en="" de=""></Set_workdate>
-<Show_total_count _T="NN" _key="Show total count" fr="" en="" de=""></Show_total_count>
-<Starts_with_Chars _T="NN" _key="Starts with Chars" fr="" en="" de=""></Starts_with_Chars>
-<Stop _T="NN" _key="Stop" fr="" en="" de=""></Stop>
-<System _T="NN" _key="System" fr="" en="" de=""></System>
-<Tag_in _T="NN" _key="Tag in" fr="" en="" de=""></Tag_in>
-<User_tags _T="NN" _key="User tags" fr="" en="" de=""></User_tags>
-<Working__ _tag="Working___" _T="NN" _key="Working....." fr="" en="" de=""></Working__>
-<You_cannot_undo_this_operation_Are_you_sure_ _T="NN" _key="You cannot undo this operation. Are you sure?" fr="" en="" de=""></You_cannot_undo_this_operation_Are_you_sure_>
-<actions _T="NN" _key="actions" fr="" en="" de=""></actions>
-<add _T="NN" _key="add" fr="" en="" de=""></add>
-<and _T="NN" _key="and" fr="" en="" de=""></and>
-<are_you_sure_to_delete_ _T="NN" _key="are you sure to delete ?" fr="" en="" de=""></are_you_sure_to_delete_>
-<between _T="NN" _key="between" fr="" en="" de=""></between>
-<choose_the_action_to_execute_ _T="NN" _key="choose the action to execute: " fr="" en="" de=""></choose_the_action_to_execute_>
-<code _T="NN" _key="code" fr="" en="" de=""></code>
-<commands _T="NN" _key="commands" fr="" en="" de=""></commands>
-<confirm_record_deletion _T="NN" _key="confirm record deletion" fr="" en="" de=""></confirm_record_deletion>
-<contains _T="NN" _key="contains" fr="" en="" de=""></contains>
-<default_language _T="NN" _key="default language" fr="" en="" de=""></default_language>
-<delete _T="NN" _key="delete" fr="" en="" de=""></delete>
-<delete_query _T="NN" _key="delete query" fr="" en="" de=""></delete_query>
-<delete_view _T="NN" _key="delete view" fr="" en="" de=""></delete_view>
-<description _T="NN" _key="description" fr="" en="" de=""></description>
-<email _T="NN" _key="email" fr="" en="" de=""></email>
-<equal_to _T="NN" _key="equal to" fr="" en="" de=""></equal_to>
-<export _T="NN" _key="export" fr="" en="" de=""></export>
-<export_or_print_the_selection _T="NN" _key="export or print the selection" fr="" en="" de=""></export_or_print_the_selection>
-<first _T="NN" _key="first" fr="" en="" de=""></first>
-<firstname _T="NN" _key="firstname" fr="" en="" de=""></firstname>
-<forget_changes _T="NN" _key="forget changes" fr="" en="" de=""></forget_changes>
-<greater_or_equal_to _T="NN" _key="greater or equal to" fr="" en="" de=""></greater_or_equal_to>
-<greater_than _T="NN" _key="greater than" fr="" en="" de=""></greater_than>
-<in _T="NN" _key="in" fr="" en="" de=""></in>
-<insert_date _T="NN" _key="insert date" fr="" en="" de=""></insert_date>
-<invalid_data_please_check_the_form_ _T="NN" _key="invalid data, please check the form." fr="" en="" de=""></invalid_data_please_check_the_form_>
-<is_null _T="NN" _key="is null" fr="" en="" de=""></is_null>
-<last _T="NN" _key="last" fr="" en="" de=""></last>
-<lastname _T="NN" _key="lastname" fr="" en="" de=""></lastname>
-<less_or_equal_to _T="NN" _key="less or equal to" fr="" en="" de=""></less_or_equal_to>
-<less_than _T="NN" _key="less than" fr="" en="" de=""></less_than>
-<list_view _T="NN" _key="list view" fr="" en="" de=""></list_view>
-<lock _T="NN" _key="lock" fr="" en="" de=""></lock>
-<logical_delete_date _T="NN" _key="logical delete date" fr="" en="" de=""></logical_delete_date>
-<logout _T="NN" _key="logout" fr="" en="" de=""></logout>
-<manage_user _T="NN" _key="manage user" fr="" en="" de=""></manage_user>
-<manage_users _T="NN" _key="manage users" fr="" en="" de=""></manage_users>
-<mandatory_field _T="NN" _key="mandatory field" fr="" en="" de=""></mandatory_field>
-<medici _T="NN" _key="medici" fr="" en="" de=""></medici>
-<new_query _T="NN" _key="new query" fr="" en="" de=""></new_query>
-<new_view _T="NN" _key="new view" fr="" en="" de=""></new_view>
-<next _T="NN" _key="next" fr="" en="" de=""></next>
-<no_change_to_save_ _T="NN" _key="no change to save." fr="" en="" de=""></no_change_to_save_>
-<not _T="NN" _key="not" fr="" en="" de=""></not>
-<op_ _T="NN" _key="op." fr="" en="" de=""></op_>
-<or _T="NN" _key="or" fr="" en="" de=""></or>
-<passwordmd5 _T="NN" _key="passwordmd5" fr="" en="" de=""></passwordmd5>
-<pdf _T="NN" _key="pdf" fr="" en="" de=""></pdf>
-<permissions _T="NN" _key="permissions" fr="" en="" de=""></permissions>
-<preferences _T="NN" _key="preferences" fr="" en="" de=""></preferences>
-<previous _T="NN" _key="previous" fr="" en="" de=""></previous>
-<print _T="NN" _key="print" fr="" en="" de=""></print>
-<private _T="NN" _key="private" fr="" en="" de=""></private>
-<queries _T="NN" _key="queries" fr="" en="" de=""></queries>
-<record_deleted _T="NN" _key="record deleted" fr="" en="" de=""></record_deleted>
-<record_saved _T="NN" _key="record saved" fr="" en="" de=""></record_saved>
-<regular_expression _T="NN" _key="regular expression" fr="" en="" de=""></regular_expression>
-<revert _T="NN" _key="revert" fr="" en="" de=""></revert>
-<run_query _T="NN" _key="run query" fr="" en="" de=""></run_query>
-<save _T="NN" _key="save" fr="" en="" de=""></save>
-<save_changes _T="NN" _key="save changes" fr="" en="" de=""></save_changes>
-<save_query _T="NN" _key="save query" fr="" en="" de=""></save_query>
-<save_view _T="NN" _key="save view" fr="" en="" de=""></save_view>
-<show_hidden_records _T="NN" _key="show hidden records" fr="" en="" de=""></show_hidden_records>
-<starts_with _T="NN" _key="starts with" fr="" en="" de=""></starts_with>
-<tagname _T="NN" _key="tagname" fr="" en="" de="" it="Codice di autorizzazione"></tagname>
-<there_are_unsaved_changes _T="NN" _key="there are unsaved changes" fr="" en="" de="" it="Modifiche non salvate"></there_are_unsaved_changes>
-<there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_ _T="NN" _key="there are unsaved changes, do you want to close the page without saving?" fr="" en="" de=""></there_are_unsaved_changes_do_you_want_to_close_the_page_without_saving_>
-<torna_alla_pagina_precedente _T="NN" _key="torna alla pagina precedente" fr="" en="" de=""></torna_alla_pagina_precedente>
-<unlock _T="NN" _key="unlock" fr="" en="" de=""></unlock>
-<unsaved_changes _T="NN" _key="unsaved changes" fr="" en="" de=""></unsaved_changes>
-<value _T="NN" _key="value" fr="" en="" de=""></value>
-<views _T="NN" _key="views" fr="" en="" de=""></views>
-<warning _T="NN" _key="warning" fr="" en="" de=""></warning>
-<word_start _T="NN" _key="word start" fr="" en="" de=""></word_start>
-<you_cannot_unlock_this_table _T="NN" _key="you cannot unlock this table" fr="" en="" de=""></you_cannot_unlock_this_table>
-<conf_Confirmed_wait_Waiting _T="NN" _key="conf:Confirmed,wait:Waiting" fr="" en="" de=""></conf_Confirmed_wait_Waiting></GenRoBag>
+<?xml version="1.0" ?>
+<GenRoBag>
+	<main_py>
+		<administration base="Administration" it="Amministrazione"/>
+		<administration_tool base="Administration Tool"/>
+	</main_py>
+
+	<menu_py>
+		<administration base="Administration" it="Amministrazione"/>
+		<users base="Users"/>
+		<auth_tags base="Auth tags"/>
+		<letterheads base="Letterheads"/>
+		<notifications base="Notifications"/>
+		<menu_manager base="Menu Manager"/>
+		<menu_pages base="Menu Pages"/>
+		<datacatalog base="Datacatalog"/>
+		<utility_tables base="Utility tables"/>
+		<counter base="Counter"/>
+	</menu_py>
+
+	<model_access_group_py>
+		<access_group base="Access group"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<allowed_ip base="Allowed ip"/>
+	</model_access_group_py>
+
+	<model_audit_py>
+		<audit base="Audit"/>
+		<table_name base="Table name"/>
+		<change_type base="Change type"/>
+		<user base="User" it="Utente"/>
+		<record_pkey base="Record Pkey"/>
+		<version base="Version"/>
+		<data base="Data"/>
+		<transaction_id base="Transaction id"/>
+	</model_audit_py>
+
+	<model_authorization_py>
+		<authorization base="Authorization"/>
+		<authorizations base="Authorizations" de="" en="" fr=""/>
+		<code base="Code" de="" en="" fr=""/>
+		<user_id base="User id"/>
+		<used_datetime base="Used datetime"/>
+		<used_by base="Used by"/>
+		<note base="Note"/>
+		<use_scope base="Use Scope"/>
+		<remaining_usages base="Remaining usages"/>
+		<expire_date base="Expire Date"/>
+	</model_authorization_py>
+
+	<model_backup_py>
+		<backup base="Backup"/>
+		<backups base="Backups"/>
+		<name base="Name" de="" en="" fr=""/>
+		<backup_start_ts base="Backup start ts"/>
+		<backup_end_ts base="Backup end ts"/>
+	</model_backup_py>
+
+	<model_ckstyle_py>
+		<ckeditor_styles base="Ckeditor styles"/>
+		<name base="Name" de="" en="" fr=""/>
+		<dom_element base="Dom element"/>
+		<styles base="Styles"/>
+		<attributes base="Attributes"/>
+		<group base="Group"/>
+	</model_ckstyle_py>
+
+	<model_connection_py>
+		<connection base="Connection"/>
+		<connections base="Connections" de="" en="" fr=""/>
+		<connection_id base="Connection id"/>
+		<userid base="Userid"/>
+		<username base="Username" it="Nome utente"/>
+		<ip_number base="Ip number"/>
+		<start_ts base="Start TS"/>
+		<end_reason base="End reason"/>
+		<user_agent base="User agent"/>
+		<user_fullname base="User fullname"/>
+	</model_connection_py>
+
+	<model_counter_py>
+		<counter base="Counter"/>
+		<codekey base="Codekey"/>
+		<code base="Code" de="" en="" fr=""/>
+		<package base="Package"/>
+		<table base="Table"/>
+		<counter_field base="Counter Field"/>
+		<period base="Period"/>
+		<last_used base="Last used"/>
+		<holes base="Holes"/>
+		<errors base="Errors"/>
+		<missing_s_mandatory_for_counter_s base="Missing %s. Mandatory for counter %s"/>
+		<missing_date_s_for_counter_s base="Missing date %s for counter %s"/>
+		<incompatible_date_assigning_fieldname_s_counter base="Incompatible date assigning %(fieldname)s counter"/>
+	</model_counter_py>
+
+	<model_datacatalog_py>
+		<model_catalog base="Model catalog"/>
+		<dc_elements base="DC Elements"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<type base="Type"/>
+		<dtype base="Dtype"/>
+		<name_long base="Name long"/>
+		<name_short base="Name short"/>
+		<format base="Format"/>
+		<options base="Options"/>
+		<max base="Max"/>
+		<min base="Min"/>
+		<default base="Default"/>
+		<tip base="Tip"/>
+		<purpose base="Purpose"/>
+		<external_referenece base="External referenece"/>
+		<related_to base="Related to"/>
+		<package base="Package"/>
+		<pkey_field base="Pkey field"/>
+		<size base="Size"/>
+		<table base="Table"/>
+		<field base="Field"/>
+		<comment base="Comment"/>
+		<name_full base="Name full"/>
+		<datacatalog_path base="Datacatalog path"/>
+		<db_key base="Db Key"/>
+	</model_datacatalog_py>
+
+	<model_group_py>
+		<groups base="Groups"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+	</model_group_py>
+
+	<model_htag_py>
+		<tag base="Tag"/>
+		<new_tag base="New tag"/>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+		<reserved base="Reserved"/>
+		<notes base="Notes"/>
+	</model_htag_py>
+
+	<model_htmltemplate_py>
+		<letterhead base="Letterhead"/>
+		<letterheads base="Letterheads"/>
+		<name base="Name" de="" en="" fr=""/>
+		<username base="Username" it="Nome utente"/>
+		<version base="Version"/>
+		<data base="Data"/>
+		<center_height base="Center height"/>
+		<center_width base="Center width"/>
+		<based_on base="Based on"/>
+		<next_letterhead base="Next letterhead"/>
+	</model_htmltemplate_py>
+
+	<model_language_py>
+		<languages base="Languages"/>
+		<code base="Code" de="" en="" fr=""/>
+		<name base="Name" de="" en="" fr=""/>
+	</model_language_py>
+
+	<model_letterhead_type_py>
+		<code base="Code" de="" en="" fr=""/>
+		<description base="Description" de="" en="" fr=""/>
+	</model_letterhead_type_py>
+
+	<model_menu_py>
+		<menu_directory base="Menu Directory"/>
+		<menu_directories base="Menu Directories"/>
+		<label base="Label"/>
+		<tags base="Tags"/>
+		<summary base="Summary"/>
+	</model_menu_py>
+
+	<model_menu_page_py>
+		<menu_page base="Menu Page"/>
+		<menu_pages base="Menu Pages"/>
+		<label base="Label"/>
+		<filepath base="Filepath"/>
+		<table base="Table"/>
+		<package base="Package"/>
+		<metadata base="Metadata"/>
+	</model_menu_page_py>
+
+	<model_notification_py>
+		<notification base="Notification"/>
+		<notifications base="Notifications"/>
+		<title base="Title"/>
+		<template base="Template"/>
+		<confirm_label base="Confirm label"/>
+		<tag_rule base="Tag rule"/>
+		<for_all_users base="For all users"/>
+		<letterhead base="Letterhead"/>
+	</model_notification_py>
+
+	<model_permission_py>
+		<permission base="Permission"/>
+		<permissions base="Permissions" de="" en="" fr=""/>
+		<tag base="Tag"/>
+		<view_read base="View Read"/>
+		<view_add base="View Add"/>
+		<view_del base="View Del"/>
+		<form_read base="Form Read"/>
+		<form_add base="Form Add"/>
+		<form_del base="Form Del"/>
+		<form_update base="Form Update"/>
+		<column_read base="Column Read"/>
+		<column_update base="Column Update"/>
+	</model_permission_py>
+
+	<model_preference_py>
+		<preference base="Preference"/>
+		<code base="Code" de="" en="" fr=""/>
+		<data base="Data"/>
+	</model_preference_py>
+
+	<model_record_tag_py>
+		<table_tag base="Table tag"/>
+		<table_tags base="Table tags"/>
+		<table_name base="Table name"/>
+		<tag base="Tag"/>
+		<description base="Description" de="" en="" fr=""/>
+	</model_record_tag_py>
+
+	<model_sent_email_py>
+		<sent_email base="Sent email"/>
+		<code base="Code" de="" en="" fr=""/>
+		<table base="Table"/>
+		<email_address base="Email address"/>
+		<sent_ts base="Sent ts"/>
+	</model_sent_email_py>
+
+	<model_served_page_py>
+		<served_page base="Served page"/>
+		<served_pages base="Served pages"/>
+		<page_id base="Page id"/>
+		<page_name base="Page name"/>
+		<start_ts base="Start ts"/>
+		<end_reason base="End Reason"/>
+	</model_served_page_py>
+
+	<model_tag_py>
+		<tag base="Tag"/>
+		<tagname base="Tagname" de="" en="" fr="" it="Codice di autorizzazione"/>
+		<reserved base="Reserved"/>
+		<description base="Description" de="" en="" fr=""/>
+	</model_tag_py>
+
+	<model_user_py>
+		<user base="User" it="Utente"/>
+		<username base="Username" it="Nome utente"/>
+		<mandatory_field base="Mandatory field" de="" en="" fr=""/>
+		<first_name base="First name" de="" en="" fr="" it="Nome"/>
+		<last_name base="Last name" de="" en="" fr="" it="Cognome"/>
+		<registration_date base="Registration Date" it="Data di registrazione"/>
+		<authorization_tags base="Authorization Tags" it="Codici di autorizzazione"/>
+		<status base="Status" it="Stato"/>
+		<new_new_wait_waiting_conf_confirmed_banned_banned base="new:New,wait:Waiting,conf:Confirmed,banned:Banned"/>
+		<passwordmd5 base="PasswordMD5" de="" en="" fr=""/>
+		<default_language base="Default Language" de="" en="" fr=""/>
+		<preferences base="Preferences" de="" en="" fr=""/>
+		<root_page base="Root Page" de="" en="" fr=""/>
+		<sms_login base="Sms login"/>
+		<sms_number base="Sms Number"/>
+		<group base="Group"/>
+		<name base="Name" de="" en="" fr=""/>
+	</model_user_py>
+
+	<model_user_access_group_py>
+		<user_access base="User access"/>
+		<user base="User" it="Utente"/>
+		<access_group base="Access group"/>
+	</model_user_access_group_py>
+
+	<model_user_notification_py>
+		<user_notifications base="User notifications"/>
+		<user base="User" it="Utente"/>
+		<confirmed base="Confirmed" it="Confermato"/>
+	</model_user_notification_py>
+
+	<model_user_tag_py>
+		<user_tag base="User tag"/>
+		<user_tags base="User tags" de="" en="" fr=""/>
+	</model_user_tag_py>
+
+	<model_userobject_py>
+		<user_object base="User Object"/>
+		<user_objects base="User Objects"/>
+		<code base="Code" de="" en="" fr=""/>
+		<object_type base="Object Type"/>
+		<package base="Package"/>
+		<table base="Table"/>
+		<user_id base="User ID"/>
+		<description base="Description" de="" en="" fr=""/>
+		<notes base="Notes"/>
+		<data base="Data"/>
+		<auth_tags base="Auth tags"/>
+		<private base="Private" de="" en="" fr=""/>
+		<quicklist base="Quicklist" de="" en="" fr=""/>
+		<flags base="Flags"/>
+	</model_userobject_py>
+
+	<resources_frameindex_js>
+		<closing_ base="Closing "/>
+		<there_is_a_pending_operation_in_this_tab base="There is a pending operation in this tab"/>
+		<close_anyway base="Close anyway"/>
+		<cancel base="Cancel" it="Annulla"/>
+		<documentation base="Documentation"/>
+	</resources_frameindex_js>
+
+	<resources_frameindex_py>
+		<invalid_login base="Invalid login"/>
+		<login base="Login" it="Entra"/>
+		<new_window base="New Window"/>
+		<invalid_access base="Invalid Access"/>
+		<screenlock base="Screenlock"/>
+		<insert_password base="Insert password"/>
+		<password base="Password"/>
+		<enter base="Enter"/>
+		<wrong_password base="Wrong password"/>
+		<add_to_favorites base="Add to favorites"/>
+		<set_as_start_page base="Set as start page"/>
+		<remove_from_favorites base="Remove from favorites"/>
+		<clear_favorites base="Clear favorites"/>
+		<reload base="Reload"/>
+		<connected_to_ base="Connected to:"/>
+		<_s_preference base="%s preference"/>
+		<logout base="Logout" de="" en="" fr=""/>
+		<lock_screen base="Lock screen"/>
+		<errors_ base="Errors:"/>
+		<open_the_page_outside_frame base="Open the page outside frame"/>
+		<open_documentation base="Open documentation"/>
+		<application_preference base="Application preference"/>
+		<user_preference base="User preference"/>
+		<show_hide_the_left_pane base="Show/Hide the left pane"/>
+		<refresh_the_current_page base="Refresh the current page"/>
+		<close_the_current_page base="Close the current page"/>
+		<lost_password base="Lost password"/>
+		<email base="Email" de="" en="" fr=""/>
+		<recover base="Recover"/>
+		<missing_user_for_this_email base="Missing user for this email"/>
+		<check_your_email_for_instruction base="Check your email for instruction"/>
+		<new_password base="New Password" it="Nuova password"/>
+		<confirm_new_password base="Confirm New Password"/>
+		<passwords_must_be_equal base="Passwords must be equal"/>
+		<send base="Send"/>
+		<confirm_user base="Confirm User"/>
+		<send_email base="Send Email"/>
+		<missing_email base="Missing email"/>
+		<new_user base="New User" it="Registrazione nuovo utente"/>
+		<first_name base="First name" de="" en="" fr="" it="Nome"/>
+		<last_name base="Last name" de="" en="" fr="" it="Cognome"/>
+		<username base="Username" it="Nome utente"/>
+		<missing_data base="Missing data"/>
+		<workdate base="Workdate"/>
+	</resources_frameindex_py>
+
+	<resources_frameplugin_menu_frameplugin_menu_py>
+		<menu base="Menu"/>
+	</resources_frameplugin_menu_frameplugin_menu_py>
+
+	<resources_login_component_py>
+		<login base="Login" it="Entra"/>
+		<user_unknown_or_wrong_password base="User unknown or wrong password" it="Utente o password errati"/>
+	</resources_login_component_py>
+
+	<resources_preference_py>
+		<general base="General"/>
+		<instance_data base="Instance data"/>
+		<mail_options base="Mail options"/>
+		<backups base="Backups"/>
+		<screenlock_timeout_minutes_ base="Screenlock timeout (minutes)"/>
+		<authentication_messages base="Authentication messages"/>
+		<confirm_user_template base="Confirm user template"/>
+		<confirm_new_password_template base="Confirm new password template"/>
+		<subject base="Subject"/>
+		<lost_password base="Lost password"/>
+		<owner_name base="Owner name"/>
+		<general_options base="General options"/>
+	</resources_preference_py>
+
+	<resources_tables_authorization_th_authorization_py>
+		<note base="Note"/>
+	</resources_tables_authorization_th_authorization_py>
+
+	<resources_tables_backup_action_dumpall_py>
+		<backup_name base="Backup name"/>
+	</resources_tables_backup_action_dumpall_py>
+
+	<resources_tables_counter_action_initialize_py>
+		<initialize_counter base="Initialize counter"/>
+		<package base="Package"/>
+		<tables base="Tables"/>
+	</resources_tables_counter_action_initialize_py>
+
+	<resources_tables_counter_th_counter_py>
+		<all base="All"/>
+		<ok base="Ok"/>
+		<holes base="Holes"/>
+		<duplicates base="Duplicates"/>
+		<wrong_order base="Wrong order"/>
+	</resources_tables_counter_th_counter_py>
+
+	<resources_tables_doctemplate_th_doctemplate_py>
+		<name base="Name" de="" en="" fr=""/>
+		<username base="Username" it="Nome utente"/>
+		<version base="Version"/>
+	</resources_tables_doctemplate_th_doctemplate_py>
+
+	<resources_tables_htmltemplate_th_htmltemplate_py>
+		<name base="Name" de="" en="" fr=""/>
+		<username base="Username" it="Nome utente"/>
+		<version base="Version"/>
+		<info base="Info"/>
+		<page_sizing base="Page sizing"/>
+		<height base="Height"/>
+		<width base="Width"/>
+		<top base="Top"/>
+		<bottom base="Bottom"/>
+		<left base="Left"/>
+		<right base="Right"/>
+		<_s_height base="%s height"/>
+		<_s base="%s"/>
+		<center_height base="Center height"/>
+		<center_width base="Center width"/>
+		<_s_width base="%s width"/>
+	</resources_tables_htmltemplate_th_htmltemplate_py>
+
+	<resources_tables_notification_th_notification_py>
+		<template base="Template"/>
+		<users base="Users"/>
+	</resources_tables_notification_th_notification_py>
+
+	<resources_tables_permission_th_permission_py>
+		<tag base="Tag"/>
+	</resources_tables_permission_th_permission_py>
+
+	<resources_tables_user_th_user_py>
+		<login_data base="Login Data"/>
+		<firstname base="Firstname" de="" en="" fr=""/>
+		<username base="Username" it="Nome utente"/>
+		<existing base="Existing"/>
+		<lastname base="Lastname" de="" en="" fr=""/>
+		<required base="Required" de="" en="" fr=""/>
+		<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="" en="" fr=""/>
+		<email base="Email" de="" en="" fr=""/>
+	</resources_tables_user_th_user_py>
+
+	<resources_tables_user_notification_th_user_notification_py>
+		<username base="Username" it="Nome utente"/>
+	</resources_tables_user_notification_th_user_notification_py>
+
+	<resources_tables_userobject_th_userobject_py>
+		<data_type base="Data type"/>
+		<field base="Field"/>
+		<group base="Group"/>
+		<new_custom_column base="New custom column"/>
+	</resources_tables_userobject_th_userobject_py>
+
+	<webpages_app_preference_py>
+		<preference_panel base="Preference panel"/>
+		<zoom base="Zoom"/>
+		<save base="Save" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+	</webpages_app_preference_py>
+
+	<webpages_htag_page_py>
+		<tags_manager base="Tags manager"/>
+		<tags_info base="Tags info"/>
+	</webpages_htag_page_py>
+
+	<webpages_monitor_py>
+		<monitor_panel base="Monitor panel"/>
+	</webpages_monitor_py>
+
+	<webpages_preference_py>
+		<preference_panel base="Preference panel"/>
+		<preference base="Preference"/>
+	</webpages_preference_py>
+
+	<webpages_user_page_py>
+		<user base="User" it="Utente"/>
+		<users base="Users"/>
+		<firstname base="Firstname" de="" en="" fr=""/>
+		<lastname base="Lastname" de="" en="" fr=""/>
+		<username base="Username" it="Nome utente"/>
+		<exists base="Exists"/>
+		<required base="Required" de="" en="" fr=""/>
+		<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="" en="" fr=""/>
+		<startpage base="Startpage"/>
+		<user_start_page base="User start page"/>
+		<email base="Email" de="" en="" fr=""/>
+		<locale base="Locale"/>
+	</webpages_user_page_py>
+
+	<webpages_user_preference_py>
+		<preference_panel base="Preference panel"/>
+		<save base="Save" de="" en="" fr=""/>
+		<cancel base="Cancel" it="Annulla"/>
+	</webpages_user_preference_py>
+</GenRoBag>

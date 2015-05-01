@@ -29,7 +29,7 @@ from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
 
-LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")!!({\w*})?(.*)\1""")
+LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")!!({\w*})?(.*?)\1""")
 
 LOCREGEXP_CLS = re.compile(r"""\b_T\(("{3}|'|")(.*?)\1\)""")
 
@@ -103,8 +103,8 @@ class AppLocalizer(object):
                     locdict[flatten(key)] = loc
         else:
             for m in locbag.values():
-                if not m:
-                    continue
+                #if not m:
+                #    continue
                 for n in m:
                     loc = dict(n.attr)
                     locdict[n.label] = loc
@@ -112,9 +112,7 @@ class AppLocalizer(object):
         
     def updateLocalizationFiles(self,scan_all=None):
         for s in self.slots:
-            print 'ssss',s,
             if scan_all or s['destFolder'] != self.genroroot:
-                print ' eseguo'
                 locbag = Bag()
                 for root in s['roots']:
                     d = DirectoryResolver(root,include='*.py,*.js')()

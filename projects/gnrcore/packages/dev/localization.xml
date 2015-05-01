@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<GenRoBag>
+	<model_widget_py>
+		<widget base="Widget"/>
+		<widgets base="Widgets"/>
+		<name base="Name" de="" en="" fr=""/>
+		<summary base="Summary"/>
+		<server base="Server"/>
+		<parameters_doc base="Parameters doc"/>
+	</model_widget_py>
+
+	<resources_tables_widget_th_widget_py>
+		<parameters base="Parameters"/>
+		<documentation base="Documentation"/>
+		<summary base="Summary"/>
+		<parameters_doc base="Parameters doc"/>
+		<code base="Code" de="" en="" fr=""/>
+	</resources_tables_widget_th_widget_py>
+</GenRoBag>
