@@ -677,7 +677,7 @@ class GnrApp(object):
         self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
         self.localization = {}
-        self.localizer = AppLocalizer(self)
+        
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
             
@@ -740,7 +740,8 @@ class GnrApp(object):
             self.config['menu'] = self.config['menu']['#0']
         if self.instanceMenu:
             self.config['menu']=self.instanceMenu
-
+            
+        self.localizer = AppLocalizer(self)
         self.buildLocalization()
         if forTesting:
             # Create tables in temporary database

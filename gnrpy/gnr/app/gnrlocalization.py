@@ -66,10 +66,11 @@ class AppLocalizer(object):
         self.genroroot = getGenroRoot()
         roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs/js','resources/common','resources/mobile')]
         self.slots = [dict(roots=roots,destFolder=self.genroroot)]
+        print self.application.packages.keys()
         for p in self.application.packages.values():
             self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder))
-        if os.path.exists(self.customFolder):
-            self.slots.append(dict(roots=[self.customFolder],destFolder=self.customFolder))
+        if os.path.exists(self.application.customFolder):
+            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder))
         self.buildLocalizationDict()
 
     def buildLocalizationDict(self):
@@ -96,11 +97,14 @@ class AppLocalizer(object):
             for n in locbag:
                 loc = n.attr
                 key = loc.pop('_key',None)
-                loc.pop('_T',None)
-                loc['base'] = key
-                locdict[flatten(key)] = loc
+                if key:
+                    loc.pop('_T',None)
+                    loc['base'] = key
+                    locdict[flatten(key)] = loc
         else:
             for m in locbag.values():
+                if not m:
+                    continue
                 for n in m:
                     loc = dict(n.attr)
                     locdict[n.label] = loc
@@ -108,7 +112,9 @@ class AppLocalizer(object):
         
     def updateLocalizationFiles(self,scan_all=None):
         for s in self.slots:
+            print 'ssss',s,
             if scan_all or s['destFolder'] != self.genroroot:
+                print ' eseguo'
                 locbag = Bag()
                 for root in s['roots']:
                     d = DirectoryResolver(root,include='*.py,*.js')()
@@ -124,7 +130,7 @@ class AppLocalizer(object):
             loctext = m.group(3)
             lockey = lockey or flatten(loctext)
             if not lockey in moduleLocBag:
-                locdict = dict(self.localizationDict.get(lockey))
+                locdict = dict(self.localizationDict.get(lockey) or dict())
                 locdict['base'] = loctext
                 moduleLocBag.setItem(lockey,None,_attributes=locdict)
         with open(n.attr['abs_path'],'r') as f:
