@@ -27,6 +27,6 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         app = GnrApp(args[0])
-        app.updateLocalizationFiles(scan_all=getattr(options,'scan_all',None))
+        app.localizer.updateLocalizationFiles(scan_all=getattr(options,'scan_all',None))
 
         
