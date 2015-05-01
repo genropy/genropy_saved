@@ -2649,7 +2649,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
         if(codeSeparator!==false){
             codeSeparator =  codeSeparator || ':'
         }
-
         if(values instanceof gnr.GnrBag){
             has_code = true;
         }else{
