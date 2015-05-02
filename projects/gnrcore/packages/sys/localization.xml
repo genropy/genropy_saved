@@ -1,167 +1,169 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<menu_py>
-		<system base="System" de="" en="" fr=""/>
-	</menu_py>
+	<menu ext="py" path="menu.py">
+		<system base="System" de="System" en="System" fr="Système" it="Sistema"/>
+	</menu>
 
-	<model_counter_py>
-		<counter base="Counter"/>
-		<codekey base="Codekey"/>
-		<code base="Code" de="" en="" fr=""/>
-		<package base="Package"/>
-		<name base="Name" de="" en="" fr=""/>
-		<holes base="Holes"/>
-	</model_counter_py>
+	<model>
+		<counter ext="py" path="model/counter.py">
+			<counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
+				<codekey base="Codekey" de="Codeschlüssel" en="Codekey" fr="Codekey" it="Codekey"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
+		</counter>
+		<error ext="py" path="model/error.py">
+			<errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<traceback base="Traceback" de="Traceback" en="Traceback" fr="Traceback" it="Rintracciare"/>
+				<error_type base="Error type" de="Fehlertyp" en="Error type" fr="Type d'erreur" it="Tipo di errore"/>
+		</error>
+		<external_token ext="py" path="model/external_token.py">
+			<messages base="Messages" de="Nachrichten" en="Messages" fr="Messages" it="Messaggi"/>
+				<id base="id" de="Identifikation" en="Id" fr="Ça" it="Id"/>
+				<date_and_time base="Date and Time" de="Datum und Uhrzeit" en="Date and Time" fr="Date et heure" it="Data e ora"/>
+				<expiry base="Expiry" de="Ablauf" en="Expiry" fr="Expiration" it="Scadenza"/>
+				<destination_user base="Destination user" de="Zielbenutzer" en="Destination user" fr="utilisateur Destinations" it="Destinazione d'uso"/>
+				<connection_id base="Connection Id" de="Verbindungs-ID" en="Connection id" fr="id de connexion" it="Id Connection"/>
+				<max_uses base="Max uses" de="Max verwendet" en="Max uses" fr="Utilise Max" it="Utilizza Max"/>
+				<allowed_host base="Allowed host" de="Host erlaubt" en="Allowed host" fr="Autorisé hôte" it="Ospite ammessi"/>
+				<page_path base="Page path" de="Seitenpfad" en="Page path" fr="Chemin de la page" it="Percorso della pagina"/>
+				<method base="Method" de="Verfahren" en="Method" fr="Méthode" it="Metodo"/>
+				<parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
+				<execute_as_user base="Execute as user" de="Führen Sie als Benutzer" en="Execute as user" fr="Exécuter en tant qu'utilisateur" it="Esegui come utente"/>
+		</external_token>
+		<external_token_use ext="py" path="model/external_token_use.py">
+			<messages base="Messages" de="Nachrichten" en="Messages" fr="Messages" it="Messaggi"/>
+				<id base="id" de="Identifikation" en="Id" fr="Ça" it="Id"/>
+				<external_token_id base="External token id" de="Externe Token id" en="External token id" fr="Id jeton externe" it="Id segno esterno"/>
+				<date_and_time base="Date and Time" de="Datum und Uhrzeit" en="Date and Time" fr="Date et heure" it="Data e ora"/>
+				<host base="Host" de="Gastgeber" en="Host" fr="Hôte" it="Ospite"/>
+		</external_token_use>
+		<locked_record ext="py" path="model/locked_record.py">
+			<locked_record base="Locked Record" de="Gesperrt Bilanz" en="Locked Record" fr="Document verrouillé" it="Record Bloccato"/>
+				<locked_records base="Locked records" de="Gesperrte Datensätze" en="Locked records" fr="Enregistrements verrouillés" it="Record bloccati"/>
+				<id base="id" de="Identifikation" en="Id" fr="Ça" it="Id"/>
+				<date_and_time base="Date and Time" de="Datum und Uhrzeit" en="Date and Time" fr="Date et heure" it="Data e ora"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<page_id base="Page_id" de="Seiten-ID" en="Page id" fr="Id page" it="Pagina id"/>
+				<connection_id base="Connection_id" de="Verbindungs-ID" en="Connection id" fr="id de connexion" it="Id Connection"/>
+				<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+		</locked_record>
+		<task ext="py" path="model/task.py">
+			<task base="Task" de="Aufgabe" en="Task" fr="Tâche" it="Compito"/>
+				<tasks base="Tasks" de="Aufgaben" en="Tasks" fr="Tâches" it="Compiti"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<task_name base="Task name" de="Task-Name" en="Task name" fr="Nom de la tâche" it="Nome attività"/>
+				<command base="Command" de="Befehl" en="Command" fr="Commandement" it="Comando"/>
+				<month base="Month" de="Monat" en="Month" fr="Mois" it="Mese"/>
+				<_1_jan_2_feb_3_mar_4_apr_5_may_6_jun_7_jul_8_aug_9_sep_10_oct_11_nov_12_dec _tag="1_jan_2_feb_3_mar_4_apr_5_may_6_jun_7_jul_8_aug_9_sep_10_oct_11_nov_12_dec" base="1:Jan,2:Feb,3:Mar,4:Apr,5:May,6:Jun,7:Jul,8:Aug,9:Sep,10:Oct,11:Nov,12:Dec" de="1: Jan, 2: Feb, 3: Mar, 4: Apr, 5: Mai 6: Jun, 7: Jul, 8: Aug, 9: Sep, 10: Oct, 11: Nov, 12 Dec" en="1:Jan,2:Feb,3:Mar,4:Apr,5:May,6:Jun,7:Jul,8:Aug,9:Sep,10:Oct,11:Nov,12:Dec" fr="1: Jan, 2: fév 3: Mar, 4: Apr, 5: mai, 6: Jun, 7: Jul, 8: Août, 9: Sep, 10: Oct, 11: Nov, 12: Dec" it="1: Jan, 2: Feb 3: Mar, 4: Apr, 5: Maggio, 6: Jun, 7: luglio, 8: agosto, 9: Sep, 10: ottobre, 11: Nov, 12 Dec"/>
+				<day base="Day" de="Tag" en="Day" fr="Jour" it="Giorno"/>
+				<weekday base="Weekday" de="Wochentag" en="Weekday" fr="Jour de la semaine" it="Giorno feriale"/>
+				<_0_sun_1_mon_2_tue_3_wed_4_thu_5_fri_6_sat _tag="0_sun_1_mon_2_tue_3_wed_4_thu_5_fri_6_sat" base="0:Sun,1:Mon,2:Tue,3:Wed,4:Thu,5:Fri,6:Sat" de="0: So 1: Mo 2: Di 3: Mi 4: Do 5: Fr 6: Sa" en="0:Sun,1:Mon,2:Tue,3:Wed,4:Thu,5:Fri,6:Sat" fr="0: Sun, 1: Lun 2: Mar 3: Wed, 4: Jeu 5: Ven 6: sam" it="0: Sun, 1: Mon, 2: Tue, 3: Wed, 4: Gio 5: Fri, 6: sab"/>
+				<hour base="Hour" de="Stunde" en="Hour" fr="Heure" it="Ora"/>
+				<minute base="Minute" de="Minute" en="Minute" fr="Minute" it="Minuto"/>
+				<parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
+				<last_execution base="Last Execution" de="Last Execution" en="Last Execution" fr="Dernière exécution" it="Ultima esecuzione"/>
+				<log_result base="Log Result" de="Log Ergebnis" en="Log Result" fr="Connexion Résultat" it="Entra Risultato"/>
+				<start_date base="Start Date" de="Anfangsdatum" en="Start Date" fr="Date De Début" it="Data Di Inizio"/>
+				<end_date base="End Date" de="End Date" en="End Date" fr="Date De Fin" it="Data Di Fine"/>
+				<stopped base="Stopped" de="Gestoppt" en="Stopped" fr="Arrêtée" it="Arrestato"/>
+		</task>
+		<task_result ext="py" path="model/task_result.py">
+			<task_id base="Task ID" de="Task-ID" en="Task ID" fr="Groupe ID" it="ID attività"/>
+				<result base="result" de="Ergebnis" en="result" fr="résultat" it="risultato"/>
+				<result_time base="Result Time" de="Ergebnis Zeit" en="Result Time" fr="Temps de Résultat" it="Risultato Tempo"/>
+				<is_error base="Is Error" de="Ist Fehler" en="Is Error" fr="Est l'erreur" it="È Errore"/>
+		</task_result>
+	</model>
 
-	<model_error_py>
-		<errors base="Errors"/>
-		<description base="Description" de="" en="" fr=""/>
-		<traceback base="Traceback"/>
-		<error_type base="Error type"/>
-	</model_error_py>
+	<resources>
+		<gnrcomponents>
+			<batch_handler>
+				<batch_handler ext="py" path="resources/gnrcomponents/batch_handler/batch_handler.py">
+					<schedule base="Schedule" de="Zeitplan" en="Schedule" fr="Calendrier" it="Programma"/>
+				</batch_handler>
+			</batch_handler>
+		</gnrcomponents>
+		<preference ext="py" path="resources/preference.py">
+			<_12px_small_13px_medium_14px_large_15px_extra_large _tag="12px_small_13px_medium_14px_large_15px_extra_large" base="12px:Small,13px:Medium,14px:Large,15px:Extra Large" de="12px: Klein, 13px: Medium, 14px: Grosses, 15px: Extra Large" en="12px:Small,13px:Medium,14px:Large,15px:Extra Large" fr="12px: Petit, 13px: Medium, 14px: Grande 15px: Extra Large" it="12px: Piccolo, 13px: Medium, 14px: Grande, 15px: Extra Large"/>
+				<site_config base="Site config" de="Site Config" en="Site config" fr="config du site" it="Config del sito"/>
+				<_12px_default_12px_small_13px_medium_14px_large_15px_extra_large _tag="12px_default_12px_small_13px_medium_14px_large_15px_extra_large" base="12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large" de="12px: Standard, 12px: Klein, 13px: Medium, 14px: Grosses, 15px: Extra Large" en="12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large" fr="12px: Par défaut, 12px: Petit, 13px: Medium, 14px: Grande 15px: Extra Large" it="12px: Default 12px: Piccolo, 13px: Medium, 14px: Grande, 15px: Extra Large"/>
+		</preference>
+		<tables>
+			<error>
+				<th_error ext="py" path="resources/tables/error/th_error.py">
+					<exceptions base="Exceptions" de="Ausnahmen" en="Exceptions" fr="Exceptions" it="Eccezioni"/>
+								<errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
+				</th_error>
+			</error>
+				<task>
+				<th_task ext="py" path="resources/tables/task/th_task.py">
+					<rules base="Rules" de="Regeln" en="Rules" fr="Règles" it="Regole"/>
+								<month base="Month" de="Monat" en="Month" fr="Mois" it="Mese"/>
+								<day base="Day" de="Tag" en="Day" fr="Jour" it="Giorno"/>
+								<weekday base="Weekday" de="Wochentag" en="Weekday" fr="Jour de la semaine" it="Giorno feriale"/>
+								<hour base="Hour" de="Stunde" en="Hour" fr="Heure" it="Ora"/>
+								<minute base="Minute" de="Minute" en="Minute" fr="Minute" it="Minuto"/>
+				</th_task>
+			</task>
+		</tables>
+	</resources>
 
-	<model_external_token_py>
-		<messages base="Messages" de="" en="" fr=""/>
-		<id base="id"/>
-		<date_and_time base="Date and Time"/>
-		<expiry base="Expiry"/>
-		<destination_user base="Destination user"/>
-		<connection_id base="Connection Id"/>
-		<max_uses base="Max uses"/>
-		<allowed_host base="Allowed host"/>
-		<page_path base="Page path"/>
-		<method base="Method"/>
-		<parameters base="Parameters"/>
-		<execute_as_user base="Execute as user"/>
-	</model_external_token_py>
-
-	<model_external_token_use_py>
-		<messages base="Messages" de="" en="" fr=""/>
-		<id base="id"/>
-		<external_token_id base="External token id"/>
-		<date_and_time base="Date and Time"/>
-		<host base="Host"/>
-	</model_external_token_use_py>
-
-	<model_locked_record_py>
-		<locked_record base="Locked Record"/>
-		<locked_records base="Locked records"/>
-		<id base="id"/>
-		<date_and_time base="Date and Time"/>
-		<table base="Table"/>
-		<page_id base="Page_id"/>
-		<connection_id base="Connection_id"/>
-		<user base="User" it="Utente"/>
-	</model_locked_record_py>
-
-	<model_task_py>
-		<task base="Task"/>
-		<tasks base="Tasks"/>
-		<table base="Table"/>
-		<task_name base="Task name"/>
-		<command base="Command" de="" en="" fr=""/>
-		<month base="Month"/>
-		<_1_jan_2_feb_3_mar_4_apr_5_may_6_jun_7_jul_8_aug_9_sep_10_oct_11_nov_12_dec _tag="1_jan_2_feb_3_mar_4_apr_5_may_6_jun_7_jul_8_aug_9_sep_10_oct_11_nov_12_dec" base="1:Jan,2:Feb,3:Mar,4:Apr,5:May,6:Jun,7:Jul,8:Aug,9:Sep,10:Oct,11:Nov,12:Dec"/>
-		<day base="Day"/>
-		<weekday base="Weekday"/>
-		<_0_sun_1_mon_2_tue_3_wed_4_thu_5_fri_6_sat _tag="0_sun_1_mon_2_tue_3_wed_4_thu_5_fri_6_sat" base="0:Sun,1:Mon,2:Tue,3:Wed,4:Thu,5:Fri,6:Sat"/>
-		<hour base="Hour"/>
-		<minute base="Minute"/>
-		<parameters base="Parameters"/>
-		<last_execution base="Last Execution"/>
-		<log_result base="Log Result"/>
-		<start_date base="Start Date"/>
-		<end_date base="End Date"/>
-		<stopped base="Stopped"/>
-	</model_task_py>
-
-	<model_task_result_py>
-		<task_id base="Task ID"/>
-		<result base="result"/>
-		<result_time base="Result Time"/>
-		<is_error base="Is Error"/>
-	</model_task_result_py>
-
-	<resources_gnrcomponents_batch_handler_batch_handler_py>
-		<schedule base="Schedule"/>
-	</resources_gnrcomponents_batch_handler_batch_handler_py>
-
-	<resources_preference_py>
-		<_12px_small_13px_medium_14px_large_15px_extra_large _tag="12px_small_13px_medium_14px_large_15px_extra_large" base="12px:Small,13px:Medium,14px:Large,15px:Extra Large"/>
-		<site_config base="Site config"/>
-		<_12px_default_12px_small_13px_medium_14px_large_15px_extra_large _tag="12px_default_12px_small_13px_medium_14px_large_15px_extra_large" base="12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large"/>
-	</resources_preference_py>
-
-	<resources_tables_error_th_error_py>
-		<exceptions base="Exceptions"/>
-		<errors base="Errors"/>
-	</resources_tables_error_th_error_py>
-
-	<resources_tables_task_th_task_py>
-		<rules base="Rules"/>
-		<month base="Month"/>
-		<day base="Day"/>
-		<weekday base="Weekday"/>
-		<hour base="Hour"/>
-		<minute base="Minute"/>
-	</resources_tables_task_th_task_py>
-
-	<webpages_docpage_py>
-		<documentation base="Documentation"/>
-		<tickets base="Tickets"/>
-	</webpages_docpage_py>
-
-	<webpages_external_token_py>
-		<tokens base="Tokens"/>
-		<external_token base="External token"/>
-	</webpages_external_token_py>
-
-	<webpages_locked_record_py>
-		<locked_records base="Locked records"/>
-	</webpages_locked_record_py>
-
-	<webpages_lookuptables_py>
-		<lookup_tables base="Lookup Tables"/>
-		<package base="Package"/>
-		<tables base="Tables"/>
-		<select_a_table_from_the_popup_menu base="Select a table from the popup menu"/>
-		<revert base="Revert" de="" en="" fr=""/>
-		<cancel base="Cancel" it="Annulla"/>
-		<save base="Save" de="" en="" fr=""/>
-	</webpages_lookuptables_py>
-
-	<webpages_memcached_stats_py>
-		<mem_stats base="Mem Stats"/>
-	</webpages_memcached_stats_py>
-
-	<webpages_message_py>
-		<message base="Message"/>
-	</webpages_message_py>
-
-	<webpages_onering_py>
-		<one_ring base="One Ring"/>
-		<rpc_details base="Rpc details"/>
-	</webpages_onering_py>
-
-	<webpages_profile_py>
-		<profile base="Profile"/>
-	</webpages_profile_py>
-
-	<webpages_register_explorer_py>
-		<register_explorer base="Register explorer"/>
-		<connections base="Connections" de="" en="" fr=""/>
-		<overview base="Overview"/>
-		<users base="Users"/>
-		<pages base="Pages" it="Pagine"/>
-	</webpages_register_explorer_py>
-
-	<webpages_system_dashboard_py>
-		<system_dashboard base="System Dashboard"/>
-		<connections base="Connections" de="" en="" fr=""/>
-	</webpages_system_dashboard_py>
-
-	<webpages_tableconf_py>
-		<column_configuration base="Column configuration"/>
-		<fieldstree base="Fieldstree"/>
-	</webpages_tableconf_py>
+	<webpages>
+		<docpage ext="py" path="webpages/docpage.py">
+			<documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+				<tickets base="Tickets" de="Tickets" en="Tickets" fr="Billets" it="Biglietti"/>
+		</docpage>
+		<external_token ext="py" path="webpages/external_token.py">
+			<tokens base="Tokens" de="Tokens" en="Tokens" fr="Jetons" it="Gettoni"/>
+				<external_token base="External token" de="Externe Token" en="External token" fr="Jeton externe" it="Segno esterno"/>
+		</external_token>
+		<localizationeditor ext="py" path="webpages/localizationeditor.py">
+			<localization_manager base="Localization Manager" de="Localization Manager" en="Localization Manager" fr="Gestionnaire de localisation" it="Localization Manager"/>
+				<languages base="Languages" de="Sprachen" en="Languages" fr="Langues" it="Lingue"/>
+				<localization base="Localization" de="Lokalisierung" en="Localization" fr="Localisation" it="Localizzazione"/>
+		</localizationeditor>
+		<locked_record ext="py" path="webpages/locked_record.py">
+			<locked_records base="Locked records" de="Gesperrte Datensätze" en="Locked records" fr="Enregistrements verrouillés" it="Record bloccati"/>
+		</locked_record>
+		<lookuptables ext="py" path="webpages/lookuptables.py">
+			<lookup_tables base="Lookup Tables" de="Lookup Tables" en="Lookup Tables" fr="Tables de recherche" it="Tabelle di ricerca"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<tables base="Tables" de="Tische" en="Tables" fr="Tableaux" it="Tabelle"/>
+				<select_a_table_from_the_popup_menu base="Select a table from the popup menu" de="Wählen Sie eine Tabelle aus dem Kontextmenü" en="Select a table from the popup menu" fr="Sélectionnez une table dans le menu contextuel" it="Selezionare una tabella dal menu a comparsa"/>
+				<revert base="Revert" de="Zurückkehren" en="Revert" fr="Revenir" it="Ritornare"/>
+				<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+				<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+		</lookuptables>
+		<memcached_stats ext="py" path="webpages/memcached_stats.py">
+			<mem_stats base="Mem Stats" de="Mem Stats" en="Mem Stats" fr="Mem Statistiques" it="Mem Statistiche"/>
+		</memcached_stats>
+		<message ext="py" path="webpages/message.py">
+			<message base="Message" de="Nachricht" en="Message" fr="Message" it="Messaggio"/>
+		</message>
+		<onering ext="py" path="webpages/onering.py">
+			<one_ring base="One Ring" de="Eine Ring" en="One Ring" fr="One Ring" it="Unico Anello"/>
+				<rpc_details base="Rpc details" de="RPC-Details" en="Rpc details" fr="Détails Rpc" it="Dettagli Rpc"/>
+		</onering>
+		<profile ext="py" path="webpages/profile.py">
+			<profile base="Profile" de="Profil" en="Profile" fr="Profil" it="Profilo"/>
+		</profile>
+		<register_explorer ext="py" path="webpages/register_explorer.py">
+			<register_explorer base="Register explorer" de="Registrieren explorer" en="Register explorer" fr="Créer explorateur" it="Registrati explorer"/>
+				<connections base="Connections" de="Anschlüsse" en="Connections" fr="Liens" it="Connessioni"/>
+				<overview base="Overview" de="Überblick" en="Overview" fr="Vue d'ensemble" it="Panoramica"/>
+				<users base="Users" de="Benutzer" en="Users" fr="Utilisateurs" it="Utenti"/>
+				<pages base="Pages" de="Seiten" en="Pages" fr="Pages" it="Pagine"/>
+		</register_explorer>
+		<system_dashboard ext="py" path="webpages/system_dashboard.py">
+			<system_dashboard base="System Dashboard" de="System-Dashboard" en="System Dashboard" fr="Tableau de bord système" it="Dashboard di sistema"/>
+				<connections base="Connections" de="Anschlüsse" en="Connections" fr="Liens" it="Connessioni"/>
+		</system_dashboard>
+		<tableconf ext="py" path="webpages/tableconf.py">
+			<column_configuration base="Column configuration" de="Spaltenkonfiguration" en="Column configuration" fr="Configuration de colonne" it="Configurazione delle colonne"/>
+				<fieldstree base="Fieldstree" de="Feld Baum" en="Field Tree" fr="Arbre Champ" it="Campo Albero"/>
+		</tableconf>
+	</webpages>
 </GenRoBag>

@@ -1,19 +1,27 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<model_widget_py>
-		<widget base="Widget"/>
-		<widgets base="Widgets"/>
-		<name base="Name" de="" en="" fr=""/>
-		<summary base="Summary"/>
-		<server base="Server"/>
-		<parameters_doc base="Parameters doc"/>
-	</model_widget_py>
+	<model>
+		<widget ext="py" path="model/widget.py">
+			<widget base="Widget" de="Widget" en="Widget" fr="Widget" it="Widget"/>
+				<widgets base="Widgets" de="Widgets" en="Widgets" fr="Widgets" it="Widgets"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
+				<server base="Server" de="Server" en="Server" fr="Serveur" it="Server"/>
+				<parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
+		</widget>
+	</model>
 
-	<resources_tables_widget_th_widget_py>
-		<parameters base="Parameters"/>
-		<documentation base="Documentation"/>
-		<summary base="Summary"/>
-		<parameters_doc base="Parameters doc"/>
-		<code base="Code" de="" en="" fr=""/>
-	</resources_tables_widget_th_widget_py>
+	<resources>
+		<tables>
+			<widget>
+				<th_widget ext="py" path="resources/tables/widget/th_widget.py">
+					<parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
+								<documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+								<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
+								<parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
+								<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				</th_widget>
+			</widget>
+		</tables>
+	</resources>
 </GenRoBag>

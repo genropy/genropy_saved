@@ -1,500 +1,481 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<main_py>
-		<administration base="Administration" it="Amministrazione"/>
-		<administration_tool base="Administration Tool"/>
-	</main_py>
+	<main ext="py" path="main.py">
+		<administration base="Administration" de="Verwaltung" en="Administration" fr="Administration" it="Amministrazione"/>
+		<administration_tool base="Administration Tool" de="Administration Tool" en="Administration Tool" fr="Outil d'administration" it="Strumento di amministrazione"/>
+	</main>
 
-	<menu_py>
-		<administration base="Administration" it="Amministrazione"/>
-		<users base="Users"/>
-		<auth_tags base="Auth tags"/>
-		<letterheads base="Letterheads"/>
-		<notifications base="Notifications"/>
-		<menu_manager base="Menu Manager"/>
-		<menu_pages base="Menu Pages"/>
-		<datacatalog base="Datacatalog"/>
-		<utility_tables base="Utility tables"/>
-		<counter base="Counter"/>
-	</menu_py>
+	<menu ext="py" path="menu.py">
+		<administration base="Administration" de="Verwaltung" en="Administration" fr="Administration" it="Amministrazione"/>
+		<users base="Users" de="Benutzer" en="Users" fr="Utilisateurs" it="Utenti"/>
+		<auth_tags base="Auth tags" de="Auth-Tags" en="Auth tags" fr="balises Auth" it="Tag Auth"/>
+		<letterheads base="Letterheads" de="Brief" en="Letterheads" fr="Têtes" it="Intestazione"/>
+		<notifications base="Notifications" de="Benachrichtigungen" en="Notifications" fr="Notifications" it="Notifiche"/>
+		<menu_manager base="Menu Manager" de="Menu Manager" en="Menu Manager" fr="Gestionnaire de Menu" it="Gestione Menu"/>
+		<menu_pages base="Menu Pages" de="Menu Seiten" en="Menu Pages" fr="Pages de Menu" it="Pagine del menu"/>
+		<datacatalog base="Datacatalog" de="Datacatalog" en="Datacatalog" fr="Datacatalog" it="Datacatalog"/>
+		<utility_tables base="Utility tables" de="Utility-Tabellen" en="Utility tables" fr="tables utilitaires" it="Tavoli Utility"/>
+		<counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
+	</menu>
 
-	<model_access_group_py>
-		<access_group base="Access group"/>
-		<code base="Code" de="" en="" fr=""/>
-		<description base="Description" de="" en="" fr=""/>
-		<allowed_ip base="Allowed ip"/>
-	</model_access_group_py>
+	<model>
+		<access_group ext="py" path="model/access_group.py">
+			<access_group base="Access group" de="Zugriffsgruppe" en="Access group" fr="groupe Accès" it="Gruppo Accesso"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<allowed_ip base="Allowed ip" de="Erlaubt ip" en="Allowed ip" fr="Autorisé ip" it="Ip ammessi"/>
+		</access_group>
+		<audit ext="py" path="model/audit.py">
+			<audit base="Audit" de="Prüfung" en="Audit" fr="Audit" it="Revisione"/>
+				<table_name base="Table name" de="Tabellennamen" en="Table name" fr="Nom de la table" it="Nome tabella"/>
+				<change_type base="Change type" de="Typ ändern" en="Change type" fr="Changer le type" it="Cambia tipo"/>
+				<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+				<record_pkey base="Record Pkey" de="Nehmen Pkey" en="Record Pkey" fr="Enregistrez Pkey" it="Record PKEY"/>
+				<version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
+				<data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<transaction_id base="Transaction id" de="Transaction-ID" en="Transaction id" fr="Identifiant de transaction" it="Id transazione"/>
+		</audit>
+		<authorization ext="py" path="model/authorization.py">
+			<authorization base="Authorization" de="Genehmigung" en="Authorization" fr="Autorisation" it="Autorizzazione"/>
+				<authorizations base="Authorizations" de="Berechtigungen" en="Authorizations" fr="Autorisations" it="Autorizzazioni"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<user_id base="User id" de="Benutzer-ID" en="User ID" fr="ID de l'utilisateur" it="ID utente"/>
+				<used_datetime base="Used datetime" de="Gebrauchte datetime" en="Used datetime" fr="Datetime occasion" it="Datetime Usato"/>
+				<used_by base="Used by" de="Wird von" en="Used by" fr="Utilisé par" it="Usato da"/>
+				<note base="Note" de="Note" en="Note" fr="Note" it="Note"/>
+				<use_scope base="Use Scope" de="Verwenden Scope" en="Use Scope" fr="Utilisez Portée" it="Usa Scope"/>
+				<remaining_usages base="Remaining usages" de="Verbleibende Nutzungen" en="Remaining usages" fr="Usages restants" it="Usi rimanenti"/>
+				<expire_date base="Expire Date" de="Ablaufdatum" en="Expire Date" fr="Date D'Expiration" it="Data Di Scadenza"/>
+		</authorization>
+		<backup ext="py" path="model/backup.py">
+			<backup base="Backup" de="Sicherungskopie" en="Backup" fr="Sauvegarde" it="Di riserva"/>
+				<backups base="Backups" de="Backups" en="Backups" fr="Sauvegardes" it="Backup"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<backup_start_ts base="Backup start ts" de="Backup Start ts" en="Backup start ts" fr="Ts de démarrage de sauvegarde" it="Ts Avvia backup"/>
+				<backup_end_ts base="Backup end ts" de="Backup Ende ts" en="Backup end ts" fr="Ts finaux de sauvegarde" it="Ts end di backup"/>
+		</backup>
+		<ckstyle ext="py" path="model/ckstyle.py">
+			<ckeditor_styles base="Ckeditor styles" de="CKEditor Arten" en="Ckeditor styles" fr="styles de CKEditor" it="Stili CKEditor"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<dom_element base="Dom element" de="Dom-Element" en="Dom element" fr="Élément Dom" it="Elemento Dom"/>
+				<styles base="Styles" de="Styles" en="Styles" fr="Styles" it="Stili"/>
+				<attributes base="Attributes" de="Attribute" en="Attributes" fr="Attributs" it="Attributi"/>
+				<group base="Group" de="Gruppe" en="Group" fr="Groupe" it="Gruppo"/>
+		</ckstyle>
+		<connection ext="py" path="model/connection.py">
+			<connection base="Connection" de="Anschluss" en="Connection" fr="Lien" it="Collegamento"/>
+				<connections base="Connections" de="Anschlüsse" en="Connections" fr="Liens" it="Connessioni"/>
+				<connection_id base="Connection id" de="Verbindungs-ID" en="Connection id" fr="id de connexion" it="Id Connection"/>
+				<userid base="Userid" de="Benutzer-ID" en="Userid" fr="Userid" it="Id Utente"/>
+				<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				<ip_number base="Ip number" de="IP-Nummer" en="Ip number" fr="Numéro IP" it="Numero IP"/>
+				<start_ts base="Start TS" de="Starten ts" en="Start ts" fr="Lancer ts" it="Inizia ts"/>
+				<end_reason base="End reason" de="End Reason" en="End Reason" fr="Fin Raison" it="End Ragione"/>
+				<user_agent base="User agent" de="User-Agent" en="User agent" fr="L'agent utilisateur" it="User agent"/>
+				<user_fullname base="User fullname" de="Benutzerfullname" en="User fullname" fr="fullname utilisateur" it="Fullname utente"/>
+		</connection>
+		<counter ext="py" path="model/counter.py">
+			<counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
+				<codekey base="Codekey" de="Codeschlüssel" en="Codekey" fr="Codekey" it="Codekey"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<counter_field base="Counter Field" de="Zählerfeld" en="Counter Field" fr="Contre Champ" it="Contro Campo"/>
+				<period base="Period" de="Zeit" en="Period" fr="Période" it="Periodo"/>
+				<last_used base="Last used" de="Zuletzt verwendeten" en="Last used" fr="Dernière occasion" it="Ultimo uso"/>
+				<holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
+				<errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
+				<missing_s_mandatory_for_counter_s base="Missing %s. Mandatory for counter %s" de="% S fehlt. Obligatorisch für Gegen% s" en="Missing %s. Mandatory for counter %s" fr="Manquant% s. Obligatoire pour compteur% s" it="Manca% s. Obbligatorio per contatore% s"/>
+				<missing_date_s_for_counter_s base="Missing date %s for counter %s" de="Fehlende Datum% s für% s Zähler" en="Missing date %s for counter %s" fr="Manquant jour% s pour le compteur% s" it="Data mancante% s per il contatore% s"/>
+				<incompatible_date_assigning_fieldname_s_counter base="Incompatible date assigning %(fieldname)s counter" de="Inkompatible Datum Zuweisen% (fieldname) s Gegen" en="Incompatible date assigning %(fieldname)s counter" fr="Le compteur de la date attribution Incompatible% (fieldname)" it="Data incompatibile assegnazione% (fieldname) s contatore"/>
+		</counter>
+		<datacatalog ext="py" path="model/datacatalog.py">
+			<model_catalog base="Model catalog" de="Modellkatalog" en="Model catalog" fr="Le catalogue du modèle" it="Catalogo Modello"/>
+				<dc_elements base="DC Elements" de="DC Elements" en="DC Elements" fr="DC Elements" it="DC Elements"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
+				<dtype base="Dtype" de="D-Typ-" en="Dtype" fr="Dtype" it="DTYPE"/>
+				<name_long base="Name long" de="Nennen lang" en="Name long" fr="Nom longue" it="Nome lungo"/>
+				<name_short base="Name short" de="Nennen Sie kurz" en="Name short" fr="Nom court" it="Nome breve"/>
+				<format base="Format" de="Format" en="Format" fr="Format" it="Formato"/>
+				<options base="Options" de="Options" en="Options" fr="Options" it="Opzioni"/>
+				<max base="Max" de="Max" en="Max" fr="Max" it="Max"/>
+				<min base="Min" de="Min" en="Min" fr="Min" it="Min"/>
+				<default base="Default" de="Default" en="Default" fr="Par défaut" it="Difetto"/>
+				<tip base="Tip" de="Spitze" en="Tip" fr="Pointe" it="Punta"/>
+				<purpose base="Purpose" de="Zweck" en="Purpose" fr="But" it="Scopo"/>
+				<external_referenece base="External referenece" de="Externe referenece" en="External referenece" fr="Referenece externe" it="Referenece esterno"/>
+				<related_to base="Related to" de="Bezug zu" en="Related to" fr="Relatif à" it="In relazione a"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<pkey_field base="Pkey field" de="Pkey Feld" en="Pkey field" fr="Champ Pkey" it="Campo PKEY"/>
+				<size base="Size" de="Größe" en="Size" fr="Taille" it="Taglia"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<field base="Field" de="Bereich" en="Field" fr="Terrain" it="Campo"/>
+				<comment base="Comment" de="Kommentar" en="Comment" fr="Commentaire" it="Commento"/>
+				<name_full base="Name full" de="Nennen Voll" en="Name full" fr="Nom et prénom" it="Nome completo"/>
+				<datacatalog_path base="Datacatalog path" de="Datacatalog Pfad" en="Datacatalog path" fr="Chemin Datacatalog" it="Percorso Datacatalog"/>
+				<db_key base="Db Key" de="Db Key" en="Db Key" fr="Db Key" it="Db Chiave"/>
+		</datacatalog>
+		<group ext="py" path="model/group.py">
+			<groups base="Groups" de="Gruppen" en="Groups" fr="Groupes" it="Gruppi"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+		</group>
+		<htag ext="py" path="model/htag.py">
+			<tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
+				<new_tag base="New tag" de="New-Tag" en="New tag" fr="Nouvelle étiquette" it="Nuova etichetta"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
+				<notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
+		</htag>
+		<htmltemplate ext="py" path="model/htmltemplate.py">
+			<letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
+				<letterheads base="Letterheads" de="Brief" en="Letterheads" fr="Têtes" it="Intestazione"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				<version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
+				<data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<center_height base="Center height" de="Spitzenhöhe" en="Center height" fr="Hauteur de pointes" it="Altezza di punte"/>
+				<center_width base="Center width" de="Spitzenweite" en="Center width" fr="La largeur centrale" it="Larghezza Centro"/>
+				<based_on base="Based on" de="Basierend auf" en="Based on" fr="Basé sur" it="Basato su"/>
+				<next_letterhead base="Next letterhead" de="Nächste Brief" en="Next letterhead" fr="Suivant tête" it="Successivo intestata"/>
+		</htmltemplate>
+		<language ext="py" path="model/language.py">
+			<languages base="Languages" de="Sprachen" en="Languages" fr="Langues" it="Lingue"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+		</language>
+		<letterhead_type ext="py" path="model/letterhead_type.py">
+			<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+		</letterhead_type>
+		<menu ext="py" path="model/menu.py">
+			<menu_directory base="Menu Directory" de="Menü Verzeichnis" en="Menu Directory" fr="Annuaire Menu" it="Menu Directory"/>
+				<menu_directories base="Menu Directories" de="Menu Verzeichnisse" en="Menu Directories" fr="Annuaires du menu" it="Elenchi di menu"/>
+				<label base="Label" de="Etikett" en="Label" fr="Étiquette" it="Etichetta"/>
+				<tags base="Tags" de="Schlagwörter" en="Tags" fr="Mots clés" it="Tag"/>
+				<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
+		</menu>
+		<menu_page ext="py" path="model/menu_page.py">
+			<menu_page base="Menu Page" de="Menü Seite" en="Menu Page" fr="Menu Page" it="Menu Pagina"/>
+				<menu_pages base="Menu Pages" de="Menu Seiten" en="Menu Pages" fr="Pages de Menu" it="Pagine del menu"/>
+				<label base="Label" de="Etikett" en="Label" fr="Étiquette" it="Etichetta"/>
+				<filepath base="Filepath" de="Dateipfad" en="Filepath" fr="Chemin Du Fichier" it="Filepath"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<metadata base="Metadata" de="Metadata" en="Metadata" fr="Métadonnées" it="Metadata"/>
+		</menu_page>
+		<notification ext="py" path="model/notification.py">
+			<notification base="Notification" de="Benachrichtigung" en="Notification" fr="Notification" it="Notifica"/>
+				<notifications base="Notifications" de="Benachrichtigungen" en="Notifications" fr="Notifications" it="Notifiche"/>
+				<title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
+				<template base="Template" de="Schablone" en="Template" fr="Modèle" it="Sagoma"/>
+				<confirm_label base="Confirm label" de="Label bestätigen" en="Confirm label" fr="Confirmez étiquette" it="Confermare l'etichetta"/>
+				<tag_rule base="Tag rule" de="Tag-Regel" en="Tag rule" fr="règle de Tag" it="Regola Tag"/>
+				<for_all_users base="For all users" de="Für alle Benutzer" en="For all users" fr="Pour tous les utilisateurs" it="Per tutti gli utenti"/>
+				<letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
+		</notification>
+		<permission ext="py" path="model/permission.py">
+			<permission base="Permission" de="Genehmigung" en="Permission" fr="Autorisation" it="Autorizzazione"/>
+				<permissions base="Permissions" de="Berechtigungen" en="Permissions" fr="Autorisations" it="Permessi"/>
+				<tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
+				<view_read base="View Read" de="Anzeigen lesen" en="View Read" fr="Lire" it="Visualizza Leggi"/>
+				<view_add base="View Add" de="Zum Produkt" en="View Add" fr="Voir Ajouter" it="Blog"/>
+				<view_del base="View Del" de="Ansicht Del" en="View Del" fr="Voir Del" it="Vista Del"/>
+				<form_read base="Form Read" de="Form lesen" en="Form Read" fr="Formulaire Lire" it="Modulo Leggi"/>
+				<form_add base="Form Add" de="Formular hinzufügen" en="Form Add" fr="Ajouter formulaire" it="Aggiungi modulo"/>
+				<form_del base="Form Del" de="Form Del" en="Form Del" fr="Formulaire Del" it="Modulo Del"/>
+				<form_update base="Form Update" de="Aktualisierung" en="Form Update" fr="Mise à jour du formulaire" it="Modulo di Aggiornamento"/>
+				<column_read base="Column Read" de="Spalte lesen" en="Column Read" fr="Colonne Lire" it="Colonna Leggi"/>
+				<column_update base="Column Update" de="Spalte aktualisieren" en="Column Update" fr="Mise à jour de la colonne" it="Colonna Aggiornamento"/>
+		</permission>
+		<preference ext="py" path="model/preference.py">
+			<preference base="Preference" de="Vorliebe" en="Preference" fr="Préférence" it="Preferenza"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+		</preference>
+		<record_tag ext="py" path="model/record_tag.py">
+			<table_tag base="Table tag" de="Table-Tag" en="Table tag" fr="Tableau tag" it="Tag Table"/>
+				<table_tags base="Table tags" de="Tabellen-Tags" en="Table tags" fr="Tableau balises" it="Tag table"/>
+				<table_name base="Table name" de="Tabellennamen" en="Table name" fr="Nom de la table" it="Nome tabella"/>
+				<tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+		</record_tag>
+		<sent_email ext="py" path="model/sent_email.py">
+			<sent_email base="Sent email" de="E-Mail versenden" en="Sent email" fr="Email envoyé" it="E-mail inviata"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<email_address base="Email address" de="E-Mail-Adresse" en="Email address" fr="Adresse e-mail" it="Indirizzo e-mail"/>
+				<sent_ts base="Sent ts" de="Gesendete ts" en="Sent ts" fr="Ts envoyés" it="Ts Sent"/>
+		</sent_email>
+		<served_page ext="py" path="model/served_page.py">
+			<served_page base="Served page" de="Serviert Seite" en="Served page" fr="Page servie" it="Pagina Servito"/>
+				<served_pages base="Served pages" de="Serviert Seiten" en="Served pages" fr="Pages desservis" it="Pagine servite"/>
+				<page_id base="Page id" de="Seiten-ID" en="Page id" fr="Id page" it="Pagina id"/>
+				<page_name base="Page name" de="Seitenname" en="Page name" fr="Nom de la page" it="Nome pagina"/>
+				<start_ts base="Start ts" de="Starten ts" en="Start ts" fr="Lancer ts" it="Inizia ts"/>
+				<end_reason base="End Reason" de="End Reason" en="End Reason" fr="Fin Raison" it="End Ragione"/>
+		</served_page>
+		<tag ext="py" path="model/tag.py">
+			<tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
+				<tagname base="Tagname" de="Tagname" en="Tagname" fr="Tagname" it="Codice di autorizzazione"/>
+				<reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+		</tag>
+		<user ext="py" path="model/user.py">
+			<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+				<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				<mandatory_field base="Mandatory field" de="Pflichtfeld" en="Mandatory field" fr="Champ obligatoire" it="Campo obbligatorio"/>
+				<first_name base="First name" de="Vorname" en="First name" fr="Prénom" it="Nome"/>
+				<last_name base="Last name" de="Nachname" en="Last name" fr="Nom de famille" it="Cognome"/>
+				<registration_date base="Registration Date" de="Dabei seit" en="Registration Date" fr="Date d'inscription" it="Data di registrazione"/>
+				<authorization_tags base="Authorization Tags" de="Authorization Stichworte" en="Authorization Tags" fr="Autorisation Balises" it="Codici di autorizzazione"/>
+				<status base="Status" de="Status" en="Status" fr="Statut" it="Stato"/>
+				<new_new_wait_waiting_conf_confirmed_banned_banned base="new:New,wait:Waiting,conf:Confirmed,banned:Banned" de="neu: New Warten: Warten, conf: Bestätigt, verboten: Banned" en="new:New,wait:Waiting,conf:Confirmed,banned:Banned" fr="nouveau: Nouveau, attendez: attente, conf: Confirmé, interdit: Banned" it="nuova: New, aspetta: Attesa, conf: Confermato, vietato: Banned"/>
+				<passwordmd5 base="PasswordMD5" de="PasswordMD5" en="PasswordMD5" fr="PASSWORDMD5" it="PasswordMD5"/>
+				<default_language base="Default Language" de="Standardsprache" en="Default Language" fr="Langue par défaut" it="Lingua di default"/>
+				<preferences base="Preferences" de="Einstellungen" en="Preferences" fr="Préférences" it="Preferenze"/>
+				<root_page base="Root Page" de="Root-Seite" en="Root Page" fr="Page racine" it="Root Pagina"/>
+				<sms_login base="Sms login" de="Sms Login" en="Sms login" fr="Sms connexion" it="Sms login"/>
+				<sms_number base="Sms Number" de="SMS-Nummer" en="Sms Number" fr="Nombre de Sms" it="Numero Sms"/>
+				<group base="Group" de="Gruppe" en="Group" fr="Groupe" it="Gruppo"/>
+				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+		</user>
+		<user_access_group ext="py" path="model/user_access_group.py">
+			<user_access base="User access" de="Benutzerzugang" en="User access" fr="l'accès de l'utilisateur" it="Accesso utente"/>
+				<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+				<access_group base="Access group" de="Zugriffsgruppe" en="Access group" fr="groupe Accès" it="Gruppo Accesso"/>
+		</user_access_group>
+		<user_notification ext="py" path="model/user_notification.py">
+			<user_notifications base="User notifications" de="Benutzerbenachrichtigungen" en="User notifications" fr="notifications de l'utilisateur" it="Notifiche utente"/>
+				<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+				<confirmed base="Confirmed" de="Bestätigt" en="Confirmed" fr="Confirmé" it="Confermato"/>
+		</user_notification>
+		<user_tag ext="py" path="model/user_tag.py">
+			<user_tag base="User tag" de="Benutzer Tag-" en="User tag" fr="tag de l'utilisateur" it="Tag utente"/>
+				<user_tags base="User tags" de="Nutzer-Tags" en="User tags" fr="Tags d'utilisateurs" it="Tags utenti"/>
+		</user_tag>
+		<userobject ext="py" path="model/userobject.py">
+			<user_object base="User Object" de="User Object" en="User Object" fr="Objet de l'utilisateur" it="Oggetto utente"/>
+				<user_objects base="User Objects" de="Benutzerobjekte" en="User Objects" fr="Objets de l'utilisateur" it="Oggetti utente"/>
+				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<object_type base="Object Type" de="Objekttyp" en="Object Type" fr="Type d'objet" it="Tipo di oggetto"/>
+				<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+				<table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
+				<user_id base="User ID" de="Benutzer-ID" en="User ID" fr="ID de l'utilisateur" it="ID utente"/>
+				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
+				<data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<auth_tags base="Auth tags" de="Auth-Tags" en="Auth tags" fr="balises Auth" it="Tag Auth"/>
+				<private base="Private" de="Privat" en="Private" fr="Privé" it="Privato"/>
+				<quicklist base="Quicklist" de="Quicklist" en="Quicklist" fr="Quicklist" it="QuickList"/>
+				<flags base="Flags" de="Flags" en="Flags" fr="Drapeaux" it="Bandiere"/>
+		</userobject>
+	</model>
 
-	<model_audit_py>
-		<audit base="Audit"/>
-		<table_name base="Table name"/>
-		<change_type base="Change type"/>
-		<user base="User" it="Utente"/>
-		<record_pkey base="Record Pkey"/>
-		<version base="Version"/>
-		<data base="Data"/>
-		<transaction_id base="Transaction id"/>
-	</model_audit_py>
+	<resources>
+		<frameindex ext="py" path="resources/frameindex.py">
+			<invalid_login base="Invalid login" de="Ungültige Anmelde" en="Invalid login" fr="Identifiant incorrect" it="Login non valido"/>
+				<login base="Login" de="Login" en="Login" fr="Login" it="Entra"/>
+				<new_window base="New Window" de="Neues Fenster" en="New Window" fr="Nouvelle fenêtre" it="Nuova finestra"/>
+				<invalid_access base="Invalid Access" de="Ungültige Zugang" en="Invalid Access" fr="Accès non valide" it="Accesso non valido"/>
+				<screenlock base="Screenlock" de="Screenlock" en="Screenlock" fr="Verrouillage D'Écran" it="Screenlock"/>
+				<insert_password base="Insert password" de="Legen Sie das Kennwort" en="Insert password" fr="Insérez le mot de passe" it="Inserire la password"/>
+				<password base="Password" de="Passwort" en="Password" fr="Mot de passe" it="Password"/>
+				<enter base="Enter" de="Eingeben" en="Enter" fr="Entrer" it="Entrare"/>
+				<wrong_password base="Wrong password" de="Falsches Passwort" en="Wrong password" fr="Mauvais mot de passe" it="Password errata"/>
+				<add_to_favorites base="Add to favorites" de="Zu den Favoriten hinzufügen" en="Add to favorites" fr="Ajouter aux Favoris" it="Aggiungi ai preferiti"/>
+				<set_as_start_page base="Set as start page" de="Als Startseite festlegen" en="Set as start page" fr="Définir comme page de démarrage" it="Imposta come pagina iniziale"/>
+				<remove_from_favorites base="Remove from favorites" de="Aus den Favoriten entfernen" en="Remove from favorites" fr="Retirer des favoris" it="Rimuovi dai Preferiti"/>
+				<clear_favorites base="Clear favorites" de="Klar Favoriten" en="Clear favorites" fr="Effacer les favoris" it="Cancella preferiti"/>
+				<reload base="Reload" de="Nachladen" en="Reload" fr="Recharger" it="Ricaricare"/>
+				<connected_to_ base="Connected to:" de="Verbunden mit:" en="Connected to:" fr="Connecté à:" it="Collegato a:"/>
+				<_s_preference base="%s preference" de="% S Präferenz" en="%s preference" fr="% De la préférence" it="% S preferenza"/>
+				<logout base="Logout" de="Logout" en="Logout" fr="Se Déconnecter" it="Uscire"/>
+				<lock_screen base="Lock screen" de="Bildschirm sperren" en="Lock screen" fr="Écran verrouillé" it="Blocca schermo"/>
+				<errors_ base="Errors:" de="Fehler:" en="Errors:" fr="Erreurs:" it="Errori:"/>
+				<open_the_page_outside_frame base="Open the page outside frame" de="Öffnen Sie die Seite Außenrahmen" en="Open the page outside frame" fr="Ouvrez le cadre extérieur de la page" it="Aprire la pagina telaio esterno"/>
+				<open_documentation base="Open documentation" de="Öffnen Dokumentation" en="Open documentation" fr="Ouvrir la documentation" it="Documentazione Aperto"/>
+				<application_preference base="Application preference" de="Anwendungseinstellung" en="Application preference" fr="Préférence d'application" it="Secondo l'applicazione"/>
+				<user_preference base="User preference" de="Benutzereinstellungen" en="User preference" fr="la préférence de l'utilisateur" it="Preferenza per l'uso"/>
+				<show_hide_the_left_pane base="Show/Hide the left pane" de="Show / Hide linken Bereich" en="Show/Hide the left pane" fr="Afficher / Masquer le volet de gauche" it="Mostra / Nascondi riquadro di sinistra"/>
+				<refresh_the_current_page base="Refresh the current page" de="Aktualisiere die aktuelle Seite" en="Refresh the current page" fr="Rafraîchir la page actuelle" it="Aggiorna la pagina corrente"/>
+				<close_the_current_page base="Close the current page" de="Schließen Sie die aktuelle Seite" en="Close the current page" fr="Fermez la page en cours" it="Chiudere la pagina corrente"/>
+				<lost_password base="Lost password" de="Passwort vergessen?" en="Lost password" fr="Mot de passe oublié" it="Password dimenticata"/>
+				<email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
+				<recover base="Recover" de="Gewinnen" en="Recover" fr="Récupérer" it="Recuperare"/>
+				<missing_user_for_this_email base="Missing user for this email" de="Fehlende Benutzer für diese E-Mail-" en="Missing user for this email" fr="Utilisateur manquantes pour cet e-mail" it="Utente mancante per questa e-mail"/>
+				<check_your_email_for_instruction base="Check your email for instruction" de="Überprüfen Sie Ihre E-Mail für den Unterricht" en="Check your email for instruction" fr="Vérifiez votre email pour l'enseignement" it="Controlla la tua e-mail per l'istruzione"/>
+				<new_password base="New Password" de="Neues Passwort" en="New Password" fr="Nouveau Mot De Passe" it="Nuova password"/>
+				<confirm_new_password base="Confirm New Password" de="Neues Passwort bestätigen" en="Confirm New Password" fr="Confirmer le nouveau mot de passe" it="Confermare Nuova Password"/>
+				<passwords_must_be_equal base="Passwords must be equal" de="Passwörter müssen gleich sein" en="Passwords must be equal" fr="Les mots de passe doivent être égaux" it="Le password devono essere uguali"/>
+				<send base="Send" de="Senden" en="Send" fr="Envoyer" it="Inviare"/>
+				<confirm_user base="Confirm User" de="Benutzer bestätigen" en="Confirm User" fr="Confirmez utilisateur" it="Conferma utente"/>
+				<send_email base="Send Email" de="E-Mail senden" en="Send Email" fr="Envoyer un email" it="Invia Una Email"/>
+				<missing_email base="Missing email" de="Fehlende E-Mail-" en="Missing email" fr="Email manquant" it="Email mancante"/>
+				<new_user base="New User" de="Neuer Benutzer" en="New User" fr="Nouvel Utilisateur" it="Registrazione nuovo utente"/>
+				<first_name base="First name" de="Vorname" en="First name" fr="Prénom" it="Nome"/>
+				<last_name base="Last name" de="Nachname" en="Last name" fr="Nom de famille" it="Cognome"/>
+				<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				<missing_data base="Missing data" de="Fehlende Daten" en="Missing data" fr="Données manquantes" it="Dati mancanti"/>
+				<workdate base="Workdate" de="Workdate" en="Workdate" fr="Workdate" it="DataLavoro"/>
+		</frameindex>
+		<frameplugin_menu>
+			<frameplugin_menu ext="py" path="resources/frameplugin_menu/frameplugin_menu.py">
+				<menu base="Menu" de="Menü" en="Menu" fr="Menu" it="Menu"/>
+			</frameplugin_menu>
+		</frameplugin_menu>
+		<login_component ext="py" path="resources/login_component.py">
+			<login base="Login" de="Login" en="Login" fr="Login" it="Entra"/>
+				<user_unknown_or_wrong_password base="User unknown or wrong password" de="User unknown oder falsches Passwort" en="User unknown or wrong password" fr="Mot de passe utilisateur inconnu ou mauvais" it="Utente o password errati"/>
+		</login_component>
+		<preference ext="py" path="resources/preference.py">
+			<general base="General" de="General" en="General" fr="Général" it="Generale"/>
+				<instance_data base="Instance data" de="Instanzdaten" en="Instance data" fr="Les données d'instance" it="Dati di istanza"/>
+				<mail_options base="Mail options" de="Mail-Optionen" en="Mail options" fr="Options de messagerie" it="Opzioni di posta"/>
+				<backups base="Backups" de="Backups" en="Backups" fr="Sauvegardes" it="Backup"/>
+				<screenlock_timeout_minutes_ base="Screenlock timeout (minutes)" de="Screenlock Timeout (Minuten)" en="Screenlock timeout (minutes)" fr="ScreenLock timeout (minutes)" it="Screenlock timeout (minuti)"/>
+				<authentication_messages base="Authentication messages" de="Authentifizierungsnachrichten" en="Authentication messages" fr="messages d'authentification" it="Messaggi di autenticazione"/>
+				<confirm_user_template base="Confirm user template" de="Bestätigen Benutzervorlage" en="Confirm user template" fr="Confirmez modèle utilisateur" it="Confermare modello utente"/>
+				<confirm_new_password_template base="Confirm new password template" de="Neues Passwort bestätigen Vorlage" en="Confirm new password template" fr="Confirmer le nouveau modèle de mot de passe" it="Confermare nuovo modello la password"/>
+				<subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Soggetto"/>
+				<lost_password base="Lost password" de="Passwort vergessen?" en="Lost password" fr="Mot de passe oublié" it="Password dimenticata"/>
+				<owner_name base="Owner name" de="Besitzer der Datei" en="Owner name" fr="Le nom du propriétaire" it="Nome del proprietario"/>
+				<general_options base="General options" de="Allgemeine Optionen" en="General options" fr="Options générales" it="Opzioni generali"/>
+		</preference>
+		<tables>
+			<authorization>
+				<th_authorization ext="py" path="resources/tables/authorization/th_authorization.py">
+					<note base="Note" de="Note" en="Note" fr="Note" it="Note"/>
+				</th_authorization>
+			</authorization>
+				<backup>
+				<action>
+					<dumpall ext="py" path="resources/tables/backup/action/dumpall.py">
+						<backup_name base="Backup name" de="Backup-Namen" en="Backup name" fr="Nom de la sauvegarde" it="Nome backup"/>
+					</dumpall>
+				</action>
+			</backup>
+				<counter>
+				<action>
+					<initialize ext="py" path="resources/tables/counter/action/initialize.py">
+						<initialize_counter base="Initialize counter" de="Initialisieren Gegen" en="Initialize counter" fr="Initialisation compteur" it="Inizializza contatore"/>
+										<package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
+										<tables base="Tables" de="Tische" en="Tables" fr="Tableaux" it="Tabelle"/>
+					</initialize>
+				</action>
+						<th_counter ext="py" path="resources/tables/counter/th_counter.py">
+					<all base="All" de="Alle" en="All" fr="Tous" it="Tutto"/>
+								<ok base="Ok" de="Ok" en="Ok" fr="Bien" it="Ok"/>
+								<holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
+								<duplicates base="Duplicates" de="Duplikate" en="Duplicates" fr="Doublons" it="Duplicati"/>
+								<wrong_order base="Wrong order" de="Falschen Reihenfolge" en="Wrong order" fr="Mauvais ordre" it="Ordine sbagliato"/>
+				</th_counter>
+			</counter>
+				<doctemplate>
+				<th_doctemplate ext="py" path="resources/tables/doctemplate/th_doctemplate.py">
+					<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+								<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+								<version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
+				</th_doctemplate>
+			</doctemplate>
+				<htmltemplate>
+				<th_htmltemplate ext="py" path="resources/tables/htmltemplate/th_htmltemplate.py">
+					<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+								<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+								<version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
+								<info base="Info" de="Info" en="Info" fr="Infos" it="Info"/>
+								<page_sizing base="Page sizing" de="Seite Sizing" en="Page sizing" fr="Page dimensionnement" it="Pagina dimensionamento"/>
+								<height base="Height" de="Höhe" en="Height" fr="Hauteur" it="Altezza"/>
+								<width base="Width" de="Breite" en="Width" fr="Largeur" it="Larghezza"/>
+								<top base="Top" de="Top" en="Top" fr="Haut" it="Top"/>
+								<bottom base="Bottom" de="Boden" en="Bottom" fr="Bas" it="Fondo"/>
+								<left base="Left" de="Links" en="Left" fr="Gauche" it="Sinistra"/>
+								<right base="Right" de="Recht" en="Right" fr="Droite" it="Destra"/>
+								<_s_height base="%s height" de="% S Höhe" en="%s height" fr="La hauteur% de" it="Altezza% s"/>
+								<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
+								<center_height base="Center height" de="Spitzenhöhe" en="Center height" fr="Hauteur de pointes" it="Altezza di punte"/>
+								<center_width base="Center width" de="Spitzenweite" en="Center width" fr="La largeur centrale" it="Larghezza Centro"/>
+								<_s_width base="%s width" de="% S Breite" en="%s width" fr="% De la largeur" it="Width% s"/>
+				</th_htmltemplate>
+			</htmltemplate>
+				<notification>
+				<th_notification ext="py" path="resources/tables/notification/th_notification.py">
+					<template base="Template" de="Schablone" en="Template" fr="Modèle" it="Sagoma"/>
+								<users base="Users" de="Benutzer" en="Users" fr="Utilisateurs" it="Utenti"/>
+				</th_notification>
+			</notification>
+				<permission>
+				<th_permission ext="py" path="resources/tables/permission/th_permission.py">
+					<tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
+				</th_permission>
+			</permission>
+				<user>
+				<th_user ext="py" path="resources/tables/user/th_user.py">
+					<login_data base="Login Data" de="Login-Daten" en="Login Data" fr="Connexion données" it="Accesso dati"/>
+								<firstname base="Firstname" de="Vorname" en="Firstname" fr="Prénom" it="Nome"/>
+								<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+								<existing base="Existing" de="Vorhanden" en="Existing" fr="Existant" it="Esistente"/>
+								<lastname base="Lastname" de="Nachname" en="Lastname" fr="Nom De Famille" it="Cognome"/>
+								<required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
+								<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="conf: Bestätigt, warten: Waiting" en="conf:Confirmed,wait:Waiting" fr="conf: Confirmé, attendez: Waiting" it="conf: Confermato, attendere: Attesa"/>
+								<email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
+				</th_user>
+			</user>
+				<user_notification>
+				<th_user_notification ext="py" path="resources/tables/user_notification/th_user_notification.py">
+					<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				</th_user_notification>
+			</user_notification>
+				<userobject>
+				<th_userobject ext="py" path="resources/tables/userobject/th_userobject.py">
+					<data_type base="Data type" de="Datentyp" en="Data type" fr="Type de données" it="Tipo di dati"/>
+								<field base="Field" de="Bereich" en="Field" fr="Terrain" it="Campo"/>
+								<group base="Group" de="Gruppe" en="Group" fr="Groupe" it="Gruppo"/>
+								<new_custom_column base="New custom column" de="Neue benutzerdefinierte Spalte" en="New custom column" fr="Nouvelle colonne personnalisé" it="Nuova colonna personalizzata"/>
+				</th_userobject>
+			</userobject>
+		</tables>
+	</resources>
 
-	<model_authorization_py>
-		<authorization base="Authorization"/>
-		<authorizations base="Authorizations" de="" en="" fr=""/>
-		<code base="Code" de="" en="" fr=""/>
-		<user_id base="User id"/>
-		<used_datetime base="Used datetime"/>
-		<used_by base="Used by"/>
-		<note base="Note"/>
-		<use_scope base="Use Scope"/>
-		<remaining_usages base="Remaining usages"/>
-		<expire_date base="Expire Date"/>
-	</model_authorization_py>
-
-	<model_backup_py>
-		<backup base="Backup"/>
-		<backups base="Backups"/>
-		<name base="Name" de="" en="" fr=""/>
-		<backup_start_ts base="Backup start ts"/>
-		<backup_end_ts base="Backup end ts"/>
-	</model_backup_py>
-
-	<model_ckstyle_py>
-		<ckeditor_styles base="Ckeditor styles"/>
-		<name base="Name" de="" en="" fr=""/>
-		<dom_element base="Dom element"/>
-		<styles base="Styles"/>
-		<attributes base="Attributes"/>
-		<group base="Group"/>
-	</model_ckstyle_py>
-
-	<model_connection_py>
-		<connection base="Connection"/>
-		<connections base="Connections" de="" en="" fr=""/>
-		<connection_id base="Connection id"/>
-		<userid base="Userid"/>
-		<username base="Username" it="Nome utente"/>
-		<ip_number base="Ip number"/>
-		<start_ts base="Start TS"/>
-		<end_reason base="End reason"/>
-		<user_agent base="User agent"/>
-		<user_fullname base="User fullname"/>
-	</model_connection_py>
-
-	<model_counter_py>
-		<counter base="Counter"/>
-		<codekey base="Codekey"/>
-		<code base="Code" de="" en="" fr=""/>
-		<package base="Package"/>
-		<table base="Table"/>
-		<counter_field base="Counter Field"/>
-		<period base="Period"/>
-		<last_used base="Last used"/>
-		<holes base="Holes"/>
-		<errors base="Errors"/>
-		<missing_s_mandatory_for_counter_s base="Missing %s. Mandatory for counter %s"/>
-		<missing_date_s_for_counter_s base="Missing date %s for counter %s"/>
-		<incompatible_date_assigning_fieldname_s_counter base="Incompatible date assigning %(fieldname)s counter"/>
-	</model_counter_py>
-
-	<model_datacatalog_py>
-		<model_catalog base="Model catalog"/>
-		<dc_elements base="DC Elements"/>
-		<code base="Code" de="" en="" fr=""/>
-		<description base="Description" de="" en="" fr=""/>
-		<type base="Type"/>
-		<dtype base="Dtype"/>
-		<name_long base="Name long"/>
-		<name_short base="Name short"/>
-		<format base="Format"/>
-		<options base="Options"/>
-		<max base="Max"/>
-		<min base="Min"/>
-		<default base="Default"/>
-		<tip base="Tip"/>
-		<purpose base="Purpose"/>
-		<external_referenece base="External referenece"/>
-		<related_to base="Related to"/>
-		<package base="Package"/>
-		<pkey_field base="Pkey field"/>
-		<size base="Size"/>
-		<table base="Table"/>
-		<field base="Field"/>
-		<comment base="Comment"/>
-		<name_full base="Name full"/>
-		<datacatalog_path base="Datacatalog path"/>
-		<db_key base="Db Key"/>
-	</model_datacatalog_py>
-
-	<model_group_py>
-		<groups base="Groups"/>
-		<code base="Code" de="" en="" fr=""/>
-		<description base="Description" de="" en="" fr=""/>
-	</model_group_py>
-
-	<model_htag_py>
-		<tag base="Tag"/>
-		<new_tag base="New tag"/>
-		<code base="Code" de="" en="" fr=""/>
-		<description base="Description" de="" en="" fr=""/>
-		<reserved base="Reserved"/>
-		<notes base="Notes"/>
-	</model_htag_py>
-
-	<model_htmltemplate_py>
-		<letterhead base="Letterhead"/>
-		<letterheads base="Letterheads"/>
-		<name base="Name" de="" en="" fr=""/>
-		<username base="Username" it="Nome utente"/>
-		<version base="Version"/>
-		<data base="Data"/>
-		<center_height base="Center height"/>
-		<center_width base="Center width"/>
-		<based_on base="Based on"/>
-		<next_letterhead base="Next letterhead"/>
-	</model_htmltemplate_py>
-
-	<model_language_py>
-		<languages base="Languages"/>
-		<code base="Code" de="" en="" fr=""/>
-		<name base="Name" de="" en="" fr=""/>
-	</model_language_py>
-
-	<model_letterhead_type_py>
-		<code base="Code" de="" en="" fr=""/>
-		<description base="Description" de="" en="" fr=""/>
-	</model_letterhead_type_py>
-
-	<model_menu_py>
-		<menu_directory base="Menu Directory"/>
-		<menu_directories base="Menu Directories"/>
-		<label base="Label"/>
-		<tags base="Tags"/>
-		<summary base="Summary"/>
-	</model_menu_py>
-
-	<model_menu_page_py>
-		<menu_page base="Menu Page"/>
-		<menu_pages base="Menu Pages"/>
-		<label base="Label"/>
-		<filepath base="Filepath"/>
-		<table base="Table"/>
-		<package base="Package"/>
-		<metadata base="Metadata"/>
-	</model_menu_page_py>
-
-	<model_notification_py>
-		<notification base="Notification"/>
-		<notifications base="Notifications"/>
-		<title base="Title"/>
-		<template base="Template"/>
-		<confirm_label base="Confirm label"/>
-		<tag_rule base="Tag rule"/>
-		<for_all_users base="For all users"/>
-		<letterhead base="Letterhead"/>
-	</model_notification_py>
-
-	<model_permission_py>
-		<permission base="Permission"/>
-		<permissions base="Permissions" de="" en="" fr=""/>
-		<tag base="Tag"/>
-		<view_read base="View Read"/>
-		<view_add base="View Add"/>
-		<view_del base="View Del"/>
-		<form_read base="Form Read"/>
-		<form_add base="Form Add"/>
-		<form_del base="Form Del"/>
-		<form_update base="Form Update"/>
-		<column_read base="Column Read"/>
-		<column_update base="Column Update"/>
-	</model_permission_py>
-
-	<model_preference_py>
-		<preference base="Preference"/>
-		<code base="Code" de="" en="" fr=""/>
-		<data base="Data"/>
-	</model_preference_py>
-
-	<model_record_tag_py>
-		<table_tag base="Table tag"/>
-		<table_tags base="Table tags"/>
-		<table_name base="Table name"/>
-		<tag base="Tag"/>
-		<description base="Description" de="" en="" fr=""/>
-	</model_record_tag_py>
-
-	<model_sent_email_py>
-		<sent_email base="Sent email"/>
-		<code base="Code" de="" en="" fr=""/>
-		<table base="Table"/>
-		<email_address base="Email address"/>
-		<sent_ts base="Sent ts"/>
-	</model_sent_email_py>
-
-	<model_served_page_py>
-		<served_page base="Served page"/>
-		<served_pages base="Served pages"/>
-		<page_id base="Page id"/>
-		<page_name base="Page name"/>
-		<start_ts base="Start ts"/>
-		<end_reason base="End Reason"/>
-	</model_served_page_py>
-
-	<model_tag_py>
-		<tag base="Tag"/>
-		<tagname base="Tagname" de="" en="" fr="" it="Codice di autorizzazione"/>
-		<reserved base="Reserved"/>
-		<description base="Description" de="" en="" fr=""/>
-	</model_tag_py>
-
-	<model_user_py>
-		<user base="User" it="Utente"/>
-		<username base="Username" it="Nome utente"/>
-		<mandatory_field base="Mandatory field" de="" en="" fr=""/>
-		<first_name base="First name" de="" en="" fr="" it="Nome"/>
-		<last_name base="Last name" de="" en="" fr="" it="Cognome"/>
-		<registration_date base="Registration Date" it="Data di registrazione"/>
-		<authorization_tags base="Authorization Tags" it="Codici di autorizzazione"/>
-		<status base="Status" it="Stato"/>
-		<new_new_wait_waiting_conf_confirmed_banned_banned base="new:New,wait:Waiting,conf:Confirmed,banned:Banned"/>
-		<passwordmd5 base="PasswordMD5" de="" en="" fr=""/>
-		<default_language base="Default Language" de="" en="" fr=""/>
-		<preferences base="Preferences" de="" en="" fr=""/>
-		<root_page base="Root Page" de="" en="" fr=""/>
-		<sms_login base="Sms login"/>
-		<sms_number base="Sms Number"/>
-		<group base="Group"/>
-		<name base="Name" de="" en="" fr=""/>
-	</model_user_py>
-
-	<model_user_access_group_py>
-		<user_access base="User access"/>
-		<user base="User" it="Utente"/>
-		<access_group base="Access group"/>
-	</model_user_access_group_py>
-
-	<model_user_notification_py>
-		<user_notifications base="User notifications"/>
-		<user base="User" it="Utente"/>
-		<confirmed base="Confirmed" it="Confermato"/>
-	</model_user_notification_py>
-
-	<model_user_tag_py>
-		<user_tag base="User tag"/>
-		<user_tags base="User tags" de="" en="" fr=""/>
-	</model_user_tag_py>
-
-	<model_userobject_py>
-		<user_object base="User Object"/>
-		<user_objects base="User Objects"/>
-		<code base="Code" de="" en="" fr=""/>
-		<object_type base="Object Type"/>
-		<package base="Package"/>
-		<table base="Table"/>
-		<user_id base="User ID"/>
-		<description base="Description" de="" en="" fr=""/>
-		<notes base="Notes"/>
-		<data base="Data"/>
-		<auth_tags base="Auth tags"/>
-		<private base="Private" de="" en="" fr=""/>
-		<quicklist base="Quicklist" de="" en="" fr=""/>
-		<flags base="Flags"/>
-	</model_userobject_py>
-
-	<resources_frameindex_js>
-		<closing_ base="Closing "/>
-		<there_is_a_pending_operation_in_this_tab base="There is a pending operation in this tab"/>
-		<close_anyway base="Close anyway"/>
-		<cancel base="Cancel" it="Annulla"/>
-		<documentation base="Documentation"/>
-	</resources_frameindex_js>
-
-	<resources_frameindex_py>
-		<invalid_login base="Invalid login"/>
-		<login base="Login" it="Entra"/>
-		<new_window base="New Window"/>
-		<invalid_access base="Invalid Access"/>
-		<screenlock base="Screenlock"/>
-		<insert_password base="Insert password"/>
-		<password base="Password"/>
-		<enter base="Enter"/>
-		<wrong_password base="Wrong password"/>
-		<add_to_favorites base="Add to favorites"/>
-		<set_as_start_page base="Set as start page"/>
-		<remove_from_favorites base="Remove from favorites"/>
-		<clear_favorites base="Clear favorites"/>
-		<reload base="Reload"/>
-		<connected_to_ base="Connected to:"/>
-		<_s_preference base="%s preference"/>
-		<logout base="Logout" de="" en="" fr=""/>
-		<lock_screen base="Lock screen"/>
-		<errors_ base="Errors:"/>
-		<open_the_page_outside_frame base="Open the page outside frame"/>
-		<open_documentation base="Open documentation"/>
-		<application_preference base="Application preference"/>
-		<user_preference base="User preference"/>
-		<show_hide_the_left_pane base="Show/Hide the left pane"/>
-		<refresh_the_current_page base="Refresh the current page"/>
-		<close_the_current_page base="Close the current page"/>
-		<lost_password base="Lost password"/>
-		<email base="Email" de="" en="" fr=""/>
-		<recover base="Recover"/>
-		<missing_user_for_this_email base="Missing user for this email"/>
-		<check_your_email_for_instruction base="Check your email for instruction"/>
-		<new_password base="New Password" it="Nuova password"/>
-		<confirm_new_password base="Confirm New Password"/>
-		<passwords_must_be_equal base="Passwords must be equal"/>
-		<send base="Send"/>
-		<confirm_user base="Confirm User"/>
-		<send_email base="Send Email"/>
-		<missing_email base="Missing email"/>
-		<new_user base="New User" it="Registrazione nuovo utente"/>
-		<first_name base="First name" de="" en="" fr="" it="Nome"/>
-		<last_name base="Last name" de="" en="" fr="" it="Cognome"/>
-		<username base="Username" it="Nome utente"/>
-		<missing_data base="Missing data"/>
-		<workdate base="Workdate"/>
-	</resources_frameindex_py>
-
-	<resources_frameplugin_menu_frameplugin_menu_py>
-		<menu base="Menu"/>
-	</resources_frameplugin_menu_frameplugin_menu_py>
-
-	<resources_login_component_py>
-		<login base="Login" it="Entra"/>
-		<user_unknown_or_wrong_password base="User unknown or wrong password" it="Utente o password errati"/>
-	</resources_login_component_py>
-
-	<resources_preference_py>
-		<general base="General"/>
-		<instance_data base="Instance data"/>
-		<mail_options base="Mail options"/>
-		<backups base="Backups"/>
-		<screenlock_timeout_minutes_ base="Screenlock timeout (minutes)"/>
-		<authentication_messages base="Authentication messages"/>
-		<confirm_user_template base="Confirm user template"/>
-		<confirm_new_password_template base="Confirm new password template"/>
-		<subject base="Subject"/>
-		<lost_password base="Lost password"/>
-		<owner_name base="Owner name"/>
-		<general_options base="General options"/>
-	</resources_preference_py>
-
-	<resources_tables_authorization_th_authorization_py>
-		<note base="Note"/>
-	</resources_tables_authorization_th_authorization_py>
-
-	<resources_tables_backup_action_dumpall_py>
-		<backup_name base="Backup name"/>
-	</resources_tables_backup_action_dumpall_py>
-
-	<resources_tables_counter_action_initialize_py>
-		<initialize_counter base="Initialize counter"/>
-		<package base="Package"/>
-		<tables base="Tables"/>
-	</resources_tables_counter_action_initialize_py>
-
-	<resources_tables_counter_th_counter_py>
-		<all base="All"/>
-		<ok base="Ok"/>
-		<holes base="Holes"/>
-		<duplicates base="Duplicates"/>
-		<wrong_order base="Wrong order"/>
-	</resources_tables_counter_th_counter_py>
-
-	<resources_tables_doctemplate_th_doctemplate_py>
-		<name base="Name" de="" en="" fr=""/>
-		<username base="Username" it="Nome utente"/>
-		<version base="Version"/>
-	</resources_tables_doctemplate_th_doctemplate_py>
-
-	<resources_tables_htmltemplate_th_htmltemplate_py>
-		<name base="Name" de="" en="" fr=""/>
-		<username base="Username" it="Nome utente"/>
-		<version base="Version"/>
-		<info base="Info"/>
-		<page_sizing base="Page sizing"/>
-		<height base="Height"/>
-		<width base="Width"/>
-		<top base="Top"/>
-		<bottom base="Bottom"/>
-		<left base="Left"/>
-		<right base="Right"/>
-		<_s_height base="%s height"/>
-		<_s base="%s"/>
-		<center_height base="Center height"/>
-		<center_width base="Center width"/>
-		<_s_width base="%s width"/>
-	</resources_tables_htmltemplate_th_htmltemplate_py>
-
-	<resources_tables_notification_th_notification_py>
-		<template base="Template"/>
-		<users base="Users"/>
-	</resources_tables_notification_th_notification_py>
-
-	<resources_tables_permission_th_permission_py>
-		<tag base="Tag"/>
-	</resources_tables_permission_th_permission_py>
-
-	<resources_tables_user_th_user_py>
-		<login_data base="Login Data"/>
-		<firstname base="Firstname" de="" en="" fr=""/>
-		<username base="Username" it="Nome utente"/>
-		<existing base="Existing"/>
-		<lastname base="Lastname" de="" en="" fr=""/>
-		<required base="Required" de="" en="" fr=""/>
-		<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="" en="" fr=""/>
-		<email base="Email" de="" en="" fr=""/>
-	</resources_tables_user_th_user_py>
-
-	<resources_tables_user_notification_th_user_notification_py>
-		<username base="Username" it="Nome utente"/>
-	</resources_tables_user_notification_th_user_notification_py>
-
-	<resources_tables_userobject_th_userobject_py>
-		<data_type base="Data type"/>
-		<field base="Field"/>
-		<group base="Group"/>
-		<new_custom_column base="New custom column"/>
-	</resources_tables_userobject_th_userobject_py>
-
-	<webpages_app_preference_py>
-		<preference_panel base="Preference panel"/>
-		<zoom base="Zoom"/>
-		<save base="Save" de="" en="" fr=""/>
-		<cancel base="Cancel" it="Annulla"/>
-	</webpages_app_preference_py>
-
-	<webpages_htag_page_py>
-		<tags_manager base="Tags manager"/>
-		<tags_info base="Tags info"/>
-	</webpages_htag_page_py>
-
-	<webpages_monitor_py>
-		<monitor_panel base="Monitor panel"/>
-	</webpages_monitor_py>
-
-	<webpages_preference_py>
-		<preference_panel base="Preference panel"/>
-		<preference base="Preference"/>
-	</webpages_preference_py>
-
-	<webpages_user_page_py>
-		<user base="User" it="Utente"/>
-		<users base="Users"/>
-		<firstname base="Firstname" de="" en="" fr=""/>
-		<lastname base="Lastname" de="" en="" fr=""/>
-		<username base="Username" it="Nome utente"/>
-		<exists base="Exists"/>
-		<required base="Required" de="" en="" fr=""/>
-		<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="" en="" fr=""/>
-		<startpage base="Startpage"/>
-		<user_start_page base="User start page"/>
-		<email base="Email" de="" en="" fr=""/>
-		<locale base="Locale"/>
-	</webpages_user_page_py>
-
-	<webpages_user_preference_py>
-		<preference_panel base="Preference panel"/>
-		<save base="Save" de="" en="" fr=""/>
-		<cancel base="Cancel" it="Annulla"/>
-	</webpages_user_preference_py>
+	<webpages>
+		<app_preference ext="py" path="webpages/app_preference.py">
+			<preference_panel base="Preference panel" de="Fenster zu" en="Preference panel" fr="panneau de préférence" it="Pannello Preferenze"/>
+				<zoom base="Zoom" de="Zoom" en="Zoom" fr="Zoom" it="Zoom"/>
+				<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+				<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+		</app_preference>
+		<htag_page ext="py" path="webpages/htag_page.py">
+			<tags_manager base="Tags manager" de="Tags Manager" en="Tags manager" fr="Mots gestionnaire" it="Tag Manager"/>
+				<tags_info base="Tags info" de="Tags info" en="Tags info" fr="Mots d'info" it="Tags informazioni"/>
+		</htag_page>
+		<monitor ext="py" path="webpages/monitor.py">
+			<monitor_panel base="Monitor panel" de="Monitorfenster" en="Monitor panel" fr="panneau Moniteur" it="Pannello Monitor"/>
+		</monitor>
+		<preference ext="py" path="webpages/preference.py">
+			<preference_panel base="Preference panel" de="Fenster zu" en="Preference panel" fr="panneau de préférence" it="Pannello Preferenze"/>
+				<preference base="Preference" de="Vorliebe" en="Preference" fr="Préférence" it="Preferenza"/>
+		</preference>
+		<user_page ext="py" path="webpages/user_page.py">
+			<user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
+				<users base="Users" de="Benutzer" en="Users" fr="Utilisateurs" it="Utenti"/>
+				<firstname base="Firstname" de="Vorname" en="Firstname" fr="Prénom" it="Nome"/>
+				<lastname base="Lastname" de="Nachname" en="Lastname" fr="Nom De Famille" it="Cognome"/>
+				<username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
+				<exists base="Exists" de="Vorhanden" en="Exists" fr="Existe" it="Esiste"/>
+				<required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
+				<conf_confirmed_wait_waiting base="conf:Confirmed,wait:Waiting" de="conf: Bestätigt, warten: Waiting" en="conf:Confirmed,wait:Waiting" fr="conf: Confirmé, attendez: Waiting" it="conf: Confermato, attendere: Attesa"/>
+				<startpage base="Startpage" de="Startseite" en="Startpage" fr="Page d'accueil" it="Startpage"/>
+				<user_start_page base="User start page" de="Benutzer Startseite" en="User start page" fr="page de démarrage de l'utilisateur" it="Pagina iniziale User"/>
+				<email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
+				<locale base="Locale" de="Lokal" en="Local" fr="Local" it="Locale"/>
+		</user_page>
+		<user_preference ext="py" path="webpages/user_preference.py">
+			<preference_panel base="Preference panel" de="Fenster zu" en="Preference panel" fr="panneau de préférence" it="Pannello Preferenze"/>
+				<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+				<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+		</user_preference>
+	</webpages>
 </GenRoBag>

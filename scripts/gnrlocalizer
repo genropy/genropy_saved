@@ -21,12 +21,19 @@ if __name__ == '__main__':
                 dest='scan_all',
                 action='store_true',
                 help="Scan also genro source")
+    parser.add_option('-t', '--translate',
+                dest='translations',
+                action='store_true',
+                help="Translate")
                       
     (options, args) = parser.parse_args()
     if  len(args)<1:
         parser.print_help()
     else:
         app = GnrApp(args[0])
+        translations = getattr(options,'translations',None)
+        if translations:
+            app.localizer.translate('en,it,fr,de')
         app.localizer.updateLocalizationFiles(scan_all=getattr(options,'scan_all',None))
 
         

@@ -28,7 +28,6 @@ from gnr.app.gnrconfig import getGenroRoot
 from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
-
 LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")!!({\w*})?(.*?)\1""")
 
 LOCREGEXP_CLS = re.compile(r"""\b_T\(("{3}|'|")(.*?)\1\)""")
@@ -64,13 +63,19 @@ class AppLocalizer(object):
     def __init__(self, application=None):
         self.application = application
         self.genroroot = getGenroRoot()
-        roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs/js','resources/common','resources/mobile')]
-        self.slots = [dict(roots=roots,destFolder=self.genroroot)]
-        print self.application.packages.keys()
+        try: 
+            from goslate import Goslate
+            self.translator = Goslate()
+            self.languages = self.translator.get_languages()
+        except:
+            self.translator = False
+            self.languages = dict(en='English',it='Italian')
+        roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs','resources/common','resources/mobile')]
+        self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core')]
         for p in self.application.packages.values():
-            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder))
+            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,code=p.id))
         if os.path.exists(self.application.customFolder):
-            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder))
+            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,code='customization'))
         self.buildLocalizationDict()
 
     def buildLocalizationDict(self):
@@ -79,6 +84,15 @@ class AppLocalizer(object):
             locbag = self.getLocalizationBag(s['destFolder'])
             if locbag:
                 self.updateLocalizationDict(locbag)
+
+    def translate(self,languages):
+        languages = languages.split(',')
+        for k,v in self.localizationDict.items():
+            for lang in languages:
+                if not v.get(lang):
+                    translated = self.translator.translate(v['base'],lang)
+                    print 'from',v['base'],'to',translated
+                    v[lang] = translated
 
     def getLocalizationBag(self,locfolder):
         destpath = os.path.join(locfolder,'localization.xml')
@@ -102,24 +116,23 @@ class AppLocalizer(object):
                     loc['base'] = key
                     locdict[flatten(key)] = loc
         else:
-            for m in locbag.values():
-                #if not m:
-                #    continue
-                for n in m:
+            def cb(n):
+                if not n.value:
                     loc = dict(n.attr)
                     locdict[n.label] = loc
+            locbag.walk(cb)
         self.localizationDict.update(locdict)    
         
-    def updateLocalizationFiles(self,scan_all=None):
+    def updateLocalizationFiles(self,scan_all=True):
         for s in self.slots:
             if scan_all or s['destFolder'] != self.genroroot:
                 locbag = Bag()
                 for root in s['roots']:
                     d = DirectoryResolver(root,include='*.py,*.js')()
-                    d.walk(self._updateModuleLocalization,locbag=locbag,_mode='deep')
+                    d.walk(self._updateModuleLocalization,locbag=locbag,_mode='deep',destFolder=s['destFolder'])
                 locbag.toXml(os.path.join(s['destFolder'],'localization.xml'),pretty=True,typeattrs=False, typevalue=False)
 
-    def _updateModuleLocalization(self,n,locbag=None):
+    def _updateModuleLocalization(self,n,locbag=None,destFolder=None):
         if n.attr.get('file_ext') == 'directory':
             return
         moduleLocBag = Bag()
@@ -135,7 +148,9 @@ class AppLocalizer(object):
             filecontent = f.read() 
         LOCREGEXP_EXCL.sub(addToLocalizationBag,filecontent)
         if moduleLocBag:
-            locbag[flatten(n.attr['rel_path'])] = moduleLocBag
+            modulepath = os.path.relpath(n.attr['abs_path'],destFolder)
+            path,ext = os.path.splitext(modulepath)
+            locbag.setItem(path.replace('/','.'),moduleLocBag,path=modulepath,ext=ext.replace('.',''))
 
 
             
