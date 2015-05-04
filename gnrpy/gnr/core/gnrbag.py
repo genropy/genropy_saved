@@ -2723,9 +2723,9 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-                fname = fname.replace('_',' ').strip()
-                m=re.match(r'(\d+) (.*)',fname)
-                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else fname.capitalize()
+                caption = fname.replace('_',' ').strip()
+                m=re.match(r'(\d+) (.*)',caption)
+                caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, rel_path=relpath,
                                abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
                                caption=caption)
