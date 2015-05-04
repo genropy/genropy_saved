@@ -539,6 +539,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
             }else{
                 setTimeout(function(){
                     that.stackSourceNode.setRelativeData('selectedFrame',startPage || pageName);
+                    that.stackSourceNode.fireEvent('refreshTablist',true);
                 },100);
             }
         }
