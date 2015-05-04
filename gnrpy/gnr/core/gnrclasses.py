@@ -157,9 +157,8 @@ class GnrClassCatalog(object):
         """
         if isinstance(o, basestring):
             result = o
-            if translate_cb and result.startswith(
-                    '!!'): # a translation is needed, if no locale leave all as is including "!!"
-                result = translate_cb(result[2:])
+            if translate_cb: # a translation is needed, if no locale leave all as is including "!!"
+                result = translate_cb(result)
         else:
             objtype=type(o)
             if jsmode and objtype in(list,dict,tuple):

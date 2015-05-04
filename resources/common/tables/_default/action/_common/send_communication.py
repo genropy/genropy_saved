@@ -27,15 +27,15 @@ class Main(BaseResourceAction):
         buttons = []
         availableCommunications = []
         if self.getService('mail'):
-            availableCommunications.append(('email','Email'))
+            availableCommunications.append(('email','!!Email'))
         if self.getService('sms'):
-            availableCommunications.append(('mobile','Sms'))
+            availableCommunications.append(('mobile','!!Sms'))
         if self.getService('fax'):
-            availableCommunications.append(('fax','Fax'))
+            availableCommunications.append(('fax','!!Fax'))
         for c,lbl in availableCommunications:
             if c in cdict:
                 buttons.append('%s:%s' %(c,lbl))
-        bar.communications.multiButton(values='!!%s' %','.join(buttons),value='^.communication')
+        bar.communications.multiButton(values='%s' %','.join(buttons),value='^.communication')
         fp.center.simpleTextArea(value='^.message')
 
     def do(self):

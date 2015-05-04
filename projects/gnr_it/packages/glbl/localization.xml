@@ -6,7 +6,7 @@
 		<regione base="Regione" de="Region" en="Region" fr="Région" it="Regione"/>
 		<provincia base="Provincia" de="Provinz" en="Province" fr="Province" it="Provincia"/>
 		<comune base="Comune" de="Gemeinsam" en="Common" fr="Commun" it="Comune"/>
-		<nuts base="Nuts" de="Nüsse" en="Nuts" fr="Noix" it="Noccioline"/>
+		<nuts base="Nuts" de="NUTS" en="NUTS" fr="NUTS" it="NUTS"/>
 	</menu>
 
 	<model>

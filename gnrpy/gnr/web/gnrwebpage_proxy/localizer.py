@@ -29,11 +29,42 @@ class GnrWebLocalizer(GnrBaseProxy):
 
     def localize(self,txt):
         """Localize a string beginning with the :ref:`\!\! <exclamation_point>` character"""
+        return self.page.application.localizer.translate(txt,self.locale)
+
+
+
+    def localize_old(self,txt):
+        """Localize a string beginning with the :ref:`\!\! <exclamation_point>` character"""
         if txt.startswith('!!'):
             return self.translateText(txt[2:])
         return txt
         
     def translateText(self, txt):
+        """Translate the *txt* string following the browser's locale
+        
+        :param txt: the text to be translated"""
+        application = self.page.application
+        key = '%s|%s' % (self.page.packageId, txt.lower())
+        localelang = self.locale
+        loc = application.localization.get(key)
+        missingLoc = True
+        if not loc:
+            key = txt
+            loc = application.localization.get(txt)
+        if loc:
+            loctxt = loc.get(localelang)
+            if loctxt:
+                missingLoc = False
+                txt = loctxt
+        elif loc is None:
+            self._translateMissing(txt)
+            application.localization[key] = {}
+        if self.page.isLocalizer():
+            self.localizer_dict[key] = application.localization[key]
+            self.missingLoc = self.missingLoc or missingLoc
+        return txt
+
+    def translateText_old(self, txt):
         """Translate the *txt* string following the browser's locale
         
         :param txt: the text to be translated"""

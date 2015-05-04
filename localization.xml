@@ -21,10 +21,10 @@
 								<parent_id base="Parent id" de="Parent ID" en="Parent id" fr="Id Parent" it="Id Parent"/>
 								<parent base="Parent" de="Elternteil" en="Parent" fr="Mère" it="Genitore"/>
 								<children base="Children" de="Kinder" en="Children" fr="Enfants" it="Bambini"/>
-								<hierarchical_s base="Hierarchical %s" de="Hierarchischen% s" en="Hierarchical %s" fr="Hiérarchique% s" it="Gerarchica% s"/>
-								<parent_hierarchical_s base="Parent Hierarchical %s" de="Mutter Hierarchical% s" en="Parent Hierarchical %s" fr="Parent hiérarchique% s" it="Parent gerarchica% s"/>
+								<hierarchical_s base="Hierarchical %s" de="Hierarchischen  %s" en="Hierarchical  %s" fr="Hiérarchique%s" it="Gerarchica% s"/>
+								<parent_hierarchical_s base="Parent Hierarchical %s" de="Mutter Hierarchical  %s" en="Parent Hierarchical  %s" fr="Parent hiérarchique%s" it="Parent gerarchica% s"/>
 								<counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
-								<counter_s base="Counter %s" de="Gegen% s" en="Counter %s" fr="Contre% s" it="Contatore% s"/>
+								<counter_s base="Counter %s" de="Gegen  %s" en="Counter  %s" fr="Contre%s" it="Contatore% s"/>
 								<warnings base="Warnings" de="Warnungen" en="Warnings" fr="Avertissements" it="Avvertenze"/>
 								<errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
 								<user_insert base="User Insert" de="User-Insert" en="User Insert" fr="Insertion de l'utilisateur" it="Inserisci User"/>
@@ -35,7 +35,7 @@
 								<fake_field_always_null base="Fake field always NULL" de="Fake-Feld immer NULL" en="Fake field always NULL" fr="Faux champ toujours NULL" it="Campo Falso sempre NULL"/>
 								<subscribed_by_default base="Subscribed by default" de="Standardmäßig gezeichnet" en="Subscribed by default" fr="Souscrit par défaut" it="Sottoscritto per impostazione predefinita"/>
 								<subscribed base="Subscribed" de="Gezeichnet" en="Subscribed" fr="Inscrit" it="Sottoscritta"/>
-								<_fieldname_s_promised_value_recycled_ base="%(fieldname)s promised value (recycled)" de="% (Fieldname) s versprochen Wert (recycelt)" en="%(fieldname)s promised value (recycled)" fr="% (Fieldname) s valeur promis (recyclé)" it="% (Fieldname) s valore promesso (riciclato)"/>
+								<_fieldname_s_promised_value_recycled_ base="%(fieldname)s promised value (recycled)" de=" %(fieldname)s versprochen Wert (recycelt)" en=" %(fieldname)s promised value (recycled)" fr=" %(fieldname)s valeur promis (recyclé)" it=" %(fieldname)s valore promesso (riciclato)"/>
 								<filepath base="Filepath" de="Dateipfad" en="Filepath" fr="Chemin Du Fichier" it="Filepath"/>
 								<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 								<mimetype base="Mimetype" de="Mimetype" en="Mimetype" fr="Mimetype" it="Mimetype"/>
@@ -60,7 +60,7 @@
 						<gnrdbo_legacy ext="py" path="gnrpy/gnr/app/gnrdbo_legacy.py">
 					<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 								<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
-								<child_code base="Child code" de="Child Code" en="Child code" fr="Code de l'enfant" it="Codice Bambino"/>
+								<child_code base="Child code" de="Child Code" en="Child code" fr="Code de l'enfant" it="Codice subordinato"/>
 								<required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
 								<invalid_code_char_is_not_allowed base="Invalid code: &quot;.&quot; char is not allowed" de="Invalid code: &quot;.&quot; char ist nicht erlaubt" en="Invalid code: &quot;.&quot; char is not allowed" fr="Code invalide: &quot;.&quot; omble est pas autorisé" it="Codice non VALIDO: &quot;.&quot; char non è consentito"/>
 								<parent_code base="Parent code" de="Geordneten Code" en="Parent code" fr="Code Parent" it="Codice Parent"/>
@@ -95,11 +95,11 @@
 			</app>
 				<core>
 				<gnrbag ext="py" path="gnrpy/gnr/core/gnrbag.py">
-					<_s_s base="%s %s" de="% S% s" en="%s %s" fr="% S% s" it="% S% s"/>
+					<_s_s base="%s %s" de="  %S%s" en=" %s  %s" fr="  %S%s" it="  %S%s"/>
 				</gnrbag>
 						<gnrlang ext="py" path="gnrpy/gnr/core/gnrlang.py">
 					<genro_base_exception base="Genro base exception" de="Genro Basis Ausnahme" en="Genro base exception" fr="Genro exception de base" it="Genro eccezione di base"/>
-								<error_code_code_s_description_s_ base="Error code %(code)s : %(description)s." de="Fehlercode% (Code) s:% (Beschreibung) s." en="Error code %(code)s : %(description)s." fr="Code d'erreur% (code) s:% (description) s." it="Codice di errore% (codice) s:% (descrizione) s."/>
+								<error_code_code_s_description_s_ base="Error code %(code)s : %(description)s." de="Fehlercode   %(code)s :  %(description)s." en="Error code  %(code)s :  %(description)s." fr="Code d'erreur  %(code)s :  %(description)s." it="Codice di errore  %(code)s :  %(description)s."/>
 				</gnrlang>
 						<gnrprinthandler ext="py" path="gnrpy/gnr/core/gnrprinthandler.py">
 					<a4 base="A4" de="A4" en="A4" fr="A4" it="A4"/>
@@ -122,22 +122,22 @@
 				</gnrsql>
 						<gnrsqltable ext="py" path="gnrpy/gnr/sql/gnrsqltable.py">
 					<genro_sql_save_exception base="Genro SQL Save Exception" de="Exception Genro SQL speichern" en="Genro SQL Save Exception" fr="Genro SQL, sauf exception" it="Genro SQL Salva Eccezione"/>
-								<the_record_rowcaption_s_in_table_tablename_s_cannot_be_saved_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s" de="Der Rekord% (rowcaption) s in Tabelle% (Tabellenname) s kann nicht gespeichert werden:% (msg) s" en="The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s" fr="Le record% (rowcaption) s dans le tableau% (tablename) s ne peut pas être sauvé:% (msg) s" it="Il record% (rowcaption) s nella tabella% (tablename) s non può essere salvato:% (msg) s"/>
+								<the_record_rowcaption_s_in_table_tablename_s_cannot_be_saved_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s" de="Der Rekord  %(rowcaption)s s in Tabelle   %(tablename)s kann nicht gespeichert werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s cannot be saved: %(msg)s" fr="Le record  %(rowcaption)s dans le tableau  %(tablename)s ne peut pas être sauvé:  %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non può essere salvato:  %(msg)s"/>
 								<genro_sql_delete_exception base="Genro SQL Delete Exception" de="Genro SQL Delete Exception" en="Genro SQL Delete Exception" fr="Genro SQL Supprimer Exception" it="Genro SQL Elimina Eccezione"/>
-								<the_record_rowcaption_s_in_table_tablename_s_cannot_be_deleted_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s" de="Der Rekord% (rowcaption) s in Tabelle% (Tabellenname) s kann nicht gelöscht werden:% (msg) s" en="The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s" fr="Le record% (rowcaption) s dans le tableau% (tablename) s peuvent pas être supprimées:% (msg) s" it="Il record% (rowcaption) s nella tabella% (tablename) s non possono essere eliminati:% (msg) s"/>
-								<genro_sql_protect_update_exception base="Genro SQL Protect Update Exception" de="Genro SQL Protect Update-Exception" en="Genro SQL Protect Update Exception" fr="Genro SQL Protect Update Exception" it="Genro SQL Protect Aggiornamento Eccezione"/>
-								<the_record_rowcaption_s_in_table_tablename_s_is_not_updatable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s" de="Der Rekord% (rowcaption) s in Tabelle% (Tabellenname) s kann nicht aktualisiert werden:% (msg) s" en="The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s" fr="Le record% (rowcaption) s dans le tableau% (tablename) s est pas modifiable:% (msg) s" it="Il record% (rowcaption) s nella tabella% (tablename) s non è aggiornabile:% (msg) s"/>
+								<the_record_rowcaption_s_in_table_tablename_s_cannot_be_deleted_msg_s base="The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht gelöscht werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s cannot be deleted: %(msg)s" fr="Le record  %(rowcaption)s dans le tableau  %(tablename)s peuvent pas être supprimées: %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non può essere eliminato: %(msg)s"/>
+								<genro_sql_protect_update_exception base="Genro SQL Protect Update Exception" de="Genro SQL Protect Update-Exception" en="Genro SQL Protect Update Exception" fr="Genro SQL Protect Update Exception" it="Genro SQL Protezione Aggiornamento"/>
+								<the_record_rowcaption_s_in_table_tablename_s_is_not_updatable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht aktualisiert werden:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s is not updatable: %(msg)s" fr="Le record  %(rowcaption)s dans le tableau  %tablename)s est pas modifiable:  %(msg)s" it="Il record  %(rowcaption)s nella tabella  %(tablename)s non è aggiornabile:  %(msg)s"/>
 								<genro_sql_protect_delete_exception base="Genro SQL Protect Delete Exception" de="Genro SQL Schützen Löschen Exception" en="Genro SQL Protect Delete Exception" fr="Genro SQL Protégez Exception Supprimer" it="Genro SQL proteggere Cancellare Eccezione"/>
-								<the_record_rowcaption_s_in_table_tablename_s_is_not_deletable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s" de="Der Rekord% (rowcaption) s in Tabelle% (Tabellenname) s kann nicht gelöscht:% (msg) s" en="The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s" fr="Le record% (rowcaption) s dans le tableau% (tablename) s est pas supprimable:% (msg) s" it="Il record% (rowcaption) s nella tabella% (tablename) s non è eliminabile:% (msg) s"/>
+								<the_record_rowcaption_s_in_table_tablename_s_is_not_deletable_msg_s base="The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s" de="Der Rekord  %(rowcaption)s in Tabelle  %(tablename)s kann nicht gelöscht:  %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s is not deletable: %(msg)s" fr="Le record%(rowcaption)s dans le tableau  %(tablename)s est pas supprimable:  %(msg)s" it="Il record%(rowcaption)s nella tabella%(tablename)s non è eliminabile: %(msg)s"/>
 								<genro_sql_protect_validate_exception base="Genro SQL Protect Validate Exception" de="Genro SQL Schützen Validate Exception" en="Genro SQL Protect Validate Exception" fr="Genro SQL Protégez Valider Exception" it="Genro SQL Protect Convalida Eccezione"/>
-								<the_record_rowcaption_s_in_table_tablename_s_contains_invalid_data_msg_s base="The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s" de="Der Rekord% (rowcaption) s in Tabelle% (Tabellenname) s enthält ungültige Daten:% (msg) s" en="The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s" fr="Le record% (rowcaption) s dans le tableau% (tablename) s contient des données non valides:% (msg) s" it="Il record% (rowcaption) s nella tabella% (tablename) s contiene dati non validi:% (msg) s"/>
+								<the_record_rowcaption_s_in_table_tablename_s_contains_invalid_data_msg_s base="The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s" de="Der Rekord%(rowcaption)s in Tabelle%(tablename)s enthält ungültige Daten: %(msg)s" en="The record  %(rowcaption)s in table  %(tablename)s contains invalid data: %(msg)s" fr="Le record%(rowcaption)s dans le tableau%(tablename)s contient des données non valides: %(msg)s" it="Il record  %(rowcaption)s nella tabella%(tablename)s contiene dati non validi: %(msg)s"/>
 								<genro_sql_business_logic_exception base="Genro SQL Business Logic Exception" de="Genro SQL Business Logic Exception" en="Genro SQL Business Logic Exception" fr="Genro SQL Business Logic Exception" it="Eccezione Genro SQL business logic"/>
-								<the_requested_operation_violates_the_internal_business_logic_msg_s base="The requested operation violates the internal business logic: %(msg)s" de="Die angeforderte Operation gegen den internen Business-Logik:% (msg) s" en="The requested operation violates the internal business logic: %(msg)s" fr="L'opération demandée viole la logique interne de l'entreprise:% (MSG) s" it="L'operazione richiesta viola la logica di business interno:% (msg) s"/>
-								<_description_s base="%(description)s" de="% (Beschreibung) s" en="%(description)s" fr="% (la description) s" it="% (descrizione) s"/>
-								<_msg_s base="%(msg)s" de="% (Msg) s" en="%(msg)s" fr="% (MSG) s" it="% (msg) s"/>
+								<the_requested_operation_violates_the_internal_business_logic_msg_s base="The requested operation violates the internal business logic: %(msg)s" de="Die angeforderte Operation gegen den internen Business-Logik: %(msg)s" en="The requested operation violates the internal business logic:  %(msg)s" fr="L'opération demandée viole la logique interne de l'entreprise: %(msg)s" it="L'operazione richiesta viola la logica di business interno: %(msg)s"/>
+								<_description_s base="%(description)s" de=" %(description)s" en=" %(description)s" fr="  %(la description)s" it="  %(descrizione)s"/>
+								<_msg_s base="%(msg)s" de=" %(msg)s" en=" %(msg)s" fr=" %(msg)s" it=" %(msg)s"/>
 								<genro_sql_not_existing_column_exception base="Genro SQL Not Existing Column Exception" de="Genro SQL nicht vorhandenen Spalte Exception" en="Genro SQL Not Existing Column Exception" fr="Genro SQL Non existant Colonne Exception" it="Genro SQL inesistente Colonna Eccezione"/>
-								<column_column_s_not_existing_in_table_tablename_s_ base="Column %(column)s not existing in table %(tablename)s " de="Spalte% (Spalte) s nicht in% Tabelle vorhandenen (Tabellenname) s" en="Column %(column)s not existing in table %(tablename)s" fr="Colonne% (colonne) s ne pas exister dans le tableau% (tablename) s" it="Colonna% (colonna) s non esistente nella tabella% (tablename) s"/>
-								<record_referenced_in_table_reltable_s base="Record referenced in table %(reltable)s" de="In Tabelle% (reltable) Nehmen Sie verwiesen s" en="Record referenced in table %(reltable)s" fr="Enregistrez référencé dans le tableau% (reltable) s" it="Record riferimento nella tabella% (reltable) s"/>
+								<column_column_s_not_existing_in_table_tablename_s_ base="Column %(column)s not existing in table %(tablename)s " de="Spalte  %(column)s nicht in  %Tabelle vorhandenen %(tablename)s" en="Column  %(column)s not existing in table  %(tablename)s" fr="Colonne  %(column)s ne pas exister dans le tableau %(tablename)s" it="Colonna  %(colonna)s non esistente nella tabella%(tablename)s"/>
+								<record_referenced_in_table_reltable_s base="Record referenced in table %(reltable)s" de="In Tabelle  %(reltable) Nehmensie verwiesen s" en="Record referenced in table  %(reltable)s" fr="Enregistrez référencé dans le tableau  %(reltable)s" it="Record riferimento nella tabella  %(reltable)s"/>
 				</gnrsqltable>
 						<gnrsqlxml2py ext="py" path="gnrpy/gnr/sql/gnrsqlxml2py.py">
 					<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
@@ -146,7 +146,7 @@
 				<web>
 				<_gnrbasewebpage ext="py" path="gnrpy/gnr/web/_gnrbasewebpage.py">
 					<saving_error base="Saving error" de="Saving Fehler" en="Saving error" fr="Erreur de sauvegarde" it="Errore di Salvataggio"/>
-								<_fieldname_s_sequence_s_instead_of_promised_sequence_s base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s" de="% (Fieldname) s:% (Sequenz) s statt% (promised_sequence) s" en="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s" fr="% (Fieldname) s:% (séquence) s au lieu de% (promised_sequence) s" it="% (Fieldname) s:% (sequenza) s invece di% (promised_sequence) s"/>
+								<_fieldname_s_sequence_s_instead_of_promised_sequence_s base="%(fieldname)s: %(sequence)s instead of %(promised_sequence)s" de="  %(Fieldname)s:  %(Sequenz)s statt  %(promised_sequence)s" en=" %(fieldname)s:  %(sequence)s instead of  %(promised_sequence)s" fr="  %(Fieldname)s:  %(séquence)s au lieu de  %(promised_sequence)s" it="  %(Fieldname)s:  %(sequenza)s invece di  %(promised_sequence)s"/>
 				</_gnrbasewebpage>
 						<batch>
 					<btcbase ext="py" path="gnrpy/gnr/web/batch/btcbase.py">
@@ -181,7 +181,7 @@
 				</batch>
 						<gnrwebpage ext="py" path="gnrpy/gnr/web/gnrwebpage.py">
 					<genro_not_allowed_public_call base="Genro Not Allowed Public call" de="Genro erlaubt Öffentlicher Aufruf" en="Genro Not Allowed Public call" fr="Genro non autorisés Appel public" it="Genro non sono ammessi chiamata pubblica"/>
-								<user_user_s_is_not_allowed_to_call_method_method_s base="User %(user)s is not allowed to call method %(method)s" de="Benutzer% (user) s ist nicht erlaubt, Methode% (Methode) aufrufen s" en="User %(user)s is not allowed to call method %(method)s" fr="L'utilisateur% (utilisateur) s est pas autorisé à appeler la méthode% (méthode) s" it="Utente% (utente) s non è permesso di chiamare il metodo% (metodo) s"/>
+								<user_user_s_is_not_allowed_to_call_method_method_s base="User %(user)s is not allowed to call method %(method)s" de="Benutzer  %(user)s ist nicht erlaubt, Methode  %(Methode) aufrufens" en="User  %(user)s is not allowed to call method  %(method)s" fr="L'utilisateur  %(utilisateur)s est pas autorisé à appeler la méthode  %(méthode)s" it="Utente  %(utente)s non è permesso di chiamare il metodo  %(metodo)s"/>
 								<print base="Print" de="Druck" en="Print" fr="Imprimer" it="Stampa"/>
 				</gnrwebpage>
 						<gnrwebpage_proxy>
@@ -196,7 +196,7 @@
 				</gnrwebpage_proxy>
 						<gnrwsgisite ext="py" path="gnrpy/gnr/web/gnrwsgisite.py">
 					<genro_site_exception base="Genro Site exception" de="Genro Website Ausnahme" en="Genro Site exception" fr="Exception Genro site" it="Eccezione Genro sito"/>
-								<_site_error_message_s base=" Site Error : %(message)s" de="Website-Fehler:% (Meldung) s" en="Site Error : %(message)s" fr="Site erreur:% (message) s" it="Errore del sito:% (messaggio) s"/>
+								<_site_error_message_s base=" Site Error : %(message)s" de="Website-Fehler:  %(Meldung)s" en="Site Error :  %(message)s" fr="Site erreur:  %(message)s" it="Errore del sito:  %(messaggio)s"/>
 				</gnrwsgisite>
 			</web>
 		</gnr>
@@ -310,12 +310,12 @@
 								<permissions base="Permissions" de="Berechtigungen" en="Permissions" fr="Autorisations" it="Permessi"/>
 								<comma_separated_list_of_auth_tags_ base="Comma separated list of auth tags." de="Kommagetrennte Liste von auth-Tags." en="Comma separated list of auth tags." fr="Comma liste des balises auth séparé." it="Comma lista dei tag auth separati."/>
 								<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
-								<save_s base="Save %s" de="Sparen Sie% s" en="Save %s" fr="Économisez% s" it="Risparmi% s"/>
+								<save_s base="Save %s" de="Sparen Sie  %s" en="Save  %s" fr="Économisez%s" it="Risparmi% s"/>
 								<close base="Close" de="Schließen" en="Close" fr="Près" it="Vicino"/>
 								<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
 								<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 								<shortlist base="Shortlist" de="Auswahlliste" en="Shortlist" fr="Sélection" it="Selezione"/>
-								<load_s base="Load %s" de="Last% s" en="Load %s" fr="Charge% s" it="Load% s"/>
+								<load_s base="Load %s" de="Last  %s" en="Load  %s" fr="Charge%s" it="Load% s"/>
 								<load base="Load" de="Last" en="Load" fr="Charge" it="Carico"/>
 								<confirm_deletion base="Confirm deletion" de="Löschvorgang zu bestätigen" en="Confirm deletion" fr="Confirmez la suppression" it="Confermare l'eliminazione"/>
 								<yes base="Yes" de="Ja" en="Yes" fr="Oui" it="Sì"/>
@@ -340,7 +340,7 @@
 					<batch_handler ext="py" path="resources/common/gnrcomponents/batch_handler/batch_handler.py">
 						<batch base="Batch" de="Stapel" en="Batch" fr="Lot" it="Partita"/>
 										<batch_monitor base="Batch monitor" de="Batch Monitor" en="Batch monitor" fr="Batch Monitor" it="Monitor Batch"/>
-										<_s_i_ base="%s (%i)" de="% S (% i)" en="%s (%i)" fr="(% De i) de%" it="% S (% i)"/>
+										<_s_i_ base="%s (%i)" de="  %S ( % i)" en=" %s ( %i)" fr="( % De i) de%" it=" %s ( % i)"/>
 					</batch_handler>
 				</batch_handler>
 						<bottomplugins ext="py" path="resources/common/gnrcomponents/bottomplugins.py">
@@ -393,7 +393,7 @@
 					<dynamicform ext="py" path="resources/common/gnrcomponents/dynamicform/dynamicform.py">
 						<required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
 										<invalid_code_char_is_not_allowed base="Invalid code: &quot;.&quot; char is not allowed" de="Invalid code: &quot;.&quot; char ist nicht erlaubt" en="Invalid code: &quot;.&quot; char is not allowed" fr="Code invalide: &quot;.&quot; omble est pas autorisé" it="Codice non VALIDO: &quot;.&quot; char non è consentito"/>
-										<already_existing_code base="Already existing code" de="Bereits vorhandenen Code" en="Already existing code" fr="Déjà code existant" it="Già codice esistente"/>
+										<already_existing_code base="Already existing code" de="Bereits vorhandenen Code" en="Already existing code" fr="Déjà code existant" it="Codice esistente"/>
 										<field_code base="Field code" de="Feldcode" en="Field code" fr="Code champs" it="Codice Campo"/>
 										<field_description base="Field description" de="Feldbeschreibung" en="Field description" fr="Description du champ" it="Descrizione del campo"/>
 										<t_text_l_integer_n_decimal_d_date_b_boolean_h_time_p_image base="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image" de="T: Text, L: Integer, N: Dezimal, D: Datum, B: Boolean, H: Zeit, P: Bild" en="T:Text,L:Integer,N:Decimal,D:Date,B:Boolean,H:Time,P:Image" fr="T: texte, L: Integer, N: décimal, D: Date, B: Boolean, H: Temps, P: Image" it="T: Testo, L: Integer, N: Decimale, D: Data, B: booleano, H: Tempo, P: Immagine"/>
@@ -443,8 +443,8 @@
 										<summary_templates base="Summary Templates" de="Zusammenfassung Templates" en="Summary Templates" fr="Résumé Templates" it="Sommario Modelli"/>
 										<n_col base="N. Col" de="N. Col" en="N. Col" fr="N. Col" it="N. Col"/>
 										<colswith base="Colswith" de="Colswith" en="Colswith" fr="Colswith" it="Colswith"/>
-										<under_min_value_s base="Under min value %s" de="Unter min Wert% s" en="Under min value %s" fr="Sous min valeur% s" it="In valore minimo% s"/>
-										<over_max_value_s base="Over max value %s" de="Über Max-Wert% s" en="Over max value %s" fr="Au cours de la valeur max% s" it="Oltre valore massimo% s"/>
+										<under_min_value_s base="Under min value %s" de="Unter min Wert  %s" en="Under min value  %s" fr="Sous min valeur%s" it="In valore minimo% s"/>
+										<over_max_value_s base="Over max value %s" de="Über Max-Wert  %s" en="Over max value  %s" fr="Au cours de la valeur max%s" it="Oltre valore massimo% s"/>
 					</dynamicform>
 				</dynamicform>
 						<explorer_manager ext="py" path="resources/common/gnrcomponents/explorer_manager.py">
@@ -663,9 +663,9 @@
 								<actions base="Actions" de="Aktionen" en="Actions" fr="Actes" it="Azioni"/>
 								<mails base="Mails" de="Mails" en="Mails" fr="Mails" it="Mail"/>
 								<prints base="Prints" de="Drucke" en="Prints" fr="Affiches" it="Stampe"/>
-								<new_s base="New %s" de="Neue% s" en="New %s" fr="Nouveau% s" it="Nuovo% s"/>
-								<save_s base="Save %s" de="Sparen Sie% s" en="Save %s" fr="Économisez% s" it="Risparmi% s"/>
-								<delete_s base="Delete %s" de="Löschen% s" en="Delete %s" fr="Supprimer% s" it="Elimina% s"/>
+								<new_s base="New %s" de="Neue  %s" en="New  %s" fr="Nouveau%s" it="Nuovo% s"/>
+								<save_s base="Save %s" de="Sparen Sie  %s" en="Save  %s" fr="Économisez%s" it="Risparmi% s"/>
+								<delete_s base="Delete %s" de="Löschen  %s" en="Delete  %s" fr="Supprimer%s" it="Elimina% s"/>
 								<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
 								<please_select_the_column base="Please select the column" de="Bitte wählen Sie die Spalte" en="Please select the column" fr="S'il vous plaît sélectionnez la colonne" it="Si prega di selezionare la colonna"/>
 								<and base="AND" de="UND" en="AND" fr="ET" it="E"/>
@@ -790,7 +790,9 @@
 							</export>
 												<send_communication ext="py" path="resources/common/tables/_default/action/_common/send_communication.py">
 								<missing_communication_fields base="Missing Communication fields" de="Fehlende Kommunikation Felder" en="Missing Communication fields" fr="Champs de communication manquant" it="Manca campi di comunicazione"/>
-														<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
+														<email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
+														<sms base="Sms"/>
+														<fax base="Fax"/>
 							</send_communication>
 												<touch_selection ext="py" path="resources/common/tables/_default/action/_common/touch_selection.py">
 								<touch_selection base="Touch Selection" de="Touch-Auswahl" en="Touch Selection" fr="Sélection tactile" it="Selezione di tocco"/>
@@ -799,7 +801,7 @@
 					</action>
 								<mail>
 						<mail_template ext="py" path="resources/common/tables/_default/mail/mail_template.py">
-							<_s_i_ base="%s (%i)" de="% S (% i)" en="%s (%i)" fr="(% De i) de%" it="% S (% i)"/>
+							<_s_i_ base="%s (%i)" de="  %S ( % i)" en=" %s ( %i)" fr="( % De i) de%" it=" %s ( % i)"/>
 												<letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 												<send_as_pdf base="Send as pdf" de="Als pdf" en="Send as pdf" fr="Envoyer comme pdf" it="Invia come pdf"/>
 						</mail_template>
@@ -818,7 +820,7 @@
 							</print_rowtemplate>
 						</_common>
 										<print_template ext="py" path="resources/common/tables/_default/print/print_template.py">
-							<_s_i_ base="%s (%i)" de="% S (% i)" en="%s (%i)" fr="(% De i) de%" it="% S (% i)"/>
+							<_s_i_ base="%s (%i)" de="  %S ( % i)" en=" %s ( %i)" fr="( % De i) de%" it=" %s ( % i)"/>
 												<letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 						</print_template>
 					</print>

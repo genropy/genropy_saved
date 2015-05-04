@@ -35,9 +35,9 @@ class GnrCustomWebPage(object):
                                             r.setItem('cell_'+lang,null,{field:lang,width:'23em',name:languages.getItem(lang),edit:true});
                                         })
                                 }
-                                r.setItem('cell_path',null,{field:'path',width:'20em',name:'File',hidden:'^#FORM.filePathHidden'});
+                                r.setItem('cell_path',null,{field:'path',width:'20em',name:'File',hidden:'^#FORM.filePathHidden',format_joiner:'<br/>'});
                                 r.setItem('cell_ext',null,{field:'ext',width:'3em',name:'Ext'})
-                                r.setItem('cell_treepath',null,{field:'_treepath',hidden:true})
+                                r.setItem('cell_pkey',null,{field:'_pkey',hidden:true})
                                 SET #FORM.localizationGrid.grid.struct = struct;
                                return result""",enabledLanguages='=#FORM.enabledLanguages',languages='=#FORM.languages')
         form.store.handler('save',rpcmethod=self.saveLocalizationFile)
@@ -64,35 +64,57 @@ class GnrCustomWebPage(object):
             if n.attr.get('path'):
                 treeroot.setItem(n.fullpath or n.label,None,path=n.attr['path'],ext=n.attr['ext'],caption=n.label)
             elif not n.value:
+                row = griddata[n.label] 
                 parentNode = n.parentNode
                 parentAttr = parentNode.attr
                 module = parentAttr.get('path')
-                modulekey = module.replace('/','_').replace('.','_')
-                row = dict()
-                row['base'] = n.attr.get('base')
-                for lang in enabledLanguages:
-                    row[lang] = n.attr.get(lang)
-                row['ext'] = parentAttr.get('ext')
-                row['_lockey'] = n.label
-                row['path'] = module
-                row['_treepath'] = '%s.%s' %((parentNode.fullpath or parentNode.label),parentAttr.get('ext'))
-                pkey = '%s_%s' %(modulekey,n.label)
-                row['_pkey'] = pkey
-                griddata[pkey] = Bag(row)
+                if not row:
+                    row = Bag()
+                    griddata[n.label] = row
+                    row['base'] = n.attr.get('base')
+                    row['ext'] = parentAttr.get('ext')
+                    row['_lockey'] = n.label
+                    row['path'] = []
+                    row['_pkey'] = n.label
+                row['path'].append(module)
 
+                #row['_treepath'] = '%s.%s' %((parentNode.fullpath or parentNode.label),parentAttr.get('ext'))
+                
+                for lang in enabledLanguages:
+                    row[lang] = row[lang] or n.attr.get(lang)
+                
+                
         localization.walk(cb)
+        griddata.sort('base')
         return Bag(dict(content=Bag(griddata=griddata),treedata=treedata))
 
     @public_method
     def saveLocalizationFile(self,data=None,**kwargs):
-        print x
-        pass
+        changesdict = dict()
+        for k,v in data['griddata'].items():
+            filtered = v.filter(lambda n: '_loadedValue' in n.attr)
+            if filtered:
+                changesdict[v['_lockey']] = dict(filtered)
+        localizer = self.db.application.localizer
+        updatablebags = localizer.updatableLocBags['all' if self.isDeveloper() else 'unprotected']
+        def cb(n,changedNodes=None):
+            if n.label in changesdict:
+                n.attr.update(changesdict[n.label])
+                changedNodes.append(n.label)
+
+        for destFolder in updatablebags:
+            locbagpath = os.path.join(destFolder,'localization.xml')
+            locbag = Bag(locbagpath)
+            changedNodes=[]
+            locbag.walk(cb,changedNodes=changedNodes)
+            if changedNodes:
+                locbag.toXml(locbagpath)
 
     @public_method
     def rebuildLocalizationFiles(self,enabledLanguages=None):
         localizer = self.db.application.localizer
         if localizer.translator and enabledLanguages:
-            localizer.translate(enabledLanguages)
+            localizer.autoTranslate(enabledLanguages)
         self.db.application.localizer.updateLocalizationFiles()
 
     def localizerToolbar(self,form):
@@ -124,15 +146,15 @@ class GnrCustomWebPage(object):
                                        var store = this.store.getData();
                                        store.forEach(function(n){
                                            var v = n.getValue();
-                                           var _treepath = v.getItem('_treepath');
-                                           if(!_treepath.startsWith(selectedModule)){
-                                               result.push(_treepath)
+                                           var path = v.getItem('path');
+                                           if(!path.some(function(p){return p.replace(/\//g, '.').startsWith(selectedModule)})){
+                                               result.push(v.getItem('_pkey'))
                                            }
                                        },'static');
                                    }
                                    return result;
                                    """,
-                                   grid_excludeCol='_treepath'
+                                   grid_excludeCol='_pkey'
                                     )
         frame.dataController("""
             var selectedTreeNode = this.getRelativeData('#FORM.moduletree').getNode(selectedTreePath);
@@ -160,4 +182,4 @@ class GnrCustomWebPage(object):
         r.cell('base',name='Base',width='23em')
         r.cell('path',name='Filepath',width='20em',hidden='^#FORM.filePathHidden')
         r.cell('ext',name='Ext',width='3em')
-        r.cell('_treepath',hidden=True)
+        r.cell('_pkey',hidden=True)

@@ -32,6 +32,8 @@ LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")!!({\w*})?(.*?)\1""")
 
 LOCREGEXP_CLS = re.compile(r"""\b_T\(("{3}|'|")(.*?)\1\)""")
 
+TRANSLATION_EXCL = re.compile(r"^!!({\w*})?(.*)$")
+
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
 class GnrLocString(unicode):
@@ -71,27 +73,46 @@ class AppLocalizer(object):
             self.translator = False
             self.languages = dict(en='English',it='Italian')
         roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs','resources/common','resources/mobile')]
-        self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core')]
+        self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core',protected=True)]
         for p in self.application.packages.values():
-            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,code=p.id))
+
+            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,code=p.id, protected = (p.project == 'gnrcore') ))
         if os.path.exists(self.application.customFolder):
-            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,code='customization'))
+            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,code='customization',protected=False))
         self.buildLocalizationDict()
 
     def buildLocalizationDict(self):
+        self.updatableLocBags = dict(all=[],unprotected=[])
         self.localizationDict = dict()
         for s in self.slots:
+            if not s['protected']:
+                self.updatableLocBags['unprotected'].append(s['destFolder'])
+            self.updatableLocBags['all'].append(s['destFolder'])
             locbag = self.getLocalizationBag(s['destFolder'])
             if locbag:
                 self.updateLocalizationDict(locbag)
 
-    def translate(self,languages):
+    def translate(self,txt,language):
+        if isinstance(txt,GnrLocString):
+            return
+        m = TRANSLATION_EXCL.match(txt)
+        if not m:
+            return txt
+        lockey = m.group(1)
+        if not lockey:
+            lockey = flatten(m.group(2))
+        translations = self.localizationDict.get(lockey)
+        if translations:
+            return translations.get(language) or translations.get('en') or translations.get('base')
+        else:
+            return m.group(2)
+
+    def autoTranslate(self,languages):
         languages = languages.split(',')
         for k,v in self.localizationDict.items():
             for lang in languages:
                 if not v.get(lang):
                     translated = self.translator.translate(v['base'],lang)
-                    print 'from',v['base'],'to',translated
                     v[lang] = translated
 
     def getLocalizationBag(self,locfolder):
@@ -107,6 +128,7 @@ class AppLocalizer(object):
 
     def updateLocalizationDict(self,locbag):
         locdict = {}
+        
         if locbag.filter(lambda n: n.attr.get('_key')):
             for n in locbag:
                 loc = n.attr

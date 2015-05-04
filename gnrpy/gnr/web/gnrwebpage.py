@@ -797,9 +797,11 @@ class GnrWebPage(GnrBaseWebPage):
         return self.pageStore().getItem('pageArgs') or {}
                 
     def _(self, txt):
-        if txt.startswith('!!'):
-            txt = self.localizer.translateText(txt[2:])
-        return txt
+        return self.localizer.localize(txt)
+       #if txt.startswith('!!'):
+
+       #    txt = self.localizer.translateText(txt[2:])
+       #return txt
         
     def getPublicMethod(self, prefix, method):
         """TODO

@@ -33,7 +33,7 @@ if __name__ == '__main__':
         app = GnrApp(args[0])
         translations = getattr(options,'translations',None)
         if translations:
-            app.localizer.translate('en,it,fr,de')
+            app.localizer.autoTranslate('en,it,fr,de')
         app.localizer.updateLocalizationFiles(scan_all=getattr(options,'scan_all',None))
 
         
