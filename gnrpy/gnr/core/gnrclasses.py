@@ -326,8 +326,11 @@ class GnrClassCatalog(object):
             funcName = '%s.%s'%(proxy_name,funcName)
         __mixin_pkg = getattr(func, '__mixin_pkg', None)
         __mixin_path = getattr(func, '__mixin_path', None)
+        is_websocket = getattr(func, 'is_websocket',None)
         if __mixin_pkg and __mixin_path:
             funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
+        if is_websocket:
+            funcName =funcName
         return funcName
         
     def parse_float(self, txt):

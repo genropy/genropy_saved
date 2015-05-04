@@ -66,6 +66,24 @@ def public_method(*args,**metadata):
         func = args[0]
         func.is_rpc = True # @public_method
         return func
+
+def websocket_method(*args,**metadata):
+    """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
+    
+    :param func: the function to set as public method"""
+    if metadata:
+        def decore(func):
+            prefix = metadata.pop('prefix',None)
+            func.is_rpc = True
+            for k, v in metadata.items():
+                setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
+            return func
+        return decore
+    else:
+        func = args[0]
+        func.is_rpc = True # @public_method
+        func.is_websocket = True
+        return func
     
 def timer_call(time_list=[], print_time=True):
     def decore(func):

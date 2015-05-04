@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
     },
     onopen:function(){
-        this.send('connected',{'page_id':'genro.page_id'})
+        this.send('connected',{'page_id':genro.page_id})
     },
     onclose:function(){
         this.send('disconnected')
@@ -84,8 +84,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     },
     do_set:function(data){
         var path=data.getItem('path')
-        var datanode=data.getNode('data')
-        genro.setData(path,datanode)
+        var value=data.getItem('data')
+        genro.setData(path,value)
     },
     do_publish:function(data){
         var topic=data.getItem('topic')

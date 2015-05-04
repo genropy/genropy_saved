@@ -27,12 +27,13 @@ import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.httpserver import HTTPServer
 from gnr.core.gnrbag import Bag,BagException
-from gnr.app.gnrapp import GnrApp
+from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
 from threading import Lock
 import os
 from gnr.app.gnrconfig import gnrConfigPath
+import time
 
 def threadpool(func):
     func._executor='threadpool'
@@ -61,6 +62,41 @@ class DummyExecutor(Executor):
         with self._shutdownLock:
             self._shutdown = True
             
+
+class GnrClientDataHandler(tornado.web.RequestHandler):
+
+    @property
+    def server(self):
+        return self.application.server
+        
+    @property
+    def channels(self):
+        return self.application.server.channels
+        
+    #def post(self, dest_page_id, message):
+    def post(self, *args, **kwargs):
+        print self.request.body
+        page_id = self.get_argument('page_id')
+        print page_id
+        client_path = self.get_argument('client_path')
+        print client_path
+        value = self.get_argument('value')
+        print value
+        data = Bag(path=client_path, data=value)
+        message=Bag(data=data,command='set')
+        message_xml = message.toXml()
+        print message_xml
+        if page_id == '*':
+            page_ids = self.channels.keys()
+        else:
+            page_ids = page_id.split(',')
+        for dest_page_id in page_ids:
+            self.channels.get(dest_page_id).write_message(message_xml)
+        #self.channels.get(dest_page_id).write_message(message)
+
+    def get(self, *args, **kwargs):
+        pass
+
 class GnrWebSocketHandler(websocket.WebSocketHandler):
    
     @property
@@ -70,7 +106,20 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     @property
     def channels(self):
         return self.application.server.channels
-        
+
+    @property
+    def pages(self):
+        return self.application.server.pages
+
+    @property
+    def page(self):
+        return self.pages[self.page_id]
+    
+    
+    @property
+    def gnrsite(self):
+        return self.application.server.gnrsite
+    
     def getExecutor(self,method):
         return self.server.executors.get(getattr(method,'_executor','dummy'))
 
@@ -89,7 +138,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         handler=self.getHandler(command)
         if handler:
             executor=self.getExecutor(handler)
-            result=yield executor.submit(handler,**kwargs)
+            result=yield executor.submit(handler,_time1=time.time(),**kwargs)
             if result is not None:
                 self.write_message(result)
                 
@@ -105,6 +154,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     def do_connected(self,page_id=None,**kwargs):
         self.page_id=page_id
         self.channels[page_id]=self
+        page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+        self.pages[page_id] = page
        
     def do_disconnected(self,**kwargs):
         self.channels.pop(self.page_id,None)
@@ -113,9 +164,30 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return self.channels.keys()
         
     def do_setInClient(self,dest_page_id=None,dest_path=None,value=None):
-        message=dict(path=dest_path,data=data)
+        message=dict(path=dest_path,data=value)
         self.channels.get(dest_page_id).write_message(message)
+
+    @threadpool
+    def do_wsmethod(self,method=None, dest_path=None, err_path = None,_time1=None,**kwargs):
+        error = None
+        result = None
+
+        handler = self.page.getWsMethod(method)
+        if handler:
+            try:
+                result = handler(**kwargs)
+            except Exception, e:
+                error = str(e)
+        data=Bag()
+        if error:
+            result =error 
+            dest_path = err_path or 'gnr.websocket_error.%s'%method.replace('.','_').replace(':','_')
+
+        data.setItem('path',dest_path)
+        data.setItem('data',result, server_time=time.time()-_time1)
+        return self.serializeMessage(command='set',data=data)
         
+
     def serializeMessage(self,command=None,data=None):
         result=Bag(dict(command=command,data=data))
         print result
@@ -129,6 +201,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         caption=table.recordCaption(record)
         data.setItem('path',dest_path)
         data.setItem('data',record,caption=caption)
+        
         return self.serializeMessage(command='set',data=data)
    
         
@@ -161,8 +234,11 @@ class GnrBaseAsyncServer(object):
         self.handlers=[]
         self.executors=dict()
         self.channels=dict()
+        self.pages=dict()
         self.instance_name = instance
-        self.gnrapp=GnrApp(instance)
+        self.gnrsite=GnrWsgiSite(instance)
+        self.gnrsite.ws_site = self
+        self.gnrapp = self.gnrsite.gnrapp
 
     def addHandler(self,path,factory):
         self.handlers.append((path,factory))
@@ -189,6 +265,7 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         self.addExecutor('threadpool',ThreadPoolExecutor(max_workers=20))
         self.addExecutor('dummy',DummyExecutor())
         self.addHandler(r"/websocket", GnrWebSocketHandler)
+        self.addHandler(r"/set_in_client_data", GnrClientDataHandler)
         
     
 if __name__ == '__main__':
