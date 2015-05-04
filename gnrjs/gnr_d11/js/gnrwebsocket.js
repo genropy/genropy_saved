@@ -54,7 +54,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
     },
     onopen:function(){
-        this.send('connected',{'page_id':'genro.page_id'})
+        this.send('connected',{'page_id':genro.page_id})
     },
     onclose:function(){
         this.send('disconnected')

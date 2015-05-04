@@ -291,7 +291,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log("_if=" + if_result);
             }
         }
-        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc') {
+        if (tag == 'dataformula' || tag == 'datascript' || tag == 'datacontroller' || tag == 'datarpc' || tag == 'dataws') {
             var val;
             if (! if_result) {
                 if (!_else) {
@@ -299,7 +299,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 expr = _else;
             }
+            if (tag == 'dataws' && (expr != _else)) {
+                console.log('dataws', expr, kwargs);
 
+                var method = expr;
+                objectExtract(kwargs, '_*');
+                kwargs = objectUpdate({'method':method,
+                        'dest_path':destinationPath},kwargs);
+                genro.wsk.send('wsmethod',kwargs)
+                return;
+            }
             if (tag == 'datarpc' && (expr != _else)) {
                 var doCall = true;
                 var domsource_id = this.getStringId();
@@ -668,6 +677,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _bld_datarpc: function() {
         this._callbacks = this.getValue();
         this._value = null;
+    },
+    _bld_dataws: function() {
+        console.log('Istanziando ws con: ',this)
     },
     _bld_script: function() {
         if (this.attr.src) {

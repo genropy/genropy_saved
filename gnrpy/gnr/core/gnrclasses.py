@@ -331,7 +331,7 @@ class GnrClassCatalog(object):
         if __mixin_pkg and __mixin_path:
             funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
         if is_websocket:
-            funcName = 'ws:%s'%funcName
+            funcName =funcName
         return funcName
         
     def parse_float(self, txt):

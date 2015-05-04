@@ -33,6 +33,7 @@ from concurrent.futures import ThreadPoolExecutor,Future, Executor
 from threading import Lock
 import os
 from gnr.app.gnrconfig import gnrConfigPath
+import time
 
 def threadpool(func):
     func._executor='threadpool'
@@ -109,6 +110,11 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     @property
     def pages(self):
         return self.application.server.pages
+
+    @property
+    def page(self):
+        return self.pages[self.page_id]
+    
     
     @property
     def gnrsite(self):
@@ -132,7 +138,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         handler=self.getHandler(command)
         if handler:
             executor=self.getExecutor(handler)
-            result=yield executor.submit(handler,**kwargs)
+            result=yield executor.submit(handler,_time1=time.time(),**kwargs)
             if result is not None:
                 self.write_message(result)
                 
@@ -148,7 +154,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     def do_connected(self,page_id=None,**kwargs):
         self.page_id=page_id
         self.channels[page_id]=self
-        self.pages[page_id] = self.gnrsite.resource_loader.get_page_by_id(page_id)
+        page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+        self.pages[page_id] = page
        
     def do_disconnected(self,**kwargs):
         self.channels.pop(self.page_id,None)
@@ -159,7 +166,28 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     def do_setInClient(self,dest_page_id=None,dest_path=None,value=None):
         message=dict(path=dest_path,data=value)
         self.channels.get(dest_page_id).write_message(message)
+
+    @threadpool
+    def do_wsmethod(self,method=None, dest_path=None, err_path = None,_time1=None,**kwargs):
+        error = None
+        result = None
+
+        handler = self.page.getWsMethod(method)
+        if handler:
+            try:
+                result = handler(**kwargs)
+            except Exception, e:
+                error = str(e)
+        data=Bag()
+        if error:
+            result =error 
+            dest_path = err_path or 'gnr.websocket_error.%s'%method.replace('.','_').replace(':','_')
+
+        data.setItem('path',dest_path)
+        data.setItem('data',result, server_time=time.time()-_time1)
+        return self.serializeMessage(command='set',data=data)
         
+
     def serializeMessage(self,command=None,data=None):
         result=Bag(dict(command=command,data=data))
         print result
@@ -173,8 +201,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         caption=table.recordCaption(record)
         data.setItem('path',dest_path)
         data.setItem('data',record,caption=caption)
-        return data
-
+        
         return self.serializeMessage(command='set',data=data)
    
         
@@ -210,6 +237,7 @@ class GnrBaseAsyncServer(object):
         self.pages=dict()
         self.instance_name = instance
         self.gnrsite=GnrWsgiSite(instance)
+        self.gnrsite.ws_site = self
         self.gnrapp = self.gnrsite.gnrapp
 
     def addHandler(self,path,factory):

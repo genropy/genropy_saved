@@ -809,7 +809,24 @@ class GnrWebPage(GnrBaseWebPage):
         if txt.startswith('!!'):
             txt = self.localizer.translateText(txt[2:])
         return txt
-        
+    
+    def _getProxyObject(self, method, prefix=None):
+        proxy_name, submethod = method.split('.', 1)
+        if proxy_name=='_package':
+            sep='.'
+            pkg_name,sep,submethod = submethod.rpartition(sep)
+            proxy_object = self.db.package(pkg_name)
+        elif proxy_name=='_table':
+            sep='.'
+            table_name,sep,submethod = submethod.rpartition(sep)
+            proxy_object = self.db.table(table_name)
+        else:
+            proxy_object = getattr(self, proxy_name, None)
+        if not proxy_object:
+            proxy_class = self.pluginhandler.get_plugin(proxy_name)
+            proxy_object = proxy_class(self)
+        return proxy_object, submethod
+
     def getPublicMethod(self, prefix, method):
         """TODO
         
@@ -826,38 +843,39 @@ class GnrWebPage(GnrBaseWebPage):
             __mixin_path_list = __mixin_path.split('/')
             self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
-            proxy_name, submethod = method.split('.', 1)
-            if proxy_name=='_package':
-                sep='.'
-                pkg_name,sep,submethod = submethod.rpartition(sep)
-                proxy_object = self.db.package(pkg_name)
-            elif proxy_name=='_table':
-                sep='.'
-                table_name,sep,submethod = submethod.rpartition(sep)
-                proxy_object = self.db.table(table_name)
-            else:
-                proxy_object = getattr(self, proxy_name, None)
-            if not proxy_object:
-                proxy_class = self.pluginhandler.get_plugin(proxy_name)
-                proxy_object = proxy_class(self)
-            if proxy_object:
-                handler = getattr(proxy_object, submethod, None)
-                if not handler or not getattr(handler, 'is_rpc', False):
-                    handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)                    
+            proxy_object,submethod = self._getProxyObject(method)                 
         else:
-            handler = getattr(self, method, None)
-            if not handler:
-                zdir = dir(self)
-            elif not getattr(handler, 'is_rpc', False):
-                hdir = dir(handler)
-            if not handler or not getattr(handler, 'is_rpc', False):
-                handler = getattr(self, '%s_%s' % (prefix, method))
+            proxy_object = self
+            submethod = method
+        handler = getattr(proxy_object, submethod, None)
+        if not handler or not getattr(handler, 'is_rpc', False):
+                handler = getattr(proxy_object, '%s_%s' % (prefix, submethod))
         
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
                 raise self.exception(GnrUserNotAllowed,method=method)
         return handler
         
+    def getWsMethod(self, method):
+        """TODO
+        
+        :param prefix: The method prefix. It can be:
+                       
+                       * 'remote': this prefix is used for the :ref:`dataremote`\s
+                       * 'rpc': this prefix is used for the :ref:`datarpc`\s
+                       
+        :param method: TODO"""
+        handler = None
+        if '.' in method:
+            proxy_object,submethod = self._getProxyObject(method)                 
+        else:
+            proxy_object = self
+            submethod = method
+        handler = getattr(proxy_object, submethod, None)
+        if handler and getattr(handler, 'tags',None):
+            if not self.application.checkResourcePermission(handler.tags, self.userTags):
+                raise self.exception(GnrUserNotAllowed,method=method)
+        return handler
 
     def exception(self, exception, **kwargs):
          """TODO

@@ -38,6 +38,7 @@ from gnr.web.services.gnrmail import WebMailHandler
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
+from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WebSocketHandler
 
 import warnings
 mimetypes.init()
@@ -256,6 +257,14 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+
+
+
+    @property
+    def websockethandler(self):
+        if not self._websockethandler:
+            self._websockethandler = WebSocketHandler(self)
+        return self._websockethandler
 
     @property
     def register(self):
