@@ -116,7 +116,28 @@
 				</gnrprinthandler>
 			</core>
 				<sql>
-				<gnrsql ext="py" path="gnrpy/gnr/sql/gnrsql.py">
+				<adapters>
+					<_gnrbaseadapter ext="py" path="gnrpy/gnr/sql/adapters/_gnrbaseadapter.py">
+						<starts_with_chars base="Starts with Chars" de="Beginnt mit Chars" en="Starts with Chars" fr="Commençant par Chars" it="Inizia con Caratteri"/>
+										<equal_to base="Equal to" de="Gleich" en="Equal to" fr="Égal à" it="Uguale a"/>
+										<starts_with base="Starts with" de="Beginnt mit" en="Starts with" fr="Commence avec" it="Inizia con"/>
+										<word_start base="Word start" de="Word starten" en="Word start" fr="début de la Parole" it="Avviare Word"/>
+										<contains base="Contains" de="Enthält" en="Contains" fr="Contient" it="Contiene"/>
+										<similar base="Similar" de="Ähnlich" en="Similar" fr="Similaire" it="Simile"/>
+										<greater_than base="Greater than" de="Größer als" en="Greater than" fr="Plus grand que" it="Più grande di"/>
+										<greater_or_equal_to base="Greater or equal to" de="Größer oder gleich" en="Greater or equal to" fr="Supérieure ou égale à" it="Maggiore o uguale a"/>
+										<less_than base="Less than" de="Weniger als" en="Less than" fr="Moins de" it="Meno di"/>
+										<less_or_equal_to base="Less or equal to" de="Kleiner oder gleich" en="Less or equal to" fr="Inférieur ou égal à" it="Minore o uguale a"/>
+										<between base="Between" de="Zwischen" en="Between" fr="Entre" it="Tra"/>
+										<is_null base="Is null" de="Ist null" en="Is null" fr="Est nulle" it="È nullo"/>
+										<is_true base="Is true" de="Wahr ist" en="Is true" fr="Est vrai" it="È vero"/>
+										<is_false base="Is false" de="Falsch" en="Is false" fr="Est fausse" it="È falso"/>
+										<is_null_or_empty base="Is null or empty" de="Null oder leer ist" en="Is null or empty" fr="Est nul ou vide" it="È nullo o vuoto"/>
+										<in base="In" de="IN" en="IN" fr="EN" it="IN"/>
+										<regular_expression base="Regular expression" de="Regulärer Ausdruck" en="Regular expression" fr="Expression régulière" it="Espressione regolare"/>
+					</_gnrbaseadapter>
+				</adapters>
+						<gnrsql ext="py" path="gnrpy/gnr/sql/gnrsql.py">
 					<genro_sql_base_exception base="Genro SQL base exception" de="Genro SQL Basis Ausnahme" en="Genro SQL base exception" fr="Genro SQL de base exception" it="Eccezione Base Genro SQL"/>
 								<genro_sql_execution_exception base="Genro SQL execution exception" de="Genro SQL Ausführungsausnahme" en="Genro SQL execution exception" fr="Genro SQL exécution exception" it="Eccezione esecuzione Genro SQL"/>
 				</gnrsql>
@@ -666,7 +687,6 @@
 								<new_s base="New %s" de="Neue  %s" en="New  %s" fr="Nouveau%s" it="Nuovo% s"/>
 								<save_s base="Save %s" de="Sparen Sie  %s" en="Save  %s" fr="Économisez%s" it="Risparmi% s"/>
 								<delete_s base="Delete %s" de="Löschen  %s" en="Delete  %s" fr="Supprimer%s" it="Elimina% s"/>
-								<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
 								<please_select_the_column base="Please select the column" de="Bitte wählen Sie die Spalte" en="Please select the column" fr="S'il vous plaît sélectionnez la colonne" it="Si prega di selezionare la colonna"/>
 								<and base="AND" de="UND" en="AND" fr="ET" it="E"/>
 								<or base="OR" de="ODER" en="OR" fr="OU" it="OR"/>
@@ -748,7 +768,6 @@
 								<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
 								<choose_the_action_to_execute_ base="Choose the action to execute: " de="Wählen Sie die Aktion ausführen:" en="Choose the action to execute:" fr="Choisissez l'action à exécuter:" it="Scegliere l'azione da eseguire:"/>
 								<confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
-								<_s base="%s" de="% S" en="%s" fr="% S" it="% S"/>
 								<search base="Search" de="Suche" en="Search" fr="Recherche" it="Ricerca"/>
 								<op_ base="Op." de="Op." en="Op." fr="Op." it="Op."/>
 								<value base="Value" de="Wert" en="Value" fr="Valeur" it="Valore"/>
@@ -790,9 +809,6 @@
 							</export>
 												<send_communication ext="py" path="resources/common/tables/_default/action/_common/send_communication.py">
 								<missing_communication_fields base="Missing Communication fields" de="Fehlende Kommunikation Felder" en="Missing Communication fields" fr="Champs de communication manquant" it="Manca campi di comunicazione"/>
-														<email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
-														<sms base="Sms"/>
-														<fax base="Fax"/>
 							</send_communication>
 												<touch_selection ext="py" path="resources/common/tables/_default/action/_common/touch_selection.py">
 								<touch_selection base="Touch Selection" de="Touch-Auswahl" en="Touch Selection" fr="Sélection tactile" it="Selezione di tocco"/>
@@ -917,6 +933,9 @@
 								<plain_query base="Plain Query" de="Plain-Abfrage" en="Plain Query" fr="Plaine de requêtes" it="Plain Query"/>
 								<query_editor base="Query editor" de="Abfrage-Editor" en="Query editor" fr="Editeur de requêtes" it="Editor Query"/>
 								<new_query base="New query" de="Neue Abfrage" en="New query" fr="Nouvelle recherche" it="Nuova ricerca"/>
+								<union base="Union" de="Union" en="Union" fr="Union" it="Unione"/>
+								<intersect base="Intersect" de="Schneiden" en="Intersect" fr="Couper" it="Intersecare"/>
+								<difference base="Difference" de="Unterschied" en="Difference" fr="Différence" it="Differenza"/>
 								<please_select_the_column base="Please select the column" de="Bitte wählen Sie die Spalte" en="Please select the column" fr="S'il vous plaît sélectionnez la colonne" it="Si prega di selezionare la colonna"/>
 								<and base="AND" de="UND" en="AND" fr="ET" it="E"/>
 								<or base="OR" de="ODER" en="OR" fr="OU" it="OR"/>

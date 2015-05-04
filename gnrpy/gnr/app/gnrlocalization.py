@@ -28,11 +28,11 @@ from gnr.app.gnrconfig import getGenroRoot
 from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
-LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")!!({\w*})?(.*?)\1""")
+LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")\!\!(?:{(\w*)})?(.*?)\1|\[\!\!(?:{(\w*)})?(.*?)\]""")
 
 LOCREGEXP_CLS = re.compile(r"""\b_T\(("{3}|'|")(.*?)\1\)""")
 
-TRANSLATION_EXCL = re.compile(r"^!!({\w*})?(.*)$")
+TRANSLATION_EXCL = re.compile(r"^\!\!(?:{(\w*)})?(.*)$")
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
@@ -159,8 +159,10 @@ class AppLocalizer(object):
             return
         moduleLocBag = Bag()
         def addToLocalizationBag(m):
-            lockey = m.group(2)
-            loctext = m.group(3)
+            lockey = m.group(2) or m.group(4)
+            loctext = m.group(3) or  m.group(5)
+            if not loctext:
+                return
             lockey = lockey or flatten(loctext)
             if not lockey in moduleLocBag:
                 locdict = dict(self.localizationDict.get(lockey) or dict())

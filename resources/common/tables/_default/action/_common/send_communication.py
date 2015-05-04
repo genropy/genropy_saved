@@ -22,16 +22,16 @@ class Main(BaseResourceAction):
         if not hasattr(tblobj,'communication_quicksender'):
             pane.div('!!Missing Communication fields',padding='20px')
         fp = pane.framePane(height='200px',width='300px')
-        bar = fp.top.slotToolbar('*,communications,*')
+        bar = fp.top.slotToolbar('*,communications,*',height='20px')
         cdict = tblobj.communication_quicksender()
         buttons = []
         availableCommunications = []
         if self.getService('mail'):
-            availableCommunications.append(('email','!!Email'))
+            availableCommunications.append(('email','Email'))
         if self.getService('sms'):
-            availableCommunications.append(('mobile','!!Sms'))
+            availableCommunications.append(('mobile','Sms'))
         if self.getService('fax'):
-            availableCommunications.append(('fax','!!Fax'))
+            availableCommunications.append(('fax','Fax'))
         for c,lbl in availableCommunications:
             if c in cdict:
                 buttons.append('%s:%s' %(c,lbl))
