@@ -81,7 +81,6 @@ class AppLocalizer(object):
     def translate(self,txt,language=None):
         language = (language or self.application.locale).split('-')[0].lower()
         if isinstance(txt,GnrLocString):
-            language = 'en'
             lockey = txt.lockey
             translations = self.localizationDict.get(lockey)
             if translations:
