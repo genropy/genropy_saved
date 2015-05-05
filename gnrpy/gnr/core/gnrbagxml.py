@@ -258,7 +258,7 @@ class BagToXml(object):
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
-                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True)
+                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True,localize=False)
 
         elif isinstance(nodeValue, BagAsXml):
             result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True)
@@ -354,7 +354,7 @@ class BagToXml(object):
         if omitRoot:
             result = result + self.bagToXmlBlock(bag)
         else:
-            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
+            result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True, localize=False)
         result = unicode(result).encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString
@@ -371,7 +371,7 @@ class BagToXml(object):
             output.close()
         return result
         
-    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
+    def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True):
         """TODO Return the XML tag that represent self BagNode
         
         :param tagName: TODO
@@ -397,7 +397,7 @@ class BagToXml(object):
                 else:
                     if self.mode4d and isinstance(value, Decimal):
                         value = float(value)
-                    value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb)
+                    value, t = self.catalog.asTextAndType(value, translate_cb=self.translate_cb if localize else None)
                 if isinstance(value, BagAsXml):
                     print x
                 try:
@@ -413,13 +413,13 @@ class BagToXml(object):
                 return value
             if self.omitUnknownTypes:
                 attributes = dict([(k, v) for k, v in attributes.items()
-                                   if type(v) in (basestring, str, unicode, int, float, long,
+                                    if isinstance(v,basestring) or 
+                                                ( type(v) in (int, float, long,
                                                   datetime.date, datetime.time, datetime.datetime,
-                                                  bool, type(None), list, tuple, dict, Decimal) or 
-                                     (callable(v) and 
+                                                  bool, type(None), list, tuple, dict, Decimal) ) or (callable(v) and 
                                             (hasattr(v,'is_rpc') or 
-                                            (hasattr(v,'__name__') and v.__name__.startswith('rpc_'))))
-                                   ])
+                                            (hasattr(v,'__name__') and v.__name__.startswith('rpc_')))
+                                            )])
             else:
                 attributes = dict([(k, v) for k, v in attributes.items()])
             if self.typeattrs:

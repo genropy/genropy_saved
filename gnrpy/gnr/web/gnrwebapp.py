@@ -217,3 +217,7 @@ class GnrWsgiWebApp(GnrApp):
                 attr['file'] = node.label
             menubag.setItem(pathlist, None, attr)
         return menubag
+
+    @property
+    def locale(self):
+        return self.site.locale

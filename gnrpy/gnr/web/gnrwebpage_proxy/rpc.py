@@ -76,13 +76,10 @@ class GnrWebRpc(GnrBaseProxy):
         page.response.content_type = "text/xml"
         t0 = time()
         xmlresult = envelope.toXml(unresolved=True,
-                                   translate_cb=page.localizer.localize, omitUnknownTypes=True,
+                                   translate_cb=page.localize, omitUnknownTypes=True,
                                    catalog=page.catalog)
         page.xml_deltatime = int((time()-t0)*1000)
         page.xml_size = len(xmlresult)
-        if page.isLocalizer():
-            xmlresult = xmlresult.replace('*_localizerStatus*', page.localizer.status)
-
         return xmlresult
 
     def checkNotAllowed(self,src):

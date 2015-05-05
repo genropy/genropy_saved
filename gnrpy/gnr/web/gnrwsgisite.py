@@ -231,9 +231,8 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self.gnrapp = self.build_gnrapp(options=options)
-        self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0]
+        self.server_locale = self.gnrapp.config('default?server_locale') or locale.getdefaultlocale()[0].replace('_','-')
         self.wsgiapp = self.build_wsgiapp(options=options)
-
         self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
@@ -361,10 +360,10 @@ class GnrWsgiSite(object):
         """TODO
         
         :param message: TODO"""
-        e = GnrSiteException(message=message)
+        localizerKw=None
         if self.currentPage:
-            e.setLocalizer(self.currentPage.localizer)
-        return e
+            localizerKw = self.currentPage.localizerKw
+        return  GnrSiteException(message=message,localizerKw=localizerKw)
         
         #def connFolderRemove(self, connection_id, rnd=True):
         #    shutil.rmtree(os.path.join(self.allConnectionsFolder, connection_id),True)
@@ -484,6 +483,11 @@ class GnrWsgiSite(object):
             self._custom_config = custom_config
         return self._custom_config
 
+    @property
+    def locale(self):
+        if self.currentPage:
+            return self.currentPage.locale
+        return self.site.server_locale
 
    #def _get_sitemap(self):
    #    return self.resource_loader.sitemap

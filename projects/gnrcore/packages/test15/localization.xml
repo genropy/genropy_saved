@@ -93,7 +93,8 @@
 			</formhandler_selection>
 				<framepane ext="py" path="webpages/gnrwdg/framepane.py">
 				<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
-						<delete base="Delete" de="Löschen" en="Delete" fr="Effacer" it="Cancellare"/>
+						<_save base="!!Save" de="!! Speichern" en="!!Save" fr="Sauvegarder !!" it="!! Salva"/>
+						<_delete base="!!Delete" de="!! Löschen" en="!!Delete" fr="Supprimer !!" it="!! Elimina"/>
 			</framepane>
 		</gnrwdg>
 		<tools>

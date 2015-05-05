@@ -228,11 +228,7 @@ class SqlTable(GnrObject):
                 rowcaption = self.recordCaption(record)
             except:
                 rowcaption = 'Current Record'
-        e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
-        
-        if self.db.application and hasattr(self.db.application,'site') and self.db.application.site.currentPage:
-            e.setLocalizer(self.db.application.site.currentPage.localizer)
-        return e
+        return exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg,localizer=self.db.localizer, **kwargs)
         
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)

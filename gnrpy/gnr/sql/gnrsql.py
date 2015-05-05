@@ -125,6 +125,7 @@ class GnrSqlDb(GnrObject):
         self.main_schema = main_schema
         self._connections = {}
         self.started = False
+        self._localizer = DbLocalizer()
         self._currentEnv = {}
         self.stores_handler = DbStoresHandler(self)
 
@@ -144,6 +145,10 @@ class GnrSqlDb(GnrObject):
     def dbstores(self):
         """TODO"""
         return self.stores_handler.dbstores
+
+    @property
+    def localizer(self):
+        return self._localizer
         
     def createModel(self):
         """TODO"""
@@ -1009,6 +1014,13 @@ class DbStoresHandler(object):
             changes = changes or self.db.model.check()
             if changes:
                 self.db.model.applyModelChanges()
+
+class DbLocalizer(object):
+    def translate(self,v):
+        if isinstance(v,basestring) and v.startswith('!!'):
+            return v[2:]
+        return v
+
             
 if __name__ == '__main__':
     pass

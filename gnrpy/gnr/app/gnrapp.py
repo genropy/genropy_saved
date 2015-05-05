@@ -24,7 +24,7 @@ import tempfile
 import atexit
 import logging
 import shutil
-
+import locale
 import sys
 import imp
 import os
@@ -175,6 +175,11 @@ class GnrSqlAppDb(GnrSqlDb):
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
         if not self.inTransactionDaemon and tblobj._usesTransaction:
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
+
+    @property
+    def localizer(self):
+        return self.application.localizer
+
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         pass
@@ -914,6 +919,10 @@ class GnrApp(object):
                 if pkgname: _key = '%s|%s' % (pkgname, _key.lower())
                 loc[_key] = dict([(k, v) for k, v in attrs.items() if not k.startswith('_')])
         return loc
+
+    @property
+    def locale(self):
+        return locale.getdefaultlocale()[0].replace('_','-')
         
     def updateLocalization(self, pkg, data, locale):
         """TODO

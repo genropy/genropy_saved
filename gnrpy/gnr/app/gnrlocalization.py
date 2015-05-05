@@ -28,37 +28,23 @@ from gnr.app.gnrconfig import getGenroRoot
 from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
-LOCREGEXP_EXCL = re.compile(r"""("{3}|'|")\!\!(?:{(\w*)})?(.*?)\1|\[\!\!(?:{(\w*)})?(.*?)\]""")
+LOCREGEXP = re.compile(r"""("{3}|'|")\!\!(?:{(\w*)})?(.*?)\1|\[\!\!(?:{(\w*)})?(.*?)\]|\b_T\(("{3}|'|")(.*?)\6\)""")
 
-LOCREGEXP_CLS = re.compile(r"""\b_T\(("{3}|'|")(.*?)\1\)""")
 
-TRANSLATION_EXCL = re.compile(r"^\!\!(?:{(\w*)})?(.*)$")
+TRANSLATION = re.compile(r"^\!\!(?:{(\w*)})?(.*)$")
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
 class GnrLocString(unicode):
-    def __new__(cls,value,module=None,lockey=None):
+    def __new__(cls,value,lockey=None,_tplargs=None,_tplkwargs=None):
         s = super(GnrLocString, cls).__new__(cls,value)
-        s._module = module or __name__
-        s._lockey = lockey or hashlib.md5('%s_%s' %(s._module,value)).hexdigest()
+        s.lockey = lockey or flatten(value)
+        s.args = _tplargs
+        s.kwargs = _tplkwargs
         return s
 
     def __mod__(self,*args,**kwargs):
-        return GnrLocString(super(GnrLocString, self).__mod__(*args,**kwargs),module=self._module,lockey=self._lockey)
-
-class ApplicationLocalizer(object):
-    def __init__(self,filepath):
-        self.module = os.path.relpath(filepath,getGenroRoot())
-    def __call__(self,value):
-        return GnrLocString(value,self.module)
-
-class PackageLocalizer(ApplicationLocalizer):
-    def __init__(self,filepath):
-        self.module = PACKAGERELPATH.sub('\\1',filepath)
-
-class CustomLocalizer(ApplicationLocalizer):
-    def __init__(self,filepath):
-        self.module = PACKAGERELPATH.sub('\\1',filepath)
+        return GnrLocString(super(GnrLocString, self).__mod__(*args,**kwargs),lockey=self.lockey,_tplargs=args,_tplkwargs=kwargs)
 
 
 class AppLocalizer(object):
@@ -92,20 +78,31 @@ class AppLocalizer(object):
             if locbag:
                 self.updateLocalizationDict(locbag)
 
-    def translate(self,txt,language):
+    def translate(self,txt,language=None):
+        language = (language or self.application.locale).split('-')[0].lower()
         if isinstance(txt,GnrLocString):
-            return
-        m = TRANSLATION_EXCL.match(txt)
-        if not m:
-            return txt
-        lockey = m.group(1)
-        if not lockey:
-            lockey = flatten(m.group(2))
-        translations = self.localizationDict.get(lockey)
-        if translations:
-            return translations.get(language) or translations.get('en') or translations.get('base')
+            language = 'en'
+            lockey = txt.lockey
+            translations = self.localizationDict.get(lockey)
+            if translations:
+                translation =  translations.get(language) or translations.get('en') or translations.get('base')
+                if txt.args or txt.kwargs:
+                    translation = translation.__mod__(*txt.args,**txt.kwargs)
+            else:
+                translation = txt
+            return translation
         else:
-            return m.group(2)
+            m = TRANSLATION.match(txt)
+            if not m:
+                return txt
+            lockey = m.group(1)
+            if not lockey:
+                lockey = flatten(m.group(2))
+            translations = self.localizationDict.get(lockey)
+            if translations:
+                return translations.get(language) or translations.get('en') or translations.get('base')
+            else:
+                return m.group(2)
 
     def autoTranslate(self,languages):
         languages = languages.split(',')
@@ -160,7 +157,7 @@ class AppLocalizer(object):
         moduleLocBag = Bag()
         def addToLocalizationBag(m):
             lockey = m.group(2) or m.group(4)
-            loctext = m.group(3) or  m.group(5)
+            loctext = m.group(3) or  m.group(5) or m.group(7)
             if not loctext:
                 return
             lockey = lockey or flatten(loctext)
@@ -170,7 +167,7 @@ class AppLocalizer(object):
                 moduleLocBag.setItem(lockey,None,_attributes=locdict)
         with open(n.attr['abs_path'],'r') as f:
             filecontent = f.read() 
-        LOCREGEXP_EXCL.sub(addToLocalizationBag,filecontent)
+        LOCREGEXP.sub(addToLocalizationBag,filecontent)
         if moduleLocBag:
             modulepath = os.path.relpath(n.attr['abs_path'],destFolder)
             path,ext = os.path.splitext(modulepath)

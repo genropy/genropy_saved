@@ -38,7 +38,6 @@ from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
-from gnr.web.gnrwebpage_proxy.localizer import GnrWebLocalizer
 from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
@@ -48,6 +47,7 @@ from gnr.core.gnrlang import getUuid,gnrImport, GnrException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
+from gnr.app.gnrlocalization import GnrLocString
 
 import datetime
 
@@ -57,6 +57,8 @@ AUTH_EXPIRED = 2
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
+
+
 
 def formulaColumn(*args,**fcpars):
     """add a local formula column"""
@@ -84,6 +86,12 @@ class GnrUserNotAllowed(GnrException):
     code = 'AUTH-001'
     description = '!!Genro Not Allowed Public call'
     caption = "!!User %(user)s is not allowed to call method %(method)s"    
+
+EXCEPTIONS = {'user_not_allowed': GnrUserNotAllowed,
+              'missing_resource': GnrMissingResourceException,
+              'unsupported_browsr': GnrUnsupportedBrowserException,
+              'generic': GnrWebPageException,
+              'maintenance': GnrMaintenanceException}
 
 class GnrWebPage(GnrBaseWebPage):
     """Standard class for :ref:`webpages <webpage>`
@@ -190,6 +198,9 @@ class GnrWebPage(GnrBaseWebPage):
         self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
         self._language = self.page_item['data']['rootenv.language']
         self._inited = True
+
+    def _T(self,value,lockey=None):
+        return GnrLocString(value,lockey=lockey)
             
     def onPreIniting(self, *request_args, **request_kwargs):
         """TODO"""
@@ -278,14 +289,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self._frontend
         
     frontend = property(_get_frontend)
-        
-    def _get_localizer(self):
-        if not hasattr(self, '_localizer'):
-            self._localizer = GnrWebLocalizer(self)
-        return self._localizer
-        
-    localizer = property(_get_localizer)
-    
+            
     @property 
     def developer(self):
         if not hasattr(self, '_developer'):
@@ -601,9 +605,6 @@ class GnrWebPage(GnrBaseWebPage):
             record[field] = data
             tblobj.update(record)
             self.db.commit()
-            
-        
-        
 
     @property
     def isGuest(self):
@@ -804,9 +805,16 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def pageArgs(self):
         return self.pageStore().getItem('pageArgs') or {}
-                
-    def _(self, txt):
-        return self.localizer.localize(txt)
+
+    @property
+    def localizer(self):
+        return self.application.localizer
+
+    def localize(self, txt):
+        return self.localizer.translate(txt,self.locale)
+
+    _ = localize
+
 
     def _getProxyObject(self, method, prefix=None):
         proxy_name, submethod = method.split('.', 1)
@@ -885,9 +893,7 @@ class GnrWebPage(GnrBaseWebPage):
              exception = EXCEPTIONS.get(exception)
              if not exception:
                  raise exception
-         e = exception(user=self.user,**kwargs)
-         e.setLocalizer(self.localizer)
-         return e
+         return exception(user=self.user,localizer=self.application.localizer,**kwargs)
 
     def build_arg_dict(self, _nodebug=False, _clocomp=False, **kwargs):
         """TODO
