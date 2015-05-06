@@ -25,6 +25,7 @@ http = :%(port)i
 ;wsgi-file = %(wsgi_file)s
 processes = %(processes)i
 threads = %(threads)i
+enable-threads = true
 stats = 127.0.0.1:%(stats_port)i
 worker-reload-mercy = 1
 disable-logging = true
