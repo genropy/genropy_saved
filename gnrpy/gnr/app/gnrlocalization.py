@@ -28,10 +28,12 @@ from gnr.app.gnrconfig import getGenroRoot
 from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
+SAFEAUTOTRANSLATE = re.compile(r"""(\%(?:\((?:.*?)\))?(?:.*?)[s|d|e|E|f|g|G|o|x|X|c|i|\%])""")
+
 LOCREGEXP = re.compile(r"""("{3}|'|")\!\!(?:{(\w*)})?(.*?)\1|\[\!\!(?:{(\w*)})?(.*?)\]|\b_T\(("{3}|'|")(.*?)\6\)""")
 
 
-TRANSLATION = re.compile(r"^\!\!(?:{(\w*)})?(.*)$")
+TRANSLATION = re.compile(r"^\!\!(?:{(\w*)})?(.*)$|(?:\[\!\!)(?:{(\w*)})?(.*?)\]")
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
@@ -91,25 +93,36 @@ class AppLocalizer(object):
                 translation = txt
             return translation
         else:
-            m = TRANSLATION.match(txt)
-            if not m:
-                return txt
-            lockey = m.group(1)
-            if not lockey:
-                lockey = flatten(m.group(2))
-            translations = self.localizationDict.get(lockey)
-            if translations:
-                return translations.get(language) or translations.get('en') or translations.get('base')
-            else:
-                return m.group(2)
+            def translatecb(m):
+                lockey = m.group(1) or m.group(3)
+                loctext = m.group(2) or m.group(4)
+                if not lockey:
+                    lockey = flatten(loctext)
+                translations = self.localizationDict.get(lockey)
+                if translations:
+                    return translations.get(language) or translations.get('en') or translations.get('base')
+                else:
+                    return loctext
+            return TRANSLATION.sub(translatecb,txt)
+
+
 
     def autoTranslate(self,languages):
         languages = languages.split(',')
-        for k,v in self.localizationDict.items():
+        def cb(m):
+            safekey = '[%i]' %len(safedict)
+            safedict[safekey] = m.group(1)
+            return safekey
+
+        for lockey,locdict in self.localizationDict.items():
+            safedict = dict()
+            base_to_translate = SAFEAUTOTRANSLATE.sub(cb,locdict['base'])
             for lang in languages:
-                if not v.get(lang):
-                    translated = self.translator.translate(v['base'],lang)
-                    v[lang] = translated
+                if not locdict.get(lang):
+                    translated = self.translator.translate(base_to_translate,lang)
+                    for k,v in safedict.items():
+                        translated = translated.replace(k,v)
+                    locdict[lang] = translated
 
     def getLocalizationBag(self,locfolder):
         destpath = os.path.join(locfolder,'localization.xml')
