@@ -127,10 +127,12 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return getattr(self,'do_%s' % command,self.wrongCommand)  
         
     def open(self):
-        print "WebSocket opened"
+        pass
+        #print "WebSocket opened"
         
     def close(self):
-        print "WebSocket closed"
+        pass
+        #print "WebSocket closed"
         
     @gen.coroutine 
     def on_message(self, message):
@@ -143,7 +145,8 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
                 self.write_message(result)
                 
     def on_close(self):
-        print "WebSocket closed"
+        pass
+        #print "WebSocket closed"
         
     def check_origin(self, origin):
         return True
@@ -171,7 +174,6 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     def do_wsmethod(self,method=None, dest_path=None, err_path = None,_time1=None,**kwargs):
         error = None
         result = None
-
         handler = self.page.getWsMethod(method)
         if handler:
             try:
@@ -190,7 +192,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
 
     def serializeMessage(self,command=None,data=None):
         result=Bag(dict(command=command,data=data))
-        print result
+        #print result
         return result.toXml(unresolved=True)
         
     @threadpool

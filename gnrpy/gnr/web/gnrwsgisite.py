@@ -39,8 +39,14 @@ from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WebSocketHandler
+import pdb
 
 import warnings
+try:
+    import uwsgi
+    UWSGIMODE = True
+except:
+    UWSGIMODE = False
 mimetypes.init()
 site_cache = {}
 
@@ -208,7 +214,7 @@ class GnrWsgiSite(object):
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
         self.default_page = self.config['wsgi?default_page']
-        self.websockets= boolean(self.config['wsgi?websockets'])
+        self.websockets= boolean(self.config['wsgi?websockets']) and UWSGIMODE
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
         

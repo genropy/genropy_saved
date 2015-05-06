@@ -855,7 +855,7 @@ class GnrWebPage(GnrBaseWebPage):
             submethod = method
         handler = getattr(proxy_object, submethod, None)
         if not handler or not getattr(handler, 'is_rpc', False):
-                handler = getattr(proxy_object, '%s_%s' % (prefix, submethod))
+            handler = getattr(proxy_object, '%s_%s' % (prefix, submethod))
         
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
@@ -877,6 +877,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             proxy_object = self
             submethod = method
+
         handler = getattr(proxy_object, submethod, None)
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
