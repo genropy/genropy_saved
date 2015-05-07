@@ -2388,11 +2388,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
                 var currentSelectedNode = this.multibuttonSource.getNode('#0');
                 currentSelectedNode.attr['_class'] +=' multibutton_selected';
-                if (this.identifier in currentSelectedNode.attr){
-                    currentSelected = currentSelectedNode.attr[this.identifier]
-                }else{
-                    currentSelected = currentSelectedNode.attr['code'] || currentSelectedNode.label;
-                }
+                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
             }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
@@ -2406,7 +2402,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var captionKey = caption || this.caption;
         var codeKey = identifier || this.identifier;
         var caption = objectPop(kw,captionKey);
-        var code = codeKey in kw ? kw[codeKey]:n.label;
+        var code = kw[codeKey] || n.label;
         var btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
         var customDelete = kw.deleteAction;
         if(customDelete){
