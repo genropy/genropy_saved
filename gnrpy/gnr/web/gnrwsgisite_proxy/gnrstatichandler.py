@@ -109,10 +109,14 @@ class StaticHandler(object):
             return self.site.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
-            mytime = os.stat(fullpath).st_mtime
-            if str(mytime) == if_none_match:
+            if_none_match = if_none_match.replace('"','')
+            stats = os.stat(fullpath)
+            mytime = stats.st_mtime
+            size = stats.st_size
+            my_none_match = "%s-%s"%(str(mytime),str(size))
+            if my_none_match == if_none_match:
                 headers = []
-                ETAG.update(headers, mytime)
+                ETAG.update(headers, my_none_match)
                 start_response('304 Not Modified', headers)
                 return [''] # empty body
         file_args = dict()
