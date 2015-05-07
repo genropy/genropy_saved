@@ -2406,7 +2406,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var captionKey = caption || this.caption;
         var codeKey = identifier || this.identifier;
         var caption = objectPop(kw,captionKey);
-        var code = kw[codeKey] || n.label;
+        var code = codeKey in kw ? kw[codeKey]:n.label;
         var btn_class = code==currentSelected?'multibutton multibutton_selected':'multibutton';
         var customDelete = kw.deleteAction;
         if(customDelete){
