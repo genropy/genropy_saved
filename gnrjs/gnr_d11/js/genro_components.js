@@ -2388,7 +2388,11 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             if(!currentSelected && this.mandatory && this.multibuttonSource.len()){
                 var currentSelectedNode = this.multibuttonSource.getNode('#0');
                 currentSelectedNode.attr['_class'] +=' multibutton_selected';
-                currentSelected = currentSelectedNode.attr[this.identifier] || currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                if (this.identifier in currentSelectedNode.attr){
+                    currentSelected = currentSelectedNode.attr[this.identifier]
+                }else{
+                    currentSelected = currentSelectedNode.attr['code'] || currentSelectedNode.label;
+                }
             }
             sourceNode.setRelativeData(sourceNode.attr.value,currentSelected);
 
