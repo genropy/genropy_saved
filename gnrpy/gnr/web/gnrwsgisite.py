@@ -208,7 +208,7 @@ class GnrWsgiSite(object):
             self.set_environment()
             
         self.config = self.load_site_config()
-        self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 2592000)
+        self.cache_max_age = int(self.config['wsgi?cache_max_age'] or 5356800)
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
