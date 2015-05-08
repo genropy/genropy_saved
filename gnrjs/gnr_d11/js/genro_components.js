@@ -4003,6 +4003,9 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
 
     sort:function(sortedBy){
         this.sortedBy = sortedBy || this.sortedBy;
+        if(!this.sortedBy){
+            return;
+        }
         var data = this.getData();
         var sl = [];
         dojo.forEach(this.sortedBy.split(','),function(n){
