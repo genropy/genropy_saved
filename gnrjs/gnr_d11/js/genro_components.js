@@ -2580,7 +2580,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                         if(r===false){
                             return
                         }else if(typeof(r)=='string'){
-                            genro.dlg.ask(_T('!!Closing page ')+childSourceNode.getRelativeData(title),r,
+                            genro.dlg.ask(_T('!!Closing page')+childSourceNode.getRelativeData(title),r,
                                             {confirm:_T('!!Close anyway'),cancel:_T('!!Cancel')},
                                             {confirm:function(){
                                                 closeFinalize();
@@ -2991,7 +2991,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {checker : 'checkbo
 
     cell_onDestroying:function(sourceNode,gridEditor,editingInfo){
         var newAttr = {};
-        newAttr[sourceNode._saved_attributes.field_getter] = sourceNode.gnrwdg.getDisplayedValue();
+        if (sourceNode._saved_attributes.field_getter!=sourceNode._saved_attributes.field){
+            newAttr[sourceNode._saved_attributes.field_getter] = sourceNode.gnrwdg.getDisplayedValue();
+        }
         sourceNode.gnrwdg._notrigger = true;
         gridEditor.grid.collectionStore().updateRow(editingInfo.row,newAttr);
         sourceNode.gnrwdg._notrigger = false;
