@@ -6,7 +6,7 @@
 
 "Test page description"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/framegrid:FrameGrid"
 
     def windowTitle(self):
         return ''
@@ -69,7 +69,15 @@ class GnrCustomWebPage(object):
         """First test description"""
         pane.checkBoxText(value='^.pluto',table='adm.user',popup=True)
         pane.textbox(value='^.pluto')
-    
+   
+    def test_11_mode_table(self,pane):
+        """First test description"""
+        bc = pane.borderContainer(height='400px')
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('users_pkeys',name='users',edit=dict(tag='checkBoxText',table='adm.user'),width='40em',caption_field='users')
+
+        bc.contentPane(region='center').bagGrid(storepath='main.test',struct=struct)
 
 
         
