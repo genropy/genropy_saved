@@ -2158,6 +2158,23 @@ class Bag(GnrObject):
                 result.setItem(node.label,value,node.attr)
         return result
 
+    def isEmpty(self,zeroIsNone=False,blankIsNone=False):
+        isEmpty = True
+        empties = [None]
+        if zeroIsNone:
+            empties.append(0)
+        if blankIsNone:
+            empties.append('')
+        for node in self.nodes:
+            if any(map(lambda a: a not in empties, node.attr.values())):
+                return False
+            if isinstance(node.value,Bag):
+                if not node.value.isEmpty():
+                    return False
+            elif node.value not in empties:
+                return False
+        return isEmpty
+
     def walk(self, callback, _mode='static', **kwargs):
         """Calls a function for each node of the Bag
         

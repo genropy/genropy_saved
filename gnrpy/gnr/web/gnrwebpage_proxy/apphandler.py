@@ -1127,13 +1127,17 @@ class GnrWebAppHandler(GnrBaseProxy):
             c = updated.getNode(key)
             if c:
                 for n in c.value:
-                    if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
-                        wrongUpdates[key] = row
-                        return
-                    row[n.label] = n.value
+                    if n.label in row:
+                        if '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
+                            wrongUpdates[key] = row
+                            return
+                        row[n.label] = n.value
+                    else:
+                        if '_loadedValue' in n.attr:
+                            row[n.label] = n.value
         if updated:
             pkeys = [pkey for pkey in updated.digest('#a._pkey') if pkey]
-            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys)
+            tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys,bagFields=True)
         if inserted:
             for k,r in inserted.items():
                 tblobj.insert(r)

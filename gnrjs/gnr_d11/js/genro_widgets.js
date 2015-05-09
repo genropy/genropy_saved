@@ -3777,19 +3777,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         rowBag = new gnr.GnrBag();
                         rowsnodes[k].setValue(rowBag, false);
                     }
-
-
+                    if(rowBag.getNode('_rowEditorStatus')){
+                        rowBag.popNode('_rowEditorStatus',false);
+                    }
                     if(editorPars && editorPars.statusColumn && dojo.some(rowBag.getNodes(),function(n){return n.attr.edit;})){
-                        if(!rowBag.getNode('_rowEditorStatus')){
-                            rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
-                                                                field:'_rowEditorStatus',
-                                                                cellClasses:'rowEditorStatus',
-                                                                headerClasses:'rowEditorStatus',
-                                                                name:' ',calculated:true,
-                                                                _customGetter:function(rowdata,rowIdx){
-                                                                    return this.grid.gridEditor.statusColGetter(rowdata,rowIdx);
-                                                                }});
-                        }
+                        rowBag.setItem('_rowEditorStatus',null,{dtype:'T',width:'2em',
+                                                            field:'_rowEditorStatus',
+                                                            cellClasses:'rowEditorStatus',
+                                                            headerClasses:'rowEditorStatus',
+                                                            name:' ',calculated:true,
+                                                            _customGetter:function(rowdata,rowIdx){
+                                                                return this.grid.gridEditor.statusColGetter(rowdata,rowIdx);
+                                                            }}, {'doTrigger':false});
                     }
 
                     //cellsnodes = rowBag.getNodes();

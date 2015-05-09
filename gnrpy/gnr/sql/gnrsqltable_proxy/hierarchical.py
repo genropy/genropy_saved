@@ -270,4 +270,14 @@ class HierarchicalHandler(object):
             return ','.join([r['_hpath'].replace('/','.') for r in f if r['_hpath']])
 
 
+    def getAncestors(self,pkey=None,hierarchical_pkey=None,meToo=True,columns=None,order_by=None,**kwargs):
+        if not hierarchical_pkey:
+            hierarchical_pkey = self.tblobj.readColumns(columns='$hierarchical_pkey' ,pkey=pkey)
+        p = hierarchical_pkey
+        where = ['( :p ILIKE $hierarchical_pkey || :suffix)']
+        if meToo:
+            where.append('( :p = $hierarchical_pkey )')
+        where =  ' OR '.join(where)
+        order_by= order_by or '$hlevel'
+        return self.tblobj.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns,**kwargs).fetch()
 
