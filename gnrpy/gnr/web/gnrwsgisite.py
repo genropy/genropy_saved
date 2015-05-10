@@ -1121,7 +1121,6 @@ class GnrWsgiSite(object):
         page._closed = True
 
     def sqlDebugger(self,**kwargs):
-        print 'site sqlDebugger'
         page = self.currentPage
         if page and (self.debug or page.isDeveloper()):
             page.developer.sqlDebugger.output(page, **kwargs)
