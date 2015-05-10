@@ -17,53 +17,32 @@ class GnrWebDeveloper(GnrBaseProxy):
     def init(self, **kwargs):
         #self.db = self.page.db
         self.debug = getattr(self.page, 'debug', False)
-        self._debug_calls = Bag()
+        self._sqlDebugger = None
+        self._pyDebugger = None
+
+
+    @property
+    def pyDebugger(self):
+        if not self._pyDebugger:
+            self._pyDebugger = GnrPyDebugger(self)
+        return self._pyDebugger
+
+
+    @property
+    def sqlDebugger(self):
+        if not self._sqlDebugger:
+            self._sqlDebugger = GnrSqlDebugger(self)
+        return self._sqlDebugger
 
     @property
     def db(self):
         return self.page.db
 
-    def output(self, debugtype, **kwargs):
-        page = self.page
-        if getattr(page, 'debug_%s' %debugtype, None):
-            getattr(self, 'output_%s' % debugtype)(page, **kwargs)
-
-    def output_sql(self, page, sql=None, sqlargs=None, dbtable=None, error=None,delta_time=None):
-        dbtable = dbtable or '-no table-'
-        kwargs=dict(sqlargs)
-        kwargs.update(sqlargs)
-        delta_time = int((delta_time or 0)*1000)
-        if sqlargs and sql:
-            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
-            value = sql %(formatted_sqlargs)
-        if error:
-            kwargs['sqlerror'] = str(error)
-        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_time_sql=delta_time,_description=dbtable,_type='sql',
-                                  **kwargs)
-    def output_py(self,page,methodname=None,code=None,delta_time=None,**kwargs):
-        delta_time = int((delta_time or 0)*1000)
-        mlist = page.debug_py.split(',')
-        if page.debug_py=='*' or methodname in mlist:
-            self._debug_calls.addItem('%03i Call %s' % (len(self._debug_calls),methodname), code,_execution_time=delta_time,_time_py=delta_time,_description=methodname,_type='py')
 
     def event_onCollectDatachanges(self):
-        page = self.page
-        if (page.debug_sql or page.debug_py) and self._debug_calls:
-            path = 'gnr.debugger.main.c_%s' % self.page.callcounter
-            attributes=dict(server_time=int((time()-page._start_time)*1000))
-            call_kwargs = dict(page._call_kwargs)
-            attributes['methodname'] = call_kwargs.pop('method')
-            call_kwargs.pop('_lastUserEventTs',None)
-            if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
-                call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
-            attributes['debug_info'] = call_kwargs.pop('_debug_info',None)
-            #attributes['_method_parameters'] = call_kwargs
-            attributes['sql_count'] = len(self._debug_calls)
-            attributes['sql_total_time'] = self._debug_calls.sum('#a._time_sql')
-            attributes['not_sql_time'] = attributes['server_time'] - attributes['sql_total_time']
-            attributes['r_count'] = self.page.callcounter
+        if self._sqlDebugger:
+            self.sqlDebugger.onCollectDatachanges()
 
-            page.setInClientData(path, self._debug_calls,attributes=attributes)
 
     def onDroppedMover(self,file_path=None):
         import tarfile
@@ -173,3 +152,121 @@ class GnrWebDeveloper(GnrBaseProxy):
         return self._logfile
 
     logfile = property(_get_logfile)
+
+
+class GnrSourceViewer(GnrBaseProxy):
+    @public_method
+    def source_viewer_content(self,pane,docname=None,**kwargs):
+        center = pane.framePane('sourcePane_%s' %docname.replace('/','_').replace('.','_'),region='center',_class='viewer_box selectable')
+        source = self.__readsource(docname)
+        self.source_viewer_editor(center,source=source)
+        pane.data('.docname',docname)
+        pane.dataRpc('dummy',self.save_source_code,docname='=.docname',
+                        subscribe_sourceCodeUpdate=True,
+                        sourceCode='=.source',_if='sourceCode && _source_changed',
+                        _source_changed='=.changed_editor',
+                        _onResult="""if(result=='OK'){
+                                            SET .source_oldvalue = kwargs.sourceCode;
+                                            genro.publish('rebuildPage');
+                                        }else if(result.newpath){
+                                            if(genro.mainGenroWindow){
+                                                var treeMenuPath = genro.parentIframeSourceNode?genro.parentIframeSourceNode.attr.treeMenuPath:null;
+                                                if(treeMenuPath){
+                                                    treeMenuPath = treeMenuPath.split('.');
+                                                    var l = result.newpath.split('/');
+                                                    treeMenuPath.pop();
+                                                    treeMenuPath.push(l[l.length-1].replace('.py',''));
+                                                    fullpath = treeMenuPath.join('.');
+                                                }
+                                                genro.dom.windowMessage(genro.mainGenroWindow,{topic:'refreshApplicationMenu',selectPath:fullpath});
+                                            }
+                                        }
+                                        else{
+                                            FIRE .error = result;
+                                        }""")
+
+
+
+    def source_viewer_editor(self,frame,source=None):
+        bar = frame.bottom.slotBar('5,fpath,*',height='18px',background='#efefef')
+        bar.fpath.div('^.docname',font_size='9px')
+        commandbar = frame.top.slotBar(',*,savebtn,revertbtn,5',childname='commandbar',toolbar=True,background='#efefef')
+        commandbar.savebtn.slotButton('Save',iconClass='iconbox save',
+                                _class='source_viewer_button',
+                                action='PUBLISH sourceCodeUpdate={save_as:filename || false}',
+                                filename='',
+                                ask=dict(title='Save as',askOn='Shift',
+                                        fields=[dict(name='filename',lbl='Name',validate_case='l')]))
+
+        commandbar.revertbtn.slotButton('Revert',iconClass='iconbox revert',_class='source_viewer_button',
+                                action='SET .source = _oldval',
+                                _oldval='=.source_oldvalue')
+        frame.data('.source',source)
+        frame.data('.source_oldvalue',source)
+        frame.dataController("""SET .changed_editor = currval!=oldval;
+                                genro.dom.setClass(bar,"changed_editor",currval!=oldval);""",
+                            currval='^.source',
+                            oldval='^.source_oldvalue',bar=commandbar)
+        cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
+                                config_mode='python',config_lineNumbers=True,
+                                config_indentUnit=4,config_keyMap='softTab',
+                                height='100%',
+                                readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly')
+        frame.dataController("""
+            var cm = cmNode.externalWidget;
+            var lineno = error.lineno-1;
+            var offset = error.offset-1;
+            var ch_start = error.offset>1?error.offset-1:error.offset;
+            var ch_end = error.offset;
+            cm.scrollIntoView({line:lineno,ch:ch_start});
+            var tm = cm.doc.markText({line:lineno,ch:ch_start},{line:lineno, ch:ch_end},
+                            {clearOnEnter:true,className:'source_viewer_error'});
+            genro.dlg.floatingMessage(cmNode.getParentNode(),{messageType:'error',
+                        message:error.msg,onClosedCb:function(){
+                    tm.clear();
+                }})
+
+            """,error='^.error',cmNode=cm)
+
+
+class GnrSqlDebugger(object):
+    def __init__(self,parent):
+        self.parent = parent
+        self._debug_calls = Bag()
+
+    def output(self, page, sql=None, sqlargs=None, dbtable=None, error=None,delta_time=None):
+        dbtable = dbtable or '-no table-'
+        kwargs=dict(sqlargs)
+        kwargs.update(sqlargs)
+        delta_time = int((delta_time or 0)*1000)
+        if sqlargs and sql:
+            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
+            value = sql %(formatted_sqlargs)
+        if error:
+            kwargs['sqlerror'] = str(error)
+        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,_execution_time=delta_time,_time_sql=delta_time,_description=dbtable,_type='sql',
+                                  **kwargs)
+
+    def onCollectDatachanges(self):
+        page = self.parent.page
+        if page.debug_sql and self._debug_calls:
+            path = 'gnr.debugger.main.c_%s' % page.callcounter
+            attributes=dict(server_time=int((time()-page._start_time)*1000))
+            call_kwargs = dict(page._call_kwargs)
+            attributes['methodname'] = call_kwargs.pop('method')
+            call_kwargs.pop('_lastUserEventTs',None)
+            if not call_kwargs.get('_debug_info') and ('table' in call_kwargs or 'dbtable' in call_kwargs):
+                call_kwargs['_debug_info'] = 'table: %s' %(call_kwargs.get('table') or call_kwargs.get('dbtable'))
+            attributes['debug_info'] = call_kwargs.pop('_debug_info',None)
+            #attributes['_method_parameters'] = call_kwargs
+            attributes['sql_count'] = len(self._debug_calls)
+            attributes['sql_total_time'] = self._debug_calls.sum('#a._time_sql')
+            attributes['not_sql_time'] = attributes['server_time'] - attributes['sql_total_time']
+            attributes['r_count'] = page.callcounter
+            page.setInClientData(path, self._debug_calls,attributes=attributes)
+
+class GnrPyDebugger(GnrBaseProxy):
+    @public_method
+    def debuggerPane(self,pane,**kwargs):
+        pane.div('Hello')
+
