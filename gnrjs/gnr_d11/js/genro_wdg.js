@@ -1130,6 +1130,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.updateStatus();
         this.grid.collectionStore().sort();
         this.grid.updateRowCount();
+        this.lastEditTs = new Date()
     },
     addNewRows_one:function(row){
         var grid = this.grid;

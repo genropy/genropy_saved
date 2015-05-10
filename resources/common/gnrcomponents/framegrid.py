@@ -127,6 +127,9 @@ class FrameGrid(BaseComponent):
                     store_kwargs=True,parentForm=None,**kwargs):
         if pbl_classes:
             kwargs['_class'] = 'pbl_roundedGroup'
+            if pbl_classes=='*':
+                kwargs['_class'] = 'pbl_roundedGroup noheader'
+
         if gridEditor:
             kwargs['grid_gridEditor'] = dict(default_kwargs=default_kwargs)
         kwargs.setdefault('grid_parentForm',parentForm)
