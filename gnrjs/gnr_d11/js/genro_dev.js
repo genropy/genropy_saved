@@ -340,7 +340,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     codeDebuggerPalette:function(parent){
         var bc = parent._('palettePane',{'paletteCode':'codeDebugger',title:'Debugger',contentWidget:'borderContainer',frameCode:'codeDebugger',margin:'2px',rounded:4});
-        bc._('contentPane',{region:'center',remote:'dev.debugger.debuggerPane'})
+        bc._('contentPane',{region:'center',remote:'dev.pyDebugger.debuggerPane'})
     },
 
     sqlDebugPalette:function(parent){

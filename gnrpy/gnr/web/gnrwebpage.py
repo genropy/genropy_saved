@@ -291,10 +291,10 @@ class GnrWebPage(GnrBaseWebPage):
     frontend = property(_get_frontend)
             
     @property 
-    def developer(self):
-        if not hasattr(self, '_developer'):
-            self._developer = GnrWebDeveloper(self)
-        return self._developer
+    def dev(self):
+        if not hasattr(self, '_dev'):
+            self._dev = GnrWebDeveloper(self)
+        return self._dev
         
     @property
     def utils(self):
@@ -828,6 +828,13 @@ class GnrWebPage(GnrBaseWebPage):
         if not proxy_object:
             proxy_class = self.pluginhandler.get_plugin(proxy_name)
             proxy_object = proxy_class(self)
+        else:
+            if '.' in submethod:
+                sl = submethod.split('.')
+                submethod = sl.pop()
+                while proxy_object and sl:
+                    subproxy = sl.pop(0)
+                    proxy_object = getattr(proxy_object,subproxy)
         return proxy_object, submethod
 
     def getPublicMethod(self, prefix, method):
@@ -2123,7 +2130,7 @@ class GnrWebPage(GnrBaseWebPage):
     @deprecated
     def log(self, msg):
         """.. warning:: deprecated since version 0.7"""
-        self.developer.log(msg)
+        self.dev.log(msg)
         
     ##### END: DEPRECATED METHODS #####
 

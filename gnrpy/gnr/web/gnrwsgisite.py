@@ -1123,7 +1123,7 @@ class GnrWsgiSite(object):
     def sqlDebugger(self,**kwargs):
         page = self.currentPage
         if page and (self.debug or page.isDeveloper()):
-            page.developer.sqlDebugger.output(page, **kwargs)
+            page.dev.sqlDebugger.output(page, **kwargs)
             page.sql_count = page.sql_count + 1
             page.sql_time = page.sql_time + kwargs.get('delta_time',0)
 

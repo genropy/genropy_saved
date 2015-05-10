@@ -19,7 +19,7 @@ class MoverPlugin(BaseComponent):
         bar.savebtn.slotButton("!!Save",
             action="""var movername= GET .movername;
                       var data = GET .tablesgrid.data;
-                      genro.rpcDownload('developer.downloadMover',{data:data,_download_name_:movername+'.gnrz',movername:movername});
+                      genro.rpcDownload('dev.downloadMover',{data:data,_download_name_:movername+'.gnrz',movername:movername});
         """,dlg=dlgwdg)
         return dlgwdg
     
@@ -54,7 +54,7 @@ class MoverPlugin(BaseComponent):
     def mainLeft_datamover(self, pane):
         """!!Mover"""
         frame = pane.framePane(datapath='gnr.datamover')
-        frame.dataRpc('.tablesgrid.data','developer.loadCurrentMover',subscribe_gnrdatamover_loadCurrent=True)
+        frame.dataRpc('.tablesgrid.data','dev.loadCurrentMover',subscribe_gnrdatamover_loadCurrent=True)
         
         bar = frame.bottom.slotToolbar('*,trashlines')
         bar.trashlines.div(_class='iconbox trash',dropTarget=True,
@@ -62,7 +62,7 @@ class MoverPlugin(BaseComponent):
                     onDrop_recordlines="FIRE .drop_recordlines = data;",
                     connect_ondblclick='FIRE .drop_allmovers')
         bar = frame.top.slotToolbar('3,mvtitle,*,btnsave,btndl',mvtitle='!!Data Mover',mvtitle_font_weight='bold')
-        bar.btnsave.slotButton("!!Save",iconClass='iconbox save',action="genro.serverCall('developer.saveCurrentMover',{data:data});",data='=.tablesgrid.data')
+        bar.btnsave.slotButton("!!Save",iconClass='iconbox save',action="genro.serverCall('dev.saveCurrentMover',{data:data});",data='=.tablesgrid.data')
         bar.btndl.slotButton("!!Download",iconClass='iconbox inbox',
                                 action="dlg.show();",dlg=self.__moverdialog(frame))
         bc = frame.center.borderContainer()
@@ -143,7 +143,7 @@ class MoverPlugin(BaseComponent):
                                             };""",
                                     relativeWorkspace=True,struct=self.__recordsgrid_struct)
                                     
-        frame.dataRpc('.recordsgrid.data','developer.getMoverTableRows',movercode='^.tablesgrid.currLabel',
+        frame.dataRpc('.recordsgrid.data','dev.getMoverTableRows',movercode='^.tablesgrid.currLabel',
                         tablerow='==this.getRelativeData(".tablesgrid.data").getNode(movercode).attr;',
                         _if='movercode',_else='return new gnr.GnrBag();')
         
@@ -159,7 +159,7 @@ class MoverPlugin(BaseComponent):
     
     def onUploading_datamover(self, file_url=None, file_path=None,
                                  description=None, titolo=None, **kwargs):
-        self.developer.onDroppedMover(file_path=file_path)
+        self.dev.onDroppedMover(file_path=file_path)
         
         
         

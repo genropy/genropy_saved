@@ -265,7 +265,10 @@ class GnrSqlDebugger(object):
             attributes['r_count'] = page.callcounter
             page.setInClientData(path, self._debug_calls,attributes=attributes)
 
-class GnrPyDebugger(GnrBaseProxy):
+class GnrPyDebugger(object):
+    def __init__(self,parent):
+        self.parent = parent
+        
     @public_method
     def debuggerPane(self,pane,**kwargs):
         pane.div('Hello')
