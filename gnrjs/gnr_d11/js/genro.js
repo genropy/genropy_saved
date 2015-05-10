@@ -56,7 +56,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.startArgs = kwargs.startArgs || {};
         this.debuglevel = kwargs.startArgs.debug || null;
         this.debug_sql = kwargs.startArgs.debug_sql;
-        this.debug_py = kwargs.startArgs.debug_py;
+        //this.debug_py = kwargs.startArgs.debug_py;
         this.websockets_url=kwargs.startArgs.websockets_url;
         this.pageMode = kwargs.pageMode;
         this.baseUrl = kwargs.baseUrl;
@@ -478,7 +478,7 @@ dojo.declare('gnr.GenroClient', null, {
         genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
         genro.setData('gnr.debugger.debug_sql',this.debug_sql);
-        genro.setData('gnr.debugger.debug_py',this.debug_py);
+        //genro.setData('gnr.debugger.debug_py',this.debug_py);
         this._registerUserEvents();
         if(!this.root_page_id){
             this.setAutoPolling();

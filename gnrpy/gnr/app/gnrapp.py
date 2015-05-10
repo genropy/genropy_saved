@@ -704,7 +704,7 @@ class GnrApp(object):
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
         dbattrs['application'] = self
-        self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
+        self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
         pkgMenus = self.config['menu?package'] or []
         if pkgMenus:

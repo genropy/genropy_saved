@@ -40,7 +40,7 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core import gnrlist
 
 from gnr.core.gnrlang import uniquify
-from gnr.core.gnrdecorator import extract_kwargs,public_method,debug_info
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson,fromJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebstruct import cellFromField
@@ -276,7 +276,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                              sqlContextName=None, virtual_columns=None,_eager_level=0,_eager_record_stack=None,_storename=None,resolver_kwargs=None,
-                             loadingParameters=None, _debug_info=None,**kwargs):
+                             loadingParameters=None, **kwargs):
         """TODO
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator

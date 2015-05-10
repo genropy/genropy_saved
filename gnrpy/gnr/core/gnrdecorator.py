@@ -34,21 +34,6 @@ def metadata(**kwargs):
         return func
         
     return decore
-
-def debug_info(func):
-    def newFunc(self,*args,**kwargs):
-        #ncalling_result = customize(self,'%s_oncalling_' %func.__name__,*args,**kwargs)
-       #if oncalling_result is False:
-       #    return
-        tstart = time()
-        result = func(self,*args,**kwargs)
-        if hasattr(self,'debugger'):
-            self.debugger(debugtype='py', methodname=func.__name__, py_args=args,py_kwargs=kwargs,delta_time=time()-tstart)
-        else:
-            print func.__name__,time()-tstart
-
-        return result
-    return newFunc
     
 def public_method(*args,**metadata):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s

@@ -798,10 +798,7 @@ class GnrWebPage(GnrBaseWebPage):
     def htmlHeaders(self):
         """TODO"""
         pass
-
-    def debugger(self, debugtype, **kwargs):
-        self.site.debugger(debugtype, **kwargs)
-    
+        
     @property
     def pageArgs(self):
         return self.pageStore().getItem('pageArgs') or {}

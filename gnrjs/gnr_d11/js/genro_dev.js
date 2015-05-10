@@ -311,6 +311,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
+        this.codeDebuggerPalette(pg);
         node.unfreeze();
     },
     
@@ -337,27 +338,20 @@ dojo.declare("gnr.GnrDevHandler", null, {
         return h?h[field]:'';
     },
 
+    codeDebuggerPalette:function(parent){
+        var bc = parent._('palettePane',{'paletteCode':'codeDebugger',title:'Debugger',contentWidget:'borderContainer',frameCode:'codeDebugger',margin:'2px',rounded:4});
+        bc._('contentPane',{region:'center',remote:'dev.debugger.debuggerPane'})
+    },
+
     sqlDebugPalette:function(parent){
         var bc = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'borderContainer',frameCode:'devSqlDebug',margin:'2px',rounded:4});
         bc._('dataController',{'script':"genro.debug_sql=sqldebug",'sqldebug':'^gnr.debugger.sqldebug'});
-        bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
+        //bc._('dataController',{'script':"SET gnr.debugger.pydebug = pydebug_methods?true:false; genro.debug_py=pydebug_methods;",'pydebug_methods':'^gnr.debugger.pydebug_methods',_delay:1});
 
         var top = bc._('framePane',{frameCode:'debugger_rpcgrid',region:'top',height:'200px',splitter:true,_class:'pbl_roundedGroup',margin:'2px',center_overflow:'hidden'});
-        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_py,activator_sql,5,clearConsole,5',side:'top'})
+        var topbar = top._('SlotBar',{_class:'pbl_roundedGroupLabel',slots:'5,vtitle,*,activator_sql,5,clearConsole,5',side:'top'})
         topbar._('div','vtitle',{innerHTML:'RPC grid'})
         var sn = bc.getParentNode();
-        topbar._('checkbox','activator_py',{'value':'^gnr.debugger.pydebug','label':'Debug py',
-            validate_onAccept:function(value,userChange){
-                if(userChange){
-                    var currval = genro.getData('gnr.debugger.pydebug_methods') || '';
-                    genro.setData('gnr.debugger.pydebug_methods',currval);
-                    genro.dlg.prompt('Methods',{dflt:currval,widget:'simpleTextArea',action:function(value){
-                        sn.setRelativeData('gnr.debugger.pydebug_methods',value);
-                    }});
-                }
-            }
-        });
-
         topbar._('checkbox','activator_sql',{'value':'^gnr.debugger.sqldebug','label':'Debug sql'});
         topbar._('slotButton','clearConsole',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null);genro.rpcHeaderInfo = {};genro.getCounter("debug",true);'});
         if(!genro.getData('gnr.debugger.main')){

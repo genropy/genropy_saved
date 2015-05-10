@@ -39,7 +39,6 @@ from gnr.core import gnrlist
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
-from gnr.core.gnrdecorator import debug_info
 from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
     GnrSqlMissingField, GnrSqlMissingColumn

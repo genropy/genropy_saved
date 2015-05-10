@@ -1054,7 +1054,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         };
         palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + groupCode;
         var floating = sourceNode._('palette', palette_kwargs);
-        var tab_kwargs = objectUpdate(kw, {selectedPage:'^gnr.palettes._groups.pagename.' + groupCode,groupCode:groupCode,_class:'smallTabs'});
+        var tab_kwargs = objectUpdate(kw, {selectedPage:'^gnr.palettes._groups.pagename.' + groupCode,groupCode:groupCode,_class:'smallTabs',margin:'2px'});
         var tc = floating._('tabContainer', tab_kwargs);
         return tc;
     }

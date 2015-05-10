@@ -1120,18 +1120,13 @@ class GnrWsgiSite(object):
         self.clearRecordLocks(page_id=page_id)
         page._closed = True
 
-    def debugger(self, debugtype, **kwargs):
-        """Send debug information to the client, if debugging is enabled.
-        Press ``Ctrl+Shift+D`` to open the debug pane in your browser
-        
-        :param debugtype: string (values: 'sql' or 'py')"""
-        if self.currentPage:
-            page = self.currentPage
-            if self.debug or page.isDeveloper():
-                page.developer.output(debugtype, **kwargs)
-            if debugtype=='sql':
-                page.sql_count = page.sql_count + 1
-                page.sql_time = page.sql_time + kwargs.get('delta_time',0)
+    def sqlDebugger(self,**kwargs):
+        print 'site sqlDebugger'
+        page = self.currentPage
+        if page and (self.debug or page.isDeveloper()):
+            page.developer.sqlDebugger.output(page, **kwargs)
+            page.sql_count = page.sql_count + 1
+            page.sql_time = page.sql_time + kwargs.get('delta_time',0)
 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""

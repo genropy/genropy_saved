@@ -366,8 +366,6 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        #if 'adm.user' == dbtable:
-        #    print x
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
@@ -397,13 +395,13 @@ class GnrSqlDb(GnrObject):
                 else:
                     cursor.execute(sql, sqlargs)
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
+                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
             except Exception, e:
                 #print sql
                 gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
                 if self.debugger:
-                    self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
+                    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
                 print str('error %s executing:%s - with kwargs:%s \n\n' % (
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()

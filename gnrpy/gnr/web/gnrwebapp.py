@@ -139,8 +139,8 @@ class GnrWsgiWebApp(GnrApp):
             loginUrl = authpkg.loginUrl()
         return loginUrl
 
-    def debugger(self, debugtype, **kwargs):
-        self.site.debugger(debugtype, **kwargs)
+    def sqlDebugger(self, **kwargs):
+        self.site.sqlDebugger(**kwargs)
 
     def clearSiteMenu(self):
         self._siteMenuDict = dict()
