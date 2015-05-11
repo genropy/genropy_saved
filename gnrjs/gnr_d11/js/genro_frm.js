@@ -875,7 +875,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var clipboard = this.getControllerData('clipboard');
         var disabled = this.isDisabled();
         var copyDisabled = currentPkey==null || currentPkey=='*newrecord*' || this.changed;
-        result.setItem('r_0',null,{caption:_T('!!Copy current record'),
+        result.setItem('r_0',null,{caption:_T('Copy current record'),
                                    disabled:copyDisabled,
                                    action:function(){that.copyCurrentRecord();}}
                                    );
@@ -887,7 +887,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
             
         result.setItem('r_2',null,{caption:'-'});
-        result.setItem('r_3',null,{caption:_T('!!Clear clipboard')});
+        result.setItem('r_3',null,{caption:_T('Clear clipboard')});
 
         return result;
     },
@@ -2218,8 +2218,8 @@ dojo.declare("gnr.formstores.Base", null, {
         var howmany = howmany || 1;
         if (howmany=='?'){
             var that = this;
-            genro.dlg.prompt('How many', {msg:_T('!!How many copies of current record?'),
-                                          lbl:_T('!!How many'),
+            genro.dlg.prompt('How many', {msg:_T('How many copies of current record?'),
+                                          lbl:_T('How many'),
                                           widget:'numberTextBox',
                                           action:function(value){that.duplicateRecord(srcPkey,value);}
                                           });

@@ -310,7 +310,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         var iframes = dojo.query('iframe',this.stackSourceNode.getValue().getNode(frameName).getWidget().domNode);
         if(iframes.some(function(n){return n.contentWindow.genro.checkBeforeUnload();})){
-            genro.dlg.ask(_T('!!Closing ')+title,_T("!!There is a pending operation in this tab"),{confirm:_T('!!Close anyway'),cancel:_T('!!Cancel')},
+            genro.dlg.ask(_T('Closing ')+title,_T("There is a pending operation in this tab"),{confirm:_T('Close anyway'),cancel:_T('Cancel')},
                             {confirm:function(){ finalizeCb();}})
         }else{
             finalizeCb();
@@ -412,7 +412,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.newBrowserWindowPage({
             pageName:'DOCUMENTATION',
             file:'/sys/docpage',
-            label: _T("!!Documentation")
+            label: _T("Documentation")
         })
     },
 

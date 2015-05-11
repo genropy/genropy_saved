@@ -259,16 +259,16 @@ dojo.declare("gnr.widgets.TooltipMultivalue", gnr.widgets.TooltipPane, {
                                                         that.changeMultivalueRow(sourceNode,objectUpdate({result:result,r:r},kw));
                                                     }
                                                 }});
-        bar._('button','deletebtn',{'label':_T('!!Delete'),command:'delete'});
-        bar._('button','cancel',{'label':_T('!!Cancel'),command:'cancel'});
-        bar._('button','confirm',{'label':_T('!!Confirm'),command:'confirm'});
+        bar._('button','deletebtn',{'label':_T('Delete'),command:'delete'});
+        bar._('button','cancel',{'label':_T('Cancel'),command:'cancel'});
+        bar._('button','confirm',{'label':_T('Confirm'),command:'confirm'});
         var box = dlg.center._('div',{padding:'5px'});
         var fb = genro.dev.formbuilder(box,2,{border_spacing:'3px',width:'270px'});
         var b = fb.addField('div',{text_align:'right'})
         b._('div',{innerHTML:'^.mv_label',_class:'mv_labels'})
         b._('menu',{values:labels,action:'SET .mv_label=$1.label',modifiers:'*',_class:'smallmenu'});
         fb.addField('TextBox',{value:'^.mv_value',width:'13em'});
-        fb.addField('div',{innerHTML:_T('!!Notes'),td_vertical_align:'top',text_align:'right'})
+        fb.addField('div',{innerHTML:_T('Notes'),td_vertical_align:'top',text_align:'right'})
         fb.addField('SimpleTextArea',{value:'^.mv_note',width:'13em',colspan:2});
         dlg.show_action();
     },
@@ -1535,9 +1535,9 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         if(objectNotEmpty(barkw)){
             var slots = '*,'+['delrow','addrow','addcol'].filter(function(n){return n in barkw}).join(',')+',5';
             var bar = gridframe._('SlotBar',{'side':'top',slots:slots,toolbar:true});
-            bar._('SlotButton','delrow',{label:_T('!!Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
-            bar._('SlotButton','addrow',{label:_T('!!Add row'),publish:'addrow',iconClass:'iconbox add_row'});
-            bar._('SlotButton','addcol',{label:_T('!!Add column'),publish:'addcol'});
+            bar._('SlotButton','delrow',{label:_T('Delete row'),publish:'delrow',iconClass:'iconbox delete_row'});
+            bar._('SlotButton','addrow',{label:_T('Add row'),publish:'addrow',iconClass:'iconbox add_row'});
+            bar._('SlotButton','addcol',{label:_T('Add column'),publish:'addcol'});
 
         }
         var gridkw = objectExtract(kw,'grid_*');
@@ -1554,14 +1554,14 @@ dojo.declare("gnr.widgets.BagEditor", gnr.widgets.gnrwdg, {
         };
         gridkw.selfsubscribe_addrow = function(){
             var that = this;
-            genro.dlg.prompt(_T('!!Add row'),{lbl:'Nodelabel',action:function(result){
+            genro.dlg.prompt(_T('Add row'),{lbl:'Nodelabel',action:function(result){
                     var b = that.widget.storebag();
                     b.setItem(result,new gnr.GnrBag({nodelabel:result}));
                 }});
         }
         gridkw.selfsubscribe_addcol = function(){
             var that = this;
-            genro.dlg.prompt(_T('!!Add col'),{'widget':[{lbl:'name',value:'^.field'},
+            genro.dlg.prompt(_T('Add col'),{'widget':[{lbl:'name',value:'^.field'},
                                              {lbl:'dtype',value:'^.dtype',wdg:'filteringSelect',values:'T:Text,N:Number,B:Boolean'}],
                                         action:function(result){
                                                     var b = genro.getData(that.attrDatapath('structpath'));
@@ -2580,8 +2580,8 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
                         if(r===false){
                             return
                         }else if(typeof(r)=='string'){
-                            genro.dlg.ask(_T('!!Closing page')+childSourceNode.getRelativeData(title),r,
-                                            {confirm:_T('!!Close anyway'),cancel:_T('!!Cancel')},
+                            genro.dlg.ask(_T('Closing page')+childSourceNode.getRelativeData(title),r,
+                                            {confirm:_T('Close anyway'),cancel:_T('Cancel')},
                                             {confirm:function(){
                                                 closeFinalize();
                                             }, cancel:function(){}});

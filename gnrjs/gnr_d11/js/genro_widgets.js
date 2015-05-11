@@ -3118,7 +3118,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             if (genro.grid_configurator && 'configurable' in sourceNode.attr) {
-                 sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('!!Base View')});
+                 sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
             }
         
         }

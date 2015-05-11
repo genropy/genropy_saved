@@ -227,38 +227,38 @@
 		<gnr_d11>
 			<js>
 				<genro ext="js" path="gnrjs/gnr_d11/js/genro.js">
-					<_you_have_an_active_form_with_pending_changes base="!!You have an active form with pending changes" de="!! Sie haben eine aktive Form mit ausstehenden Änderungen" en="!!You have an active form with pending changes" fr="!! Vous avez une forme active avec les modifications en attente" it="!! Avete una forma attiva con modifiche in sospeso"/>
+					<you_have_an_active_form_with_pending_changes base="You have an active form with pending changes"/>
 				</genro>
 						<genro_components ext="js" path="gnrjs/gnr_d11/js/genro_components.js">
-					<_delete base="!!Delete" de="!! Löschen" en="!!Delete" fr="Supprimer !!" it="!! Elimina"/>
-								<_cancel base="!!Cancel" de="!! Abbrechen" en="!!Cancel" fr="Annuler !!" it="!! Annulla"/>
-								<_confirm base="!!Confirm" de="Bestätigen Sie !!" en="!!Confirm" fr="Confirmez !!" it="Conferma !!"/>
-								<_notes base="!!Notes" de="Hinweise !!" en="!!Notes" fr="Remarques !!" it="!! Note"/>
-								<_delete_row base="!!Delete row" de="!! Zeile löschen" en="!!Delete row" fr="Supprimer la ligne !!" it="!! Elimina riga"/>
-								<_add_row base="!!Add row" de="!! Zeile hinzufügen" en="!!Add row" fr="Ajouter une ligne !!" it="!! Aggiungi riga"/>
-								<_add_column base="!!Add column" de="!! Spalte hinzufügen" en="!!Add column" fr="Ajouter colonne !!" it="!! Aggiungi colonna"/>
-								<_add_col base="!!Add col" de="!! Col hinzufügen" en="!!Add col" fr="Ajouter !! col" it="!! Aggiungi col"/>
-								<_closing_page_ base="!!Closing page " de="!! Closing Seite" en="!!Closing page" fr="!! Page de clôture" it="!! Page di chiusura"/>
-								<_close_anyway base="!!Close anyway" de="!! Sowieso Schließen" en="!!Close anyway" fr="Fermez toute façon !!" it="!! Chiudere comunque"/>
+					<delete base="Delete" de="Löschen" en="Delete" fr="Effacer" it="Cancellare"/>
+								<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+								<confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
+								<notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
+								<delete_row base="Delete row"/>
+								<add_row base="Add row"/>
+								<add_column base="Add column"/>
+								<add_col base="Add col"/>
+								<closing_page base="Closing page"/>
+								<close_anyway base="Close anyway"/>
 				</genro_components>
 						<genro_dev ext="js" path="gnrjs/gnr_d11/js/genro_dev.js">
-					<_mover base="!!Mover" de="!! Mover" en="!!Mover" fr="Mover !!" it="!! Mover"/>
-								<_save base="!!Save" de="!! Speichern" en="!!Save" fr="Sauvegarder !!" it="!! Salva"/>
-								<_cancel base="!!Cancel" de="!! Abbrechen" en="!!Cancel" fr="Annuler !!" it="!! Annulla"/>
-								<_code base="!!Code" de="!!-Code" en="!!Code" fr="!! Code" it="!! Codice"/>
-								<_private base="!!Private" de="!! Privat" en="!!Private" fr="Privé !!" it="!! Privata"/>
-								<_name base="!!Name" de="Namen !!" en="!!Name" fr="Nom !!" it="!! Nome"/>
-								<_authorization base="!!Authorization" de="!! Authorization" en="!!Authorization" fr="Autorisation !!" it="!! Autorizzazione"/>
-								<_notes base="!!Notes" de="Hinweise !!" en="!!Notes" fr="Remarques !!" it="!! Note"/>
+					<mover base="Mover" de="Antragsteller" en="Mover" fr="Déménageur" it="Motore"/>
+								<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+								<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+								<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+								<private base="Private" de="Privat" en="Private" fr="Privé" it="Privato"/>
+								<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+								<authorization base="Authorization" de="Genehmigung" en="Authorization" fr="Autorisation" it="Autorizzazione"/>
+								<notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
 				</genro_dev>
 						<genro_frm ext="js" path="gnrjs/gnr_d11/js/genro_frm.js">
-					<_copy_current_record base="!!Copy current record" de="!! Kopieren aktuellen Datensatz" en="!!Copy current record" fr="Copiez !! enregistrement en cours" it="!! Copia record corrente"/>
-								<_clear_clipboard base="!!Clear clipboard" de="!! Klar Zwischenablage" en="!!Clear clipboard" fr="Effacer presse-papiers !!" it="!! Cancella appunti"/>
-								<_how_many_copies_of_current_record_ base="!!How many copies of current record?" de="!! Wie viele Exemplare des aktuellen Datensatzes?" en="!!How many copies of current record?" fr="!! Combien de copies de record actuel?" it="!! Quante copie del record corrente?"/>
-								<_how_many base="!!How many" de="Wie viele !!" en="!!How many" fr="!! Combien" it="!! Quanti"/>
+					<copy_current_record base="Copy current record"/>
+								<clear_clipboard base="Clear clipboard"/>
+								<how_many_copies_of_current_record_ base="How many copies of current record?"/>
+								<how_many base="How many"/>
 				</genro_frm>
 						<genro_widgets ext="js" path="gnrjs/gnr_d11/js/genro_widgets.js">
-					<_base_view base="!!Base View" de="!! Basis anzeigen" en="!!Base View" fr="Vue de base !!" it="!! Vista di base"/>
+					<base_view base="Base View"/>
 				</genro_widgets>
 			</js>
 		</gnr_d11>
@@ -620,7 +620,6 @@
 								<edit_ base="Edit " de="Bearbeiten" en="Edit" fr="Éditer" it="Modifica"/>
 								<save_template base="Save template" de="Vorlage speichern" en="Save template" fr="Enregistrer le modèle" it="Salva modello"/>
 								<new_template base="New template" de="Neue Vorlage" en="New template" fr="Nouveau modèle" it="Nuovo modello"/>
-								<_save_template base="!!Save Template" de="!! Vorlage Speichern" en="!!Save Template" fr="Enregistrer le modèle !!" it="Salva modello !!"/>
 								<copy_from base="Copy From" de="Kopieren Sie aus" en="Copy From" fr="Copiez De" it="Copia da"/>
 								<custom base="Custom" de="Brauch" en="Custom" fr="Coutume" it="Abitudine"/>
 								<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
@@ -881,24 +880,24 @@
 					<add base="Add" de="Hinzufügen" en="Add" fr="Ajouter" it="Aggiungere"/>
 				</th_picker>
 						<th_querytool ext="js" path="resources/common/th/th_querytool.js">
-					<_save base="!!Save" de="!! Speichern" en="!!Save" fr="Sauvegarder !!" it="!! Salva"/>
-								<_delete base="!!Delete" de="!! Löschen" en="!!Delete" fr="Supprimer !!" it="!! Elimina"/>
-								<_default_query base="!!Default Query" de="!! Standardabfrage" en="!!Default Query" fr="!! Requête par défaut" it="!! Query Predefinito"/>
-								<_run_query base="!!Run Query" de="!! Run Query" en="!!Run Query" fr="Exécuter la requête !!" it="!! Run Query"/>
-								<_new_query base="!!New Query" de="!! Neue Abfrage" en="!!New Query" fr="Nouvelle requête !!" it="!! Nuova query"/>
-								<_helper_in base="!!Helper in" de="!! Helper in" en="!!Helper in" fr="Helper dans !!" it="!! Helper in"/>
-								<_new_set base="!!New Set" de="!! Neues Set" en="!!New Set" fr="Nouveau jeu !!" it="Nuovo set !!"/>
-								<_save_set base="!!Save set" de="!! Save Set" en="!!Save set" fr="Sauvegarder ensemble !!" it="!! Salva set"/>
-								<_in base="!!IN" de="IN !!" en="!!IN" fr="EN !!" it="!! IN"/>
-								<_cancel base="!!Cancel" de="!! Abbrechen" en="!!Cancel" fr="Annuler !!" it="!! Annulla"/>
-								<_confirm base="!!Confirm" de="Bestätigen Sie !!" en="!!Confirm" fr="Confirmez !!" it="Conferma !!"/>
-								<_new_set_column base="!!New set column" de="!! New set Spalte" en="!!New set column" fr="!! Colonne Nouvel ensemble" it="!! Colonna Nuovo set"/>
-								<_union base="!!Union" de="!! Union" en="!!Union" fr="Union !!" it="!! Union"/>
-								<_intersect base="!!Intersect" de="Intersect !!" en="!!Intersect" fr="Intersection !!" it="!! Intersect"/>
-								<_clear_clipboard base="!!Clear clipboard" de="!! Klar Zwischenablage" en="!!Clear clipboard" fr="Effacer presse-papiers !!" it="!! Cancella appunti"/>
-								<_new_dataset base="!!New dataset" de="!! Neuer Datensatz" en="!!New dataset" fr="Nouveau jeu de données !!" it="!! Il nuovo insieme di dati"/>
-								<_union_between_dataset base="!!Union between dataset" de="!! Union zwischen Datensatz" en="!!Union between dataset" fr="!! Union entre les données" it="!! Union tra dataset"/>
-								<_add_a_new_dataset_column base="!!Add a new dataset column" de="!! Einen neuen Datensatz Spalte hinzufügen" en="!!Add a new dataset column" fr="!! Ajouter une nouvelle colonne de données" it="!! Aggiungere una nuova colonna di dati"/>
+					<save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
+								<delete base="Delete" de="Löschen" en="Delete" fr="Effacer" it="Cancellare"/>
+								<default_query base="Default Query"/>
+								<run_query base="Run Query" de="Abfrage ausführen" en="Run query" fr="Requête exécutée" it="Interrogazione Run"/>
+								<new_query base="New Query" de="Neue Abfrage" en="New query" fr="Nouvelle recherche" it="Nuova ricerca"/>
+								<helper_in base="Helper in"/>
+								<new_set base="New Set" de="New Set" en="New Set" fr="Nouveau jeu" it="Nuovo set"/>
+								<save_set base="Save set"/>
+								<in base="IN" de="IN" en="IN" fr="EN" it="IN"/>
+								<cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
+								<confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
+								<new_set_column base="New set column"/>
+								<union base="Union" de="Union" en="Union" fr="Union" it="Unione"/>
+								<intersect base="Intersect" de="Schneiden" en="Intersect" fr="Couper" it="Intersecare"/>
+								<clear_clipboard base="Clear clipboard"/>
+								<new_dataset base="New dataset"/>
+								<union_between_dataset base="Union between dataset"/>
+								<add_a_new_dataset_column base="Add a new dataset column"/>
 				</th_querytool>
 						<th_tree ext="py" path="resources/common/th/th_tree.py">
 					<add base="Add" de="Hinzufügen" en="Add" fr="Ajouter" it="Aggiungere"/>
@@ -940,8 +939,8 @@
 								<please_select_the_column base="Please select the column" de="Bitte wählen Sie die Spalte" en="Please select the column" fr="S'il vous plaît sélectionnez la colonne" it="Si prega di selezionare la colonna"/>
 								<and base="AND" de="UND" en="AND" fr="ET" it="E"/>
 								<or base="OR" de="ODER" en="OR" fr="OU" it="OR"/>
-								<_warning base="!!Warning" de="Achtung !!" en="!!Warning" fr="Attention !!" it="Attenzione !!"/>
-								<_multiple_relation_to_table_ base="!!Multiple relation to table " de="!! Multiple Verhältnis zu Tisch" en="!!Multiple relation to table" fr="!! Relation multiple à la table" it="!! Relazione multipla a tavola"/>
+								<warning base="Warning" de="Warnung" en="Warning" fr="Avertissement" it="Avvertimento"/>
+								<multiple_relation_to_table_ base="Multiple relation to table "/>
 				</th_view>
 			</th>
 				<thermo_utils ext="py" path="resources/common/thermo_utils.py">

@@ -137,8 +137,8 @@ class GnrCustomWebPage(object):
         var topbar = frame._('ContentPane',{'region':'top',datapath:'.#parent',
                                 })._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true});
         topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',font_size:'.8em',color:'#555',font_weight:'bold'})
-        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16'});
-        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16'});
+        topbar._('slotButton','savebtn',{'label':_T('Save'),iconClass:'save16'});
+        topbar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'trash16'});
         frame._('ContentPane',{'region':'center',background:'lime'});
         node.unfreeze();
 

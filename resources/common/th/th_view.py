@@ -949,7 +949,7 @@ class THViewUtils(BaseComponent):
                         var masterTableCaption = result.masterTableCaption;
                         var cbdict = objectFromString(result.cbvalues);
                         if(v.length>1){
-                            genro.dlg.prompt(_T('!!Warning'),{msg:_T('!!Multiple relation to table ')+masterTableCaption,
+                            genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+masterTableCaption,
                                                             widget:'checkBoxText',
                                                             wdg_values:result.cbvalues,
                                                             wdg_cols:1,

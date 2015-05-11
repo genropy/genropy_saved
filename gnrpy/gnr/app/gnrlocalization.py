@@ -81,30 +81,44 @@ class AppLocalizer(object):
                 self.updateLocalizationDict(locbag)
 
     def translate(self,txt,language=None):
+        return self.getTranslation(txt,language=language)['translation']
+
+    def getTranslation(self,txt,language=None):
         language = (language or self.application.locale).split('-')[0].lower()
+        result = dict(status='OK',translation=None)
         if isinstance(txt,GnrLocString):
             lockey = txt.lockey
-            translations = self.localizationDict.get(lockey)
-            if translations:
-                translation =  translations.get(language) or translations.get('en') or translations.get('base')
+            translation_dict = self.localizationDict.get(lockey)
+            if translation_dict:
+                translation =  translation_dict.get(language)
+                if not translation:
+                    result['status'] = 'NOLANG'
+                    translation = translation_dict.get('en') or translation_dict.get('base')
                 if txt.args or txt.kwargs:
                     translation = translation.__mod__(*txt.args,**txt.kwargs)
             else:
+                result['status'] = 'NOKEY'
                 translation = txt
-            return translation
+            result['translation'] = translation
+            return result
         else:
             def translatecb(m):
                 lockey = m.group(1) or m.group(3)
                 loctext = m.group(2) or m.group(4)
                 if not lockey:
                     lockey = flatten(loctext)
-                translations = self.localizationDict.get(lockey)
-                if translations:
-                    return translations.get(language) or translations.get('en') or translations.get('base')
+                translation_dict = self.localizationDict.get(lockey)
+                if translation_dict:
+                    translation = translation_dict.get(language)
+                    if not translation:
+                        result['status'] = 'NOLANG'
+                        translation = translation_dict.get('en') or translation_dict.get('base')
+                    return translation
                 else:
+                    result['status'] = 'NOKEY'
                     return loctext
-            return TRANSLATION.sub(translatecb,txt)
-
+            result['translation'] = TRANSLATION.sub(translatecb,txt)
+            return result
 
 
     def autoTranslate(self,languages):

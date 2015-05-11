@@ -224,6 +224,12 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
     },
+    locale:function(){
+        if(!this._locale){
+            this._locale = genro.getData('gnr.locale');
+        }
+        return this._locale;
+    },
 
     bp:function(aux) {
         console.log('bp ',arguments);
@@ -753,7 +759,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         if(genro.activeForm){
             if(genro.activeForm.changed){
-                return _T('!!You have an active form with pending changes')
+                return _T('You have an active form with pending changes')
             }
         }
 
