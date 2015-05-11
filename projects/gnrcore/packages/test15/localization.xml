@@ -22,7 +22,7 @@
 				<arrivo base="Arrivo" de="Ankunft" en="Arrival" fr="Arrivée" it="Arrivo"/>
 		</nodetbl>
 		<recursive ext="py" path="model/recursive.py">
-			<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+			<description base="Description" en="Description" it="Descrizione"/>
 		</recursive>
 		<species ext="py" path="model/species.py">
 			<species base="Species" de="Spezies" en="Species" fr="Espèce" it="Specie"/>
@@ -53,7 +53,7 @@
 				<terapia base="Terapia" de="Therapie" en="Therapy" fr="Thérapie" it="Terapia"/>
 			</advanced_form>
 				<drop_uploader ext="py" path="webpages/components/drop_uploader.py">
-				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<description base="Description" en="Description" it="Descrizione"/>
 						<loaded_content base="loaded content" de="geladenen Inhalt" en="loaded content" fr="contenu chargé" it="contenuto caricato"/>
 						<xls_rows base="Xls Rows" de="Xls Rows" en="Xls Rows" fr="Rangées XLS" it="Righe xls"/>
 			</drop_uploader>
@@ -82,7 +82,7 @@
 			</formclientstore>
 				<formdocumentstore ext="py" path="webpages/gnrwdg/formdocumentstore.py">
 				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
-						<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+						<description base="Description" en="Description" it="Descrizione"/>
 						<date base="Date" de="Datum" en="Date" fr="Date" it="Data"/>
 			</formdocumentstore>
 				<formhandler_baggrid ext="py" path="webpages/gnrwdg/formhandler_baggrid.py">

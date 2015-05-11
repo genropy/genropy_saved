@@ -462,6 +462,10 @@ dojo.declare('gnr.GenroClient', null, {
             genro.dev.showDebugger();
         });
 
+        genro.dev.shortcut("Ctrl+Shift+T", function() {
+            //genro.dev.showLocalizer();
+        });
+
         genro.dev.shortcut("Ctrl+Shift+S", function() {
             genro.dev.takePicture();
         });

@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
                                 r.setItem('cell_0',null,{field:'base',width:'23em',name:'Base'});
                                 if(enabledLanguages){
                                     enabledLanguages.split(',').forEach(function(lang){
-                                            r.setItem('cell_'+lang,null,{field:lang,width:'23em',name:languages.getItem(lang),edit:true});
+                                            r.setItem('cell_'+lang,null,{field:lang,width:'23em',name:languages.getItem(lang),edit:{tag:'simpleTextArea'}});
                                         })
                                 }
                                 r.setItem('cell_path',null,{field:'path',width:'20em',name:'File',hidden:'^#FORM.filePathHidden',format_joiner:'<br/>'});
@@ -97,16 +97,18 @@ class GnrCustomWebPage(object):
                 changesdict[v['_lockey']] = dict(filtered)
         localizer = self.db.application.localizer
         updatablebags = localizer.updatableLocBags['all' if self.isDeveloper() else 'unprotected']
-        def cb(n,changedNodes=None):
+        def cb(n,changedNodes=None,localizationDict=None):
             if n.label in changesdict:
                 n.attr.update(changesdict[n.label])
                 changedNodes.append(n.label)
-
+                localizer_item =  localizationDict.get(n.label)
+                if localizer_item:
+                    localizer_item.update(changesdict[n.label])
         for destFolder in updatablebags:
             locbagpath = os.path.join(destFolder,'localization.xml')
             locbag = Bag(locbagpath)
             changedNodes=[]
-            locbag.walk(cb,changedNodes=changedNodes)
+            locbag.walk(cb,changedNodes=changedNodes,localizationDict=localizer.localizationDict)
             if changedNodes:
                 locbag.toXml(locbagpath)
 

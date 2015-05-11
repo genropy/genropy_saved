@@ -127,7 +127,7 @@ try:
             if (isinstance(value,basestring) or isinstance(value,unicode)) and dtype:
                 value = '%s::%s' %(value,dtype)
             if mask and '#' in mask:
-                caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
+                caption = self.localizer.translate(caption) if self.localizer else caption.replace('!!','')
                 mask = mask.replace('#',caption)
             elif not format and formattedValue:
                 value = formattedValue

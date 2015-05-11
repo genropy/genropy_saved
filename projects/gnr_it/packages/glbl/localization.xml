@@ -16,7 +16,7 @@
 				<codice_provincia base="Codice Provincia" de="Province Code" en="Code Province" fr="Province Code" it="Codice Provincia"/>
 				<sigla_provincia base="Sigla Provincia" de="Province Sigla" en="Sigla Province" fr="Province Sigla" it="Sigla Provincia"/>
 				<codice_comune base="Codice Comune" de="Common Code" en="Common Code" fr="Code Commun" it="Codice Comune"/>
-				<denominazione base="Denominazione" de="Konfession" en="Denomination" fr="Dénomination" it="Denominazione"/>
+				<denominazione base="Denominazione" en="Denomination" it="Denominazione"/>
 				<denominazione_tedesca base="Denominazione tedesca" de="Nennen Deutsch" en="Name German" fr="Nom allemand" it="Denominazione tedesca"/>
 				<capoluogo base="Capoluogo" de="Hauptort" en="Chief town" fr="Chef-" it="Capoluogo"/>
 				<zona_altimetrica base="Zona altimetrica" de="Höhenlage" en="Altitude zone" fr="zone de l'altitude" it="Zona altimetrica"/>
@@ -32,7 +32,7 @@
 				<comune base="Comune" de="Gemeinsam" en="Common" fr="Commun" it="Comune"/>
 		</localita>
 		<nazione ext="py" path="model/nazione.py">
-			<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+			<code base="Code" en="Code" it="Codice"/>
 				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 				<code3 base="Code3" de="Code3" en="Code3" fr="Code3" it="Code3"/>
 				<num_code base="Num.Code" de="Num.Code" en="Num.Code" fr="Num.Code" it="Num.Code"/>
@@ -41,15 +41,15 @@
 		<nuts ext="py" path="model/nuts.py">
 			<nomeclatura_statistica base="Nomeclatura statistica" de="Nomeclatura Statistiken" en="Nomeclatura statistics" fr="statistiques Nomeclatura" it="Nomeclatura statistica"/>
 				<nomenclatura_statistica base="Nomenclatura statistica" de="Statistische Systematik" en="Statistical classification" fr="Classification statistique" it="Nomenclatura statistica"/>
-				<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
-				<description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
+				<code base="Code" en="Code" it="Codice"/>
+				<description base="Description" en="Description" it="Descrizione"/>
 				<level base="Level" de="Höhe" en="Level" fr="Niveau" it="Livello"/>
 				<country base="Country" de="Land" en="Country" fr="Pays" it="Paese"/>
 		</nuts>
 		<provincia ext="py" path="model/provincia.py">
 			<sigla base="Sigla" de="Abkürzung" en="Abbreviation" fr="Abréviation" it="Abbreviazione"/>
 				<regione base="Regione" de="Region" en="Region" fr="Région" it="Regione"/>
-				<nome base="Nome" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<nome base="Nome" en="Name" it="Nome"/>
 				<nome_locale base="Nome Locale" de="Lokaler Name" en="Local Name" fr="Nom local" it="Nome Locale"/>
 				<codice base="codice" de="Code" en="Code" fr="Code" it="Codice"/>
 				<codice_istat base="Codice Istat" de="ISTAT-Code" en="Istat code" fr="Code Istat" it="Codice Istat"/>
@@ -61,7 +61,7 @@
 		<regione ext="py" path="model/regione.py">
 			<regione base="Regione" de="Region" en="Region" fr="Région" it="Regione"/>
 				<sigla base="Sigla" de="Abkürzung" en="Abbreviation" fr="Abréviation" it="Abbreviazione"/>
-				<nome base="Nome" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<nome base="Nome" en="Name" it="Nome"/>
 				<nome_locale base="Nome Locale" de="Lokaler Name" en="Local Name" fr="Nom local" it="Nome Locale"/>
 				<codice base="Codice" de="Code" en="Code" fr="Code" it="Codice"/>
 				<codice_istat base="Codice Istat" de="ISTAT-Code" en="Istat code" fr="Code Istat" it="Codice Istat"/>

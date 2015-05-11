@@ -441,36 +441,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                     style:'white-space: pre;'});
     },
 
-    openLocalizer:function() {
-        noValueIndicator = "<span >&nbsp;</span>";
-        genro.src.getNode()._('div', '_localizer');
-        var node = genro.src.getNode('_localizer').clearValue().freeze();
-        genro.setData('gnr.pageLocalization', genro.rpc.remoteCall('localizer.pageLocalizationLoad'));
-        var dlg = node._('dialog', {nodeId:'_localizer',title:'Localizer',width:'40em','padding':'2px'});
-        var xx = dlg._('div', {height:'400px',overflow:'auto',background_color:'#eee',border:'1px inset'});
-        var saveData = function() {
-            var data = genro.getData('gnr.pageLocalization');
-            var cb = function() {
-                genro.pageReload();
-            };
-            genro.rpc.remoteCall('localizer.pageLocalizationSave', {data:data}, 'bag', 'POST', null, cb);
-        };
-        dlg._('button', {label:'Save',margin:'4px','float':'right',onClick:saveData});
-        var nodes = genro.getData('gnr.pageLocalization').getNodes();
-        var tbl = xx._('table', {_class:'localizationTable',width:'100%'});
-        var thead = tbl._('thead');
-        var r = thead._('tr');
-        r._('th', {content:'Key'});
-        r._('th', {content:'Value'});
-        var tbody = tbl._('tbody');
-        for (var i = 0; i < nodes.length; i++) {
-            var r = tbody._('tr', {datapath:'gnr.pageLocalization.r_' + i});
-            r._('td', {width:'15em'})._('div', {innerHTML:'^.key'});
-            r._('td')._('inlineeditbox', {value:'^.txt',noValueIndicator:noValueIndicator});
-        }
-        node.unfreeze();
-        genro.wdgById('_localizer').show();
-    },
     printUrl: function(url) {
         genro.dev.deprecation("genro.dev.printUrl(url)", "genro.download(url,'print')");
         genro.download(url, null, 'print');

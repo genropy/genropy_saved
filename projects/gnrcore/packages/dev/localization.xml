@@ -19,7 +19,7 @@
 								<documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
 								<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
 								<parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
-								<code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+								<code base="Code" en="Code" it="Codice"/>
 				</th_widget>
 			</widget>
 		</tables>

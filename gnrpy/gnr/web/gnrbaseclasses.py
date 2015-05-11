@@ -307,7 +307,7 @@ class TableTemplateToHtml(BagToHtml):
             virtual_columns = template.getItem('main?virtual_columns')
         self.record = self.tblobj.recordAs(record,virtual_columns=virtual_columns)
         return templateReplace(template,self.record, safeMode=True,noneIsBlank=False,
-                    localizer=self.db.application.localizeText,urlformatter=self.site.externalUrl,
+                    localizer=self.db.application.localizer,urlformatter=self.site.externalUrl,
                     **kwargs)
 
     @extract_kwargs(pdf=True)

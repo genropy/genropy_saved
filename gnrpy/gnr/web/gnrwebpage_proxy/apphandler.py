@@ -55,9 +55,6 @@ class GnrWebAppHandler(GnrBaseProxy):
     def init(self, **kwargs):
         """TODO"""
         self.gnrapp = self.page.site.gnrapp
-        siteStatus = self.page.siteStatus
-        if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
-            self.gnrapp.buildLocalization()
 
     def event_onEnd(self):
         """TODO"""

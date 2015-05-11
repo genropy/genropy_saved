@@ -740,7 +740,6 @@ class GnrApp(object):
             self.config['menu']=self.instanceMenu
             
         self.localizer = AppLocalizer(self)
-        self.buildLocalization()
         if forTesting:
             # Create tables in temporary database
             self.db.model.check(applyChanges=True)
@@ -893,71 +892,11 @@ class GnrApp(object):
             handler = getattr(pkg,method,None)
             if handler:
                 handler(*args,**kwargs)
-        
-
-    def buildLocalization(self):
-        """TODO"""
-        self.localization = {}
-        for pkg in self.packages.values():
-            try:
-                pkgloc = Bag(os.path.join(pkg.packageFolder, 'localization.xml'))
-            except:
-                pkgloc = Bag()
-            try:
-                customLoc = Bag(os.path.join(pkg.customFolder, 'localization.xml'))
-            except:
-                customLoc = Bag()
-            pkgloc.update(customLoc)
-
-            self.localization.update(self._compileLocalization(pkgloc, pkgname=pkg.id))
-        self.localizationTime = time.time()
-        
-    def _compileLocalization(self, locbag, pkgname=None):
-        loc = {}
-        for attrs in locbag.digest('#a'):
-            _key = attrs.get('_key')
-            if _key:
-                if pkgname: _key = '%s|%s' % (pkgname, _key.lower())
-                loc[_key] = dict([(k, v) for k, v in attrs.items() if not k.startswith('_')])
-        return loc
 
     @property
     def locale(self):
         return locale.getdefaultlocale()[0].replace('_','-')
         
-    def updateLocalization(self, pkg, data, locale):
-        """TODO
-
-        :param pkg: the :ref:`package <packages>` object
-        :param data: TODO
-        :param locale: the current locale (e.g: en, en_us, it)"""
-        pkgobj = self.packages[pkg]
-        locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
-        pkglocbag = Bag(locpath)
-        for k, v in data.digest('#v.key,#v.txt'):
-            lbl = re.sub('\W', '_', k).replace('__', '_')
-            if not lbl in pkglocbag:
-                pkglocbag.setItem(lbl, None, _key=k, it=k, en='', fr='', de='')
-            pkglocbag.setAttr(lbl, {locale: v})
-        pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
-    
-    def localizeText(self, txt,pkg=None,localelang=None):
-        """Translate the *txt* string following the browser's locale
-        
-        :param txt: the text to be translated"""
-        loc = None
-        txtlower = txt.lower()
-        if pkg:
-            key = '%s|%s' % (pkg, txtlower)
-            loc = self.localization.get(key)
-        if not loc:
-            loc = self.localization.get(txtlower)
-        if loc:
-            loctxt = loc.get(localelang)
-            if loctxt:
-                txt = loctxt
-        return txt
-    
 
     def setPreference(self, path, data, pkg):
         if self.db.package('adm'):

@@ -495,13 +495,6 @@ class PageRegister(BaseRegister):
             data.setItem(serverpath, value, attr)
             self.subscribe_path(page_id,serverpath)
 
-    def updateLocalization(self,page_id=None,localizer_dict=None):
-        localization = {}
-        data = self.get_item_data(page_id)
-        localization.update(data.getItem('localization') or {})
-        localization.update(localizer_dict)
-        data.setItem('localization', localization)
-
     def pageInMaintenance(self,page_id=None):
         page_item = self.get_item(page_id)
         if not page_item:

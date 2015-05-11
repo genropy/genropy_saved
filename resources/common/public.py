@@ -270,16 +270,6 @@ class PublicSlots(BaseComponent):
         pane.dock(id='default_dock', background='none', border=0)
         
     @struct_method
-    def public_publicRoot_locBtn(self,pane,**kwargs):
-        if self.isLocalizer():
-            pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
-            pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
-                            status='^gnr.localizerStatus', _init=True, 
-                            _else="return 'localizer_hidden'")
-        else:
-            pane.div()
-            
-    @struct_method
     def public_publicRoot_devBtn(self,pane,**kwargs):
         if self.isDeveloper():
             pane.div(connect_onclick='genro.dev.showDebugger();',

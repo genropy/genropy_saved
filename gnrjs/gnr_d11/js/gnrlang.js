@@ -40,7 +40,8 @@ function _T(str){
     var localekey = 'localsdict_'+language;
     var localsdict = genro.getFromStorage('local',localekey) || {};
     if(!(str in localsdict)){
-        var result = genro.serverCall('getRemoteTranslation',{txt:str,language:language});
+        var toTranslate = (str.search(/^!!|\[!!/)<0)?'!!'+str:str;
+        var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language});
         var localizedString = result['translation'];
         if(result.status=='OK'){
             localsdict[str] = localizedString;

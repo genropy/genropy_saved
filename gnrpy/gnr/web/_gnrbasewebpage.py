@@ -772,12 +772,7 @@ class GnrBaseWebPage(GnrObject):
             resolver._page = self
             return resolver()
     
-    @public_method    
-    def resetApp(self, **kwargs):
-        """TODO"""
-        self.siteStatus['resetTime'] = time.time()
-        self.siteStatusSave()
-    
+
     @public_method
     def applyChangesToDb(self, **kwargs):
         """TODO"""

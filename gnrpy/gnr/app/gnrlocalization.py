@@ -120,6 +120,7 @@ class AppLocalizer(object):
             result['translation'] = TRANSLATION.sub(translatecb,txt)
             return result
 
+    
 
     def autoTranslate(self,languages):
         languages = languages.split(',')
@@ -176,6 +177,7 @@ class AppLocalizer(object):
                     d = DirectoryResolver(root,include='*.py,*.js')()
                     d.walk(self._updateModuleLocalization,locbag=locbag,_mode='deep',destFolder=s['destFolder'])
                 locbag.toXml(os.path.join(s['destFolder'],'localization.xml'),pretty=True,typeattrs=False, typevalue=False)
+        self.buildLocalizationDict()
 
     def _updateModuleLocalization(self,n,locbag=None,destFolder=None):
         if n.attr.get('file_ext') == 'directory':

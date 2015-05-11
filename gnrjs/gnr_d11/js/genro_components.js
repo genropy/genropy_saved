@@ -3497,12 +3497,12 @@ dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
 
 dojo.declare("gnr.stores._Collection",null,{
     messages:{
-        delete_one : "You are about to delete the selected record.<br/>You can't undo this",
-        delete_logical_one : "The record cannot be removed.<br/>It will be hidden instead.",
-        delete_many : "You are about to delete $count records.<br/>You can't undo this",
-        delete_logical_many : "You are about to delete $count records <br/> Some of them cannot be deleted but will be hidden instead.",
-        unlink_one:"You are about to remove the selected record from current $master",
-        unlink_many:"You are about to discard the selected $count records from current $master"
+        delete_one : "!!You are about to delete the selected record.<br/>You can't undo this",
+        delete_logical_one : "!!The record cannot be removed.<br/>It will be hidden instead.",
+        delete_many : "!!You are about to delete $count records.<br/>You can't undo this",
+        delete_logical_many : "!!You are about to delete $count records <br/> Some of them cannot be deleted but will be hidden instead.",
+        unlink_one:"!!You are about to remove the selected record from current $master",
+        unlink_many:"!!You are about to discard the selected $count records from current $master"
     },
     
     constructor:function(node,kw){
@@ -3638,12 +3638,12 @@ dojo.declare("gnr.stores._Collection",null,{
                                                         deleteCb.call(that,pkeys,protectPkeys);
                                                     }
                                                 }});
-        slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
-        var btnattr = {label:'Confirm',command:'deleteRows'};
+        slotbar._('button','cancel',{label:_T('Cancel'),command:'cancel'});
+        var btnattr = {label:_T('Confirm'),command:'deleteRows'};
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1,{border_spacing:'1px',width:'100%',margin_bottom:'12px'});
             fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl_text_align:'right',
-                                        lbl:'Records to delete',lbl_color:'#444',parentForm:false});
+                                        lbl:_T('Records to delete'),lbl_color:'#444',parentForm:false});
             btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
             fb._('data',{path:'gnr._dev.deleteask.count',content:null});
