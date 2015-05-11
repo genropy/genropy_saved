@@ -358,6 +358,7 @@ class GnrPackage(object):
         self.tableMixins = {}
         self.plugins = {}
         self.loadPlugins()
+        self._pkgMenu = None
         if not project:
             projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
             project = os.path.split(projectPath)[1]
@@ -368,14 +369,7 @@ class GnrPackage(object):
         except Exception, e:
             log.exception(e)
             raise GnrImportException(
-                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
-        try:
-            self.pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
-            for pluginname,plugin in self.plugins.items():
-                self.pkgMenu.update(plugin.menuBag)
-        except:
-            self.pkgMenu = Bag()
-        
+                    "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))    
         self.pkgMixin = GnrMixinObj()
         instanceMixin(self.pkgMixin, getattr(self.main_module, 'Package', None))
         
@@ -413,7 +407,16 @@ class GnrPackage(object):
             customModelFolder = os.path.join(self.customFolder, 'model')
             self.loadTableMixinDict(self.custom_module, customModelFolder, model_prefix='custom_')
         self.configure()
-        
+
+    @property
+    def pkgMenu(self):
+        if not self._pkgMenu:
+            pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
+            for pluginname,plugin in self.plugins.items():
+                pkgMenu.update(plugin.menuBag)
+            self._pkgMenu = pkgMenu
+        return self._pkgMenu
+
     @property
     def db(self):
         return self.application.db
@@ -725,19 +728,9 @@ class GnrApp(object):
 
         for pkgid, apppkg in self.packages.items():
             apppkg.initTableMixinDict()
-            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
-                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
-                if len(apppkg.pkgMenu) == 1:
-                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
-                else:
-                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
-
-
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
-
         self.db.inTransactionDaemon = False
         self.pkgBroadcast('onDbStarting')
         self.db.startup(restorepath=restorepath)
@@ -754,6 +747,14 @@ class GnrApp(object):
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
+        for pkgid, apppkg in self.packages.items():
+            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(apppkg.pkgMenu) == 1:
+                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
+                else:
+                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
+                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
         self.onInited()
 
     def importFromSourceInstance(self,source_instance=None):
