@@ -80,56 +80,71 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
         return {cmAttrs:cmAttrs}
     },
 
-    created: function(widget, savedAttrs, sourceNode) {
+    created:function(widget, savedAttrs, sourceNode){
         var that = this;
         var cmAttrs = objectPop(savedAttrs,'cmAttrs');
+        var mode = cmAttrs.mode;
+        var theme = cmAttrs.theme;
         var cb = function(){
-            var mode = cmAttrs.mode;
-            var theme = cmAttrs.theme;
-            var cb2 = function(){
-                dojo.style(widget,{position:'relative'})
-                var cm = CodeMirror(widget,cmAttrs);
-                dojo.style(widget.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
-                cm.refresh();
-                cm.sourceNode = sourceNode;
-                cm.gnr = that;
-                sourceNode.externalWidget = cm;
-                for (var prop in that) {
-                    if (prop.indexOf('mixin_') == 0) {
-                        cm[prop.replace('mixin_', '')] = that[prop];
-                    }
-                }
-                cm.on('update',function(){
-                    sourceNode.delayedCall(function(){
-                        var v = sourceNode.externalWidget.getValue();
-                        sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
-                    },500,'updatingContent')
-                })
-            }
-            var cb1 = function(){
+            that.load_mode(mode,function(){
                 if(theme){
-                    genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,function(){
-                        cb2();
-                    })
-                }else{
-                    cb2();
+                    that.load_theme(theme,function(){that.initialize(widget,cmAttrs,sourceNode)})
                 }
-            }
-            that.load_mode(mode,cb1);
+                else{
+                    that.initialize(widget,cmAttrs,sourceNode);
+                }
+             });
         }
         if(!window.CodeMirror){
-            genro.dom.loadJs('/_rsrc/js_libs/codemirror/lib/codemirror.js',function(){
-                CodeMirror.keyMap['softTab'] = objectUpdate({'Tab':function(cm){
-                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                    cm.replaceSelection(spaces);
-                }},CodeMirror.keyMap['default']);
-                genro.dom.loadCss('/_rsrc/js_libs/codemirror/lib/codemirror.css','codemirror_default',function(){
-                    genro.dom.loadJs('/_rsrc/js_libs/codemirror/addon/mode/overlay.js',function(){cb();});
-                })
-            });
+            this.loadCodeMirror(cb);
         }else{
             cb();
         }
+    },
+
+    loadCodeMirror:function(cb){
+        var urlist = ['/_rsrc/js_libs/codemirror/lib/codemirror.js',
+                    '/_rsrc/js_libs/codemirror/lib/codemirror.css'];
+        genro.dom.addHeaders(urlist,function(){
+            genro.dom.loadJs('/_rsrc/js_libs/codemirror/addon/mode/overlay.js',cb);
+        });
+        
+    },
+    defineKeyMap:function(name,keyMap){
+        CodeMirror.keyMap[name] = objectUpdate(keyMap,CodeMirror.keyMap['default']);
+    },
+
+
+    initialize:function(widget,cmAttrs,sourceNode){
+        this.defineKeyMap('softTab',{'Tab':function(cm){
+                                          var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                                          cm.replaceSelection(spaces);
+                                      }
+                                });
+        dojo.style(widget,{position:'relative'})
+        var cm = CodeMirror(widget,cmAttrs);
+        dojo.style(widget.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
+        cm.refresh();
+        cm.sourceNode = sourceNode;
+        cm.gnr = this;
+        sourceNode.externalWidget = cm;
+        for (var prop in this) {
+            if (prop.indexOf('mixin_') == 0) {
+                cm[prop.replace('mixin_', '')] = this[prop];
+            }
+        }
+        cm.on('update',function(){
+            sourceNode.delayedCall(function(){
+                var v = sourceNode.externalWidget.getValue();
+                sourceNode.setRelativeData(sourceNode.attr.value,v,null,null,sourceNode);
+            },500,'updatingContent')
+        })
+
+    },
+
+
+    load_theme:function(theme,cb){
+        genro.dom.loadCss('/_rsrc/js_libs/codemirror/theme/cm-s-'+theme+'.css','codemirror_'+theme,cb);
     },
 
     load_mode:function(mode,cb){

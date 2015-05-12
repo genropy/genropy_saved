@@ -132,6 +132,51 @@ dojo.declare("gnr.GnrDomHandler", null, {
         });
     },
 
+    addHeaders:function(headers,cb){
+        /*
+        [{htype:'script',url:''},{htype:'link',url:''}]
+        */
+
+        if (typeof(headers)=='string'){
+            headers = headers.split(',')
+        }
+        var pendingHeaders = {};
+        var firstHead = document.getElementsByTagName("head")[0];
+        var waitCb = function(url){
+            objectPop(pendingHeaders,url);
+            if(!objectNotEmpty(pendingHeaders)){
+                cb();
+            }
+        }
+        headers.forEach(function(h){
+            if(typeof(h)=='string'){
+                h = {url:h,htype:h.endsWith('.js')?'script':'link'};
+            }
+            var htype = objectPop(h,'htype');
+            var e = document.createElement(htype);
+            var url = objectPop(h,'url');
+            if(htype=='script'){
+                e.type = "text/javascript";
+                e.src = objectPop(h,'src') ||  url;
+                url = e.src;
+            }else if(htype=='link'){
+                e.href = objectPop(h,'href') || url;
+                e.type = objectPop(h,'type') || "text/css";
+                e.rel = objectPop(h,'rel') || "stylesheet";
+                e.media =objectPop(h,'media') || "screen";
+                url = e.href;
+            }
+            for (var k in h){
+                e[k] = h[k];
+            }
+            pendingHeaders[url] = true;
+            firstHead.appendChild(e);
+            e.onload = function(){
+                waitCb(url)
+            }
+        });
+    },
+
     addClass: function(where, cls) {
         if (typeof(cls) == 'string') {
             var domnode = this.getDomNode(where);
