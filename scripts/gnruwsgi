@@ -16,6 +16,26 @@ import signal
 import os
 from gnr.core.gnrstring import boolean
 
+wsgi_options = dict(
+        port=8080,
+        host='0.0.0.0',
+        reload=False,
+        debug=True,
+        restore=False,
+        profile=False,
+        noclean=False,
+        source_instance=None,
+        remote_edit=None,
+        remotesshdb=None,
+        gzip=None,
+        processes=1,
+        threads=1,
+        offload_threads=None,
+        stats_port=None,
+        websockets=False
+        )
+
+
 class UwsgiRunner(object):
     default_port = 8080
     default_processes = 1
@@ -35,7 +55,7 @@ offload-threads = %(offload_threads)i
 %(websockets)s
 """
 
-    def __init__(self, site_name, verbose=None):
+    def __init__(self, site_name, options=None, verbose=None):
         self.site_name = site_name
         self.site_handler = getSiteHandler(site_name)
         self.site_path = self.site_handler['site_path']
@@ -50,6 +70,21 @@ offload-threads = %(offload_threads)i
         self.websocket_socket_path = os.path.join(self.socket_path, '%s.tornado' % site_name)
         self.create_dirs()
         self.verbose = verbose
+        self.options = options
+        self.init_options()
+
+    def init_options(self):
+        options = self.options.__dict__
+        for option in wsgi_options.keys():
+            if options.get(option, None) is None: # not specified on the command-line
+                site_option = self.site_config['wsgi?%s' % option]
+                value = site_option or wsgi_options.get(option)
+                self.options.__dict__[option] = value
+            
+            else:  
+                env_key = 'GNR_%s_%s'%(self.site_name.upper(), option.upper())
+                if value is not None:
+                    os.environ[env_key] = str(value)
 
     def create_dirs(self):
         for dir_path in (self.socket_path, self.vassals_path):
@@ -68,15 +103,16 @@ offload-threads = %(offload_threads)i
 
     def write_ini(self):
         pars = dict()
-        sc = self.site_config
-        pars['port'] = int(sc['wsgi?port'] or self.default_port)
+        #sc = self.site_config
+        opt = self.options
+        pars['port'] = int(opt.port or self.default_port)
         pars['wsgi_file'] = self.site_script
         pars['site_name'] = self.site_name
-        pars['processes'] = int(sc['wsgi?processes'] or self.default_processes)
-        pars['threads'] = int(sc['wsgi?threads'] or self.default_threads)
-        pars['stats_port'] = int(sc['wsgi?stats_port'] or pars['port']+1000)
-        pars['offload_threads'] = int(sc['wsgi?offload_threads'] or pars['processes'])
-        if boolean(sc['wsgi?websockets']):
+        pars['processes'] = int(opt.processes or self.default_processes)
+        pars['threads'] = int(opt.threads or self.default_threads)
+        pars['stats_port'] = int(opt.stats_port or pars['port']+1000)
+        pars['offload_threads'] = int(opt.offload_threads or pars['processes'])
+        if boolean(opt.websockets):
             pars['websockets'] = """http-websockets = true
 route = ^/websocket httpdumb:%s
 attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
@@ -110,6 +146,8 @@ Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
     def stop(self):
         self.uwsgi_master.send_signal(signal.SIGINT)
 
+
+
 if __name__ == '__main__':
     usage = """
     gnruwsgi <site_name> will run a genro site named <site_name> using uwsgi.
@@ -119,10 +157,45 @@ if __name__ == '__main__':
                   dest='verbose',
                   action='store_true',
                   help="Verbose UWSGI output")    
+
+    parser.add_option('--debug',
+                      dest='debug',
+                      action='store_true',
+                      help="Use weberror debugger")
+
+    parser.add_option('--nodebug',
+                      dest='debug',
+                      action='store_false',
+                      help="Don't use weberror debugger")
+    parser.add_option('--profile',
+                      dest='profile',
+                      action='store_true',
+                      help="Use profiler at /__profile__ url")
+
+    parser.add_option('-p', '--port',
+                      dest='port',
+                      help="Sets server listening port (Default: 8080)")
+
+    parser.add_option('-n', '--noclean',
+                      dest='noclean',
+                      help="Don't perform a clean (full reset) restart",
+                      action='store_true')
+
+    parser.add_option('-g','--gzip',
+                      dest='gzip',
+                      action='store_true',
+                      help="Enable gzip compressions")
+
+    parser.add_option('--remote_edit',
+                      dest='remote_edit',
+                      action='store_true',
+                      help="Enable remote edit")
+
     (options, args) = parser.parse_args()
+
     if len(args) < 1:
         parser.print_help()
     else:
-        uwsgi_runner = UwsgiRunner(args[0], verbose=getattr(options,'verbose', True))
+        uwsgi_runner = UwsgiRunner(args[0], options=options, verbose=getattr(options,'verbose', True))
         uwsgi_runner.write_ini()
         uwsgi_runner.run()

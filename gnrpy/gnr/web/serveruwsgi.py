@@ -8,7 +8,7 @@ import uwsgi
 from uwsgidecorators import timer
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
-
+from gnr.core.gnrstring import boolean
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
 
@@ -157,11 +157,20 @@ class Server(object):
 
     def init_options(self):
         self.siteconfig = self.get_config()
-        options = self.options
+        options = self.options.__dict__
         for option in wsgi_options.keys():
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options[option] = site_option or wsgi_options.get(option)
+        for (key, dtype) in (('debug','B'),('restore','T'),('profile','B'),('remote_edit','B'),('gzip','B')):
+            env_key = 'GNR_%s_%s'%(self.site_name.upper(), key.upper())
+            env_value = os.getenv(env_key)
+            if env_value:
+                if dtype=='B':
+                    env_value = boolean(env_value)
+                self.options.__dict__[key] = env_value
+                
+
 
     def get_config(self):
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
