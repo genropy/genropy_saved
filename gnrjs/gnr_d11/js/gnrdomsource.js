@@ -209,6 +209,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             node = nodeOrRunKwargs;
         }
         var attributes = objectUpdate({}, this.attr);
+
+        var strippedKw = objectPop(attributes,'_strippedKwargs');
+
         var _userChanges = objectPop(attributes, '_userChanges');
         var _trace = objectPop(attributes, '_trace');
         var _trace_level = objectPop(attributes, '_trace_level') || 0;
@@ -255,6 +258,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var argValues = [node, {'kw':kw, 'trigger_reason':trigger_reason},trigger_reason];
         var argNames = ['_node', '_triggerpars','_reason']; //_node is also in _triggerpars.kw.node: todo remove (could be used as $1)
         var kwargs = {};
+        var strippedKwargs = {};
+        if(strippedKw){
+            strippedKw.split(',').forEach(function(attr){
+                if (!(attr in attributes)){
+                    argNames.push(attr);
+                    argValues.push(null);
+                }
+            })
+        }
         if (subscription_args) {
             argNames.push(trigger_reason);
             argValues.push(subscription_args);
@@ -397,7 +409,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     result = new gnr.GnrBag(kwargs);
                 } else {
                     expr = (tag == 'dataformula') ? 'return ' + expr : expr;
-                    result = funcCreate(expr, (['_kwargs'].concat(argNames)).join(',')).apply(this, ([kwargs].concat(argValues)));
+                    var f = funcCreate(expr, (['_kwargs'].concat(argNames)).join(','));
+                    result = f.apply(this, ([kwargs].concat(argValues)));
                 }
                 if (destinationPath) { // if it has a dataNode set it to the returned value
                     this.setRelativeData(destinationPath,result);

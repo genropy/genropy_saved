@@ -153,6 +153,7 @@ class UwsgiRunner(object):
                         'Error: no root.py in the site provided (%s)' % self.site_name)
         else:
             self.site_path = os.path.dirname(os.path.realpath(site_script))
+            self.site_name = os.path.basename(self.site_path)
         self.init_options()
 
 
