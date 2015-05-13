@@ -327,10 +327,10 @@ class GnrDomSrc(GnrStructData):
         :param tag: the html tag
         :param childcontent: the html content
         :param value: TODO"""
-        if childcontent :
+        if childcontent is not None :
             kwargs['innerHTML'] = childcontent
             childcontent = None
-        elif value:
+        elif value is not None:
             kwargs['innerHTML'] = value
             value = None
         return self.child(tag, childcontent=childcontent, **kwargs)
