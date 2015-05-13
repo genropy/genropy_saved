@@ -2199,6 +2199,7 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         var identifier = objectPop(kw,'identifier');
         var caption = objectPop(kw,'caption') || 'caption';
         sourceNode.attr._workspace = true;
+
         var gnrwdg = sourceNode.gnrwdg;
         if(storepath){
             console.warn('use items attr instead of');
@@ -2315,6 +2316,19 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             result.setItem(l[0],null,attr);
         });
         return result;
+    },
+
+    gnrwdg_selectByNumber:function(buttonNumber,defaultLast){
+        var items = this.getItems();
+        if(!items || items.len()==0){
+            return;
+        }
+        if(buttonNumber>items.len()-1){
+            buttonNumber = defaultLast?(items.len()-1):0;
+        }
+        var node = items.getNode('#'+buttonNumber);
+
+        this.sourceNode.setRelativeData(this.sourceNode.attr.value, node.attr[this.identifier])
     },
 
     gnrwdg_setValue:function(value,kw){
