@@ -29,6 +29,8 @@ class GnrCustomWebPage(object):
                                 var struct = new gnr.GnrBag();
                                 var r = new gnr.GnrBag();
                                 struct.setItem('view_0.row_0',r);
+                                r.setItem('cell_key',null,{field:'_lockey',width:'15em',name:'Key'});
+
                                 r.setItem('cell_0',null,{field:'base',width:'23em',name:'Base'});
                                 if(enabledLanguages){
                                     enabledLanguages.split(',').forEach(function(lang){
@@ -181,6 +183,7 @@ class GnrCustomWebPage(object):
 
     def locGridStruct(self,struct):
         r = struct.view().rows()
+        r.cell('_lockey',name='Key',width='23em')
         r.cell('base',name='Base',width='23em')
         r.cell('path',name='Filepath',width='20em',hidden='^#FORM.filePathHidden')
         r.cell('ext',name='Ext',width='3em')

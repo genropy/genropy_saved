@@ -33,7 +33,7 @@ SAFEAUTOTRANSLATE = re.compile(r"""(\%(?:\((?:.*?)\))?(?:.*?)[s|d|e|E|f|g|G|o|x|
 LOCREGEXP = re.compile(r"""("{3}|'|")\!\!(?:\[(?P<lang_emb>.{2})\])?(?:{(?P<key_emb>\w*)})?(?P<text_emb>.*?)\1|\[\!\!(?:\[(?P<lang>.{2})\])?(?:{(?P<key>\w*)})?(?P<text>.*?)\]|\b_T\(("{3}|'|")(?P<text_func>.*?)\6\)""")
 
 
-TRANSLATION = re.compile(r"^\!\!(?:{(\w*)})?(.*)$|(?:\[\!\!)(?:{(\w*)})?(.*?)\]")
+TRANSLATION = re.compile(r"^\!\!(?:\[(?P<lang>.{2})\])?(?:{(\w*)})?(?P<value>.*)$|(?:\[\!\!(?:\[(?P<lang_emb>.{2})\])?)(?:{(\w*)})?(?P<value_emb>.*?)\]")
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
@@ -104,10 +104,14 @@ class AppLocalizer(object):
             return result
         else:
             def translatecb(m):
-                lockey = m.group(1) or m.group(3)
-                loctext = m.group(2) or m.group(4)
+                m = m.groupdict()
+                lockey = m.get('key') or m.get('key_emb')
+                loctext = m.get('value') or m.get('value_emb')
+                loclang = m.get('lang') or m.get('lang_emb') or 'en'
+
                 if not lockey:
                     lockey = flatten(loctext)
+                lockey = '%s_%s' %(loclang,lockey)
                 translation_dict = self.localizationDict.get(lockey)
                 if translation_dict:
                     translation = translation_dict.get(language)

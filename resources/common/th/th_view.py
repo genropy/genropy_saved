@@ -882,7 +882,7 @@ class THViewUtils(BaseComponent):
         for op,caption in queryModes:
             result.setItem('queryModes.%s' % op, None, caption=caption)
         for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
+            result.setItem('op.%s' % op, None, caption=wt.opCaption(op))
         for optype, values in optype_dict.items():
             for operation in values:
                 result.setItem('op_spec.%s.%s' % (optype, operation), operation,
