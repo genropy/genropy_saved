@@ -71,6 +71,10 @@ dojo.declare("gnr.GnrStoreBag", null, {
             return;
         }
         genro.debug('getValue: item=' + item.label + ' - attribute-name-string=' + attribute + ' - default=' + defaultValue);
+
+        if (!(item instanceof gnr.GnrBagNode)){
+            return item[attribute];
+        }
         var attributes = item.attr;
         if (attribute == '#k') {
             return item.label;
@@ -262,7 +266,12 @@ dojo.declare("gnr.GnrStoreBag", null, {
                     // subset = null;
                     // }
                 }
-
+                var s = requestObject.store;
+                if(s.null_allowed){
+                    var emptyItem = {};
+                    emptyItem[s.searchAttr] = '';
+                    subset.push(emptyItem);
+                }
                 requestObject.onComplete.call(scope, subset, requestObject);
             }
         };

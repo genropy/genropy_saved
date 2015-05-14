@@ -6113,6 +6113,8 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
             attributes.autoComplete = attributes.autoComplete || false;
             store._identifier = store.rootDataNode().attr['id'] || storeAttrs['storeid'] || 'id';
         }
+        store.null_allowed = !attributes.validate_notnull;;
+        store.searchAttr = attributes.searchAttr;
         attributes.store = store;
         return savedAttrs;
     },
