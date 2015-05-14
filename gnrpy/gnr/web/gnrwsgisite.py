@@ -379,12 +379,7 @@ class GnrWsgiSite(object):
         #        for connection_id in connection_to_remove:
         #            self.connFolderRemove(connection_id, rnd=False)
         #
-        
-  # def _get_automap(self):
-  #     return self.resource_loader.automap
-  #     
-  # automap = property(_get_automap)
-  #     
+
     def onInited(self, clean):
         """TODO
         

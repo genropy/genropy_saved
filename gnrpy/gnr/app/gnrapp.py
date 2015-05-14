@@ -410,7 +410,7 @@ class GnrPackage(object):
 
     @property
     def pkgMenu(self):
-        if not self._pkgMenu:
+        if self._pkgMenu is None:
             pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
             for pluginname,plugin in self.plugins.items():
                 pkgMenu.update(plugin.menuBag)
@@ -709,9 +709,7 @@ class GnrApp(object):
         dbattrs['application'] = self
         self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
-        pkgMenus = self.config['menu?package'] or []
-        if pkgMenus:
-            pkgMenus = pkgMenus.split(',')
+        
 
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
             if ':' in pkgid:
@@ -746,15 +744,24 @@ class GnrApp(object):
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
-        for pkgid, apppkg in self.packages.items():
-            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
-                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
-                if len(apppkg.pkgMenu) == 1:
-                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
-                else:
-                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+
+        
         self.onInited()
+
+    def applicationMenuBag(self):
+        pkgMenus = self.config['menu?package']
+        if pkgMenus:
+            pkgMenus = pkgMenus.split(',')
+        menuBag = Bag()
+        for pkgid, apppkg in self.packages.items():
+            pkgMenuBag = apppkg.pkgMenu
+            if pkgMenuBag and (not pkgMenus or pkgid in pkgMenus):
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(pkgMenuBag) == 1:
+                    menuBag[pkgid] = pkgMenuBag.getNode('#0')
+                else:
+                    menuBag.setItem(pkgid, pkgMenuBag,{'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+        return menuBag
 
     def importFromSourceInstance(self,source_instance=None):
         to_import = ''
