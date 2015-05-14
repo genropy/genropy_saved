@@ -359,9 +359,15 @@ class GnrPackage(object):
         self.plugins = {}
         self.loadPlugins()
         self._pkgMenu = None
+        self.projectInfo = None
         if not project:
             projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
+            projectInfoPath = os.path.join(projectPath,'info.xml')
             project = os.path.split(projectPath)[1]
+            if os.path.exists(projectInfoPath):
+                self.projectInfo = Bag(projectInfoPath)
+        if not self.projectInfo:
+            self.projectInfo = Bag(('project',None,dict(name=project,code=project,language='en'))) 
         self.project = project 
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
@@ -407,6 +413,10 @@ class GnrPackage(object):
             customModelFolder = os.path.join(self.customFolder, 'model')
             self.loadTableMixinDict(self.custom_module, customModelFolder, model_prefix='custom_')
         self.configure()
+
+    @property
+    def language(self):
+        return self.attributes.get('language') or self.projectInfo['project?language']
 
     @property
     def pkgMenu(self):
