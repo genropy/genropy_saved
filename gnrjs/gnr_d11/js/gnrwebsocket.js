@@ -32,8 +32,13 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.url='ws://'+window.location.host+wsroot
         this.options=objectUpdate({ debug: true, reconnectInterval: 4000 },
                                   options)
-
+        this.waitingCalls={}
+        this._token = 0;
         
+    },
+    get token(){
+        this._counter+=1
+        return 'tk_'+this._token
     },
     create:function(){
         if (this.wsroot){
@@ -66,19 +71,39 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         var data=e.data;
         if (data.indexOf('<?xml')==0){
             var result=this.parseResponse(e.data);
-            var command=result.getItem('command') 
-            var data = result.getItem('data')
-            if (command){
-                var handler=this['do_'+command] || this.do_publish
+            var token=result.getItem('token') 
+            if (token){
+                this.receivedToken(token,result.getItem('envelope'))
             }else{
-                var handler= this.do_publish
-                data= data || result
+                this.receivedCommand(result.getItem('command'),result.getItem('data'))
             }
-            handler.apply(this,[data])
         }else{
-            console.log('received on websocket',data)
+            genro.publish('websocketMessage',data)
         }
     },
+    receivedCommand:function(command,data){
+        var handler = command? this['do_'+command] || this.do_publish:this.do_publish
+        handler.apply(this,[data])
+    },
+    receivedToken:function(token,envelope){
+        var tk=objectPop(this.waitingCalls,token)
+        var dataNode=envelope.getNode('data')
+        var error=envelope.getItem('error')
+        if (error){
+            if (tk.onError){
+                tk.onError.apply([error])
+            }else if(tk.errorPath){
+                genro.setData(tk.errorPath,error)
+            }
+        }
+        if (tk.onResult){
+            dataNode=tk.onResult.apply([dataNode])
+        }
+        if (tk.destPath && dataNode){
+            genro.setData(tk.destPath,dataNode)
+        }
+    },
+    
     do_alert:function(data){
         alert(data)
     },
@@ -90,11 +115,24 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
     do_publish:function(data){
         var topic=data.getItem('topic')
         if (!topic){
-            topic='onWsMessage';
+            topic='websocketMessage';
         }else{
             var data = data.getItem('data')
         }
         genro.publish(topic,data)
+    },
+    call:function(command,kw){
+        var kw=kw || {};
+        token=this.token
+        kw['result_token']=token
+        this.waitingCalls[token]={'onResult':objectPop(kw,'onResult'),
+                                  'onError';objectPop(kw,'onError'),
+                                  'destPath':objectPop(kw,'destPath'),
+                                  'errorPath'=objectPop(kw,'errorPath')
+                                 }
+        kw['command']='call'
+        kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
+        this.socket.send(dojo.toJson(kw))
     },
     send:function(command,kw){
         var kw=kw || {};

@@ -140,7 +140,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         handler=self.getHandler(command)
         if handler:
             executor=self.getExecutor(handler)
-            result=yield executor.submit(handler,_time1=time.time(),**kwargs)
+            result=yield executor.submit(handler,_time_start=time.time(),**kwargs)
             if result is not None:
                 self.write_message(result)
                 
@@ -171,40 +171,27 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         self.channels.get(dest_page_id).write_message(message)
 
     @threadpool
-    def do_wsmethod(self,method=None, dest_path=None, err_path = None,_time1=None,**kwargs):
+    def do_call(self,method=None, result_token=None, _time_start=None,**kwargs):
         error = None
         result = None
+        resultAttrs=None
         handler = self.page.getWsMethod(method)
         if handler:
             try:
                 result = handler(**kwargs)
+                if isinstance(result,tuple):
+                    result,resultAttrs=result
             except Exception, e:
                 error = str(e)
-        data=Bag()
+        envelope=Bag()
+        envelope.setItem('data',result,_attributes=resultAttrs, _server_time=time.time()-_time_start)
         if error:
-            result =error 
-            dest_path = err_path or 'gnr.websocket_error.%s'%method.replace('.','_').replace(':','_')
-
-        data.setItem('path',dest_path)
-        data.setItem('data',result, server_time=time.time()-_time1)
-        return self.serializeMessage(command='set',data=data)
-        
-
-    def serializeMessage(self,command=None,data=None):
-        result=Bag(dict(command=command,data=data))
-        #print result
+            error_path = error_path or 'gnr.websocket_error.%s'%method.replace('.','_').replace(':','_')
+            envelope.setItem('error',error)          
+        result=Bag(dict(token=token,envelope=envelope))
         return result.toXml(unresolved=True)
         
-    @threadpool
-    def do_getRecord(self,table=None,pkey=None,dest_path=None,**kwargs):
-        table=self.server.gnrapp.db.table(table)
-        record=table.record(pkey,ignoreMissing=True).output('bag', resolver_one='relOneResolver', resolver_many='relManyResolver')
-        data=Bag()
-        caption=table.recordCaption(record)
-        data.setItem('path',dest_path)
-        data.setItem('data',record,caption=caption)
-        
-        return self.serializeMessage(command='set',data=data)
+
    
         
     def wrongCommand(self,command=None,**kwargs):
