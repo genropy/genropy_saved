@@ -8,14 +8,14 @@
 		<counter ext="py" path="model/counter.py">
 			<en_counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
 				<en_codekey base="Codekey" de="Codeschlüssel" en="Codekey" fr="Codekey" it="Codekey"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
 				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 				<en_holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
 		</counter>
 		<error ext="py" path="model/error.py">
 			<en_errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_traceback base="Traceback" de="Traceback" en="Traceback" fr="Traceback" it="Rintracciare"/>
 				<en_error_type base="Error type" de="Fehlertyp" en="Error type" fr="Type d'erreur" it="Tipo di errore"/>
 		</error>
@@ -74,7 +74,7 @@
 			<en_task_id base="Task ID" de="Task-ID" en="Task ID" fr="Groupe ID" it="ID attività"/>
 				<en_result base="result" de="Ergebnis" en="result" fr="résultat" it="risultato"/>
 				<en_result_time base="Result Time" de="Ergebnis Zeit" en="Result Time" fr="Temps de Résultat" it="Risultato Tempo"/>
-				<en_is_error base="Is Error" en="Is Error" it="È Errore"/>
+				<en_is_error base="Is Error" de="Ist Fehler" en="Is Error" fr="Est l'erreur" it="È Errore"/>
 		</task_result>
 	</model>
 

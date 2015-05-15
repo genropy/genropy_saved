@@ -21,8 +21,8 @@
 	<model>
 		<access_group ext="py" path="model/access_group.py">
 			<en_access_group base="Access group" de="Zugriffsgruppe" en="Access group" fr="groupe Accès" it="Gruppo Accesso"/>
-				<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_allowed_ip base="Allowed ip" de="Erlaubt ip" en="Allowed ip" fr="Autorisé ip" it="Ip ammessi"/>
 		</access_group>
 		<audit ext="py" path="model/audit.py">
@@ -38,7 +38,7 @@
 		<authorization ext="py" path="model/authorization.py">
 			<en_authorization base="Authorization" de="Genehmigung" en="Authorization" fr="Autorisation" it="Autorizzazione"/>
 				<en_authorizations base="Authorizations" de="Berechtigungen" en="Authorizations" fr="Autorisations" it="Autorizzazioni"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_user_id base="User id" de="Benutzer-ID" en="User ID" fr="ID de l'utilisateur" it="ID utente"/>
 				<en_used_datetime base="Used datetime" de="Gebrauchte datetime" en="Used datetime" fr="Datetime occasion" it="Datetime Usato"/>
 				<en_used_by base="Used by" de="Wird von" en="Used by" fr="Utilisé par" it="Usato da"/>
@@ -68,7 +68,7 @@
 				<en_connection_id base="Connection id" de="Verbindungs-ID" en="Connection id" fr="id de connexion" it="Id Connection"/>
 				<en_userid base="Userid" de="Benutzer-ID" en="Userid" fr="Userid" it="Id Utente"/>
 				<en_username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
-				<en_ip_number base="Ip number" en="Ip number" it="Numero IP"/>
+				<en_ip_number base="Ip number" de="IP-Nummer" en="Ip number" fr="Numéro IP" it="Numero IP"/>
 				<en_start_ts base="Start TS" de="Starten ts" en="Start ts" fr="Lancer ts" it="Inizia ts"/>
 				<en_end_reason base="End reason" de="End Reason" en="End Reason" fr="Fin Raison" it="End Ragione"/>
 				<en_user_agent base="User agent" de="User-Agent" en="User agent" fr="L'agent utilisateur" it="User agent"/>
@@ -77,7 +77,7 @@
 		<counter ext="py" path="model/counter.py">
 			<en_counter base="Counter" de="Zähler" en="Counter" fr="Compteur" it="Contatore"/>
 				<en_codekey base="Codekey" de="Codeschlüssel" en="Codekey" fr="Codekey" it="Codekey"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
 				<en_table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
 				<en_counter_field base="Counter Field" de="Zählerfeld" en="Counter Field" fr="Contre Champ" it="Contro Campo"/>
@@ -91,9 +91,9 @@
 		</counter>
 		<datacatalog ext="py" path="model/datacatalog.py">
 			<en_model_catalog base="Model catalog" de="Modellkatalog" en="Model catalog" fr="Le catalogue du modèle" it="Catalogo Modello"/>
-				<en_dc_elements base="DC Elements" en="DC Elements" it="DC Elements"/>
-				<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_dc_elements base="DC Elements" de="DC Elements" en="DC Elements" fr="DC Elements" it="DC Elements"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
 				<en_dtype base="Dtype" de="D-Typ-" en="Dtype" fr="Dtype" it="DTYPE"/>
 				<en_name_long base="Name long" de="Nennen lang" en="Name long" fr="Nom longue" it="Nome lungo"/>
@@ -115,23 +115,23 @@
 				<en_comment base="Comment" de="Kommentar" en="Comment" fr="Commentaire" it="Commento"/>
 				<en_name_full base="Name full" de="Nennen Voll" en="Name full" fr="Nom et prénom" it="Nome completo"/>
 				<en_datacatalog_path base="Datacatalog path" de="Datacatalog Pfad" en="Datacatalog path" fr="Chemin Datacatalog" it="Percorso Datacatalog"/>
-				<en_db_key base="Db Key" en="Db Key" it="Db Chiave"/>
+				<en_db_key base="Db Key" de="Db Key" en="Db Key" fr="Db Key" it="Db Chiave"/>
 		</datacatalog>
 		<group ext="py" path="model/group.py">
 			<en_groups base="Groups" de="Gruppen" en="Groups" fr="Groupes" it="Gruppi"/>
-				<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 		</group>
 		<htag ext="py" path="model/htag.py">
 			<en_tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
 				<en_new_tag base="New tag" de="New-Tag" en="New tag" fr="Nouvelle étiquette" it="Nuova etichetta"/>
-				<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
 				<en_notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
 		</htag>
 		<htmltemplate ext="py" path="model/htmltemplate.py">
-			<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+			<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 				<en_letterheads base="Letterheads" de="Brief" en="Letterheads" fr="Têtes" it="Intestazione"/>
 				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 				<en_username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
@@ -144,12 +144,12 @@
 		</htmltemplate>
 		<language ext="py" path="model/language.py">
 			<en_languages base="Languages" de="Sprachen" en="Languages" fr="Langues" it="Lingue"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 		</language>
 		<letterhead_type ext="py" path="model/letterhead_type.py">
-			<en_code base="Code" en="Code" it="Codice"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+			<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 		</letterhead_type>
 		<menu ext="py" path="model/menu.py">
 			<en_menu_directory base="Menu Directory" de="Menü Verzeichnis" en="Menu Directory" fr="Annuaire Menu" it="Menu Directory"/>
@@ -175,7 +175,7 @@
 				<en_confirm_label base="Confirm label" de="Label bestätigen" en="Confirm label" fr="Confirmez étiquette" it="Confermare l'etichetta"/>
 				<en_tag_rule base="Tag rule" de="Tag-Regel" en="Tag rule" fr="règle de Tag" it="Regola Tag"/>
 				<en_for_all_users base="For all users" de="Für alle Benutzer" en="For all users" fr="Pour tous les utilisateurs" it="Per tutti gli utenti"/>
-				<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+				<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 		</notification>
 		<permission ext="py" path="model/permission.py">
 			<en_permission base="Permission" de="Genehmigung" en="Permission" fr="Autorisation" it="Autorizzazione"/>
@@ -193,7 +193,7 @@
 		</permission>
 		<preference ext="py" path="model/preference.py">
 			<en_preference base="Preference" de="Vorliebe" en="Preference" fr="Préférence" it="Preferenza"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
 		</preference>
 		<record_tag ext="py" path="model/record_tag.py">
@@ -201,11 +201,11 @@
 				<en_table_tags base="Table tags" de="Tabellen-Tags" en="Table tags" fr="Tableau balises" it="Tag table"/>
 				<en_table_name base="Table name" de="Tabellennamen" en="Table name" fr="Nom de la table" it="Nome tabella"/>
 				<en_tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 		</record_tag>
 		<sent_email ext="py" path="model/sent_email.py">
 			<en_sent_email base="Sent email" de="E-Mail versenden" en="Sent email" fr="Email envoyé" it="E-mail inviata"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
 				<en_email_address base="Email address" de="E-Mail-Adresse" en="Email address" fr="Adresse e-mail" it="Indirizzo e-mail"/>
 				<en_sent_ts base="Sent ts" de="Gesendete ts" en="Sent ts" fr="Ts envoyés" it="Ts Sent"/>
@@ -222,7 +222,7 @@
 			<en_tag base="Tag" de="Anhänger" en="Tag" fr="Balise" it="Etichetta"/>
 				<en_tagname base="Tagname" de="Tagname" en="Tagname" fr="Tagname" it="Codice di autorizzazione"/>
 				<en_reserved base="Reserved" de="Reserviert" en="Reserved" fr="Réservé" it="Riservato"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 		</tag>
 		<user ext="py" path="model/user.py">
 			<en_user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
@@ -260,12 +260,12 @@
 		<userobject ext="py" path="model/userobject.py">
 			<en_user_object base="User Object" de="User Object" en="User Object" fr="Objet de l'utilisateur" it="Oggetto utente"/>
 				<en_user_objects base="User Objects" de="Benutzerobjekte" en="User Objects" fr="Objets de l'utilisateur" it="Oggetti utente"/>
-				<en_code base="Code" en="Code" it="Codice"/>
+				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 				<en_object_type base="Object Type" de="Objekttyp" en="Object Type" fr="Type d'objet" it="Tipo di oggetto"/>
 				<en_package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
 				<en_table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
 				<en_user_id base="User ID" de="Benutzer-ID" en="User ID" fr="ID de l'utilisateur" it="ID utente"/>
-				<en_description base="Description" en="Description" it="Descrizione"/>
+				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
 				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
 				<en_auth_tags base="Auth tags" de="Auth-Tags" en="Auth tags" fr="balises Auth" it="Tag Auth"/>
@@ -292,7 +292,7 @@
 				<en_clear_favorites base="Clear favorites" de="Klar Favoriten" en="Clear favorites" fr="Effacer les favoris" it="Cancella preferiti"/>
 				<en_reload base="Reload" de="Nachladen" en="Reload" fr="Recharger" it="Ricaricare"/>
 				<en_connected_to_ base="Connected to:" de="Verbunden mit:" en="Connected to:" fr="Connecté à:" it="Collegato a:"/>
-				<en_s_preference _tag="en__s_preference" base="%s preference" en="%s preference" it="%s preferenza"/>
+				<en_s_preference _tag="en__s_preference" base="%s preference" de="%s Präferenz" en="%s preference" fr="%s préférence" it="%s preferenza"/>
 				<en_logout base="Logout" de="Logout" en="Logout" fr="Se Déconnecter" it="Uscire"/>
 				<en_lock_screen base="Lock screen" de="Bildschirm sperren" en="Lock screen" fr="Écran verrouillé" it="Blocca schermo"/>
 				<en_errors_ base="Errors:" de="Fehler:" en="Errors:" fr="Erreurs:" it="Errori:"/>
@@ -394,11 +394,11 @@
 								<en_bottom base="Bottom" de="Boden" en="Bottom" fr="Bas" it="Fondo"/>
 								<en_left base="Left" de="Links" en="Left" fr="Gauche" it="Sinistra"/>
 								<en_right base="Right" de="Recht" en="Right" fr="Droite" it="Destra"/>
-								<en_s_height _tag="en__s_height" base="%s height" en="%s height" it="%s Altezza"/>
+								<en_s_height _tag="en__s_height" base="%s height" de="%s Höhe" en="%s height" fr="%s hauteur" it="%s Altezza"/>
 								<en_s _tag="en__s" base="%s" de="% S" en="%s" fr="% S" it="% S"/>
 								<en_center_height base="Center height" de="Spitzenhöhe" en="Center height" fr="Hauteur de pointes" it="Altezza di punte"/>
 								<en_center_width base="Center width" de="Spitzenweite" en="Center width" fr="La largeur centrale" it="Larghezza Centro"/>
-								<en_s_width _tag="en__s_width" base="%s width" en="%s width" it="%s larghezza"/>
+								<en_s_width _tag="en__s_width" base="%s width" de="%s Breite" en="%s width" fr="%s Largeur" it="%s larghezza"/>
 				</th_htmltemplate>
 			</htmltemplate>
 				<notification>
