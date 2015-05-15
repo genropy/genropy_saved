@@ -32,7 +32,7 @@
 				<en_user base="User" de="Benutzer" en="User" fr="Utilisateur" it="Utente"/>
 				<en_record_pkey base="Record Pkey" de="Nehmen Pkey" en="Record Pkey" fr="Enregistrez Pkey" it="Record PKEY"/>
 				<en_version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
-				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Data"/>
 				<en_transaction_id base="Transaction id" de="Transaction-ID" en="Transaction id" fr="Identifiant de transaction" it="Id transazione"/>
 		</audit>
 		<authorization ext="py" path="model/authorization.py">
@@ -136,7 +136,7 @@
 				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 				<en_username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
 				<en_version base="Version" de="Version" en="Version" fr="Version" it="Versione"/>
-				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Data"/>
 				<en_center_height base="Center height" de="Spitzenhöhe" en="Center height" fr="Hauteur de pointes" it="Altezza di punte"/>
 				<en_center_width base="Center width" de="Spitzenweite" en="Center width" fr="La largeur centrale" it="Larghezza Centro"/>
 				<en_based_on base="Based on" de="Basierend auf" en="Based on" fr="Basé sur" it="Basato su"/>
@@ -194,7 +194,7 @@
 		<preference ext="py" path="model/preference.py">
 			<en_preference base="Preference" de="Vorliebe" en="Preference" fr="Préférence" it="Preferenza"/>
 				<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
-				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Data"/>
 		</preference>
 		<record_tag ext="py" path="model/record_tag.py">
 			<en_table_tag base="Table tag" de="Table-Tag" en="Table tag" fr="Tableau tag" it="Tag Table"/>
@@ -267,7 +267,7 @@
 				<en_user_id base="User ID" de="Benutzer-ID" en="User ID" fr="ID de l'utilisateur" it="ID utente"/>
 				<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 				<en_notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
-				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+				<en_data base="Data" de="Daten" en="Data" fr="Données" it="Data"/>
 				<en_auth_tags base="Auth tags" de="Auth-Tags" en="Auth tags" fr="balises Auth" it="Tag Auth"/>
 				<en_private base="Private" de="Privat" en="Private" fr="Privé" it="Privato"/>
 				<en_quicklist base="Quicklist" de="Quicklist" en="Quicklist" fr="Quicklist" it="QuickList"/>

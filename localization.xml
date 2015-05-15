@@ -29,7 +29,7 @@
 								<en_errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
 								<en_user_insert base="User Insert" de="User-Insert" en="User Insert" fr="Insertion de l'utilisateur" it="Inserisci User"/>
 								<en_user_modify base="User Modify" de="Benutzer ändern" en="User Modify" fr="Modifier l'utilisateur" it="Modifica utente"/>
-								<en_is_draft base="Is Draft"/>
+								<en_is_draft base="Is Draft" en="Is Draft" it="È Draft"/>
 								<en_invalids base="Invalids" de="Invaliden" en="Invalids" fr="Invalides" it="Invalidi"/>
 								<en_protection_tag base="Protection tag" de="Schutzschild" en="Protection tag" fr="étiquette de protection" it="Protezione tag"/>
 								<en_fake_field_always_null base="Fake field always NULL" de="Fake-Feld immer NULL" en="Fake field always NULL" fr="Faux champ toujours NULL" it="Campo Falso sempre NULL"/>
@@ -37,7 +37,7 @@
 								<en_subscribed base="Subscribed" de="Gezeichnet" en="Subscribed" fr="Inscrit" it="Sottoscritta"/>
 								<en_fieldname_s_promised_value_recycled_ _tag="en__fieldname_s_promised_value_recycled_" base="%(fieldname)s promised value (recycled)" de=" %(fieldname)s versprochen Wert (recycelt)" en=" %(fieldname)s promised value (recycled)" fr=" %(fieldname)s valeur promis (recyclé)" it=" %(fieldname)s valore promesso (riciclato)"/>
 								<en_filepath base="Filepath" de="Dateipfad" en="Filepath" fr="Chemin Du Fichier" it="Filepath"/>
-								<en_description base="Description" en="Description" it="Descrizione"/>
+								<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 								<en_mimetype base="Mimetype" de="Mimetype" en="Mimetype" fr="Mimetype" it="Mimetype"/>
 								<en_content base="Content" de="Inhalt" en="Content" fr="Content" it="Contenuto"/>
 								<en_additional_info base="Additional info" de="Zusatzinfo" en="Additional info" fr="Information additionnelle" it="Informazioni addizionali"/>
@@ -45,21 +45,21 @@
 								<en_table base="Table" de="Tabelle" en="Table" fr="Table" it="Tavolo"/>
 								<en_event base="Event" de="Ereignis" en="Event" fr="Événement" it="Evento"/>
 								<en_pkey base="Pkey" de="Pkey" en="Pkey" fr="Pkey" it="PKEY"/>
-								<en_data base="Data" de="Daten" en="Data" fr="Données" it="Dati"/>
+								<en_data base="Data" de="Daten" en="Data" fr="Données" it="Data"/>
 								<en_event_check_ts base="Event check ts" de="Event-Check ts" en="Event check ts" fr="contrôle de l'événement ts" it="Ts controllo Evento"/>
 								<en_status base="Status" de="Status" en="Status" fr="Statut" it="Stato"/>
 								<en_topic base="Topic" de="Thema" en="Topic" fr="Sujet" it="Argomento"/>
 								<en_author base="Author" de="Verfasser" en="Author" fr="Auteur" it="Autore"/>
 								<en_server_timestamp base="Server timestamp" de="Server-Zeitstempel" en="Server timestamp" fr="horodatage Server" it="Timestamp Server"/>
 								<en_codekey base="Codekey" de="Codeschlüssel" en="Codekey" fr="Codekey" it="Codekey"/>
-								<en_code base="Code" en="Code" it="Codice"/>
+								<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 								<en_package base="Package" de="Paket" en="Package" fr="Paquet" it="Pacchetto"/>
 								<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
 								<en_holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
 				</gnrdbo>
 						<gnrdbo_legacy ext="py" path="gnrpy/gnr/app/gnrdbo_legacy.py">
-					<en_code base="Code" en="Code" it="Codice"/>
-								<en_description base="Description" en="Description" it="Descrizione"/>
+					<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+								<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 								<en_child_code base="Child code" de="Child Code" en="Child code" fr="Code de l'enfant" it="Codice subordinato"/>
 								<en_required base="Required" de="Erforderlich" en="Required" fr="Requis" it="Richiesto"/>
 								<en_invalid_code_char_is_not_allowed base="Invalid code: &quot;.&quot; char is not allowed" de="Invalid code: &quot;.&quot; char ist nicht erlaubt" en="Invalid code: &quot;.&quot; char is not allowed" fr="Code invalide: &quot;.&quot; omble est pas autorisé" it="Codice non VALIDO: &quot;.&quot; char non è consentito"/>
@@ -73,7 +73,7 @@
 								<en_colspan base="Colspan" de="Colspan" en="Colspan" fr="Colspan" it="Colspan"/>
 								<en_wdg_kwargs base="Wdg kwargs" de="Wdg kwargs" en="Wdg kwargs" fr="Kwargs wdg" it="Kwargs WDG"/>
 								<en_suggested_values base="Suggested Values" de="Empfohlene Werte" en="Suggested Values" fr="Les valeurs suggérées" it="I valori suggeriti"/>
-								<en_db_table base="Db Table"/>
+								<en_db_table base="Db Table" en="Db Table" it="Tabella Db"/>
 								<en_allowed_values base="Allowed Values" de="Zulässige Werte" en="Allowed Values" fr="Valeurs autorisées" it="Valori ammessi"/>
 								<en_checkbox_values base="Checkbox Values" de="Checkbox Werte" en="Checkbox Values" fr="Checkbox Valeurs" it="Valori Checkbox"/>
 								<en_checkbox_cols base="Checkbox cols" de="Checkbox cols" en="Checkbox cols" fr="Cochez les cols" it="Cols Checkbox"/>
@@ -89,13 +89,13 @@
 								<en_range base="Range" de="Angebot" en="Range" fr="Gamme" it="Gamma"/>
 								<en_std_range base="Std range" de="Std.Range" en="Std.Range" fr="Std.Range" it="Std.Range"/>
 								<en_formula base="Formula" de="Formel" en="Formula" fr="Formule" it="Formula"/>
-								<en_do_summary base="Do summary"/>
+								<en_do_summary base="Do summary" en="Do summary" it="Fare sintesi"/>
 								<en_mandatory base="Mandatory" de="Verpflichtend" en="Mandatory" fr="Obligatoire" it="Obbligatorio"/>
 				</gnrdbo_legacy>
 			</app>
 				<core>
 				<gnrbag ext="py" path="gnrpy/gnr/core/gnrbag.py">
-					<en_s_s _tag="en__s_s" base="%s %s"/>
+					<en_s_s _tag="en__s_s" base="%s %s" en="%s %s" it="%s %s"/>
 				</gnrbag>
 						<gnrlang ext="py" path="gnrpy/gnr/core/gnrlang.py">
 					<en_genro_base_exception base="Genro base exception" de="Genro Basis Ausnahme" en="Genro base exception" fr="Genro exception de base" it="Genro eccezione di base"/>
@@ -104,7 +104,7 @@
 						<gnrprinthandler ext="py" path="gnrpy/gnr/core/gnrprinthandler.py">
 					<en_a4 base="A4" de="A4" en="A4" fr="A4" it="A4"/>
 								<en_legal base="Legal" de="Rechts-" en="Legal" fr="Juridique" it="Legale"/>
-								<en_a4_with_margins base="A4 with margins"/>
+								<en_a4_with_margins base="A4 with margins" en="A4 with margins" it="A4 con margini"/>
 								<en_com10 base="COM10" de="COM10" en="COM10" fr="COM10" it="COM10"/>
 								<en_dl base="DL" de="DL" en="DL" fr="DL" it="DL"/>
 								<en_letter base="Letter" de="Schreiben" en="Letter" fr="Lettre" it="Lettera"/>
@@ -129,10 +129,10 @@
 										<en_less_than base="Less than" de="Weniger als" en="Less than" fr="Moins de" it="Meno di"/>
 										<en_less_or_equal_to base="Less or equal to" de="Kleiner oder gleich" en="Less or equal to" fr="Inférieur ou égal à" it="Minore o uguale a"/>
 										<en_between base="Between" de="Zwischen" en="Between" fr="Entre" it="Tra"/>
-										<en_is_null base="Is null"/>
-										<en_is_true base="Is true"/>
-										<en_is_false base="Is false"/>
-										<en_is_null_or_empty base="Is null or empty"/>
+										<en_is_null base="Is null" en="Is null" it="È nullo"/>
+										<en_is_true base="Is true" en="Is true" it="È vero"/>
+										<en_is_false base="Is false" en="Is false" it="È falso"/>
+										<en_is_null_or_empty base="Is null or empty" en="Is null or empty" it="È nullo o vuoto"/>
 										<en_in base="In" de="IN" en="IN" fr="EN" it="IN"/>
 										<en_regular_expression base="Regular expression" de="Regulärer Ausdruck" en="Regular expression" fr="Expression régulière" it="Espressione regolare"/>
 					</_gnrbaseadapter>
@@ -182,7 +182,7 @@
 					</btcmail>
 								<btcprint ext="py" path="gnrpy/gnr/web/batch/btcprint.py">
 						<en_print_options base="Print Options" de="Druckoptionen" en="Print options" fr="Les options d'impression" it="Opzioni di stampa"/>
-										<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+										<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 										<en_notes base="Notes" de="Aufzeichnungen" en="Notes" fr="Remarques" it="Note"/>
 										<en_server_print base="Server Print" de="Print Server" en="Server Print" fr="Serveur d'impression" it="Server di stampa"/>
 										<en_pdf base="Pdf" de="Pdf" en="Pdf" fr="Pdf" it="Pdf"/>
@@ -304,11 +304,11 @@
 								<en_dotted_path_and_name base="Dotted path and name" de="Gepunktete Pfad und Namen" en="Dotted path and name" fr="Dotted chemin et le nom" it="Percorso punteggiato e nome"/>
 								<en_permissions base="Permissions" de="Berechtigungen" en="Permissions" fr="Autorisations" it="Permessi"/>
 								<en_comma_separated_list_of_auth_tags_ base="Comma separated list of auth tags." de="Kommagetrennte Liste von auth-Tags." en="Comma separated list of auth tags." fr="Comma liste des balises auth séparé." it="Comma lista dei tag auth separati."/>
-								<en_description base="Description" en="Description" it="Descrizione"/>
+								<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 								<en_save_s base="Save %s" de="Sparen Sie  %s" en="Save  %s" fr="Économisez%s" it="Risparmi% s"/>
 								<en_close base="Close" de="Schließen" en="Close" fr="Près" it="Vicino"/>
 								<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
-								<en_code base="Code" en="Code" it="Codice"/>
+								<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
 								<en_shortlist base="Shortlist" de="Auswahlliste" en="Shortlist" fr="Sélection" it="Selezione"/>
 								<en_load_s base="Load %s" de="Last  %s" en="Load  %s" fr="Charge%s" it="Load% s"/>
 								<en_load base="Load" de="Last" en="Load" fr="Charge" it="Carico"/>
@@ -328,14 +328,14 @@
 										<en_attachments base="Attachments" de="Zubehör" en="Attachments" fr="Pièces jointes" it="Allegati"/>
 										<en_delete_attachment base="Delete attachment" de="Anhang löschen" en="Delete attachment" fr="Supprimer la pièce jointe" it="Elimina allegato"/>
 										<en_change_description base="Change description" de="Beschreibung verändern" en="Change description" fr="Modifier la description" it="Cambia la descrizione"/>
-										<en_description base="Description" en="Description" it="Descrizione"/>
+										<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 					</attachmanager>
 				</attachmanager>
 						<batch_handler>
 					<batch_handler ext="py" path="resources/common/gnrcomponents/batch_handler/batch_handler.py">
 						<en_batch base="Batch" de="Stapel" en="Batch" fr="Lot" it="Partita"/>
 										<en_batch_monitor base="Batch monitor" de="Batch Monitor" en="Batch monitor" fr="Batch Monitor" it="Monitor Batch"/>
-										<en_s_i_ _tag="en__s_i_" base="%s (%i)"/>
+										<en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"/>
 					</batch_handler>
 				</batch_handler>
 						<bottomplugins ext="py" path="resources/common/gnrcomponents/bottomplugins.py">
@@ -380,7 +380,7 @@
 								<en_size base="Size" de="Größe" en="Size" fr="Taille" it="Taglia"/>
 								<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
 								<en_preview base="Preview" de="Vorschau" en="Preview" fr="Avant-première" it="Anteprima"/>
-								<en_no_preview_available base="No preview available"/>
+								<en_no_preview_available base="No preview available" en="No preview available" it="Nessuna anteprima disponibile"/>
 								<en_thumb base="Thumb" de="Daumen" en="Thumb" fr="Pouce" it="Pollice"/>
 								<en_uploaded_elements base="Uploaded elements" de="Hochgeladene Elemente" en="Uploaded elements" fr="Éléments téléchargés" it="Elementi caricati"/>
 				</drop_uploader>
@@ -399,14 +399,14 @@
 										<en_keepable_value base="Keepable value" de="Keepable Wert" en="Keepable value" fr="Valeur keepable" it="Valore keepable"/>
 										<en_vocal_input base="Vocal input" de="Vocal Eingang" en="Vocal input" fr="Entrée Vocal" it="Ingresso Vocal"/>
 										<en_full_text_editor base="Full text editor" de="Volltext-Editor" en="Full text editor" fr="Complet éditeur de texte" it="Editor di testo completo"/>
-										<en_c1_description1_n_c2_description2 base="c1:description1\n c2:description2"/>
+										<en_c1_description1_n_c2_description2 base="c1:description1\n c2:description2" en="c1:description1\n c2:description2" it="c1: description1 \ n c2: description2"/>
 										<en_description1_n_description2 base="description1\n description2" de="description1 \ n description2" en="description1\n description2" fr="description1 \ n description2" it="description1 \ n description2"/>
 										<en_pkg_table base="pkg.table" de="pkg.table" en="pkg.table" fr="pkg.table" it="pkg.table"/>
 										<en_crop_h base="Crop H" de="Crop H" en="Crop H" fr="Crop H" it="Crop H"/>
 										<en_crop_w base="Crop W" de="Crop In" en="Crop In" fr="En culture" it="Crop In"/>
 										<en_mandatory base="Mandatory" de="Verpflichtend" en="Mandatory" fr="Obligatoire" it="Obbligatorio"/>
-										<en_code base="Code" en="Code" it="Codice"/>
-										<en_description base="Description" en="Description" it="Descrizione"/>
+										<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+										<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 										<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
 										<en_widget base="Widget" de="Widget" en="Widget" fr="Widget" it="Widget"/>
 										<en_page base="Page" de="Seite" en="Page" fr="Page" it="Pagina"/>
@@ -513,7 +513,7 @@
 				</multiselect>
 						<printer_option_dialog ext="py" path="resources/common/gnrcomponents/printer_option_dialog.py">
 					<en_printer base="Printer" de="Drucker" en="Printer" fr="Imprimeur" it="Stampante"/>
-								<en_no_printer base="No printer"/>
+								<en_no_printer base="No printer" en="No printer" it="No stampante"/>
 								<en_paper base="Paper" de="Papier" en="Paper" fr="Papier" it="Carta"/>
 								<en_tray base="Tray" de="Tablett" en="Tray" fr="Plateau" it="Vassoio"/>
 								<en_server_printer_options base="Server Printer options" de="Server Drucker-Optionen" en="Server Printer options" fr="Les options du serveur d'imprimante" it="Opzioni stampante Server"/>
@@ -533,7 +533,7 @@
 								<en_you_cannot_undo_this_operation_do_you_want_to_proceed_ base="You cannot undo this operation. Do you want to proceed?" de="Sie können diesen Vorgang nicht rückgängig gemacht werden. Möchten Sie fortfahren?" en="You cannot undo this operation. Do you want to proceed?" fr="Vous ne pouvez pas annuler cette opération. Voulez-vous procéder?" it="Non è possibile annullare questa operazione. Vuoi continuare?"/>
 								<en_there_are_unsaved_changes base="There are unsaved changes" de="Es gibt nicht gespeicherte Änderungen" en="There are unsaved changes" fr="Il ya des modifications non enregistrées" it="Ci sono modifiche non salvate"/>
 								<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
-								<en_do_not_save base="Do not save"/>
+								<en_do_not_save base="Do not save" en="Do not save" it="Non salvare"/>
 								<en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
 								<en_first base="First" de="Erste" en="First" fr="Premier" it="Primo"/>
 								<en_previous base="Previous" de="Früher" en="Previous" fr="Précédent" it="Precedente"/>
@@ -546,7 +546,7 @@
 				</selectionhandler>
 						<ticket_handler>
 					<ticket_handler ext="py" path="resources/common/gnrcomponents/ticket_handler/ticket_handler.py">
-						<en_description base="Description" en="Description" it="Descrizione"/>
+						<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 										<en_title base="Title" de="Titel" en="Title" fr="Titre" it="Titolo"/>
 										<en_type base="Type" de="Art" en="Type" fr="Type" it="Tipo"/>
 										<en_date base="Date" de="Datum" en="Date" fr="Date" it="Data"/>
@@ -568,7 +568,7 @@
 								<en_print base="Print" de="Druck" en="Print" fr="Imprimer" it="Stampa"/>
 								<en_mail base="Mail" de="Post" en="Mail" fr="Courrier" it="Posta"/>
 								<en_row base="Row" de="Reihe" en="Row" fr="Rangée" it="Fila"/>
-								<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+								<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 								<en_summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
 								<en_flags base="Flags" de="Flags" en="Flags" fr="Drapeaux" it="Bandiere"/>
 								<en_variables base="Variables" de="Variablen" en="Variables" fr="Variables" it="Variabili"/>
@@ -583,8 +583,8 @@
 								<en_bcc base="BCC" de="BCC" en="BCC" fr="BCC" it="BCC"/>
 								<en_attachments base="Attachments" de="Zubehör" en="Attachments" fr="Pièces jointes" it="Allegati"/>
 								<en_record base="Record" de="Aufzeichnung" en="Record" fr="Record" it="Record"/>
-								<en_code base="Code" en="Code" it="Codice"/>
-								<en_description base="Description" en="Description" it="Descrizione"/>
+								<en_code base="Code" de="Code" en="Code" fr="Code" it="Codice"/>
+								<en_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Descrizione"/>
 								<en_fieldtype base="Fieldtype" de="Fieldtype" en="FieldType" fr="FieldType" it="FieldType"/>
 								<en_t_text_l_integer_d_date_n_decimal_b_boolean_tl_long_text base="T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text" de="T: Text, L: Integer, D: Datum, N: Dezimal, B: Boolean, TL: Langtext" en="T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text" fr="T: texte, L: Integer, D: Date, N: Décimal, B: Boolean, TL: texte long" it="T: Testo, L: Integer, D: Data, N: Decimale, B: booleano, TL: Testo lungo"/>
 								<en_format base="Format" de="Format" en="Format" fr="Format" it="Formato"/>
@@ -600,7 +600,7 @@
 				</tpleditor>
 			</gnrcomponents>
 				<print_utils ext="py" path="resources/common/print_utils.py">
-				<en_no_printer_selected base="No printer selected"/>
+				<en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"/>
 						<en_warning base="Warning" de="Warnung" en="Warning" fr="Avertissement" it="Avvertimento"/>
 						<en_print_options base="Print options" de="Druckoptionen" en="Print options" fr="Les options d'impression" it="Opzioni di stampa"/>
 						<en_close base="Close" de="Schließen" en="Close" fr="Près" it="Vicino"/>
@@ -616,7 +616,7 @@
 						<en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
 			</print_utils>
 				<print_utils_new ext="py" path="resources/common/print_utils_new.py">
-				<en_no_printer_selected base="No printer selected"/>
+				<en_no_printer_selected base="No printer selected" en="No printer selected" it="Nessun stampante selezionata"/>
 						<en_warning base="Warning" de="Warnung" en="Warning" fr="Avertissement" it="Avvertimento"/>
 						<en_print_options base="Print options" de="Druckoptionen" en="Print options" fr="Les options d'impression" it="Opzioni di stampa"/>
 						<en_close base="Close" de="Schließen" en="Close" fr="Près" it="Vicino"/>
@@ -704,7 +704,7 @@
 								<en_lock base="Lock" de="Sperren" en="Lock" fr="Bloquer" it="Serratura"/>
 								<en_unlock base="Unlock" de="Öffnen" en="Unlock" fr="Ouvrir" it="Sbloccare"/>
 								<en_saving_ base="Saving..." de="Saving ..." en="Saving..." fr="Sauvegarde en cours ..." it="Salvataggio in corso ..."/>
-								<en_no_change_to_save_ base="No change to save."/>
+								<en_no_change_to_save_ base="No change to save." en="No change to save." it="Nessuna modifica per salvare."/>
 								<en_invalid_data_please_check_the_form_ base="Invalid data, please check the form." de="Ungültige Daten, überprüfen Sie bitte das Formular aus." en="Invalid data, please check the form." fr="Des données non valides, s'il vous plaît vérifier la forme." it="Dati non validi, si prega di consultare il modulo."/>
 								<en_warning base="Warning" de="Warnung" en="Warning" fr="Avertissement" it="Avvertimento"/>
 								<en_unsaved_changes base="Unsaved changes" de="Nicht gespeicherte Änderungen" en="Unsaved changes" fr="Les modifications non enregistrées" it="Le modifiche non salvate"/>
@@ -743,7 +743,7 @@
 								<en_choose_the_action_to_execute_ base="Choose the action to execute: " de="Wählen Sie die Aktion ausführen:" en="Choose the action to execute:" fr="Choisissez l'action à exécuter:" it="Scegliere l'azione da eseguire:"/>
 								<en_confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Ok"/>
 								<en_search base="Search" de="Suche" en="Search" fr="Recherche" it="Ricerca"/>
-								<en_op_ base="Op."/>
+								<en_op_ base="Op." en="Op." it="Op."/>
 								<en_value base="Value" de="Wert" en="Value" fr="Valeur" it="Valore"/>
 								<en_run_query base="Run query" de="Abfrage ausführen" en="Run query" fr="Requête exécutée" it="Interrogazione Run"/>
 								<en_select_view base="Select view" de="Wählen Sie die Ansicht" en="Select view" fr="Sélectionnez Affichage" it="Seleziona vista"/>
@@ -791,8 +791,8 @@
 					</action>
 								<mail>
 						<mail_template ext="py" path="resources/common/tables/_default/mail/mail_template.py">
-							<en_s_i_ _tag="en__s_i_" base="%s (%i)"/>
-												<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+							<en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"/>
+												<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 												<en_send_as_pdf base="Send as pdf" de="Als pdf" en="Send as pdf" fr="Envoyer comme pdf" it="Invia come pdf"/>
 						</mail_template>
 					</mail>
@@ -806,12 +806,12 @@
 								<en_print_grid base="Print grid" de="Print Gitter" en="Print grid" fr="Imprimer grille" it="Griglia Stampa"/>
 														<en_print_grid_with_template_ base="Print grid with template..." de="Print Raster mit Vorlage ..." en="Print grid with template..." fr="Imprimer grille avec un modèle ..." it="Griglia di stampa con template ..."/>
 														<en_row_template base="Row template" de="Row-Vorlage" en="Row template" fr="modèle de Row" it="Modello Row"/>
-														<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+														<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 							</print_rowtemplate>
 						</_common>
 										<print_template ext="py" path="resources/common/tables/_default/print/print_template.py">
-							<en_s_i_ _tag="en__s_i_" base="%s (%i)"/>
-												<en_letterhead base="Letterhead" en="Letterhead" it="Carta intestata"/>
+							<en_s_i_ _tag="en__s_i_" base="%s (%i)" en="%s (%i)" it="%s (%i)"/>
+												<en_letterhead base="Letterhead" de="Briefkopf" en="Letterhead" fr="Tête" it="Carta intestata"/>
 						</print_template>
 					</print>
 				</_default>
@@ -821,7 +821,7 @@
 					<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
 								<en_f_height base="F. height" de="F. Höhe" en="F. height" fr="F. hauteur" it="Altezza F."/>
 								<en_f_width base="F. width" de="F. Breite" en="F. width" fr="F. largeur" it="F. larghezza"/>
-								<en_no_record_selected base="No Record Selected"/>
+								<en_no_record_selected base="No Record Selected" en="No Record Selected" it="Nessun record selezionato"/>
 								<en_operation_forbidden base="Operation forbidden" de="Operation verboten" en="Operation forbidden" fr="Opération interdite" it="Operazione proibito"/>
 								<en_you_cannot_change_record_the_record_is_not_saved base="You cannot change record. The record is not saved" de="Sie können Datensatz nicht ändern. Der Datensatz wird nicht gespeichert" en="You cannot change record. The record is not saved" fr="Vous ne pouvez pas modifier l'enregistrement. Le dossier ne sont pas sauvegardées" it="Non è possibile modificare record. Il record non viene salvato"/>
 								<en_link_current_table1_record_to_an_existing_record_of_table2 base="Link current $table1 record to an existing record of $table2" de="Kreisstrom $ table1 Rekord zu einem bestehenden Rekord von $ table2" en="Link current $table1 record to an existing record of $table2" fr="Lien actuel record de table1 à un enregistrement existant de table2 $" it="Collegare attuale record di $ table1 a un record esistente di $ table2"/>
@@ -844,7 +844,7 @@
 					<en_save_failed base="Save failed" de="Speichern fehlgeschlagen" en="Save failed" fr="Echec de la sauvegarde" it="Salva fallita"/>
 								<en_you_cannot_save base="You cannot save" de="Sie können nicht speichern" en="You cannot save" fr="Vous ne pouvez pas enregistrer" it="Non è possibile salvare"/>
 								<en_invalid_record base="Invalid record" de="Ungültige Rekord" en="Invalid record" fr="Enregistrement invalide" it="Campo non valido"/>
-								<en_no_change_to_save base="No change to save"/>
+								<en_no_change_to_save base="No change to save" en="No change to save" it="Nessuna modifica per salvare"/>
 								<en_revert base="Revert" de="Zurückkehren" en="Revert" fr="Revenir" it="Ritornare"/>
 								<en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"/>
 								<en_save base="Save" de="Speichern" en="Save" fr="Sauvegarder" it="Salva"/>
@@ -871,7 +871,7 @@
 								<en_export base="Export" de="Export" en="Export" fr="Exportation" it="Esportazione"/>
 								<en_selected_only base="Selected only" de="Nur ausgewählte" en="Selected only" fr="Sélectionné seulement" it="Solo selezionati"/>
 								<en_depending_from_ base="Depending from " de="Abhängig von" en="Depending from" fr="En fonction de" it="A seconda da"/>
-								<en_in_sync_with_ base="In sync with "/>
+								<en_in_sync_with_ base="In sync with " en="In sync with" it="In sincronia con"/>
 								<en_run_query base="Run query" de="Abfrage ausführen" en="Run query" fr="Requête exécutée" it="Interrogazione Run"/>
 								<en_only_highlighted base="Only highlighted" de="Nur hervorgehoben" en="Only highlighted" fr="Seulement en surbrillance" it="Solo evidenziato"/>
 								<en_user_sets base="User sets" de="Benutzersätze" en="User sets" fr="ensembles de l'utilisateur" it="Impostazioni utente"/>
@@ -879,7 +879,7 @@
 								<en_working_ base="Working....." de="Arbeiten ....." en="Working....." fr="Travailler ....." it="Sto elaborando"/>
 								<en_current_query_record_count base="Current query record count" de="Aktuelle Abfrage Datenanzahl" en="Current query record count" fr="Requête actuelle nombre d'enregistrements" it="Query corrente conteggio dei record"/>
 								<en_search base="Search" de="Suche" en="Search" fr="Recherche" it="Ricerca"/>
-								<en_op_ base="Op."/>
+								<en_op_ base="Op." en="Op." it="Op."/>
 								<en_value base="Value" de="Wert" en="Value" fr="Valeur" it="Valore"/>
 								<en_not base="not" de="nicht" en="not" fr="pas" it="non"/>
 								<en_new_set base="New Set" de="New Set" en="New Set" fr="Nouveau jeu" it="Nuovo set"/>
@@ -889,7 +889,6 @@
 								<en_union base="Union" de="Union" en="Union" fr="Union" it="Unione"/>
 								<en_intersect base="Intersect" de="Schneiden" en="Intersect" fr="Couper" it="Intersecare"/>
 								<en_difference base="Difference" de="Unterschied" en="Difference" fr="Différence" it="Differenza"/>
-								<en_s _tag="en__s" base="%s" de="% S" en="%s" fr="% S" it="% S"/>
 								<en_please_select_the_column base="Please select the column" de="Bitte wählen Sie die Spalte" en="Please select the column" fr="S'il vous plaît sélectionnez la colonne" it="Si prega di selezionare la colonna"/>
 								<en_and base="AND" de="UND" en="AND" fr="ET" it="E"/>
 								<en_or base="OR" de="ODER" en="OR" fr="OU" it="OR"/>
