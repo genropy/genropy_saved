@@ -81,21 +81,14 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         handler.apply(this,[data])
     },
     receivedToken:function(token,envelope){
-        var tk=objectPop(this.waitingCalls,token)
+        var deferred=objectPop(this.waitingCalls,token)
         var dataNode=envelope.getNode('data')
         var error=envelope.getItem('error')
         if (error){
-            if (tk.onError){
-                tk.onError.apply([error])
-            }else if(tk.errorPath){
-                genro.setData(tk.errorPath,error)
-            }
+            deferred.errback(error)
         }
-        if (tk.onResult){
-            dataNode=tk.onResult.apply([dataNode])
-        }
-        if (tk.destPath && dataNode){
-            genro.setData(tk.destPath,dataNode)
+        else{
+            deferred.callback(dataNode)
         }
     },
     
@@ -116,17 +109,19 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         genro.publish(topic,data)
     },
-    call:function(method,kw,wsKwargs){
+    call:function(kw,omitSerialize){
+    	var deferred = new dojo.Deferred();
         var kw=kw || {};
-        var wsKwargs=wsKwargs || {};
         var token='wstk_'+genro.getCounter('wstk')
         kw['result_token']=token
         kw['command']='call'
-        kw['method']=method
-        this.waitingCalls[token]=objectUpdate(wsKwargs,{sentKw:kw})
-        kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
+        if (!omitSerialize){
+            kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
+        }
+        this.waitingCalls[token]=deferred
         console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
+        return deferred
     },
     send:function(command,kw){
         var kw=kw || {};

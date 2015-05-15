@@ -266,9 +266,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (this.debug){
             console.log('_serverCall_execute:start --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs)
         }
-        if (httpMethod == 'WSK') {
-            console.log('WSK',kw)
-        }
+
         if (httpMethod == 'GET') {
             xhrResult = dojo.xhrGet(kw);
         }
@@ -282,12 +280,16 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         else if (httpMethod == 'DELETE') {
             xhrResult = dojo.xhrDelete(kw);
         }
-        else if ('PUT') {
+        else if (httpMethod == 'PUT') {
             if ('putData' in callKwargs) {
                 xhrResult = dojo.rawXhrPut(kw);
             } else {
                 xhrResult = dojo.xhrPut(kw);
             }
+        }
+        else if (httpMethod == 'WSK') {
+            xhrResult=genro.wsk.call(kw.content,true)
+            console.log('WSK',kw)
         }
         if (this.debug){
             console.log('_serverCall_execute:end --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs,'result',xhrResult)
