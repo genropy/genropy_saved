@@ -33,12 +33,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.options=objectUpdate({ debug: true, reconnectInterval: 4000 },
                                   options)
         this.waitingCalls={}
-        this._token = 0;
         
-    },
-    get token(){
-        this._counter+=1
-        return 'tk_'+this._token
     },
     create:function(){
         if (this.wsroot){
@@ -121,17 +116,16 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
         genro.publish(topic,data)
     },
-    call:function(command,kw){
+    call:function(method,kw,wsKwargs){
         var kw=kw || {};
-        token=this.token
+        var wsKwargs=wsKwargs || {};
+        var token='wstk_'+genro.getCounter('wstk')
         kw['result_token']=token
-        this.waitingCalls[token]={'onResult':objectPop(kw,'onResult'),
-                                  'onError';objectPop(kw,'onError'),
-                                  'destPath':objectPop(kw,'destPath'),
-                                  'errorPath'=objectPop(kw,'errorPath')
-                                 }
         kw['command']='call'
+        kw['method']=method
+        this.waitingCalls[token]=objectUpdate(wsKwargs,{sentKw:kw})
         kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
+        console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
     },
     send:function(command,kw){

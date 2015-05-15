@@ -266,6 +266,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (this.debug){
             console.log('_serverCall_execute:start --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs)
         }
+        if (httpMethod == 'WSK') {
+            console.log('WSK',kw)
+        }
         if (httpMethod == 'GET') {
             xhrResult = dojo.xhrGet(kw);
         }

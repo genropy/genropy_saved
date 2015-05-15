@@ -303,10 +303,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 console.log('dataws', expr, kwargs);
 
                 var method = expr;
-                objectExtract(kwargs, '_*');
-                kwargs = objectUpdate({'method':method,
-                        'dest_path':destinationPath},kwargs);
-                genro.wsk.send('wsmethod',kwargs)
+                wsKwargs=objectExtract(kwargs, '_*');
+                wsKwargs.destPath=wsKwargs.destPath || destinationPath
+                genro.wsk.call(method,kwargs,wsKwargs)
                 return;
             }
             if (tag == 'datarpc' && (expr != _else)) {

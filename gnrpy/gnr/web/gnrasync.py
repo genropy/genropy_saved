@@ -176,6 +176,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         result = None
         resultAttrs=None
         handler = self.page.getWsMethod(method)
+
         if handler:
             try:
                 result = handler(**kwargs)
@@ -184,15 +185,12 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
             except Exception, e:
                 error = str(e)
         envelope=Bag()
+        
         envelope.setItem('data',result,_attributes=resultAttrs, _server_time=time.time()-_time_start)
         if error:
-            error_path = error_path or 'gnr.websocket_error.%s'%method.replace('.','_').replace(':','_')
             envelope.setItem('error',error)          
-        result=Bag(dict(token=token,envelope=envelope))
+        result=Bag(dict(token=result_token,envelope=envelope))
         return result.toXml(unresolved=True)
-        
-
-   
         
     def wrongCommand(self,command=None,**kwargs):
         return 'WRONG COMMAND: %s' % command
