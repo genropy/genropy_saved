@@ -24,7 +24,22 @@ class BaseRpc(BaseComponent):
 
     skip_connection = True
 
+ #def rootPageNew(self,*args, **kwargs):
+ #    self.response.content_type = 'application/xml'
+ #    request_method = self.request.method
+ #    if args:
+ #        method_name = '%s_%s'%(request_method.upper(),args[0])
+ #        method = getattr(self,method_name,self._default)
+ #        args = args[1:]
+ #    else:
+ #        method = self._default
+ #    result = method(*args, **kwargs)
+ #    if isinstance(result, Bag):
+ #        result = result.toXml()
+ #    return result
+
     def rootPage(self, *args, **kwargs):
+        #request_method = self.request.method
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
