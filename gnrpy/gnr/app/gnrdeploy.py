@@ -293,7 +293,7 @@ class PackageMaker(object):
         
     where ``packagesname`` is the name of your ``packages`` folder.
     """
-    def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=None,
+    def __init__(self, package_name, base_path=None, sqlschema=None, sqlprefix=True,
                  name_short=None, name_long=None, name_full=None,
                  login_url=None, comment=None,helloworld=False):
         self.package_name = package_name
