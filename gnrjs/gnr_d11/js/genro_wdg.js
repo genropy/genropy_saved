@@ -1665,8 +1665,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         var cellmap = this.grid.cellmap;
         var rebuildStructure = false;
         for(var p in this.cellpars){
-            var abspath = this.sourceNode.absDatapath(p);
-            if(dpath==abspath){
+            if(dpath==this.sourceNode.absDatapath(p).split('?')[0]){
                 for(var f in this.cellpars[p]){
                     var reasons = this.cellpars[p][f];
                     for(var reason in reasons){
@@ -1684,7 +1683,10 @@ dojo.declare("gnr.GridChangeManager", null, {
             }
         }
         if(rebuildStructure){
-            this.grid.setStructpath();
+            var grid = this.grid;
+            this.sourceNode.delayedCall(function(){
+                grid.setStructpath();
+            },1);
         }
     }, 
     addDynamicCellPar:function(cell,parname,parpath){

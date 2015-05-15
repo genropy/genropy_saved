@@ -572,7 +572,9 @@ class MultiButtonForm(BaseComponent):
                 pkey='^.value',
                 frm=form,_if='pkey',caption_field=caption_field,store='=.store')
             form.dataController("""
-                mb.form.childForms[this.form.formId] = this.form;
+                if(mb.form){
+                    mb.form.childForms[this.form.formId] = this.form;
+                }
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,pkey='^#FORM.controller.loaded',mb=mb)
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
@@ -620,7 +622,9 @@ class MultiButtonForm(BaseComponent):
                                 kw[switch_field] = data.getValue().getItem(switch_field);
                                 store.setItem(fkey,null,kw)
                             }
-                            mainstack.form.childForms[code] = this.form;
+                            if(mainstack.form){
+                                mainstack.form.childForms[code] = this.form;
+                            }
                             mainstack.setRelativeData('.value',fkey);
                             mainstack.setRelativeData('.selectedForm',fid);
                             """,

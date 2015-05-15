@@ -2,12 +2,12 @@
 <GenRoBag>
 	<model>
 		<widget ext="py" path="model/widget.py">
-			<widget base="Widget" de="Widget" en="Widget" fr="Widget" it="Widget"/>
-				<widgets base="Widgets" de="Widgets" en="Widgets" fr="Widgets" it="Widgets"/>
-				<name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
-				<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
-				<server base="Server" de="Server" en="Server" fr="Serveur" it="Server"/>
-				<parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
+			<en_widget base="Widget" de="Widget" en="Widget" fr="Widget" it="Widget"/>
+				<en_widgets base="Widgets" de="Widgets" en="Widgets" fr="Widgets" it="Widgets"/>
+				<en_name base="Name" de="Name" en="Name" fr="Nom" it="Nome"/>
+				<en_summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
+				<en_server base="Server" de="Server" en="Server" fr="Serveur" it="Server"/>
+				<en_parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
 		</widget>
 	</model>
 
@@ -15,11 +15,11 @@
 		<tables>
 			<widget>
 				<th_widget ext="py" path="resources/tables/widget/th_widget.py">
-					<parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
-								<documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
-								<summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
-								<parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
-								<code base="Code" en="Code" it="Codice"/>
+					<en_parameters base="Parameters" de="Parameter" en="Parameters" fr="Paramètres" it="Parametri"/>
+								<en_documentation base="Documentation" de="Dokumentation" en="Documentation" fr="Documentation" it="Documentazione"/>
+								<en_summary base="Summary" de="Zusammenfassung" en="Summary" fr="Résumé" it="Sommario"/>
+								<en_parameters_doc base="Parameters doc" de="Parameter doc" en="Parameters doc" fr="Paramètres doc" it="Parametri doc"/>
+								<en_code base="Code" en="Code" it="Codice"/>
 				</th_widget>
 			</widget>
 		</tables>

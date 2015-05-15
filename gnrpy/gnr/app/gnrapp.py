@@ -359,9 +359,15 @@ class GnrPackage(object):
         self.plugins = {}
         self.loadPlugins()
         self._pkgMenu = None
+        self.projectInfo = None
         if not project:
             projectPath = os.path.normpath(os.path.join(self.packageFolder,'..','..'))
+            projectInfoPath = os.path.join(projectPath,'info.xml')
             project = os.path.split(projectPath)[1]
+            if os.path.exists(projectInfoPath):
+                self.projectInfo = Bag(projectInfoPath)
+        if not self.projectInfo:
+            self.projectInfo = Bag(('project',None,dict(name=project,code=project,language='en'))) 
         self.project = project 
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
@@ -409,8 +415,12 @@ class GnrPackage(object):
         self.configure()
 
     @property
+    def language(self):
+        return self.attributes.get('language') or self.projectInfo['project?language']
+
+    @property
     def pkgMenu(self):
-        if not self._pkgMenu:
+        if self._pkgMenu is None:
             pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
             for pluginname,plugin in self.plugins.items():
                 pkgMenu.update(plugin.menuBag)
@@ -709,9 +719,7 @@ class GnrApp(object):
         dbattrs['application'] = self
         self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
-        pkgMenus = self.config['menu?package'] or []
-        if pkgMenus:
-            pkgMenus = pkgMenus.split(',')
+        
 
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
             if ':' in pkgid:
@@ -746,15 +754,24 @@ class GnrApp(object):
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
-        for pkgid, apppkg in self.packages.items():
-            if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
-                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
-                if len(apppkg.pkgMenu) == 1:
-                    self.config['menu.%s' % pkgid] = apppkg.pkgMenu.getNode('#0')
-                else:
-                    self.config.setItem('menu.%s' % pkgid, apppkg.pkgMenu,
-                                        {'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+
+        
         self.onInited()
+
+    def applicationMenuBag(self):
+        pkgMenus = self.config['menu?package']
+        if pkgMenus:
+            pkgMenus = pkgMenus.split(',')
+        menuBag = Bag()
+        for pkgid, apppkg in self.packages.items():
+            pkgMenuBag = apppkg.pkgMenu
+            if pkgMenuBag and (not pkgMenus or pkgid in pkgMenus):
+                #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
+                if len(pkgMenuBag) == 1:
+                    menuBag[pkgid] = pkgMenuBag.getNode('#0')
+                else:
+                    menuBag.setItem(pkgid, pkgMenuBag,{'label': apppkg.config_attributes().get('name_long', pkgid),'pkg_menu':pkgid})
+        return menuBag
 
     def importFromSourceInstance(self,source_instance=None):
         to_import = ''

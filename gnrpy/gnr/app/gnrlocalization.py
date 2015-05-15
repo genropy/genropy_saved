@@ -30,10 +30,10 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 
 SAFEAUTOTRANSLATE = re.compile(r"""(\%(?:\((?:.*?)\))?(?:.*?)[s|d|e|E|f|g|G|o|x|X|c|i|\%])""")
 
-LOCREGEXP = re.compile(r"""("{3}|'|")\!\!(?:{(\w*)})?(.*?)\1|\[\!\!(?:{(\w*)})?(.*?)\]|\b_T\(("{3}|'|")(.*?)\6\)""")
+LOCREGEXP = re.compile(r"""("{3}|'|")\!\!(?:\[(?P<lang_emb>.{2})\])?(?:{(?P<key_emb>\w*)})?(?P<text_emb>.*?)\1|\[\!\!(?:\[(?P<lang>.{2})\])?(?:{(?P<key>\w*)})?(?P<text>.*?)\]|\b_T\(("{3}|'|")(?P<text_func>.*?)\6\)""")
 
 
-TRANSLATION = re.compile(r"^\!\!(?:{(\w*)})?(.*)$|(?:\[\!\!)(?:{(\w*)})?(.*?)\]")
+TRANSLATION = re.compile(r"^\!\!(?:\[(?P<lang>.{2})\])?(?:{(\w*)})?(?P<value>.*)$|(?:\[\!\!(?:\[(?P<lang_emb>.{2})\])?)(?:{(\w*)})?(?P<value_emb>.*?)\]")
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
@@ -61,12 +61,13 @@ class AppLocalizer(object):
             self.translator = False
             self.languages = dict(en='English',it='Italian')
         roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs','resources/common','resources/mobile')]
-        self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core',protected=True)]
+        self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core',protected=True,language='en')]
         for p in self.application.packages.values():
-
-            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,code=p.id, protected = (p.project == 'gnrcore') ))
-        if os.path.exists(self.application.customFolder):
-            self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,code='customization',protected=False))
+            self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,
+                                    code=p.id, protected = (p.project == 'gnrcore'),language=p.language))
+        #if os.path.exists(self.application.customFolder):
+        #    self.slots.append(dict(roots=[self.application.customFolder],destFolder=self.application.customFolder,
+        #                                code='customization',protected=False))
         self.buildLocalizationDict()
 
     def buildLocalizationDict(self):
@@ -78,7 +79,7 @@ class AppLocalizer(object):
             self.updatableLocBags['all'].append(s['destFolder'])
             locbag = self.getLocalizationBag(s['destFolder'])
             if locbag:
-                self.updateLocalizationDict(locbag)
+                self.updateLocalizationDict(locbag,s['language'])
 
     def translate(self,txt,language=None):
         return self.getTranslation(txt,language=language)['translation']
@@ -103,10 +104,14 @@ class AppLocalizer(object):
             return result
         else:
             def translatecb(m):
-                lockey = m.group(1) or m.group(3)
-                loctext = m.group(2) or m.group(4)
+                m = m.groupdict()
+                lockey = m.get('key') or m.get('key_emb')
+                loctext = m.get('value') or m.get('value_emb')
+                loclang = m.get('lang') or m.get('lang_emb') or 'en'
+
                 if not lockey:
                     lockey = flatten(loctext)
+                lockey = '%s_%s' %(loclang,lockey)
                 translation_dict = self.localizationDict.get(lockey)
                 if translation_dict:
                     translation = translation_dict.get(language)
@@ -150,7 +155,7 @@ class AppLocalizer(object):
             locbag = Bag()
         return locbag
 
-    def updateLocalizationDict(self,locbag):
+    def updateLocalizationDict(self,locbag,language=None):
         locdict = {}
         
         if locbag.filter(lambda n: n.attr.get('_key')):
@@ -165,7 +170,10 @@ class AppLocalizer(object):
             def cb(n):
                 if not n.value:
                     loc = dict(n.attr)
-                    locdict[n.label] = loc
+                    locdict_key = n.label
+                    if len(n.label)<3 or n.label[2]!='_':
+                        locdict_key = '%s_%s' %(language,n.label)
+                    locdict[locdict_key] = loc
             locbag.walk(cb)
         self.localizationDict.update(locdict)    
         
@@ -175,7 +183,7 @@ class AppLocalizer(object):
                 locbag = Bag()
                 for root in s['roots']:
                     d = DirectoryResolver(root,include='*.py,*.js')()
-                    d.walk(self._updateModuleLocalization,locbag=locbag,_mode='deep',destFolder=s['destFolder'])
+                    d.walk(self._updateModuleLocalization,locbag=locbag,_mode='deep',destFolder=s['destFolder'] )
                 locbag.toXml(os.path.join(s['destFolder'],'localization.xml'),pretty=True,typeattrs=False, typevalue=False)
         self.buildLocalizationDict()
 
@@ -184,11 +192,13 @@ class AppLocalizer(object):
             return
         moduleLocBag = Bag()
         def addToLocalizationBag(m):
-            lockey = m.group(2) or m.group(4)
-            loctext = m.group(3) or  m.group(5) or m.group(7)
+            lockey = m.group('key_emb') or m.group('key')
+            loctext = m.group('text_emb') or  m.group('text') or m.group('text_func')
+            loclang = m.group('lang_emb') or m.group('lang') or 'en'
             if not loctext:
                 return
             lockey = lockey or flatten(loctext)
+            lockey = '%s_%s' %(loclang,lockey)
             if not lockey in moduleLocBag:
                 locdict = dict(self.localizationDict.get(lockey) or dict())
                 locdict['base'] = loctext

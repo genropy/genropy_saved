@@ -319,6 +319,9 @@ class GnrDomSrc(GnrStructData):
                 self.data(clientpath,value,**sourceNodeValueAttr)
         if childname and childname != '*_#':
             kwargs['_childname'] = childname
+        _strippedKwargs=','.join([k for k,v in kwargs.items() if v is None])
+        if _strippedKwargs:
+            kwargs['_strippedKwargs'] = _strippedKwargs
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
@@ -327,10 +330,10 @@ class GnrDomSrc(GnrStructData):
         :param tag: the html tag
         :param childcontent: the html content
         :param value: TODO"""
-        if childcontent :
+        if childcontent is not None :
             kwargs['innerHTML'] = childcontent
             childcontent = None
-        elif value:
+        elif value is not None:
             kwargs['innerHTML'] = value
             value = None
         return self.child(tag, childcontent=childcontent, **kwargs)
