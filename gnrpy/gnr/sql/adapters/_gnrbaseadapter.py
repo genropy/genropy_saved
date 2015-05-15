@@ -497,7 +497,7 @@ class SqlDbAdapter(object):
         command = """
             ALTER TABLE %(sqltable)s RENAME COLUMN %(sqlname)s TO %(sqlnewname)s;
             DROP INDEX IF EXISTS %(old_index_name)s;
-            ALTER TABLE %(sqltable)s DROP CONSTRAINT %(old_fkey_name)s;
+            ALTER TABLE %(sqltable)s DROP CONSTRAINT IF EXISTS %(old_fkey_name)s;
         """
         self.dbroot.execute(command %kwargs)
 
