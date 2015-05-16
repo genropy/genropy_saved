@@ -654,11 +654,13 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                     dojo.hitch(scope, request.onItem)(result);
                 //}
             });
-            var result = this.rootDataNode().getValue('', {_id:id,rpc_sync:true});
+            var result = this.rootDataNode().getValue('', {_id:id});
+
+           if (result instanceof dojo.Deferred) {
+               result.addCallback(finalize);
+           }else{
             return finalize(result)
-            //if (result instanceof dojo.Deferred) {
-            //    result.addCallback(finalize);
-            //}
+            }
         }
     },
     _doFetch : function(request, findCallback, errCallback) {
