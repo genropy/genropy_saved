@@ -93,9 +93,10 @@ class ResourceLoader(object):
             return
         class_info = page_item['data']['class_info']
         init_info = page_item['data']['init_info']
+        page_info = page_item['data']['page_info']
         class_info['page_factory'] = GnrSimplePage
         page_class = self.get_page_class(**class_info)
-        page = page_class(site=self.site, page_id=page_id, **init_info)
+        page = page_class(site=self.site, page_id=page_id,page_info=page_info, **init_info)
         page.replayComponentMixins()
         return page
 

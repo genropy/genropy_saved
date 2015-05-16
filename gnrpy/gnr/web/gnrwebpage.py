@@ -58,6 +58,8 @@ AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
+ATTRIBUTES_SIMPLEWEBPAGE = ('_workdate','_language','_call_args','_call_kwargs','user','connection_id','user_ip','dbstore','user_agent','siteName')
+
 
 
 def formulaColumn(*args,**fcpars):
@@ -164,6 +166,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.dojo_source = self.site.config['dojo?source']
         if 'dojo_source' in request_kwargs:
             self.dojo_source = request_kwargs.pop('dojo_source')
+
         self.connection = GnrWebConnection(self,
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
@@ -186,17 +189,19 @@ class GnrWebPage(GnrBaseWebPage):
             return
         if page_id:
             self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+            self._language = self.page_item['data']['rootenv.language']
         elif self._call_handler_type in ('pageCall', 'externalCall'):
             raise self.site.client_exception('The request must reference a page_id', self._environ)
         else:
             self.page_item = self._register_new_page(kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
+            self._language = self.page_item['data']['rootenv.language']
             if class_info:
                 self.page_item['data']['class_info'] = class_info
                 self.page_item['data']['init_info'] = dict(request_kwargs=request_kwargs, request_args=request_args,
                           filepath=filepath, packageId=packageId, pluginId=pluginId,  basename=basename)
-        
-        self._workdate = self.page_item['data']['rootenv.workdate'] #or datetime.date.today()
-        self._language = self.page_item['data']['rootenv.language']
+                self.page_item['data']['page_info'] = dict([(k,getattr(self,k)) for k in ATTRIBUTES_SIMPLEWEBPAGE])
         self._inited = True
 
     def _T(self,value,lockey=None):
@@ -812,7 +817,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.localizer.getTranslation(txt,language=language or self.locale)
 
     def localize(self, txt):
-        return self.localizer.translate(txt)
+        return self.localizer.translate(txt,language=self.locale)
     _ = localize
 
 
@@ -1137,15 +1142,27 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         return self.connection.user_tags
         
-    @property
-    def user(self):
-        """TODO"""
-        return self.connection.user
-        
-    @property
-    def connection_id(self):
-        """TODO"""
-        return self.connection.connection_id
+
+    def _get_user(self):
+        if not getattr(self,'_user',None):
+            self._user = self.connection.user
+        return self._user
+
+    def _set_user(self,user):
+        self._user = user
+
+    user = property(_get_user, _set_user)
+
+    def _get_connection_id(self):
+        if not getattr(self,'_connection_id',None):
+            self._connection_id = self.connection.connection_id
+        return self._connection_id
+
+    def _set_connection_id(self,connection_id):
+        self._connection_id = connection_id
+
+    connection_id = property(_get_connection_id, _set_connection_id)
+
         
     def _set_avatar(self, avatar):
         self._avatar = avatar
@@ -1161,6 +1178,17 @@ class GnrWebPage(GnrBaseWebPage):
         return self._avatar
         
     avatar = property(_get_avatar, _set_avatar)
+
+    def _get_siteName(self):
+        if not getattr(self,'_siteName',None):
+            self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+        return self._siteName
+
+    def _set_siteName(self,siteName):
+        self._siteName = siteName
+
+    siteName = property(_get_siteName, _set_siteName)
+        
         
     def checkPermission(self, pagepath, relative=True):
         """TODO

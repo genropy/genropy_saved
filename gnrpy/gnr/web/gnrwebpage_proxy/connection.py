@@ -24,9 +24,9 @@ USER_AGENT_SNIFF = (('Chrome', 'Chrome'),
 class GnrWebConnection(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         page = self.page
-        self.user_agent = page.request.get_header('User-Agent') or ''
+        self.user_agent = page.user_agent
         self.browser_name = self.sniffUserAgent()
-        self.ip = self.page.request.remote_addr or '0.0.0.0'
+        self.ip = self.page.user_ip or '0.0.0.0'
         self.connection_name = '%s_%s' % (self.ip.replace('.', '_'), self.browser_name)
         self.secret = page.site.config['secret'] or self.page.siteName
         self.cookie_name = self.page.siteName
@@ -35,17 +35,20 @@ class GnrWebConnection(GnrBaseProxy):
         self.user_tags = None
         self.user_id = None
         self.user_name = None
-        self.cookie = self.read_cookie()
         self._cookie_data = None
         self.connection_item = None
         self.avatar_extra = dict()
         if connection_id:
             self.validate_connection(connection_id=connection_id, user=user)
-
         elif self.cookie:
             cv = self.cookie.value
             self.validate_connection(connection_id=cv.get('connection_id'), user=cv.get('user'))
 
+    @property
+    def cookie(self):
+        if not getattr(self,'_cookie',None):
+            self._cookie = self.read_cookie()
+        return self._cookie
 
     def create(self):
         self.connection_id = getUuid()
@@ -60,7 +63,7 @@ class GnrWebConnection(GnrBaseProxy):
     def validate_connection(self, connection_id=None, user=None):
         connection_item = self.page.site.register.connection(connection_id)
         if connection_item:
-            if (connection_item['user'] == user) and (connection_item['user_ip'] == self.page.request.remote_addr):
+            if (connection_item['user'] == user) and (connection_item['user_ip'] == self.page.user_ip):
                 self.connection_id = connection_id
                 self.user = user
                 self.user_tags = connection_item['user_tags']

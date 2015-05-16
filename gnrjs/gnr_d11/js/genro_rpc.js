@@ -59,7 +59,6 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
         
         if (this.httpMethod=='WSK'){
             var result = genro.wsk.call(kw);
-            result.addCallback(function(result){console.log(result);return result.getValue()})
             result.addErrback(function(error){console.error(error)})
             return result
         }else{
