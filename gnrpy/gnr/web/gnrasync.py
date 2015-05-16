@@ -26,7 +26,7 @@ import tornado.websocket as websocket
 import tornado.ioloop
 from tornado.netutil import bind_unix_socket
 from tornado.httpserver import HTTPServer
-from gnr.core.gnrbag import Bag,BagException
+from gnr.core.gnrbag import Bag,BagException,TraceBackResolver
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from gnr.core.gnrstring import fromJson
 from concurrent.futures import ThreadPoolExecutor,Future, Executor
@@ -183,7 +183,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
                 if isinstance(result,tuple):
                     result,resultAttrs=result
             except Exception, e:
-                error = str(e)
+                tb=TraceBackResolver()()
+                print tb
+                error=str(e)
         envelope=Bag()
         
         envelope.setItem('data',result,_attributes=resultAttrs, _server_time=time.time()-_time_start)

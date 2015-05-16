@@ -38,6 +38,8 @@ class GnrSimplePage(GnrWebPage):
         self.site = site
         #dbstore = request_kwargs.pop('temp_dbstore',None) or None
         #self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
+        self.dbstore=None  # find a way to handle it based on call/thread
+        self._locale='en'  # find a way to handle it based on call/thread
         self._event_subscribers = {}
         self.filepath = filepath
         self.packageId = packageId

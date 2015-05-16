@@ -56,12 +56,21 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             kwargs.resolverPars.kwargs = kwargs._sourceNode.evaluateOnNode(kwargs.resolverPars.kwargs);
         }
         var kw = objectUpdate({},kwargs);
-        var result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
-        if (sync) {
-            result.addCallback(function(value) {
-                result = value;
-            });
+        
+        if (this.httpMethod=='WSK'){
+            var result = genro.wsk.call(kw);
+            result.addCallback(function(result){console.log(result);return result.getValue()})
+            result.addErrback(function(error){console.error(error)})
+            return result
+        }else{
+            var result = genro.rpc._serverCall(kwargs, xhrKwargs, this.httpMethod);
+            if (sync) {
+                result.addCallback(function(value) {
+                    result = value;
+                });
+            }  
         }
+ 
         return result;
     },
     errorHandler: function(response, ioArgs) {
@@ -286,10 +295,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             } else {
                 xhrResult = dojo.xhrPut(kw);
             }
-        }
-        else if (httpMethod == 'WSK') {
-            xhrResult=genro.wsk.call(kw.content,true)
-            console.log('WSK',kw)
         }
         if (this.debug){
             console.log('_serverCall_execute:end --- ',kw.method,'httpMethod',httpMethod,'kw',kw,'callKwargs',callKwargs,'result',xhrResult)
