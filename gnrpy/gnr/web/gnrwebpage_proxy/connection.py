@@ -49,6 +49,10 @@ class GnrWebConnection(GnrBaseProxy):
         if not getattr(self,'_cookie',None):
             self._cookie = self.read_cookie()
         return self._cookie
+        
+    @cookie.setter
+    def cookie(self,cookie):
+        self._cookie=cookie
 
     def create(self):
         self.connection_id = getUuid()
