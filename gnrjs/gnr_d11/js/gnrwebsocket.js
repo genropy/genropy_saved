@@ -30,7 +30,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         this.application = application;
         this.wsroot=wsroot;
         this.url='ws://'+window.location.host+wsroot
-        this.options=objectUpdate({ debug: true, reconnectInterval: 4000 },
+        this.options=objectUpdate({ debug: false, reconnectInterval: 4000, ping_time:3000 },
                                   options)
         this.waitingCalls={}
         
@@ -54,16 +54,29 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
         }
     },
     onopen:function(){
+        console.log('connetting websocket')
+        that=this
         this.send('connected',{'page_id':genro.page_id})
+        this._interval=setInterval(function(){
+                                     that.ping()
+                                   },this.options.ping_time)
     },
     onclose:function(){
-        this.send('disconnected')
+        clearInterval(this._interval)
+        console.log('disconnected websocket')
     },
     onerror:function(error){
         console.error('WebSocket Error ' + error);
     },
+    ping:function(){
+        this.socket.send('PING')
+    },
     onmessage:function(e){
         var data=e.data;
+        if (data=='PONG'){
+            return
+        }
+        
         if (data.indexOf('<?xml')==0){
             var result=this.parseResponse(e.data);
             var token=result.getItem('token') 
@@ -119,7 +132,7 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
             kw=genro.rpc.serializeParameters(genro.src.dynamicParameters(kw));
         }
         this.waitingCalls[token]=deferred
-        console.log('sending',kw)
+        //console.log('sending',kw)
         this.socket.send(dojo.toJson(kw))
         return deferred
     },
@@ -449,7 +462,8 @@ dojo.declare("gnr.GnrWebSocketHandler", null, {
                 }
                 return ws.send(data);
             } else {
-                throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
+                console.log ('Error sending :',data);
+                throw 'INVALID_STATE_ERR : Pausing to reconnect websocket'
             }
         };
 

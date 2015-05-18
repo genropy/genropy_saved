@@ -114,7 +114,10 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
     @property
     def page(self):
         return self.pages[self.page_id]
-    
+        
+    @property
+    def page_id(self):
+        return getattr(self,'_page_id',None)
     
     @property
     def gnrsite(self):
@@ -127,15 +130,19 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return getattr(self,'do_%s' % command,self.wrongCommand)  
         
     def open(self):
+        print "WebSocket open - page_id:",self.page_id
         pass
-        #print "WebSocket opened"
         
     def close(self):
+        self.page_id
+        print "WebSocket close. page_id:",self.page_id
         pass
-        #print "WebSocket closed"
+        
         
     @gen.coroutine 
     def on_message(self, message):
+        if message=='PING':
+            self.write_message('PONG')
         command,kwargs=self.parseMessage(message)
         handler=self.getHandler(command)
         if handler:
@@ -145,8 +152,9 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
                 self.write_message(result)
                 
     def on_close(self):
-        pass
-        #print "WebSocket closed"
+        print "WebSocket on_close",self.page_id
+        self.channels.pop(self.page_id,None)
+        self.pages.pop(self.page_id,None)
         
     def check_origin(self, origin):
         return True
@@ -155,14 +163,22 @@ class GnrWebSocketHandler(websocket.WebSocketHandler):
         return data
 
     def do_connected(self,page_id=None,**kwargs):
-        self.page_id=page_id
-        self.channels[page_id]=self
-        page = self.gnrsite.resource_loader.get_page_by_id(page_id)
-        self.pages[page_id] = page
+        print 'do_connected:',page_id
+        self._page_id=page_id
+        if not page_id in self.channels:
+            print 'setting in channels',self.page_id
+            self.channels[page_id]=self
+        else:
+             print 'already in channels',self.page_id
+        if not page_id in self.pages:
+            print 'creating page',self.page_id
+            page = self.gnrsite.resource_loader.get_page_by_id(page_id)
+            print 'setting in pages',self.page_id
+            self.pages[page_id] = page
+        else:
+            print 'already in pages',self.page_id
        
-    def do_disconnected(self,**kwargs):
-        self.channels.pop(self.page_id,None)
-    
+  
     def do_channels(self,**kwargs):
         return self.channels.keys()
         
