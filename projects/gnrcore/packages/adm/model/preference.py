@@ -62,4 +62,5 @@ class Table(object):
     def savePreference(self, record):
         with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
             self.insertOrUpdate(record)
+            self.db.application.pkgBroadcast('onSavedPreferences',preferences=record['data'])
             self.db.commit()

@@ -2294,7 +2294,6 @@ class SqlRecord(object):
         sqlparams = dict()
         if order_by:
             sqlparams['order_by'] = order_by
-
         #if True or resolver_many is True:
         value = SqlRelatedSelectionResolver(
                 columns='*', db=self.db, cacheTime=-1,
@@ -2304,6 +2303,7 @@ class SqlRecord(object):
                 sqlContextName=self.sqlContextName,
                 virtual_columns=virtual_columns,
                 sqlparams = sqlparams,
+
                 )
         #else:
         info['_many_order_by'] = order_by

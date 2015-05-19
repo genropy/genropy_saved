@@ -9,7 +9,7 @@ class Form(BaseComponent):
     def th_form(self,form,**kwargs):
         pane = form.record
         #pane=parent.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
-        pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
+        pane.div(u'!![it]Località',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
         fb.field('nome', width='20em')
         fb.field('provincia',width='15em')

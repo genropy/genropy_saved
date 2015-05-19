@@ -85,9 +85,9 @@
 				<en_last_used base="Last used" de="Zuletzt verwendeten" en="Last used" fr="Dernière occasion" it="Ultimo uso"/>
 				<en_holes base="Holes" de="Löcher" en="Holes" fr="Trous" it="Holes"/>
 				<en_errors base="Errors" de="Fehler" en="Errors" fr="Erreurs" it="Errori"/>
-				<en_missing_s_mandatory_for_counter_s base="Missing %s. Mandatory for counter %s" de="% S fehlt. Obligatorisch für Gegen% s" en="Missing %s. Mandatory for counter %s" fr="Manquant% s. Obligatoire pour compteur% s" it="Manca% s. Obbligatorio per contatore% s"/>
-				<en_missing_date_s_for_counter_s base="Missing date %s for counter %s" de="Fehlende Datum% s für% s Zähler" en="Missing date %s for counter %s" fr="Manquant jour% s pour le compteur% s" it="Data mancante% s per il contatore% s"/>
-				<en_incompatible_date_assigning_fieldname_s_counter base="Incompatible date assigning %(fieldname)s counter" de="Inkompatible Datum Zuweisen% (fieldname) s Gegen" en="Incompatible date assigning %(fieldname)s counter" fr="Le compteur de la date attribution Incompatible% (fieldname)" it="Data incompatibile assegnazione% (fieldname) s contatore"/>
+				<en_missing_s_mandatory_for_counter_s base="Missing %s. Mandatory for counter %s" de="% S fehlt. Obligatorisch für Gegen% s" en="Missing [0]. Mandatory for counter [1]" fr="Manquant% s. Obligatoire pour compteur% s" it="Manca% s. Obbligatorio per contatore% s"/>
+				<en_missing_date_s_for_counter_s base="Missing date %s for counter %s" de="Fehlende Datum% s für% s Zähler" en="Missing date [0] for counter [1]" fr="Manquant jour% s pour le compteur% s" it="Data mancante% s per il contatore% s"/>
+				<en_incompatible_date_assigning_fieldname_s_counter base="Incompatible date assigning %(fieldname)s counter" de="Inkompatible Datum Zuweisen% (fieldname) s Gegen" en="Incompatible date assigning [0] counter" fr="Le compteur de la date attribution Incompatible% (fieldname)" it="Data incompatibile assegnazione% (fieldname) s contatore"/>
 		</counter>
 		<datacatalog ext="py" path="model/datacatalog.py">
 			<en_model_catalog base="Model catalog" de="Modellkatalog" en="Model catalog" fr="Le catalogue du modèle" it="Catalogo Modello"/>
@@ -292,7 +292,7 @@
 				<en_clear_favorites base="Clear favorites" de="Klar Favoriten" en="Clear favorites" fr="Effacer les favoris" it="Cancella preferiti"/>
 				<en_reload base="Reload" de="Nachladen" en="Reload" fr="Recharger" it="Ricaricare"/>
 				<en_connected_to_ base="Connected to:" de="Verbunden mit:" en="Connected to:" fr="Connecté à:" it="Collegato a:"/>
-				<en_s_preference _tag="en__s_preference" base="%s preference" de="%s Präferenz" en="%s preference" fr="%s préférence" it="%s preferenza"/>
+				<en_s_preference _tag="en__s_preference" base="%s preference" de="%s Präferenz" en="[0] preference" fr="%s préférence" it="%s preferenza"/>
 				<en_logout base="Logout" de="Logout" en="Logout" fr="Se Déconnecter" it="Uscire"/>
 				<en_lock_screen base="Lock screen" de="Bildschirm sperren" en="Lock screen" fr="Écran verrouillé" it="Blocca schermo"/>
 				<en_errors_ base="Errors:" de="Fehler:" en="Errors:" fr="Erreurs:" it="Errori:"/>
@@ -320,7 +320,7 @@
 				<en_last_name base="Last name" de="Nachname" en="Last name" fr="Nom de famille" it="Cognome"/>
 				<en_username base="Username" de="Benutzername" en="Username" fr="Nom d'utilisateur" it="Nome utente"/>
 				<en_missing_data base="Missing data" de="Fehlende Daten" en="Missing data" fr="Données manquantes" it="Dati mancanti"/>
-				<en_workdate base="Workdate" de="Workdate" en="Workdate" fr="Workdate" it="DataLavoro"/>
+				<en_workdate base="Workdate" de="Workdate" en="Workdate" fr="Workdate" it="Data di lavoro"/>
 		</frameindex>
 		<frameplugin_menu>
 			<frameplugin_menu ext="py" path="resources/frameplugin_menu/frameplugin_menu.py">
@@ -394,11 +394,11 @@
 								<en_bottom base="Bottom" de="Boden" en="Bottom" fr="Bas" it="Fondo"/>
 								<en_left base="Left" de="Links" en="Left" fr="Gauche" it="Sinistra"/>
 								<en_right base="Right" de="Recht" en="Right" fr="Droite" it="Destra"/>
-								<en_s_height _tag="en__s_height" base="%s height" de="%s Höhe" en="%s height" fr="%s hauteur" it="%s Altezza"/>
-								<en_s _tag="en__s" base="%s" de="% S" en="%s" fr="% S" it="% S"/>
+								<en_s_height _tag="en__s_height" base="%s height" de="%s Höhe" en="[0] height" fr="%s hauteur" it="%s Altezza"/>
+								<en_s _tag="en__s" base="%s" de="% S" en="[0]" fr="% S" it="% S"/>
 								<en_center_height base="Center height" de="Spitzenhöhe" en="Center height" fr="Hauteur de pointes" it="Altezza di punte"/>
 								<en_center_width base="Center width" de="Spitzenweite" en="Center width" fr="La largeur centrale" it="Larghezza Centro"/>
-								<en_s_width _tag="en__s_width" base="%s width" de="%s Breite" en="%s width" fr="%s Largeur" it="%s larghezza"/>
+								<en_s_width _tag="en__s_width" base="%s width" de="%s Breite" en="[0] width" fr="%s Largeur" it="%s larghezza"/>
 				</th_htmltemplate>
 			</htmltemplate>
 				<notification>
@@ -470,7 +470,7 @@
 				<en_startpage base="Startpage" de="Startseite" en="Startpage" fr="Page d'accueil" it="Startpage"/>
 				<en_user_start_page base="User start page" de="Benutzer Startseite" en="User start page" fr="page de démarrage de l'utilisateur" it="Pagina iniziale User"/>
 				<en_email base="Email" de="E-Mail-" en="Email" fr="Email" it="Email"/>
-				<en_locale base="Locale" de="Lokal" en="Local" fr="Local" it="Locale"/>
+				<en_locale base="Locale" de="Lokal" en="Locale" fr="Local" it="Locale"/>
 		</user_page>
 		<user_preference ext="py" path="webpages/user_preference.py">
 			<en_preference_panel base="Preference panel" de="Fenster zu" en="Preference panel" fr="panneau de préférence" it="Pannello Preferenze"/>
