@@ -114,37 +114,32 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
 
-    trigger_data:function(prop, kw) {
-        var dpath = kw.pathlist.slice(1).join('.');
-        var mydpath = this.attrDatapath(prop);
-        if (mydpath == null) {
+    getTriggerReason:function(pathToCheck,kw){
+        if(!pathToCheck){
             return;
         }
-        if (mydpath.indexOf('#parent') > 0) {
-            mydpath = gnr.bagRealPath(mydpath);
+        var eventpath = kw.pathlist.slice(1).join('.');
+        if (pathToCheck.indexOf('#parent') > 0) {
+            pathToCheck = gnr.bagRealPath(pathToCheck);
         }
-        if (mydpath.indexOf('?') >= 0) {
-            if ((kw.updattr) || (kw.evt=='fired') ||(mydpath.indexOf('?=') >= 0)) {
-                mydpath = mydpath.split('?')[0];
+        if (pathToCheck.indexOf('?') >= 0) {
+            if ((kw.updattr) || (kw.evt=='fired') ||(pathToCheck.indexOf('?=') >= 0)) {
+                pathToCheck = pathToCheck.split('?')[0];
             }
         }
+        if (pathToCheck == eventpath) {
+            return 'node';
+        }else if (pathToCheck.indexOf(eventpath + '.') == 0) { 
+            return 'container';
+        }
+        else if (eventpath.indexOf(pathToCheck + '.') == 0) {
+            return 'child';
+        }
+    },
 
-        var trigger_reason = null;
-        var eqpath = (mydpath == dpath);
-        if (eqpath) {
-            trigger_reason = 'node';
-        }
-        var changed_container = (mydpath.indexOf(dpath + '.') == 0);
-        if (changed_container) { 
-            trigger_reason = 'container';
-        }
-        var changed_child = (dpath.indexOf(mydpath + '.') == 0);
-        if (changed_child) {
-            trigger_reason = 'child';
-        }
+    trigger_data:function(prop, kw) {
+        var trigger_reason = this.getTriggerReason(this.attrDatapath(prop),kw)
         if (trigger_reason) {
-            //if((mydpath==dpath)|| (mydpath.indexOf(dpath+'.')==0)  ||(dpath.indexOf(mydpath+'.')==0)){
-            //genro.debug(kw.evt+' data node at path:'+dpath+' ('+prop+') - updating sourceNode:'+mydpath,null,'trigger_data');
             if ((kw.evt == 'fired') && (trigger_reason == 'child')) {
                 // pass fired event on child datapath: get only parent changes for variable datapaths
             } else if (kw.evt == 'invalid') {
@@ -157,7 +152,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }else{
                     this.setDataNodeValue(kw.node, kw, trigger_reason);
                 }
-                
             }
             else {
                 if (kw.reason != this) {

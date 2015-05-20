@@ -229,7 +229,7 @@
 <en_the_selected_object_will_be_permanently_deleted_ fr="L'objet sélectionné sera définitivement supprimé:" de="Das ausgewählte Objekt dauerhaft gelöscht werden:" en="The selected object will be permanently deleted:" it="L'oggetto selezionato verrà eliminato definitivamente:" base="The selected object will be permanently deleted:"></en_the_selected_object_will_be_permanently_deleted_></userobject></foundation>
 <gnrcomponents><attachmanager><attachmanager path="resources/common/gnrcomponents/attachmanager/attachmanager.py" ext="py"><en_filepath fr="Chemin Du Fichier" de="Dateipfad" en="Filepath" it="Filepath" base="Filepath"></en_filepath>
 <en_imp_ fr="Imp." de="Imp." en="Imp." it="Imp." base="Imp."></en_imp_>
-<en_drop_area fr="Zone baisse" de="Drop Bereich" en="Drop Area" it="Goccia Area" base="Drop Area"></en_drop_area>
+<en_drop_area fr="Zone baisse" en="Drop Area" de="Drop Bereich" it="Trascina qui" base="Drop Area"></en_drop_area>
 <en_attachment fr="Attachement" de="Befestigung" en="Attachment" it="Attaccamento" base="Attachment"></en_attachment>
 <en_attachments fr="Pièces jointes" de="Zubehör" en="Attachments" it="Allegati" base="Attachments"></en_attachments>
 <en_delete_attachment fr="Supprimer la pièce jointe" de="Anhang löschen" en="Delete attachment" it="Elimina allegato" base="Delete attachment"></en_delete_attachment>
