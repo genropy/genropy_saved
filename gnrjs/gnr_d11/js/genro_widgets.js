@@ -468,7 +468,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             newobj.validate_replaced = newobj.validate;
             newobj.validate = function(isFocused){
                 if(this._isvalid==false && this.value){
-                    this.sourceNode._validations.error = 'Invalid';
+                    this.sourceNode._validations.error = _T'Invalid');
                 }
                 var isValid = this.validate_replaced(isFocused);
                 var sourceNode = this.sourceNode;
