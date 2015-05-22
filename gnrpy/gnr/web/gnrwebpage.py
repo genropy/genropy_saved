@@ -856,13 +856,13 @@ class GnrWebPage(GnrBaseWebPage):
             __mixin_path_list = __mixin_path.split('/')
             self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
-            proxy_object,submethod = self._getProxyObject(method)                 
+            proxy_object,submethod = self._getProxyObject(method)
         else:
             proxy_object = self
             submethod = method
         handler = getattr(proxy_object, submethod, None)
         if not handler or not getattr(handler, 'is_rpc', False):
-            handler = getattr(proxy_object, '%s_%s' % (prefix, submethod))
+            handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)
         
         if handler and getattr(handler, 'tags',None):
             if not self.application.checkResourcePermission(handler.tags, self.userTags):
