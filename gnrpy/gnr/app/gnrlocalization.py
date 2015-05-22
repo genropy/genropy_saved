@@ -133,11 +133,14 @@ class AppLocalizer(object):
             safekey = '[%i]' %len(safedict)
             safedict[safekey] = m.group(1)
             return safekey
-
         for lockey,locdict in self.localizationDict.items():
             safedict = dict()
             base_to_translate = SAFEAUTOTRANSLATE.sub(cb,locdict['base'])
+            baselang = lockey.split('_',1)[0]
             for lang in languages:
+                if lang==baselang:
+                    locdict[lang] = base_to_translate
+                    continue
                 if not locdict.get(lang):
                     translated = self.translator.translate(base_to_translate,lang)
                     for k,v in safedict.items():

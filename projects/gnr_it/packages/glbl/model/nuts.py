@@ -3,15 +3,15 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('nuts', pkey='id', name_long='!!Nomeclatura statistica', 
-                name_plural='!!Nomenclatura statistica',
+        tbl = pkg.table('nuts', pkey='id', name_long='!![it]Nomeclatura statistica', 
+                name_plural='!![it]Nomenclatura statistica',
                 caption_field='description',rowcaption='$code,$description')
         self.sysFields(tbl,hierarchical=True)
-        tbl.column('code' ,size=':128' ,name_long='!!Code')
-        tbl.column('description' ,name_long='!!Description',name_short='Label')
-        tbl.column('level',dtype='I',name_long='!!Level')
-        tbl.column('country',size='2',name_long='!!Country')
-        tbl.column('country_iso',size='2',name_long='!!Country').relation('glbl.nazione.code',relation_name='nuts',mode='foreignkey',onDelete='raise',deferred=True)
+        tbl.column('code' ,size=':128' ,name_long='!![it]Code')
+        tbl.column('description' ,name_long='!![it]Description',name_short='Label')
+        tbl.column('level',dtype='I',name_long='!![it]Level')
+        tbl.column('country',size='2',name_long='!![it]Country')
+        tbl.column('country_iso',size='2',name_long='!![it]Country').relation('glbl.nazione.code',relation_name='nuts',mode='foreignkey',onDelete='raise',deferred=True)
 
    #def setParent(self):
    #    f = nuts.query(order_by='$code',for_update=True,addPkeyColumn=False).fetch()

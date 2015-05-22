@@ -1,2 +1,21 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><gnr _T="NN" _key="gnr"/></GenRoBag>
+<?xml version="1.0" ?>
+<GenRoBag>
+	<menu ext="py" path="menu.py">
+		<en_error base="Error" de="Fehler" en="Error" fr="Erreur" it="Errore"/>
+		<en_sync_out base="Sync_out"/>
+		<en_transaction base="Transaction"/>
+	</menu>
+
+	<resources>
+		<tables>
+			<transaction>
+				<action>
+					<import_transaction ext="py" path="resources/tables/transaction/action/import_transaction.py">
+						<en_how_many base="How many"/>
+										<en_commit_on_row base="Commit on row"/>
+					</import_transaction>
+				</action>
+			</transaction>
+		</tables>
+	</resources>
+</GenRoBag>

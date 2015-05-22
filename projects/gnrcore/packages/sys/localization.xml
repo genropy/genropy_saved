@@ -163,7 +163,7 @@
 		</system_dashboard>
 		<tableconf ext="py" path="webpages/tableconf.py">
 			<en_column_configuration base="Column configuration" de="Spaltenkonfiguration" en="Column configuration" fr="Configuration de colonne" it="Configurazione delle colonne"/>
-				<en_fieldstree base="Fieldstree" de="Feld Baum" en="Field Tree" fr="Arbre Champ" it="Campo Albero"/>
+				<en_fieldstree base="Fieldstree" de="Feld Baum" en="Fieldstree" fr="Arbre Champ" it="Campo Albero"/>
 		</tableconf>
 	</webpages>
 </GenRoBag>

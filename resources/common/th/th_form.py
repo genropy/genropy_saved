@@ -101,7 +101,7 @@ class TableHandlerForm(BaseComponent):
                 th_class = th_attributes.get('_class') or ''
                 th_attributes['_class'] = '%s th_form_not_allowed' %th_class
         table = form.getInheritedAttributes()['table']
-        form.dataController("""var title = newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+caption);
+        form.dataController("""var title = newrecord?( newTitleTemplate? dataTemplate(newTitleTemplate,record): caption ): (titleTemplate? dataTemplate(titleTemplate,record) : tablename+': '+(caption||''));
                             
                             SET #FORM.controller.title = title;
                             this.form.publish('onChangedTitle',{title:title});

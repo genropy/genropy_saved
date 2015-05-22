@@ -1665,7 +1665,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         var cellmap = this.grid.cellmap;
         var rebuildStructure = false;
         for(var p in this.cellpars){
-            if(dpath==this.sourceNode.absDatapath(p).split('?')[0]){
+            var trigger_reason = this.sourceNode.getTriggerReason(this.sourceNode.absDatapath(p),kw);
+            if(trigger_reason && trigger_reason!='child'){
                 for(var f in this.cellpars[p]){
                     var reasons = this.cellpars[p][f];
                     for(var reason in reasons){
